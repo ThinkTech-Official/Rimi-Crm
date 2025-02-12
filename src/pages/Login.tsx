@@ -23,7 +23,7 @@ const Login = () => {
     formState: { errors },
   } = useForm();
 
-  const onSubmit = async (data: any) => {
+  const onSubmit = async () => {
     // console.log(data);
     //   const resp = await login(data);
     //   if (resp?.user) {
@@ -33,6 +33,7 @@ const Login = () => {
     // display error
     // console.log(resp?.response?.data?.errors[0]?.msg);
     // setErrMsg(resp?.response?.data?.errors[0]?.msg);
+    setErrMsg("Networ error")
     // setShow(true);
     //   }
   };
@@ -146,13 +147,13 @@ const Login = () => {
                   <div className=" flex flex-col gap-4">
                     <button
                       type="submit"
-                      className="flex w-full justify-center rounded-md bg-[#4340DA] px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-[#405ada] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 cursor-pointer"
+                      className="flex w-full justify-center rounded-md bg-[#4340DA] px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-[#405ada] focus-visible:outline-offset-2 focus-visible:outline-indigo-600 cursor-pointer"
                     >
                       Sign in
                     </button>
                     <button
                       type="submit"
-                      className="flex w-full justify-center rounded-md bg-[#fff] px-3 py-1.5 text-sm font-semibold leading-6 text-[#000] shadow-sm hover:bg-[#fff] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 cursor-pointer"
+                      className="flex w-full justify-center rounded-md bg-[#fff] px-3 py-1.5 text-sm font-semibold leading-6 text-[#000] shadow-sm hover:bg-[#fff] focus-visible:outline-offset-2 focus-visible:outline-indigo-600 cursor-pointer"
                     >
                       Forgot Password
                     </button>
