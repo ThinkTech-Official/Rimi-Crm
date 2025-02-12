@@ -1,28 +1,10 @@
-/*
-  This example requires some changes to your config:
-  
-  ```
-  // tailwind.config.js
-  module.exports = {
-    // ...
-    plugins: [
-      // ...
-      require('@tailwindcss/forms'),
-    ],
-  }
-  ```
-*/
+
 import { Fragment, useState } from 'react'
-import { Dialog, Menu, Transition } from '@headlessui/react'
+import { Dialog, Transition } from '@headlessui/react'
 import {
   Bars3Icon,
-  BellIcon,
   CalendarIcon,
-  ChartPieIcon,
-  Cog6ToothIcon,
-  DocumentDuplicateIcon,
   FolderIcon,
-  HomeIcon,
   UsersIcon,
   XMarkIcon,
   BriefcaseIcon,
@@ -30,7 +12,7 @@ import {
   ClipboardDocumentIcon,
   UserPlusIcon
 } from '@heroicons/react/24/outline'
-import { ChevronDownIcon, MagnifyingGlassIcon } from '@heroicons/react/20/solid'
+
 
 
 
@@ -49,10 +31,10 @@ const navigation = [
 //   { id: 2, name: 'Tailwind Labs', href: '#', initial: 'T', current: false },
 //   { id: 3, name: 'Workcation', href: '#', initial: 'W', current: false },
 // ]
-const userNavigation = [
-  { name: 'Your profile', href: '#' },
-  { name: 'Sign out', href: '#' },
-]
+// const userNavigation = [
+//   { name: 'Your profile', href: '#' },
+//   { name: 'Sign out', href: '#' },
+// ]
 
 function classNames(...classes: any) {
   return classes.filter(Boolean).join(' ')

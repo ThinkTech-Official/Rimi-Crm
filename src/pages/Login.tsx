@@ -1,4 +1,4 @@
-import React, { useState, Fragment } from "react";
+import { useState, Fragment } from "react";
 import { useForm } from "react-hook-form";
 import { Transition } from "@headlessui/react";
 import { XCircleIcon } from "@heroicons/react/24/outline";
