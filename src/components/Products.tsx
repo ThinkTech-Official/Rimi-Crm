@@ -43,7 +43,7 @@ const Products: React.FC = () => {
         <div className=" flex justify-between items-center border-b py-2 border-slate-200 w-full">
             {langauge === 'En' ? <p>{products[2].name}</p> : <p>{products[2].nameFr}</p>}
             <div className=" flex gap-2">
-            <button className=" px-2 py-2 border border-slate-400 shadow-2xl flex gap-2 cursor-pointer"><PencilSquareIcon className="h-6 w-6" aria-hidden="true" /> {langauge=== 'En' ? 'Bulk upload' : 'Télécharger en groupe' }</button>
+            <button className=" px-2 py-2 border border-slate-400 shadow-2xl flex gap-2 cursor-pointer"><ArrowUpTrayIcon className="h-6 w-6" aria-hidden="true" /> {langauge=== 'En' ? 'Bulk upload' : 'Télécharger en groupe' }</button>
             <button className=" px-2 py-2 border border-slate-400 shadow-2xl flex gap-2 cursor-pointer"><PencilSquareIcon className="h-6 w-6" aria-hidden="true" /> {langauge=== 'En' ? 'Application Form' : 'Formulaire de demande' }</button>
             </div>
             
