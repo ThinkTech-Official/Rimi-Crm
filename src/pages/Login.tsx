@@ -1,4 +1,4 @@
-import { useState, Fragment } from "react";
+import { useState, Fragment, useContext } from "react";
 import { useForm } from "react-hook-form";
 import { Transition } from "@headlessui/react";
 import { XCircleIcon } from "@heroicons/react/24/outline";
@@ -8,9 +8,12 @@ import { XMarkIcon } from "@heroicons/react/20/solid";
 
 import rimilogo from "../assets/rimi_en.png";
 import five from "../assets/login2.avif";
+import { LangContext } from "../context/LangContext";
 
 const Login = () => {
   // const navigate = useNavigate();
+
+  const { langauge } = useContext(LangContext);
 
   const [show, setShow] = useState(false);
   const [errMsg, setErrMsg] = useState("");
@@ -33,7 +36,7 @@ const Login = () => {
     // display error
     // console.log(resp?.response?.data?.errors[0]?.msg);
     // setErrMsg(resp?.response?.data?.errors[0]?.msg);
-    setErrMsg("Networ error")
+    setErrMsg("Networ error");
     // setShow(true);
     //   }
   };
@@ -61,7 +64,7 @@ const Login = () => {
               </a>
 
               <h2 className="mt-8 text-2xl font-bold leading-9 tracking-tight text-gray-900">
-                Login
+                {langauge === "En" ? <p>Login</p> : <p>Se connecter</p>}
               </h2>
               {/* <p className="mt-2 text-sm leading-6 text-gray-500">
                     Not a member?{' '}
@@ -83,7 +86,7 @@ const Login = () => {
                       htmlFor="email"
                       className="block text-sm font-medium leading-6 text-gray-900"
                     >
-                      Email address
+                      {langauge === "En" ? <p>Email address</p> : <p>Adresse email</p>}
                     </label>
                     <div className="mt-2">
                       <input
@@ -105,7 +108,7 @@ const Login = () => {
                       htmlFor="password"
                       className="block text-sm font-medium leading-6 text-gray-900"
                     >
-                      Password
+                      {langauge === "En" ? <p>Password</p> : <p>Mot de passe</p>}
                     </label>
                     <div className="mt-2">
                       <input
@@ -149,13 +152,13 @@ const Login = () => {
                       type="submit"
                       className="flex w-full justify-center rounded-md bg-[#4340DA] px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-[#405ada] focus-visible:outline-offset-2 focus-visible:outline-indigo-600 cursor-pointer"
                     >
-                      Sign in
+                      {langauge === "En" ? <p>Sign in</p> : <p>Se connecter</p>}
                     </button>
                     <button
                       type="submit"
                       className="flex w-full justify-center rounded-md bg-[#fff] px-3 py-1.5 text-sm font-semibold leading-6 text-[#000] shadow-sm hover:bg-[#fff] focus-visible:outline-offset-2 focus-visible:outline-indigo-600 cursor-pointer"
                     >
-                      Forgot Password
+                      {langauge === "En" ? <p>Forgot Password</p> : <p>Mot de passe oublié</p>}
                     </button>
                   </div>
                 </form>

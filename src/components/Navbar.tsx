@@ -7,15 +7,25 @@ import {
   Bars3Icon,
   XCircleIcon
 } from "@heroicons/react/24/outline";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { Link } from "react-router-dom";
+import { LangContext } from "../context/LangContext";
 
 export default function Navbar() {
+
+  const { langauge, setLangauge } = useContext(LangContext)
+
   const [showSlider, setShowSlider] = useState(false);
 
   const handleShowClick = () => {
     setShowSlider(!showSlider)
   }
+
+  const handleSetLangauge = (lang: string) => {
+    setLangauge(lang)
+  }
+
+  
 
   return (
     <>
@@ -55,14 +65,14 @@ export default function Navbar() {
                   <p className=" cursor-pointer">Username</p>
                   <ChevronDownIcon className="size-4 text-white" />
                   <div className=" hidden group-hover:block absolute top-9 z-50 border-2 border-blue-400">
-                    <div className=" w-28 bg-white text-black  text-nowrap flex flex-col gap-4 px-2 py-2">
+                    <div className=" w-32 bg-white text-black  text-nowrap flex flex-col gap-4 px-2 py-2">
                       <div className=" relative group/submenu">
                         <div className=" flex flex-col ">
                           <div className=" cursor-pointer border-b-2 border-blue-100 pb-2">
-                            <p>Profile</p>
+                          {langauge === 'En' ? <p>Profile</p> : <p>profil</p>}
                           </div>
                           <div className=" cursor-pointer ">
-                            <p>Logout</p>
+                            {langauge === 'En' ? <p>Logout</p> : <p>Se Déconnecter</p>}
                           </div>
                         </div>
                       </div>
@@ -77,16 +87,16 @@ export default function Navbar() {
               <div className=" h-12 group flex items-center gap-2">
                 <LanguageIcon className="size-6 text-white" />
                 <div className=" relative flex gap-1 items-center">
-                  <p className=" cursor-pointer">En</p>
+                  <p className=" cursor-pointer">{langauge}</p>
                   <ChevronDownIcon className="size-4 text-white" />
                   <div className=" hidden group-hover:block absolute top-9 right-1  z-50 border-2 border-blue-400">
                     <div className=" w-16  bg-white text-black  text-nowrap flex flex-col gap-4 px-2 py-2">
                       <div className=" relative group/submenu">
                         <div className=" flex flex-col ">
-                          <div className=" cursor-pointer border-b-2 border-blue-100 pb-2">
+                          <div onClick={()=> handleSetLangauge('En')} className=" cursor-pointer border-b-2 border-blue-100 pb-2">
                             <p>En</p>
                           </div>
-                          <div className=" cursor-pointer ">
+                          <div onClick={()=> handleSetLangauge('Fr')} className=" cursor-pointer ">
                             <p>Fr</p>
                           </div>
                         </div>

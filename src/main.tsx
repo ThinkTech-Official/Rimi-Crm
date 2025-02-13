@@ -9,8 +9,10 @@ import {
   createBrowserRouter,
   createRoutesFromElements,
 } from "react-router-dom";
+
 import Login from './pages/Login.tsx';
 import Dashboard from './pages/Dashboard.tsx';
+import { LangContextProvider } from './context/LangContext.tsx';
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -23,6 +25,8 @@ const router = createBrowserRouter(
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
+    <LangContextProvider>
     <RouterProvider router={router} />
+    </LangContextProvider>
   </StrictMode>,
 )
