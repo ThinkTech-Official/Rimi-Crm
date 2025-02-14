@@ -307,7 +307,7 @@ export default function Dashboard() {
           <main className="py-10">
             <div className="px-4 sm:px-6 lg:px-8">
 
-              {selectedComponent === 'none' ? <p>Welcome to Rimi Insurance Dashboard</p> : ''}
+              {selectedComponent === 'none' ? <div className=' h-full w-full flex justify-center items-center'><p className=' text-2xl text-gray-700'>Welcome to Rimi Insurance Dashboard</p></div> : ''}
               {selectedComponent === 'product' ? <Products /> : ''}
               {selectedComponent === 'quotes-search' ? <QuotesSearch /> : ''}
               {selectedComponent === 'policy-search' ? <PoliciesSearch /> : ''}
