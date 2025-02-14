@@ -67,7 +67,7 @@ const TripCalculator: React.FC = () => {
           <span className="ml-2">Calculate New Date</span>
         </label>
       </div>
-      <div className="flex justify-center space-x-6 mb-4">
+      <div className="flex flex-col md:flex-row gap-4 justify-center space-x-6 mb-4">
         <div className=" space-y-2">
           <label className="block text-gray-700">START DATE</label>
           <input
@@ -78,7 +78,7 @@ const TripCalculator: React.FC = () => {
           />
         </div>
         {calculationType === "duration" ? (
-          <div>
+          <div className=" space-y-2">
             <label className="block text-gray-700">END DATE</label>
             <input
               type="date"
@@ -88,9 +88,11 @@ const TripCalculator: React.FC = () => {
             />
           </div>
         ) : (
-          <div className="flex justify-start space-x-6 mb-4">
+          <div className="flex flex-col md:flex-row  justify-start space-x-6 mb-4">
             <div className=" space-y-2">
-              <label className="block text-gray-700 text-md">Add/Subtract:</label>{" "}
+              <label className="block text-gray-700 text-md">
+                Add/Subtract:
+              </label>{" "}
               <select
                 className="p-2 border rounded"
                 onChange={(e) => setOperation(e.target.value)}
@@ -99,37 +101,39 @@ const TripCalculator: React.FC = () => {
                 <option value="subtract">(-) Subtract</option>
               </select>
             </div>
-            <div className=" space-y-2">
-              <label className="block text-gray-700">Years</label>
-              <input
-                className=" w-16 p-2 border rounded"
-                placeholder="Years"
-                onChange={(e) => setYears(e.target.value)}
-              />{" "}
-            </div>
-            <div className=" space-y-2">
-              <label className="block text-gray-700">Months</label>
-              <input
-                className=" w-16 p-2 border rounded"
-                placeholder="Months"
-                onChange={(e) => setMonths(e.target.value)}
-              />{" "}
-            </div>
-            <div className=" space-y-2">
-              <label className="block text-gray-700">Weeks</label>
-              <input
-                className=" w-16 p-2 border rounded"
-                placeholder="Weeks"
-                onChange={(e) => setWeeks(e.target.value)}
-              />{" "}
-            </div>
-            <div className=" space-y-2">
-              <label className="block text-gray-700">Days</label>
-              <input
-                className=" w-16 p-2 border rounded"
-                placeholder="Days"
-                onChange={(e) => setDays(e.target.value)}
-              />{" "}
+            <div className="flex justify-start space-x-6 ">
+              <div className=" space-y-2">
+                <label className="block text-gray-700">Years</label>
+                <input
+                  className=" w-16 p-2 border rounded"
+                  placeholder="Years"
+                  onChange={(e) => setYears(e.target.value)}
+                />{" "}
+              </div>
+              <div className=" space-y-2">
+                <label className="block text-gray-700">Months</label>
+                <input
+                  className=" w-16 p-2 border rounded"
+                  placeholder="Months"
+                  onChange={(e) => setMonths(e.target.value)}
+                />{" "}
+              </div>
+              <div className=" space-y-2">
+                <label className="block text-gray-700">Weeks</label>
+                <input
+                  className=" w-16 p-2 border rounded"
+                  placeholder="Weeks"
+                  onChange={(e) => setWeeks(e.target.value)}
+                />{" "}
+              </div>
+              <div className=" space-y-2">
+                <label className="block text-gray-700">Days</label>
+                <input
+                  className=" w-16 p-2 border rounded"
+                  placeholder="Days"
+                  onChange={(e) => setDays(e.target.value)}
+                />{" "}
+              </div>
             </div>
           </div>
         )}
