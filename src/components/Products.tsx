@@ -27,7 +27,7 @@ const Products: React.FC = () => {
 
   return (
     <div className="max-w-4xl mx-auto mt-10">
-      <h2 className="text-xl font-semibold text-center text-[#3a17c5] mb-4">PRODUCTS</h2>
+      <h2 className="text-xl font-semibold text-center text-[#3a17c5] mb-4">{ langauge === 'En' ? 'PRODUCTS' : 'PRODUITS'}</h2>
       <div className=" max-w-4xl">
 
         <div className=" flex justify-between items-center border-b py-2 border-slate-200 w-full">

@@ -1,6 +1,8 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
+import { LangContext } from "../context/LangContext";
 
 const TripCalculator: React.FC = () => {
+  const { langauge } = useContext(LangContext)
   const [calculationType, setCalculationType] = useState("duration");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
@@ -45,7 +47,7 @@ const TripCalculator: React.FC = () => {
   return (
     <div className="max-w-4xl mx-auto mt-10 p-6  rounded-lg shadow-2xl text-center">
       <h2 className="text-xl font-semibold text-[#3a17c5] mb-4">
-        TRIP CALCULATOR
+        { langauge === 'En' ? 'TRIP CALCULATOR' : 'CALCULATEUR DE VOYAGE'}
       </h2>
       <div className="flex justify-center space-x-4 mb-4">
         <label>
@@ -55,7 +57,7 @@ const TripCalculator: React.FC = () => {
             checked={calculationType === "duration"}
             onChange={() => setCalculationType("duration")}
           />
-          <span className="ml-2">Calculate Duration</span>
+          <span className="ml-2">{ langauge === 'En' ? 'Calculate Duration' : 'Calculer la durée'}</span>
         </label>
         <label>
           <input
@@ -64,12 +66,12 @@ const TripCalculator: React.FC = () => {
             checked={calculationType === "newDate"}
             onChange={() => setCalculationType("newDate")}
           />
-          <span className="ml-2">Calculate New Date</span>
+          <span className="ml-2">{ langauge === 'En' ? 'Calculate New Date' : 'Calculer la nouvelle date'}</span>
         </label>
       </div>
       <div className="flex flex-col md:flex-row gap-4 justify-center space-x-6 mb-4">
         <div className=" space-y-2">
-          <label className="block text-gray-700">START DATE</label>
+          <label className="block text-gray-700">{ langauge === 'En' ? 'START DATE' : 'DATE DE DÉBUT'}</label>
           <input
             type="date"
             className="p-2 border rounded"
@@ -79,7 +81,7 @@ const TripCalculator: React.FC = () => {
         </div>
         {calculationType === "duration" ? (
           <div className=" space-y-2">
-            <label className="block text-gray-700">END DATE</label>
+            <label className="block text-gray-700">{ langauge === 'En' ? 'END DATE' : 'DATE DE FIN'}</label>
             <input
               type="date"
               className="p-2 border rounded"
@@ -91,19 +93,19 @@ const TripCalculator: React.FC = () => {
           <div className="flex flex-col md:flex-row  justify-start space-x-6 mb-4">
             <div className=" space-y-2">
               <label className="block text-gray-700 text-md">
-                Add/Subtract:
+              { langauge === 'En' ? 'Add/Subtract:' : 'Ajouter/Soustraire :'}
               </label>{" "}
               <select
                 className="p-2 border rounded"
                 onChange={(e) => setOperation(e.target.value)}
               >
-                <option value="add">(+) Add</option>
-                <option value="subtract">(-) Subtract</option>
+                <option value="add">(+){ langauge === 'En' ? 'Add' : 'Ajouter'} </option>
+                <option value="subtract">(-){ langauge === 'En' ? 'Subtract' : 'Soustraire'} </option>
               </select>
             </div>
             <div className="flex justify-start space-x-6 ">
               <div className=" space-y-2">
-                <label className="block text-gray-700">Years</label>
+                <label className="block text-gray-700">{ langauge === 'En' ? 'Years' : 'Ans'}</label>
                 <input
                   className=" w-16 p-2 border rounded"
                   placeholder="Years"
@@ -111,7 +113,7 @@ const TripCalculator: React.FC = () => {
                 />{" "}
               </div>
               <div className=" space-y-2">
-                <label className="block text-gray-700">Months</label>
+                <label className="block text-gray-700">{ langauge === 'En' ? 'Months' : 'Mois'}</label>
                 <input
                   className=" w-16 p-2 border rounded"
                   placeholder="Months"
@@ -119,7 +121,7 @@ const TripCalculator: React.FC = () => {
                 />{" "}
               </div>
               <div className=" space-y-2">
-                <label className="block text-gray-700">Weeks</label>
+                <label className="block text-gray-700">{ langauge === 'En' ? 'Weeks' : 'Semaines'}</label>
                 <input
                   className=" w-16 p-2 border rounded"
                   placeholder="Weeks"
@@ -127,7 +129,7 @@ const TripCalculator: React.FC = () => {
                 />{" "}
               </div>
               <div className=" space-y-2">
-                <label className="block text-gray-700">Days</label>
+                <label className="block text-gray-700">{ langauge === 'En' ? 'Days' : 'Jours'}</label>
                 <input
                   className=" w-16 p-2 border rounded"
                   placeholder="Days"
@@ -155,13 +157,13 @@ const TripCalculator: React.FC = () => {
           className="bg-[#3a17c5] text-white p-2 rounded hover:bg-[#3a17c5] transition cursor-pointer"
           onClick={calculateResult}
         >
-          CALCULATE
+          { langauge === 'En' ? 'CALCULATE' : 'CALCULER'}
         </button>
       </div>
       {result && (
         <div className="mt-4 text-lg font-semibold text-[#3a17c5]">
-          Result: {result}
-          <p className=" text-sm text-gray-700">From Start Date: {startDate}</p>
+          { langauge === 'En' ? 'Result:' : 'Résultat:'} {result}
+          <p className=" text-sm text-gray-700">{ langauge === 'En' ? 'From Start Date:' : 'À partir de la date de début :'} {startDate}</p>
         </div>
       )}
     </div>
