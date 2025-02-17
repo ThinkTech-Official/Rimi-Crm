@@ -10,6 +10,7 @@ import {
   CalculatorIcon,
   ClipboardDocumentIcon,
   UserPlusIcon,
+  ChevronRightIcon
 } from "@heroicons/react/24/outline";
 import { LangContext } from "../context/LangContext";
 import Products from "../components/Products";
@@ -20,6 +21,11 @@ import Users from "../components/Users";
 import CreateUser from "../components/CreateUser";
 import Documents from "../components/Documents";
 import TripCalculator from "../components/TripCalculator";
+import RIMICanuckVoyageTravelMedical from "../components/Products/RIMICanuckVoyageTravelMedical";
+import RIMICanuckVoyageNonMedicalTravel from "../components/Products/RIMICanuckVoyageNon-MedicalTravel";
+import SecureStudyRIMIInternationalStudentstoCanada from "../components/Products/SecureStudyRIMIInternationalStudentstoCanada";
+import SecureTravelRIMIVisitorstoCanadaTravel from "../components/Products/SecureTravelRIMIVisitorstoCanadaTravel";
+import BulkUpload from "../components/Products/BulkUpload";
 
 const navigation = [
   {
@@ -108,20 +114,26 @@ export default function Dashboard() {
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
+  // State of braedcrumbs
+  const [breadCrumbState, setBreadCrumbState] = useState<string[]>([])
+
   const handleSetComponent = (componentSeleted: string) => {
+    
+    
+    // if(selectedComponent === 'product' && componentSeleted ==='RIMI Canuck Voyage Travel Medical' || componentSeleted === 'RIMI Canuck Voyage Non-Medical Travel' || componentSeleted === 'Secure Study RIMI International Students to Canada' || componentSeleted === 'Secure Travel RIMI Visitors to Canada Travel'){
+    //   setBreadCrumbState([...breadCrumbState,componentSeleted])
+    // } else {
+      setBreadCrumbState([componentSeleted])
+    // }
     setSelectedComponent(componentSeleted);
+    // setBreadCrumbState([...breadCrumbState,componentSeleted])
   };
+
+  
 
   return (
     <>
-      {/*
-        This example requires updating your template:
-
-        ```
-        <html class="h-full bg-white">
-        <body class="h-full">
-        ```
-      */}
+      
       <div>
         <Transition.Root show={sidebarOpen} as={Fragment}>
           <Dialog
@@ -367,21 +379,26 @@ export default function Dashboard() {
             {/* <div className="h-6 w-px bg-gray-200 lg:hidden" aria-hidden="true" /> */}
           </div>
           <>
-          <div className=" px-5 py-4">
-          <p>{`breadcrumbs > page1`}</p>
+          {/* Bread crumbs STATE  */}
+          <div className=" px-5 py-4 flex gap-2">
+          {breadCrumbState.map((item) => (
+            
+              <p onClick={() => handleSetComponent(item)} key={item} className=" text-[#3a17c5] text-md underline flex items-center gap-2 cursor-pointer">{item.toLocaleUpperCase()} <ChevronRightIcon className="h-3 w-3" aria-hidden="true" /></p>
+            
+          ))}
           </div>
             <main className="py-10">
               <div className="px-4 sm:px-6 lg:px-8">
                 {selectedComponent === "none" ? (
                   <div className=" h-full w-full flex justify-center items-center">
-                    <p className=" text-2xl text-gray-700">
+                    <p className=" text-2xl text-[#3a17c5]">
                       Welcome to Rimi Insurance Dashboard
                     </p>
                   </div>
                 ) : (
                   ""
                 )}
-                {selectedComponent === "product" ? <Products /> : ""}
+                {selectedComponent === "product" ? <Products breadCrumbState={breadCrumbState} setBreadCrumbState={setBreadCrumbState} setSelectedComponent={setSelectedComponent} /> : ""}
                 {selectedComponent === "quotes-search" ? <QuotesSearch /> : ""}
                 {selectedComponent === "policy-search" ? <PoliciesSearch /> : ""}
                 {selectedComponent === "reporting" ? <Reporting /> : ""}
@@ -389,6 +406,17 @@ export default function Dashboard() {
                 {selectedComponent === "create-user" ? <CreateUser /> : ""}
                 {selectedComponent === "documents" ? <Documents /> : ""}
                 {selectedComponent === "trip-calculator" ? <TripCalculator /> : ""}
+
+                {/* products sub components  */}
+                {selectedComponent === "RIMI Canuck Voyage Travel Medical" ? <RIMICanuckVoyageTravelMedical /> : ""}
+                {selectedComponent === "RIMI Canuck Voyage Non-Medical Travel" ? <RIMICanuckVoyageNonMedicalTravel /> : ""}
+                {selectedComponent === "Secure Study RIMI International Students to Canada" ? <SecureStudyRIMIInternationalStudentstoCanada /> : ""}
+                {selectedComponent === "Secure Travel RIMI Visitors to Canada Travel" ? <SecureTravelRIMIVisitorstoCanadaTravel /> : ""}
+
+                {selectedComponent === "Bulk Upload" ? <BulkUpload /> : ""}
+
+                
+                {/*  */}
               </div>
             </main>
           </>
