@@ -383,7 +383,7 @@ export default function Dashboard() {
           <div className=" px-5 py-4 flex gap-2">
           {breadCrumbState.map((item) => (
             
-              <p onClick={() => handleSetComponent(item)} key={item} className=" text-[#3a17c5] text-md underline flex items-center gap-2 cursor-pointer">{item.toLocaleUpperCase()} <ChevronRightIcon className="h-3 w-3" aria-hidden="true" /></p>
+              <p onClick={() => handleSetComponent(item)} key={item} className=" text-[#3a17c5] text-sm font-semibold underline flex items-center gap-2 cursor-pointer">{item.toLocaleUpperCase()} <ChevronRightIcon className="h-3 w-3" aria-hidden="true" /></p>
             
           ))}
           </div>
