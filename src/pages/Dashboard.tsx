@@ -26,6 +26,7 @@ import RIMICanuckVoyageNonMedicalTravel from "../components/Products/CanuckVoyag
 import SecureStudyRIMIInternationalStudentstoCanada from "../components/Products/SecureStudyRIMIInternationalStudentstoCanada";
 import SecureTravelRIMIVisitorstoCanadaTravel from "../components/Products/SecureTravelRIMIVisitorstoCanadaTravel";
 import BulkUpload from "../components/Products/BulkUpload";
+import Analytics from "../components/analytics/Analytics";
 
 const navigation = [
   {
@@ -391,9 +392,10 @@ export default function Dashboard() {
               <div className="px-4 sm:px-6 lg:px-8">
                 {selectedComponent === "none" ? (
                   <div className=" h-full w-full flex justify-center items-center">
-                    <p className=" text-2xl text-[#3a17c5]">
+                    {/* <p className=" text-2xl text-[#3a17c5]">
                       Welcome to Rimi Insurance Dashboard
-                    </p>
+                    </p> */}
+                    <Analytics />
                   </div>
                 ) : (
                   ""
