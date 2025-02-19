@@ -1,6 +1,7 @@
 import MultiLineChart from "./charts/MultiLineChart";
 import PolicyAnalysis from "./charts/PolicyAnalysis";
 import QuotesAnalysis from "./charts/QuotesAnalysis";
+import QuotesVsPolicyConversion from "./charts/QuotesVsPolicyConversion";
 
 export default function Analytics() {
   return (
@@ -11,6 +12,9 @@ export default function Analytics() {
         </div>
         <div className=" mt-4 mb-4">
           <PolicyAnalysis />
+        </div>
+        <div className=" mt-4 mb-4">
+            <QuotesVsPolicyConversion />
         </div>
         <div className=" mt-4 mb-4">
           <MultiLineChart />
