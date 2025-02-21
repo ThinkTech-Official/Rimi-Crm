@@ -36,12 +36,12 @@ import QuoteSummary from "./step2/QuoteSummary";
 // ]
 
 const RIMICanuckVoyageNonMedicalTravel: React.FC = () => {
-  const [displayInfoDeductible, setDisplayInfoDeductible] = useState(false);
-  const [displayInfoDestinationCountry, setDisplayInfoDestinationCountry] =
-    useState(false);
+  // const [displayInfoDeductible, setDisplayInfoDeductible] = useState(false);
+  // const [displayInfoDestinationCountry, setDisplayInfoDestinationCountry] =
+  //   useState(false);
   const [displayInfoApplicantConfirm, setDisplayInfoApplicantConfirm] =
     useState(false);
-  const [travelingThroughUS, setTravelingThroughUS] = useState(false);
+  // const [travelingThroughUS, setTravelingThroughUS] = useState(false);
 
   // complete  current  upcoming
 
