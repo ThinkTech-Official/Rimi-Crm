@@ -23,9 +23,9 @@ import Documents from "../components/Documents";
 import TripCalculator from "../components/TripCalculator";
 import RIMICanuckVoyageTravelMedical from "../components/Products/CanuckVoyageComponenets/RIMICanuckVoyageTravelMedical";
 import RIMICanuckVoyageNonMedicalTravel from "../components/Products/CanuckVoyageNon-MedicalTravel/RIMICanuckVoyageNon-MedicalTravel";
-import SecureStudyRIMIInternationalStudentstoCanada from "../components/Products/SecureStudyRIMIInternationalStudentstoCanada";
+import SecureStudyRIMIInternationalStudentstoCanada from "../components/Products/SecureStudyRIMIInternationalStudentstoCanada/SecureStudyRIMIInternationalStudentstoCanada";
 import SecureTravelRIMIVisitorstoCanadaTravel from "../components/Products/SecureTravelRIMIVisitorstoCanadaTravel";
-import BulkUpload from "../components/Products/BulkUpload";
+import BulkUpload from "../components/Products/SecureStudyRIMIInternationalStudentstoCanada/BulkUpload";
 import Analytics from "../components/analytics/Analytics";
 
 const navigation = [

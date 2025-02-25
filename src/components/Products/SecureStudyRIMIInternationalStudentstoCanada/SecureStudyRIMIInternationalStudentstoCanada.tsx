@@ -1,92 +1,61 @@
-// export default function RIMICanuckVoyageNonMedicalTravel() {
-//   return (
-//     <div>RIMICanuckVoyageNon-MedicalTravel</div>
-//   )
-// }
-
-// export default function RIMICanuckVoyageTravelMedical() {
-//   return (
-//     <div>RIMICanuckVoyageTravelMedical</div>
-//   )
-// }
-
 import { CheckIcon } from "@heroicons/react/24/outline";
-import React, { useState } from "react";
+import { useState } from "react";
 import ApplicantInformation from "./step1/ApplicantInformation";
-import ApplicantInformationFinished from "./step2/ApplicantInformation";
-import TripInformation from "./step1/TripInformation";
+import CoverageInformation from "./step1/CoverageInformation";
+import QuoteSummary from "./step2/QuotesSummary";
+import ApplicantInformationFinished from "./step2/ApplicantInformationFinished";
 import ContactInformation from "./step2/ContactInformation";
-import Address from "./step2/Address";
-import PaymentInformation from "./step2/PaymentInformation";
-import QuoteSummary from "./step2/QuoteSummary";
-// import QuoteSummary from "./step2/QouteSummary";
-// import ContactInformation from "./step2/ContactInformation";
-// import Address from "./step2/Address";
-// import PaymentInformation from "./step2/PaymentInformation";
-// import ApplicantInformation from "./step1/ApplicantInformation";
-// import CoverageInformation from "./step1/CoverageInformation";
 
-// const steps = [
-//   { id: '01', name: 'Job details', href: '#', status: 'complete' },
-//   { id: '02', name: 'Application form', href: '#', status: 'current' },
-//   { id: '03', name: 'Preview', href: '#', status: 'upcoming' },
-// ]
 
-const RIMICanuckVoyageNonMedicalTravel: React.FC = () => {
-  // const [displayInfoDeductible, setDisplayInfoDeductible] = useState(false);
-  // const [displayInfoDestinationCountry, setDisplayInfoDestinationCountry] =
-  //   useState(false);
-  const [displayInfoApplicantConfirm, setDisplayInfoApplicantConfirm] =
-    useState(false);
-  // const [travelingThroughUS, setTravelingThroughUS] = useState(false);
+export default function SecureStudyRIMIInternationalStudentstoCanada() {
 
-  // complete  current  upcoming
 
   const [steps, setSteps] = useState([
-    { id: "01", name: "Get Quote", href: "#", status: "current" },
-    { id: "02", name: "Complete Application", href: "#", status: "upcoming" },
-    { id: "03", name: "Confirmation", href: "#", status: "upcoming" },
-  ]);
+      { id: "01", name: "Get Quote", href: "#", status: "current" },
+      { id: "02", name: "Complete Application", href: "#", status: "upcoming" },
+      { id: "03", name: "Confirmation", href: "#", status: "upcoming" },
+    ]);
+  
 
-  const [formStep, setFormStep] = useState(1);
+     const [formStep, setFormStep] = useState(1);
+    
+      const handleFormStepChange = (stepCommand: string) => {
+        setFormStep((prevStep) => {
+          let newStep = prevStep;
+    
+          if (stepCommand === "back" && prevStep > 1) {
+            newStep = prevStep - 1;
+          } else if (stepCommand === "forward" && prevStep < 3) {
+            newStep = prevStep + 1;
+          }
+    
+          // Update step statuses dynamically
+          const updatedSteps = steps.map((step) => ({
+            ...step,
+            status:
+              step.id === newStep.toString().padStart(2, "0")
+                ? "current"
+                : step.id < newStep.toString().padStart(2, "0")
+                ? "complete"
+                : "upcoming",
+          }));
+    
+          setSteps(updatedSteps);
+    
+          return newStep;
+        });
+      };
 
-  const handleFormStepChange = (stepCommand: string) => {
-    setFormStep((prevStep) => {
-      let newStep = prevStep;
-
-      if (stepCommand === "back" && prevStep > 1) {
-        newStep = prevStep - 1;
-      } else if (stepCommand === "forward" && prevStep < 3) {
-        newStep = prevStep + 1;
-      }
-
-      // Update step statuses dynamically
-      const updatedSteps = steps.map((step) => ({
-        ...step,
-        status:
-          step.id === newStep.toString().padStart(2, "0")
-            ? "current"
-            : step.id < newStep.toString().padStart(2, "0")
-            ? "complete"
-            : "upcoming",
-      }));
-
-      setSteps(updatedSteps);
-
-      return newStep;
-    });
-  };
-
-  const handleSubmit = () => {
-    console.log("Form Submitted");
-  };
+      const handleSubmit = () => {
+        console.log("Form Submitted");
+      };
 
   return (
     <div className="max-w-4xl mx-auto mt-10 p-6 bg-white rounded-lg shadow-lg">
       <div className="text-center mb-4">
         <h1 className="text-2xl font-bold text-[#3a17c5]">RIMI</h1>
         <h2 className="text-lg text-[#3a17c5]">
-          RIMI Canuck Voyage Non-Medical Travel Insurance
+        {"Secure Study RIMI International Students to Canada Insurance".toUpperCase()}
         </h2>
         <p className="text-sm text-blue-500">Coverage Summary</p>
       </div>
@@ -178,19 +147,18 @@ const RIMICanuckVoyageNonMedicalTravel: React.FC = () => {
         <div>
           {/* Applicant Information  */}
 
-          <ApplicantInformation
-            displayInfoApplicantConfirm={displayInfoApplicantConfirm}
-            setDisplayInfoApplicantConfirm={setDisplayInfoApplicantConfirm}
-          />
+          <ApplicantInformation />
 
           {/* // */}
 
-          {/* TRip INformation  */}
+          {/* Coverage Information  */}
 
-          <TripInformation />
+          <CoverageInformation />
+
 
           {/* // */}
 
+         
           <div className=" w-full h-28 flex items-center justify-start bg-slate-200 mt-5">
             <h3 className=" text-2xl ml-7">Your Quote: $0.00</h3>
           </div>
@@ -229,12 +197,12 @@ const RIMICanuckVoyageNonMedicalTravel: React.FC = () => {
 
           {/* Address  */}
 
-          <Address />
+          {/* <Address /> */}
 
           {/* // */}
 
           {/* Payment Information  */}
-          <PaymentInformation />
+          {/* <PaymentInformation /> */}
 
           {/* // */}
         </div>
@@ -277,8 +245,7 @@ const RIMICanuckVoyageNonMedicalTravel: React.FC = () => {
           </button>
         )}
       </div>
-    </div>
-  );
-};
 
-export default RIMICanuckVoyageNonMedicalTravel;
+      </div>
+  )
+}
