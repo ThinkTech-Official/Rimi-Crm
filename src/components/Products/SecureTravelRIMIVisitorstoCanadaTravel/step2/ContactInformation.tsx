@@ -5,7 +5,7 @@ import { useState } from "react"
 export default function ContactInformation() {
 
     const [displayInfoAddEmail,setDisplayInfoAddEmail] = useState(false)
-    const [displayInfoLegalGuardian,setDisplayInfoLegalGuardian] = useState(false)
+    // const [displayInfoLegalGuardian,setDisplayInfoLegalGuardian] = useState(false)
 
   return (
     <div className=" pb-4 mb-4 mt-4">
@@ -55,34 +55,9 @@ export default function ContactInformation() {
               />
             </div>
 
-            <div className=" flex justify-between mt-2">
-          <label className=" w-full mt-2 flex items-center gap-2">
-            <InformationCircleIcon
-              onClick={() =>
-                setDisplayInfoLegalGuardian((prevState) => !prevState)
-              }
-              className="h-5 w-5 text-[#3a17c5] cursor-pointer"
-              aria-hidden="true"
-            />
-            Name of Legal Guardian/Custodian{" "}
-          </label>
-          <input
-                className="w-full p-2 border rounded"
-                type="text"
-                placeholder=""
-              />
-        </div>
+           
 
-{displayInfoLegalGuardian && (
-     <div className="max-w-4xl mx-auto p-4 bg-white  rounded-lg border border-gray-200 mt-5 mb-5">
-     <h2 className="text-lg font-semibold bg-gray-100 px-4 py-2 rounded-t-lg">Name of Legal Guardian/Custodian</h2>
-     <div className="p-4 text-gray-700">
-       <p>
-         If you are under the age of 18, please provide the name of your legal guardian or custodian while studying in the USA.
-       </p>
-     </div>
-   </div>
-)}
+
 
             </div>
   )

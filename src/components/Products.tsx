@@ -64,7 +64,7 @@ const Products: React.FC<ProductsProps> = ({breadCrumbState , setBreadCrumbState
 
         <div className=" flex justify-between items-center border-b py-2 border-slate-200 w-full">
             {langauge === 'En' ? <p>{products[3].name}</p> : <p>{products[3].nameFr}</p>}
-            <button onClick={() => handleApplicationClick('RIMI Canuck Voyage Travel Medical')} className=" px-2 py-2 border border-slate-400 shadow-2xl flex gap-2 cursor-pointer"><PencilSquareIcon className="h-6 w-6" aria-hidden="true" /> {langauge=== 'En' ? 'Application Form' : 'Formulaire de demande' }</button>
+            <button onClick={() => handleApplicationClick('Secure Travel RIMI Visitors to Canada Travel')} className=" px-2 py-2 border border-slate-400 shadow-2xl flex gap-2 cursor-pointer"><PencilSquareIcon className="h-6 w-6" aria-hidden="true" /> {langauge=== 'En' ? 'Application Form' : 'Formulaire de demande' }</button>
         </div>
 
       </div>

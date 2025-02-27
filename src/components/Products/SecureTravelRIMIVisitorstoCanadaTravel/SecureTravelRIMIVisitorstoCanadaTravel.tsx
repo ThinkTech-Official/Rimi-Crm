@@ -2,7 +2,7 @@ import { CheckIcon } from "@heroicons/react/24/outline";
 import { useState } from "react";
 import ApplicantInformation from "./step1/ApplicantInformation";
 import CoverageInformation from "./step1/CoverageInformation";
-import QuoteSummary from "./step2/QuotesSummary";
+import YourQuoteSummary from "./step2/YourQuoteSummary";
 import ApplicantInformationFinished from "./step2/ApplicantInformationFinished";
 import ContactInformation from "./step2/ContactInformation";
 import Address from "./step2/Address";
@@ -10,55 +10,55 @@ import BeneficiaryInCaseOfDeath from "./step2/BeneficiaryInCaseOfDeath";
 import PaymentInformation from "./step2/PaymentInformation";
 
 
-export default function SecureStudyRIMIInternationalStudentstoCanada() {
-
+export default function SecureTravelRIMIVisitorstoCanadaTravel() {
 
   const [steps, setSteps] = useState([
-      { id: "01", name: "Get Quote", href: "#", status: "current" },
-      { id: "02", name: "Complete Application", href: "#", status: "upcoming" },
-      { id: "03", name: "Confirmation", href: "#", status: "upcoming" },
-    ]);
+        { id: "01", name: "Get Quote", href: "#", status: "current" },
+        { id: "02", name: "Complete Application", href: "#", status: "upcoming" },
+        { id: "03", name: "Confirmation", href: "#", status: "upcoming" },
+      ]);
+    
   
-
-     const [formStep, setFormStep] = useState(1);
-    
-      const handleFormStepChange = (stepCommand: string) => {
-        setFormStep((prevStep) => {
-          let newStep = prevStep;
-    
-          if (stepCommand === "back" && prevStep > 1) {
-            newStep = prevStep - 1;
-          } else if (stepCommand === "forward" && prevStep < 3) {
-            newStep = prevStep + 1;
-          }
-    
-          // Update step statuses dynamically
-          const updatedSteps = steps.map((step) => ({
-            ...step,
-            status:
-              step.id === newStep.toString().padStart(2, "0")
-                ? "current"
-                : step.id < newStep.toString().padStart(2, "0")
-                ? "complete"
-                : "upcoming",
-          }));
-    
-          setSteps(updatedSteps);
-    
-          return newStep;
-        });
-      };
-
-      const handleSubmit = () => {
-        console.log("Form Submitted");
-      };
+       const [formStep, setFormStep] = useState(1);
+      
+        const handleFormStepChange = (stepCommand: string) => {
+          setFormStep((prevStep) => {
+            let newStep = prevStep;
+      
+            if (stepCommand === "back" && prevStep > 1) {
+              newStep = prevStep - 1;
+            } else if (stepCommand === "forward" && prevStep < 3) {
+              newStep = prevStep + 1;
+            }
+      
+            // Update step statuses dynamically
+            const updatedSteps = steps.map((step) => ({
+              ...step,
+              status:
+                step.id === newStep.toString().padStart(2, "0")
+                  ? "current"
+                  : step.id < newStep.toString().padStart(2, "0")
+                  ? "complete"
+                  : "upcoming",
+            }));
+      
+            setSteps(updatedSteps);
+      
+            return newStep;
+          });
+        };
+  
+        const handleSubmit = () => {
+          console.log("Form Submitted");
+        };
+  
 
   return (
     <div className="max-w-4xl mx-auto mt-10 p-6 bg-white rounded-lg shadow-lg">
       <div className="text-center mb-4">
         <h1 className="text-2xl font-bold text-[#3a17c5]">RIMI</h1>
         <h2 className="text-lg text-[#3a17c5]">
-        {"Secure Study RIMI International Students to Canada Insurance".toUpperCase()}
+        {"Secure Travel RIMI Visitors to Canada Travel Insurance".toUpperCase()}
         </h2>
         <p className="text-sm text-blue-500">Coverage Summary</p>
       </div>
@@ -183,7 +183,7 @@ export default function SecureStudyRIMIInternationalStudentstoCanada() {
           {/* User qoutes Summary  */}
 
           {/* Quote Information  */}
-          <QuoteSummary />
+          <YourQuoteSummary />
           {/* // */}
 
           {/* Applicant Information  */}
@@ -206,7 +206,7 @@ export default function SecureStudyRIMIInternationalStudentstoCanada() {
 
           
           
-          <BeneficiaryInCaseOfDeath />
+         <BeneficiaryInCaseOfDeath />
 
 
           {/* Payment Information  */}

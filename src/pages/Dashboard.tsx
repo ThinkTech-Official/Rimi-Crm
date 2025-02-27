@@ -10,7 +10,8 @@ import {
   CalculatorIcon,
   ClipboardDocumentIcon,
   UserPlusIcon,
-  ChevronRightIcon
+  ChevronRightIcon,
+  ChartPieIcon
 } from "@heroicons/react/24/outline";
 import { LangContext } from "../context/LangContext";
 import Products from "../components/Products";
@@ -24,7 +25,7 @@ import TripCalculator from "../components/TripCalculator";
 import RIMICanuckVoyageTravelMedical from "../components/Products/CanuckVoyageComponenets/RIMICanuckVoyageTravelMedical";
 import RIMICanuckVoyageNonMedicalTravel from "../components/Products/CanuckVoyageNon-MedicalTravel/RIMICanuckVoyageNon-MedicalTravel";
 import SecureStudyRIMIInternationalStudentstoCanada from "../components/Products/SecureStudyRIMIInternationalStudentstoCanada/SecureStudyRIMIInternationalStudentstoCanada";
-import SecureTravelRIMIVisitorstoCanadaTravel from "../components/Products/SecureTravelRIMIVisitorstoCanadaTravel";
+import SecureTravelRIMIVisitorstoCanadaTravel from "../components/Products/SecureTravelRIMIVisitorstoCanadaTravel/SecureTravelRIMIVisitorstoCanadaTravel";
 import BulkUpload from "../components/Products/SecureStudyRIMIInternationalStudentstoCanada/BulkUpload";
 import Analytics from "../components/analytics/Analytics";
 
@@ -92,6 +93,14 @@ const navigation = [
     icon: CalculatorIcon,
     current: false,
     slug: "trip-calculator",
+  },
+  {
+    name: "Analytics",
+    nameFr: "Analytique",
+    href: "#",
+    icon: ChartPieIcon,
+    current: true,
+    slug: "analytics",
   },
 ];
 // const teams = [
@@ -408,6 +417,7 @@ export default function Dashboard() {
                 {selectedComponent === "create-user" ? <CreateUser /> : ""}
                 {selectedComponent === "documents" ? <Documents /> : ""}
                 {selectedComponent === "trip-calculator" ? <TripCalculator /> : ""}
+                {selectedComponent === "analytics" ? <Analytics /> : ""}
 
                 {/* products sub components  */}
                 {selectedComponent === "RIMI Canuck Voyage Travel Medical" ? <RIMICanuckVoyageTravelMedical /> : ""}
@@ -416,6 +426,8 @@ export default function Dashboard() {
                 {selectedComponent === "Secure Travel RIMI Visitors to Canada Travel" ? <SecureTravelRIMIVisitorstoCanadaTravel /> : ""}
 
                 {selectedComponent === "Bulk Upload" ? <BulkUpload /> : ""}
+
+                
 
                 
                 {/*  */}
