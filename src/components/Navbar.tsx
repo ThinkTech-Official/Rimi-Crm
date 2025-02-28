@@ -3,7 +3,6 @@ import {
   LanguageIcon,
   ChevronDownIcon,
   HomeIcon,
-  MagnifyingGlassIcon,
   Bars3Icon,
   XCircleIcon
 } from "@heroicons/react/24/outline";
@@ -39,13 +38,13 @@ export default function Navbar() {
               <li className=" flex gap-2 cursor-pointer">
                 <HomeIcon className="size-6 text-white" /> <Link to="/home">Home</Link>
               </li>
-              <li className=" flex gap-2 cursor-pointer">
+              {/* <li className=" flex gap-2 cursor-pointer">
                 <MagnifyingGlassIcon className="size-6 text-white" /> Policy
-              </li>
-              <li className=" flex gap-2 cursor-pointer">
+              </li> */}
+              {/* <li className=" flex gap-2 cursor-pointer">
                 <MagnifyingGlassIcon className="size-6 text-white" />
                 Qoutes
-              </li>
+              </li> */}
             </ul>
           </div>
 
@@ -69,7 +68,7 @@ export default function Navbar() {
                       <div className=" relative group/submenu">
                         <div className=" flex flex-col ">
                           <div className=" cursor-pointer border-b-2 border-blue-100 pb-2">
-                          {langauge === 'En' ? <p>Profile</p> : <p>profil</p>}
+                          <Link to="/profile" >{langauge === 'En' ? <p>Profile</p> : <p>profil</p>}</Link>
                           </div>
                           <div className=" cursor-pointer ">
                             {langauge === 'En' ? <p>Logout</p> : <p>Se Déconnecter</p>}

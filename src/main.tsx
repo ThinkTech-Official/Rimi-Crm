@@ -13,12 +13,14 @@ import {
 import Login from './pages/Login.tsx';
 import Dashboard from './pages/Dashboard.tsx';
 import { LangContextProvider } from './context/LangContext.tsx';
+import Profile from './pages/Profile.tsx';
 
 const router = createBrowserRouter(
   createRoutesFromElements(
     <Route path='/' element={<App />}>
       <Route path='/' element={<Login />} />
       <Route path='/home' element={<Dashboard />} />
+      <Route path='/profile' element={<Profile />} />
     </Route>
   )
 )
