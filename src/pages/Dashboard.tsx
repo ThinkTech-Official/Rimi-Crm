@@ -1,4 +1,4 @@
-import { Fragment, useContext, useState } from "react";
+import { Fragment, useContext, useEffect, useState } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import {
   Bars3Icon,
@@ -28,6 +28,7 @@ import SecureStudyRIMIInternationalStudentstoCanada from "../components/Products
 import SecureTravelRIMIVisitorstoCanadaTravel from "../components/Products/SecureTravelRIMIVisitorstoCanadaTravel/SecureTravelRIMIVisitorstoCanadaTravel";
 import BulkUpload from "../components/Products/SecureStudyRIMIInternationalStudentstoCanada/BulkUpload";
 import Analytics from "../components/analytics/Analytics";
+import { getUserTypeFromToken } from "../utils/getUserType";
 
 const navigation = [
   {
@@ -37,6 +38,7 @@ const navigation = [
     icon: BriefcaseIcon,
     current: false,
     slug: "product",
+    allowedRoles: ["ADMIN", "AGENT", "MGA", "READONLY"],
   },
   {
     name: "Quotes",
@@ -45,6 +47,7 @@ const navigation = [
     icon: CalculatorIcon,
     current: false,
     slug: "quotes-search",
+    allowedRoles: ["ADMIN", "AGENT", "MGA"],
   },
   {
     name: "Policies",
@@ -53,6 +56,7 @@ const navigation = [
     icon: ClipboardDocumentIcon,
     current: false,
     slug: "policy-search",
+    allowedRoles: ["ADMIN", "AGENT", "MGA"],
   },
   {
     name: "Reporting",
@@ -61,6 +65,7 @@ const navigation = [
     icon: CalendarIcon,
     current: false,
     slug: "reporting",
+    allowedRoles: ["ADMIN"], 
   },
   {
     name: "Users",
@@ -69,6 +74,7 @@ const navigation = [
     icon: UsersIcon,
     current: false,
     slug: "users",
+    allowedRoles: ["ADMIN"], 
   },
   {
     name: "Create User",
@@ -77,6 +83,7 @@ const navigation = [
     icon: UserPlusIcon,
     current: false,
     slug: "create-user",
+    allowedRoles: ["ADMIN"], 
   },
   {
     name: "Documents",
@@ -85,6 +92,7 @@ const navigation = [
     icon: FolderIcon,
     current: false,
     slug: "documents",
+    allowedRoles: ["ADMIN", "AGENT", "MGA"],
   },
   {
     name: "Trip Calculator",
@@ -93,6 +101,7 @@ const navigation = [
     icon: CalculatorIcon,
     current: false,
     slug: "trip-calculator",
+    allowedRoles: ["ADMIN"], 
   },
   {
     name: "Analytics",
@@ -101,6 +110,7 @@ const navigation = [
     icon: ChartPieIcon,
     current: true,
     slug: "analytics",
+    allowedRoles: ["ADMIN"], 
   },
 ];
 // const teams = [
@@ -122,6 +132,8 @@ export default function Dashboard() {
 
   const [selectedComponent, setSelectedComponent] = useState<string>("none");
 
+  const [userType, setUserType] = useState<string | null>(null);
+
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   // State of braedcrumbs
@@ -139,6 +151,18 @@ export default function Dashboard() {
     // setBreadCrumbState([...breadCrumbState,componentSeleted])
   };
 
+
+  useEffect(() => {
+    const type = getUserTypeFromToken();
+    setUserType(type);
+    console.log(userType)
+  }, []);
+
+  if (!userType) return null;
+
+  const filteredNavigation = navigation.filter((item) =>
+    item.allowedRoles.includes(userType || "")
+  );
   
 
   return (
@@ -210,7 +234,7 @@ export default function Dashboard() {
                       <ul role="list" className="flex flex-1 flex-col gap-y-7">
                         <li>
                           <ul role="list" className="-mx-2 space-y-1">
-                            {navigation.map((item) => (
+                            {filteredNavigation.map((item) => (
                               <li key={item.name}>
                                 <a
                                   href={item.href}
@@ -298,7 +322,7 @@ export default function Dashboard() {
               <ul role="list" className="flex flex-1 flex-col gap-y-7">
                 <li>
                   <ul role="list" className="-mx-2 space-y-1">
-                    {navigation.map((item) => (
+                    {filteredNavigation.map((item) => (
                       <li
                         onClick={() => handleSetComponent(item.slug)}
                         key={item.name}
@@ -412,12 +436,12 @@ export default function Dashboard() {
                 {selectedComponent === "product" ? <Products breadCrumbState={breadCrumbState} setBreadCrumbState={setBreadCrumbState} setSelectedComponent={setSelectedComponent} /> : ""}
                 {selectedComponent === "quotes-search" ? <QuotesSearch /> : ""}
                 {selectedComponent === "policy-search" ? <PoliciesSearch /> : ""}
-                {selectedComponent === "reporting" ? <Reporting /> : ""}
-                {selectedComponent === "users" ? <Users /> : ""}
-                {selectedComponent === "create-user" ? <CreateUser /> : ""}
+                {(userType === "ADMIN" && selectedComponent === "reporting") && <Reporting />}
+                {userType === "ADMIN" && selectedComponent === "users" ? <Users /> : ""}
+                {userType === "ADMIN" && selectedComponent === "create-user" ? <CreateUser /> : ""}
                 {selectedComponent === "documents" ? <Documents /> : ""}
-                {selectedComponent === "trip-calculator" ? <TripCalculator /> : ""}
-                {selectedComponent === "analytics" ? <Analytics /> : ""}
+                {userType === "ADMIN" && selectedComponent === "trip-calculator" ? <TripCalculator /> : ""}
+                {userType === "ADMIN" && selectedComponent === "analytics" ? <Analytics /> : ""}
 
                 {/* products sub components  */}
                 {selectedComponent === "RIMI Canuck Voyage Travel Medical" ? <RIMICanuckVoyageTravelMedical /> : ""}
@@ -425,7 +449,7 @@ export default function Dashboard() {
                 {selectedComponent === "Secure Study RIMI International Students to Canada" ? <SecureStudyRIMIInternationalStudentstoCanada /> : ""}
                 {selectedComponent === "Secure Travel RIMI Visitors to Canada Travel" ? <SecureTravelRIMIVisitorstoCanadaTravel /> : ""}
 
-                {selectedComponent === "Bulk Upload" ? <BulkUpload /> : ""}
+                {userType === "ADMIN" && selectedComponent === "Bulk Upload" ? <BulkUpload /> : ""}
 
                 
 

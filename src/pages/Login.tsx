@@ -4,19 +4,32 @@ import { Transition } from "@headlessui/react";
 import { XCircleIcon } from "@heroicons/react/24/outline";
 import { XMarkIcon } from "@heroicons/react/20/solid";
 // import useAdmin from '../hooks/useAdmin';
-// import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 import rimilogo from "../assets/rimi_en.png";
 import five from "../assets/login2.avif";
 import { LangContext } from "../context/LangContext";
+import { useAuth } from "../hooks/useAuth";
+
+
+
+interface LoginFormInputs {
+  email: string;
+  password: string;
+}
+
+
 
 const Login = () => {
-  // const navigate = useNavigate();
+  const navigate = useNavigate();
 
   const { langauge } = useContext(LangContext);
 
   const [show, setShow] = useState(false);
   const [errMsg, setErrMsg] = useState("");
+
+  // const { login, loading, error} = useAuth()
+  const { login } = useAuth()
 
   // const { login } = useAdmin()
 
@@ -24,10 +37,22 @@ const Login = () => {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm();
+  } = useForm<LoginFormInputs>();
 
-  const onSubmit = async () => {
-    // console.log(data);
+  const onSubmit = async (data:LoginFormInputs) => {
+    console.log(data);
+    const result = await login(data.email, data.password);
+    console.log(result.type)
+    if (result.type === 'auth/loginUser/fulfilled') {
+      navigate('/dashboard');
+    } else if(result.type === 'auth/loginUser/rejected'){
+      setErrMsg(result.payload);
+      setShow(true);
+    } else {
+      setErrMsg("Network Error")
+      setShow(true);
+    }
+
     //   const resp = await login(data);
     //   if (resp?.user) {
     //     // navigate to admindashboard
@@ -36,7 +61,7 @@ const Login = () => {
     // display error
     // console.log(resp?.response?.data?.errors[0]?.msg);
     // setErrMsg(resp?.response?.data?.errors[0]?.msg);
-    setErrMsg("Networ error");
+    // setErrMsg("Networ error");
     // setShow(true);
     //   }
   };

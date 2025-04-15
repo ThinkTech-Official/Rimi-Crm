@@ -36,7 +36,7 @@ export default function Navbar() {
           <div className=" hidden md:block ">
             <ul className=" flex justify-between items-center text-white gap-4 m-6">
               <li className=" flex gap-2 cursor-pointer">
-                <HomeIcon className="size-6 text-white" /> <Link to="/home">Home</Link>
+                <HomeIcon className="size-6 text-white" /> <Link to="/dashboard">Home</Link>
               </li>
               {/* <li className=" flex gap-2 cursor-pointer">
                 <MagnifyingGlassIcon className="size-6 text-white" /> Policy
