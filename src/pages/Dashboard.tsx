@@ -1,4 +1,5 @@
 import { Fragment, useContext, useEffect, useState } from "react";
+
 import { Dialog, Transition } from "@headlessui/react";
 import {
   Bars3Icon,
@@ -11,7 +12,7 @@ import {
   ClipboardDocumentIcon,
   UserPlusIcon,
   ChevronRightIcon,
-  ChartPieIcon
+  ChartPieIcon,
 } from "@heroicons/react/24/outline";
 import { LangContext } from "../context/LangContext";
 import Products from "../components/Products";
@@ -29,6 +30,9 @@ import SecureTravelRIMIVisitorstoCanadaTravel from "../components/Products/Secur
 import BulkUpload from "../components/Products/SecureStudyRIMIInternationalStudentstoCanada/BulkUpload";
 import Analytics from "../components/analytics/Analytics";
 import { getUserTypeFromToken } from "../utils/getUserType";
+
+
+// import Cookies from 'js-cookie';
 
 const navigation = [
   {
@@ -65,7 +69,7 @@ const navigation = [
     icon: CalendarIcon,
     current: false,
     slug: "reporting",
-    allowedRoles: ["ADMIN"], 
+    allowedRoles: ["ADMIN"],
   },
   {
     name: "Users",
@@ -74,7 +78,7 @@ const navigation = [
     icon: UsersIcon,
     current: false,
     slug: "users",
-    allowedRoles: ["ADMIN"], 
+    allowedRoles: ["ADMIN"],
   },
   {
     name: "Create User",
@@ -83,7 +87,7 @@ const navigation = [
     icon: UserPlusIcon,
     current: false,
     slug: "create-user",
-    allowedRoles: ["ADMIN"], 
+    allowedRoles: ["ADMIN"],
   },
   {
     name: "Documents",
@@ -101,7 +105,7 @@ const navigation = [
     icon: CalculatorIcon,
     current: false,
     slug: "trip-calculator",
-    allowedRoles: ["ADMIN"], 
+    allowedRoles: ["ADMIN"],
   },
   {
     name: "Analytics",
@@ -110,7 +114,7 @@ const navigation = [
     icon: ChartPieIcon,
     current: true,
     slug: "analytics",
-    allowedRoles: ["ADMIN"], 
+    allowedRoles: ["ADMIN"],
   },
 ];
 // const teams = [
@@ -133,41 +137,47 @@ export default function Dashboard() {
   const [selectedComponent, setSelectedComponent] = useState<string>("none");
 
   const [userType, setUserType] = useState<string | null>(null);
+  const [userName, setUserName] = useState<string | null>(null);
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   // State of braedcrumbs
-  const [breadCrumbState, setBreadCrumbState] = useState<string[]>([])
+  const [breadCrumbState, setBreadCrumbState] = useState<string[]>([]);
 
   const handleSetComponent = (componentSeleted: string) => {
-    
-    
     // if(selectedComponent === 'product' && componentSeleted ==='RIMI Canuck Voyage Travel Medical' || componentSeleted === 'RIMI Canuck Voyage Non-Medical Travel' || componentSeleted === 'Secure Study RIMI International Students to Canada' || componentSeleted === 'Secure Travel RIMI Visitors to Canada Travel'){
     //   setBreadCrumbState([...breadCrumbState,componentSeleted])
     // } else {
-      setBreadCrumbState([componentSeleted])
+    setBreadCrumbState([componentSeleted]);
     // }
     setSelectedComponent(componentSeleted);
     // setBreadCrumbState([...breadCrumbState,componentSeleted])
   };
 
-
   useEffect(() => {
     const type = getUserTypeFromToken();
-    setUserType(type);
-    console.log(userType)
+    // console.log('Value of type from dashboard', type)
+    // console.log('Value of type from dashboard fullname', type.fullName)
+    setUserType(type.userType);
+    setUserName(type.fullName)
+    console.log(type);
   }, []);
+
+  // useEffect(() => {
+  //   const storedToken = Cookies.get("token");
+  //   setToken(storedToken);
+  // }, []);
 
   if (!userType) return null;
 
   const filteredNavigation = navigation.filter((item) =>
     item.allowedRoles.includes(userType || "")
   );
-  
+
+
 
   return (
     <>
-      
       <div>
         <Transition.Root show={sidebarOpen} as={Fragment}>
           <Dialog
@@ -413,14 +423,19 @@ export default function Dashboard() {
             {/* <div className="h-6 w-px bg-gray-200 lg:hidden" aria-hidden="true" /> */}
           </div>
           <>
-          {/* Bread crumbs STATE  */}
-          <div className=" px-5 py-4 flex gap-2">
-          {breadCrumbState.map((item) => (
-            
-              <p onClick={() => handleSetComponent(item)} key={item} className=" text-[#3a17c5] text-sm font-semibold underline flex items-center gap-2 cursor-pointer">{item.toLocaleUpperCase()} <ChevronRightIcon className="h-3 w-3" aria-hidden="true" /></p>
-            
-          ))}
-          </div>
+            {/* Bread crumbs STATE  */}
+            <div className=" px-5 py-4 flex gap-2">
+              {breadCrumbState.map((item) => (
+                <p
+                  onClick={() => handleSetComponent(item)}
+                  key={item}
+                  className=" text-[#3a17c5] text-sm font-semibold underline flex items-center gap-2 cursor-pointer"
+                >
+                  {item.toLocaleUpperCase()}{" "}
+                  <ChevronRightIcon className="h-3 w-3" aria-hidden="true" />
+                </p>
+              ))}
+            </div>
             <main className="py-10">
               <div className="px-4 sm:px-6 lg:px-8">
                 {selectedComponent === "none" ? (
@@ -428,32 +443,94 @@ export default function Dashboard() {
                     {/* <p className=" text-2xl text-[#3a17c5]">
                       Welcome to Rimi Insurance Dashboard
                     </p> */}
+                    {/* <Analytics /> */}
+                    {(userType === "ADMIN" ? (
                     <Analytics />
+                  ) : (
+                    <div className=" w-screen">
+                     <h1 className="text-xl font-semibold text-center">Welcome {userName}</h1>
+                    <Products
+                    breadCrumbState={breadCrumbState}
+                    setBreadCrumbState={setBreadCrumbState}
+                    setSelectedComponent={setSelectedComponent}
+                  />
+                  </div>
+                  ))}
                   </div>
                 ) : (
                   ""
                 )}
-                {selectedComponent === "product" ? <Products breadCrumbState={breadCrumbState} setBreadCrumbState={setBreadCrumbState} setSelectedComponent={setSelectedComponent} /> : ""}
+                {selectedComponent === "product" ? (
+                  <Products
+                    breadCrumbState={breadCrumbState}
+                    setBreadCrumbState={setBreadCrumbState}
+                    setSelectedComponent={setSelectedComponent}
+                  />
+                ) : (
+                  ""
+                )}
                 {selectedComponent === "quotes-search" ? <QuotesSearch /> : ""}
-                {selectedComponent === "policy-search" ? <PoliciesSearch /> : ""}
-                {(userType === "ADMIN" && selectedComponent === "reporting") && <Reporting />}
-                {userType === "ADMIN" && selectedComponent === "users" ? <Users /> : ""}
-                {userType === "ADMIN" && selectedComponent === "create-user" ? <CreateUser /> : ""}
+                {selectedComponent === "policy-search" ? (
+                  <PoliciesSearch />
+                ) : (
+                  ""
+                )}
+                {userType === "ADMIN" && selectedComponent === "reporting" && (
+                  <Reporting />
+                )}
+                {userType === "ADMIN" && selectedComponent === "users" ? (
+                  <Users />
+                ) : (
+                  ""
+                )}
+                {userType === "ADMIN" &&
+                  selectedComponent === "create-user" && <CreateUser />}
                 {selectedComponent === "documents" ? <Documents /> : ""}
-                {userType === "ADMIN" && selectedComponent === "trip-calculator" ? <TripCalculator /> : ""}
-                {userType === "ADMIN" && selectedComponent === "analytics" ? <Analytics /> : ""}
+                {userType === "ADMIN" &&
+                selectedComponent === "trip-calculator" ? (
+                  <TripCalculator />
+                ) : (
+                  ""
+                )}
+                {/* {userType === "ADMIN" && selectedComponent === "analytics" ? <Analytics /> : ""} */}
+                {selectedComponent === "analytics" &&
+                  (userType === "ADMIN" ? (
+                    <Analytics />
+                  ) : (
+                    <h1 className="text-xl font-semibold">Welcome</h1>
+                  ))}
 
                 {/* products sub components  */}
-                {selectedComponent === "RIMI Canuck Voyage Travel Medical" ? <RIMICanuckVoyageTravelMedical /> : ""}
-                {selectedComponent === "RIMI Canuck Voyage Non-Medical Travel" ? <RIMICanuckVoyageNonMedicalTravel /> : ""}
-                {selectedComponent === "Secure Study RIMI International Students to Canada" ? <SecureStudyRIMIInternationalStudentstoCanada /> : ""}
-                {selectedComponent === "Secure Travel RIMI Visitors to Canada Travel" ? <SecureTravelRIMIVisitorstoCanadaTravel /> : ""}
+                {selectedComponent === "RIMI Canuck Voyage Travel Medical" ? (
+                  <RIMICanuckVoyageTravelMedical />
+                ) : (
+                  ""
+                )}
+                {selectedComponent ===
+                "RIMI Canuck Voyage Non-Medical Travel" ? (
+                  <RIMICanuckVoyageNonMedicalTravel />
+                ) : (
+                  ""
+                )}
+                {selectedComponent ===
+                "Secure Study RIMI International Students to Canada" ? (
+                  <SecureStudyRIMIInternationalStudentstoCanada />
+                ) : (
+                  ""
+                )}
+                {selectedComponent ===
+                "Secure Travel RIMI Visitors to Canada Travel" ? (
+                  <SecureTravelRIMIVisitorstoCanadaTravel />
+                ) : (
+                  ""
+                )}
 
-                {userType === "ADMIN" && selectedComponent === "Bulk Upload" ? <BulkUpload /> : ""}
+                {userType === "ADMIN" && selectedComponent === "Bulk Upload" ? (
+                  <BulkUpload />
+                ) : (
+                  ""
+                )}
 
-                
-
-                
                 {/*  */}
               </div>
             </main>

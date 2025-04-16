@@ -1,3 +1,5 @@
+import { useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 import {
   UserCircleIcon,
   LanguageIcon,
@@ -6,17 +8,30 @@ import {
   Bars3Icon,
   XCircleIcon,
 } from "@heroicons/react/24/outline";
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { LangContext } from "../context/LangContext";
-import Cookies from "js-cookie";
+// import Cookies from "js-cookie";
+import { useSelector } from 'react-redux';
+import { logout } from "../features/authSlice"
+import { getUserTypeFromToken } from "../utils/getUserType";
+
 
 export default function Navbar() {
   const { langauge, setLangauge } = useContext(LangContext);
 
   const [showSlider, setShowSlider] = useState(false);
+  const [userName, setUserName] = useState<string | null>(null);
 
-  const token = Cookies.get("token");
+  const token = useSelector((state: any) => state.auth.token);
+
+    const dispatch = useDispatch();
+  const navigate = useNavigate();
+  
+    const handleLogout = () => {
+      dispatch(logout());     
+      navigate('/');          
+    };
 
   const handleShowClick = () => {
     setShowSlider(!showSlider);
@@ -25,6 +40,15 @@ export default function Navbar() {
   const handleSetLangauge = (lang: string) => {
     setLangauge(lang);
   };
+
+  useEffect(() => {
+      const type = getUserTypeFromToken();  
+      if(type){
+        setUserName(type.fullName)
+      console.log(type);
+      }
+      
+    }, [token]);
 
   return (
     <>
@@ -66,7 +90,7 @@ export default function Navbar() {
                   <UserCircleIcon className="size-6 text-white" />
 
                   <div className=" relative flex gap-1 items-center">
-                    <p className=" cursor-pointer">Username</p>
+                    <p className=" cursor-pointer">{userName}</p>
                     <ChevronDownIcon className="size-4 text-white" />
                     <div className=" hidden group-hover:block absolute top-9 z-50 border-2 border-blue-400">
                       <div className=" w-32 bg-white text-black  text-nowrap flex flex-col gap-4 px-2 py-2">
@@ -83,7 +107,7 @@ export default function Navbar() {
                             </div>
                             <div className=" cursor-pointer ">
                               {langauge === "En" ? (
-                                <p>Logout</p>
+                                <p onClick={handleLogout}>Logout</p>
                               ) : (
                                 <p>Se Déconnecter</p>
                               )}

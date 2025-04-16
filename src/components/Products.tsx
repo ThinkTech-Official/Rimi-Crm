@@ -1,12 +1,15 @@
 
 
-import React, { useContext } from "react";
+import React, { useContext, useEffect, useState } from "react";
+import { useSelector } from 'react-redux';
 
 import {
     PencilSquareIcon,
     ArrowUpTrayIcon
   } from '@heroicons/react/24/outline'
 import { LangContext } from "../context/LangContext";
+
+import { getUserTypeFromToken } from "../utils/getUserType";
 
 interface Product {
   name: string;
@@ -28,14 +31,31 @@ const products: Product[] = [
   { name: "Secure Travel RIMI Visitors to Canada Travel" , nameFr: "Secure Travel RIMI Visitors to Canada Travel"},
 ];
 
+
+
+
+
+ 
+
 const Products: React.FC<ProductsProps> = ({breadCrumbState , setBreadCrumbState, setSelectedComponent}) => {
 
     const { langauge } = useContext(LangContext)
+    const token = useSelector((state: any) => state.auth.token);
+    const [userType, setUserType] = useState<string | null>(null);
 
     const handleApplicationClick = (slug: string) => {
       setBreadCrumbState([...breadCrumbState,slug])
       setSelectedComponent(slug)
     }
+
+    useEffect(() => {
+      const type = getUserTypeFromToken();  
+      if(type){
+        setUserType(type.userType);
+      console.log(type);
+      }
+      
+    }, [token]);
 
   return (
     <div className="max-w-4xl mx-auto mt-10">
@@ -55,7 +75,8 @@ const Products: React.FC<ProductsProps> = ({breadCrumbState , setBreadCrumbState
         <div className=" flex justify-between items-center border-b py-2 border-slate-200 w-full">
             {langauge === 'En' ? <p>{products[2].name}</p> : <p>{products[2].nameFr}</p>}
             <div className=" flex gap-2">
-            <button onClick={() => handleApplicationClick('Bulk Upload')} className=" px-2 py-2 border border-slate-400 shadow-2xl flex gap-2 cursor-pointer"><ArrowUpTrayIcon className="h-6 w-6" aria-hidden="true" /> {langauge=== 'En' ? 'Bulk upload' : 'Télécharger en groupe' }</button>
+              {userType === 'ADMIN' && <button onClick={() => handleApplicationClick('Bulk Upload')} className=" px-2 py-2 border border-slate-400 shadow-2xl flex gap-2 cursor-pointer"><ArrowUpTrayIcon className="h-6 w-6" aria-hidden="true" /> {langauge=== 'En' ? 'Bulk upload' : 'Télécharger en groupe' }</button>}
+            
             <button onClick={() => handleApplicationClick('Secure Study RIMI International Students to Canada')} className=" px-2 py-2 border border-slate-400 shadow-2xl flex gap-2 cursor-pointer"><PencilSquareIcon className="h-6 w-6" aria-hidden="true" /> {langauge=== 'En' ? 'Application Form' : 'Formulaire de demande' }</button>
             </div>
             

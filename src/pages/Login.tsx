@@ -27,6 +27,7 @@ const Login = () => {
 
   const [show, setShow] = useState(false);
   const [errMsg, setErrMsg] = useState("");
+  const [signInClicked,setSignInClicked] = useState(false)
 
   // const { login, loading, error} = useAuth()
   const { login } = useAuth()
@@ -40,6 +41,7 @@ const Login = () => {
   } = useForm<LoginFormInputs>();
 
   const onSubmit = async (data:LoginFormInputs) => {
+    setSignInClicked(true)
     console.log(data);
     const result = await login(data.email, data.password);
     console.log(result.type)
@@ -48,9 +50,11 @@ const Login = () => {
     } else if(result.type === 'auth/loginUser/rejected'){
       setErrMsg(result.payload);
       setShow(true);
+      setSignInClicked(false)
     } else {
       setErrMsg("Network Error")
       setShow(true);
+      setSignInClicked(false)
     }
 
     //   const resp = await login(data);
@@ -173,12 +177,28 @@ const Login = () => {
                   {/* </div> */}
 
                   <div className=" flex flex-col gap-4">
-                    <button
+                    { signInClicked
+                       ? 
+                       <button
+                      
+                      className="flex w-full justify-center rounded-md bg-[#b5b4ec] px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-[#90a1fa] focus-visible:outline-offset-2 focus-visible:outline-indigo-600 cursor-pointer"
+                    >
+                      {langauge === "En" ? <p>Sign in</p> : <p>Se connecter</p>}
+                    </button>
+                       : 
+                       <button
                       type="submit"
                       className="flex w-full justify-center rounded-md bg-[#4340DA] px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-[#405ada] focus-visible:outline-offset-2 focus-visible:outline-indigo-600 cursor-pointer"
                     >
                       {langauge === "En" ? <p>Sign in</p> : <p>Se connecter</p>}
                     </button>
+                    }
+                    {/* <button
+                      type="submit"
+                      className="flex w-full justify-center rounded-md bg-[#4340DA] px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-[#405ada] focus-visible:outline-offset-2 focus-visible:outline-indigo-600 cursor-pointer"
+                    >
+                      {langauge === "En" ? <p>Sign in</p> : <p>Se connecter</p>}
+                    </button> */}
                     <button
                       type="submit"
                       className="flex w-full justify-center rounded-md bg-[#fff] px-3 py-1.5 text-sm font-semibold leading-6 text-[#000] shadow-sm hover:bg-[#fff] focus-visible:outline-offset-2 focus-visible:outline-indigo-600 cursor-pointer"

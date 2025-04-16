@@ -9,13 +9,14 @@ import {
   createBrowserRouter,
   createRoutesFromElements,
 } from "react-router-dom";
+import { PersistGate } from 'redux-persist/integration/react';
 
 import Login from './pages/Login.tsx';
 import Dashboard from './pages/Dashboard.tsx';
 import { LangContextProvider } from './context/LangContext.tsx';
 import Profile from './pages/Profile.tsx';
 import { Provider } from 'react-redux'
-import { store } from './app/store.ts';
+import { store,persistor } from './app/store.ts';
 import ProtectedRoute from './components/protection/ProtectedRoute.tsx';
 
 const router = createBrowserRouter(
@@ -36,10 +37,21 @@ const router = createBrowserRouter(
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <Provider store={store}>
+    {/* <Provider store={store}>
+    
     <LangContextProvider>
+    <PersistGate loading={null} persistor={persistor}>
     <RouterProvider router={router} />
+    </PersistGate>
     </LangContextProvider>
-    </Provider>
+    
+    </Provider> */}
+    <Provider store={store}>
+  <PersistGate loading={null} persistor={persistor}>
+    <LangContextProvider>
+      <RouterProvider router={router} />
+    </LangContextProvider>
+  </PersistGate>
+</Provider>
   </StrictMode>,
 )
