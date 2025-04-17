@@ -200,7 +200,7 @@ const Login = () => {
                       {langauge === "En" ? <p>Sign in</p> : <p>Se connecter</p>}
                     </button> */}
                     <button
-                      type="submit"
+                      
                       className="flex w-full justify-center rounded-md bg-[#fff] px-3 py-1.5 text-sm font-semibold leading-6 text-[#000] shadow-sm hover:bg-[#fff] focus-visible:outline-offset-2 focus-visible:outline-indigo-600 cursor-pointer"
                     >
                       {langauge === "En" ? <p>Forgot Password</p> : <p>Mot de passe oublié</p>}

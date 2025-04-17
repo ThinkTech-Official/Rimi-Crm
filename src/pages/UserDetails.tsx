@@ -1,16 +1,15 @@
-
-
-import { useEffect, useState } from "react";
-import { useProfile } from "../hooks/useProfile";
+// src/components/UserDetails.tsx
+import React, { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
+import { useUserDetails } from "../hooks/useUserDetails";
 import { ProfileForm } from "../utils/types";
 
-// Permission definitions
+// Permission definitions and map same as before…
 const adminPermission = { modifyPolicies: true, viewPolicies: false, readOnly: false, manageUsers: true, bulkEnrollment: true };
 const agentPermission = { modifyPolicies: true, viewPolicies: false, readOnly: false, manageUsers: true, bulkEnrollment: true };
 const mgaPermission   = { modifyPolicies: true, viewPolicies: false, readOnly: false, manageUsers: true, bulkEnrollment: true };
 const readOnlyPermission = { modifyPolicies: true, viewPolicies: false, readOnly: false, manageUsers: true, bulkEnrollment: true };
 
-// Map userType → permissions
 const PERMISSIONS_MAP: Record<string, typeof adminPermission> = {
   ADMIN: adminPermission,
   AGENT: agentPermission,
@@ -18,11 +17,11 @@ const PERMISSIONS_MAP: Record<string, typeof adminPermission> = {
   READONLY: readOnlyPermission,
 };
 
-export default function Profile() {
-  const { profile, loading, error } = useProfile();
+export default function UserDetails() {
+  const { id } = useParams<{ id: string }>();
+  const { user, loading, error } = useUserDetails(id!);
   const [isEditing, setIsEditing] = useState(false);
 
-  // formData holds everything we need to render (and eventually save)
   const [formData, setFormData] = useState<ProfileForm>({
     id: "",
     firstName: "",
@@ -42,33 +41,30 @@ export default function Profile() {
     confirmPassword: "",
   });
 
-  // Seed formData when profile arrives
+  // seed when we get user
   useEffect(() => {
-    if (!profile) return;
+    if (!user) return;
     setFormData({
-      ...profile,
+      ...user,
       password: "",
       confirmPassword: "",
     });
-  }, [profile]);
+  }, [user]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
     const { name, type, value } = e.target;
-    // only HTMLInputElement has .checked, so we cast:
     const checked = (e.target as HTMLInputElement).checked;
-  
     setFormData((prev) => ({
       ...prev,
       [name]: type === "checkbox" ? checked : value,
     }));
   };
 
-  if (loading) return <p>Loading profile…</p>;
+  if (loading) return <p>Loading user…</p>;
   if (error)   return <p className="text-red-500">Error: {error}</p>;
 
-  // Always derive permissions from the current userType
   const currentUserPermissions = PERMISSIONS_MAP[formData.userType] || {};
 
   return (
@@ -76,33 +72,23 @@ export default function Profile() {
       <h2 className="text-xl font-semibold text-center text-[#3a17c5] mb-4">
         {isEditing ? "MODIFY USER" : "VIEW USER"}
       </h2>
-
       <div className="bg-gray-100 text-center text-gray-700 py-2 mb-4">
         ** Changes to User Type will restore User Permissions to default settings **
       </div>
 
-      {/* Edit / Save buttons */}
+      {/* Edit / Save */}
       <div className="flex justify-end space-x-2 mb-4">
         {isEditing ? (
           <>
             <button
-              onClick={() => {
-                // TODO: dispatch save action
-                setIsEditing(false);
-              }}
+              onClick={() => setIsEditing(false)}
               className="px-4 py-2 bg-green-500 text-white rounded"
             >
               Save Changes
             </button>
             <button
               onClick={() => {
-                // reset edits
-                setFormData((prev) => ({
-                  ...prev,
-                  ...profile!,
-                  password: "",
-                  confirmPassword: "",
-                }));
+                setFormData({ ...user!, password: "", confirmPassword: "" });
                 setIsEditing(false);
               }}
               className="px-4 py-2 bg-gray-300 text-gray-700 rounded"
@@ -153,7 +139,6 @@ export default function Profile() {
             onChange={handleChange}
             className="border p-2 w-full"
           />
-
           <select
             name="userType"
             value={formData.userType}
@@ -166,13 +151,12 @@ export default function Profile() {
             <option value="MGA">MGA</option>
             <option value="READONLY">Read Only</option>
           </select>
-
           <div>
             <label className="mr-4">
               <input
                 type="radio"
                 name="status"
-                value="Active"
+                value="ACTIVE"
                 checked={formData.status === "ACTIVE"}
                 disabled={!isEditing}
                 onChange={handleChange}
@@ -184,7 +168,7 @@ export default function Profile() {
               <input
                 type="radio"
                 name="status"
-                value="Inactive"
+                value="INACTIVE"
                 checked={formData.status === "INACTIVE"}
                 disabled={!isEditing}
                 onChange={handleChange}
@@ -215,47 +199,37 @@ export default function Profile() {
         </div>
       </div>
 
-      {/* User Permissions (always read‑only) */}
+      {/* Permissions */}
       <div className="border border-gray-300 rounded-lg p-4 mb-4">
         <h3 className="text-[#3a17c5] font-semibold mb-2">USER PERMISSIONS</h3>
         <div className="text-gray-700 space-y-2">
-          {Object.entries(currentUserPermissions).map(([key, allowed]) => (
-            <label key={key} className="block">
-              <input
-                type="checkbox"
-                checked={allowed}
-                disabled
-                className="mr-2"
-              />
-              {key
-                .replace(/([A-Z])/g, " $1")
-                .replace(/^./, (str) => str.toUpperCase())}
+          {Object.entries(currentUserPermissions).map(([k, v]) => (
+            <label key={k} className="block">
+              <input type="checkbox" checked={v} disabled className="mr-2" />
+              {k.replace(/([A-Z])/g, " $1").replace(/^./, s => s.toUpperCase())}
             </label>
           ))}
         </div>
       </div>
 
-      {/* If MGA, show their agentCodes */}
+      {/* MGA agentCodes */}
       {formData.agentCodes?.length! > 0 && (
-  <div className="border border-gray-300 rounded-lg p-4 mb-4">
-    <h3 className="text-[#3a17c5] font-semibold mb-2">
-      ASSIGNED AGENT CODES
-    </h3>
-    <ul className="list-disc list-inside text-gray-700">
-      {formData.agentCodes!.map((code) => (
-        <li key={code}>{code}</li>
-      ))}
-    </ul>
-  </div>
-)}
+        <div className="border border-gray-300 rounded-lg p-4 mb-4">
+          <h3 className="text-[#3a17c5] font-semibold mb-2">
+            ASSIGNED AGENT CODES
+          </h3>
+          <ul className="list-disc list-inside text-gray-700">
+            {formData.agentCodes!.map((c) => (
+              <li key={c}>{c}</li>
+            ))}
+          </ul>
+        </div>
+      )}
 
-      {/* Final Save button if editing */}
+      {/* Save button */}
       {isEditing && (
         <button
-          onClick={() => {
-            /* same save logic as above */
-            setIsEditing(false);
-          }}
+          onClick={() => setIsEditing(false)}
           className="mt-4 px-6 py-2 bg-[#3a17c5] text-white rounded w-full"
         >
           SAVE CHANGES
