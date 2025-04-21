@@ -19,6 +19,7 @@ import { Provider } from 'react-redux'
 import { store,persistor } from './app/store.ts';
 import ProtectedRoute from './components/protection/ProtectedRoute.tsx';
 import UserDetails from './pages/UserDetails.tsx';
+import ForgotPassword from './pages/ForgotPassword.tsx';
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -33,6 +34,7 @@ const router = createBrowserRouter(
       
       <Route path='/profile' element={<Profile />} />
       <Route path='/userdetail/:id' element={<UserDetails />} />
+      <Route path='/forgot-password' element={<ForgotPassword />} />
     </Route>
   )
 )

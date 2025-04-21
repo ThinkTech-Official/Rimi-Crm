@@ -45,7 +45,7 @@ export default function Navbar() {
       const type = getUserTypeFromToken();  
       if(type){
         setUserName(type.fullName)
-      console.log(type);
+      // console.log(type);
       }
       
     }, [token]);
