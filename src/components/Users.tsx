@@ -42,7 +42,7 @@ const Users: React.FC = () => {
   };
 
   return (
-    <div className="max-w-3xl mx-auto mt-10 p-6 rounded-lg shadow-2xl bg-white">
+    <div className="max-w-5xl mx-auto mt-10 p-6 rounded-lg shadow-2xl bg-white">
       <h2 className="text-xl font-semibold text-center text-[#3a17c5] mb-2">
         {langauge === "En" ? "SEARCH USERS" : "Rechercher Utilisateurs"}
       </h2>

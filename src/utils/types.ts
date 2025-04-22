@@ -18,7 +18,8 @@ export interface ProfileData {
     agentCodes?: string[];       // present on MGA
   }
   
-  export interface ProfileForm extends Omit<ProfileData, "createdAt" | "updatedAt"> {
+  // export interface ProfileForm extends Omit<ProfileData, "createdAt" | "updatedAt"> {
+  export interface ProfileForm extends ProfileData {
     password: string;
     confirmPassword: string;
   }

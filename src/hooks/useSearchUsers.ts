@@ -61,6 +61,7 @@ export function useSearchUsers(): UseSearchUsersResult {
         const json = await res.json();
         // backend wraps list in `data`
         setUsers(Array.isArray(json.data) ? json.data : []);
+        console.log('from useSearch users ', json)
       } catch (err: any) {
         setError(err.message);
       } finally {

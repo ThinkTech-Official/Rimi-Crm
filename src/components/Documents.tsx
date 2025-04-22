@@ -94,7 +94,9 @@ export default function Documents() {
             key={item.id}
             className="flex justify-between items-center border-b py-2 border-slate-200"
           >
-            {item.filename}
+            <a
+                    href={`http://localhost:3000${item.url}`}
+                    target="_blank">{item.filename}</a>
             {userType === "ADMIN" && (
               <div className="flex gap-2">
                 <button className="px-2 py-2 border shadow flex">

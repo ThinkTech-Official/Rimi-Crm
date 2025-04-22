@@ -35,7 +35,11 @@ export function useProfile(): UseProfileResult {
         if (!res.ok) throw new Error(`Status ${res.status}`);
         return res.json();
       })
-      .then((data: ProfileData) => setProfile(data))
+      .then((data: ProfileData) => {
+        setProfile(data)
+        console.log('from use profile',data)
+      }
+    )
       .catch((err: Error) => setError(err.message))
       .finally(() => setLoading(false));
   }, [token]);
