@@ -11,34 +11,47 @@ import {
 const Users: React.FC = () => {
   const { langauge } = useContext(LangContext);
   const navigate = useNavigate();
-  const { users, loading, error, search } = useSearchUsers();
 
-  // form fields
-  const [firstName, setFirstName]     = useState("");
-  const [lastName, setLastName]       = useState("");
-  const [email, setEmail]             = useState("");
-  const [agentCode, setAgentCode]     = useState("");
-  const [createdAfter, setCreatedAfter]   = useState("");
-  const [createdBefore, setCreatedBefore] = useState("");
-  const [company, setCompany]         = useState("");
-  const [userType, setUserType]       = useState("");
-  const [status, setStatus]           = useState("");
+  // combined search & pagination criteria
+  const [criteria, setCriteria] = useState<SearchCriteria>({
+    firstName: "",
+    lastName: "",
+    email: "",
+    agentCode: "",
+    createdAfter: "",
+    createdBefore: "",
+    company: "",
+    userType: "",
+    status: "",
+    page: 1,
+    limit: 20,
+  });
 
+  const {
+    users,
+    loading,
+    error,
+    // total,
+    page,
+    // limit,
+    totalPages,
+    hasPrevPage,
+    hasNextPage,
+    search,
+  } = useSearchUsers();
+
+  // trigger search with current criteria
   const onSearch = () => {
-    const criteria: SearchCriteria = {
-      firstName,
-      lastName,
-      email,
-      agentCode,
-      createdAfter,
-      createdBefore,
-      company,
-      userType,
-      status,
-      page: 1,
-      limit: 20,
-    };
-    search(criteria);
+    const updated = { ...criteria, page: 1 };
+    setCriteria(updated);
+    search(updated);
+  };
+
+  // navigate to specific page
+  const goToPage = (newPage: number) => {
+    const updated = { ...criteria, page: newPage };
+    setCriteria(updated);
+    search(updated);
   };
 
   return (
@@ -55,20 +68,22 @@ const Users: React.FC = () => {
       {/* ── Search Form ───────────────────────────────────────── */}
       <div className="grid grid-cols-2 gap-4 mb-6">
         {[
-          { label: "FIRST NAME",      value: firstName,    setter: setFirstName },
-          { label: "LAST NAME",       value: lastName,     setter: setLastName  },
-          { label: "EMAIL",           value: email,        setter: setEmail     },
-          { label: "AGENT CODE",      value: agentCode,    setter: setAgentCode },
-          { label: "CREATED AFTER",   value: createdAfter, setter: setCreatedAfter,   type: "date" },
-          { label: "CREATED BEFORE",  value: createdBefore, setter: setCreatedBefore, type: "date" },
-          { label: "COMPANY",         value: company,      setter: setCompany },
-        ].map(({ label, value, setter, type }) => (
-          <div key={label}>
+          { label: "FIRST NAME", key: "firstName" },
+          { label: "LAST NAME", key: "lastName" },
+          { label: "EMAIL", key: "email" },
+          { label: "AGENT CODE", key: "agentCode" },
+          { label: "CREATED AFTER", key: "createdAfter", type: "date" },
+          { label: "CREATED BEFORE", key: "createdBefore", type: "date" },
+          { label: "COMPANY", key: "company" },
+        ].map(({ label, key, type }) => (
+          <div key={key}>
             <label className="block text-gray-700">{label}</label>
             <input
               type={(type as string) || "text"}
-              value={value}
-              onChange={(e) => setter(e.target.value)}
+              value={(criteria as any)[key]}
+              onChange={(e) =>
+                setCriteria((c) => ({ ...c, [key]: e.target.value }))
+              }
               className="w-full p-2 border rounded border-[#3a17c5] focus:outline-[#3a17c5]"
             />
           </div>
@@ -79,8 +94,10 @@ const Users: React.FC = () => {
             {langauge === "En" ? "USER TYPE" : `TYPE D'UTILISATEUR`}
           </label>
           <select
-            value={userType}
-            onChange={(e) => setUserType(e.target.value)}
+            value={criteria.userType}
+            onChange={(e) =>
+              setCriteria((c) => ({ ...c, userType: e.target.value }))
+            }
             className="w-full p-2 border rounded border-[#3a17c5] focus:outline-[#3a17c5]"
           >
             <option value="">All</option>
@@ -96,8 +113,10 @@ const Users: React.FC = () => {
             {langauge === "En" ? "STATUS" : "STATUT"}
           </label>
           <select
-            value={status}
-            onChange={(e) => setStatus(e.target.value)}
+            value={criteria.status}
+            onChange={(e) =>
+              setCriteria((c) => ({ ...c, status: e.target.value }))
+            }
             className="w-full p-2 border rounded border-[#3a17c5] focus:outline-[#3a17c5]"
           >
             <option value="">All</option>
@@ -110,7 +129,7 @@ const Users: React.FC = () => {
       <div className="flex justify-center mb-6">
         <button
           onClick={onSearch}
-          className="w-[250px] bg-[#3a17c5] text-white p-2 rounded hover:bg-[#3a17c5e8] transition cursor-pointer"
+          className="w-[250px] bg-[#3a17c5] text-white p-2 rounded hover:bg-[#3a17c5e8] transition"
         >
           {langauge === "En" ? "SEARCH" : "RECHERCHE"}
         </button>
@@ -121,48 +140,83 @@ const Users: React.FC = () => {
       {error && <p className="text-red-500">{error}</p>}
 
       {!loading && !error && users.length > 0 && (
-        <table className="min-w-full border">
-          <thead className="bg-gray-100">
-            <tr>
-              {[
-                "Agent Code",
-                "First Name",
-                "Last Name",
-                "Email",
-                "User Type",
-                "Status",
-                "Actions",
-              ].map((h) => (
-                <th
-                  key={h}
-                  className="px-4 py-2 text-left text-sm font-medium text-gray-700"
-                >
-                  {h}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {users.map((u: User) => (
-              <tr key={u.id} className="border-t">
-                <td className="px-4 py-2">{u.agentCode}</td>
-                <td className="px-4 py-2">{u.firstName}</td>
-                <td className="px-4 py-2">{u.lastName}</td>
-                <td className="px-4 py-2">{u.email}</td>
-                <td className="px-4 py-2">{u.userType}</td>
-                <td className="px-4 py-2">{u.status}</td>
-                <td className="px-4 py-2">
-                  <button
-                    onClick={() => navigate(`/userdetail/${u.id}`)}
-                    className="px-3 py-1 bg-blue-600 text-white text-sm rounded cursor-pointer"
+        <>
+          <table className="min-w-full border">
+            <thead className="bg-gray-100">
+              <tr>
+                {[
+                  "Agent Code",
+                  "First Name",
+                  "Last Name",
+                  "Email",
+                  "User Type",
+                  "Status",
+                  "Actions",
+                ].map((h) => (
+                  <th
+                    key={h}
+                    className="px-4 py-2 text-left text-sm font-medium text-gray-700"
                   >
-                    View
-                  </button>
-                </td>
+                    {h}
+                  </th>
+                ))}
               </tr>
+            </thead>
+            <tbody>
+              {users.map((u: User) => (
+                <tr key={u.id} className="border-t">
+                  <td className="px-4 py-2">{u.agentCode}</td>
+                  <td className="px-4 py-2">{u.firstName}</td>
+                  <td className="px-4 py-2">{u.lastName}</td>
+                  <td className="px-4 py-2">{u.email}</td>
+                  <td className="px-4 py-2">{u.userType}</td>
+                  <td className="px-4 py-2">{u.status}</td>
+                  <td className="px-4 py-2">
+                    <button
+                      onClick={() => navigate(`/userdetail/${u.id}`)}
+                      className="px-3 py-1 bg-blue-600 text-white text-sm rounded"
+                    >
+                      View
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+
+          {/* ── Pagination Controls ────────────────────────────── */}
+          <div className="flex justify-center items-center space-x-2 mt-4">
+            <button
+              onClick={() => goToPage(page - 1)}
+              disabled={!hasPrevPage}
+              className="px-3 py-1 rounded border bg-white disabled:opacity-50"
+            >
+              Prev
+            </button>
+
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
+              <button
+                key={p}
+                onClick={() => goToPage(p)}
+                className={`px-3 py-1 rounded border ${
+                  p === page
+                    ? "bg-indigo-600 text-white"
+                    : "bg-white text-indigo-600"
+                }`}
+              >
+                {p}
+              </button>
             ))}
-          </tbody>
-        </table>
+
+            <button
+              onClick={() => goToPage(page + 1)}
+              disabled={!hasNextPage}
+              className="px-3 py-1 rounded border bg-white disabled:opacity-50"
+            >
+              Next
+            </button>
+          </div>
+        </>
       )}
 
       {!loading && !error && users.length === 0 && (

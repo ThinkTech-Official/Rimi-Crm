@@ -1,88 +1,32 @@
-// // src/hooks/useCreateUser.ts
-// import { useState } from "react";
-// import { useSelector } from "react-redux";
-// import { ProfileForm } from "../utils/types";
 
-// interface UseCreateUserResult {
-//   createUser: (data: ProfileForm) => Promise<void>;
-//   loading: boolean;
-//   error: string | null;
-//   success: boolean;
-// }
 
-// export function useCreateUser(): UseCreateUserResult {
-//   const token = useSelector((state: any) => state.auth.token) as string | null;
-//   const [loading, setLoading] = useState(false);
-//   const [error,   setError]   = useState<string | null>(null);
-//   const [success, setSuccess] = useState(false);
-
-//   async function createUser(data: ProfileForm) {
-//     if (!token) {
-//       setError("No auth token");
-//       return;
-//     }
-
-//     setLoading(true);
-//     setError(null);
-//     setSuccess(false);
-
-//     // Base payload for ALL user types
-//     const payload: any = {
-//       firstName: data.firstName,
-//       lastName:  data.lastName,
-//       email:     data.email,
-//       agentCode: data.agentCode,
-//       company:   data.company,
-//       userType:  data.userType,
-//       status:    data.status,
-//       password:  data.password,
-//       docLink1:  data.docLink1 || "",
-//       docLink2:  data.docLink2 || "",
-//       docLink3:  data.docLink3 || "",
-//       validUpto: data.validUpto,
-//     };
-
-//     // MGA users get an extra `agentCodes` array
-//     if (data.userType === "MGA") {
-//       payload.agentCodes = data.agentCodes;
-//     }
-
-//     try {
-//       const res = await fetch("http://localhost:3000/auth/register", {
-//         method: "POST",
-//         headers: {
-//           "Content-Type":  "application/json",
-//           Authorization:   `Bearer ${token}`,
-//         },
-//         body: JSON.stringify(payload),
-//       });
-//       if (!res.ok) {
-//         const errText = await res.text();
-//         throw new Error(errText || `HTTP ${res.status}`);
-//       }
-//       setSuccess(true);
-//     } catch (err: any) {
-//       setError(err.message);
-//     } finally {
-//       setLoading(false);
-//     }
-//   }
-
-//   return { createUser, loading, error, success };
-// }
-
-// =======================================================
-
-// src/hooks/useCreateUser.ts
 import { useState } from "react";
 import { useSelector } from "react-redux";
 
+type AvailabilityStatus = 
+  | "unchecked"
+  | "checking"
+  | "available"
+  | "taken";
+
 interface UseCreateUserResult {
-  /** 
-   * Pass in a FormData containing all user fields 
-   * and any File objects under field name "documents"
+  /**
+   * Must be called first with the agentCode that i want to verify.
+   * Returns true if code is free, false if taken.
+   */
+  checkAvailability: (agentCode: string) => Promise<boolean>;
+
+  /** "unchecked" -> "checking" -> "available" | "taken" */
+  availability: AvailabilityStatus;
+  availabilityError: string | null;
+
+  /**
+   * Pass in a FormData containing all user fields
+   * and any File objects under field name "documents".
+   * Will throw / set error if code hasn't been confirmed available.
    */
   createUser: (formData: FormData) => Promise<void>;
+
   loading: boolean;
   error: string | null;
   success: boolean;
@@ -90,11 +34,49 @@ interface UseCreateUserResult {
 
 export function useCreateUser(): UseCreateUserResult {
   const token = useSelector((state: any) => state.auth.token) as string | null;
+
+  // for createUser
   const [loading, setLoading] = useState(false);
   const [error, setError]     = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
 
+  // for availability check
+  const [availability, setAvailability] = useState<AvailabilityStatus>("unchecked");
+  const [availabilityError, setAvailabilityError] = useState<string | null>(null);
+
+  async function checkAvailability(agentCode: string) {
+    if (!agentCode) {
+      setAvailabilityError("No code provided");
+      return false;
+    }
+
+    setAvailability("checking");
+    setAvailabilityError(null);
+
+    try {
+      const res = await fetch(
+        `http://localhost:3000/auth/check?code=${encodeURIComponent(agentCode)}`,
+      );
+      if (!res.ok) {
+        throw new Error(`HTTP ${res.status}`);
+      }
+      const { available } = await res.json();
+      setAvailability(available ? "available" : "taken");
+      return available;
+    } catch (err: any) {
+      setAvailability("unchecked");
+      setAvailabilityError(err.message || "Error checking availability");
+      return false;
+    }
+  }
+
   async function createUser(formData: FormData) {
+    // ensure and checked and code is free
+    if (availability !== "available") {
+      setError("Agent code must be checked and available before creating user.");
+      return;
+    }
+
     if (!token) {
       setError("No auth token");
       return;
@@ -108,7 +90,7 @@ export function useCreateUser(): UseCreateUserResult {
       const res = await fetch("http://localhost:3000/auth/register", {
         method: "POST",
         headers: {
-          // Do NOT set Content-Type here; browser will add the correct multipart boundary
+          // browser will set Content-Type for multipart
           Authorization: `Bearer ${token}`,
         },
         body: formData,
@@ -127,5 +109,14 @@ export function useCreateUser(): UseCreateUserResult {
     }
   }
 
-  return { createUser, loading, error, success };
+  return {
+    checkAvailability,
+    availability,
+    availabilityError,
+
+    createUser,
+    loading,
+    error,
+    success,
+  };
 }
