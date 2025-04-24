@@ -7,7 +7,6 @@ import {
   // HomeIcon,
   Bars3Icon,
   XCircleIcon,
-  XCircleIcon,
 } from "@heroicons/react/24/outline";
 import { useContext, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
@@ -20,7 +19,7 @@ import { getUserTypeFromToken } from "../utils/getUserType";
 
 export default function Navbar() {
   const { langauge, setLangauge } = useContext(LangContext);
-  const { langauge, setLangauge } = useContext(LangContext);
+
 
   const [showSlider, setShowSlider] = useState(false);
   const [userName, setUserName] = useState<string | null>(null);
@@ -36,8 +35,8 @@ export default function Navbar() {
     };
 
   const handleShowClick = () => {
-    setShowSlider(!showSlider);
-  };
+    
+  
     setShowSlider(!showSlider);
   };
 

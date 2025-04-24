@@ -28,6 +28,7 @@ const Login = () => {
   const [show, setShow] = useState(false);
   const [errMsg, setErrMsg] = useState("");
   const [signInClicked,setSignInClicked] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
 
   // const { login, loading, error} = useAuth()
   const { login } = useAuth()
