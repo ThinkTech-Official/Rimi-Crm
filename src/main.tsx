@@ -32,6 +32,8 @@ const router = createBrowserRouter(
         <Dashboard />
         </ProtectedRoute>
         } />
+
+<Route path='/test-dash' element={<Dashboard />} />
       
       <Route path='/profile' element={<Profile />} />
       <Route path='/userdetail/:id' element={<UserDetails />} />

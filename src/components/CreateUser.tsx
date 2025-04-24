@@ -44,6 +44,8 @@ const CreateUser: React.FC = () => {
   const [confirmPasswordVisible, setConfirmPasswordVisible] =
     useState(false);
 
+   
+
   // ─── availability & create-user hook ────────────────────────────────────────
   const {
     checkAvailability,
@@ -57,6 +59,47 @@ const CreateUser: React.FC = () => {
 
   // track which code we last checked
   const [lastCheckedCode, setLastCheckedCode] = useState("");
+
+
+   // Validation Error State
+   const [errors, setErrors] = useState<{ [key: string]: string }>({});
+
+   
+   // ─── Validation Function ──────────────────────────────────────────────────────
+   const validateForm = () => {
+    const newErrors: { [key: string]: string } = {};
+  
+    if (!firstName.trim()) newErrors.firstName = "First name is required";
+    if (!lastName.trim()) newErrors.lastName = "Last name is required";
+  
+    if (!email.trim()) {
+      newErrors.email = "Email is required";
+    } else if (!/^\S+@\S+\.\S+$/.test(email)) {
+      newErrors.email = "Invalid email address";
+    }
+  
+    if (!userType) newErrors.userType = "User type is required";
+    if (!agentCode.trim()) newErrors.agentCode = "Agent code is required";
+  
+    if (!password) {
+      newErrors.password = "Password is required";
+    } else if (password.length < 3) {
+      newErrors.password = "Password must be at least 3 characters";
+    }
+  
+    if (!confirmPassword) {
+      newErrors.confirmPassword = "Confirm your password";
+    } else if (confirmPassword !== password) {
+      newErrors.confirmPassword = "Passwords do not match";
+    }
+  
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  //
+
+
 
   // ─── auxiliary handlers ──────────────────────────────────────────────────────
   const handleFileChange =
@@ -78,6 +121,9 @@ const CreateUser: React.FC = () => {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+
+    if (!validateForm()) return;
+
     if (availability !== "available" || lastCheckedCode !== agentCode) {
       return; // must confirm availability first
     }
@@ -117,6 +163,7 @@ const CreateUser: React.FC = () => {
     <form
       onSubmit={handleSubmit}
       className="max-w-3xl mx-auto mt-10 p-6 rounded-lg shadow-2xl bg-white"
+      noValidate
     >
       <h2 className="text-xl font-semibold text-center text-[#3a17c5] mb-4">
         {langauge === "En" ? "CREATE USER" : "CRÉER UN UTILISATEUR"}
@@ -134,10 +181,11 @@ const CreateUser: React.FC = () => {
           <input
             value={firstName}
             onChange={(e) => setFirstName(e.target.value)}
-            className="p-2 border rounded"
+            className={`p-2 border rounded ${errors.firstName ? 'border-red-500' : 'border-black'}`}
             placeholder="First Name"
-            required
+            
           />
+          {errors.firstName && <p className="text-red-500 text-sm">{errors.firstName}</p>}
         </div>
 
         {/* Last Name */}
@@ -146,10 +194,11 @@ const CreateUser: React.FC = () => {
           <input
             value={lastName}
             onChange={(e) => setLastName(e.target.value)}
-            className="p-2 border rounded"
+            className={`p-2 border rounded ${errors.lastName ? 'border-red-500' : 'border-black'}`}
             placeholder="Last Name"
-            required
+            // required
           />
+          {errors.lastName && <p className="text-red-500 text-sm">{errors.lastName}</p>}
         </div>
 
         {/* Email */}
@@ -159,10 +208,11 @@ const CreateUser: React.FC = () => {
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="p-2 border rounded"
+            className={`p-2 border rounded ${errors.email ? 'border-red-500' : 'border-black'}`}
             placeholder="Email"
-            required
+            // required
           />
+          {errors.email && <p className="text-red-500 text-sm">{errors.email}</p>}
         </div>
 
         {/* Agent Code + Generate / Check */}
@@ -175,10 +225,11 @@ const CreateUser: React.FC = () => {
                 setAgentCode(e.target.value);
                 setLastCheckedCode("");
               }}
-              className="p-2 border rounded"
+              className={`p-2 border rounded ${errors.agentCode ? 'border-red-500' : 'border-black'}`}
               placeholder="Agent Code"
-              required
+              // required
             />
+            {errors.agentCode && <p className="text-red-500 text-sm">{errors.agentCode}</p>}
           </div>
           <div className="flex gap-4 mt-4">
           <button
@@ -238,8 +289,8 @@ const CreateUser: React.FC = () => {
           <select
             value={userType}
             onChange={(e) => setUserType(e.target.value as any)}
-            className="p-2 border rounded"
-            required
+            className={`p-2 border rounded ${errors.userType ? 'border-red-500' : 'border-black'}`}
+            // required
           >
             <option value="">-- select --</option>
             <option value="ADMIN">Admin</option>
@@ -247,6 +298,7 @@ const CreateUser: React.FC = () => {
             <option value="READONLY">Read Only</option>
             <option value="MGA">MGA</option>
           </select>
+          {errors.userType && <p className="text-red-500 text-sm">{errors.userType}</p>}
         </div>
 
         {/* Status */}
@@ -281,7 +333,7 @@ const CreateUser: React.FC = () => {
               type={passwordVisible ? "text" : "password"}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full p-2 border rounded"
+              className={`w-full p-2 border rounded ${errors.password ? 'border-red-500' : 'border-black'}`}
               placeholder="New Password"
               required
             />
@@ -296,6 +348,7 @@ const CreateUser: React.FC = () => {
               )}
             </span>
           </div>
+          {errors.confirmPassword && <p className="text-red-500 text-sm">{errors.password}</p>}
 
           <label>Confirm Password</label>
           <div className="relative">
@@ -307,7 +360,7 @@ const CreateUser: React.FC = () => {
               onChange={(e) =>
                 setConfirmPassword(e.target.value)
               }
-              className="w-full p-2 border rounded"
+              className={`w-full p-2 border rounded ${errors.confirmPassword ? 'border-red-500' : 'border-black'}`}
               placeholder="Confirm Password"
               required
             />
@@ -324,6 +377,7 @@ const CreateUser: React.FC = () => {
               )}
             </span>
           </div>
+          {errors.confirmPassword && <p className="text-red-500 text-sm">{errors.confirmPassword}</p>}
         </div>
 
         {/* Valid Upto */}
