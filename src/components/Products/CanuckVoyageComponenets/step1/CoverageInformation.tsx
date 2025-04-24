@@ -12,55 +12,50 @@ interface CoverageInformationProps {
 
 export default function CoverageInformation({displayInfoDestinationCountry, setDisplayInfoDestinationCountry ,travelingThroughUS, setTravelingThroughUS , setDisplayInfoDeductible , displayInfoDeductible}: CoverageInformationProps) {
   return (
-    <>
-    <div className=" pb-4 mb-4">
-          <h3 className="text-lg font-semibold text-gray-700 flex justify-center tracking-wider leading-4 mb-10 underline">
-              COVERAGE INFORMATION
-            </h3>
-
-            <div className=" flex justify-between mt-2">
-              <label className="w-full block mt-2">Policy Type</label>
-              <select className="w-full p-2 border rounded">
-                <option>Please select...</option>
-                <option>Single Trip</option>
-                <option>Multi-Trip Annual</option>
-              </select>
-            </div>
-
-            <div className=" flex justify-between mt-2">
-              <label className="w-full block mt-2">Effective Date</label>
-              <input className="w-full p-2 border rounded" type="date" />
-            </div>
-
-            <div className=" flex justify-between mt-2">
-              <label className="w-full block mt-2">Expiry Date</label>
-              <input className="w-full p-2 border rounded" type="date" />
-            </div>
-
-            <div className=" flex justify-between mt-2">
-              <label className="w-full block mt-2">Coverage Length</label>
-              <input
-                className="w-full p-2 border rounded"
-                type="text"
-                disabled
-              />
-            </div>
-
-            <div className=" flex justify-between mt-2">
-              <label className=" w-full mt-2 flex gap-2">
-                Destination Country{" "}
-                <InformationCircleIcon
-                  onClick={() =>
-                    setDisplayInfoDestinationCountry((prevState) => !prevState)
-                  }
-                  className="h-5 w-5 text-[#3a17c5] cursor-pointer"
-                  aria-hidden="true"
-                />
-              </label>
-              <select className="w-full p-2 border rounded">
-                <option value="">Please select...</option>
-                <option value="AF">Afghanistan</option>
-                <option value="AX">Åland Islands</option>
+    <div className="max-w-5xl mx-auto mt-9 p-6 bg-[#F9F9F9]">
+      <h3 className="text-xl font-bold text-left text-[#1B1B1B] mb-6 font-[inter]">
+        Coverage Information
+      </h3>
+  
+      <div className="grid grid-cols-2 gap-x-36 gap-y-4 text-gray-700">
+        <div className="flex flex-col gap-2">
+          <label className="font-[inter]">Policy Type</label>
+          <select className="p-2 border border-[#DBDADE] font-[inter]">
+            <option>Please select</option>
+            <option>Single Trip</option>
+            <option>Multi-Trip Annual</option>
+          </select>
+        </div>
+  
+        <div className="flex flex-col gap-2">
+          <label className="font-[inter]">Effective Date</label>
+          <input className="p-2 border border-[#DBDADE] font-[inter]" type="date" />
+        </div>
+  
+        <div className="flex flex-col gap-2">
+          <label className="font-[inter]">Expiry Date</label>
+          <input className="p-2 border border-[#DBDADE] font-[inter]" type="date" />
+        </div>
+  
+        <div className="flex flex-col gap-2">
+          <label className="font-[inter]">Coverage Length</label>
+          <input className="p-2 border border-[#DBDADE] font-[inter]" type="text" disabled />
+        </div>
+        
+  
+        <div className="flex flex-col gap-2">
+          <label className="flex gap-2 font-[inter]">
+            Destination Country
+            <InformationCircleIcon
+              onClick={() => setDisplayInfoDestinationCountry((prevState) => !prevState)}
+              className="h-5 w-5 text-[#3a17c5] cursor-pointer"
+              aria-hidden="true"  
+            />
+          </label>
+          <select className="p-2 border border-[#DBDADE] font-[inter]">
+            <option>Please select</option>
+            <option value="AF">Afghanistan</option>
+            <option value="AX">Åland Islands</option>
                 <option value="AL">Albania</option>
                 <option value="DZ">Algeria</option>
                 <option value="AS">American Samoa</option>
@@ -301,152 +296,168 @@ export default function CoverageInformation({displayInfoDestinationCountry, setD
                 <option value="EH">Western Sahara</option>
                 <option value="YE">Yemen</option>
                 <option value="ZM">Zambia</option>
-                <option value="ZW">Zimbabwe</option>
-              </select>
-            </div>
+            <option value="ZW">Zimbabwe</option>
+          </select>
+          
+        </div>
 
-            {/* country info  */}
-
-            {displayInfoDestinationCountry && (
-              <div className="border rounded-lg shadow-sm p-4 bg-white mt-4 mb-4">
-                <div className=" p-4">
-                  <h2 className="text-center text-blue-600 font-semibold">
-                    Destination
-                  </h2>
-                  <p className="text-sm text-gray-700 mt-2">
-                    Select the primary destination country for your trip. Select
-                    Canada only if you are travelling outside your home
-                    province, but within Canada for your entire trip.
-                  </p>
-                </div>
-              </div>
-            )}
-
-            <div className="w-full mt-2 mb-2 ">
-              {/* Question and radio buttons */}
-              <div className="flex items-center justify-between">
-                <label className=" w-full">
-                  Are you travelling through the US?
-                </label>
-                <div className="w-full flex justify-start items-center gap-10 ">
-                  <label className="flex items-center space-x-1">
-                    <input
-                      type="radio"
-                      name="travelUS"
-                      value="yes"
-                      className="form-radio "
-                      onChange={() => setTravelingThroughUS(true)}
-                    />
-                    <span>Yes</span>
-                  </label>
-                  <label className="flex items-center space-x-1">
-                    <input
-                      type="radio"
-                      name="travelUS"
-                      value="no"
-                      className="form-radio "
-                      onChange={() => setTravelingThroughUS(false)}
-                    />
-                    <span>No</span>
-                  </label>
-                </div>
-              </div>
-
-              {/* Show input field when "Yes" is selected */}
-              {travelingThroughUS && (
-                <div className="mt-3">
-                  <div className=" flex justify-between mt-2">
-                    <label className="w-full block  font-medium">
-                      Number of Travel Days in the US
-                    </label>
-                    <input
-                      type="number"
-                      className="border  rounded p-2 w-full"
-                      placeholder="Enter number of days"
-                    />
-                  </div>
-                </div>
-              )}
-            </div>
-
-            <div className=" flex justify-between mt-2">
-              <label className=" w-full mt-2 flex gap-2">
-                Deductible{" "}
-                <InformationCircleIcon
-                  onClick={() =>
-                    setDisplayInfoDeductible((prevState) => !prevState)
-                  }
-                  className="h-5 w-5 text-[#3a17c5] cursor-pointer"
-                  aria-hidden="true"
-                />
-              </label>
-              <select className="w-full p-2 border rounded">
-                <option value="">Please select...</option>
-                <option value="0">$0.00 CAD</option>
-                <option value="250">$250.00 CAD</option>
-                <option value="500">$500.00 CAD</option>
-                <option value="1000">$1,000.00 CAD</option>
-                <option value="5000">$5,000.00 CAD</option>
-                <option value="10000">$10,000.00 CAD</option>
-              </select>
+        
+        {displayInfoDeductible && (
+        <div className="border rounded-lg shadow-sm p-4 mt-4 bg-white font-[inter]">
+          <h2 className="text-lg font-semibold border-b pb-2">Deductible</h2>
+          <p className="text-sm text-gray-600 mt-2">
+            Deductible means the amount (if applicable), in Canadian dollars, which the insured
+            must pay before any remaining eligible expenses are reimbursed under this policy...
+          </p>
+  
+          <div className="mt-4">
+            <h3 className="text-md font-semibold text-gray-700 text-center">
+              Deductible Discounts
+            </h3>
+            <div className="overflow-x-auto">
+              <table className="w-full border border-gray-300 mt-2 text-sm font-[inter]">
+                <thead className="bg-gray-100">
+                  <tr>
+                    <th className="border border-gray-300 p-2 text-left">Deductible Option</th>
+                    <th className="border border-gray-300 p-2 text-left">Discount</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {[
+                    { option: "$0", discount: "No discount" },
+                    { option: "$250", discount: "9%" },
+                    { option: "$500", discount: "14%" },
+                    { option: "$1,000", discount: "18%" },
+                    { option: "$5,000", discount: "35%" },
+                    { option: "$10,000", discount: "45%" },
+                  ].map(({ option, discount }, idx) => (
+                    <tr key={idx}>
+                      <td className="border border-gray-300 p-2">{option}</td>
+                      <td className="border border-gray-300 p-2">{discount}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           </div>
-          {displayInfoDeductible && (
-            <div>
-              <div className="border rounded-lg shadow-sm p-4 bg-white">
-                <h2 className="text-lg font-semibold border-b pb-2">
-                  Deductible
-                </h2>
-                <p className="text-sm text-gray-600 mt-2">
-                  Deductible means the amount (if applicable), in Canadian
-                  dollars, which the insured must pay before any remaining
-                  eligible expenses are reimbursed under this policy. The
-                  deductible applies once per insured person, per covered
-                  emergency.
-                </p>
+        </div>
+      )}
+        
 
-                <div className="mt-4">
-                  <h3 className="text-md font-semibold text-gray-700 text-center">
-                    Deductible Discounts
-                  </h3>
-                  <div className="overflow-x-auto">
-                    <table className="w-full border border-gray-300 mt-2">
-                      <thead className="bg-gray-100">
-                        <tr>
-                          <th className="border border-gray-300 p-2 text-left">
-                            Deductible Option
-                          </th>
-                          <th className="border border-gray-300 p-2 text-left">
-                            Discount
-                          </th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {[
-                          { option: "$0", discount: "No discount" },
-                          { option: "$250", discount: "9%" },
-                          { option: "$500", discount: "14%" },
-                          { option: "$1,000", discount: "18%" },
-                          { option: "$5,000", discount: "35%" },
-                          { option: "$10,000", discount: "45%" },
-                        ].map((item, index) => (
-                          <tr key={index} className="even:bg-gray-50">
-                            <td className="border border-gray-300 p-2">
-                              {item.option}
-                            </td>
-                            <td className="border border-gray-300 p-2">
-                              {item.discount}
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              </div>
+        
+        
+      </div>
+  
+      {displayInfoDestinationCountry && (
+        <div className="border rounded-lg shadow-sm p-4 mt-4 bg-white font-[inter]">
+          <h2 className="text-center text-blue-600 font-semibold">Destination</h2>
+          <p className="text-sm text-gray-700 mt-2">
+            Select the primary destination country for your trip. Select Canada only if you are
+            travelling outside your home province, but within Canada for your entire trip.
+          </p>
+        </div>
+      )}
+      
+      
+  
+      <div className="mt-6 flex flex-col gap-2">
+        <label className="font-[inter]">Are you travelling through the US?</label>
+        <div className="flex gap-10 font-[inter]">
+          <label className="flex items-center space-x-1">
+            <input
+              type="radio"
+              name="travelUS"
+              value="yes"
+              className="form-radio"
+              onChange={() => setTravelingThroughUS(true)}
+            />
+            <span>Yes</span>
+          </label>
+          <label className="flex items-center space-x-1">
+            <input
+              type="radio"
+              name="travelUS"
+              value="no"
+              className="form-radio"
+              onChange={() => setTravelingThroughUS(false)}
+            />
+            <span>No</span>
+          </label>
+        </div>
+      </div>
+  
+      {travelingThroughUS && (
+        <div className="mt-4 flex flex-col gap-2">
+          <label className="font-[inter]">Number of Travel Days in the US</label>
+          <input
+            type="number"
+            className="border border-[#DBDADE] rounded p-2 font-[inter]"
+            placeholder="Enter number of days"
+          />
+        </div>
+      )}
+  
+      <div className="mt-6 flex flex-col gap-2">
+        <label className="flex gap-2 font-[inter]">
+          Deductible
+          <InformationCircleIcon
+            onClick={() => setDisplayInfoDeductible((prevState) => !prevState)}
+            className="h-5 w-5 text-[#3a17c5] cursor-pointer"
+            aria-hidden="true"
+          />
+        </label>
+        <select className="p-2 border border-[#DBDADE] font-[inter]">
+          <option value="">Please select...</option>
+          <option value="0">$0.00 CAD</option>
+          <option value="250">$250.00 CAD</option>
+          <option value="500">$500.00 CAD</option>
+          <option value="1000">$1,000.00 CAD</option>
+          <option value="5000">$5,000.00 CAD</option>
+          <option value="10000">$10,000.00 CAD</option>
+        </select>
+      </div>
+  
+      {displayInfoDeductible && (
+        <div className="border rounded-lg shadow-sm p-4 mt-4 bg-white font-[inter]">
+          <h2 className="text-lg font-semibold border-b pb-2">Deductible</h2>
+          <p className="text-sm text-gray-600 mt-2">
+            Deductible means the amount (if applicable), in Canadian dollars, which the insured
+            must pay before any remaining eligible expenses are reimbursed under this policy...
+          </p>
+  
+          <div className="mt-4">
+            <h3 className="text-md font-semibold text-gray-700 text-center">
+              Deductible Discounts
+            </h3>
+            <div className="overflow-x-auto">
+              <table className="w-full border border-gray-300 mt-2 text-sm font-[inter]">
+                <thead className="bg-gray-100">
+                  <tr>
+                    <th className="border border-gray-300 p-2 text-left">Deductible Option</th>
+                    <th className="border border-gray-300 p-2 text-left">Discount</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {[
+                    { option: "$0", discount: "No discount" },
+                    { option: "$250", discount: "9%" },
+                    { option: "$500", discount: "14%" },
+                    { option: "$1,000", discount: "18%" },
+                    { option: "$5,000", discount: "35%" },
+                    { option: "$10,000", discount: "45%" },
+                  ].map(({ option, discount }, idx) => (
+                    <tr key={idx}>
+                      <td className="border border-gray-300 p-2">{option}</td>
+                      <td className="border border-gray-300 p-2">{discount}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
-          )}
-
-          </>
-  )
+          </div>
+        </div>
+      )}
+    </div>
+  );
+  
 }

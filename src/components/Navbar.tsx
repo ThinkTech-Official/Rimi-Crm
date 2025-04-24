@@ -7,6 +7,7 @@ import {
   // HomeIcon,
   Bars3Icon,
   XCircleIcon,
+  XCircleIcon,
 } from "@heroicons/react/24/outline";
 import { useContext, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
@@ -18,6 +19,7 @@ import { getUserTypeFromToken } from "../utils/getUserType";
 
 
 export default function Navbar() {
+  const { langauge, setLangauge } = useContext(LangContext);
   const { langauge, setLangauge } = useContext(LangContext);
 
   const [showSlider, setShowSlider] = useState(false);
@@ -36,6 +38,8 @@ export default function Navbar() {
   const handleShowClick = () => {
     setShowSlider(!showSlider);
   };
+    setShowSlider(!showSlider);
+  };
 
   const handleSetLangauge = (lang: string) => {
     setLangauge(lang);
@@ -52,7 +56,7 @@ export default function Navbar() {
 
   return (
     <>
-      <div className=" h-12 max-w-screen bg-[#3a17c5] flex items-center justify-between">
+      <div className=" h-14 max-w-screen bg-[#ffffff] border-2 border-b-[#93C5FD] border-t-0 border-r-0 flex items-center justify-between">
         {/* Link to Home, Policy , Qoutes */}
 
         <>
@@ -82,7 +86,7 @@ export default function Navbar() {
           </div>
         </>
         <div className="flex justify-center items-center gap-4">
-          <ul className=" flex justify-between items-center text-white gap-4 m-8">
+          <ul className=" flex justify-between items-center text-[#2B00B7] gap-4 m-8">
             {/* User profile and logout drop ChevronDownIcon */}
             {token && (
               <li className=" ">
@@ -166,7 +170,24 @@ export default function Navbar() {
             <li className="mt-5">
               <Link to="/home">Home</Link>{" "}
             </li>
+      {showSlider ? (
+        <div className=" w-[300px] h-screen shadow-2xl">
+          <div className=" flex justify-end mr-3 mt-3 ">
+            <XCircleIcon
+              onClick={() => setShowSlider(false)}
+              className="size-8 text-[#3a17c5] cursor-pointer"
+            />
+          </div>
+          <ul className=" flex flex-col gap-4 text-xl justify-center items-center text-[#3a17c5]">
+            <li className="mt-5">
+              <Link to="/home">Home</Link>{" "}
+            </li>
             <li>Contact us</li>
+          </ul>
+        </div>
+      ) : (
+        ""
+      )}
           </ul>
         </div>
       ) : (

@@ -1,51 +1,53 @@
 export default function Address() {
   return (
-    <div>
-      <h3 className="text-lg font-semibold text-gray-700 flex justify-center tracking-wider leading-4 mb-10 underline">
-            ADDRESS
-            </h3>
-      <div className=" flex justify-between mt-2">
-        <label className="w-full block">Address Line 1</label>
-        <input
-          type="text"
-          className="border  rounded p-2 w-full"
-          placeholder="Address Line 1"
-        />
-      </div>
+    <div className="max-w-5xl mx-auto mt-4 p-6 bg-[#F9F9F9]">
+      <h3 className="text-xl font-bold text-left text-[#1B1B1B] mb-6 font-[inter] ">
+      Residence Information
+      </h3>
 
-      <div className=" flex justify-between mt-2">
-        <label className="w-full block">Address Line 2</label>
-        <input
-          type="text"
-          className="border  rounded p-2 w-full"
-          placeholder="Address Line 2"
-        />
-      </div>
+      <div className="grid grid-cols-2 gap-x-36 gap-y-4 text-gray-700">
+        <div className="flex flex-col gap-2">
+          <label className="font-[inter]">Address Line 1</label>
+          <input
+            type="text"
+            className="p-2 border border-[#DBDADE] placeholder-[#00000080] font-[inter]"
+            placeholder="Address Line 1"
+          />
+        </div>
 
-      <div className=" flex justify-between mt-2">
-        <label className="w-full block">city</label>
-        <input
-          type="text"
-          className="border  rounded p-2 w-full"
-          placeholder="city"
-        />
-      </div>
+        <div className="flex flex-col gap-2">
+          <label className="font-[inter]">Address Line 2</label>
+          <input
+            type="text"
+            className="p-2 border border-[#DBDADE] placeholder-[#00000080] font-[inter]"
+            placeholder="Address Line 2"
+          />
+        </div>
 
-      <div className=" flex justify-between mt-2">
-        <label className="w-full block">Postal Code</label>
-        <input
-          type="text"
-          className="border  rounded p-2 w-full"
-          placeholder="Postal Code"
-        />
-      </div>
+        <div className="flex flex-col gap-2">
+          <label className="font-[inter]">City</label>
+          <input
+            type="text"
+            className="p-2 border border-[#DBDADE] placeholder-[#00000080] font-[inter]"
+            placeholder="City"
+          />
+        </div>
 
-      <div className=" flex justify-between mt-2">
-        <label className="w-full block">Country</label>
-        <select className="w-full p-2 border rounded">
-                <option value="">Please select...</option>
-                <option value="AF">Afghanistan</option>
-                <option value="AX">Åland Islands</option>
+        <div className="flex flex-col gap-2">
+          <label className="font-[inter]">Postal Code</label>
+          <input
+            type="text"
+            className="p-2 border border-[#DBDADE] placeholder-[#00000080] font-[inter]"
+            placeholder="Postal Code"
+          />
+        </div>
+
+        <div className="flex flex-col gap-2">
+          <label className="font-[inter]">Country</label>
+          <select className="p-2 border border-[#DBDADE] font-[inter] text-[#00000080]">
+            <option value="">Please select...</option>
+            <option value="AF">Afghanistan</option>
+            <option value="AX">Åland Islands</option>
                 <option value="AL">Albania</option>
                 <option value="DZ">Algeria</option>
                 <option value="AS">American Samoa</option>
@@ -286,19 +288,19 @@ export default function Address() {
                 <option value="EH">Western Sahara</option>
                 <option value="YE">Yemen</option>
                 <option value="ZM">Zambia</option>
-                <option value="ZW">Zimbabwe</option>
-              </select>
-      </div>
+            <option value="ZW">Zimbabwe</option>
+          </select>
+        </div>
 
-      <div className=" flex justify-between mt-2">
-        <label className="w-full block">Province/State</label>
-        <input
-          type="text"
-          className="border  rounded p-2 w-full"
-          placeholder="Province/State"
-        />
+        <div className="flex flex-col gap-2">
+          <label className="font-[inter]">Province/State</label>
+          <input
+            type="text"
+            className="p-2 border border-[#DBDADE] placeholder-[#00000080] font-[inter]"
+            placeholder="Province/State"
+          />
+        </div>
       </div>
-
     </div>
   );
 }

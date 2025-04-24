@@ -12,18 +12,25 @@ const QuoteSummary: React.FC = () => {
   ];
 
   return (
-    <div className="">
-      <h3 className="text-lg font-semibold text-center text-gray-700 underline mb-4">
-        YOUR QUOTE SUMMARY
+    <div className="max-w-5xl mx-auto mt-4 p-6 bg-[#F9F9F9]">
+      <h3 className="text-xl font-bold text-left text-[#1B1B1B] mb-2 font-[inter]">
+        Your Quote Summary
       </h3>
-      <table className="w-full border border-gray-300">
+      <p className="text-left font-semibold text-[#6A6A6A] mb-8 font-[inter]">
+        Please review the details below before proceeding.
+      </p>
+
+      <table className="w-full border border-[#DBDADE] font-[inter]">
         <tbody>
           {quoteDetails.map((item, index) => (
-            <tr key={index} className="border border-gray-300">
-              <td className="p-3 font-medium text-gray-700 bg-gray-100 border-r border-gray-300">
+            <tr
+              key={index}
+              className="border border-[#DBDADE] even:bg-[#F5F5F5] odd:bg-white"
+            >
+              <td className="p-3 text-left font-semibold text-[#1B1B1B] w-1/2">
                 {item.label}
               </td>
-              <td className="p-3 text-gray-900">{item.value}</td>
+              <td className="p-3 text-left text-[#6A6A6A]">{item.value}</td>
             </tr>
           ))}
         </tbody>

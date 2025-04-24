@@ -69,14 +69,8 @@ const RIMICanuckVoyageTravelMedical: React.FC = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto mt-10 p-6 bg-white rounded-lg shadow-lg">
-      <div className="text-center mb-4">
-        <h1 className="text-2xl font-bold text-[#3a17c5]">RIMI</h1>
-        <h2 className="text-lg text-[#3a17c5]">
-          RIMI CANUCK VOYAGE TRAVEL MEDICAL INSURANCE
-        </h2>
-        <p className="text-sm text-blue-500">Coverage Summary</p>
-      </div>
+    <div className="max-w-5xl mx-auto mt-10 p-6 bg-white rounded-lg shadow-lg">
+      
 
       {/* Upper Navigation for form stages  */}
 
@@ -90,13 +84,13 @@ const RIMICanuckVoyageTravelMedical: React.FC = () => {
               {step.status === "complete" ? (
                 <a href={step.href} className="group flex w-full items-center">
                   <span className="flex items-center px-6 py-4 text-sm font-medium">
-                    <span className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-indigo-600 group-hover:bg-indigo-800">
+                    <span className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-[#2B00B7] group-hover:bg-[#2B00B7]">
                       <CheckIcon
                         className="h-6 w-6 text-white"
                         aria-hidden="true"
                       />
                     </span>
-                    <span className="ml-4 text-sm font-medium text-gray-900">
+                    <span className="ml-4 text-lg font-medium text-[#2B00B7] font-[inter]">
                       {step.name}
                     </span>
                   </span>
@@ -104,13 +98,13 @@ const RIMICanuckVoyageTravelMedical: React.FC = () => {
               ) : step.status === "current" ? (
                 <a
                   href={step.href}
-                  className="flex items-center px-6 py-4 text-sm font-medium"
+                  className="flex items-center px-6 py-4 text-sm font-medium font-[inter]"
                   aria-current="step"
                 >
-                  <span className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full border-2 border-indigo-600">
-                    <span className="text-indigo-600">{step.id}</span>
+                  <span className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full border-2 border-[#2B00B7]">
+                    <span className="text-[#2B00B7] font-[inter]">{step.id}</span>
                   </span>
-                  <span className="ml-4 text-sm font-medium text-indigo-600">
+                  <span className="ml-4 text-lg font-medium text-[#2B00B7] font-[inter]">
                     {step.name}
                   </span>
                 </a>
@@ -118,11 +112,11 @@ const RIMICanuckVoyageTravelMedical: React.FC = () => {
                 <a href={step.href} className="group flex items-center">
                   <span className="flex items-center px-6 py-4 text-sm font-medium">
                     <span className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full border-2 border-gray-300 group-hover:border-gray-400">
-                      <span className="text-gray-500 group-hover:text-gray-900">
+                      <span className="text-gray-500 group-hover:text-gray-900 font-[inter]">
                         {step.id}
                       </span>
                     </span>
-                    <span className="ml-4 text-sm font-medium text-gray-500 group-hover:text-gray-900">
+                    <span className="ml-4 text-lg font-medium font-[inter] text-gray-500 group-hover:text-gray-900">
                       {step.name}
                     </span>
                   </span>
@@ -186,8 +180,8 @@ const RIMICanuckVoyageTravelMedical: React.FC = () => {
 
           {/* // */}
 
-          <div className=" w-full h-28 flex items-center justify-start bg-slate-200">
-            <h3 className=" text-2xl ml-7">Your Quote: $0.00</h3>
+          <div className=" w-full h-2 mt-5 flex items-center justify-center font-[inter]">
+            <h3 className=" text-lg  ">Your Quote: $0.00</h3>
           </div>
         </div>
       )}
@@ -199,8 +193,8 @@ const RIMICanuckVoyageTravelMedical: React.FC = () => {
       {steps[1].status === "current" && (
         <div>
           {/* Qoutes  */}
-          <div className=" w-full h-28 flex items-center justify-start bg-slate-200">
-            <h3 className=" text-2xl ml-7">Your Quote: $0.00</h3>
+          <div className=" w-full h-2 mt-8 flex items-center justify-center font-[inter]">
+            <h3 className=" text-lg  ">Your Quote: $0.00</h3>
           </div>
           {/* // */}
 
@@ -233,10 +227,10 @@ const RIMICanuckVoyageTravelMedical: React.FC = () => {
 
       {steps[2].status === "current" && (
         <div>
-          <h3 className="text-lg font-semibold text-gray-700">
+          <h3 className="text-xl font-bold text-left text-[#1B1B1B] mt-5 mb-6 font-[inter] ">
             Step 3: Confirmation
           </h3>
-          <p className="text-gray-600">
+          <p className="text-md  text-left text-[#1B1B1B] mb-6 font-[inter] ">
             Review your application details and submit.
           </p>
         </div>
@@ -244,7 +238,7 @@ const RIMICanuckVoyageTravelMedical: React.FC = () => {
       <div className="flex justify-center gap-10 mt-4">
         {formStep > 1 && (
           <button
-            className="w-[150px] bg-[#6141e0] text-white p-2 rounded cursor-pointer"
+            className="w-[250px] mt-6 bg-[#ffffff] border border-[#2B00B7] text-[#2B00B7] p-3  hover:bg-[#2209a1] hover:text-white transition flex justify-center items-center cursor-pointer font-[inter]"
             onClick={() => handleFormStepChange("back")}
           >
             Previous
@@ -252,7 +246,7 @@ const RIMICanuckVoyageTravelMedical: React.FC = () => {
         )}
         {formStep < 3 ? (
           <button
-            className="w-[150px] bg-[#3a17c5] text-white p-2 rounded cursor-pointer"
+            className="w-[250px] mt-6 bg-[#2B00B7] text-white p-3  hover:bg-[#2309A1] transition flex justify-center items-center cursor-pointer font-[inter]"
             onClick={() => handleFormStepChange("forward")}
           >
             Next
@@ -260,7 +254,7 @@ const RIMICanuckVoyageTravelMedical: React.FC = () => {
         ) : (
           <button
             onClick={handleSubmit}
-            className="w-[150px] bg-[#3a17c5] text-white p-2 rounded cursor-pointer"
+            className="w-[250px] mt-6 bg-[#2B00B7] text-white p-3  hover:bg-[#2309A1] transition flex justify-center items-center cursor-pointer font-[inter]"
           >
             Submit
           </button>

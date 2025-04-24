@@ -233,15 +233,15 @@ export default function Dashboard() {
                   </Transition.Child>
                   {/* Sidebar component, swap this element with another sidebar if you like */}
                   <div className="flex grow flex-col gap-y-5 overflow-y-auto bg-white px-6 pb-4">
-                    <div className="flex h-16 shrink-0 items-center">
+                    <div className="flex h-16 shrink-0 items-center ">
                       <img
-                        className="h-8 w-auto"
+                        className="h-8 w-auto "
                         src="/rimi_en.png"
                         alt="RIMI"
                       />
                     </div>
                     <nav className="flex flex-1 flex-col">
-                      <ul role="list" className="flex flex-1 flex-col gap-y-7">
+                      <ul role="list" className="flex flex-1 flex-col gap-y-7 ">
                         <li>
                           <ul role="list" className="-mx-2 space-y-1">
                             {filteredNavigation.map((item) => (
@@ -250,16 +250,16 @@ export default function Dashboard() {
                                   href={item.href}
                                   className={classNames(
                                     item.current
-                                      ? "bg-gray-50 text-indigo-600"
-                                      : "text-gray-700 hover:text-indigo-600 hover:bg-gray-50",
-                                    "group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold"
+                                      ? "bg-gray-50 text-[#2B00B7] font-[inter]"
+                                      : "text-gray-700 hover:text-[#2B00B7] hover:bg-gray-50 font-[inter]",
+                                    "group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-[inter] font-semibold"
                                   )}
                                 >
                                   <item.icon
                                     className={classNames(
                                       item.current
                                         ? "text-indigo-600"
-                                        : "text-gray-400 group-hover:text-indigo-600",
+                                        : "text-gray-400 group-hover:text-indigo-600 font-[inter]",
                                       "h-6 w-6 shrink-0"
                                     )}
                                     aria-hidden="true"
@@ -324,11 +324,12 @@ export default function Dashboard() {
         {/* Static sidebar for desktop */}
         <div className="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-72 lg:flex-col">
           {/* Sidebar component, swap this element with another sidebar if you like */}
-          <div className="flex grow flex-col gap-y-5 overflow-y-auto border-r border-gray-200 bg-white px-6 pb-4">
-            <div className="flex h-16 shrink-0 items-center">
+          <div className="flex grow flex-col gap-y-5 overflow-y-auto border-r border-[#93C5FD] bg-white px-6 pb-4">
+            <div className="flex h-14 shrink-0 items-center py-5 ">
               <img className="h-8 w-auto" src="/rimi_en.png" alt="RIMI" />
             </div>
             <nav className="flex flex-1 flex-col">
+              <h2 className="text-lg font-semibold font-[inter] pb-3">Menu</h2>
               <ul role="list" className="flex flex-1 flex-col gap-y-7">
                 <li>
                   <ul role="list" className="-mx-2 space-y-1">
@@ -341,16 +342,16 @@ export default function Dashboard() {
                           href={item.href}
                           className={classNames(
                             item.slug === selectedComponent
-                              ? "bg-gray-50 text-indigo-600"
-                              : "text-gray-700 hover:text-indigo-600 hover:bg-gray-50",
-                            "group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold"
+                              ? "bg-gray-50 text-[#2B00B7] font-[inter] font-semibold"
+                              : "text-[#4B465C] hover:text-[#2B00B7] hover:bg-gray-50 font-[inter] ",
+                            "group flex gap-x-3 rounded-md p-2 text-md leading-6"
                           )}
                         >
                           <item.icon
                             className={classNames(
                               item.slug === selectedComponent
-                                ? "text-indigo-600"
-                                : "text-gray-400 group-hover:text-indigo-600",
+                                ? "text-[#2B00B7]"
+                                : "text-gray-400 group-hover:text-[#2B00B7]",
                               "h-6 w-6 shrink-0"
                             )}
                             aria-hidden="true"
