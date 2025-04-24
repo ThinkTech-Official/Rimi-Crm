@@ -185,6 +185,7 @@ const Login = () => {
                     </div>
                     <button
                       onClick={handleForgotPassword}
+                      type="button"
                       className="flex w-full justify-left p-1 mt-1 text-sm font-semibold font-[inter] leading-6 text-[#4340DA] hover:text-[#2B00B7] cursor-pointer"
                     >
                       {langauge === "En" ? <p>Forgot Password?</p> : <p>Mot de passe oublié?</p>}
@@ -214,7 +215,7 @@ const Login = () => {
                        ? 
                        <button
                       
-                      className="flex w-full justify-center rounded-md bg-[#b5b4ec] px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-[#90a1fa] focus-visible:outline-offset-2 focus-visible:outline-indigo-600 cursor-pointer"
+                      className="w-full mt-2 bg-[#2B00B7] text-white p-3 hover:bg-[#2309A1] transition flex justify-center items-center cursor-pointer font-[inter]"
                     >
                       {langauge === "En" ? <p>Sign in</p> : <p>Se connecter</p>}
                     </button>
