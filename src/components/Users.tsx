@@ -2,11 +2,7 @@
 import React, { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { LangContext } from "../context/LangContext";
-import {
-  useSearchUsers,
-  SearchCriteria,
-  User,
-} from "../hooks/useSearchUsers";
+import { useSearchUsers, SearchCriteria, User } from "../hooks/useSearchUsers";
 
 const Users: React.FC = () => {
   const { langauge } = useContext(LangContext);
@@ -27,7 +23,7 @@ const Users: React.FC = () => {
     limit: 20,
   });
 
-  // Validation 
+  // Validation
   const [inputErrors, setInputErrors] = useState<{ [key: string]: string }>({});
 
   //
@@ -93,32 +89,35 @@ const Users: React.FC = () => {
           //   />
           // </div>
           <div key={key}>
-  <label className="block text-gray-700">{label}</label>
-  <input
-    type={(type as string) || "text"}
-    value={(criteria as any)[key]}
-    onChange={(e) => {
-      const value = e.target.value;
-      setCriteria((c) => ({ ...c, [key]: value }));
-      if (key === "email") {
-        if (value && !/^\S+@\S+\.\S+$/.test(value)) {
-          setInputErrors((prev) => ({ ...prev, email: "Invalid email format" }));
-        } else {
-          setInputErrors((prev) => {
-            const { email, ...rest } = prev;
-            return rest;
-          });
-        }
-      }
-    }}
-    className={`w-full p-2 border rounded focus:outline-[#3a17c5] ${
-      inputErrors[key] ? "border-red-500" : "border-[#3a17c5]"
-    }`}
-  />
-  {inputErrors[key] && (
-    <p className="text-red-500 text-sm mt-1">{inputErrors[key]}</p>
-  )}
-</div>
+            <label className="block text-gray-700">{label}</label>
+            <input
+              type={(type as string) || "text"}
+              value={(criteria as any)[key]}
+              onChange={(e) => {
+                const value = e.target.value;
+                setCriteria((c) => ({ ...c, [key]: value }));
+                if (key === "email") {
+                  if (value && !/^\S+@\S+\.\S+$/.test(value)) {
+                    setInputErrors((prev) => ({
+                      ...prev,
+                      email: "Invalid email format",
+                    }));
+                  } else {
+                    setInputErrors((prev) => {
+                      const { email, ...rest } = prev;
+                      return rest;
+                    });
+                  }
+                }
+              }}
+              className={`w-full p-2 border rounded focus:outline-[#3a17c5] ${
+                inputErrors[key] ? "border-red-500" : "border-[#3a17c5]"
+              }`}
+            />
+            {inputErrors[key] && (
+              <p className="text-red-500 text-sm mt-1">{inputErrors[key]}</p>
+            )}
+          </div>
         ))}
 
         <div>
@@ -259,4 +258,3 @@ const Users: React.FC = () => {
 };
 
 export default Users;
-
