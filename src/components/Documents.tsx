@@ -3,7 +3,7 @@
 import {
   PencilSquareIcon,
   TrashIcon,
-  FolderPlusIcon
+  // FolderPlusIcon
 } from '@heroicons/react/24/outline'
 import { useContext } from 'react'
 import { LangContext } from '../context/LangContext'
@@ -22,16 +22,15 @@ export default function Documents() {
 
 
   return (
-    <div className="max-w-4xl mx-auto mt-10">
-      <h2 className="text-xl font-semibold text-center text-[#3a17c5] mb-4">{ langauge === 'En' ? 'DOCUMENTS' : 'DOCUMENTATION'}</h2>
-      <div className=" max-w-4xl mt-10">
+    <div className="max-w-5xl mx-auto mt-10">
+      <div className=" max-w-5xl mt-10 px-10 py-10 shadow-[0px_3px_9.7px_#0000001C]">
 
         {demoDocuments.map((item) => (
-          <div key={item.id} className=" flex justify-between items-center border-b py-2 border-slate-200 w-full">
+          <div key={item.id} className=" flex justify-between items-center  py-2  w-full font-[inter]">
           {item.name}
           <div className='flex justify-center items-center gap-2'>
-          <button className=" px-2 py-2 border border-slate-400 shadow-2xl flex gap-2 cursor-pointer"><PencilSquareIcon className="h-6 w-6" aria-hidden="true" /> </button>
-          <button className=" px-2 py-2 border border-slate-400 shadow-2xl flex gap-2 cursor-pointer"><TrashIcon className="h-6 w-6" aria-hidden="true" /> </button>
+          <button className=" px-2 py-2 text-[#2B00B7] shadow-2xl flex gap-2 cursor-pointer"><PencilSquareIcon className="h-6 w-6" aria-hidden="true" /> </button>
+          <button className=" px-2 py-2 text-[#2B00B7] shadow-2xl flex gap-2 cursor-pointer"><TrashIcon className="h-6 w-6" aria-hidden="true" /> </button>
           </div>
       </div>
         ))}
@@ -41,7 +40,7 @@ export default function Documents() {
       </div>
 
       <div className=' mt-5 flex justify-center items-center'>
-      <button className=" px-2 py-2 border border-slate-400 shadow-2xl flex gap-2 cursor-pointer"><FolderPlusIcon className="h-6 w-6" aria-hidden="true" /> { langauge === 'En' ? 'ADD' : 'AJOUTER'} </button>
+      <button className=" w-[250px] mt-6 bg-[#2B00B7] text-white p-3 hover:bg-[#2309A1] transition flex justify-center items-center cursor-pointer font-[inter]"> { langauge === 'En' ? 'Add' : 'AJOUTER'} </button>
       </div>
     </div>
   )

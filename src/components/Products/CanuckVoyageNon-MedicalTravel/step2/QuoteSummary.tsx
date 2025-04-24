@@ -1,10 +1,14 @@
-
-
 export default function QuoteSummary() {
   return (
-    <div className="max-w-4xl mx-auto p-4 bg-white shadow-md rounded-lg">
-      <h2 className="text-center text-xl font-semibold border-b pb-2">YOUR QUOTE SUMMARY</h2>
-      <table className="w-full mt-4 border border-gray-300">
+    <div className="max-w-5xl mx-auto mt-4 p-6 bg-[#F9F9F9]">
+      <h3 className="text-xl font-bold text-left text-[#1B1B1B] mb-2 font-[inter]">
+        Your Quote Summary
+      </h3>
+      <p className="text-left font-semibold text-[#6A6A6A] mb-8 font-[inter]">
+        Please review the details below before proceeding.
+      </p>
+
+      <table className="w-full border border-[#DBDADE] font-[inter]">
         <tbody>
           {[
             ["Trip Cost", "$100.00 USD"],
@@ -17,13 +21,18 @@ export default function QuoteSummary() {
             ["Destination Country", "Canada"],
             ["Number of Travellers", "1"],
           ].map(([label, value], index) => (
-            <tr key={index} className="border-b border-gray-300">
-              <td className="px-4 py-2 font-semibold border-r border-gray-300">{label}</td>
-              <td className="px-4 py-2">{value}</td>
+            <tr
+              key={index}
+              className="border border-[#DBDADE] even:bg-[#F5F5F5] odd:bg-white"
+            >
+              <td className="p-3 text-left font-semibold text-[#1B1B1B] w-1/2">
+                {label}
+              </td>
+              <td className="p-3 text-left text-[#6A6A6A]">{value}</td>
             </tr>
           ))}
         </tbody>
       </table>
     </div>
-  )
+  );
 }

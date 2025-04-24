@@ -3,11 +3,11 @@ import { useForm } from "react-hook-form";
 import { Transition } from "@headlessui/react";
 import { XCircleIcon } from "@heroicons/react/24/outline";
 import { XMarkIcon } from "@heroicons/react/20/solid";
+import { EyeIcon, EyeSlashIcon } from "@heroicons/react/16/solid";
 // import useAdmin from '../hooks/useAdmin';
 // import { useNavigate } from 'react-router-dom';
 
 import rimilogo from "../assets/rimi_en.png";
-import five from "../assets/login2.avif";
 import { LangContext } from "../context/LangContext";
 
 const Login = () => {
@@ -17,6 +17,7 @@ const Login = () => {
 
   const [show, setShow] = useState(false);
   const [errMsg, setErrMsg] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   // const { login } = useAdmin()
 
@@ -36,7 +37,7 @@ const Login = () => {
     // display error
     // console.log(resp?.response?.data?.errors[0]?.msg);
     // setErrMsg(resp?.response?.data?.errors[0]?.msg);
-    setErrMsg("Networ error");
+    setErrMsg("Network error");
     // setShow(true);
     //   }
   };
@@ -51,10 +52,10 @@ const Login = () => {
             <body class="h-full">
             ```
           */}
-      <div className="flex min-h-full flex-1">
-        <div className="flex flex-1 flex-col justify-center px-4 py-12 sm:px-6 lg:flex-none lg:px-20 xl:px-24">
-          <div className="mx-auto w-full max-w-sm lg:w-96">
-            <div>
+      <div className="flex h-screen flex-1  justify-center items-center ">
+        <div className="flex flex-1 flex-col  justify-center items-center ">
+          <div className="mx-auto w-full  max-w-md lg:w-130 ">
+            <div className="flex flex-col justify-center items-center">
               <a href="#">
                 <img
                   className="h-10 w-auto"
@@ -63,9 +64,13 @@ const Login = () => {
                 />
               </a>
 
-              <h2 className="mt-8 text-2xl font-bold leading-9 tracking-tight text-gray-900">
-                {langauge === "En" ? <p>Login</p> : <p>Se connecter</p>}
+              <h2 className="mt-8 text-3xl font-bold font-[inter] leading-9  text-[#232323]">
+                {langauge === "En" ? <p>Sign in</p> : <p>Se connecter</p>}
               </h2>
+              <h4 className="mt-4 text-md font-normal font-[inter] text-[#969696]">
+                Please login to continue to your account.
+              </h4>
+
               {/* <p className="mt-2 text-sm leading-6 text-gray-500">
                     Not a member?{' '}
                     <a href="#" className="font-semibold text-indigo-600 hover:text-indigo-500">
@@ -84,49 +89,78 @@ const Login = () => {
                   <div>
                     <label
                       htmlFor="email"
-                      className="block text-sm font-medium leading-6 text-gray-900"
+                      className="sr-only block text-sm font-medium leading-6 text-[#D9D9D9]"
                     >
-                      {langauge === "En" ? <p>Email address</p> : <p>Adresse email</p>}
+                      {langauge === "En" ? (
+                        <p>Email Address</p>
+                      ) : (
+                        <p>Adresse email</p>
+                      )}
                     </label>
+
                     <div className="mt-2">
                       <input
                         id="email"
-                        //   name="email"
                         type="email"
                         autoComplete="email"
                         {...register("email", { required: true })}
-                        className="block w-full rounded-md border-0 py-1.5 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                        className="block w-full rounded-sm border border-[#D9D9D9] p-3 hover:border-[#2B00B7]   placeholder:text-[#9A9A9A] font-[inter] "
+                        placeholder="Username/email"
                       />
                       {errors.email && (
-                        <span className="text-red-500">Email is required</span>
+                        <span className="text-red-500  text-sm  font-[inter]">Email is required</span>
                       )}
                     </div>
                   </div>
-
+                  {/* password field */}
+                  
                   <div>
                     <label
                       htmlFor="password"
-                      className="block text-sm font-medium leading-6 text-gray-900"
+                      className="sr-only block text-sm font-medium leading-6 text-[#D9D9D9]"
                     >
-                      {langauge === "En" ? <p>Password</p> : <p>Mot de passe</p>}
+                      {langauge === "En" ? (
+                        <p>Password</p>
+                      ) : (
+                        <p>Mot de passe</p>
+                      )}
                     </label>
-                    <div className="mt-2">
+                    <div className="mt-2 relative">
                       <input
                         id="password"
-                        //   name="password"
-                        type="password"
+                        type={showPassword ? "text" : "password"}
                         autoComplete="current-password"
                         {...register("password", { required: true })}
-                        className="block w-full rounded-md border-0 py-1.5 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                        className="block w-full rounded-sm border border-[#D9D9D9] p-3 hover:border-[#2B00B7] placeholder:text-[#9A9A9A] font-[inter] pr-10"
+                        placeholder="Password"
                       />
+                      <div
+                        className="absolute inset-y-0 right-3 flex items-center cursor-pointer text-[#9A9A9A]"
+                        onClick={() => setShowPassword(!showPassword)}
+                      >
+                        {showPassword ? (
+                          <EyeIcon className="h-5 w-5" />
+                        ) : (
+                          <EyeSlashIcon className="h-5 w-5" />
+                        )}
+                      </div>
                       {errors.password && (
-                        <span className="text-red-500">
+                        <span className="text-red-500 text-sm font-[inter]">
                           Password is required
                         </span>
                       )}
                     </div>
+                    <button
+                      type="submit"
+                      className="flex w-full justify-left p-1 mt-1 text-sm font-semibold font-[inter] leading-6 text-[#4340DA] hover:text-[#2B00B7] cursor-pointer"
+                    >
+                      {langauge === "En" ? (
+                        <p>Forgot Password?</p>
+                      ) : (
+                        <p>Mot de passe oublié</p>
+                      )}
+                    </button>
                   </div>
-
                   {/* <div className="flex items-center justify-between"> */}
                   {/* <div className="flex items-center">
                           <input
@@ -139,26 +173,18 @@ const Login = () => {
                             Remember me
                           </label>
                         </div> */}
-
                   {/* <div className="text-sm leading-6">
                           <a href="#" className="font-semibold text-indigo-600 hover:text-indigo-500">
                             Forgot password?
                           </a>
                         </div> */}
                   {/* </div> */}
-
                   <div className=" flex flex-col gap-4">
                     <button
                       type="submit"
-                      className="flex w-full justify-center rounded-md bg-[#4340DA] px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-[#405ada] focus-visible:outline-offset-2 focus-visible:outline-indigo-600 cursor-pointer"
+                      className="w-full mt-2 bg-[#2B00B7] text-white p-3 hover:bg-[#2309A1] transition flex justify-center items-center cursor-pointer font-[inter]"
                     >
                       {langauge === "En" ? <p>Sign in</p> : <p>Se connecter</p>}
-                    </button>
-                    <button
-                      type="submit"
-                      className="flex w-full justify-center rounded-md bg-[#fff] px-3 py-1.5 text-sm font-semibold leading-6 text-[#000] shadow-sm hover:bg-[#fff] focus-visible:outline-offset-2 focus-visible:outline-indigo-600 cursor-pointer"
-                    >
-                      {langauge === "En" ? <p>Forgot Password</p> : <p>Mot de passe oublié</p>}
                     </button>
                   </div>
                 </form>
@@ -202,13 +228,6 @@ const Login = () => {
                   </div> */}
             </div>
           </div>
-        </div>
-        <div className="relative hidden w-0 flex-1 lg:block">
-          <img
-            className="absolute inset-0 h-screen w-full object-cover"
-            src={five}
-            alt=""
-          />
         </div>
       </div>
 
