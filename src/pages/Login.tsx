@@ -184,14 +184,10 @@ const Login = () => {
                       )}
                     </div>
                     <button
-                      type="submit"
+                      onClick={handleForgotPassword}
                       className="flex w-full justify-left p-1 mt-1 text-sm font-semibold font-[inter] leading-6 text-[#4340DA] hover:text-[#2B00B7] cursor-pointer"
                     >
-                      {langauge === "En" ? (
-                        <p>Forgot Password?</p>
-                      ) : (
-                        <p>Mot de passe oublié</p>
-                      )}
+                      {langauge === "En" ? <p>Forgot Password?</p> : <p>Mot de passe oublié?</p>}
                     </button>
                   </div>
                   {/* <div className="flex items-center justify-between"> */}
@@ -212,6 +208,7 @@ const Login = () => {
                           </a>
                         </div> */}
                   {/* </div> */}
+                  
                   <div className=" flex flex-col gap-4">
                     { signInClicked
                        ? 
@@ -235,12 +232,7 @@ const Login = () => {
                     >
                       {langauge === "En" ? <p>Sign in</p> : <p>Se connecter</p>}
                     </button> */}
-                    <button
-                      onClick={handleForgotPassword}
-                      className="flex w-full justify-center rounded-md bg-[#fff] px-3 py-1.5 text-sm font-semibold leading-6 text-[#000] shadow-sm hover:bg-[#fff] focus-visible:outline-offset-2 focus-visible:outline-indigo-600 cursor-pointer"
-                    >
-                      {langauge === "En" ? <p>Forgot Password</p> : <p>Mot de passe oublié</p>}
-                    </button>
+                    
                   </div>
                 </form>
               </div>
