@@ -27,6 +27,11 @@ const Users: React.FC = () => {
     limit: 20,
   });
 
+  // Validation 
+  const [inputErrors, setInputErrors] = useState<{ [key: string]: string }>({});
+
+  //
+
   const {
     users,
     loading,
@@ -76,17 +81,44 @@ const Users: React.FC = () => {
           { label: "CREATED BEFORE", key: "createdBefore", type: "date" },
           { label: "COMPANY", key: "company" },
         ].map(({ label, key, type }) => (
+          // <div key={key}>
+          //   <label className="block text-gray-700">{label}</label>
+          //   <input
+          //     type={(type as string) || "text"}
+          //     value={(criteria as any)[key]}
+          //     onChange={(e) =>
+          //       setCriteria((c) => ({ ...c, [key]: e.target.value }))
+          //     }
+          //     className="w-full p-2 border rounded border-[#3a17c5] focus:outline-[#3a17c5]"
+          //   />
+          // </div>
           <div key={key}>
-            <label className="block text-gray-700">{label}</label>
-            <input
-              type={(type as string) || "text"}
-              value={(criteria as any)[key]}
-              onChange={(e) =>
-                setCriteria((c) => ({ ...c, [key]: e.target.value }))
-              }
-              className="w-full p-2 border rounded border-[#3a17c5] focus:outline-[#3a17c5]"
-            />
-          </div>
+  <label className="block text-gray-700">{label}</label>
+  <input
+    type={(type as string) || "text"}
+    value={(criteria as any)[key]}
+    onChange={(e) => {
+      const value = e.target.value;
+      setCriteria((c) => ({ ...c, [key]: value }));
+      if (key === "email") {
+        if (value && !/^\S+@\S+\.\S+$/.test(value)) {
+          setInputErrors((prev) => ({ ...prev, email: "Invalid email format" }));
+        } else {
+          setInputErrors((prev) => {
+            const { email, ...rest } = prev;
+            return rest;
+          });
+        }
+      }
+    }}
+    className={`w-full p-2 border rounded focus:outline-[#3a17c5] ${
+      inputErrors[key] ? "border-red-500" : "border-[#3a17c5]"
+    }`}
+  />
+  {inputErrors[key] && (
+    <p className="text-red-500 text-sm mt-1">{inputErrors[key]}</p>
+  )}
+</div>
         ))}
 
         <div>
