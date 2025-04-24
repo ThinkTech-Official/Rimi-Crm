@@ -21,6 +21,7 @@ import ProtectedRoute from './components/protection/ProtectedRoute.tsx';
 import UserDetails from './pages/UserDetails.tsx';
 import ForgotPassword from './pages/ForgotPassword.tsx';
 import UserUpload from './pages/UserUpload.tsx';
+import TestUi from './pages/TestUi.tsx';
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -33,7 +34,7 @@ const router = createBrowserRouter(
         </ProtectedRoute>
         } />
 
-<Route path='/test-dash' element={<Dashboard />} />
+<Route path='/test-dash' element={<TestUi />} />
       
       <Route path='/profile' element={<Profile />} />
       <Route path='/userdetail/:id' element={<UserDetails />} />
