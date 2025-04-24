@@ -9,7 +9,6 @@ import {
 } from "@heroicons/react/24/outline";
 import { useNavigate } from "react-router-dom";
 import rimilogo from "../assets/rimi_en.png";
-import five from "../assets/login2.avif";
 import { LangContext } from "../context/LangContext";
 import { useForgotPassword } from "../hooks/useForgotPassword";
 
@@ -80,17 +79,18 @@ const ForgotPassword: React.FC = () => {
 
   return (
     <>
-      <div className="flex min-h-full flex-1">
+      <div className="flex h-screen flex-1  justify-center items-center">
         {/* Left: form */}
-        <div className="flex flex-1 flex-col justify-center px-4 py-12 sm:px-6 lg:flex-none lg:px-20 xl:px-24">
-          <div className="mx-auto w-full max-w-sm lg:w-96">
-            <a href="#">
-              <img className="h-10 w-auto" src={rimilogo} alt="Rimi" />
-            </a>
-            <h2 className="mt-8 text-2xl font-bold leading-9 tracking-tight text-gray-900">
-              {langauge === "En" ? "Forgot Password" : "Mot de passe oublié"}
-            </h2>
-
+        <div className="flex flex-1 flex-col  justify-center items-center">
+          <div className="mx-auto w-full  max-w-md lg:w-130  items-center">
+            <div className="flex flex-col justify-center items-center">
+              <a href="#">
+                <img className="h-10 w-auto" src={rimilogo} alt="Rimi" />
+              </a>
+              <h2 className="mt-8 text-3xl font-bold font-[inter] leading-9  text-[#232323]">
+                {langauge === "En" ? "Forgot Password" : "Mot de passe oublié"}
+              </h2>
+            </div>
             <form
               onSubmit={handleSubmit(onSubmit)}
               className="mt-10 space-y-6"
@@ -99,7 +99,7 @@ const ForgotPassword: React.FC = () => {
               <div>
                 <label
                   htmlFor="email"
-                  className="block text-sm font-medium leading-6 text-gray-900"
+                  className="sr-only block text-sm font-medium leading-6 text-[#D9D9D9]"
                 >
                   {langauge === "En" ? "Email address" : "Adresse email"}
                 </label>
@@ -115,13 +115,12 @@ const ForgotPassword: React.FC = () => {
                         message: "Invalid email address",
                       },
                     })}
-                    className={`block w-full rounded-md border-0 py-1.5 shadow-sm
-                      ring-1 ring-inset ${
-                        errors.email ? "ring-red-500" : "ring-gray-300"
-                      } placeholder:text-gray-400
-                      focus:ring-2 focus:ring-inset focus:ring-indigo-600
-                      sm:text-sm sm:leading-6`}
+                    className={`block w-full rounded-sm border ${
+                      errors.email ? "border-red-500" : "border-[#D9D9D9]"
+                    } p-3 hover:border-[#2B00B7] placeholder:text-[#9A9A9A] font-[inter]`}
+                    placeholder="Your Email Address"
                   />
+
                   {errors.email && (
                     <p className="text-red-500 text-sm mt-1">
                       {errors.email.message}
@@ -131,26 +130,23 @@ const ForgotPassword: React.FC = () => {
               </div>
 
               <div className="flex flex-col gap-4">
-                <button
-                  type="submit"
-                  disabled={loading || isSubmitting}
-                  className={`flex w-full justify-center rounded-md
-                    px-3 py-1.5 text-sm font-semibold leading-6 text-white
-                    shadow-sm transition ${
-                      loading || isSubmitting
-                        ? "bg-[#b5b4ec] hover:bg-[#b5b4ec]"
-                        : "bg-[#4340DA] hover:bg-[#405ada]"
-                    } focus-visible:outline-offset-2 focus-visible:outline-indigo-600 cursor-pointer`}
-                >
-                  {langauge === "En"
-                    ? "Send Reset Link"
-                    : "Envoyer le lien"}
-                </button>
+              <button
+  type="submit"
+  disabled={loading || isSubmitting}
+  className={`w-full mt-2 p-3 flex justify-center items-center cursor-pointer font-[inter] text-white transition ${
+    loading || isSubmitting
+      ? "bg-[#b5b4ec] hover:bg-[#b5b4ec]"
+      : "bg-[#2B00B7] hover:bg-[#2309A1]"
+  }`}
+>
+  {langauge === "En" ? "Send Reset Link" : "Envoyer le lien"}
+</button>
+
 
                 <button
                   type="button"
                   onClick={() => navigate("/")}
-                  className="text-center text-sm text-indigo-600 hover:text-indigo-500 cursor-pointer"
+                  className="flex w-full justify-center p-1 mt-1 text-sm font-semibold font-[inter] leading-6 text-[#4340DA] hover:text-[#2B00B7] cursor-pointer"
                 >
                   {langauge === "En"
                     ? "Back to Login"
@@ -162,13 +158,6 @@ const ForgotPassword: React.FC = () => {
         </div>
 
         {/* Right: image */}
-        <div className="relative hidden w-0 flex-1 lg:block">
-          <img
-            className="absolute inset-0 h-screen w-full object-cover"
-            src={five}
-            alt=""
-          />
-        </div>
       </div>
 
       {/* Toast */}
@@ -206,23 +195,16 @@ const ForgotPassword: React.FC = () => {
                   <p className="text-sm font-medium text-gray-900">
                     {toast.type === "error" ? "Error" : "Success"}
                   </p>
-                  <p className="mt-1 text-sm text-gray-500">
-                    {toast.message}
-                  </p>
+                  <p className="mt-1 text-sm text-gray-500">{toast.message}</p>
                 </div>
                 <div className="ml-4 flex flex-shrink-0">
                   <button
                     type="button"
                     className="inline-flex rounded-md bg-white text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-                    onClick={() =>
-                      setToast((t) => ({ ...t, show: false }))
-                    }
+                    onClick={() => setToast((t) => ({ ...t, show: false }))}
                   >
                     <span className="sr-only">Close</span>
-                    <XMarkIcon
-                      className="h-5 w-5"
-                      aria-hidden="true"
-                    />
+                    <XMarkIcon className="h-5 w-5" aria-hidden="true" />
                   </button>
                 </div>
               </div>
