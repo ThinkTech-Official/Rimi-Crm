@@ -22,6 +22,8 @@ import UserDetails from './pages/UserDetails.tsx';
 import ForgotPassword from './pages/ForgotPassword.tsx';
 import UserUpload from './pages/UserUpload.tsx';
 import TestUi from './pages/TestUi.tsx';
+import QuoteUploader from './pages/QuoteUploader.tsx';
+import QuoteDetails, { QuoteDetailPage } from './pages/QuoteDetails.tsx';
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -40,6 +42,8 @@ const router = createBrowserRouter(
       <Route path='/userdetail/:id' element={<UserDetails />} />
       <Route path='/forgot-password' element={<ForgotPassword />} />
       <Route path='/user-upload' element={<UserUpload />} />
+      <Route path='/quote-upload' element={<QuoteUploader />} />
+      <Route path='/quote-detail/:id' element={<QuoteDetailPage />} />
     </Route>
   )
 )
