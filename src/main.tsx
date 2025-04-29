@@ -24,6 +24,8 @@ import UserUpload from './pages/UserUpload.tsx';
 import TestUi from './pages/TestUi.tsx';
 import QuoteUploader from './pages/QuoteUploader.tsx';
 import QuoteDetails, { QuoteDetailPage } from './pages/QuoteDetails.tsx';
+import PolicyUploader from './pages/PolicyUploader.tsx';
+import PolicyDetails from './pages/PolicyDetails.tsx';
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -44,6 +46,9 @@ const router = createBrowserRouter(
       <Route path='/user-upload' element={<UserUpload />} />
       <Route path='/quote-upload' element={<QuoteUploader />} />
       <Route path='/quote-detail/:id' element={<QuoteDetailPage />} />
+
+      <Route path='/policy-upload' element={<PolicyUploader />} />
+      <Route path='/policy-detail/:id' element={<PolicyDetails />} />
     </Route>
   )
 )

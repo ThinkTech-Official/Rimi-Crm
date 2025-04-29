@@ -563,7 +563,7 @@ const QuotesSearch: React.FC = () => {
         <button
           onClick={onSearch}
           disabled={!!emailError || loading}
-          className="px-6 py-2 bg-blue-600 text-white rounded disabled:opacity-50"
+          className="px-6 py-2 bg-[#2b00b7] text-white rounded disabled:opacity-50"
         >
           {loading
             ? "Searching..."
