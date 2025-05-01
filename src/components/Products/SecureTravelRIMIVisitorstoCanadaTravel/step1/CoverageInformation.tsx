@@ -1,14 +1,145 @@
-import { useState } from "react";
+import {
+  useEffect,
+  useState,
+  ChangeEvent,
+  FormEvent,
+  FC,
+  InputHTMLAttributes,
+  SelectHTMLAttributes,
+} from "react";
 import { InformationCircleIcon } from "@heroicons/react/24/outline";
+
+type SuperVisaOption = "" | "yes" | "no";
+type SuperVisaYears = "" | "1" | "2";
+type YesNo = "" | "yes" | "no";
+
+const msPerDay = 1000 * 60 * 60 * 24;
+
+const today = new Date().toISOString().slice(0, 10);
+
+const allCoverageOptions = [
+  { value: "", label: "Please select..." },
+  { value: "25000", label: "$25,000.00 CAD" },
+  { value: "50000", label: "$50,000.00 CAD" },
+  { value: "100000", label: "$100,000.00 CAD" },
+  { value: "150000", label: "$150,000.00 CAD" },
+  { value: "500000", label: "$500,000.00 CAD" },
+  { value: "1000000", label: "$1,000,000.00 CAD" },
+];
 
 export default function CoverageInformation() {
   const [showInfoCountryOfOrigin, setShowInfoCountryOfOrigin] = useState(false);
   const [showInfoSuperVisa, setShowInfoSuperVisa] = useState(false);
   const [showInfoInCanada, setShowInfoInCanada] = useState(false);
-  const [showInfoDestinationProvince, setShowInfoDestinationProvince] = useState(false);
+  const [showInfoDestinationProvince, setShowInfoDestinationProvince] =
+    useState(false);
   const [showInfoPolicyType, setShowInfoPolicyType] = useState(false);
   const [showInfoCoverageOption, setShowInfoCoverageOption] = useState(false);
   const [showInfoDeductible, setShowInfoDeductible] = useState(false);
+  const [showInfoPaymentOption, setShowInfoPaymentOption] = useState(false);
+
+  // --- State ---
+  const [superVisa, setSuperVisa] = useState<SuperVisaOption>("");
+  const [superVisaYears, setSuperVisaYears] = useState<SuperVisaYears>("");
+  const [destinationProvince, setDestinationProvince] = useState<string>("");
+  const [effectiveDate, setEffectiveDate] = useState<string>("");
+  const [expiryDate, setExpiryDate] = useState<string>("");
+  const [coverageLength, setCoverageLength] = useState<string>("");
+
+  const [inCanada, setInCanada] = useState<YesNo>("");
+
+  const [paymentOption, setPaymentOption]     = useState<'lump-sum' | 'monthly-installments'>('lump-sum')
+  // const [showPaymentOption, setShowPaymentOption] = useState(false)
+
+  const svOptions = allCoverageOptions.filter((o) =>
+    ["100000", "150000", "500000", "1000000"].includes(o.value)
+  );
+
+  const coverageOptions = superVisa === "yes" ? svOptions : allCoverageOptions;
+
+  //
+  const [coverageOption, setCoverageOption] = useState<string>("");
+
+  // --- auto-calculate for Super Visa yes ---
+  useEffect(() => {
+    if (superVisa === "yes" && superVisaYears && effectiveDate) {
+      const eff = new Date(effectiveDate);
+      const exp = new Date(eff);
+      exp.setFullYear(eff.getFullYear() + Number(superVisaYears));
+      const days = Math.round((exp.getTime() - eff.getTime()) / msPerDay);
+
+      setExpiryDate(exp.toISOString().slice(0, 10));
+      setCoverageLength(String(days));
+    }
+  }, [superVisa, superVisaYears, effectiveDate]);
+
+  const showPaymentOption =
+  superVisa === 'yes' ||
+  (
+    superVisa === 'no' &&
+    Number(coverageLength) >= 365 &&
+    Number(coverageOption) >= 100000
+  )
+
+   // when it hides, reset back to lump-sum
+   useEffect(() => {
+    if (!showPaymentOption) setPaymentOption('lump-sum')
+  }, [showPaymentOption])
+
+  const paymentOptions = [
+    { value: 'lump-sum',            label: 'Lump Sum' },
+    // only include monthly‐installments if coverageOption > 100k
+    ...(Number(coverageOption) >= 100000
+      ? [{ value: 'monthly-installments', label: 'Monthly Installments' }]
+      : []),
+  ]
+
+  // --- Handlers ---
+  const handleSuperVisaChange = (e: ChangeEvent<HTMLSelectElement>) => {
+    setSuperVisa(e.target.value as SuperVisaOption);
+    setSuperVisaYears("");
+    setExpiryDate("");
+    setCoverageLength("");
+    // setShowPaymentOption(false)
+  };
+  const handleYearsChange = (e: ChangeEvent<HTMLSelectElement>) =>
+    setSuperVisaYears(e.target.value as SuperVisaYears);
+  const handleProvinceChange = (e: ChangeEvent<HTMLSelectElement>) =>
+    setDestinationProvince(e.target.value);
+  const handleEffectiveDateChange = (e: ChangeEvent<HTMLInputElement>) =>
+    setEffectiveDate(e.target.value);
+  const handleExpiryChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    setExpiryDate(val);
+    if (effectiveDate) {
+      const diff = Math.round(
+        (new Date(val).getTime() - new Date(effectiveDate).getTime()) / msPerDay
+      );
+      setCoverageLength(String(diff));
+    }
+  };
+  const handleCoverageChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    setCoverageLength(val);
+    if (effectiveDate) {
+      const exp = new Date(
+        new Date(effectiveDate).getTime() + Number(val) * msPerDay
+      );
+      setExpiryDate(exp.toISOString().slice(0, 10));
+    }
+  };
+
+  const handleInCanadaChange = (e: ChangeEvent<HTMLSelectElement>) => {
+    setInCanada(e.target.value as YesNo);
+  };
+
+  const handleCoverageOptionChange = (e: ChangeEvent<HTMLSelectElement>) => {
+    setCoverageOption(e.target.value);
+  };
+
+  const handlePaymentChange = (e: ChangeEvent<HTMLSelectElement>) => {
+    setPaymentOption(e.target.value as any)
+  }
 
   return (
     <div className="max-w-5xl mx-auto mt-4 p-6 bg-[#F9F9F9] font-[inter] text-[#1B1B1B]">
@@ -263,12 +394,12 @@ export default function CoverageInformation() {
             { value: "EH", label: "Western Sahara" },
             { value: "YE", label: "Yemen" },
             { value: "ZM", label: "Zambia" },
-            { value: "ZW", label: "Zimbabwe" }
-          ]
-          }
+            { value: "ZW", label: "Zimbabwe" },
+          ]}
         />
 
         {/* Ques: Are applicants currently in Canada? */}
+        
         <Dropdown
           label="Are applicants currently in Canada?"
           info={() => setShowInfoInCanada((prev) => !prev)}
@@ -277,95 +408,175 @@ export default function CoverageInformation() {
             { value: "yes", label: "Yes" },
             { value: "no", label: "No" },
           ]}
+          value={inCanada}
+          onChange={handleInCanadaChange}
         />
-
       </div>
-
-
-        {/* Textbox: Waiting Period Section */}
-      <div className="mt-6 p-6 border border-[#DBDADE] bg-white rounded-lg">
-        <h4 className="text-lg font-semibold mb-2">Waiting Period</h4>
-        <p className="text-sm text-[#555]">
-          If the applicant is already in Canada and the policy effective date is not the same as
-          the arrival date, then a waiting period will apply. The standard waiting period is:
-          <ul className="list-disc list-inside mt-2">
-            <li>48 hours following the policy effective date, if purchased within 30 days of arrival.</li>
-            <li>7 days following the policy effective date, if purchased after 30 days of arrival.</li>
-          </ul>
-        </p>
-      </div>
-
-      <div className="grid grid-cols-2 gap-x-36 gap-y-4 mt-10 text-gray-700">
-
-
-      {/* Ques: Super Visa */}
-      <Dropdown
-          label="Are applicants travelling to Canada on a Super Visa?"
-          info={() => setShowInfoSuperVisa((prev) => !prev)}
-          options={[
-            { value: "", label: "Please select..." },
-            { value: "yes", label: "Yes" },
-            { value: "no", label: "No" },
-          ]}
+      {showInfoCountryOfOrigin && (
+        <InfoBox
+          title="Country of Origin"
+          text="Country of Origin means the country for which the insured person holds a passport..."
         />
-
-        
-
-        {/* Destination Province */}
-        <Dropdown
-          label="Destination Province"
-          info={() => setShowInfoDestinationProvince((prev) => !prev)}
-          options={[
-            { value: "", label: "Please select..." },
-            { value: "ON", label: "Ontario" },
-            { value: "BC", label: "British Columbia" },
-            { value: "QC", label: "Quebec" },
-            { value: "AB", label: "Alberta" },
-            { value: "MB", label: "Manitoba" },
-            { value: "NB", label: "New Brunswick" },
-            { value: "NL", label: "Newfoundland and Labrador" },
-            { value: "NT", label: "Northwest Territories" },
-            { value: "NS", label: "Nova Scotia" },
-            { value: "PE", label: "Prince Edward Island" },
-            { value: "SK", label: "Saskatchewan" },
-            { value: "YT", label: "Yukon Territories" },
-          ]}
+      )}
+      {showInfoInCanada && (
+        <InfoBox
+          title="Currently in Canada?"
+          text="If the applicant is already in Canada, select Yes."
         />
+      )}
 
-        {/* Effective Date */}
-        <TextInput label="Effective Date" type="date" />
+      {/* Waiting Period Section */}
+      {inCanada === "yes" && (
+        <div className="mt-6 p-6 border border-[#DBDADE] bg-white rounded-lg">
+          <h4 className="text-lg font-semibold mb-2">Waiting Period</h4>
+          <p className="text-sm text-[#555]">
+            If the applicant is already in Canada and the policy effective date
+            is not the same as the arrival date, then a waiting period will
+            apply. The standard waiting period is:
+            <ul className="list-disc list-inside mt-2">
+              <li>
+                48 hours following the policy effective date, if purchased
+                within 30 days of arrival.
+              </li>
+              <li>
+                7 days following the policy effective date, if purchased after
+                30 days of arrival.
+              </li>
+            </ul>
+          </p>
+        </div>
+      )}
 
-        {/* Expiry Date */}
-        <TextInput label="Expiry Date" type="date" />
+      
 
-        {/* Coverage Length */}
-        <TextInput label="Coverage Length" disabled />
+      {/* ////////////////////////////////////////////////////////// */}
 
-        {/* Policy Type */}
-        <Dropdown
-          label="Policy Type"
-          info={() => setShowInfoPolicyType((prev) => !prev)}
-          options={[
-            { value: "", label: "Please select..." },
-            { value: "standard", label: "Standard" },
-            { value: "enhanced", label: "Enhanced" },
-            { value: "premium", label: "Premium" },
-          ]}
+      <>
+        {/* SuperVisa + DestinationProvince */}
+        <div className="grid grid-cols-2 gap-x-36 gap-y-4 text-gray-700 mt-10">
+          <Dropdown
+            label="Are applicants travelling to Canada on a Super Visa?"
+            info={() => setShowInfoSuperVisa((prev) => !prev)}
+            options={[
+              { value: "", label: "Please select..." },
+              { value: "yes", label: "Yes" },
+              { value: "no", label: "No" },
+            ]}
+            value={superVisa}
+            onChange={handleSuperVisaChange}
+          />
+
+          <Dropdown
+            label="Destination Province"
+            info={() => setShowInfoDestinationProvince((prev) => !prev)}
+            options={[
+              { value: "", label: "Please select..." },
+              { value: "ON", label: "Ontario" },
+              { value: "BC", label: "British Columbia" },
+              { value: "QC", label: "Quebec" },
+              { value: "AB", label: "Alberta" },
+              { value: "MB", label: "Manitoba" },
+              { value: "NB", label: "New Brunswick" },
+              { value: "NL", label: "Newfoundland & Labrador" },
+              { value: "NT", label: "Northwest Territories" },
+              { value: "NS", label: "Nova Scotia" },
+              { value: "PE", label: "Prince Edward Island" },
+              { value: "SK", label: "Saskatchewan" },
+              { value: "YT", label: "Yukon" },
+            ]}
+            value={destinationProvince}
+            onChange={handleProvinceChange}
+          />
+        </div>
+
+        {showInfoSuperVisa && (
+          <InfoBox
+            title="Super Visa"
+            text="Select yes if this quote is for parents or grandparents of a Canadian citizen..."
+          />
+        )}
+        {showInfoDestinationProvince && (
+          <InfoBox
+            title="Destination Province"
+            text="Select the primary destination Province for your trip."
+          />
+        )}
+
+        {/*  Optional Duration if Super Visa = yes  */}
+        {superVisa === "yes" && (
+          <div className="grid grid-cols-2 gap-x-36 gap-y-4 text-gray-700 mt-6">
+            <Dropdown
+              label="Super Visa Duration"
+              options={[
+                { value: "", label: "Please select..." },
+                { value: "1", label: "1 year" },
+                { value: "2", label: "2 years" },
+              ]}
+              value={superVisaYears}
+              onChange={handleYearsChange}
+            />
+          </div>
+        )}
+
+        {/*  Next Rows: Dates & Coverage  */}
+        <div className="grid grid-cols-2 gap-x-36 gap-y-4 text-gray-700 mt-10">
+          <TextInput
+            label="Effective Date"
+            type="date"
+            min={today}
+            value={effectiveDate}
+            onChange={handleEffectiveDateChange}
+          />
+          <TextInput
+            label="Expiry Date"
+            type="date"
+            value={expiryDate}
+            disabled={superVisa === "yes"}
+            min={effectiveDate || today}
+            onChange={handleExpiryChange}
+          />
+        </div>
+
+        <div className="grid grid-cols-2 gap-x-36 gap-y-4 text-gray-700 mt-10">
+          <TextInput
+            label="Coverage Length (days)"
+            type="number"
+            value={coverageLength}
+            disabled={superVisa === "yes"}
+            min="1"
+            onChange={handleCoverageChange}
+          />
+          <Dropdown
+            label="Policy Type"
+            info={() => setShowInfoPolicyType((prev) => !prev)}
+            options={[
+              { value: "", label: "Please select..." },
+              { value: "standard", label: "Standard" },
+              { value: "enhanced", label: "Enhanced" },
+              // { value: 'premium',  label: 'Premium' },
+            ]}
+            
+          />
+        </div>
+      </>
+
+      {/* //////////////////////////////////////////////////////////// */}
+
+      {showInfoPolicyType && (
+        <InfoBox
+          title="Policy Type"
+          text="Description of the policy types available including their benefits..."
         />
+      )}
 
+      <div className="grid grid-cols-2 gap-x-36 gap-y-4 text-gray-700 mt-10">
         {/* Coverage Options */}
         <Dropdown
           label="Coverage Options"
           info={() => setShowInfoCoverageOption((prev) => !prev)}
-          options={[
-            { value: "", label: "Please select..." },
-            { value: "25000", label: "$25,000.00 CAD" },
-            { value: "50000", label: "$50,000.00 CAD" },
-            { value: "100000", label: "$100,000.00 CAD" },
-            { value: "150000", label: "$150,000.00 CAD" },
-            { value: "500000", label: "$500,000.00 CAD" },
-            { value: "1000000", label: "$1,000,000.00 CAD" },
-          ]}
+          options={coverageOptions}
+          value={coverageOption}
+          onChange={handleCoverageOptionChange}
         />
 
         {/* Deductible */}
@@ -382,54 +593,88 @@ export default function CoverageInformation() {
             { value: "3000", label: "$3,000.00 CAD" },
           ]}
         />
+        {/* </div> */}
       </div>
 
-      
-
       {/* Info Boxes */}
-      {showInfoCountryOfOrigin && (
-        <InfoBox title="Country of Origin" text="Country of Origin means the country for which the insured person holds a passport..." />
-      )}
-      {showInfoSuperVisa && (
-        <InfoBox title="Super Visa" text="Select yes if this quote is for parents or grandparents of a Canadian citizen..." />
-      )}
-      {showInfoInCanada && (
-        <InfoBox title="Currently in Canada?" text="If the applicant is already in Canada, select Yes." />
-      )}
-      {showInfoDestinationProvince && (
-        <InfoBox title="Destination Province" text="Select the primary destination Province for your trip." />
-      )}
-      {showInfoPolicyType && (
-        <InfoBox title="Policy Type" text="Description of the policy types available including their benefits..." />
-      )}
+
       {showInfoCoverageOption && (
-        <InfoBox title="Coverage Options" text="This is the maximum amount that will be covered for eligible medical expenses." />
+        <InfoBox
+          title="Coverage Options"
+          text="This is the maximum amount that will be covered for eligible medical expenses."
+        />
       )}
       {showInfoDeductible && (
-        <InfoBox title="Deductible" text="Deductible means the amount (if applicable) which the insured must pay before any reimbursement." />
+        <InfoBox
+          title="Deductible"
+          text="Deductible means the amount (if applicable) which the insured must pay before any reimbursement."
+        />
       )}
+      {/*  */}
+
+      <div className="grid grid-cols-2 gap-x-36 gap-y-4 text-gray-700 mt-10">
+
+      
+          {showPaymentOption && (
+        
+          <Dropdown
+            label="Payment Option"
+            info={() => setShowInfoPaymentOption(prev => !prev)}
+            options={paymentOptions}
+            value={paymentOption}
+            onChange={handlePaymentChange}
+          />
+        
+      )}
+
+      </div>
+      {showInfoPaymentOption && (
+        <InfoBox
+          title="Payment Option"
+          text="Monthly payment installments are available when applying for one year of coverage, with a minimum Coverage Option of $100,000."
+        />
+      )}
+
+
+      {/*  */}
     </div>
   );
 }
 
-// Dropdown Component
-const Dropdown = ({
+interface Option {
+  value: string;
+  label: string;
+}
+
+interface DropdownProps extends SelectHTMLAttributes<HTMLSelectElement> {
+  label: string;
+  info?: () => void;
+  options: Option[];
+}
+
+
+
+const Dropdown: FC<DropdownProps> = ({
   label,
   info,
   options,
-}: {
-  label: string;
-  info?: () => void;
-  options: { value: string; label: string }[];
+  className = "",
+  ...selectProps
 }) => (
   <div className="flex flex-col gap-2">
-    <label className="flex items-center gap-2">
+    <label className="flex items-center gap-2 text-gray-700">
       {info && (
-        <InformationCircleIcon onClick={info} className="h-5 w-5 text-[#3a17c5] cursor-pointer" />
+        <InformationCircleIcon
+          onClick={info}
+          className="h-5 w-5 text-[#3a17c5] cursor-pointer"
+        />
       )}
       {label}
     </label>
-    <select className="p-2 border border-[#DBDADE] bg-white text-[#00000080]">
+    <select
+      {...selectProps}
+      className={`p-2 border border-[#DBDADE] bg-white text-[#00000080] ${className}`}
+    >
       {options.map((opt) => (
         <option key={opt.value} value={opt.value}>
           {opt.label}
@@ -439,22 +684,31 @@ const Dropdown = ({
   </div>
 );
 
-// Text Input Component
-const TextInput = ({
-  label,
-  type = "text",
-  disabled = false,
-}: {
+
+interface TextInputProps extends InputHTMLAttributes<HTMLInputElement> {
   label: string;
-  type?: string;
-  disabled?: boolean;
+  info?: () => void;
+}
+const TextInput: FC<TextInputProps> = ({
+  label,
+  info,
+  className = "",
+  ...inputProps
 }) => (
   <div className="flex flex-col gap-2">
-    <label>{label}</label>
+    <label className="text-gray-700">{label}</label>
+    {info && (
+      <button
+        type="button"
+        onClick={info}
+        className="self-start text-sm text-blue-500"
+      >
+        ℹ️
+      </button>
+    )}
     <input
-      type={type}
-      className="p-2 border border-[#DBDADE] bg-white"
-      disabled={disabled}
+      {...inputProps}
+      className={`p-2 border border-[#DBDADE] bg-white ${className}`}
     />
   </div>
 );
@@ -462,7 +716,9 @@ const TextInput = ({
 // InfoBox
 const InfoBox = ({ title, text }: { title: string; text: string }) => (
   <div className="max-w-4xl mx-auto p-6 bg-white rounded-lg border border-gray-200 mt-5 mb-5">
-    <h2 className="text-lg font-semibold bg-gray-100 px-4 py-2 rounded-t-lg">{title}</h2>
+    <h2 className="text-lg font-semibold bg-gray-100 px-4 py-2 rounded-t-lg">
+      {title}
+    </h2>
     <div className="p-4 text-gray-700">
       <p>{text}</p>
     </div>
