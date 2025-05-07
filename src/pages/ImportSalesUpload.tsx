@@ -53,16 +53,16 @@ const ImportSalesUpload: React.FC = () => {
       {data && (
         <div className="mt-6 space-y-2">
           <p>
-            ✅ <strong>{data.createdPolicies}</strong> new policies created
+             <strong>{data.createdPolicies}</strong> new policies created
           </p>
           <p>
-            ✏️ <strong>{data.updatedPolicies}</strong> existing policies updated
+             <strong>{data.updatedPolicies}</strong> existing policies updated
           </p>
           <p>
-            💰 <strong>{data.createdPayments}</strong> payments recorded
+             <strong>{data.createdPayments}</strong> payments recorded
           </p>
           <p>
-            ⚠️ <strong>{data.skipped}</strong> groups skipped
+             <strong>{data.skipped}</strong> groups skipped
           </p>
 
           {data.errors.length > 0 && (
