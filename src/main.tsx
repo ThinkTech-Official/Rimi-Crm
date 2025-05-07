@@ -26,6 +26,7 @@ import QuoteUploader from './pages/QuoteUploader.tsx';
 import QuoteDetails, { QuoteDetailPage } from './pages/QuoteDetails.tsx';
 import PolicyUploader from './pages/PolicyUploader.tsx';
 import PolicyDetails from './pages/PolicyDetails.tsx';
+import ImportSalesUpload from './pages/ImportSalesUpload.tsx';
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -49,6 +50,7 @@ const router = createBrowserRouter(
 
       <Route path='/policy-upload' element={<PolicyUploader />} />
       <Route path='/policy-detail/:id' element={<PolicyDetails />} />
+      <Route path='/sales-data-upload' element={<ImportSalesUpload />} />
     </Route>
   )
 )
