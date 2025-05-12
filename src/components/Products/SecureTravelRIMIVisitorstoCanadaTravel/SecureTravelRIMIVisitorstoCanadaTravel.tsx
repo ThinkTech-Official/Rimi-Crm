@@ -8,6 +8,7 @@ import ContactInformation from "./step2/ContactInformation";
 import Address from "./step2/Address";
 import BeneficiaryInCaseOfDeath from "./step2/BeneficiaryInCaseOfDeath";
 import PaymentInformation from "./step2/PaymentInformation";
+import Step1STRVCT from "./step1/Step1STRVCT";
 
 
 export default function SecureTravelRIMIVisitorstoCanadaTravel() {
@@ -99,11 +100,12 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
 
       {steps[0].status === "current" && (
         <div>
-          <ApplicantInformation />
+          {/* <ApplicantInformation />
           <CoverageInformation />
           <div className="w-full h-2 mt-5 flex items-center justify-center">
             <h3 className="text-lg">Your Quote: $0.00</h3>
-          </div>
+          </div> */}
+          <Step1STRVCT />
         </div>
       )}
 

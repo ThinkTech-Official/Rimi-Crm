@@ -6,14 +6,22 @@ export default function ApplicantInformation() {
     useState(false);
 
   const [coverageForPreMedCon, setCoverageForPreMedCon] = useState(false);
+  const [applicantNumber,setApplicantNumber] = useState(0)
 
   const [showInfocoverageForPreMedCon, setShowInfocoverageForPreMedCon] =
     useState(false);
+
+    const [showInfocoverageForPreMedConIndiually, setShowInfocoverageForPreMedConIndiually] =
+    useState<Record<number, boolean>>({});
 
   // whether the info panel is showing
   const [showInfo, setShowInfo] = useState(false);
   // whether user haveve confirmed
   const [isConfirmed, setIsConfirmed] = useState(false);
+
+  
+
+  const toggleInfo = (idx: number) => setShowInfocoverageForPreMedConIndiually((prev) => ({...prev, [idx]: !prev[idx]}))
 
   const handleIconClick = () => {
     setShowInfo((prev) => !prev);
@@ -107,16 +115,19 @@ export default function ApplicantInformation() {
             <label className="font-[inter]">
               Number of Additional Applicants
             </label>
-            <select className="p-2 border border-[#DBDADE] font-[inter]">
-              <option>0</option>
-              <option>1</option>
-              <option>2</option>
-              <option>3</option>
-              <option>4</option>
-              <option>5</option>
+            <select 
+            value={applicantNumber}
+            onChange={e => setApplicantNumber(Number(e.target.value))}
+            className="p-2 border border-[#DBDADE] font-[inter]">
+              <option value="0">0</option>
+              <option value="1">1</option>
+              <option value="2">2</option>
+              <option value="3">3</option>
+              <option value="4">4</option>
+              <option value="5">5</option>
             </select>
-          {/* </div> */}
-        </div>
+            {/* </div> */}
+          </div>
 
         {/* // */}
       </div>
@@ -158,6 +169,112 @@ export default function ApplicantInformation() {
           </div>
         </div>
       )}
+
+
+      {/* Addition applicant Information  */}
+
+      {Array.from({ length: applicantNumber }).map((_, idx) => (
+        <>
+        <h1 className=" text-md font-semibold text-left text-[#1B1B1B] mt-6 font-[inter]">APPLICANT {idx+ 1}</h1>
+        <div
+          key={idx}
+          className="grid grid-cols-2 gap-x-36 gap-y-4 text-gray-700 mt-6"
+        >
+          
+          <div className="flex flex-col gap-2">
+            <label className="font-[inter]">First Name</label>
+            <input
+              className="p-2 border border-[#DBDADE] placeholder-[#00000080] font-[inter]"
+              type="text"
+              placeholder="Enter First Name"
+            />
+          </div>
+          <div className="flex flex-col gap-2">
+            <label className="font-[inter]">Last Name</label>
+            <input
+              className="p-2 border border-[#DBDADE] placeholder-[#00000080] font-[inter]"
+              type="text"
+              placeholder="Enter Last Name"
+            />
+          </div>
+          <div className="flex flex-col gap-2">
+            <label className="font-[inter]">Date of Birth</label>
+            <input
+              className="p-2 border border-[#DBDADE] placeholder-[#00000080] font-[inter]"
+              type="date"
+            />
+          </div>
+          <div className="flex flex-col gap-2">
+            <label className="font-[inter]">Relationship to Primary Applicant</label>
+            <input
+              className="p-2 border border-[#DBDADE] placeholder-[#00000080] font-[inter]"
+              type="email"
+              placeholder="Enter Email"
+            />
+          </div>
+
+          <div className="flex flex-col gap-2 ">
+          <label className="font-[inter] flex items-center gap-2">
+            <InformationCircleIcon
+              onClick={() => toggleInfo(idx)}
+              className="h-5 w-5 text-[#3a17c5] cursor-pointer"
+              aria-hidden="true"
+            />
+            Include coverage for stable pre-existing medical conditions
+          </label>
+          <select
+            className="p-2 border border-[#DBDADE] font-[inter] w-full max-w-xs"
+            onChange={(e) => setCoverageForPreMedCon(e.target.value === "yes")}
+          >
+            <option value="">Select an option</option>
+            <option value="yes">Yes</option>
+            <option value="no">No</option>
+          </select>
+        </div>
+        
+        </div>
+         {showInfocoverageForPreMedConIndiually[idx] && (
+        <div className="border rounded-lg shadow-sm p-4 mt-4 bg-white font-[inter]">
+          <div className="border-b pb-2 text-lg font-semibold">
+            Coverage for stable pre-existing medical conditions
+          </div>
+          <div className="text-gray-700 mt-2 space-y-2">
+            <p>
+              Any sickness, injury or medical condition that existed prior to
+              the effective date will be excluded from coverage if you have
+              selected "No" and paid for Plan 1 as indicated on your
+              Confirmation of Insurance.
+            </p>
+            <p>
+              If you have selected "Yes" and paid for Plan 2 as indicated on
+              your Confirmation of Insurance, there is no coverage for any
+              sickness, injury or medical condition that existed prior to the
+              effective date, other than:
+            </p>
+            <ul className="list-disc pl-6">
+              <li>
+                <strong>Up to Age 69:</strong> Any sickness, injury or medical
+                condition that was stable in the 90 days prior to the effective
+                date.
+              </li>
+              <li>
+                <strong>Age 70-84:</strong> Any sickness, injury or medical
+                condition that was stable in the 180 days prior to the effective
+                date provided you have accurately answered no to all questions
+                on the medical declaration. If any question on the medical
+                declaration is answered yes, there is no coverage for any
+                sickness, injury or medical condition that existed prior to the
+                effective date, whether or not stable.
+              </li>
+            </ul>
+          </div>
+        </div>
+      )}
+        </>
+      ))}
+
+
+      {/* // */}
 
       {/* This is junk for now  */}
       {/* {coverageForPreMedCon && <div></div>} */}

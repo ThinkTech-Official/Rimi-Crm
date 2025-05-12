@@ -1,6 +1,6 @@
 // src/components/Users.tsx
 import React, { useState, useContext } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { LangContext } from "../context/LangContext";
 import { useSearchUsers, SearchCriteria, User } from "../hooks/useSearchUsers";
 
@@ -203,12 +203,13 @@ const Users: React.FC = () => {
                   <td className="px-4 py-2">{u.userType}</td>
                   <td className="px-4 py-2">{u.status}</td>
                   <td className="px-4 py-2">
-                    <button
-                      onClick={() => navigate(`/userdetail/${u.id}`)}
+                    <Link
+                    target="_blank"
+                      to={`/userdetail/${u.id}`}
                       className="px-3 py-1 bg-blue-600 text-white text-sm rounded"
                     >
                       View
-                    </button>
+                    </Link>
                   </td>
                 </tr>
               ))}

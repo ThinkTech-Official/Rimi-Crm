@@ -27,6 +27,8 @@ export interface PolicyRecord {
   lastName?: string;
   dateOfBirth?: string;
   dateIssued?: string;
+  covEffDate?: string;
+  expiryDate?: string;
   product?: string;
   status?: string;
 }

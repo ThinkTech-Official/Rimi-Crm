@@ -8,6 +8,11 @@ export interface PolicyApplicant {
   dateOfBirth?: string;
   email?: string;
   province?: string;
+  policyNumber?: string;
+  gender?: string;
+  premium?: string;
+  PreExCoverage?: string;
+  relation?: string;
 }
 
 export interface PolicyDetail {
@@ -23,9 +28,11 @@ export interface PolicyDetail {
   firstName?: string;
   lastName?: string;
   dateOfBirth?: string;
+  expiryDate?: string;
   gender?: string;
   premium?: number;
   planDetails?: string;
+  PreExCoverage?: string;
 
   email?: string;
   additionalEmail?: string;

@@ -5,7 +5,7 @@ import {
   SearchPoliciesCriteria,
   PolicyRecord,
 } from "../hooks/useSearchPolicies";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const allProducts = [
   "RIMI Canuck Voyage Travel Medical",
@@ -293,14 +293,16 @@ const PoliciesSearch: React.FC = () => {
               <tr>
                 {[
                   // "ID",
-                  "Policy #",
-                  "Type",
-                  "First",
-                  "Last",
-                  "DOB",
-                  "Issued",
-                  "Product",
+                  "Policy No.",
                   "Status",
+                  
+                  "First Name",
+                  "Last Name",
+                  "DOB",
+                  "Eff. Date",
+                  "Exp. Date",
+                  "Product",
+                  
                   "Actions",
                 ].map((h) => (
                   <th key={h} className="px-4 py-2 text-left">
@@ -314,20 +316,23 @@ const PoliciesSearch: React.FC = () => {
                 <tr key={p.id} className="border-t">
                   {/* <td className="px-4 py-2">{p.id}</td> */}
                   <td className="px-4 py-2">{p.policyNumber}</td>
-                  <td className="px-4 py-2">{p.policyType}</td>
+                  <td className="px-4 py-2">{p.status}</td>
+                  {/* <td className="px-4 py-2">{p.policyType}</td> */}
                   <td className="px-4 py-2">{p.firstName}</td>
                   <td className="px-4 py-2">{p.lastName}</td>
                   <td className="px-4 py-2">{p.dateOfBirth?.split("T")[0]}</td>
-                  <td className="px-4 py-2">{p.dateIssued?.split("T")[0]}</td>
+                  <td className="px-4 py-2">{p.covEffDate?.split("T")[0]}</td>
+                  <td className="px-4 py-2">{p.expiryDate?.split("T")[0]}</td>
                   <td className="px-4 py-2">{p.product}</td>
-                  <td className="px-4 py-2">{p.status}</td>
+                  
                   <td className="px-4 py-2">
-                    <button
-                      onClick={() => navigate(`/policy-detail/${p.id}`)}
+                    <Link
+                    target="_blank"
+                      to={`/policy-detail/${p.id}`}
                       className="px-2 py-1 bg-blue-600 text-white rounded"
                     >
                       View
-                    </button>
+                    </Link>
                   </td>
                 </tr>
               ))}

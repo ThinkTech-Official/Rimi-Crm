@@ -14,6 +14,22 @@ const calcAge = (dob?: string, ref?: string) => {
   return age;
 };
 
+function getCoverageLength(covEffDate: string, expiryDate: string): number {
+  const start = new Date(covEffDate);
+  const end   = new Date(expiryDate);
+
+  if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+    throw new Error('Invalid date format. Please use valid ISO date strings.');
+  }
+
+  const msInDay = 24 * 60 * 60 * 1000;
+  const diffMs  = end.getTime() - start.getTime();
+
+  // We can round here because, if both times are at the same hour/min/sec, 
+  // diffMs/msInDay will already be an integer.
+  return Math.round(diffMs / msInDay);
+}
+
 const PolicyDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -22,6 +38,8 @@ const PolicyDetails: React.FC = () => {
   if (loading) return <p className="text-center py-10">Loading…</p>;
   if (error) return <p className="text-red-600 text-center py-10">{error}</p>;
   if (!p)     return <p className="text-center py-10">No policy found.</p>;
+
+  console.log(p)
 
   return (
     <div className="max-w-5xl mx-auto p-6 space-y-8 bg-white">
@@ -61,7 +79,7 @@ const PolicyDetails: React.FC = () => {
           <div><div className="font-medium mt-4">Date of Birth</div><div>{fmtDate(p.dateOfBirth)}</div></div>
           <div><div className="font-medium mt-4">Age on Effective Date</div><div>{calcAge(p.dateOfBirth, p.covEffDate)}</div></div>
           <div><div className="font-medium mt-4">Gender</div><div>{p.gender}</div></div>
-          <div className="col-span-2 mt-4"><div className="font-medium">Include Coverage for Stable Pre-Existing Medical Conditions</div><div>{p.planDetails || 'No'}</div></div>
+          <div className="col-span-2 mt-4"><div className="font-medium">Include Coverage for Stable Pre-Existing Medical Conditions</div><div>{p.PreExCoverage || 'No'}</div></div>
           <div className="mt-4"><div className="font-medium">Premium</div><div>{p.premium?.toLocaleString('en-CA',{style:'currency',currency:'CAD'})}</div></div>
         </div>
       </section>
@@ -83,24 +101,58 @@ const PolicyDetails: React.FC = () => {
       </section>
 
       {/* Other insured persons */}
-      {p.applicants.filter(a => a.index > 1).map((a: PolicyApplicant) => (
+      {p.applicants.length > 1 ? p.applicants.filter(a => a.index > 1).map((a: any) => (
         <section key={a.index} className="grid grid-cols-12 gap-x-4 border-b py-4 text-sm">
           <div className="col-span-2 text-purple-600 uppercase font-semibold">Insured Person {a.index}</div>
-          <div className="col-span-10 grid grid-cols-3 gap-x-4">
+          {/* <div className="col-span-10 grid grid-cols-3 gap-x-4">
             <div><div className="font-medium">First Name</div><div>{a.firstName}</div></div>
             <div><div className="font-medium">Last Name</div><div>{a.lastName}</div></div>
             <div><div className="font-medium">Date of Birth</div><div>{fmtDate(a.dateOfBirth)}</div></div>
-          </div>
+          </div> */}
+           <div className="col-span-10 grid grid-cols-3 gap-x-4 text-sm">
+          <div><div className="font-medium">Policy Number</div><div>{a.policyNumber}</div></div>
+          <div><div className="font-medium">First Name</div><div>{a.firstName}</div></div>
+          <div><div className="font-medium">Last Name</div><div>{a.lastName}</div></div>
+          <div><div className="font-medium mt-4">Date of Birth</div><div>{fmtDate(a.dateOfBirth)}</div></div>
+          <div><div className="font-medium mt-4">Age on Effective Date</div><div>{calcAge(a.dateOfBirth, p.covEffDate)}</div></div>
+          <div><div className="font-medium mt-4">Gender</div><div>{a.gender}</div></div>
+          <div><div className="font-medium mt-4">RELATIONSHIP TO PRIMARY APPLICANT</div><div>{a.relation}</div></div>
+          <div className="col-span-2 mt-4"><div className="font-medium">Include Coverage for Stable Pre-Existing Medical Conditions</div><div>{p.PreExCoverage || 'No'}</div></div>
+          <div className="mt-4"><div className="font-medium">Premium</div><div>{a.premium?.toLocaleString('en-CA',{style:'currency',currency:'CAD'})}</div></div>
+        </div>
         </section>
-      ))}
+      ))
+    :
+    p.applicants.map((a: any) => (
+      <section key={a.index} className="grid grid-cols-12 gap-x-4 border-b py-4 text-sm">
+        <div className="col-span-2 text-purple-600 uppercase font-semibold">Insured Person {a.index}</div>
+        {/* <div className="col-span-10 grid grid-cols-3 gap-x-4">
+          <div><div className="font-medium">First Name</div><div>{a.firstName}</div></div>
+          <div><div className="font-medium">Last Name</div><div>{a.lastName}</div></div>
+          <div><div className="font-medium">Date of Birth</div><div>{fmtDate(a.dateOfBirth)}</div></div>
+        </div> */}
+         <div className="col-span-10 grid grid-cols-3 gap-x-4 text-sm">
+        <div><div className="font-medium">Policy Number</div><div>{a.policyNumber}</div></div>
+        <div><div className="font-medium">First Name</div><div>{a.firstName}</div></div>
+        <div><div className="font-medium">Last Name</div><div>{a.lastName}</div></div>
+        <div><div className="font-medium mt-4">Date of Birth</div><div>{fmtDate(a.dateOfBirth)}</div></div>
+        <div><div className="font-medium mt-4">Age on Effective Date</div><div>{calcAge(a.dateOfBirth, p.covEffDate)}</div></div>
+        <div><div className="font-medium mt-4">Gender</div><div>{a.gender}</div></div>
+        <div><div className="font-medium mt-4">RELATIONSHIP TO PRIMARY APPLICANT</div><div>{a.relation}</div></div>
+        <div className="col-span-2 mt-4"><div className="font-medium">Include Coverage for Stable Pre-Existing Medical Conditions</div><div>{p.PreExCoverage || 'No'}</div></div>
+        <div className="mt-4"><div className="font-medium">Premium</div><div>{a.premium?.toLocaleString('en-CA',{style:'currency',currency:'CAD'})}</div></div>
+      </div>
+      </section>
+    ))
+    }
 
       {/* Coverage Details */}
       <section className="grid grid-cols-12 gap-x-4 border-b py-4 text-sm">
         <div className="col-span-2 text-purple-600 uppercase font-semibold">Coverage Details</div>
         <div className="col-span-10 grid grid-cols-3 gap-x-4">
           <div><div className="font-medium">Effective Date</div><div>{fmtDate(p.covEffDate)}</div></div>
-          <div><div className="font-medium">Expiry Date</div><div>{fmtDate(p.covExpDate)}</div></div>
-          <div><div className="font-medium">Coverage Length</div><div>{p.covLen}</div></div>
+          <div><div className="font-medium">Expiry Date</div><div>{fmtDate(p.expiryDate)}</div></div>
+          <div><div className="font-medium">Coverage Length</div><div>{getCoverageLength(fmtDate(p.covEffDate), fmtDate(p.expiryDate))} Days</div></div>
           <div><div className="font-medium mt-4">Policy Type</div><div>{p.policyType}</div></div>
           <div><div className="font-medium mt-4">Country of Origin</div><div>{p.countryOfOrigin}</div></div>
           <div><div className="font-medium mt-4">Destination Province</div><div>{p.destProv}</div></div>

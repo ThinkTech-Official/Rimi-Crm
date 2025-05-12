@@ -8,6 +8,8 @@ export interface ImportSalesResult {
   errors: { policyNumber: string; error: string }[];
 }
 
+const baseUrl = "http://localhost:3000"
+
 export function useImportSales() {
   const [loading, setLoading] = useState(false);
   const [error, setError]       = useState<string | null>(null);
@@ -20,7 +22,7 @@ export function useImportSales() {
     try {
       const form = new FormData();
       form.append("file", file);
-      const resp = await fetch("http://localhost:3000/policies/import-sales", {
+      const resp = await fetch(`${baseUrl}/policies/import-sales`, {
         method: "POST",
         body: form,
       });
