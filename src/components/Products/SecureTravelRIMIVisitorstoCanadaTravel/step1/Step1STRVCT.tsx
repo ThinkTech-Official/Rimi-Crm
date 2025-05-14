@@ -1,6 +1,6 @@
 // import ApplicantInformation from "./ApplicantInformation"
 // import CoverageInformation from "./CoverageInformation"
-import {
+import React, {
   useEffect,
   useState,
   ChangeEvent,
@@ -10,6 +10,7 @@ import {
   SelectHTMLAttributes,
 } from "react";
 import { InformationCircleIcon } from "@heroicons/react/24/outline";
+import { usePremiumCalculate } from "../../../../hooks/usePremiumCalculate";
 
 
 
@@ -32,9 +33,66 @@ const allCoverageOptions = [
   { value: "1000000", label: "$1,000,000.00 CAD" },
 ];
 
+interface PrimaryApplicant {
+  firstName: string;
+  lastname: string;
+  dateOfBirth: string;
+  email: string;
+  preExCov: string;
+  additionalApplicant?: string;
+}
+
+interface Applicant {
+  firstName: string;
+  lastname: string;
+  dob: string;
+  relationship: string;
+  preMedCoverage: boolean;
+}
+
+interface CoverageInfo {
+  countryOfOrigin: string;
+  inCanada: YesNo;
+  superVisa: SuperVisaOption;
+  superVisaYears: SuperVisaYears;
+  destinationProvince: string;
+  effectiveDate: string;
+  expiryDate: string;
+  coverageLength: string;
+  policyType: string;
+  coverageOption: string;
+  deductible: string;
+  paymentOption: 'lump-sum' | 'monthly-installments';
+}
+
+export interface PremiumCalculationData {
+    countryOfOrigin: string;
+    inCanada: YesNo;
+    superVisa: SuperVisaOption;
+    destinationProvince: string;
+    effectiveDate: string;
+    expiryDate: string;
+    coverageLength: string;
+    policyType: string;
+    coverageOption: string;
+    deductible: number;
+    primarydateOfBirth?: string;
+}
+
+
+
 
 
 const Step1STRVCT = () => {
+
+
+  // ============================ common used States =============================
+
+
+
+
+
+  //================================================================================
 
 
 
@@ -44,7 +102,14 @@ const Step1STRVCT = () => {
     useState(false);
 
   const [coverageForPreMedCon, setCoverageForPreMedCon] = useState(false);
-  const [applicantNumber,setApplicantNumber] = useState(0)
+  
+
+  const [primaryFirstName, setPrimaryFirstName] = useState("")
+  const [primaryLastName, setPrimaryLastName] = useState("")
+  const [primaryDateOfBirth, setPrimaryDateOfBirth] = useState("")
+  const [primaryEmail, setprimaryEmail] = useState("")
+
+  
 
   const [showInfocoverageForPreMedCon, setShowInfocoverageForPreMedCon] =
     useState(false);
@@ -56,6 +121,38 @@ const Step1STRVCT = () => {
   const [showInfo, setShowInfo] = useState(false);
   // whether user haveve confirmed
   const [isConfirmed, setIsConfirmed] = useState(false);
+
+  // state to check the applicant numbers
+  const [applicantNumber,setApplicantNumber] = useState(0)
+
+
+  // Array containing the secondary applicant data 
+  const [applicants, setApplicants] = useState<Applicant[]>([])
+
+  // Effects to resize the array if applicant changes the number after entering the applicant
+   useEffect(() => {
+    setApplicants(prev =>
+      Array.from({ length: applicantNumber }, (_, i) => 
+        prev[i] ?? {
+          firstName: '',
+          lastName: '',
+          dob: '',
+          relationship: '',
+          preMedCoverage: false
+        }
+      )
+    );
+  }, [applicantNumber]);
+
+
+  // Applicant field upate function
+  const updateApplicant = (idx: number, field: keyof Applicant, value: any) => {
+    setApplicants(prev => {
+      const copy = [...prev];
+      copy[idx] = { ...copy[idx], [field]: value };
+      return copy;
+    });
+  };
 
   
 
@@ -99,7 +196,7 @@ const Step1STRVCT = () => {
   const [showInfoDeductible, setShowInfoDeductible] = useState(false);
   const [showInfoPaymentOption, setShowInfoPaymentOption] = useState(false);
 
-  // --- State ---
+  // 
   const [superVisa, setSuperVisa] = useState<SuperVisaOption>("");
   const [superVisaYears, setSuperVisaYears] = useState<SuperVisaYears>("");
   const [destinationProvince, setDestinationProvince] = useState<string>("");
@@ -112,14 +209,44 @@ const Step1STRVCT = () => {
   const [paymentOption, setPaymentOption]     = useState<'lump-sum' | 'monthly-installments'>('lump-sum')
   // const [showPaymentOption, setShowPaymentOption] = useState(false)
 
+  const [policyType, setPolicyType] = useState<string>("")
+
+  const [deductible, setDeductible] = useState<number>(0)
+
+  const [countryOfOrigin, setCountryOfOrigin] = useState<string>("")
+
   const svOptions = allCoverageOptions.filter((o) =>
-    ["100000", "150000", "500000", "1000000"].includes(o.value)
+    ["","100000", "150000", "500000", "1000000"].includes(o.value)
   );
 
   const coverageOptions = superVisa === "yes" ? svOptions : allCoverageOptions;
 
   //
   const [coverageOption, setCoverageOption] = useState<string>("");
+
+
+  // ----------------- Coverage Info COmbined state and update function ----------------
+
+  // const [coverageInfo, setCoverageInfo] = useState<CoverageInfo>({
+  //   countryOfOrigin: '',
+  //   inCanada: '',
+  //   superVisa: '',
+  //   superVisaYears: '',
+  //   destinationProvince: '',
+  //   effectiveDate: '',
+  //   expiryDate: '',
+  //   coverageLength: '',
+  //   policyType: '',
+  //   coverageOption: '',
+  //   deductible: '',
+  //   paymentOption: 'lump-sum'
+  // })
+
+  // const updateCoverage = (field: keyof CoverageInfo, value: any) => {
+  //   setCoverageInfo(prev => ({...prev, [field]: value }))
+  // }
+
+  // ----------------------------------------------
 
   // --- auto-calculate for Super Visa yes ---
   useEffect(() => {
@@ -202,20 +329,89 @@ const Step1STRVCT = () => {
     setPaymentOption(e.target.value as any)
   }
 
+  const handlePolicyChange = (e: ChangeEvent<HTMLSelectElement>) => {
+   setPolicyType(e.target.value as any)
+  }
+
+  const handleDeductibleChange = (e: ChangeEvent<HTMLSelectElement>) => {
+    setDeductible(Number(e.target.value))
+  }
+
+  const handleChangeCountryOfOrigin = (e: ChangeEvent<HTMLSelectElement>) => {
+    setCountryOfOrigin(e.target.value as any)
+  }
+
   // =======================================END ===============================
+
+
+  // ==============================Check Form Fill Status =======================
+
+  // check if full form is completed 
+
+  //
+
+  // check if coverage informatiion is completed for backend to calculate the premium
+  const CanClculatePremium = [
+    superVisa,
+    destinationProvince,
+    effectiveDate,
+    expiryDate,
+    coverageLength,
+    policyType,
+    coverageOption,
+    deductible
+  ].every(v => v !== '');
+
+  console.log(CanClculatePremium)
+
+  //
+
+
+  //=======================================END===================================
+
+
+  //=====================================Backend Communication Data===========================
+
+  const premiumCalculationData = {
+    countryOfOrigin,
+    inCanada,
+    superVisa,
+    destinationProvince,
+    effectiveDate,
+    expiryDate,
+    coverageLength,
+    policyType,
+    coverageOption,
+    deductible,
+    primarydateOfBirth: primaryDateOfBirth
+  }
+  // const payload = Object.defineProperty(PremiumCalculationData, "primarydateOfBirth", {value: primaryDateOfBirth});
+
+  const { quote, loading, error } = usePremiumCalculate(premiumCalculationData, CanClculatePremium);
+
+  //   const { quote, loading, error } = useQuote(
+  //   { applicants, coverage: coverageInfo },
+  //   CanClculatePremium
+  // );
+
+
+  //========================================END=================================================
 
   return (
     <>
     {/* <ApplicantInformation />
     <CoverageInformation /> */}
 {/* ==================================================================================== */}
-                          {/* APPLICANT INFORMATION  */}
+                          {/*  APPLICANT INFORMATION  */}
 
+                            
 <>
 <div className="max-w-5xl mx-auto mt-4 p-6 bg-[#F9F9F9]">
       <h3 className="text-xl font-bold text-left text-[#1B1B1B] mb-6 font-[inter]">
         Applicant Information
       </h3>
+
+                        {/* Primary Applicant  */}
 
       <div className="grid grid-cols-2 gap-x-36 gap-y-4 text-gray-700">
         <div className="flex flex-col gap-2">
@@ -224,6 +420,8 @@ const Step1STRVCT = () => {
             className="p-2 border border-[#DBDADE] placeholder-[#00000080] font-[inter]"
             type="text"
             placeholder="Enter First Name"
+            value={primaryFirstName}
+            onChange={(e) => setPrimaryFirstName(e.target.value)}
           />
         </div>
         <div className="flex flex-col gap-2">
@@ -232,6 +430,8 @@ const Step1STRVCT = () => {
             className="p-2 border border-[#DBDADE] placeholder-[#00000080] font-[inter]"
             type="text"
             placeholder="Enter Last Name"
+            value={primaryLastName}
+            onChange={(e) => setPrimaryLastName(e.target.value)}
           />
         </div>
         <div className="flex flex-col gap-2">
@@ -239,6 +439,8 @@ const Step1STRVCT = () => {
           <input
             className="p-2 border border-[#DBDADE] placeholder-[#00000080] font-[inter]"
             type="date"
+            value={primaryDateOfBirth}
+            onChange={(e) => setPrimaryDateOfBirth(e.target.value)}
           />
         </div>
         <div className="flex flex-col gap-2">
@@ -247,9 +449,13 @@ const Step1STRVCT = () => {
             className="p-2 border border-[#DBDADE] placeholder-[#00000080] font-[inter]"
             type="email"
             placeholder="Enter Email"
+            value={primaryEmail}
+            onChange={(e) => setprimaryEmail(e.target.value)}
           />
         </div>
       </div>
+
+                      {/* END Primary Applicant  */}
 
       <div className="grid grid-cols-2 gap-x-36 gap-y-4 text-gray-700 mt-10">
         {/* // */}
@@ -339,7 +545,7 @@ const Step1STRVCT = () => {
 
       {/* Addition applicant Information  */}
 
-      {Array.from({ length: applicantNumber }).map((_, idx) => (
+      {/* {Array.from({ length: applicantNumber }).map((_, idx) => (
         <>
         <h1 className=" text-md font-semibold text-left text-[#1B1B1B] mt-6 font-[inter]">APPLICANT {idx+ 1}</h1>
         <div
@@ -437,7 +643,120 @@ const Step1STRVCT = () => {
         </div>
       )}
         </>
+      ))} */}
+
+      {/* Applicant Second List  */}
+
+      {applicants.map((app, idx) => (
+        <React.Fragment key={idx}>
+        <h1 className=" text-md font-semibold text-left text-[#1B1B1B] mt-6 font-[inter]">APPLICANT {idx+ 1}</h1>
+        <div
+          key={idx}
+          className="grid grid-cols-2 gap-x-36 gap-y-4 text-gray-700 mt-6"
+        >
+          
+          <div className="flex flex-col gap-2">
+            <label className="font-[inter]">First Name</label>
+            <input
+              className="p-2 border border-[#DBDADE] placeholder-[#00000080] font-[inter]"
+              type="text"
+              placeholder="Enter First Name"
+              value={app.firstName}
+              onChange={e => updateApplicant(idx , 'firstName', e.target.value)}
+            />
+          </div>
+          <div className="flex flex-col gap-2">
+            <label className="font-[inter]">Last Name</label>
+            <input
+              className="p-2 border border-[#DBDADE] placeholder-[#00000080] font-[inter]"
+              type="text"
+              placeholder="Enter Last Name"
+              value={app.lastname}
+              onChange={e => updateApplicant(idx , 'lastname' , e.target.value)}
+            />
+          </div>
+          <div className="flex flex-col gap-2">
+            <label className="font-[inter]">Date of Birth</label>
+            <input
+              className="p-2 border border-[#DBDADE] placeholder-[#00000080] font-[inter]"
+              type="date"
+              value={app.dob}
+              onChange={e => updateApplicant(idx , 'dob', e.target.value)}
+            />
+          </div>
+          <div className="flex flex-col gap-2">
+            <label className="font-[inter]">Relationship to Primary Applicant</label>
+            <input
+              className="p-2 border border-[#DBDADE] placeholder-[#00000080] font-[inter]"
+              type="text"
+              placeholder="Relation"
+              value={app.relationship}
+              onChange={e => updateApplicant(idx, 'relationship', e.target.value)}
+            />
+          </div>
+
+          <div className="flex flex-col gap-2 ">
+          <label className="font-[inter] flex items-center gap-2">
+            <InformationCircleIcon
+              onClick={() => toggleInfo(idx)}
+              className="h-5 w-5 text-[#3a17c5] cursor-pointer"
+              aria-hidden="true"
+            />
+            Include coverage for stable pre-existing medical conditions
+          </label>
+          <select
+            className="p-2 border border-[#DBDADE] font-[inter] w-full max-w-xs"
+            value={app.preMedCoverage ? 'yes' : 'no'}
+            onChange={e => updateApplicant(idx, 'preMedCoverage' , e.target.value === 'yes')}
+          >
+            <option value="">Select an option</option>
+            <option value="yes">Yes</option>
+            <option value="no">No</option>
+          </select>
+        </div>
+        
+        </div>
+         {showInfocoverageForPreMedConIndiually[idx] && (
+        <div className="border rounded-lg shadow-sm p-4 mt-4 bg-white font-[inter]">
+          <div className="border-b pb-2 text-lg font-semibold">
+            Coverage for stable pre-existing medical conditions
+          </div>
+          <div className="text-gray-700 mt-2 space-y-2">
+            <p>
+              Any sickness, injury or medical condition that existed prior to
+              the effective date will be excluded from coverage if you have
+              selected "No" and paid for Plan 1 as indicated on your
+              Confirmation of Insurance.
+            </p>
+            <p>
+              If you have selected "Yes" and paid for Plan 2 as indicated on
+              your Confirmation of Insurance, there is no coverage for any
+              sickness, injury or medical condition that existed prior to the
+              effective date, other than:
+            </p>
+            <ul className="list-disc pl-6">
+              <li>
+                <strong>Up to Age 69:</strong> Any sickness, injury or medical
+                condition that was stable in the 90 days prior to the effective
+                date.
+              </li>
+              <li>
+                <strong>Age 70-84:</strong> Any sickness, injury or medical
+                condition that was stable in the 180 days prior to the effective
+                date provided you have accurately answered no to all questions
+                on the medical declaration. If any question on the medical
+                declaration is answered yes, there is no coverage for any
+                sickness, injury or medical condition that existed prior to the
+                effective date, whether or not stable.
+              </li>
+            </ul>
+          </div>
+        </div>
+      )}
+        </React.Fragment>
       ))}
+
+
 
 
       {/* // */}
@@ -535,7 +854,9 @@ const Step1STRVCT = () => {
         {/* Country of Origin */}
         <Dropdown
           label="Country of Origin"
+          value={countryOfOrigin}
           info={() => setShowInfoCountryOfOrigin((prev) => !prev)}
+          onChange={handleChangeCountryOfOrigin}
           options={[
             { value: "", label: "Please select..." },
             { value: "AF", label: "Afghanistan" },
@@ -935,6 +1256,8 @@ const Step1STRVCT = () => {
           <Dropdown
             label="Policy Type"
             info={() => setShowInfoPolicyType((prev) => !prev)}
+            value={policyType}
+            onChange={handlePolicyChange}
             options={[
               { value: "", label: "Please select..." },
               { value: "standard", label: "Standard" },
@@ -969,6 +1292,8 @@ const Step1STRVCT = () => {
         <Dropdown
           label="Deductible"
           info={() => setShowInfoDeductible((prev) => !prev)}
+          value={deductible}
+          onChange={handleDeductibleChange}
           options={[
             { value: "", label: "Please select..." },
             { value: "0", label: "$0.00 CAD" },
@@ -1032,9 +1357,21 @@ const Step1STRVCT = () => {
 {/* ====================================== COVERAGE INFOIRMATION END ========================== */}
 
 
-    <div className="w-full h-2 mt-5 flex items-center justify-center">
+    {/* <div className="w-full h-2 mt-5 flex items-center justify-center">
             <h3 className="text-lg">Your Quote: $0.00</h3>
-          </div>
+          </div> */}
+
+          <div className="w-full h-2 mt-5 flex items-center justify-center">
+        {loading ? (
+          <h3>Calculating your Premium…</h3>
+        ) : error ? (
+          <h3 className="text-red-500">Error: {error}</h3>
+        ) : (
+          <h3 className="text-lg">
+            Your Quote: ${quote}
+          </h3>
+        )}
+      </div>
     </>
   )
 }
@@ -1107,7 +1444,7 @@ const TextInput: FC<TextInputProps> = ({
         onClick={info}
         className="self-start text-sm text-blue-500"
       >
-        ℹ️
+        ℹ
       </button>
     )}
     <input
@@ -1128,3 +1465,4 @@ const InfoBox = ({ title, text }: { title: string; text: string }) => (
     </div>
   </div>
 );
+
