@@ -11,6 +11,12 @@ import React, {
 } from "react";
 import { InformationCircleIcon } from "@heroicons/react/24/outline";
 import { usePremiumCalculate } from "../../../../hooks/usePremiumCalculate";
+import { QuotePayload, useSaveQuote } from "../../../../hooks/useSaveQuote";
+import { getUserTypeFromToken } from "../../../../utils/getUserType";
+
+import { useSelector } from 'react-redux'
+import type { RootState } from '../../../../app/store'
+
 
 
 
@@ -43,8 +49,9 @@ interface PrimaryApplicant {
 }
 
 interface Applicant {
+  index: string;
   firstName: string;
-  lastname: string;
+  lastName: string;
   dob: string;
   relationship: string;
   preMedCoverage: boolean;
@@ -86,13 +93,8 @@ export interface PremiumCalculationData {
 const Step1STRVCT = () => {
 
 
-  // ============================ common used States =============================
+  const agentCode = useSelector((state: RootState) => state.auth.agentCode)
 
-
-
-
-
-  //================================================================================
 
 
 
@@ -348,6 +350,39 @@ const Step1STRVCT = () => {
 
   // check if full form is completed 
 
+  const canSaveQoute = [
+    primaryFirstName,
+    primaryLastName,
+    primaryDateOfBirth,
+    primaryEmail,
+    coverageForPreMedCon,
+    applicantNumber,
+    countryOfOrigin,
+    inCanada,
+    superVisa,
+    destinationProvince,
+    effectiveDate,
+    expiryDate,
+    coverageLength,
+    policyType,
+    coverageOption,
+    deductible,
+    paymentOption
+  ].every(v => v !== '')
+
+  console.log(canSaveQoute)
+
+  const isFormFilled = isConfirmed && canSaveQoute
+
+
+  // if(isConfirmed && canSaveQoute){
+  //   setisFormFilled(true)
+  //   console.log("All Fields filled Proceed Ahead", isFormFilled)
+  // } else {
+  //   setisFormFilled(false)
+  //   console.log("All Fields filled Proceed Ahead", isFormFilled)
+  // }
+
   //
 
   // check if coverage informatiion is completed for backend to calculate the premium
@@ -397,6 +432,55 @@ const Step1STRVCT = () => {
 
   //========================================END=================================================
 
+
+    // ============================ common used States =============================
+
+  // const [isFormFilled, setisFormFilled] = useState(false)
+
+  const { saveQuote, loading: saving, error: saveError, result: savedQuote } =
+    useSaveQuote()
+
+
+
+  const handleQuoteSave = async () => {
+    const payload: QuotePayload = {
+      primaryFirstName,
+      primaryLastName,
+      primaryDateOfBirth,
+      primaryEmail,
+      coverageForPreMedCon,
+      applicantNumber,
+      applicants,
+        countryOfOrigin,
+        inCanada,
+        superVisa,
+        superVisaYears,
+        destinationProvince,
+        effectiveDate,
+        expiryDate,
+        coverageLength,
+        policyType,
+        coverageOption,
+        deductible,
+        paymentOption,
+      agentCode: agentCode!,
+      product: 'SECURE TRAVEL RIMI VISITORS TO CANADA TRAVEL'
+    }
+
+    try {
+      const response = await saveQuote(payload)
+      console.log('Saved successfully:', response)
+    } catch {
+      console.log('Save failed')
+    }
+  }
+
+ 
+  
+
+  //================================================================================
+
+  
   return (
     <>
     {/* <ApplicantInformation />
@@ -671,8 +755,8 @@ const Step1STRVCT = () => {
               className="p-2 border border-[#DBDADE] placeholder-[#00000080] font-[inter]"
               type="text"
               placeholder="Enter Last Name"
-              value={app.lastname}
-              onChange={e => updateApplicant(idx , 'lastname' , e.target.value)}
+              value={app.lastName}
+              onChange={e => updateApplicant(idx , 'lastName' , e.target.value)}
             />
           </div>
           <div className="flex flex-col gap-2">
@@ -1361,15 +1445,23 @@ const Step1STRVCT = () => {
             <h3 className="text-lg">Your Quote: $0.00</h3>
           </div> */}
 
-          <div className="w-full h-2 mt-5 flex items-center justify-center">
+          <div className="w-full h-2 mt-10 flex items-center justify-center">
         {loading ? (
           <h3>Calculating your Premium…</h3>
         ) : error ? (
           <h3 className="text-red-500">Error: {error}</h3>
         ) : (
+          <div>
           <h3 className="text-lg">
             Your Quote: ${quote}
           </h3>
+            <h3 className=" text-center mt-2 cursor-pointer text-[#2b00b7]">
+              {isFormFilled ? <p onClick={handleQuoteSave}>Save Quote</p> : ''}
+            </h3>
+          </div>
+        )}
+        {savedQuote != null && (
+          <p className="mt-2">Quote saved: ${savedQuote.toFixed(2)}</p>
         )}
       </div>
     </>
