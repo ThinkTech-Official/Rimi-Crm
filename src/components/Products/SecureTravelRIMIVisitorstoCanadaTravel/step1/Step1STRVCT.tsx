@@ -46,6 +46,7 @@ interface PrimaryApplicant {
   email: string;
   preExCov: string;
   additionalApplicant?: string;
+  gender: string;
 }
 
 interface Applicant {
@@ -55,6 +56,7 @@ interface Applicant {
   dob: string;
   relationship: string;
   preMedCoverage: boolean;
+  gender: string
 }
 
 interface CoverageInfo {
@@ -114,7 +116,8 @@ const Step1STRVCT = ({ onValidityChange,
           applicants ,setApplicants,
           coverageForPreMedCon , setCoverageForPreMedCon,
           isConfirmed, setIsConfirmed,
-          quoteNumber, setQuoteNumber
+          quoteNumber, setQuoteNumber,
+          primaryApplicantGender , setPrimaryApplicantGender
  }: any) => {
 
 
@@ -165,7 +168,8 @@ const Step1STRVCT = ({ onValidityChange,
           lastName: '',
           dob: '',
           relationship: '',
-          preMedCoverage: false
+          preMedCoverage: false,
+          gender: ''
         }
       )
     );
@@ -364,6 +368,7 @@ const Step1STRVCT = ({ onValidityChange,
     primaryLastName,
     primaryDateOfBirth,
     primaryEmail,
+    primaryApplicantGender,
     coverageForPreMedCon,
     applicantNumber,
     countryOfOrigin,
@@ -465,6 +470,7 @@ const Step1STRVCT = ({ onValidityChange,
       primaryLastName,
       primaryDateOfBirth,
       primaryEmail,
+      primaryApplicantGender,
       coverageForPreMedCon,
       applicantNumber,
       applicants,
@@ -557,6 +563,20 @@ const Step1STRVCT = ({ onValidityChange,
             value={primaryEmail}
             onChange={(e) => setprimaryEmail(e.target.value)}
           />
+        </div>
+        <div className="flex flex-col gap-2">
+          <label className="font-[inter]">Gender</label>
+          <select
+            value={primaryApplicantGender}
+            onChange={(e) => setPrimaryApplicantGender(e.target.value)}
+            className="p-2 border border-[#DBDADE] font-[inter] text-[#00000080] bg-white"
+          >
+            <option value="select">Please select</option>
+            <option value="Female">Female</option>
+            <option value="Male">Male</option>
+            <option value="Non-Binary">Non-Binary</option>
+            <option value="Undeclared">Undeclared</option>
+          </select>
         </div>
       </div>
 
@@ -691,6 +711,20 @@ const Step1STRVCT = ({ onValidityChange,
               onChange={e => updateApplicant(idx , 'dob', e.target.value)}
             />
           </div>
+          <div className="flex flex-col gap-2">
+          <label className="font-[inter]">Gender</label>
+          <select
+            value={app.gender}
+            onChange={e => updateApplicant(idx , 'gender', e.target.value)}
+            className="p-2 border border-[#DBDADE] font-[inter] text-[#00000080] bg-white"
+          >
+            <option value="select">Please select</option>
+            <option value="Female">Female</option>
+            <option value="Male">Male</option>
+            <option value="Non-Binary">Non-Binary</option>
+            <option value="Undeclared">Undeclared</option>
+          </select>
+        </div>
           <div className="flex flex-col gap-2">
             <label className="font-[inter]">Relationship to Primary Applicant</label>
             <input

@@ -25,6 +25,20 @@ interface Applicant {
   dob: string;
   relationship: string;
   preMedCoverage: boolean;
+  gender: string
+}
+
+interface QuoteStage1Response {
+  quoteNumber: string;
+  effectiveDate: string;          // ISO string
+  expiryDate: string;             // ISO string
+  coverageLength: number;
+  numberOfTravellers: number;
+  policyType: string;
+  coverageLimit: string;          // matches your Prisma model
+  deductible: number;
+  destinationProvince: string;
+  quoteAmount: number;
 }
 
 
@@ -44,6 +58,8 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
     const [coverageForPreMedCon, setCoverageForPreMedCon] = useState(false);
 
     const [isConfirmed, setIsConfirmed] = useState(false);
+
+    const [primaryApplicantGender, setPrimaryApplicantGender] = useState("")
 
 
     ////////////////////////
@@ -75,6 +91,9 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
 
     const [quoteNumber, setQuoteNumber] =  useState<string | null>(null)
 
+    // const [step1ResponseData, setStep1ResponseData] = useState<QuoteStage1Response | null>(null);
+
+    const [step1ResponseData, setStep1ResponseData] = useState<QuoteStage1Response | null>(null);
     
 
 
@@ -150,6 +169,18 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
     try {
       const response = await saveQuoteNext(payload);
       setQuoteNumber(response.quoteNumber);
+      setStep1ResponseData({
+        quoteNumber: response.quoteNumber,
+  effectiveDate: response.effectiveDate,          // ISO string
+  expiryDate: response.expiryDate,             // ISO string
+  coverageLength: Number(response.coverageLength),
+  numberOfTravellers: response.numberOfTravellers,
+  policyType: response.policyType,
+  coverageLimit: response.coverageLimit,         // matches your Prisma model
+  deductible: response.deductible,
+  destinationProvince: response.destinationProvince,
+  quoteAmount: response.quoteAmount
+      })
       console.log('from quote  getting response of stage 1',response)
       handleFormStepChange("forward");
     } catch (err) {
@@ -165,6 +196,7 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
           primaryLastName,
           primaryDateOfBirth,
           primaryEmail,
+          primaryApplicantGender,
           coverageForPreMedCon,
           applicantNumber,
           applicants,
@@ -265,6 +297,7 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
           coverageForPreMedCon={coverageForPreMedCon} setCoverageForPreMedCon={setCoverageForPreMedCon}
           isConfirmed={isConfirmed} setIsConfirmed={setIsConfirmed}
           quoteNumber={quoteNumber} setQuoteNumber={setQuoteNumber}
+          primaryApplicantGender={primaryApplicantGender} setPrimaryApplicantGender={setPrimaryApplicantGender}
           />
         </div>
       )}
@@ -272,9 +305,9 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
       {steps[1].status === "current" && (
         <div>
           <div className="w-full h-2 mt-8 flex items-center justify-center">
-            <h3 className="text-lg">Your Quote: $0.00</h3>
+            <h3 className="text-lg">Your Quote: ${step1ResponseData?.quoteAmount}</h3>
           </div>
-          <YourQuoteSummary />
+          <YourQuoteSummary step1ResponseData={step1ResponseData} />
           <ApplicantInformationFinished />
           <ContactInformation />
           <Address />

@@ -54,7 +54,8 @@ export interface QuotePayload {
   agentCode: string,
   product: string,
   quotePremium: number,
-  quoteNumber?: string
+  quoteNumber?: string,
+  primaryApplicantGender: string
 }
 
 const baseUrl = 'http://localhost:3000'
