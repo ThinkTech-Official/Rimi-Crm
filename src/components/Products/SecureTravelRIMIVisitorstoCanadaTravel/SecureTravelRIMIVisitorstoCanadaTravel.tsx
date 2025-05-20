@@ -9,6 +9,9 @@ import Address from "./step2/Address";
 import BeneficiaryInCaseOfDeath from "./step2/BeneficiaryInCaseOfDeath";
 import PaymentInformation from "./step2/PaymentInformation";
 import Step1STRVCT from "./step1/Step1STRVCT";
+import { useSelector } from "react-redux";
+import { RootState } from "../../../app/store";
+import { useSaveQuoteNext } from "../../../hooks/useSaveQuoteNext";
 
 
 type SuperVisaOption = "" | "yes" | "no";
@@ -25,7 +28,12 @@ interface Applicant {
 }
 
 
+
+
+
 export default function SecureTravelRIMIVisitorstoCanadaTravel() {
+
+  const agentCode = useSelector((state: RootState) => state.auth.agentCode)
 
   const [primaryFirstName, setPrimaryFirstName] = useState("")
     const [primaryLastName, setPrimaryLastName] = useState("")
@@ -67,6 +75,8 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
 
     const [quoteNumber, setQuoteNumber] =  useState<string | null>(null)
 
+    
+
 
     /////////////////////////////////
 
@@ -79,6 +89,13 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
   const [formStep, setFormStep] = useState(1);
 
   const [isStepOneFilled, setIsStepOneFilled] = useState(false);
+
+  const {
+    saveQuoteNext,
+    loading: saving,
+    error:   saveError,
+    data:    quoteResponse
+  } = useSaveQuoteNext();
 
   const handleFormStepChange = (stepCommand: string) => {
     setFormStep((prevStep) => {
@@ -109,6 +126,66 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
   const handleSubmit = () => {
     console.log("Form Submitted");
   };
+
+  // const handleNext = async () => {
+  //   if (!isStepOneFilled) return;
+
+  //   try {
+  //     const response = await saveQuoteNext(payload);
+  //     // store the returned quoteNumber and any other back‐filled data
+  //     setQuoteNumber(response.quoteNumber);
+
+      
+      
+  //     setFormStep(2);
+  //   } catch {
+  //     // error is in saveError — show a message if you like
+  //   }
+  // };     
+  
+   // your new handler which first saves, then advances the wizard
+  const handleNext = async () => {
+    if (!isStepOneFilled || saving) return;
+
+    try {
+      const response = await saveQuoteNext(payload);
+      setQuoteNumber(response.quoteNumber);
+      console.log('from quote  getting response of stage 1',response)
+      handleFormStepChange("forward");
+    } catch (err) {
+      console.error("saveQuoteNext failed", err);
+      // show saveNextError to the user here
+    }
+  };
+
+
+
+  const payload = {
+          primaryFirstName,
+          primaryLastName,
+          primaryDateOfBirth,
+          primaryEmail,
+          coverageForPreMedCon,
+          applicantNumber,
+          applicants,
+            countryOfOrigin,
+            inCanada,
+            superVisa,
+            superVisaYears,
+            destinationProvince,
+            effectiveDate,
+            expiryDate,
+            coverageLength,
+            policyType,
+            coverageOption,
+            deductible,
+            paymentOption,
+          agentCode: agentCode!,
+          product: 'Secure Travel RIMI Visitors to Canada Travel',
+          quoteNumber: quoteNumber
+        }
+
+
 
   
 
@@ -246,15 +323,16 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
 
   {formStep < 3 ? (
     <button
-      onClick={() => handleFormStepChange("forward")}
-      disabled={!isStepOneFilled}
-      className={`w-[250px] mt-6 p-3 flex justify-center items-center
-        ${isStepOneFilled
-          ? "bg-[#2B00B7] text-white hover:bg-[#2309A1] cursor-pointer"
-          : "bg-gray-300 text-gray-600 cursor-not-allowed"}`}
-    >
-      Next
-    </button>
+          onClick={handleNext}
+          disabled={!isStepOneFilled || saving}
+          className={`px-6 py-2 ${
+            saving
+              ? 'bg-gray-300 text-gray-600 cursor-wait'
+              : 'bg-indigo-600 text-white hover:bg-indigo-700'
+          }`}
+        >
+          {saving ? 'Saving…' : 'Next'}
+        </button>
   ) : (
     <button onClick={handleSubmit}>Submit</button>
   )}

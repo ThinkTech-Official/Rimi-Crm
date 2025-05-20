@@ -108,13 +108,13 @@ const Products: React.FC<ProductsProps> = ({breadCrumbState , setBreadCrumbState
         </div>
       </div>
 
-      <div className="mt-5 flex justify-center items-center">
+      {/* <div className="mt-5 flex justify-center items-center">
         <button
           className="w-[200px] mt-4 bg-[#2B00B7] text-white p-3 hover:bg-[#2309A1] transition flex justify-center items-center cursor-pointer font-[inter]"
         >
           {langauge === 'En' ? 'Add' : 'AJOUTER'}
         </button>
-      </div>
+      </div> */}
     </div>
   );
 };
