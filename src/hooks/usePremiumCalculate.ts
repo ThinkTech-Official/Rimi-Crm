@@ -10,7 +10,7 @@ export function usePremiumCalculate(
   premiumCalculationData: PremiumCalculationData,
   enabled: boolean
 ) {
-  const [quote, setQuote] = useState<number>(0);
+  const [quotePremium, setQuotePremium] = useState<number>(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -35,11 +35,11 @@ export function usePremiumCalculate(
         return res.json();
       })
       .then(data => {
-        setQuote(data);
+        setQuotePremium(data);
       })
       .catch(err => {
         console.error(err);
-        setError(err.message || 'Failed to fetch quote');
+        setError(err.message || 'Failed to fetch quote premium');
       })
       .finally(() => {
         loadingRef.current = false;
@@ -69,5 +69,5 @@ export function usePremiumCalculate(
     doFetch();
   }, [premiumCalculationData, enabled]);
 
-  return { quote, loading, error };
+  return { quotePremium, loading, error };
 }

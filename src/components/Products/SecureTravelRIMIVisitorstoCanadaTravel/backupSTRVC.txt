@@ -11,64 +11,7 @@ import PaymentInformation from "./step2/PaymentInformation";
 import Step1STRVCT from "./step1/Step1STRVCT";
 
 
-type SuperVisaOption = "" | "yes" | "no";
-type SuperVisaYears = "" | "1" | "2";
-type YesNo = "" | "yes" | "no";
-
-interface Applicant {
-  index: string;
-  firstName: string;
-  lastName: string;
-  dob: string;
-  relationship: string;
-  preMedCoverage: boolean;
-}
-
-
 export default function SecureTravelRIMIVisitorstoCanadaTravel() {
-
-  const [primaryFirstName, setPrimaryFirstName] = useState("")
-    const [primaryLastName, setPrimaryLastName] = useState("")
-    const [primaryDateOfBirth, setPrimaryDateOfBirth] = useState("")
-    const [primaryEmail, setprimaryEmail] = useState("")
-    const [applicantNumber,setApplicantNumber] = useState(0)
-
-    const [coverageForPreMedCon, setCoverageForPreMedCon] = useState(false);
-
-    const [isConfirmed, setIsConfirmed] = useState(false);
-
-
-    ////////////////////////
-
-     const [superVisa, setSuperVisa] = useState<SuperVisaOption>("");
-      const [superVisaYears, setSuperVisaYears] = useState<SuperVisaYears>("");
-      const [destinationProvince, setDestinationProvince] = useState<string>("");
-      const [effectiveDate, setEffectiveDate] = useState<string>("");
-      const [expiryDate, setExpiryDate] = useState<string>("");
-      const [coverageLength, setCoverageLength] = useState<string>("");
-    
-      const [inCanada, setInCanada] = useState<YesNo>("");
-    
-      const [paymentOption, setPaymentOption]     = useState<'lump-sum' | 'monthly-installments'>('lump-sum')
-      // const [showPaymentOption, setShowPaymentOption] = useState(false)
-    
-      const [policyType, setPolicyType] = useState<string>("")
-    
-      const [deductible, setDeductible] = useState<number>(0)
-    
-      const [countryOfOrigin, setCountryOfOrigin] = useState<string>("")
-
-      const [coverageOption, setCoverageOption] = useState<string>("");
-      const [applicants, setApplicants] = useState<Applicant[]>([])
-
-    //////////////////////////
-
-    /////////////////////////////
-
-    const [quoteNumber, setQuoteNumber] =  useState<string | null>(null)
-
-
-    /////////////////////////////////
 
   const [steps, setSteps] = useState([
     { id: "01", name: "Get Quote", href: "#", status: "current" },
@@ -109,8 +52,6 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
   const handleSubmit = () => {
     console.log("Form Submitted");
   };
-
-  
 
   return (
     <div className="max-w-5xl mx-auto mt-10 p-6 bg-white rounded-lg shadow-lg font-[inter]">
@@ -166,29 +107,7 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
           <div className="w-full h-2 mt-5 flex items-center justify-center">
             <h3 className="text-lg">Your Quote: $0.00</h3>
           </div> */}
-          <Step1STRVCT onValidityChange={setIsStepOneFilled} 
-          primaryFirstName={primaryFirstName} setPrimaryFirstName={setPrimaryFirstName}
-          primaryLastName={primaryLastName} setPrimaryLastName={setPrimaryLastName}
-          primaryDateOfBirth={primaryDateOfBirth} setPrimaryDateOfBirth={setPrimaryDateOfBirth} 
-          primaryEmail={primaryEmail} setprimaryEmail={setprimaryEmail}
-          applicantNumber={applicantNumber} setApplicantNumber={setApplicantNumber}
-          superVisa={superVisa} setSuperVisa={setSuperVisa}
-          superVisaYears={superVisaYears} setSuperVisaYears={setSuperVisaYears}
-          destinationProvince={destinationProvince} setDestinationProvince={setDestinationProvince}
-          effectiveDate={effectiveDate} setEffectiveDate={setEffectiveDate}
-          expiryDate={expiryDate} setExpiryDate={setExpiryDate}
-          coverageLength={coverageLength} setCoverageLength={setCoverageLength}
-          inCanada={inCanada} setInCanada={setInCanada}
-          paymentOption={paymentOption} setPaymentOption={setPaymentOption}
-          policyType={policyType} setPolicyType={setPolicyType}
-          deductible={deductible} setDeductible={setDeductible}
-          countryOfOrigin={countryOfOrigin} setCountryOfOrigin={setCountryOfOrigin}
-          coverageOption={coverageOption} setCoverageOption={setCoverageOption}
-          applicants={applicants} setApplicants={setApplicants}
-          coverageForPreMedCon={coverageForPreMedCon} setCoverageForPreMedCon={setCoverageForPreMedCon}
-          isConfirmed={isConfirmed} setIsConfirmed={setIsConfirmed}
-          quoteNumber={quoteNumber} setQuoteNumber={setQuoteNumber}
-          />
+          <Step1STRVCT onValidityChange={setIsStepOneFilled}  />
         </div>
       )}
 

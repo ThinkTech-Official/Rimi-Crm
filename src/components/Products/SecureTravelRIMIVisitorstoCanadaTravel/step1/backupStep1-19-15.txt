@@ -88,34 +88,11 @@ export interface PremiumCalculationData {
 
 type Props = {
   onValidityChange: (valid: boolean) => void;
-  
 };
 
 
 
-const Step1STRVCT = ({ onValidityChange,
-  primaryFirstName, setPrimaryFirstName,
-          primaryLastName, setPrimaryLastName ,
-          primaryDateOfBirth, setPrimaryDateOfBirth ,
-          primaryEmail, setprimaryEmail,
-          applicantNumber ,setApplicantNumber,
-          superVisa, setSuperVisa,
-          superVisaYears ,setSuperVisaYears,
-          destinationProvince, setDestinationProvince,
-          effectiveDate, setEffectiveDate,
-          expiryDate ,setExpiryDate,
-          coverageLength, setCoverageLength,
-          inCanada, setInCanada,
-          paymentOption, setPaymentOption,
-          policyType, setPolicyType,
-          deductible, setDeductible,
-          countryOfOrigin, setCountryOfOrigin,
-          coverageOption, setCoverageOption,
-          applicants ,setApplicants,
-          coverageForPreMedCon , setCoverageForPreMedCon,
-          isConfirmed, setIsConfirmed,
-          quoteNumber, setQuoteNumber
- }: any) => {
+const Step1STRVCT = ({ onValidityChange }: Props) => {
 
 
   const agentCode = useSelector((state: RootState) => state.auth.agentCode)
@@ -128,13 +105,13 @@ const Step1STRVCT = ({ onValidityChange,
  const [displayInfoApplicantConfirm, setDisplayInfoApplicantConfirm] =
     useState(false);
 
-  // const [coverageForPreMedCon, setCoverageForPreMedCon] = useState(false);
+  const [coverageForPreMedCon, setCoverageForPreMedCon] = useState(false);
   
 
-  // const [primaryFirstName, setPrimaryFirstName] = useState("")
-  // const [primaryLastName, setPrimaryLastName] = useState("")
-  // const [primaryDateOfBirth, setPrimaryDateOfBirth] = useState("")
-  // const [primaryEmail, setprimaryEmail] = useState("")
+  const [primaryFirstName, setPrimaryFirstName] = useState("")
+  const [primaryLastName, setPrimaryLastName] = useState("")
+  const [primaryDateOfBirth, setPrimaryDateOfBirth] = useState("")
+  const [primaryEmail, setprimaryEmail] = useState("")
 
   
 
@@ -147,18 +124,18 @@ const Step1STRVCT = ({ onValidityChange,
   // whether the info panel is showing
   const [showInfo, setShowInfo] = useState(false);
   // whether user haveve confirmed
-  // const [isConfirmed, setIsConfirmed] = useState(false);
+  const [isConfirmed, setIsConfirmed] = useState(false);
 
   // state to check the applicant numbers
-  // const [applicantNumber,setApplicantNumber] = useState(0)
+  const [applicantNumber,setApplicantNumber] = useState(0)
 
 
   // Array containing the secondary applicant data 
-  // const [applicants, setApplicants] = useState<Applicant[]>([])
+  const [applicants, setApplicants] = useState<Applicant[]>([])
 
   // Effects to resize the array if applicant changes the number after entering the applicant
    useEffect(() => {
-    setApplicants((prev: any )=>
+    setApplicants(prev =>
       Array.from({ length: applicantNumber }, (_, i) => 
         prev[i] ?? {
           firstName: '',
@@ -174,7 +151,7 @@ const Step1STRVCT = ({ onValidityChange,
 
   // Applicant field upate function
   const updateApplicant = (idx: number, field: keyof Applicant, value: any) => {
-    setApplicants((prev: any) => {
+    setApplicants(prev => {
       const copy = [...prev];
       copy[idx] = { ...copy[idx], [field]: value };
       return copy;
@@ -200,7 +177,7 @@ const Step1STRVCT = ({ onValidityChange,
     );
     if (ok) {
       // toggle the checked state
-      setIsConfirmed((prev: any) => !prev);
+      setIsConfirmed((prev) => !prev);
     } else {
       // if they cancel, ensure it stays unchecked
       setIsConfirmed(false);
@@ -224,23 +201,23 @@ const Step1STRVCT = ({ onValidityChange,
   const [showInfoPaymentOption, setShowInfoPaymentOption] = useState(false);
 
   // 
-  // const [superVisa, setSuperVisa] = useState<SuperVisaOption>("");
-  // const [superVisaYears, setSuperVisaYears] = useState<SuperVisaYears>("");
-  // const [destinationProvince, setDestinationProvince] = useState<string>("");
-  // const [effectiveDate, setEffectiveDate] = useState<string>("");
-  // const [expiryDate, setExpiryDate] = useState<string>("");
-  // const [coverageLength, setCoverageLength] = useState<string>("");
+  const [superVisa, setSuperVisa] = useState<SuperVisaOption>("");
+  const [superVisaYears, setSuperVisaYears] = useState<SuperVisaYears>("");
+  const [destinationProvince, setDestinationProvince] = useState<string>("");
+  const [effectiveDate, setEffectiveDate] = useState<string>("");
+  const [expiryDate, setExpiryDate] = useState<string>("");
+  const [coverageLength, setCoverageLength] = useState<string>("");
 
-  // const [inCanada, setInCanada] = useState<YesNo>("");
+  const [inCanada, setInCanada] = useState<YesNo>("");
 
-  // const [paymentOption, setPaymentOption]     = useState<'lump-sum' | 'monthly-installments'>('lump-sum')
-  // // const [showPaymentOption, setShowPaymentOption] = useState(false)
+  const [paymentOption, setPaymentOption]     = useState<'lump-sum' | 'monthly-installments'>('lump-sum')
+  // const [showPaymentOption, setShowPaymentOption] = useState(false)
 
-  // const [policyType, setPolicyType] = useState<string>("")
+  const [policyType, setPolicyType] = useState<string>("")
 
-  // const [deductible, setDeductible] = useState<number>(0)
+  const [deductible, setDeductible] = useState<number>(0)
 
-  // const [countryOfOrigin, setCountryOfOrigin] = useState<string>("")
+  const [countryOfOrigin, setCountryOfOrigin] = useState<string>("")
 
   const svOptions = allCoverageOptions.filter((o) =>
     ["","100000", "150000", "500000", "1000000"].includes(o.value)
@@ -249,12 +226,30 @@ const Step1STRVCT = ({ onValidityChange,
   const coverageOptions = superVisa === "yes" ? svOptions : allCoverageOptions;
 
   //
-  // const [coverageOption, setCoverageOption] = useState<string>("");
+  const [coverageOption, setCoverageOption] = useState<string>("");
 
 
   // ----------------- Coverage Info COmbined state and update function ----------------
 
-  
+  // const [coverageInfo, setCoverageInfo] = useState<CoverageInfo>({
+  //   countryOfOrigin: '',
+  //   inCanada: '',
+  //   superVisa: '',
+  //   superVisaYears: '',
+  //   destinationProvince: '',
+  //   effectiveDate: '',
+  //   expiryDate: '',
+  //   coverageLength: '',
+  //   policyType: '',
+  //   coverageOption: '',
+  //   deductible: '',
+  //   paymentOption: 'lump-sum'
+  // })
+
+  // const updateCoverage = (field: keyof CoverageInfo, value: any) => {
+  //   setCoverageInfo(prev => ({...prev, [field]: value }))
+  // }
+
   // ----------------------------------------------
 
   
@@ -379,7 +374,7 @@ const Step1STRVCT = ({ onValidityChange,
     paymentOption
   ].every(v => v !== '')
 
-  // console.log(canSaveQoute)
+  console.log(canSaveQoute)
 
    const isFormFilled = isConfirmed && canSaveQoute
 
@@ -414,7 +409,7 @@ const Step1STRVCT = ({ onValidityChange,
     deductible
   ].every(v => v !== '');
 
-  // console.log(CanClculatePremium)
+  console.log(CanClculatePremium)
 
   //
 
@@ -439,7 +434,7 @@ const Step1STRVCT = ({ onValidityChange,
   }
   // const payload = Object.defineProperty(PremiumCalculationData, "primarydateOfBirth", {value: primaryDateOfBirth});
 
-  const { quotePremium, loading, error } = usePremiumCalculate(premiumCalculationData, CanClculatePremium);
+  const { quote, loading, error } = usePremiumCalculate(premiumCalculationData, CanClculatePremium);
 
   //   const { quote, loading, error } = useQuote(
   //   { applicants, coverage: coverageInfo },
@@ -454,8 +449,8 @@ const Step1STRVCT = ({ onValidityChange,
 
   // const [isFormFilled, setisFormFilled] = useState(false)
 
-  const { saveQuote, loading: saving, error: saveError, result: savedQuote } = useSaveQuote()
-    
+  const { saveQuote, loading: saving, error: saveError, result: savedQuote } =
+    useSaveQuote()
 
 
 
@@ -481,15 +476,11 @@ const Step1STRVCT = ({ onValidityChange,
         deductible,
         paymentOption,
       agentCode: agentCode!,
-      product: 'Secure Travel RIMI Visitors to Canada Travel',
-      quotePremium: quotePremium,
-      quoteNumber: quoteNumber
+      product: 'SECURE TRAVEL RIMI VISITORS TO CANADA TRAVEL'
     }
 
     try {
       const response = await saveQuote(payload)
-      setQuoteNumber(response?.quote)
-      console.log('quote Number is ', quoteNumber)
       console.log('Saved successfully:', response)
     } catch {
       console.log('Save failed')
@@ -650,11 +641,109 @@ const Step1STRVCT = ({ onValidityChange,
 
       {/* Addition applicant Information  */}
 
-   
+      {/* {Array.from({ length: applicantNumber }).map((_, idx) => (
+        <>
+        <h1 className=" text-md font-semibold text-left text-[#1B1B1B] mt-6 font-[inter]">APPLICANT {idx+ 1}</h1>
+        <div
+          key={idx}
+          className="grid grid-cols-2 gap-x-36 gap-y-4 text-gray-700 mt-6"
+        >
+          
+          <div className="flex flex-col gap-2">
+            <label className="font-[inter]">First Name</label>
+            <input
+              className="p-2 border border-[#DBDADE] placeholder-[#00000080] font-[inter]"
+              type="text"
+              placeholder="Enter First Name"
+            />
+          </div>
+          <div className="flex flex-col gap-2">
+            <label className="font-[inter]">Last Name</label>
+            <input
+              className="p-2 border border-[#DBDADE] placeholder-[#00000080] font-[inter]"
+              type="text"
+              placeholder="Enter Last Name"
+            />
+          </div>
+          <div className="flex flex-col gap-2">
+            <label className="font-[inter]">Date of Birth</label>
+            <input
+              className="p-2 border border-[#DBDADE] placeholder-[#00000080] font-[inter]"
+              type="date"
+            />
+          </div>
+          <div className="flex flex-col gap-2">
+            <label className="font-[inter]">Relationship to Primary Applicant</label>
+            <input
+              className="p-2 border border-[#DBDADE] placeholder-[#00000080] font-[inter]"
+              type="email"
+              placeholder="Enter Email"
+            />
+          </div>
+
+          <div className="flex flex-col gap-2 ">
+          <label className="font-[inter] flex items-center gap-2">
+            <InformationCircleIcon
+              onClick={() => toggleInfo(idx)}
+              className="h-5 w-5 text-[#3a17c5] cursor-pointer"
+              aria-hidden="true"
+            />
+            Include coverage for stable pre-existing medical conditions
+          </label>
+          <select
+            className="p-2 border border-[#DBDADE] font-[inter] w-full max-w-xs"
+            onChange={(e) => setCoverageForPreMedCon(e.target.value === "yes")}
+          >
+            <option value="">Select an option</option>
+            <option value="yes">Yes</option>
+            <option value="no">No</option>
+          </select>
+        </div>
+        
+        </div>
+         {showInfocoverageForPreMedConIndiually[idx] && (
+        <div className="border rounded-lg shadow-sm p-4 mt-4 bg-white font-[inter]">
+          <div className="border-b pb-2 text-lg font-semibold">
+            Coverage for stable pre-existing medical conditions
+          </div>
+          <div className="text-gray-700 mt-2 space-y-2">
+            <p>
+              Any sickness, injury or medical condition that existed prior to
+              the effective date will be excluded from coverage if you have
+              selected "No" and paid for Plan 1 as indicated on your
+              Confirmation of Insurance.
+            </p>
+            <p>
+              If you have selected "Yes" and paid for Plan 2 as indicated on
+              your Confirmation of Insurance, there is no coverage for any
+              sickness, injury or medical condition that existed prior to the
+              effective date, other than:
+            </p>
+            <ul className="list-disc pl-6">
+              <li>
+                <strong>Up to Age 69:</strong> Any sickness, injury or medical
+                condition that was stable in the 90 days prior to the effective
+                date.
+              </li>
+              <li>
+                <strong>Age 70-84:</strong> Any sickness, injury or medical
+                condition that was stable in the 180 days prior to the effective
+                date provided you have accurately answered no to all questions
+                on the medical declaration. If any question on the medical
+                declaration is answered yes, there is no coverage for any
+                sickness, injury or medical condition that existed prior to the
+                effective date, whether or not stable.
+              </li>
+            </ul>
+          </div>
+        </div>
+      )}
+        </>
+      ))} */}
 
       {/* Applicant Second List  */}
 
-      {applicants.map((app: any, idx: number) => (
+      {applicants.map((app, idx) => (
         <React.Fragment key={idx}>
         <h1 className=" text-md font-semibold text-left text-[#1B1B1B] mt-6 font-[inter]">APPLICANT {idx+ 1}</h1>
         <div
@@ -1376,22 +1465,14 @@ const Step1STRVCT = ({ onValidityChange,
         ) : (
           <div>
           <h3 className="text-lg text-center mt-2">
-            Your Quote: ${quotePremium}
+            Your Quote: ${quote}
           </h3>
             {/* <h3 className=" text-center mt-2 cursor-pointer text-[#2b00b7]">
               {isFormFilled ? <p onClick={handleQuoteSave}>Save Quote</p> : ''}
             </h3> */}
-
-
-{/* {savedQuote != null ? 
+            {savedQuote != null ? 
             <div className=" flex flex-col justify-center items-center gap-2 mb-2">
-              <p className="mt-2">Quote saved: {savedQuote}</p>
-              <p className="text-[#2b00b7] cursor-pointer">Email Quote</p>
-            </div> */}
-
-            {quoteNumber != null ? 
-            <div className=" flex flex-col justify-center items-center gap-2 mb-2">
-              <p className="mt-2">Quote saved: {quoteNumber}</p>
+              <p className="mt-2">Quote saved: ${savedQuote}</p>
               <p className="text-[#2b00b7] cursor-pointer">Email Quote</p>
             </div>
           :

@@ -52,7 +52,9 @@ export interface QuotePayload {
   deductible: number
   paymentOption: 'lump-sum' | 'monthly-installments'
   agentCode: string,
-  product: string
+  product: string,
+  quotePremium: number,
+  quoteNumber?: string
 }
 
 const baseUrl = 'http://localhost:3000'
@@ -79,15 +81,17 @@ export function useSaveQuote() {
         })
         if (!res.ok) {
           const text = await res.text()
+          console.log('from useSave Qoutes error on response not ok')
           throw new Error(text || 'Failed to save quote')
         }
         const data = await res.json() as { quote: number }
         setResult(data.quote)
-        console.log('from data save quote result state',result)
+        // console.log('from data save quote result state',result)
         console.log('from data save quote data',data)
         return data
       } catch (err: any) {
         setError(err.message)
+        console.log('from useSave Qoutes error on response not ok 122', err.message)
         throw err
       } finally {
         setLoading(false)
