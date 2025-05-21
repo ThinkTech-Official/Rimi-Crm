@@ -183,12 +183,7 @@ const Login = () => {
                         </span>
                       )}
                     </div>
-                    <button
-                      onClick={handleForgotPassword}
-                      className="flex w-full justify-left p-1 mt-1 text-sm font-semibold font-[inter] leading-6 text-[#4340DA] hover:text-[#2B00B7] cursor-pointer"
-                    >
-                      {langauge === "En" ? <p>Forgot Password?</p> : <p>Mot de passe oublié?</p>}
-                    </button>
+                    
                   </div>
                   {/* <div className="flex items-center justify-between"> */}
                   {/* <div className="flex items-center">
@@ -234,6 +229,12 @@ const Login = () => {
                     </button> */}
                     
                   </div>
+                  <button
+                      onClick={handleForgotPassword}
+                      className="flex w-full justify-left p-1 mt-1 text-sm font-semibold font-[inter] leading-6 text-[#4340DA] hover:text-[#2B00B7] cursor-pointer"
+                    >
+                      {langauge === "En" ? <p>Forgot Password?</p> : <p>Mot de passe oublié?</p>}
+                    </button>
                 </form>
               </div>
 

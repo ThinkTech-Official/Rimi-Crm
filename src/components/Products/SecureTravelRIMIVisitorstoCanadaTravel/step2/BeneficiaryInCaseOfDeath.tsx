@@ -1,8 +1,35 @@
 import { InformationCircleIcon } from "@heroicons/react/24/outline";
-import { useState } from "react";
+import React, { FC, ChangeEvent, useState } from "react";
 
-export default function BeneficiaryInCaseOfDeath() {
+
+// beneficiaryName: "",
+//     relationshipToInsured: "",
+
+interface BeneficiaryInfo {
+  beneficiaryName: string;
+  relationshipToInsured: string;
+}
+
+interface BeneficiaryInfoProps {
+  beneficiaryInfo: BeneficiaryInfo;
+  setBeneficiaryInfo: React.Dispatch<React.SetStateAction<BeneficiaryInfo>>;
+}
+
+const BeneficiaryInCaseOfDeath: FC<BeneficiaryInfoProps> = ({
+  beneficiaryInfo,
+  setBeneficiaryInfo
+}) => {
   const [displayInfoRelationShipToInsured, setDisplayInfoRelationShipToInsured] = useState(false);
+
+
+  const onChange =
+      (field: keyof BeneficiaryInfo) =>
+      (e: ChangeEvent<HTMLInputElement>) => {
+        setBeneficiaryInfo(prev => ({
+          ...prev,
+          [field]: e.target.value,
+        }));
+      };
 
   return (
     <div className="max-w-5xl mx-auto mt-4 p-6 bg-[#F9F9F9]">
@@ -17,6 +44,8 @@ export default function BeneficiaryInCaseOfDeath() {
             className="p-2 border border-[#DBDADE] placeholder-[#00000080] bg-white font-[inter]"
             type="text"
             placeholder=""
+            value={beneficiaryInfo.beneficiaryName}
+            onChange={onChange("beneficiaryName")}
           />
         </div>
 
@@ -33,6 +62,8 @@ export default function BeneficiaryInCaseOfDeath() {
             className="p-2 border border-[#DBDADE] placeholder-[#00000080] bg-white font-[inter]"
             type="text"
             placeholder=""
+            value={beneficiaryInfo.relationshipToInsured}
+            onChange={onChange("relationshipToInsured")}
           />
         </div>
 
@@ -46,3 +77,6 @@ export default function BeneficiaryInCaseOfDeath() {
     </div>
   );
 }
+
+
+export default BeneficiaryInCaseOfDeath

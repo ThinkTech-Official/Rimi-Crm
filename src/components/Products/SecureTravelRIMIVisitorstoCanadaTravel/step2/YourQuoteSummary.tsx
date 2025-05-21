@@ -12,12 +12,12 @@ export interface QuoteStage1Response {
   quoteAmount: number;
 }
 
-interface YourQuoteSummaryProps {
+interface QuoteSummaryProps {
   step1ResponseData: QuoteStage1Response | null;
 }
 
 
-export default function YourQuoteSummary({ step1ResponseData }: YourQuoteSummaryProps) {
+export default function YourQuoteSummary({ step1ResponseData }: QuoteSummaryProps) {
   if (!step1ResponseData) {
     return null; // or loading state
   }

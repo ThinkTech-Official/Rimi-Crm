@@ -1,4 +1,34 @@
-export default function Address() {
+
+import React, { FC, ChangeEvent } from "react";
+
+interface Address {
+  addressLine1: string;
+  addressLine2: string;
+  city: string;
+  postalCode: string;
+  country: string;
+  province: string;
+}
+
+interface AddressProps {
+  address: Address;
+  setAddress: React.Dispatch<React.SetStateAction<Address>>;
+}
+
+const Address: FC<AddressProps> = ({
+  address,
+  setAddress,
+}) => {
+
+  const onChange =
+    (field: keyof Address) =>
+    (e: ChangeEvent<HTMLInputElement>) => {
+      setAddress(prev => ({
+        ...prev,
+        [field]: e.target.value,
+      }));
+    };
+
   return (
     <div className="max-w-5xl mx-auto mt-4 p-6 bg-[#F9F9F9]">
       <h3 className="text-xl font-bold text-left text-[#1B1B1B] mb-6 font-[inter]">
@@ -12,6 +42,8 @@ export default function Address() {
             type="text"
             className="p-2 border border-[#DBDADE] placeholder-[#00000080] font-[inter]"
             placeholder="Address Line 1"
+            value={address.addressLine1}
+            onChange={onChange("addressLine1")}
           />
         </div>
 
@@ -21,6 +53,8 @@ export default function Address() {
             type="text"
             className="p-2 border border-[#DBDADE] placeholder-[#00000080] font-[inter]"
             placeholder="Address Line 2"
+            value={address.addressLine2}
+            onChange={onChange("addressLine2")}
           />
         </div>
 
@@ -30,6 +64,8 @@ export default function Address() {
             type="text"
             className="p-2 border border-[#DBDADE] placeholder-[#00000080] font-[inter]"
             placeholder="city"
+            value={address.city}
+            onChange={onChange("city")}
           />
         </div>
 
@@ -39,12 +75,18 @@ export default function Address() {
             type="text"
             className="p-2 border border-[#DBDADE] placeholder-[#00000080] font-[inter]"
             placeholder="Postal Code"
+            value={address.postalCode}
+            onChange={onChange("postalCode")}
           />
         </div>
 
         <div className="flex flex-col gap-2">
           <label className="font-[inter]">Country</label>
-          <select className="p-2 border border-[#DBDADE] font-[inter] text-[#00000080]">
+          <select className="p-2 border border-[#DBDADE] font-[inter] text-[#00000080]"
+          value={address.country}                 
+          onChange={(e) =>                       
+             setAddress(prev => ({ ...prev, country: e.target.value })) 
+             }>
             <option value="">Please select...</option>
             <option value="AF">Afghanistan</option>
             <option value="AX">Åland Islands</option>
@@ -299,9 +341,14 @@ export default function Address() {
             type="text"
             className="p-2 border border-[#DBDADE] placeholder-[#00000080] font-[inter]"
             placeholder="Province/State"
+            value={address.province}
+            onChange={onChange("province")}
           />
         </div>
       </div>
     </div>
   );
 }
+
+
+export default Address

@@ -1,8 +1,33 @@
 import { InformationCircleIcon } from "@heroicons/react/24/outline";
-import { useState } from "react";
+import { ChangeEvent, FC, useState } from "react";
 
-export default function ContactInformation() {
+interface ContactInfo {
+  emailAddress: string,
+    additionalEmail: string,
+    phoneNumber: string
+}
+
+interface ContactInfoProps {
+  contactInfo: ContactInfo;
+  setContactInfo: React.Dispatch<React.SetStateAction<ContactInfo>>;
+}
+
+
+const ContactInformation: FC<ContactInfoProps> =({
+contactInfo,
+setContactInfo
+}) => {
   const [displayInfoAddEmail, setDisplayInfoAddEmail] = useState(false);
+
+
+    const onChange =
+      (field: keyof ContactInfo) =>
+      (e: ChangeEvent<HTMLInputElement>) => {
+        setContactInfo(prev => ({
+          ...prev,
+          [field]: e.target.value,
+        }));
+      };
 
   return (
     <div className="max-w-5xl mx-auto mt-4 p-6 bg-[#F9F9F9]">
@@ -17,6 +42,8 @@ export default function ContactInformation() {
             className="p-2 border border-[#DBDADE] placeholder-[#00000080] bg-white font-[inter]"
             type="text"
             placeholder="Email Address"
+            value={contactInfo.emailAddress}
+            
           />
         </div>
 
@@ -33,6 +60,8 @@ export default function ContactInformation() {
             className="p-2 border border-[#DBDADE] placeholder-[#00000080] bg-white font-[inter]"
             type="text"
             placeholder="Additional Email Address"
+            value={contactInfo.additionalEmail}
+            onChange={onChange("additionalEmail")}
           />
         </div>
 
@@ -49,6 +78,8 @@ export default function ContactInformation() {
             className="p-2 border border-[#DBDADE] placeholder-[#00000080] bg-white font-[inter]"
             type="text"
             placeholder="Phone Number"
+            value={contactInfo.phoneNumber}
+            onChange={onChange("phoneNumber")}
           />
         </div>
 
@@ -59,3 +90,5 @@ export default function ContactInformation() {
     </div>
   );
 }
+
+export default ContactInformation

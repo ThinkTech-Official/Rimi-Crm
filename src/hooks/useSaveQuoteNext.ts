@@ -38,6 +38,12 @@ export interface QuoteNextResponse {
   deductible:          number;
   destinationProvince: string;
   quoteAmount:         number;
+  dateOfBirth: string;
+  firstName: string;
+  lastName: string;
+  gender: string;
+  preExMedCov: string;
+  email: string;
 }
 
 const baseUrl = 'http://localhost:3000'
