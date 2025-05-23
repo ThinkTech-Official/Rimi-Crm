@@ -45,7 +45,7 @@ export default function YourQuoteSummary({ step1ResponseData }: QuoteSummaryProp
     ["Effective Date", fmtDate(effectiveDate)],
     ["Expiry Date", fmtDate(expiryDate)],
     ["Coverage Length", `${coverageLength} day${coverageLength !== 1 ? "s" : ""}`],
-    ["Number of Travellers", numberOfTravellers],
+    ["Number of Travellers", numberOfTravellers+1],
     ["Policy Type", policyType],
     ["Coverage Limit", fmtMoney(Number(coverageLimit))],
     ["Deductible", fmtMoney(deductible)],

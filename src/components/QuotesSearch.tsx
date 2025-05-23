@@ -336,7 +336,7 @@ import {
   QuoteRecord,
   PaginatedQuotes,
 } from "../hooks/useSearchQuotes";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const emailRegex = /^\S+@\S+\.\S+$/;
 
@@ -630,12 +630,14 @@ const QuotesSearch: React.FC = () => {
                   </td>
                   <td className="px-4 py-2">{u.product}</td>
                   <td className="px-4 py-2">
-                    <button
-                      onClick={() => navigate(`/quote-detail/${u.id}`)}
+                    <Link
+                      // onClick={() => navigate(``)}
+                      target="_blank"
+                      to={`/quote-detail/${u.id}`}
                       className="px-3 py-1 bg-blue-600 text-white text-sm rounded"
                     >
                       View
-                    </button>
+                    </Link>
                   </td>
                 </tr>
               ))}

@@ -47,6 +47,7 @@ export interface QuoteDetail {
   lastModified?: string;
   premium?: number;
   paidPremium?: number;
+  coverageOption?: string;
 
   agentCode: string;
   createdAt: string;
@@ -77,7 +78,10 @@ export function useQuoteDetail(id: string | null) {
         }
         return res.json() as Promise<QuoteDetail>;
       })
-      .then((quote) => setData(quote))
+      .then((quote) => {
+        console.log(quote)
+        setData(quote)
+  })
       .catch((err: any) => setError(err.message))
       .finally(() => setLoading(false));
   }, [id]);

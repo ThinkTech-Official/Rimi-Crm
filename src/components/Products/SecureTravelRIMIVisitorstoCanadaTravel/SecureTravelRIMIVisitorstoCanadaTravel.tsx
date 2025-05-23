@@ -12,6 +12,7 @@ import Step1STRVCT from "./step1/Step1STRVCT";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../app/store";
 import { useSaveQuoteNext } from "../../../hooks/useSaveQuoteNext";
+import { useQuoteUpdate, Stage2Payload } from "../../../hooks/useQuoteUpdate";
 
 type SuperVisaOption = "" | "yes" | "no";
 type SuperVisaYears = "" | "1" | "2";
@@ -47,7 +48,6 @@ interface QuoteStage1Response {
 }
 
 interface ContactInfo {
-  emailAddress: string,
     additionalEmail: string,
     phoneNumber: string
 }
@@ -134,7 +134,6 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
   });
 
   const [contactInfo,setContactInfo] = useState<ContactInfo>({
-    emailAddress: step1ResponseData?.email ?? '',
     additionalEmail: '',
     phoneNumber: ''
   })
@@ -154,13 +153,31 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
 
   const [isStepOneFilled, setIsStepOneFilled] = useState(false);
 
-  const {
-    saveQuoteNext,
-    loading: saving,
-    error: saveError,
-    data: quoteResponse,
-  } = useSaveQuoteNext();
+  // const {
+  //   saveQuoteNext,
+  //   loading: saving,
+  //   error: saveError,
+  //   data: quoteResponse,
+  // } = useSaveQuoteNext();
 
+  // const { completeApplication, loading: submittingStage2, error: submitError } = useQuoteUpdate()
+
+
+  const { saveQuoteNext, loading: savingStage1 } = useSaveQuoteNext();
+
+   const {
+    completeApplication,
+    loading: submittingStage2,
+    error: submitError,
+    data: policyResponse,
+  } = useQuoteUpdate();
+
+
+
+  //----------------------------
+
+
+ 
   const handleFormStepChange = (stepCommand: string) => {
     setFormStep((prevStep) => {
       let newStep = prevStep;
@@ -207,10 +224,10 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
 
   // your new handler which first saves, then advances the wizard
   const handleNext = async () => {
-    if (!isStepOneFilled || saving) return;
+    if (!isStepOneFilled || savingStage1) return;
 
     try {
-      const response = await saveQuoteNext(payload);
+      const response = await saveQuoteNext(stage1Payload);
       setQuoteNumber(response.quoteNumber);
       setStep1ResponseData({
         quoteNumber: response.quoteNumber,
@@ -238,7 +255,25 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
     }
   };
 
-  const payload = {
+    // Step‐2 “Buy Now”
+  const handleBuyNow = async () => {
+    if (!quoteNumber || submittingStage2) return;
+    const payload: Stage2Payload = {
+      quoteNumber,
+      address,
+      contactInfo,
+      beneficiary,
+    };
+    try {
+      const resp = await completeApplication(payload);
+      console.log('from handle buy', resp)
+      handleFormStepChange("forward");
+    } catch {
+      // show submitError…
+    }
+  };
+
+  const stage1Payload = {
     primaryFirstName,
     primaryLastName,
     primaryDateOfBirth,
@@ -262,6 +297,7 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
     agentCode: agentCode!,
     product: "Secure Travel RIMI Visitors to Canada Travel",
     quoteNumber: quoteNumber,
+    status: "Inactive"
   };
 
   return (
@@ -402,7 +438,7 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
             preExMedCov={step1ResponseData?.preExMedCov ?? ""}
           />
           {/* contactInfo,setContactInfo */}
-          <ContactInformation contactInfo={contactInfo} setContactInfo={setContactInfo}  />
+          <ContactInformation contactInfo={contactInfo} setContactInfo={setContactInfo} email={step1ResponseData?.email} />
           <Address address={address} setAddress={setAddress} />
           {/* beneficiary, setBeneficiary */}
           <BeneficiaryInCaseOfDeath beneficiaryInfo={beneficiary} setBeneficiaryInfo={setBeneficiary} />
@@ -449,10 +485,40 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
 
       <div className="flex justify-center gap-10 mt-4">
         {formStep > 1 && (
-          <button onClick={() => handleFormStepChange("back")}>Previous</button>
+          <button onClick={() => handleFormStepChange("back")} className=" btn-outline">Previous</button>
         )}
 
-        {formStep < 3 ? (
+         {formStep === 1 && (
+          <button
+            onClick={handleNext}
+            disabled={!isStepOneFilled || savingStage1}
+            className={`btn-primary ${
+              savingStage1 ? "opacity-50 cursor-wait" : ""
+            }`}
+          >
+            {savingStage1 ? "Saving…" : "Next"}
+          </button>
+        )}
+
+        {formStep === 2 && (
+          <button
+            onClick={handleBuyNow}
+            disabled={submittingStage2}
+            className={`btn-primary ${
+              submittingStage2 ? "opacity-50 cursor-wait" : ""
+            }`}
+          >
+            {submittingStage2 ? "Processing…" : "Buy Now"}
+          </button>
+        )}
+
+        {formStep === 3 && (
+          <button onClick={handleSubmit} className="btn-primary">
+            Submit
+          </button>
+        )}
+
+        {/* {formStep < 3 ? (
           <button
             onClick={handleNext}
             disabled={!isStepOneFilled || saving}
@@ -466,7 +532,7 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
           </button>
         ) : (
           <button onClick={handleSubmit}>Submit</button>
-        )}
+        )} */}
       </div>
     </div>
   );

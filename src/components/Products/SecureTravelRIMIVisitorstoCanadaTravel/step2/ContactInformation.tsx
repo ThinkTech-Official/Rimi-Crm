@@ -2,7 +2,6 @@ import { InformationCircleIcon } from "@heroicons/react/24/outline";
 import { ChangeEvent, FC, useState } from "react";
 
 interface ContactInfo {
-  emailAddress: string,
     additionalEmail: string,
     phoneNumber: string
 }
@@ -10,12 +9,14 @@ interface ContactInfo {
 interface ContactInfoProps {
   contactInfo: ContactInfo;
   setContactInfo: React.Dispatch<React.SetStateAction<ContactInfo>>;
+  email?: string;
 }
 
 
 const ContactInformation: FC<ContactInfoProps> =({
 contactInfo,
-setContactInfo
+setContactInfo,
+email
 }) => {
   const [displayInfoAddEmail, setDisplayInfoAddEmail] = useState(false);
 
@@ -36,7 +37,7 @@ setContactInfo
       </h3>
 
       <div className="grid grid-cols-2 gap-x-36 gap-y-4 text-gray-700 font-[inter]">
-        <div className="flex flex-col gap-2">
+        {/* <div className="flex flex-col gap-2">
           <label className="font-[inter]">Email Address</label>
           <input
             className="p-2 border border-[#DBDADE] placeholder-[#00000080] bg-white font-[inter]"
@@ -45,6 +46,11 @@ setContactInfo
             value={contactInfo.emailAddress}
             
           />
+        </div> */}
+
+         <div className="flex flex-col gap-2">
+          <label className="font-[inter]">Email Address</label>
+          <p className="p-2 border border-[#DBDADE] bg-white">{email}</p>
         </div>
 
         <div className="flex flex-col gap-2">
