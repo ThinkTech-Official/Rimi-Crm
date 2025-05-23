@@ -10,6 +10,7 @@ export interface Applicant {
   dob: string
   relationship: string
   preMedCoverage: boolean
+  gender: string
 }
 
 export type YesNo = '' | 'yes' | 'no'

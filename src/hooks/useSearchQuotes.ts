@@ -55,6 +55,7 @@
 
 
 import { useState } from 'react';
+import { useSelector } from 'react-redux';
 
 // Extend the search criteria to include pagination
 export interface SearchCriteria {
@@ -94,6 +95,8 @@ const baseUrl = 'http://localhost:3000';
  * @param defaultLimit number of items per page if not provided
  */
 export function useSearchQuotes(defaultLimit: number = 10) {
+
+  const token = useSelector((state: any) => state.auth.token) as string | null;
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [data, setData] = useState<PaginatedQuotes<QuoteRecord> | null>(null);
@@ -113,7 +116,10 @@ export function useSearchQuotes(defaultLimit: number = 10) {
       const payload: SearchCriteria = { ...criteria, page, limit };
       const response = await fetch(`${baseUrl}/quotes/search`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
         body: JSON.stringify(payload),
       });
 

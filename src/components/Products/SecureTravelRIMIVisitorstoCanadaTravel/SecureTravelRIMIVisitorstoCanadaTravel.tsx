@@ -45,6 +45,7 @@ interface QuoteStage1Response {
   gender: string;
   preExMedCov: string;
   email: string;
+  applicants: Applicant[]
 }
 
 interface ContactInfo {
@@ -246,6 +247,7 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
         gender: response.gender,
         preExMedCov: response.preExMedCov,
         email: response.email,
+        applicants: response.applicants
       });
       console.log("from quote  getting response of stage 1", response);
       handleFormStepChange("forward");
@@ -436,6 +438,7 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
             lastName={step1ResponseData?.lastName ?? ""}
             gender={step1ResponseData?.gender ?? ""}
             preExMedCov={step1ResponseData?.preExMedCov ?? ""}
+            applicants={step1ResponseData?.applicants ?? []}
           />
           {/* contactInfo,setContactInfo */}
           <ContactInformation contactInfo={contactInfo} setContactInfo={setContactInfo} email={step1ResponseData?.email} />

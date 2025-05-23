@@ -1,6 +1,7 @@
 
 import { useState, useCallback } from 'react';
 import { useSelector } from 'react-redux';
+import { Applicant } from './useSaveQuote';
 
 export interface QuoteNextPayload {
   primaryFirstName:        string;
@@ -44,6 +45,7 @@ export interface QuoteNextResponse {
   gender: string;
   preExMedCov: string;
   email: string;
+  applicants: Applicant[]
 }
 
 const baseUrl = 'http://localhost:3000'
