@@ -13,6 +13,8 @@ import { useSelector } from "react-redux";
 import { RootState } from "../../../app/store";
 import { useSaveQuoteNext } from "../../../hooks/useSaveQuoteNext";
 import { useQuoteUpdate, Stage2Payload } from "../../../hooks/useQuoteUpdate";
+import { Elements } from '@stripe/react-stripe-js';
+import { stripePromise } from "../../../utils/stripe";
 
 type SuperVisaOption = "" | "yes" | "no";
 type SuperVisaYears = "" | "1" | "2";
@@ -57,6 +59,8 @@ interface BeneficiaryInfo {
   beneficiaryName: string;
   relationshipToInsured: string;
 }
+
+const productName = 'Secure Travel RIMI Visitors to Canada Travel'
 
 export default function SecureTravelRIMIVisitorstoCanadaTravel() {
   const agentCode = useSelector((state: RootState) => state.auth.agentCode);
@@ -128,6 +132,18 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
     country: "",
     province: ""
   });
+
+  {/* const shipping = {
+  name: 'Jane Doe',
+  address: {
+    line1: '123 Main St',
+    line2: 'Apt. 4B',    // optional
+    city: 'Mumbai',
+    state: 'MH',
+    postal_code: '400001',
+    country: 'IN',
+  },
+}; */}
 
   const [beneficiary, setBeneficiary] = useState<BeneficiaryInfo>({
     beneficiaryName: "",
@@ -302,6 +318,12 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
     status: "Inactive"
   };
 
+
+  const handlePaymentSuccess = () => {
+    alert('payment successfull')
+    handleFormStepChange('forward')
+  }
+
   return (
     <div className="max-w-5xl mx-auto mt-10 p-6 bg-white rounded-lg shadow-lg font-[inter]">
       <nav aria-label="Progress">
@@ -424,7 +446,7 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
         </div>
       )}
 
-      {steps[1].status === "current" && (
+      {steps[1].status === "current" && quoteNumber && (
         <div>
           <div className="w-full h-2 mt-8 flex items-center justify-center">
             <h3 className="text-lg">
@@ -445,7 +467,27 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
           <Address address={address} setAddress={setAddress} />
           {/* beneficiary, setBeneficiary */}
           <BeneficiaryInCaseOfDeath beneficiaryInfo={beneficiary} setBeneficiaryInfo={setBeneficiary} />
-          <PaymentInformation />
+          
+          {/* Payment Stripe   */}
+          {/* <PaymentInformation /> */}
+
+          
+
+          <Elements stripe={stripePromise}>
+  <PaymentInformation
+  quoteNumber={quoteNumber}
+  description={productName}
+  name={primaryFirstName}
+  shipping={address}
+
+    amount={step1ResponseData?.quoteAmount ?? 0}
+    // onPaymentSuccess={() => handleFormStepChange('forward')}
+    // handlePaymentSuccess
+    onPaymentSuccess={() => handlePaymentSuccess()}
+  />
+</Elements>
+
+          {/*  */}
         </div>
       )}
 
