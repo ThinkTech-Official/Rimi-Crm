@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import axios from 'axios';
 
 export interface PolicyApplicant {
   id: string;
@@ -56,6 +57,10 @@ export interface PolicyDetail {
   applicantOnSuperVisa?: string;
   coverage?: string;
   deductible?: string;
+  destination: string;
+  effectiveDate: string;
+  dateIssued: string;
+  countryCode: string;
 
   beneficiaryName?: string;
   beneficiaryRelation?: string;
@@ -66,7 +71,7 @@ export interface PolicyDetail {
   paymentHistory?: any[];
 }
 
-const baseUrl = "http://localhost:3000"
+const baseUrl = "http://localhost:3000";
 
 export function usePolicyDetail(id: string | null) {
   const [data, setData] = useState<PolicyDetail | null>(null);
@@ -76,19 +81,19 @@ export function usePolicyDetail(id: string | null) {
   useEffect(() => {
     if (!id) return;
     setLoading(true);
-    fetch(`${baseUrl}/policies/${id}`)
-      .then(async res => {
-        if (!res.ok) throw new Error(await res.text() || res.statusText);
-        console.log('from use policy details ',res)
-        // return res.json() as Promise<PolicyDetail>;
-        return res.json();
+
+    axios.get<PolicyDetail>(`${baseUrl}/policies/${id}`)
+      .then(response => {
+        console.log("Response from backend:", response.data);
+        setData(response.data);
       })
-      .then(setData)
-      .catch(err => setError(err.message))
+      .catch(err => {
+        console.error("Error fetching policy details:", err);
+        setError(err.message);
+      })
       .finally(() => {
-        setLoading(false)
-        console.log('from use policy details 2', data)
-  });
+        setLoading(false);
+      });
   }, [id]);
 
   return { data, loading, error };

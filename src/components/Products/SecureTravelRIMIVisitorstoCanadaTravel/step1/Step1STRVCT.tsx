@@ -440,7 +440,8 @@ const Step1STRVCT = ({ onValidityChange,
     policyType,
     coverageOption,
     deductible,
-    primarydateOfBirth: primaryDateOfBirth
+    primarydateOfBirth: primaryDateOfBirth,
+    paymentOption
   }
   // const payload = Object.defineProperty(PremiumCalculationData, "primarydateOfBirth", {value: primaryDateOfBirth});
 

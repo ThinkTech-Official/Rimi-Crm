@@ -29,6 +29,7 @@ export interface PolicyRecord {
   dateIssued?: string;
   covEffDate?: string;
   expiryDate?: string;
+  effectiveDate?: string;
   product?: string;
   status?: string;
 }

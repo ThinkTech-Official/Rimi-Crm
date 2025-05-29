@@ -321,7 +321,7 @@ const PoliciesSearch: React.FC = () => {
                   <td className="px-4 py-2">{p.firstName}</td>
                   <td className="px-4 py-2">{p.lastName}</td>
                   <td className="px-4 py-2">{p.dateOfBirth?.split("T")[0]}</td>
-                  <td className="px-4 py-2">{p.covEffDate?.split("T")[0]}</td>
+                  <td className="px-4 py-2">{p.effectiveDate?.split("T")[0]}</td>
                   <td className="px-4 py-2">{p.expiryDate?.split("T")[0]}</td>
                   <td className="px-4 py-2">{p.product}</td>
                   

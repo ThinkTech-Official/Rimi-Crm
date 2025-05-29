@@ -10,7 +10,7 @@ export function useCreatePaymentIntent(quoteNumber: string, description: string,
   const [error, setError] = useState<string | null>(null);
 
   /**
-   * Calls your NestJS endpoint to make /payments/create-payment-intent
+   * Calls NestJS endpoint to make /payments/create-payment-intent
    * @param amountInCents amount *in cents*
    * @returns clientSecret on success
    */
