@@ -8,6 +8,7 @@ import React, {
   FC,
   InputHTMLAttributes,
   SelectHTMLAttributes,
+  useMemo,
 } from "react";
 import { InformationCircleIcon } from "@heroicons/react/24/outline";
 import { usePremiumCalculate } from "../../../../hooks/usePremiumCalculate";
@@ -117,7 +118,12 @@ const Step1STRVCT = ({ onValidityChange,
           coverageForPreMedCon , setCoverageForPreMedCon,
           isConfirmed, setIsConfirmed,
           quoteNumber, setQuoteNumber,
-          primaryApplicantGender , setPrimaryApplicantGender
+          primaryApplicantGender , setPrimaryApplicantGender,
+           totalPremium, setTotalPremium,
+  schedule, setSchedule,
+  loading, setLoading,
+  error, setError,
+
  }: any) => {
 
 
@@ -416,7 +422,8 @@ const Step1STRVCT = ({ onValidityChange,
     coverageLength,
     policyType,
     coverageOption,
-    deductible
+    deductible,
+    primaryDateOfBirth
   ].every(v => v !== '');
 
   // console.log(CanClculatePremium)
@@ -429,7 +436,7 @@ const Step1STRVCT = ({ onValidityChange,
 
   //=====================================Backend Communication Data===========================
 
-  const premiumCalculationData = {
+  const premiumCalculationData = useMemo<PremiumCalculationData>(() => ({
     countryOfOrigin,
     inCanada,
     superVisa,
@@ -441,11 +448,50 @@ const Step1STRVCT = ({ onValidityChange,
     coverageOption,
     deductible,
     primarydateOfBirth: primaryDateOfBirth,
-    paymentOption
-  }
+    paymentOption,
+    plan: 1
+  }), [
+  countryOfOrigin,
+  inCanada,
+  superVisa,
+  destinationProvince,
+  effectiveDate,
+  expiryDate,
+  coverageLength,
+  policyType,
+  coverageOption,
+  deductible,
+  primaryDateOfBirth,
+  paymentOption
+]
+) 
   // const payload = Object.defineProperty(PremiumCalculationData, "primarydateOfBirth", {value: primaryDateOfBirth});
 
-  const { quotePremium, loading, error } = usePremiumCalculate(premiumCalculationData, CanClculatePremium);
+  // const { totalPremium, schedule, loading, error } = usePremiumCalculate(premiumCalculationData, CanClculatePremium);
+    const {
+    totalPremium: hookTotalPremium,
+    schedule: hookSchedule,
+    loading: hookLoading,
+    error: hookError,
+  } = usePremiumCalculate(premiumCalculationData, CanClculatePremium);
+
+   useEffect(() => {
+    setTotalPremium(hookTotalPremium);
+  }, [hookTotalPremium, setTotalPremium]);
+
+   useEffect(() => {
+    setSchedule(hookSchedule);
+  }, [hookSchedule, setSchedule]);
+
+  useEffect(() => {
+    setLoading(hookLoading);
+  }, [hookLoading, setLoading]);
+
+  useEffect(() => {
+    setError(hookError);
+  }, [hookError, setError]);
+  
+  // const hookResult = usePremiumCalculate(premiumCalculationData, CanClculatePremium);
 
   //   const { quote, loading, error } = useQuote(
   //   { applicants, coverage: coverageInfo },
@@ -489,8 +535,9 @@ const Step1STRVCT = ({ onValidityChange,
         paymentOption,
       agentCode: agentCode!,
       product: 'Secure Travel RIMI Visitors to Canada Travel',
-      quotePremium: quotePremium,
-      quoteNumber: quoteNumber
+      quotePremium: totalPremium,  // maybe we should calculate it directly from backend instead of fetching from frontend
+      quoteNumber: quoteNumber,
+      plan: 1
     }
 
     try {
@@ -1410,9 +1457,55 @@ const Step1STRVCT = ({ onValidityChange,
           <h3 className="text-red-500">Error: {error}</h3>
         ) : (
           <div>
-          <h3 className="text-lg text-center mt-2">
-            Your Quote: ${quotePremium}
+          <div>
+            {/* {schedule.length > 0 && (
+              <div>
+                <h4>Policy Issue Fee: </h4>
+                <h4>Total Initial Payment: </h4>
+                <h4>Monthly Installment of: </h4>
+                <h4>Total Premium: </h4>
+              </div>
+            )} */}
+
+            {/* {schedule.length > 0 && (
+  <div>
+    {schedule.map((item, idx) => (
+      <div key={idx} className="flex justify-between">
+        <span>
+          {item.count
+            ? `${item.count} × ${item.label}`
+            : item.label}
+        </span>
+        <span>${item.amount.toFixed(2)}</span>
+      </div>
+    ))}
+  </div>
+)} */}
+
+
+  {schedule.length > 0 && (
+              <div className="mb-4">
+                {schedule.map((item: any, idx: any) => (
+                  <div key={idx} className="flex justify-between">
+                    <span>
+                      {item.count
+                        ? `${item.count} × ${item.label}`
+                        : item.label}
+                    </span>
+                    <span>${item.amount.toFixed(2)}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+
+
+
+
+
+            <h3 className="text-lg text-center mt-2">
+            Your Quote: ${totalPremium}
           </h3>
+          </div>
             {/* <h3 className=" text-center mt-2 cursor-pointer text-[#2b00b7]">
               {isFormFilled ? <p onClick={handleQuoteSave}>Save Quote</p> : ''}
             </h3> */}

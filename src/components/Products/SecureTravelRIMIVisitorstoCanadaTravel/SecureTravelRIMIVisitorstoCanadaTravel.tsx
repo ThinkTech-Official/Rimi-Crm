@@ -115,6 +115,27 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
 
   /////////////////////////////////
 
+   const [totalPremium, setTotalPremium] = useState<number>(0);
+  const [schedule, setSchedule] = useState<any[]>([]);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
+
+  let monthlyAmount: number | undefined = undefined;
+let remainingInstallments: number | undefined = undefined;
+
+
+const stripeProductId = "prod_SRGSLGPsB7SQxy";
+
+
+// If the user picked monthly‐installments and the backend schedule array is in the
+// form [ {…Policy Issue Fee…}, {…Total Initial Payment…}, { label: "Monthly Installment of", amount: ###, count: N}, … ]
+if (paymentOption === "monthly-installments" && schedule.length >= 3) {
+  // schedule[2] is guaranteed (by your backend) to be
+  // { label: "Monthly Installment of", amount: X, count: Y }
+  monthlyAmount = schedule[2].amount;            // e.g. 96.69
+  remainingInstallments = schedule[2].count;     // e.g. 10
+}
+
   ///--------------------------------------- Stage 2 -------------------------------------
 
   // const [addressLine1,setAddressLine1] = useState<string>('')
@@ -442,6 +463,15 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
             setQuoteNumber={setQuoteNumber}
             primaryApplicantGender={primaryApplicantGender}
             setPrimaryApplicantGender={setPrimaryApplicantGender}
+            //
+            totalPremium={totalPremium}
+        schedule={schedule}
+        loading={loading}
+        error={error}
+        setTotalPremium={setTotalPremium}
+        setSchedule={setSchedule}
+        setLoading={setLoading}
+        setError={setError}
           />
         </div>
       )}
@@ -453,7 +483,7 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
               Your Quote: ${step1ResponseData?.quoteAmount}
             </h3>
           </div>
-          <YourQuoteSummary step1ResponseData={step1ResponseData} />
+          <YourQuoteSummary step1ResponseData={step1ResponseData}  />
           <ApplicantInformationFinished
             dateOfBirth={step1ResponseData?.dateOfBirth ?? ""}
             firstName={step1ResponseData?.firstName ?? ""}
@@ -479,11 +509,24 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
   description={productName}
   name={primaryFirstName}
   shipping={address}
+  paymentOption={paymentOption}
 
-    amount={step1ResponseData?.quoteAmount ?? 0}
+    amount={totalPremium}
     // onPaymentSuccess={() => handleFormStepChange('forward')}
     // handlePaymentSuccess
     onPaymentSuccess={() => handlePaymentSuccess()}
+    
+      // { ...(paymentOption === "monthly-installments" && {
+      //       monthlyAmount,
+      //       remainingInstallments,
+      //       stripeProductId,
+      //     })
+      //   }
+
+       monthlyAmount={ paymentOption === "monthly-installments" ? monthlyAmount : undefined }
+  remainingInstallments={ paymentOption === "monthly-installments" ? remainingInstallments : undefined }
+  stripeProductId={ paymentOption === "monthly-installments" ? stripeProductId : undefined }
+
   />
 </Elements>
 

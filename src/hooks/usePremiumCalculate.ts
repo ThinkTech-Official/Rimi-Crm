@@ -6,11 +6,23 @@ import { PremiumCalculationData } from '../components/Products/SecureTravelRIMIV
 
 const baseUrl = "http://localhost:3000";
 
+interface PaymentScheduleItem {
+  label: string;
+  amount: number;
+  count?: number;
+}
+
+interface PremiumResponse {
+  totalPremium: number;
+  schedule: PaymentScheduleItem[];
+}
+
 export function usePremiumCalculate(
   premiumCalculationData: PremiumCalculationData,
   enabled: boolean
 ) {
-  const [quotePremium, setQuotePremium] = useState<number>(0);
+  // const [quotePremium, setQuotePremium] = useState<number>(0);
+  const [quoteResponse, setQuoteResponse] = useState<PremiumResponse>({ totalPremium: 0, schedule: [] });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -35,7 +47,8 @@ export function usePremiumCalculate(
         return res.json();
       })
       .then(data => {
-        setQuotePremium(data);
+        console.log("Premium calculation response:", data); 
+        setQuoteResponse(data);
       })
       .catch(err => {
         console.error(err);
@@ -69,5 +82,10 @@ export function usePremiumCalculate(
     doFetch();
   }, [premiumCalculationData, enabled]);
 
-  return { quotePremium, loading, error };
+  return { 
+    totalPremium: quoteResponse.totalPremium,
+    schedule:    quoteResponse.schedule,
+    loading,
+    error
+  };;
 }

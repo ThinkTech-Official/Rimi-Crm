@@ -26,14 +26,24 @@ interface Props {
   description: string;
   name: string;
   shipping: Shipping;
+  paymentOption: "lump-sum" | "monthly-installments";
+  monthlyAmount?: number ;
+  remainingInstallments?: number ;
+   stripeProductId?: string ;
 }
+
+//
+const stripeCustomerId = 'cus_85525845666'
+//
 
 export default function PaymentInformation({
   amount,
   onPaymentSuccess,
   quoteNumber,
   description,
-  shipping
+  shipping,
+  paymentOption,
+  monthlyAmount ,remainingInstallments , stripeProductId
 }: Props) {
   const stripe = useStripe();
   const elements = useElements();
@@ -41,7 +51,7 @@ export default function PaymentInformation({
   const [cardholderName, setCardholderName] = useState('');
   const [stripeError, setStripeError] = useState<string | null>(null);
   const { createPaymentIntent, loading: intentLoading, error: intentError } =
-    useCreatePaymentIntent(quoteNumber!, description, cardholderName ,shipping );
+    useCreatePaymentIntent(stripeCustomerId,quoteNumber!, description, cardholderName ,shipping, paymentOption, monthlyAmount ,remainingInstallments , stripeProductId );
 
   
 
