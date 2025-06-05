@@ -29,6 +29,7 @@ export interface QuoteNextPayload {
 }
 
 export interface QuoteNextResponse {
+  quoteId: string;
   quoteNumber:         string;
   effectiveDate:       string;
   expiryDate:          string;

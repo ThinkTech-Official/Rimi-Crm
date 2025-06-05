@@ -22,6 +22,7 @@ export interface Shipping {
 interface Props {
   amount: number;
   onPaymentSuccess: () => void;
+  onBuyNow: () => Promise<void>;
   quoteNumber: string;
   description: string;
   name: string;
@@ -30,6 +31,11 @@ interface Props {
   monthlyAmount?: number ;
   remainingInstallments?: number ;
    stripeProductId?: string ;
+   handleFormStepChange: (stepCommand: string) => void;
+   formStep: number;
+   handleBuyNow: any;
+   submittingStage2: boolean;
+
 }
 
 //
@@ -37,6 +43,11 @@ const stripeCustomerId = 'cus_85525845666'
 //
 
 export default function PaymentInformation({
+  handleFormStepChange,
+  formStep,
+  handleBuyNow,
+  submittingStage2,
+  onBuyNow,
   amount,
   onPaymentSuccess,
   quoteNumber,
@@ -56,12 +67,30 @@ export default function PaymentInformation({
   
 
   const handleSubmit = async (e: FormEvent) => {
+
+
+
+
+    
+
+    // stripe Payment setup
     e.preventDefault();
     if (!stripe || !elements) return;
 
     setStripeError(null);
 
+    
+
+
+
     try {
+
+      // 0 Backend data save by calling buynow
+
+    await onBuyNow()
+
+    //
+
       // 1️ Create PaymentIntent on backend
       const clientSecret = await createPaymentIntent(
         Math.round(amount * 100)
@@ -91,11 +120,12 @@ export default function PaymentInformation({
         onPaymentSuccess();
       }
     } catch (err: any) {
-      setStripeError(err.message);
+      setStripeError(err.message || "Something went wrong");
     }
   };
 
   return (
+    <>
     <form
       onSubmit={handleSubmit}
       className="max-w-md mx-auto bg-white p-6 rounded-lg shadow space-y-6"
@@ -172,5 +202,12 @@ export default function PaymentInformation({
         {intentLoading ? 'Processing…' : `Pay $${amount.toFixed(2)}`}
       </button>
     </form>
+
+
+          {/* Bottom Button  */}
+    <>
+    
+      </>
+    </>
   );
 }

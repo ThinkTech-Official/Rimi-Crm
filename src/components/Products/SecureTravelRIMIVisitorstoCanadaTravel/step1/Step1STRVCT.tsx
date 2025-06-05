@@ -123,6 +123,9 @@ const Step1STRVCT = ({ onValidityChange,
   schedule, setSchedule,
   loading, setLoading,
   error, setError,
+  formStep , handleFormStepChange,
+  handleNext , isStepOneFilled,
+  savingStage1
 
  }: any) => {
 
@@ -1533,6 +1536,68 @@ const Step1STRVCT = ({ onValidityChange,
           <p className="mt-2">Quote saved: ${savedQuote}</p>
         )} */}
       </div>
+
+      {/* BOTTOM BUTTON  */}
+
+
+      {/* <div className="flex justify-center gap-10 mt-4"> */}
+        {/* {formStep > 1 && (
+          <button onClick={() => handleFormStepChange("back")} className=" btn-outline">Previous</button>
+        )} */}
+
+         {/* {formStep === 1 && (
+          <button
+            onClick={handleNext}
+            disabled={!isStepOneFilled || savingStage1}
+            className={`btn-primary ${
+              savingStage1 ? "opacity-50 cursor-wait" : ""
+            }`}
+          >
+            {savingStage1 ? "Saving…" : "Next"}
+          </button>
+        )} */}
+
+        {/* {formStep === 2 && (
+          <button
+            onClick={handleBuyNow}
+            disabled={submittingStage2}
+            className={`btn-primary ${
+              submittingStage2 ? "opacity-50 cursor-wait" : ""
+            }`}
+          >
+            {submittingStage2 ? "Processing…" : "Buy Now"}
+          </button>
+        )} */}
+
+        {/* {formStep === 3 && (
+          <button onClick={handleSubmitStage3} className="btn-primary">
+            Submit
+          </button>
+        )} */}
+
+        {/* {formStep < 3 ? (
+          <button
+            onClick={handleNext}
+            disabled={!isStepOneFilled || saving}
+            className={`px-6 py-2 ${
+              saving
+                ? "bg-gray-300 text-gray-600 cursor-wait"
+                : "bg-indigo-600 text-white hover:bg-indigo-700"
+            }`}
+          >
+            {saving ? "Saving…" : "Next"}
+          </button>
+        ) : (
+          <button onClick={handleSubmit}>Submit</button>
+        )} */}
+      {/* </div> */}
+
+
+
+
+
+
+      {/*  */}
     </>
   )
 }

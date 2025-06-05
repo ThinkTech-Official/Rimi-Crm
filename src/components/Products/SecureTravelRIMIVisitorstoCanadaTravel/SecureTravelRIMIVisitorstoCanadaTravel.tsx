@@ -15,6 +15,7 @@ import { useSaveQuoteNext } from "../../../hooks/useSaveQuoteNext";
 import { useQuoteUpdate, Stage2Payload } from "../../../hooks/useQuoteUpdate";
 import { Elements } from '@stripe/react-stripe-js';
 import { stripePromise } from "../../../utils/stripe";
+import Summary from "./step3/Summary";
 
 type SuperVisaOption = "" | "yes" | "no";
 type SuperVisaYears = "" | "1" | "2";
@@ -31,6 +32,7 @@ interface Applicant {
 }
 
 interface QuoteStage1Response {
+  quoteId: string;
   quoteNumber: string;
   effectiveDate: string; // ISO string
   expiryDate: string; // ISO string
@@ -242,7 +244,7 @@ if (paymentOption === "monthly-installments" && schedule.length >= 3) {
     });
   };
 
-  const handleSubmit = () => {
+  const handleSubmitStage3 = () => {
     console.log("Form Submitted");
   };
 
@@ -268,6 +270,7 @@ if (paymentOption === "monthly-installments" && schedule.length >= 3) {
       const response = await saveQuoteNext(stage1Payload);
       setQuoteNumber(response.quoteNumber);
       setStep1ResponseData({
+        quoteId: response.quoteId,
         quoteNumber: response.quoteNumber,
         effectiveDate: response.effectiveDate, 
         expiryDate: response.expiryDate, 
@@ -306,7 +309,7 @@ if (paymentOption === "monthly-installments" && schedule.length >= 3) {
     try {
       const resp = await completeApplication(payload);
       console.log('from handle buy', resp)
-      handleFormStepChange("forward");
+      // handleFormStepChange("forward");
     } catch {
       // show submitError…
     }
@@ -472,6 +475,15 @@ if (paymentOption === "monthly-installments" && schedule.length >= 3) {
         setSchedule={setSchedule}
         setLoading={setLoading}
         setError={setError}
+        // 
+
+        formStep={formStep}
+        handleFormStepChange={handleFormStepChange}
+        handleNext={handleNext}
+        isStepOneFilled={isStepOneFilled}
+        savingStage1={savingStage1}
+        
+        // 
           />
         </div>
       )}
@@ -515,6 +527,7 @@ if (paymentOption === "monthly-installments" && schedule.length >= 3) {
     // onPaymentSuccess={() => handleFormStepChange('forward')}
     // handlePaymentSuccess
     onPaymentSuccess={() => handlePaymentSuccess()}
+    onBuyNow={handleBuyNow}
     
       // { ...(paymentOption === "monthly-installments" && {
       //       monthlyAmount,
@@ -527,6 +540,15 @@ if (paymentOption === "monthly-installments" && schedule.length >= 3) {
   remainingInstallments={ paymentOption === "monthly-installments" ? remainingInstallments : undefined }
   stripeProductId={ paymentOption === "monthly-installments" ? stripeProductId : undefined }
 
+  // 
+  formStep={formStep}
+  handleFormStepChange={handleFormStepChange}
+  // handleNext={handleNext}
+  // isStepOneFilled={isStepOneFilled}
+  // savingStage1={savingStage1}
+  handleBuyNow={handleBuyNow}
+  submittingStage2={submittingStage2}
+
   />
 </Elements>
 
@@ -535,14 +557,15 @@ if (paymentOption === "monthly-installments" && schedule.length >= 3) {
       )}
 
       {steps[2].status === "current" && (
-        <div>
-          <h3 className="text-xl font-bold text-left text-[#1B1B1B] mt-5 mb-6">
-            Step 3: Confirmation
-          </h3>
-          <p className="text-md text-left text-[#1B1B1B] mb-6">
-            Review your application details and submit.
-          </p>
-        </div>
+        // <div>
+        //   <h3 className="text-xl font-bold text-left text-[#1B1B1B] mt-5 mb-6">
+        //     Step 3: Confirmation
+        //   </h3>
+        //   <p className="text-md text-left text-[#1B1B1B] mb-6">
+        //     Review your application details and submit.
+        //   </p>
+        // </div>
+        <Summary quoteId={step1ResponseData?.quoteId ?? ''} />
       )}
 
       {/* <div className="flex justify-center gap-10 mt-4">
@@ -571,8 +594,11 @@ if (paymentOption === "monthly-installments" && schedule.length >= 3) {
         )}
       </div> */}
 
+
+{/*  */}
+
       <div className="flex justify-center gap-10 mt-4">
-        {formStep > 1 && (
+        {formStep === 2 && (
           <button onClick={() => handleFormStepChange("back")} className=" btn-outline">Previous</button>
         )}
 
@@ -600,13 +626,22 @@ if (paymentOption === "monthly-installments" && schedule.length >= 3) {
           </button>
         )}
 
-        {formStep === 3 && (
-          <button onClick={handleSubmit} className="btn-primary">
+        {/* {formStep === 3 && (
+          <button onClick={handleSubmitStage3} className="btn-primary">
             Submit
           </button>
-        )}
+        )} */}
 
-        {/* {formStep < 3 ? (
+       
+      </div>
+
+      {/*  */}
+    </div>
+  );
+}
+
+
+ {/* {formStep < 3 ? (
           <button
             onClick={handleNext}
             disabled={!isStepOneFilled || saving}
@@ -621,7 +656,3 @@ if (paymentOption === "monthly-installments" && schedule.length >= 3) {
         ) : (
           <button onClick={handleSubmit}>Submit</button>
         )} */}
-      </div>
-    </div>
-  );
-}
