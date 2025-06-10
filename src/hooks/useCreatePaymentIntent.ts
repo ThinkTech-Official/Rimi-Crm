@@ -116,7 +116,12 @@ export function useCreatePaymentIntent(
         setLoading(false);
       }
     },
-    [stripeCustomerId, quoteNumber, description, cardholderName, shipping]
+    [stripeCustomerId, quoteNumber, description, cardholderName, shipping ,
+      paymentOption,        
+    monthlyAmount,        
+    remainingInstallments,
+    stripeProductId
+    ]
   );
 
   return { createPaymentIntent, loading, error };

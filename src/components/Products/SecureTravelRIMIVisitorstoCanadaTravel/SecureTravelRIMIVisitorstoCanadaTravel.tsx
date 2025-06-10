@@ -568,16 +568,16 @@ if (paymentOption === "monthly-installments" && schedule.length >= 3) {
         <Summary quoteId={step1ResponseData?.quoteId ?? ''} />
       )}
 
-      {/* <div className="flex justify-center gap-10 mt-4">
-        {formStep > 1 && (
+      {/* <div className="flex justify-center gap-10 mt-4"> */}
+        {/* {formStep > 1 && (
           <button
             className="w-[250px] mt-6 bg-white border border-[#2B00B7] text-[#2B00B7] p-3 hover:bg-[#2209a1] hover:text-white transition flex justify-center items-center"
             onClick={() => handleFormStepChange("back")}
           >
             Previous
           </button>
-        )}
-        {formStep < 3 ? (
+        )} */}
+        {/* {formStep < 3 ? (
           <button
             className="w-[250px] mt-6 bg-[#2B00B7] text-white p-3 hover:bg-[#2309A1] transition flex justify-center items-center"
             onClick={() => handleFormStepChange("forward")}
@@ -591,8 +591,8 @@ if (paymentOption === "monthly-installments" && schedule.length >= 3) {
           >
             Submit
           </button>
-        )}
-      </div> */}
+        )} */}
+      {/* </div> */}
 
 
 {/*  */}
@@ -614,7 +614,7 @@ if (paymentOption === "monthly-installments" && schedule.length >= 3) {
           </button>
         )}
 
-        {formStep === 2 && (
+        {/* {formStep === 2 && (
           <button
             onClick={handleBuyNow}
             disabled={submittingStage2}
@@ -624,7 +624,7 @@ if (paymentOption === "monthly-installments" && schedule.length >= 3) {
           >
             {submittingStage2 ? "Processing…" : "Buy Now"}
           </button>
-        )}
+        )} */}
 
         {/* {formStep === 3 && (
           <button onClick={handleSubmitStage3} className="btn-primary">

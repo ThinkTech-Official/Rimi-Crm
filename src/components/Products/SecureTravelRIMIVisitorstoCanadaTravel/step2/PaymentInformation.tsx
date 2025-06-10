@@ -61,6 +61,8 @@ export default function PaymentInformation({
 
   const [cardholderName, setCardholderName] = useState('');
   const [stripeError, setStripeError] = useState<string | null>(null);
+
+  
   const { createPaymentIntent, loading: intentLoading, error: intentError } =
     useCreatePaymentIntent(stripeCustomerId,quoteNumber!, description, cardholderName ,shipping, paymentOption, monthlyAmount ,remainingInstallments , stripeProductId );
 
