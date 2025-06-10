@@ -31,7 +31,7 @@ export interface PolicyDetail {
   dateOfBirth?: string;
   expiryDate?: string;
   gender?: string;
-  premium?: number;
+  premium: number;
   planDetails?: string;
   PreExCoverage?: string;
 

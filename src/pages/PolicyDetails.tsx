@@ -1,6 +1,10 @@
 import React from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { usePolicyDetail, PolicyDetail, PolicyApplicant } from '../hooks/usePolicyDetail';
+import { usePolicyNotes } from '../hooks/usePolicyNotes';
+import { usePolicyAttachments } from '../hooks/usePolicyAttachments';
+
+const baseUrl = "http://localhost:3000";
 
 const fmtDate = (iso?: string) =>
   iso ? new Date(iso).toLocaleDateString('en-CA') : '-';
@@ -33,6 +37,16 @@ function getCoverageLength(effectiveDate: string, expiryDate: string): number | 
 
 const PolicyDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
+
+  // const { id } = useParams<{ id: string }>();
+const { notes, loading: notesLoading, error: notesError, addNote } = usePolicyNotes(id!);
+const [newNote, setNewNote] = React.useState('');
+
+const { items: attachments, loading: attLoading, error: attError, add: addAttachment } =
+  usePolicyAttachments(id!);
+const [file, setFile]           = React.useState<File|null>(null);
+const [desc, setDesc]           = React.useState('');
+
   const navigate = useNavigate();
   const { data: p, loading, error } = usePolicyDetail(id || null);
 
@@ -202,7 +216,7 @@ const PolicyDetails: React.FC = () => {
         <div className="font-medium">Premium</div>
        
          <div>
-    {history[0].amount.toLocaleString('en-CA', {
+    {p?.premium.toLocaleString('en-CA', {
       style: 'currency',
       currency: history[0].currency,          
       currencyDisplay: 'code'                 
@@ -314,24 +328,150 @@ const PolicyDetails: React.FC = () => {
       </section>
 
       {/* History & Notes */}
-      <section className="border-b py-4 text-sm space-y-2">
+      {/* <section className="border-b py-4 text-sm space-y-2">
         <div className="uppercase text-purple-600 font-semibold">History</div>
         <div>
           <label className="font-medium">Notes</label>
           <textarea placeholder="Enter note here" className="w-full p-2 border" rows={3}/>
           <button className="mt-2 px-4 py-2 bg-purple-700 text-white rounded">Add Note</button>
         </div>
-      </section>
+      </section> */}
+
+      {/* History & Notes */}
+<section className="border-b py-4 text-sm space-y-4">
+  <div className="uppercase text-purple-600 font-semibold">History</div>
+
+  {/* Existing notes list */}
+  {notesLoading ? (
+    <p>Loading notes…</p>
+  ) : notesError ? (
+    <p className="text-red-600">{notesError}</p>
+  ) : (
+    <ul className="space-y-2 max-h-48 overflow-y-auto">
+      {notes.length === 0 && (
+        <li className="text-gray-500">No notes yet.</li>
+      )}
+      {notes.map(n => (
+        <li key={n.id} className="p-2 bg-gray-50 rounded">
+          <div className="text-xs text-gray-500">
+            {new Date(n.createdAt).toLocaleString('en-CA', {
+              year: 'numeric', month: '2-digit', day: '2-digit',
+              hour: '2-digit', minute: '2-digit'
+            })}
+          </div>
+          <div>{n.content}</div>
+        </li>
+      ))}
+    </ul>
+  )}
+
+  {/* Add a new note */}
+  <div>
+    <label className="font-medium block mb-1">Add a Note</label>
+    <textarea
+      value={newNote}
+      onChange={e => setNewNote(e.target.value)}
+      placeholder="Enter note here"
+      className="w-full p-2 border rounded"
+      rows={3}
+    />
+    <button
+      onClick={() => {
+        if (!newNote.trim()) return;
+        addNote(newNote);
+        setNewNote('');
+      }}
+      disabled={!newNote.trim()}
+      className="mt-2 px-4 py-2 bg-purple-700 text-white rounded disabled:opacity-50"
+    >
+      Add Note
+    </button>
+  </div>
+</section>
+
 
       {/* Attachments */}
-      <section className="py-4 text-sm space-y-2">
+      {/* <section className="py-4 text-sm space-y-2">
         <div className="uppercase text-purple-600 font-semibold">Attachments</div>
         <div className="flex items-end space-x-4">
           <div><label className="font-medium">File</label><input type="file" /></div>
           <div><label className="font-medium">Description</label><input className="p-2 border" /></div>
           <button className="px-4 py-2 bg-blue-600 text-white rounded">Add Attachment</button>
         </div>
-      </section>
+      </section> */}
+
+      {/* Attachments */}
+<section className="py-4 text-sm space-y-4">
+  <div className="uppercase text-purple-600 font-semibold">Attachments</div>
+
+  {/* existing attachments list */}
+  {attLoading ? (
+    <p>Loading attachments…</p>
+  ) : attError ? (
+    <p className="text-red-600">{attError}</p>
+  ) : (
+    <ul className="space-y-2">
+      {attachments.length === 0 && (
+        <li className="text-gray-500">No attachments yet.</li>
+      )}
+      {attachments.map(att => (
+        <li key={att.id} className="flex items-center space-x-4">
+          <a
+            href={`${baseUrl}${att.url}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-blue-600 underline"
+          >
+            {att.originalName}
+          </a>
+          {att.description && (
+            <span className="italic text-gray-600">— {att.description}</span>
+          )}
+          <span className="ml-auto text-xs text-gray-400">
+            {new Date(att.createdAt).toLocaleDateString('en-CA')}
+          </span>
+        </li>
+      ))}
+    </ul>
+  )}
+
+  {/* upload form */}
+  <div className="flex items-end space-x-4">
+    <div>
+      <label className="font-medium block">File</label>
+      <input
+        type="file"
+        onChange={e => setFile(e.target.files?.[0] || null)}
+      />
+    </div>
+    <div>
+      <label className="font-medium block">Description</label>
+      <input
+        type="text"
+        value={desc}
+        onChange={e => setDesc(e.target.value)}
+        className="p-2 border rounded"
+      />
+    </div>
+    <button
+      onClick={() => {
+        if (!file) return;
+        addAttachment(file, desc);
+        setFile(null);
+        setDesc('');
+      }}
+      disabled={!file}
+      className="px-4 py-2 bg-blue-600 text-white rounded disabled:opacity-50"
+    >
+      Add Attachment
+    </button>
+  </div>
+</section>
+
+
+
+
+
     </div>
   );
 };
