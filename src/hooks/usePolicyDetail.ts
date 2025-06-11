@@ -25,6 +25,7 @@ export interface PolicyDetail {
   language?: string;
   salesChannel?: string;
   agentCode: string;
+  agentEmail: string;
 
   firstName?: string;
   lastName?: string;

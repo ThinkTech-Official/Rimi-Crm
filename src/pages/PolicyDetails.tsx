@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { usePolicyDetail, PolicyDetail, PolicyApplicant } from '../hooks/usePolicyDetail';
 import { usePolicyNotes } from '../hooks/usePolicyNotes';
 import { usePolicyAttachments } from '../hooks/usePolicyAttachments';
+import { useFulfillment } from '../hooks/useFulfillment';
 
 const baseUrl = "http://localhost:3000";
 
@@ -35,8 +36,19 @@ function getCoverageLength(effectiveDate: string, expiryDate: string): number | 
   return Math.round(diffMs / msInDay);
 }
 
+
+
 const PolicyDetails: React.FC = () => {
+
+
+
+
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+
+  
+  const { data: p, loading, error } = usePolicyDetail(id || null);
+  
 
   // const { id } = useParams<{ id: string }>();
 const { notes, loading: notesLoading, error: notesError, addNote } = usePolicyNotes(id!);
@@ -47,8 +59,38 @@ const { items: attachments, loading: attLoading, error: attError, add: addAttach
 const [file, setFile]           = React.useState<File|null>(null);
 const [desc, setDesc]           = React.useState('');
 
-  const navigate = useNavigate();
-  const { data: p, loading, error } = usePolicyDetail(id || null);
+//
+
+const { preview, loading: fulLoading, error: fulError,
+        fetchPreview, sendMail } = useFulfillment(id!);
+
+const [to, setTo]           = useState(p?.email || '');
+const [cc, setCc]           = useState('');
+const [agentEmail, setAgentEmail] = useState(p?.agentCode + '@example.com');
+
+//
+
+//  useEffect(() => {
+//     if (p) {
+//       setTo(p.email        || '');
+//       setAgentEmail(`${p.agentCode}@example.com`);
+//     }
+//   }, [p]);
+
+ useEffect(() => {
+    if (!p) return;
+    setTo(p.email || '');
+    setAgentEmail(`${p.agentCode}@example.com`);
+  }, [id, p?.email, p?.agentCode]);
+
+  // log only when policy loads
+  useEffect(() => {
+    if (p) console.log('Loaded policy:', p);
+  }, [p]);
+
+
+
+  
 
   if (loading) return <p className="text-center py-10">Loading…</p>;
   if (error) return <p className="text-red-600 text-center py-10">{error}</p>;
@@ -57,6 +99,13 @@ const [desc, setDesc]           = React.useState('');
   console.log(p)
 
   const history = p.paymentHistory ?? [];
+
+
+  //
+
+
+
+//
 
   return (
     <div className="max-w-5xl mx-auto p-6 space-y-8 bg-white">
@@ -303,7 +352,7 @@ const [desc, setDesc]           = React.useState('');
 
 
       {/* Fulfillment */}
-      <section className="border-b py-4 space-y-2 text-sm">
+      {/* <section className="border-b py-4 space-y-2 text-sm">
         <div className="uppercase text-purple-600 font-semibold">Fulfillment</div>
         <div className="grid grid-cols-3 gap-x-4">
           <div><label className="font-medium">To</label><input className="w-full p-2 border" defaultValue={p.email}/></div>
@@ -314,7 +363,66 @@ const [desc, setDesc]           = React.useState('');
           <button className="px-4 py-2 border rounded">Preview Confirmation</button>
           <button className="px-4 py-2 bg-blue-600 text-white rounded">Send Confirmation</button>
         </div>
-      </section>
+      </section> */}
+
+      <section className="border-b py-4 space-y-2 text-sm">
+  <div className="uppercase text-purple-600 font-semibold">Fulfillment</div>
+  {fulError && <p className="text-red-600">{fulError}</p>}
+
+  <div className="grid grid-cols-3 gap-x-4">
+    <div>
+      <label className="font-medium">To</label>
+      <input
+        className="w-full p-2 border"
+        value={to}
+        onChange={e => setTo(e.target.value)}
+      />
+    </div>
+    <div>
+      <label className="font-medium">CC</label>
+      <input
+        className="w-full p-2 border"
+        placeholder="Up to 5 emails; separated by ;"
+        value={cc}
+        onChange={e => setCc(e.target.value)}
+      />
+    </div>
+    <div>
+      <label className="font-medium">Agent Email</label>
+      <input
+        className="w-full p-2 border"
+        value={p.agentEmail ? p.agentEmail : agentEmail}
+        onChange={e => setAgentEmail(e.target.value)}
+      />
+    </div>
+  </div>
+
+  <div className="flex space-x-2 mt-2">
+    <button
+      onClick={fetchPreview}
+      disabled={fulLoading}
+      className="px-4 py-2 border rounded disabled:opacity-50"
+    >
+      Preview Confirmation
+    </button>
+    <button
+      onClick={() => sendMail(to, cc, agentEmail)}
+      disabled={fulLoading}
+      className="px-4 py-2 bg-blue-600 text-white rounded disabled:opacity-50"
+    >
+      Send Confirmation
+    </button>
+  </div>
+
+  {/* render preview HTML in a modal or inline */}
+  {preview && (
+    <div className="mt-4 p-4 border rounded bg-white shadow-lg max-h-96 overflow-y-auto">
+      <h2 className="font-semibold mb-2">{preview.subject}</h2>
+      <div dangerouslySetInnerHTML={{ __html: preview.html }} />
+    </div>
+  )}
+</section>
+
 
       {/* Renewal */}
       <section className="border-b py-4 text-sm">
