@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
+import { API_BASE } from '../utils/urls';
 
-const baseUrl = 'http://localhost:3000';
+const baseUrl = `${API_BASE}`;
 
 export interface QuoteApplicant {
   index: number;

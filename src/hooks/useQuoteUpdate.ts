@@ -1,6 +1,7 @@
 
 import { useState } from 'react'
 import axios from 'axios'
+import { API_BASE } from '../utils/urls'
 
 export interface Stage2Payload {
   quoteNumber: string
@@ -27,7 +28,7 @@ export interface CompleteApplicationResponse {
   
 }
 
-const baseUrl = 'http://localhost:3000';
+const baseUrl = `${API_BASE}`;
 
 export function useQuoteUpdate() {
   const [loading, setLoading] = useState(false)

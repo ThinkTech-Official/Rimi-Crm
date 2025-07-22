@@ -79,21 +79,21 @@ const ForgotPassword: React.FC = () => {
 
   return (
     <>
-      <div className="flex h-screen flex-1  justify-center items-center">
+      <div className="flex h-[calc(100vh-64px)] flex-1  justify-center items-center -mt-10 sm:mt-0">
         {/* Left: form */}
         <div className="flex flex-1 flex-col  justify-center items-center">
           <div className="mx-auto w-full  max-w-md lg:w-130  items-center">
             <div className="flex flex-col justify-center items-center">
               <a href="#">
-                <img className="h-10 w-auto" src={rimilogo} alt="Rimi" />
+                <img className="h-14 sm:h-20 w-[140px] sm:w-[170px]" src={rimilogo} alt="Rimi" />
               </a>
-              <h2 className="mt-8 text-3xl font-bold font-[inter] leading-9  text-[#232323]">
+              <h2 className="mt-8 text-2xl sm:text-3xl font-bold font-[inter] sm:leading-9  text-text-primary">
                 {langauge === "En" ? "Forgot Password" : "Mot de passe oublié"}
               </h2>
             </div>
             <form
               onSubmit={handleSubmit(onSubmit)}
-              className="mt-10 space-y-6"
+              className="mt-10 space-y-5 mx-2"
               noValidate
             >
               <div>
@@ -115,9 +115,7 @@ const ForgotPassword: React.FC = () => {
                         message: "Invalid email address",
                       },
                     })}
-                    className={`block w-full rounded-sm border ${
-                      errors.email ? "border-red-500" : "border-[#D9D9D9]"
-                    } p-3 hover:border-[#2B00B7] placeholder:text-[#9A9A9A] font-[inter]`}
+                    className={`input-primary`}
                     placeholder="Your Email Address"
                   />
 
@@ -130,18 +128,13 @@ const ForgotPassword: React.FC = () => {
               </div>
 
               <div className="flex flex-col gap-4">
-              <button
-  type="submit"
-  disabled={loading || isSubmitting}
-  className={`w-full mt-2 p-3 flex justify-center items-center cursor-pointer font-[inter] text-white transition ${
-    loading || isSubmitting
-      ? "bg-[#b5b4ec] hover:bg-[#b5b4ec]"
-      : "bg-[#2B00B7] hover:bg-[#2309A1]"
-  }`}
->
-  {langauge === "En" ? "Send Reset Link" : "Envoyer le lien"}
-</button>
-
+                <button
+                  type="submit"
+                  disabled={loading || isSubmitting}
+                  className={`btn-primary`}
+                >
+                  {langauge === "En" ? "Send Reset Link" : "Envoyer le lien"}
+                </button>
 
                 <button
                   type="button"

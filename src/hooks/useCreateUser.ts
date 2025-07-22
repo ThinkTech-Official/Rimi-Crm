@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useSelector } from "react-redux";
+import { API_BASE } from "../utils/urls";
 
 type AvailabilityStatus = 
   | "unchecked"
@@ -55,7 +56,7 @@ export function useCreateUser(): UseCreateUserResult {
 
     try {
       const res = await fetch(
-        `http://localhost:3000/auth/check?code=${encodeURIComponent(agentCode)}`,
+        `${API_BASE}/auth/check?code=${encodeURIComponent(agentCode)}`,
       );
       if (!res.ok) {
         throw new Error(`HTTP ${res.status}`);
@@ -87,7 +88,7 @@ export function useCreateUser(): UseCreateUserResult {
     setSuccess(false);
 
     try {
-      const res = await fetch("http://localhost:3000/auth/register", {
+      const res = await fetch(`${API_BASE}/auth/register`, {
         method: "POST",
         headers: {
           // browser will set Content-Type for multipart

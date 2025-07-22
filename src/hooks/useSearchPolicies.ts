@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { API_BASE } from '../utils/urls';
 
 export interface SearchPoliciesCriteria {
   firstName?: string;
@@ -41,7 +42,7 @@ export interface PaginatedPolicies<T> {
   totalPages: number;
 }
 
-const baseUrl = 'http://localhost:3000';
+const baseUrl = `${API_BASE}`;
 
 export function useSearchPolicies(defaultLimit: number = 10) {
   const [loading, setLoading] = useState(false);

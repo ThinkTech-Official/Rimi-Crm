@@ -1,0 +1,1 @@
+export const API_BASE = "https://rimi-crm-backend-production.up.railway.app"

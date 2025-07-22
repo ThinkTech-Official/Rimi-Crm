@@ -3,8 +3,9 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { PremiumCalculationData } from '../components/Products/SecureTravelRIMIVisitorstoCanadaTravel/step1/Step1STRVCT';
+import { API_BASE } from '../utils/urls';
 
-const baseUrl = "http://localhost:3000";
+const baseUrl = `${API_BASE}`;
 
 export function usePremiumCalculate(
   premiumCalculationData: PremiumCalculationData,

@@ -4,6 +4,7 @@ import { useSelector } from "react-redux";
 import { useUserDetails } from "../hooks/useUserDetails";
 import { ProfileForm } from "../utils/types";
 import { DocumentIcon } from "@heroicons/react/24/outline";
+import { API_BASE } from "../utils/urls";
 
 // Permission definitions and map
 const adminPermission = { modifyPolicies: true, viewPolicies: false, readOnly: false, manageUsers: true, bulkEnrollment: true };
@@ -251,7 +252,7 @@ export default function UserDetails() {
               const filename = link!.split("/").pop();
               return (
                 <li key={idx}>
-                  <a href={`http://localhost:3000${link}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-blue-600 hover:underline">
+                  <a href={`${API_BASE}${link}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-blue-600 hover:underline">
                     <DocumentIcon className="h-5 w-5" />{filename}
                   </a>
                 </li>

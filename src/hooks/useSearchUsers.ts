@@ -80,6 +80,7 @@
 // src/hooks/useSearchUsers.ts
 import { useState, useCallback } from "react";
 import { useSelector } from "react-redux";
+import { API_BASE } from "../utils/urls";
 
 export interface User {
   id: string;
@@ -144,7 +145,7 @@ export function useSearchUsers(): UseSearchUsersResult {
       setError(null);
 
       try {
-        const res = await fetch("http://localhost:3000/auth/users", {
+        const res = await fetch(`${API_BASE}/auth/users`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

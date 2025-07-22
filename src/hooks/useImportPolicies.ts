@@ -1,11 +1,12 @@
 import { useState } from 'react';
+import { API_BASE } from '../utils/urls';
 
 export interface ImportResult {
   message: string;
   errors: { row: number; error: string }[];
 }
 
-const baseUrl ="http://localhost:3000"
+const baseUrl = `${API_BASE}`
 
 export function useImportPolicies() {
   const [loading, setLoading] = useState(false);

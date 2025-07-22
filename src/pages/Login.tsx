@@ -5,20 +5,16 @@ import { XCircleIcon } from "@heroicons/react/24/outline";
 import { XMarkIcon } from "@heroicons/react/20/solid";
 import { EyeIcon, EyeSlashIcon } from "@heroicons/react/16/solid";
 // import useAdmin from '../hooks/useAdmin';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 
 import rimilogo from "../assets/rimi_en.png";
 import { LangContext } from "../context/LangContext";
 import { useAuth } from "../hooks/useAuth";
 
-
-
 interface LoginFormInputs {
   email: string;
   password: string;
 }
-
-
 
 const Login = () => {
   const navigate = useNavigate();
@@ -27,11 +23,11 @@ const Login = () => {
 
   const [show, setShow] = useState(false);
   const [errMsg, setErrMsg] = useState("");
-  const [signInClicked,setSignInClicked] = useState(false)
-  const [showPassword, setShowPassword] = useState(false)
+  const [signInClicked, setSignInClicked] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   // const { login, loading, error} = useAuth()
-  const { login } = useAuth()
+  const { login } = useAuth();
 
   // const { login } = useAdmin()
 
@@ -41,21 +37,21 @@ const Login = () => {
     formState: { errors },
   } = useForm<LoginFormInputs>();
 
-  const onSubmit = async (data:LoginFormInputs) => {
-    setSignInClicked(true)
+  const onSubmit = async (data: LoginFormInputs) => {
+    setSignInClicked(true);
     console.log(data);
     const result = await login(data.email, data.password);
-    console.log(result.type)
-    if (result.type === 'auth/loginUser/fulfilled') {
-      navigate('/dashboard');
-    } else if(result.type === 'auth/loginUser/rejected'){
+    console.log(result.type);
+    if (result.type === "auth/loginUser/fulfilled") {
+      navigate("/dashboard");
+    } else if (result.type === "auth/loginUser/rejected") {
       setErrMsg(result.payload);
       setShow(true);
-      setSignInClicked(false)
+      setSignInClicked(false);
     } else {
-      setErrMsg("Network Error")
+      setErrMsg("Network Error");
       setShow(true);
-      setSignInClicked(false)
+      setSignInClicked(false);
     }
 
     //   const resp = await login(data);
@@ -72,8 +68,8 @@ const Login = () => {
   };
 
   const handleForgotPassword = () => {
-    navigate('/forgot-password')
-  }
+    navigate("/forgot-password");
+  };
 
   return (
     <>
@@ -85,22 +81,21 @@ const Login = () => {
             <body class="h-full">
             ```
           */}
-      <div className="flex h-screen flex-1  justify-center items-center ">
+      <div className="flex mt-12 sm:mt-0 sm:h-[calc(100vh-64px)] flex-1  justify-center items-center">
         <div className="flex flex-1 flex-col  justify-center items-center ">
-          <div className="mx-auto w-full  max-w-md lg:w-130 ">
+          <div className="mx-auto w-full max-w-md lg:w-130 ">
             <div className="flex flex-col justify-center items-center">
               <a href="#">
                 <img
-                  className="h-10 w-auto"
+                  className="h-14 sm:h-20 w-[140px] sm:w-[170px]"
                   src={rimilogo}
                   alt="Your Company"
                 />
               </a>
-
-              <h2 className="mt-8 text-3xl font-bold font-[inter] leading-9  text-[#232323]">
+              <h2 className="mt-8 sm:mt-12 text-3xl sm:text-4xl font-bold font-[inter] leading-9  text-[#232323]">
                 {langauge === "En" ? <p>Sign in</p> : <p>Se connecter</p>}
               </h2>
-              <h4 className="mt-4 text-md font-normal font-[inter] text-[#969696]">
+              <h4 className="mt-3 text-md font-normal font-[inter] text-[#969696]">
                 Please login to continue to your account.
               </h4>
 
@@ -112,12 +107,12 @@ const Login = () => {
                   </p> */}
             </div>
 
-            <div className="mt-10">
+            <div className="mt-10 mx-2">
               <div>
                 <form
                   id="signinForm"
                   onSubmit={handleSubmit(onSubmit)}
-                  className="space-y-6"
+                  className="space-y-5"
                 >
                   <div>
                     <label
@@ -136,17 +131,25 @@ const Login = () => {
                         id="email"
                         type="email"
                         autoComplete="email"
-                        {...register("email", { required: true })}
-                        className="block w-full rounded-sm border border-[#D9D9D9] p-3 hover:border-[#2B00B7]   placeholder:text-[#9A9A9A] font-[inter] "
+                        {...register("email", {
+                          required: "Email is required",
+                          pattern: {
+                            value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                            message: "Invalid email address",
+                          },
+                        })}
+                        className="input-primary"
                         placeholder="Username/email"
                       />
                       {errors.email && (
-                        <span className="text-red-500  text-sm  font-[inter]">Email is required</span>
+                        <span className="text-red-500  text-sm  font-[inter]">
+                          {errors.email.message}
+                        </span>
                       )}
                     </div>
                   </div>
                   {/* password field */}
-                  
+
                   <div>
                     <label
                       htmlFor="password"
@@ -163,12 +166,13 @@ const Login = () => {
                         id="password"
                         type={showPassword ? "text" : "password"}
                         autoComplete="current-password"
-                        {...register("password", { required: true })}
-                        className="block w-full rounded-sm border border-[#D9D9D9] p-3 hover:border-[#2B00B7] placeholder:text-[#9A9A9A] font-[inter] pr-10"
+                        {...register("password", { required: "Password is required" })}
+                        className="input-primary"
+                        style={{ paddingRight: "40px" }}
                         placeholder="Password"
                       />
                       <div
-                        className="absolute inset-y-0 right-3 flex items-center cursor-pointer text-[#9A9A9A]"
+                        className="absolute inset-y-0 right-3 flex items-center cursor-pointer text-black/50"
                         onClick={() => setShowPassword(!showPassword)}
                       >
                         {showPassword ? (
@@ -179,11 +183,10 @@ const Login = () => {
                       </div>
                       {errors.password && (
                         <span className="text-red-500 text-sm font-[inter]">
-                          Password is required
+                          {errors.password.message}
                         </span>
                       )}
                     </div>
-                    
                   </div>
                   {/* <div className="flex items-center justify-between"> */}
                   {/* <div className="flex items-center">
@@ -203,40 +206,46 @@ const Login = () => {
                           </a>
                         </div> */}
                   {/* </div> */}
-                  
+               
+
                   <div className=" flex flex-col gap-4">
-                    { signInClicked
-                       ? 
-                       <button
-                      
-                      className="flex w-full justify-center rounded-md bg-[#b5b4ec] px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-[#90a1fa] focus-visible:outline-offset-2 focus-visible:outline-indigo-600 cursor-pointer"
-                    >
-                      {langauge === "En" ? <p>Sign in</p> : <p>Se connecter</p>}
-                    </button>
-                       : 
-                       <button
-                      type="submit"
-                      className="w-full mt-2 bg-[#2B00B7] text-white p-3 hover:bg-[#2309A1] transition flex justify-center items-center cursor-pointer font-[inter]"
-                    >
-                      {langauge === "En" ? <p>Sign in</p> : <p>Se connecter</p>}
-                    </button>
-                    }
+                    {/* {signInClicked ? (
+                      <button className="flex w-full justify-center rounded-md bg-[#b5b4ec] px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-[#90a1fa] focus-visible:outline-offset-2 focus-visible:outline-indigo-600 cursor-pointer">
+                        {langauge === "En" ? (
+                          <p>Sign in</p>
+                        ) : (
+                          <p>Se connecter</p>
+                        )}
+                      </button>
+                    ) : ( */}
+                      <button type="submit" className={`btn-primary ${signInClicked && 'disabled bg-indigo-100'}`}>
+                        {langauge === "En" ? (
+                          <p>Sign in</p>
+                        ) : (
+                          <p>Se connecter</p>
+                        )}
+                      </button>
+                    {/* )} */}
                     {/* <button
                       type="submit"
                       className="flex w-full justify-center rounded-md bg-[#4340DA] px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-[#405ada] focus-visible:outline-offset-2 focus-visible:outline-indigo-600 cursor-pointer"
                     >
                       {langauge === "En" ? <p>Sign in</p> : <p>Se connecter</p>}
                     </button> */}
-                    
                   </div>
-                  <button
-                      onClick={handleForgotPassword}
-                      className="flex w-full justify-left p-1 mt-1 text-sm font-semibold font-[inter] leading-6 text-[#4340DA] hover:text-[#2B00B7] cursor-pointer"
-                    >
-                      {langauge === "En" ? <p>Forgot Password?</p> : <p>Mot de passe oublié?</p>}
-                    </button>
+                  
                 </form>
               </div>
+                 <button
+                    onClick={handleForgotPassword}
+                    className="flex w-full mt-1 justify-left text-sm font-semibold font-[inter] leading-6 text-[#4340DA] hover:text-[#2B00B7] cursor-pointer"
+                  >
+                    {langauge === "En" ? (
+                      <p>Forgot Password?</p>
+                    ) : (
+                      <p>Mot de passe oublié?</p>
+                    )}
+                  </button>
 
               {/* <div className="mt-10">
                     <div className="relative">

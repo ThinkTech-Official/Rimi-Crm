@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { API_BASE } from "../utils/urls";
 
 export interface ImportSalesResult {
   updatedPolicies: number;
@@ -8,7 +9,7 @@ export interface ImportSalesResult {
   errors: { policyNumber: string; error: string }[];
 }
 
-const baseUrl = "http://localhost:3000"
+const baseUrl = `${API_BASE}`
 
 export function useImportSales() {
   const [loading, setLoading] = useState(false);

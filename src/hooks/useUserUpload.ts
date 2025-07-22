@@ -1,6 +1,7 @@
 // src/hooks/useUserUpload.ts
 import { useState } from 'react';
 import axios from 'axios';
+import { API_BASE } from '../utils/urls';
 
 export type UploadResult = {
   loading: boolean;
@@ -8,7 +9,7 @@ export type UploadResult = {
   error: string;
 };
 
-const baseUrl = 'http://localhost:3000'
+const baseUrl = `${API_BASE}`
 
 export function useUserUpload(): [
   (file: File | null) => Promise<void>,

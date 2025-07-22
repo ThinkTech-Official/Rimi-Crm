@@ -8,6 +8,7 @@ import { useContext, useEffect, useState } from "react";
 import { LangContext } from "../context/LangContext";
 import { getUserTypeFromToken } from "../utils/getUserType";
 import { useDocuments, DocumentItem } from "../hooks/useDocuments";
+import { API_BASE } from "../utils/urls";
 
 const demoDocuments: Omit<DocumentItem, "url" | "createdAt">[] = [
   { id: "1", filename: "RIMI Canuck Voyage Travel Medical - Claim Form (EN)" },
@@ -95,7 +96,7 @@ export default function Documents() {
             className="flex justify-between items-center border-b py-2 border-slate-200"
           >
             <a
-                    href={`http://localhost:3000${item.url}`}
+                    href={`${API_BASE}${item.url}`}
                     target="_blank">{item.filename}</a>
             {userType === "ADMIN" && (
               <div className="flex gap-2">

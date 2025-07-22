@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { API_BASE } from '../utils/urls';
 
 export interface ImportResult {
   message: string;
@@ -10,7 +11,7 @@ export function useImportQuotes() {
   const [error, setError] = useState<string | null>(null);
   const [data, setData] = useState<ImportResult | null>(null);
 
-  const baseUrl = 'http://localhost:3000'
+  const baseUrl = `${API_BASE}`
 
   async function importQuotes(file: File) {
     setLoading(true);
