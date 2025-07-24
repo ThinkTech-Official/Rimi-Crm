@@ -10,6 +10,7 @@
     --color-skyblue:rgba(59, 130, 246, 1);
     --color-darkblue:rgba(43, 0, 183, 1);
     --color-inputBorder:rgba(217, 217, 217, 1);
+    --breakpoint-2xl: 1600px;
 }
 
 @layer{ 

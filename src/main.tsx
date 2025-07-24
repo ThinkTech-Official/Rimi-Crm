@@ -27,6 +27,7 @@ import QuoteDetails, { QuoteDetailPage } from './pages/QuoteDetails.tsx';
 import PolicyUploader from './pages/PolicyUploader.tsx';
 import PolicyDetails from './pages/PolicyDetails.tsx';
 import ImportSalesUpload from './pages/ImportSalesUpload.tsx';
+import i18n from "./i18n/i18.ts";
 
 const router = createBrowserRouter(
   createRoutesFromElements(

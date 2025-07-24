@@ -13,6 +13,7 @@ import {
   UserPlusIcon,
   ChevronRightIcon,
   ChartPieIcon,
+  ChevronLeftIcon,
 } from "@heroicons/react/24/outline";
 import { LangContext } from "../context/LangContext";
 import Products from "../components/Products";
@@ -30,7 +31,9 @@ import SecureTravelRIMIVisitorstoCanadaTravel from "../components/Products/Secur
 import BulkUpload from "../components/Products/SecureStudyRIMIInternationalStudentstoCanada/BulkUpload";
 import Analytics from "../components/analytics/Analytics";
 import { getUserTypeFromToken } from "../utils/getUserType";
-
+import { HiOutlineDocumentCurrencyDollar } from "react-icons/hi2";
+import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 // import Cookies from 'js-cookie';
 
@@ -48,7 +51,7 @@ const navigation = [
     name: "Quotes",
     nameFr: "Citations",
     href: "#",
-    icon: CalculatorIcon,
+    icon: HiOutlineDocumentCurrencyDollar,
     current: false,
     slug: "quotes-search",
     allowedRoles: ["ADMIN", "AGENT", "MGA"],
@@ -117,29 +120,21 @@ const navigation = [
     allowedRoles: ["ADMIN"],
   },
 ];
-// const teams = [
-//   { id: 1, name: 'Heroicons', href: '#', initial: 'H', current: false },
-//   { id: 2, name: 'Tailwind Labs', href: '#', initial: 'T', current: false },
-//   { id: 3, name: 'Workcation', href: '#', initial: 'W', current: false },
-// ]
-// const userNavigation = [
-//   { name: 'Your profile', href: '#' },
-//   { name: 'Sign out', href: '#' },
-// ]
 
 function classNames(...classes: any) {
   return classes.filter(Boolean).join(" ");
 }
 
 export default function Dashboard() {
-  const { langauge } = useContext(LangContext);
-
   const [selectedComponent, setSelectedComponent] = useState<string>("none");
 
   const [userType, setUserType] = useState<string | null>(null);
   const [userName, setUserName] = useState<string | null>(null);
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [isSidebarCollapsed, setSidebarCollapsed] = useState(true); // to just show the icons
+  const navigate = useNavigate();
+  const { t } = useTranslation();
 
   // State of braedcrumbs
   const [breadCrumbState, setBreadCrumbState] = useState<string[]>([]);
@@ -159,7 +154,7 @@ export default function Dashboard() {
     // console.log('Value of type from dashboard', type)
     // console.log('Value of type from dashboard fullname', type.fullName)
     setUserType(type.userType);
-    setUserName(type.fullName)
+    setUserName(type.fullName);
     console.log(type);
   }, []);
 
@@ -173,8 +168,6 @@ export default function Dashboard() {
   const filteredNavigation = navigation.filter((item) =>
     item.allowedRoles.includes(userType || "")
   );
-
-
 
   return (
     <>
@@ -207,7 +200,7 @@ export default function Dashboard() {
                 leaveFrom="translate-x-0"
                 leaveTo="-translate-x-full"
               >
-                <Dialog.Panel className="relative mr-16 flex w-full max-w-xs flex-1">
+                <Dialog.Panel className="relative mr-16 flex w-full max-w-64 flex-1">
                   <Transition.Child
                     as={Fragment}
                     enter="ease-in-out duration-300"
@@ -217,7 +210,7 @@ export default function Dashboard() {
                     leaveFrom="opacity-100"
                     leaveTo="opacity-0"
                   >
-                    <div className="absolute left-full top-0 flex w-16 justify-center pt-5">
+                    <div className="absolute right-4 top-0 flex justify-center pt-5">
                       <button
                         type="button"
                         className="-m-2.5 p-2.5"
@@ -225,14 +218,14 @@ export default function Dashboard() {
                       >
                         <span className="sr-only">Close sidebar</span>
                         <XMarkIcon
-                          className="h-6 w-6 text-white"
+                          className="h-6 w-6 text-primary cursor-pointer"
                           aria-hidden="true"
                         />
                       </button>
                     </div>
                   </Transition.Child>
                   {/* Sidebar component, swap this element with another sidebar if you like */}
-                  <div className="flex grow flex-col gap-y-5 overflow-y-auto bg-white px-6 pb-4">
+                  <div className="flex grow flex-col gap-y-5 overflow-y-auto bg-white px-3 pb-4">
                     <div className="flex h-16 shrink-0 items-center ">
                       <img
                         className="h-8 w-auto "
@@ -241,77 +234,39 @@ export default function Dashboard() {
                       />
                     </div>
                     <nav className="flex flex-1 flex-col">
-                      <ul role="list" className="flex flex-1 flex-col gap-y-7 ">
+                      <ul role="list" className="flex flex-1 flex-col gap-y-7">
                         <li>
-                          <ul role="list" className="-mx-2 space-y-1">
+                          <ul role="list" className="space-y-1">
                             {filteredNavigation.map((item) => (
-                              <li key={item.name}>
-                                <a
-                                  href={item.href}
-                                  className={classNames(
-                                    item.current
-                                      ? "bg-gray-50 text-[#2B00B7] font-[inter]"
-                                      : "text-gray-700 hover:text-[#2B00B7] hover:bg-gray-50 font-[inter]",
-                                    "group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-[inter] font-semibold"
-                                  )}
-                                >
-                                  <item.icon
-                                    className={classNames(
-                                      item.current
-                                        ? "text-indigo-600"
-                                        : "text-gray-400 group-hover:text-indigo-600 font-[inter]",
-                                      "h-6 w-6 shrink-0"
-                                    )}
-                                    aria-hidden="true"
-                                  />
-                                  {item.name}
-                                </a>
+                              <li
+                                onClick={() => handleSetComponent(item.slug)}
+                                key={item.name}
+                                className={`group cursor-pointer hover:text-primary  
+                            ${
+                              item.slug === selectedComponent
+                                ? "bg-gray-50 text-[#2B00B7] font-semibold"
+                                : "text-[#4B465C] hover:text-[#2B00B7] hover:bg-gray-50"
+                            }
+                              flex gap-x-3 rounded-md p-2 text-md leading-6`}
+                              >
+                                <item.icon
+                                  className={`
+                                    ${
+                                      item.slug === selectedComponent
+                                        ? "text-[#2B00B7]"
+                                        : "text-gray-400 group-hover:text-[#2B00B7] transition-all duration-200"
+                                    }
+                                    h-6 w-6 shrink-0
+                                  `}
+                                  aria-hidden="true"
+                                />
+                                  <span className="capitalize transition-all duration-200">
+                                    {t(item.name)}
+                                  </span>
                               </li>
                             ))}
                           </ul>
                         </li>
-                        {/* <li>
-                          <div className="text-xs font-semibold leading-6 text-gray-400">Your teams</div>
-                          <ul role="list" className="-mx-2 mt-2 space-y-1">
-                            {teams.map((team) => (
-                              <li key={team.name}>
-                                <a
-                                  href={team.href}
-                                  className={classNames(
-                                    team.current
-                                      ? 'bg-gray-50 text-indigo-600'
-                                      : 'text-gray-700 hover:text-indigo-600 hover:bg-gray-50',
-                                    'group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold'
-                                  )}
-                                >
-                                  <span
-                                    className={classNames(
-                                      team.current
-                                        ? 'text-indigo-600 border-indigo-600'
-                                        : 'text-gray-400 border-gray-200 group-hover:border-indigo-600 group-hover:text-indigo-600',
-                                      'flex h-6 w-6 shrink-0 items-center justify-center rounded-lg border text-[0.625rem] font-medium bg-white'
-                                    )}
-                                  >
-                                    {team.initial}
-                                  </span>
-                                  <span className="truncate">{team.name}</span>
-                                </a>
-                              </li>
-                            ))}
-                          </ul>
-                        </li> */}
-                        {/* <li className="mt-auto">
-                          <a
-                            href="#"
-                            className="group -mx-2 flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 text-gray-700 hover:bg-gray-50 hover:text-indigo-600"
-                          >
-                            <Cog6ToothIcon
-                              className="h-6 w-6 shrink-0 text-gray-400 group-hover:text-indigo-600"
-                              aria-hidden="true"
-                            />
-                            Settings
-                          </a>
-                        </li> */}
                       </ul>
                     </nav>
                   </div>
@@ -322,122 +277,111 @@ export default function Dashboard() {
         </Transition.Root>
 
         {/* Static sidebar for desktop */}
-        <div className="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-72 lg:flex-col">
+        <div
+          className={`hidden md:fixed md:inset-y-0 md:z-50 md:flex ${
+            isSidebarCollapsed ? "w-64 z-10" : "w-12"
+          } md:flex-col bg-white`}
+          style={{ boxShadow: "0px 4px 4px 0px #00000040" }}
+        >
+          <div
+            className={`flex justify-between ${
+              isSidebarCollapsed ? "p-4" : "pt-4"
+            }`}
+          >
+            {isSidebarCollapsed ? (
+              <>
+                <img className="h-10 w-auto" src="/rimi_en.png" alt="RIMI" />
+                <ChevronLeftIcon
+                  className="h-8 text-primary cursor-pointer"
+                  onClick={() => setSidebarCollapsed(false)}
+                />
+              </>
+            ) : (
+              <ChevronRightIcon
+                className="h-8 w-full text-primary cursor-pointer"
+                onClick={() => setSidebarCollapsed(true)}
+              />
+            )}
+          </div>
           {/* Sidebar component, swap this element with another sidebar if you like */}
-          <div className="flex grow flex-col gap-y-5 overflow-y-auto border-r border-[#93C5FD] bg-white px-6 pb-4">
-            <div className="flex h-14 shrink-0 items-center py-5 ">
-              <img className="h-8 w-auto" src="/rimi_en.png" alt="RIMI" />
-            </div>
-            <nav className="flex flex-1 flex-col">
-              <h2 className="text-lg font-semibold font-[inter] pb-3">Menu</h2>
+          <div className="flex grow flex-col gap-y-5 overflow-y-auto px-1 pb-4">
+            <nav className="flex flex-1 flex-col mt-6">
               <ul role="list" className="flex flex-1 flex-col gap-y-7">
                 <li>
-                  <ul role="list" className="-mx-2 space-y-1">
+                  <ul role="list" className="space-y-1">
                     {filteredNavigation.map((item) => (
                       <li
                         onClick={() => handleSetComponent(item.slug)}
                         key={item.name}
-                      >
-                        <a
-                          href={item.href}
-                          className={classNames(
-                            item.slug === selectedComponent
-                              ? "bg-gray-50 text-[#2B00B7] font-[inter] font-semibold"
-                              : "text-[#4B465C] hover:text-[#2B00B7] hover:bg-gray-50 font-[inter] ",
-                            "group flex gap-x-3 rounded-md p-2 text-md leading-6"
-                          )}
-                        >
-                          <item.icon
-                            className={classNames(
+                        className={`group cursor-pointer hover:text-primary  
+                            ${
                               item.slug === selectedComponent
-                                ? "text-[#2B00B7]"
-                                : "text-gray-400 group-hover:text-[#2B00B7]",
-                              "h-6 w-6 shrink-0"
-                            )}
-                            aria-hidden="true"
-                          />
-                          {langauge == "En" ? item.name : item.nameFr}
-                        </a>
+                                ? "bg-gray-50 text-[#2B00B7] font-semibold"
+                                : "text-[#4B465C] hover:text-[#2B00B7] hover:bg-gray-50"
+                            }
+                        flex gap-x-3 rounded-md p-2 text-md leading-6`}
+                      >
+                        <item.icon
+                          className={`
+      ${
+        item.slug === selectedComponent
+          ? "text-[#2B00B7]"
+          : "text-gray-400 group-hover:text-[#2B00B7] transition-all duration-200"
+      }
+      h-6 w-6 shrink-0
+    `}
+                          aria-hidden="true"
+                        />
+
+                        {isSidebarCollapsed && (
+                          <span className="capitalize transition-all duration-200">
+                            {t(item.name)}
+                          </span>
+                        )}
+                        {!isSidebarCollapsed && (
+                          <span className="absolute left-full ml-1 z-50 bg-[#393939] text-white text-xs px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap pointer-events-none">
+                            {item.name}
+                          </span>
+                        )}
                       </li>
                     ))}
                   </ul>
                 </li>
-                <li>
-                  {/* <div className="text-xs font-semibold leading-6 text-gray-400">Your teams</div>
-                  <ul role="list" className="-mx-2 mt-2 space-y-1">
-                    {teams.map((team) => (
-                      <li key={team.name}>
-                        <a
-                          href={team.href}
-                          className={classNames(
-                            team.current
-                              ? 'bg-gray-50 text-indigo-600'
-                              : 'text-gray-700 hover:text-indigo-600 hover:bg-gray-50',
-                            'group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold'
-                          )}
-                        >
-                          <span
-                            className={classNames(
-                              team.current
-                                ? 'text-indigo-600 border-indigo-600'
-                                : 'text-gray-400 border-gray-200 group-hover:border-indigo-600 group-hover:text-indigo-600',
-                              'flex h-6 w-6 shrink-0 items-center justify-center rounded-lg border text-[0.625rem] font-medium bg-white'
-                            )}
-                          >
-                            {team.initial}
-                          </span>
-                          <span className="truncate">{team.name}</span>
-                        </a>
-                      </li>
-                    ))}
-                  </ul> */}
-                </li>
-                {/* <li className="mt-auto">
-                  <a
-                    href="#"
-                    className="group -mx-2 flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 text-gray-700 hover:bg-gray-50 hover:text-indigo-600"
-                  >
-                    <Cog6ToothIcon
-                      className="h-6 w-6 shrink-0 text-gray-400 group-hover:text-indigo-600"
-                      aria-hidden="true"
-                    />
-                    Settings
-                  </a>
-                </li> */}
               </ul>
             </nav>
           </div>
         </div>
 
-        <div className="lg:pl-72">
-          <div>
+        <div className={`${isSidebarCollapsed ? "md:pl-64" : "md:pl-14"}`}>
+          {<div className="absolute top-0 left-0 -mt-1 z-5 flex items-center gap-x-3 px-4 py-4 sm:px-6 lg:px-8 md:hidden">
             <button
               type="button"
-              className="-m-2.5 p-2.5 text-gray-700 lg:hidden"
+              className=" text-gray-700 lg:hidden"
               onClick={() => setSidebarOpen(true)}
             >
               <span className="sr-only">Open sidebar</span>
-              <Bars3Icon className="h-6 w-6" aria-hidden="true" />
+              <Bars3Icon className="h-6 w-6 cursor-pointer" aria-hidden="true" />
             </button>
+            <img className="h-8 w-auto " src="/rimi_en.png" alt="RIMI" />
 
             {/* Separator */}
             {/* <div className="h-6 w-px bg-gray-200 lg:hidden" aria-hidden="true" /> */}
-          </div>
+          </div>}
           <>
             {/* Bread crumbs STATE  */}
-            <div className=" px-5 py-4 flex gap-2">
               {breadCrumbState.map((item) => (
+            <div className=" px-5 py-4 flex gap-2">
                 <p
                   onClick={() => handleSetComponent(item)}
                   key={item}
-                  className=" text-[#3a17c5] text-sm font-semibold underline flex items-center gap-2 cursor-pointer"
+                  className=" text-[#3a17c5] text-sm font-semibold underline underline-offset-2 flex items-center gap-1 cursor-pointer"
                 >
                   {item.toLocaleUpperCase()}{" "}
                   <ChevronRightIcon className="h-3 w-3" aria-hidden="true" />
                 </p>
-              ))}
             </div>
-            <main className="py-10">
+              ))}
+            <main className="pt-4 pb-10">
               <div className="px-4 sm:px-6 lg:px-8">
                 {selectedComponent === "none" ? (
                   <div className=" h-full w-full flex justify-center items-center">
@@ -445,18 +389,20 @@ export default function Dashboard() {
                       Welcome to Rimi Insurance Dashboard
                     </p> */}
                     {/* <Analytics /> */}
-                    {(userType === "ADMIN" ? (
-                    <Analytics />
-                  ) : (
-                    <div className=" w-screen">
-                     <h1 className="text-xl font-semibold text-center">Welcome {userName}</h1>
-                    <Products
-                    breadCrumbState={breadCrumbState}
-                    setBreadCrumbState={setBreadCrumbState}
-                    setSelectedComponent={setSelectedComponent}
-                  />
-                  </div>
-                  ))}
+                    {userType === "ADMIN" ? (
+                      <Analytics />
+                    ) : (
+                      <div className=" w-screen">
+                        <h1 className="text-xl font-semibold text-center">
+                          Welcome {userName}
+                        </h1>
+                        <Products
+                          breadCrumbState={breadCrumbState}
+                          setBreadCrumbState={setBreadCrumbState}
+                          setSelectedComponent={setSelectedComponent}
+                        />
+                      </div>
+                    )}
                   </div>
                 ) : (
                   ""
