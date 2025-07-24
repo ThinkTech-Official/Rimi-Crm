@@ -72,253 +72,253 @@
 //   };
 
 //   return (
-//     <div className="max-w-5xl mx-auto mt-4 p-6 bg-[#F9F9F9]">
-//       <h2 className="text-xl font-bold text-left text-[#1B1B1B] mb-2 font-[inter]">
-//         {langauge === "En" ? "Search Quotes" : "Rechercher Quotes"}
-//       </h2>
-//       <p className="text-left font-semibold text-[#6A6A6A] mb-8 font-[inter]">
-//         {langauge === "En"
-//           ? "Fill in as many of the following criteria as you can to generate a search."
-//           : "Indiquez Le Plus De Critères Possible Parmi Les Suivants Pour Lancer Une Recherche."}
-//       </p>
+// <div className="max-w-5xl mx-auto mt-4 p-6 bg-[#F9F9F9]">
+//   <h2 className="text-xl font-bold text-left text-[#1B1B1B] mb-2 ">
+//     {langauge === "En" ? "Search Quotes" : "Rechercher Quotes"}
+//   </h2>
+//   <p className="text-left font-semibold text-[#6A6A6A] mb-8 font-[inter]">
+//     {langauge === "En"
+//       ? "Fill in as many of the following criteria as you can to generate a search."
+//       : "Indiquez Le Plus De Critères Possible Parmi Les Suivants Pour Lancer Une Recherche."}
+//   </p>
 
-//       <div className="grid grid-cols-2 gap-x-36 gap-y-4 text-gray-700">
-//         <div className="flex flex-col gap-2">
-//           <label className="font-[inter]">
-//             {langauge === "En" ? "Quote Number" : "Numéro de devis"}
-//           </label>
-//           <input
-//           value={criteria.quoteNumber || ''}
-//           onChange={handleChange('quoteNumber')}
-//             className="p-2 border border-[#DBDADE] placeholder-[#00000080] font-[inter]"
-//             placeholder="Enter Quote Number"
-//           />
-//         </div>
-//         <div className="flex flex-col gap-2">
-//           <label className="font-[inter]">
-//             {langauge === "En" ? "Quote Date" : "Date du devis"}
-//           </label>
-//           <input
-//             className="p-2 border border-[#DBDADE] font-[inter]"
-//             type="date"
-//             value={criteria.quoteDate || ''}
-//             onChange={handleChange('quoteDate')}
-//           />
-//         </div>
-//         <div className="flex flex-col gap-2">
-//           <label className="font-[inter]">
-//             {langauge === "En" ? "First Name" : "Prénom"}
-//           </label>
-//           <input
-//             className="p-2 border border-[#DBDADE] placeholder-[#00000080] font-[inter]"
-//             placeholder="Enter First Name"
-//             value={criteria.firstName || ''}
-//             onChange={handleChange('firstName')}
-//           />
-//         </div>
-//         <div className="flex flex-col gap-2">
-//           <label className="font-[inter]">
-//             {langauge === "En" ? "Last Name" : "Nom de famille"}
-//           </label>
-//           <input
-//             className="p-2 border border-[#DBDADE] placeholder-[#00000080] font-[inter]"
-//             placeholder="Enter Last Name"
-//             value={criteria.lastName || ''}
-//             onChange={handleChange('lastName')}
-//           />
-//         </div>
-//         <div className="flex flex-col gap-2">
-//           <label className="font-[inter]">
-//             {langauge === "En" ? "Date of Birth" : "Date de naissance"}
-//           </label>
-//           <input
-//             className="p-2 border border-[#DBDADE] font-[inter]"
-//             type="date"
-//             value={criteria.dateOfBirth || ''}
-//             onChange={handleChange('dateOfBirth')}
-//           />
-//         </div>
-//         <div className="flex flex-col gap-2">
-//           <label className="font-[inter]">Email</label>
-//           <input
-//             className="p-2 border border-[#DBDADE] placeholder-[#00000080] font-[inter]"
-//             placeholder="Email"
-//             value={criteria.email || ''}
-//             onChange={handleChange('email')}
-//           />
-//         </div>
-//         <div className="flex flex-col gap-2">
-//           <label className="font-[inter]">
-//             {langauge === "En" ? "Effective Date" : `Date d'entrée en vigueur`}
-//           </label>
-//           <input
-//             className="p-2 border border-[#DBDADE] font-[inter]"
-//             type="date"
-//             value={criteria.effectiveDate || ''}
-//             onChange={handleChange('effectiveDate')}
-//           />
-//         </div>
-//         <div className="flex flex-col gap-2">
-//           <label className="font-[inter]">
-//             {langauge === "En" ? "Expiry Date" : `Date d'expiration`}
-//           </label>
-//           <input
-//             className="p-2 border border-[#DBDADE] font-[inter]"
-//             type="date"
-//             value={criteria.expiryDate || ''}
-//             onChange={handleChange('expiryDate')}
-//           />
-//         </div>
-//         {userType === "ADMIN" && (
-//           <div className="flex flex-col gap-2">
-//             <label className="font-[inter]">
-//               {langauge === "En" ? "Agent" : "Agent"}
-//             </label>
-//             <input
-//               className="p-2 border border-[#DBDADE] placeholder-[#00000080] font-[inter]"
-//               placeholder="Agent"
-//               value={criteria.agent || ''}
-//               onChange={handleChange('agent')}
-//             />
-//           </div>
-//         )}
-//       </div>
-
-//       <div className="mt-6">
-//         <p className="text-[#1B1B1B]  font-[inter] mb-2">
-//           {langauge === "En" ? "Product" : "PRODUIT"}
-//         </p>
-//         <div className="border border-[#DBDADE] p-2 bg-[#F9F9F9] overflow-y-auto rounded text-sm font-[inter] text-[#1B1B1B] space-y-2">
-//           <label className="block">
-//             <input
-//               type="checkbox"
-//               className="mr-2 text-[#1B1B1B]"
-//               checked={criteria.products?.includes('All')}
-//               onChange={() => handleProductChange('All')}
-//             />
-//             All
-//           </label>
-//           {products.map((p) => (
-//             <label key={p.en} className="block text-[#1B1B1B]">
-//               <input
-//                 type="checkbox"
-//                 className="mr-2 text-[#1B1B1B]"
-//                 checked={criteria.products?.includes(p.en)}
-//                 onChange={() => handleProductChange(p.en)}
-//               />
-//               {langauge === "En" ? p.en : p.fr}
-//             </label>
-//           ))}
-//         </div>
-//       </div>
-
-//       <div className="w-full flex justify-center items-center mt-2">
-//         <button
-//          onClick={onSearch}
-//          disabled={!!emailError || loading}
-//         className="w-[250px] mt-6 bg-[#2B00B7] text-white p-3 hover:bg-[#2309A1] transition flex justify-center items-center cursor-pointer font-[inter]">
-//           {langauge === "En" ? "Search Quotes" : "Rechercher Quotes"}
-//         </button>
-//       </div>
-
-//            {/* Error or Results */}
-//       {error && <p className="text-red-600 mt-2">{error}</p>}
-//       {data && (
-//         <div className="mt-4">
-//           <p>Found {data.length} quotes.</p>
-//           {/* ── Results Table ─────────────────────────────────────── */}
-//                 {loading && <p>Loading…</p>}
-//                 {error && <p className="text-red-500">{error}</p>}
-
-//                 {!loading && !error && data.length > 0 && (
-//                   <>
-//                     <table className="min-w-full border">
-//                       <thead className="bg-gray-100">
-//                         <tr>
-//                           {[
-//                             "Quote Number",
-//                             "Status",
-//                             "First Name",
-//                             "Last Name",
-//                             "Date of Birth",
-//                             "Quote Date",
-//                             "Product Name",
-//                             "Actions",
-//                           ].map((h) => (
-//                             <th
-//                               key={h}
-//                               className="px-4 py-2 text-left text-sm font-medium text-gray-700"
-//                             >
-//                               {h}
-//                             </th>
-//                           ))}
-//                         </tr>
-//                       </thead>
-//                       <tbody>
-//                         {data.map((u: any) => (
-//                           <tr key={u.id} className="border-t">
-//                             <td className="px-4 py-2">{u.id}</td>
-//                             <td className="px-4 py-2">{u.status}</td>
-//                             <td className="px-4 py-2">{u.firstName}</td>
-//                             <td className="px-4 py-2">{u.lastName}</td>
-//                             <td className="px-4 py-2">{u.dateOfBirth}</td>
-//                             <td className="px-4 py-2">{u.dateIssued}</td>
-//                             <td className="px-4 py-2">{u.product}</td>
-//                             <td className="px-4 py-2">
-//                               <button
-//                                 onClick={() => navigate(`/userdetail/${u.id}`)}
-//                                 className="px-3 py-1 bg-blue-600 text-white text-sm rounded"
-//                               >
-//                                 View
-//                               </button>
-//                             </td>
-//                           </tr>
-//                         ))}
-//                       </tbody>
-//                     </table>
-
-//                     {/* ── Pagination Controls ────────────────────────────── */}
-//                     {/* <div className="flex justify-center items-center space-x-2 mt-4">
-//                       <button
-//                         onClick={() => goToPage(page - 1)}
-//                         disabled={!hasPrevPage}
-//                         className="px-3 py-1 rounded border bg-white disabled:opacity-50"
-//                       >
-//                         Prev
-//                       </button>
-
-//                       {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
-//                         <button
-//                           key={p}
-//                           onClick={() => goToPage(p)}
-//                           className={`px-3 py-1 rounded border ${
-//                             p === page
-//                               ? "bg-indigo-600 text-white"
-//                               : "bg-white text-indigo-600"
-//                           }`}
-//                         >
-//                           {p}
-//                         </button>
-//                       ))}
-
-//                       <button
-//                         onClick={() => goToPage(page + 1)}
-//                         disabled={!hasNextPage}
-//                         className="px-3 py-1 rounded border bg-white disabled:opacity-50"
-//                       >
-//                         Next
-//                       </button>
-//                     </div> */}
-//                   </>
-//                 )}
-
-//                 {!loading && !error && data.length === 0 && (
-//                   <p className="text-center text-gray-500">No users found.</p>
-//                 )}
-//         </div>
-//       )}
-
+//   <div className="grid grid-cols-2 gap-x-36 gap-y-4 text-gray-700">
+//     <div className="flex flex-col gap-2">
+//       <label className="font-[inter]">
+//         {langauge === "En" ? "Quote Number" : "Numéro de devis"}
+//       </label>
+//       <input
+//       value={criteria.quoteNumber || ''}
+//       onChange={handleChange('quoteNumber')}
+//         className="input-primary font-[inter]"
+//         placeholder="Enter Quote Number"
+//       />
 //     </div>
+//     <div className="flex flex-col gap-2">
+//       <label className="font-[inter]">
+//         {langauge === "En" ? "Quote Date" : "Date du devis"}
+//       </label>
+//       <input
+//         className="p-2 border border-[#DBDADE] font-[inter]"
+//         type="date"
+//         value={criteria.quoteDate || ''}
+//         onChange={handleChange('quoteDate')}
+//       />
+//     </div>
+//     <div className="flex flex-col gap-2">
+//       <label className="font-[inter]">
+//         {langauge === "En" ? "First Name" : "Prénom"}
+//       </label>
+//       <input
+//         className="p-2 border border-[#DBDADE] placeholder-[#00000080] font-[inter]"
+//         placeholder="Enter First Name"
+//         value={criteria.firstName || ''}
+//         onChange={handleChange('firstName')}
+//       />
+//     </div>
+//     <div className="flex flex-col gap-2">
+//       <label className="font-[inter]">
+//         {langauge === "En" ? "Last Name" : "Nom de famille"}
+//       </label>
+//       <input
+//         className="p-2 border border-[#DBDADE] placeholder-[#00000080] font-[inter]"
+//         placeholder="Enter Last Name"
+//         value={criteria.lastName || ''}
+//         onChange={handleChange('lastName')}
+//       />
+//     </div>
+//     <div className="flex flex-col gap-2">
+//       <label className="font-[inter]">
+//         {langauge === "En" ? "Date of Birth" : "Date de naissance"}
+//       </label>
+//       <input
+//         className="p-2 border border-[#DBDADE] font-[inter]"
+//         type="date"
+//         value={criteria.dateOfBirth || ''}
+//         onChange={handleChange('dateOfBirth')}
+//       />
+//     </div>
+//     <div className="flex flex-col gap-2">
+//       <label className="font-[inter]">Email</label>
+//       <input
+//         className="p-2 border border-[#DBDADE] placeholder-[#00000080] font-[inter]"
+//         placeholder="Email"
+//         value={criteria.email || ''}
+//         onChange={handleChange('email')}
+//       />
+//     </div>
+//     <div className="flex flex-col gap-2">
+//       <label className="font-[inter]">
+//         {langauge === "En" ? "Effective Date" : `Date d'entrée en vigueur`}
+//       </label>
+//       <input
+//         className="p-2 border border-[#DBDADE] font-[inter]"
+//         type="date"
+//         value={criteria.effectiveDate || ''}
+//         onChange={handleChange('effectiveDate')}
+//       />
+//     </div>
+//     <div className="flex flex-col gap-2">
+//       <label className="font-[inter]">
+//         {langauge === "En" ? "Expiry Date" : `Date d'expiration`}
+//       </label>
+//       <input
+//         className="p-2 border border-[#DBDADE] font-[inter]"
+//         type="date"
+//         value={criteria.expiryDate || ''}
+//         onChange={handleChange('expiryDate')}
+//       />
+//     </div>
+//     {userType === "ADMIN" && (
+//       <div className="flex flex-col gap-2">
+//         <label className="font-[inter]">
+//           {langauge === "En" ? "Agent" : "Agent"}
+//         </label>
+//         <input
+//           className="p-2 border border-[#DBDADE] placeholder-[#00000080] font-[inter]"
+//           placeholder="Agent"
+//           value={criteria.agent || ''}
+//           onChange={handleChange('agent')}
+//         />
+//       </div>
+//     )}
+//   </div>
+
+//   <div className="mt-6">
+//     <p className="text-[#1B1B1B]  font-[inter] mb-2">
+//       {langauge === "En" ? "Product" : "PRODUIT"}
+//     </p>
+//     <div className="border border-[#DBDADE] p-2 bg-[#F9F9F9] overflow-y-auto rounded text-sm font-[inter] text-[#1B1B1B] space-y-2">
+//       <label className="block">
+//         <input
+//           type="checkbox"
+//           className="mr-2 text-[#1B1B1B]"
+//           checked={criteria.products?.includes('All')}
+//           onChange={() => handleProductChange('All')}
+//         />
+//         All
+//       </label>
+//       {products.map((p) => (
+//         <label key={p.en} className="block text-[#1B1B1B]">
+//           <input
+//             type="checkbox"
+//             className="mr-2 text-[#1B1B1B]"
+//             checked={criteria.products?.includes(p.en)}
+//             onChange={() => handleProductChange(p.en)}
+//           />
+//           {langauge === "En" ? p.en : p.fr}
+//         </label>
+//       ))}
+//     </div>
+//   </div>
+
+//   <div className="w-full flex justify-center items-center mt-2">
+//     <button
+//      onClick={onSearch}
+//      disabled={!!emailError || loading}
+//     className="w-[250px] mt-6 bg-[#2B00B7] text-white p-3 hover:bg-[#2309A1] transition flex justify-center items-center cursor-pointer font-[inter]">
+//       {langauge === "En" ? "Search Quotes" : "Rechercher Quotes"}
+//     </button>
+//   </div>
+
+//        {/* Error or Results */}
+//   {error && <p className="text-red-600 mt-2">{error}</p>}
+//   {data && (
+//     <div className="mt-4">
+//       <p>Found {data.length} quotes.</p>
+//       {/* ── Results Table ─────────────────────────────────────── */}
+//             {loading && <p>Loading…</p>}
+//             {error && <p className="text-red-500">{error}</p>}
+
+//             {!loading && !error && data.length > 0 && (
+//               <>
+//                 <table className="min-w-full border">
+//                   <thead className="bg-gray-100">
+//                     <tr>
+//                       {[
+//                         "Quote Number",
+//                         "Status",
+//                         "First Name",
+//                         "Last Name",
+//                         "Date of Birth",
+//                         "Quote Date",
+//                         "Product Name",
+//                         "Actions",
+//                       ].map((h) => (
+//                         <th
+//                           key={h}
+//                           className="px-4 py-2 text-left text-sm font-medium text-gray-700"
+//                         >
+//                           {h}
+//                         </th>
+//                       ))}
+//                     </tr>
+//                   </thead>
+//                   <tbody>
+//                     {data.map((u: any) => (
+//                       <tr key={u.id} className="border-t">
+//                         <td className="px-4 py-2">{u.id}</td>
+//                         <td className="px-4 py-2">{u.status}</td>
+//                         <td className="px-4 py-2">{u.firstName}</td>
+//                         <td className="px-4 py-2">{u.lastName}</td>
+//                         <td className="px-4 py-2">{u.dateOfBirth}</td>
+//                         <td className="px-4 py-2">{u.dateIssued}</td>
+//                         <td className="px-4 py-2">{u.product}</td>
+//                         <td className="px-4 py-2">
+//                           <button
+//                             onClick={() => navigate(`/userdetail/${u.id}`)}
+//                             className="px-3 py-1 bg-blue-600 text-white text-sm rounded"
+//                           >
+//                             View
+//                           </button>
+//                         </td>
+//                       </tr>
+//                     ))}
+//                   </tbody>
+//                 </table>
+
+//                 {/* ── Pagination Controls ────────────────────────────── */}
+//                 {/* <div className="flex justify-center items-center space-x-2 mt-4">
+//                   <button
+//                     onClick={() => goToPage(page - 1)}
+//                     disabled={!hasPrevPage}
+//                     className="px-3 py-1 rounded border bg-white disabled:opacity-50"
+//                   >
+//                     Prev
+//                   </button>
+
+//                   {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
+//                     <button
+//                       key={p}
+//                       onClick={() => goToPage(p)}
+//                       className={`px-3 py-1 rounded border ${
+//                         p === page
+//                           ? "bg-indigo-600 text-white"
+//                           : "bg-white text-indigo-600"
+//                       }`}
+//                     >
+//                       {p}
+//                     </button>
+//                   ))}
+
+//                   <button
+//                     onClick={() => goToPage(page + 1)}
+//                     disabled={!hasNextPage}
+//                     className="px-3 py-1 rounded border bg-white disabled:opacity-50"
+//                   >
+//                     Next
+//                   </button>
+//                 </div> */}
+//               </>
+//             )}
+
+//             {!loading && !error && data.length === 0 && (
+//               <p className="text-center text-gray-500">No users found.</p>
+//             )}
+//     </div>
+//   )}
+
+// </div>
 //   );
 // };
 
@@ -417,111 +417,109 @@ const QuotesSearch: React.FC = () => {
   };
 
   return (
-    <div className="max-w-5xl mx-auto mt-4 p-6 bg-[#F9F9F9]">
-      <h2 className="text-xl font-bold text-left text-[#1B1B1B] mb-2 font-[inter]">
+    <div className="max-w-5xl mx-auto mt-4 px-2 py-4 sm:p-6 bg-[#F9F9F9]">
+      <h2 className="text-lg font-bold text-left text-[#1B1B1B] mb-2">
         {langauge === "En" ? "Search Quotes" : "Rechercher Quotes"}
       </h2>
-      <p className="text-left font-semibold text-[#6A6A6A] mb-8 font-[inter]">
+      <p className="text-left font-medium text-[#6A6A6A] mb-8">
         {langauge === "En"
           ? "Fill in as many of the following criteria as you can to generate a search."
           : "Indiquez Le Plus De Critères Possible Parmi Les Suivants Pour Lancer Une Recherche."}
       </p>
 
       {/* Form Fields  */}
-      <div className="grid grid-cols-2 gap-x-36 gap-y-4 text-gray-700">
-        <div className="flex flex-col gap-2">
-          <label className="font-[inter]">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 md:gap-x-16 lg:gap-x-36 gap-y-4 text-text-secondary">
+        <div className="flex flex-col gap-1">
+          <label className="text-sm">
             {langauge === "En" ? "Quote Number" : "Numéro de devis"}
           </label>
           <input
             value={criteria.quoteNumber || ""}
             onChange={handleChange("quoteNumber")}
-            className="p-2 border border-[#DBDADE] placeholder-[#00000080] font-[inter]"
+            className="input-primary"
             placeholder="Enter Quote Number"
           />
         </div>
-        <div className="flex flex-col gap-2">
-          <label className="font-[inter]">
+        <div className="flex flex-col gap-1">
+          <label className="text-sm">
             {langauge === "En" ? "Quote Date" : "Date du devis"}
           </label>
           <input
-            className="p-2 border border-[#DBDADE] font-[inter]"
+            className="input-primary"
             type="date"
             value={criteria.quoteDate || ""}
             onChange={handleChange("quoteDate")}
           />
         </div>
-        <div className="flex flex-col gap-2">
-          <label className="font-[inter]">
+        <div className="flex flex-col gap-1">
+          <label className="text-sm">
             {langauge === "En" ? "First Name" : "Prénom"}
           </label>
           <input
-            className="p-2 border border-[#DBDADE] placeholder-[#00000080] font-[inter]"
+            className="input-primary"
             placeholder="Enter First Name"
             value={criteria.firstName || ""}
             onChange={handleChange("firstName")}
           />
         </div>
-        <div className="flex flex-col gap-2">
-          <label className="font-[inter]">
+        <div className="flex flex-col gap-1">
+          <label className="text-sm">
             {langauge === "En" ? "Last Name" : "Nom de famille"}
           </label>
           <input
-            className="p-2 border border-[#DBDADE] placeholder-[#00000080] font-[inter]"
+            className="input-primary"
             placeholder="Enter Last Name"
             value={criteria.lastName || ""}
             onChange={handleChange("lastName")}
           />
         </div>
-        <div className="flex flex-col gap-2">
-          <label className="font-[inter]">
+        <div className="flex flex-col gap-1">
+          <label className="text-sm">
             {langauge === "En" ? "Date of Birth" : "Date de naissance"}
           </label>
           <input
-            className="p-2 border border-[#DBDADE] font-[inter]"
+            className="input-primary"
             type="date"
             value={criteria.dateOfBirth || ""}
             onChange={handleChange("dateOfBirth")}
           />
         </div>
-        <div className="flex flex-col gap-2">
-          <label className="font-[inter]">Email</label>
+        <div className="flex flex-col gap-1">
+          <label className="text-sm">Email</label>
           <input
-            className="p-2 border border-[#DBDADE] placeholder-[#00000080] font-[inter]"
+            className="input-primary"
             placeholder="Email"
             value={criteria.email || ""}
             onChange={handleChange("email")}
           />
         </div>
-        <div className="flex flex-col gap-2">
-          <label className="font-[inter]">
+        <div className="flex flex-col gap-1">
+          <label className="text-sm">
             {langauge === "En" ? "Effective Date" : `Date d'entrée en vigueur`}
           </label>
           <input
-            className="p-2 border border-[#DBDADE] font-[inter]"
+            className="input-primary"
             type="date"
             value={criteria.effectiveDate || ""}
             onChange={handleChange("effectiveDate")}
           />
         </div>
-        <div className="flex flex-col gap-2">
-          <label className="font-[inter]">
+        <div className="flex flex-col gap-1">
+          <label className="text-sm">
             {langauge === "En" ? "Expiry Date" : `Date d'expiration`}
           </label>
           <input
-            className="p-2 border border-[#DBDADE] font-[inter]"
+            className="input-primary"
             type="date"
             value={criteria.expiryDate || ""}
             onChange={handleChange("expiryDate")}
           />
         </div>
         {userType === "ADMIN" && (
-          <div className="flex flex-col gap-2">
-            <label className="font-[inter]">
-              {langauge === "En" ? "Agent" : "Agent"}
-            </label>
+          <div className="flex flex-col gap-1">
+            <label className="text-sm">{langauge === "En" ? "Agent" : "Agent"}</label>
             <input
-              className="p-2 border border-[#DBDADE] placeholder-[#00000080] font-[inter]"
+              className="input-primary"
               placeholder="Agent"
               value={criteria.agent || ""}
               onChange={handleChange("agent")}
@@ -531,14 +529,14 @@ const QuotesSearch: React.FC = () => {
       </div>
       {/* Product Selector  */}
       <div className="mt-6">
-        <p className="text-[#1B1B1B]  font-[inter] mb-2">
+        <p className="text-[#1B1B1B]   mb-2">
           {langauge === "En" ? "Product" : "PRODUIT"}
         </p>
-        <div className="border border-[#DBDADE] p-2 bg-[#F9F9F9] overflow-y-auto rounded text-sm font-[inter] text-[#1B1B1B] space-y-2">
+        <div className="border border-[#DBDADE] p-2 bg-[#F9F9F9] overflow-y-auto text-sm  text-[#1B1B1B] space-y-2">
           <label className="block">
             <input
               type="checkbox"
-              className="mr-2 text-[#1B1B1B]"
+              className="mr-2 text-[#1B1B1B] accent-primary cursor-pointer"
               checked={criteria.products?.includes("All")}
               onChange={() => handleProductChange("All")}
             />
@@ -548,7 +546,7 @@ const QuotesSearch: React.FC = () => {
             <label key={p.en} className="block text-[#1B1B1B]">
               <input
                 type="checkbox"
-                className="mr-2 text-[#1B1B1B]"
+                className="mr-2 text-[#1B1B1B] accent-primary cursor-pointer"
                 checked={criteria.products?.includes(p.en)}
                 onChange={() => handleProductChange(p.en)}
               />
@@ -559,11 +557,11 @@ const QuotesSearch: React.FC = () => {
       </div>
 
       {/* Search Button  */}
-      <div className="w-full flex justify-center mt-4">
+      <div className="w-full flex justify-center mt-6">
         <button
           onClick={onSearch}
           disabled={!!emailError || loading}
-          className="px-6 py-2 bg-[#2b00b7] text-white rounded disabled:opacity-50"
+          className="btn-primary"
         >
           {loading
             ? "Searching..."
@@ -586,7 +584,7 @@ const QuotesSearch: React.FC = () => {
               <tr>
                 {[
                   "Quote Number",
-                  
+
                   "First Name",
                   "Last Name",
                   "Status",
@@ -607,8 +605,8 @@ const QuotesSearch: React.FC = () => {
             <tbody>
               {data.items.map((u: any) => (
                 <tr key={u.id} className="border-t">
-                  <td className="px-4 py-2">{u.quoteNumber}</td> 
-                  
+                  <td className="px-4 py-2">{u.quoteNumber}</td>
+
                   <td className="px-4 py-2">{u.firstName}</td>
                   <td className="px-4 py-2">{u.lastName}</td>
                   <td className="px-4 py-2">{u.status}</td>

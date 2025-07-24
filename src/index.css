@@ -17,7 +17,14 @@
     .btn-primary{
         @apply bg-[var(--color-primary)] text-white py-2 sm:py-3 px-4 font-semibold hover:bg-[#2309A1] transition-all duration-200 cursor-pointer disabled:cursor-default disabled:opacity-70;
     }
-    .input-primary{
-        @apply w-full border border-inputBorder px-4 py-2 sm:py-3 focus:border-0 focus:outline-none focus:ring-1 focus:ring-primary text-black/80 placeholder:text-black/50;
+     .btn-form{
+        @apply bg-[var(--color-primary)] text-white py-2 sm:py-3 px-5 font-semibold hover:bg-[#2309A1] transition-all duration-200 cursor-pointer disabled:cursor-default disabled:opacity-70 flex gap-1 items-center text-nowrap w-fit;
     }
+    .input-primary{
+        @apply w-full bg-white border border-inputBorder px-4 py-2 sm:py-3 focus:border-0 focus:outline-none focus:ring-1 focus:ring-primary text-black/80 placeholder:text-black/50;
+    }
+}
+
+body {
+  font-family: "Public Sans", sans-serif;
 }
