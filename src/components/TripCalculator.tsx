@@ -45,23 +45,24 @@ const TripCalculator: React.FC = () => {
   };
 
   return (
-    <div className="max-w-5xl mx-auto mt-4 p-6 bg-[#F9F9F9]">
-      <h2 className="text-xl font-bold text-left text-[#1B1B1B] mb-2 font-[inter]">
+    <div className="max-w-5xl mx-auto mt-4 px-2 py-4 sm:p-6 bg-[#F9F9F9]">
+      <h2 className="text-lg font-bold text-left text-[#1B1B1B]">
         {langauge === "En" ? "Trip Calculator" : "Calculateur de voyage"}
       </h2>
-      <p className="text-left font-semibold text-[#6A6A6A] mb-8 font-[inter]">
+      <p className="text-left font-medium text-[#6A6A6A] mb-8">
         {langauge === "En"
           ? "Choose a calculation type and fill in the fields below."
           : "Choisissez un type de calcul et remplissez les champs ci-dessous."}
       </p>
 
-      <div className="flex gap-6 mb-6 font-[inter]">
+      <div className="flex gap-4 mb-6 font-[inter]">
         <label className="flex items-center gap-2">
           <input
             type="radio"
             value="duration"
             checked={calculationType === "duration"}
             onChange={() => setCalculationType("duration")}
+            className="accent-primary cursor-pointer"
           />
           {langauge === "En" ? "Calculate Duration" : "Calculer la durée"}
         </label>
@@ -71,89 +72,88 @@ const TripCalculator: React.FC = () => {
             value="newDate"
             checked={calculationType === "newDate"}
             onChange={() => setCalculationType("newDate")}
+            className="accent-primary cursor-pointer"
           />
-          {langauge === "En" ? "Calculate New Date" : "Calculer la nouvelle date"}
+          {langauge === "En"
+            ? "Calculate New Date"
+            : "Calculer la nouvelle date"}
         </label>
       </div>
 
-      <div className="grid grid-cols-2 gap-x-36 gap-y-4 text-gray-700">
-        <div className="flex flex-col gap-2 font-[inter]">
-          <label>
-            {langauge === "En" ? "Start Date" : "Date de début"}
-          </label>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 md:gap-x-16 lg:gap-x-24 gap-y-4 text-text-secondary">
+        <div className="flex flex-col font-[inter]">
+          <label className="text-sm">{langauge === "En" ? "Start Date" : "Date de début"}</label>
           <input
             type="date"
-            className="p-2 border border-[#DBDADE]"
+            className="input-primary"
             value={startDate}
             onChange={(e) => setStartDate(e.target.value)}
           />
         </div>
 
         {calculationType === "duration" ? (
-          <div className="flex flex-col gap-2 font-[inter]">
-            <label>
-              {langauge === "En" ? "End Date" : "Date de fin"}
-            </label>
+          <div className="flex flex-col font-[inter]">
+            <label className="text-sm">{langauge === "En" ? "End Date" : "Date de fin"}</label>
             <input
               type="date"
-              className="p-2 border border-[#DBDADE]"
+              className="input-primary"
               value={endDate}
               onChange={(e) => setEndDate(e.target.value)}
             />
           </div>
         ) : (
           <>
-            <div className="flex flex-col gap-2 font-[inter]">
-              <label>
-                {langauge === "En" ? "Operation" : "Opération"}
-              </label>
+            <div className="flex flex-col font-[inter]">
+              <label className="text-sm">{langauge === "En" ? "Operation" : "Opération"}</label>
               <select
-                className="p-2 border border-[#DBDADE]"
+                className="input-primary"
                 value={operation}
                 onChange={(e) => setOperation(e.target.value)}
               >
-                <option value="add">{langauge === "En" ? "Add" : "Ajouter"}</option>
-                <option value="subtract">{langauge === "En" ? "Subtract" : "Soustraire"}</option>
+                <option value="add">
+                  {langauge === "En" ? "Add" : "Ajouter"}
+                </option>
+                <option value="subtract">
+                  {langauge === "En" ? "Subtract" : "Soustraire"}
+                </option>
               </select>
             </div>
-            <div className="grid grid-cols-2 gap-x-36 col-span-2 font-[inter]">
-              <div className="flex flex-col gap-2">
-                <label>{langauge === "En" ? "Years" : "Ans"}</label>
+              <div className="flex flex-col"> 
+                <label className="text-sm">{langauge === "En" ? "Years" : "Ans"}</label>
                 <input
-                  className="p-2 border border-[#DBDADE]"
+                  className="input-primary"
                   value={years}
                   onChange={(e) => setYears(e.target.value)}
                   placeholder="0"
                 />
               </div>
-              <div className="flex flex-col gap-2">
-                <label>{langauge === "En" ? "Months" : "Mois"}</label>
+              <div className="flex flex-col">
+                <label className="text-sm">{langauge === "En" ? "Months" : "Mois"}</label>
                 <input
-                  className="p-2 border border-[#DBDADE]"
+                  className="input-primary"
                   value={months}
                   onChange={(e) => setMonths(e.target.value)}
                   placeholder="0"
                 />
               </div>
-              <div className="flex flex-col gap-2">
-                <label>{langauge === "En" ? "Weeks" : "Semaines"}</label>
+              <div className="flex flex-col">
+                <label className="text-sm">{langauge === "En" ? "Weeks" : "Semaines"}</label>
                 <input
-                  className="p-2 border border-[#DBDADE]"
+                  className="input-primary"
                   value={weeks}
                   onChange={(e) => setWeeks(e.target.value)}
                   placeholder="0"
                 />
               </div>
-              <div className="flex flex-col gap-2">
-                <label>{langauge === "En" ? "Days" : "Jours"}</label>
+              <div className="flex flex-col">
+                <label className="text-sm">{langauge === "En" ? "Days" : "Jours"}</label>
                 <input
-                  className="p-2 border border-[#DBDADE]"
+                  className="input-primary"
                   value={days}
                   onChange={(e) => setDays(e.target.value)}
                   placeholder="0"
                 />
               </div>
-            </div>
           </>
         )}
       </div>
@@ -161,7 +161,7 @@ const TripCalculator: React.FC = () => {
       <div className="w-full flex justify-center items-center mt-2">
         <button
           onClick={calculateResult}
-          className="w-[250px] mt-6 bg-[#2B00B7] text-white p-3 hover:bg-[#2309A1] transition flex justify-center items-center cursor-pointer font-[inter]"
+          className="w-[180px] mt-6 bg-[#2B00B7] text-white p-3 hover:bg-[#2309A1] transition flex justify-center items-center cursor-pointer font-[inter]"
         >
           {langauge === "En" ? "Calculate" : "Calculer"}
         </button>

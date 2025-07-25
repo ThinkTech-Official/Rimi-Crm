@@ -162,26 +162,26 @@ const CreateUser: React.FC = () => {
   return (
     <form
       onSubmit={handleSubmit}
-      className="max-w-3xl mx-auto mt-10 p-6 rounded-lg shadow-2xl bg-white"
+      className="max-w-5xl mx-auto mt-4 px-2 py-4 sm:p-6 bg-[#F9F9F9]"
       noValidate
     >
-      <h2 className="text-xl font-semibold text-center text-[#3a17c5] mb-4">
+      <h2 className="text-lg font-bold text-left text-[#1B1B1B] mb-2">
         {langauge === "En" ? "CREATE USER" : "CRÉER UN UTILISATEUR"}
       </h2>
-      <p className="text-center text-gray-600 mb-6">
+      <p className="text-left font-medium text-[#6A6A6A] mb-8">
         {langauge === "En"
           ? "** Changes to User Type will restore User Permissions to default settings **"
           : "** Les modifications apportées au type d'utilisateur restaureront les autorisations aux paramètres par défaut **"}
       </p>
 
-      <div className="grid grid-cols-3 gap-4 text-gray-700">
+      <div className="grid grid-col-3 gap-4 text-text-secondary">
         {/* First Name */}
-        <div className="flex flex-col">
-          <label>First Name</label>
+        <div className="flex flex-col col-span-3 sm:col-span-1">
+          <label className="text-sm">First Name</label>
           <input
             value={firstName}
             onChange={(e) => setFirstName(e.target.value)}
-            className={`p-2 border rounded ${errors.firstName ? 'border-red-500' : 'border-black'}`}
+            className={`input-primary ${errors.firstName ? 'border-red-500' : 'border-black'}`}
             placeholder="First Name"
             
           />
@@ -189,12 +189,12 @@ const CreateUser: React.FC = () => {
         </div>
 
         {/* Last Name */}
-        <div className="flex flex-col">
-          <label>Last Name</label>
+        <div className="flex flex-col col-span-3 sm:col-span-1">
+          <label className="text-sm">Last Name</label>
           <input
             value={lastName}
             onChange={(e) => setLastName(e.target.value)}
-            className={`p-2 border rounded ${errors.lastName ? 'border-red-500' : 'border-black'}`}
+            className={`input-primary ${errors.lastName ? 'border-red-500' : 'border-black'}`}
             placeholder="Last Name"
             // required
           />
@@ -202,13 +202,13 @@ const CreateUser: React.FC = () => {
         </div>
 
         {/* Email */}
-        <div className="flex flex-col">
-          <label>Email</label>
+        <div className="flex flex-col col-span-3 sm:col-span-1">
+          <label className="text-sm">Email</label>
           <input
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className={`p-2 border rounded ${errors.email ? 'border-red-500' : 'border-black'}`}
+            className={`input-primary ${errors.email ? 'border-red-500' : 'border-black'}`}
             placeholder="Email"
             // required
           />
@@ -217,15 +217,15 @@ const CreateUser: React.FC = () => {
 
         {/* Agent Code + Generate / Check */}
         <div className="">
-          <div className=" flex flex-col">
-            <label>Agent Code</label>
+          <div className=" flex flex-col col-span-3 sm:col-span-1">
+            <label className="text-sm">Agent Code</label>
             <input
               value={agentCode}
               onChange={(e) => {
                 setAgentCode(e.target.value);
                 setLastCheckedCode("");
               }}
-              className={`p-2 border rounded ${errors.agentCode ? 'border-red-500' : 'border-black'}`}
+              className={`input-primary ${errors.agentCode ? 'border-red-500' : 'border-black'}`}
               placeholder="Agent Code"
               // required
             />
@@ -235,7 +235,7 @@ const CreateUser: React.FC = () => {
           <button
             type="button"
             onClick={generateAgentCode}
-            className="h-10 px-3 bg-gray-200 rounded hover:bg-gray-300 transition"
+            className="h-10 px-3 bg-gray-200 rounded hover:bg-gray-300 transition cursor-pointer"
           >
             Generate
           </button>
@@ -250,7 +250,7 @@ const CreateUser: React.FC = () => {
                 : lastCheckedCode === agentCode &&
                   availability === "taken"
                 ? "bg-red-200 hover:bg-red-300"
-                : "bg-blue-200 hover:bg-blue-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                : "bg-blue-200 hover:bg-blue-300 disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed"
             }`}
           >
             {availability === "checking"
@@ -272,24 +272,24 @@ const CreateUser: React.FC = () => {
         )}
 
         {/* Company */}
-        <div className="flex flex-col">
-          <label>Company</label>
+        <div className="flex flex-col col-span-3 sm:col-span-1">
+          <label className="text-sm">Company</label>
           <input
             value={company}
             onChange={(e) => setCompany(e.target.value)}
-            className="p-2 border rounded"
+            className="input-primary"
             placeholder="Company"
             required
           />
         </div>
 
         {/* User Type */}
-        <div className="flex flex-col">
-          <label>User Type</label>
+        <div className="flex flex-col col-span-2 sm:col-span-1">
+          <label className="text-sm">User Type</label>
           <select
             value={userType}
             onChange={(e) => setUserType(e.target.value as any)}
-            className={`p-2 border rounded ${errors.userType ? 'border-red-500' : 'border-black'}`}
+            className={`input-primary ${errors.userType ? 'border-red-500' : 'border-black'}`}
             // required
           >
             <option value="">-- select --</option>
@@ -310,6 +310,7 @@ const CreateUser: React.FC = () => {
               value="ACTIVE"
               checked={status === "ACTIVE"}
               onChange={() => setStatus("ACTIVE")}
+              className="accent-primary cursor-pointer"
             />{" "}
             Active
           </label>
@@ -320,6 +321,7 @@ const CreateUser: React.FC = () => {
               value="INACTIVE"
               checked={status === "INACTIVE"}
               onChange={() => setStatus("INACTIVE")}
+              className="accent-primary cursor-pointer"
             />{" "}
             Inactive
           </label>
@@ -327,18 +329,18 @@ const CreateUser: React.FC = () => {
 
         {/* Password */}
         <div className="col-span-3 space-y-2">
-          <label>Password</label>
+          <label className="text-sm">Password</label>
           <div className="relative">
             <input
               type={passwordVisible ? "text" : "password"}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className={`w-full p-2 border rounded ${errors.password ? 'border-red-500' : 'border-black'}`}
+              className={`w-full input-primary ${errors.password ? 'border-red-500' : 'border-black'}`}
               placeholder="New Password"
               required
             />
             <span
-              className="absolute right-3 top-3 cursor-pointer"
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer"
               onClick={() => setPasswordVisible((v) => !v)}
             >
               {passwordVisible ? (
@@ -350,7 +352,7 @@ const CreateUser: React.FC = () => {
           </div>
           {errors.confirmPassword && <p className="text-red-500 text-sm">{errors.password}</p>}
 
-          <label>Confirm Password</label>
+          <label className="text-sm">Confirm Password</label>
           <div className="relative">
             <input
               type={
@@ -360,12 +362,12 @@ const CreateUser: React.FC = () => {
               onChange={(e) =>
                 setConfirmPassword(e.target.value)
               }
-              className={`w-full p-2 border rounded ${errors.confirmPassword ? 'border-red-500' : 'border-black'}`}
+              className={`w-full input-primary ${errors.confirmPassword ? 'border-red-500' : 'border-black'}`}
               placeholder="Confirm Password"
               required
             />
             <span
-              className="absolute right-3 top-3 cursor-pointer"
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer"
               onClick={() =>
                 setConfirmPasswordVisible((v) => !v)
               }
@@ -381,43 +383,43 @@ const CreateUser: React.FC = () => {
         </div>
 
         {/* Valid Upto */}
-        <div className="col-span-3 flex flex-col gap-2">
-          <label>Valid Upto</label>
+        <div className="col-span-3 flex flex-col 1">
+          <label className="text-sm">Valid Upto</label>
           <input
             type="date"
             value={validUpto}
             onChange={(e) => setValidUpto(e.target.value)}
-            className="p-2 border rounded"
+            className="input-primary"
             required
           />
         </div>
 
         {/* Uploads */}
-        <div className="col-span-3 flex flex-col gap-2">
-          <label>Upload Document 1</label>
+        <div className="col-span-3 flex flex-col 1">
+          <label className="text-sm">Upload Document 1</label>
           <input
             type="file"
             accept=".pdf,.doc,.docx"
             onChange={handleFileChange(setDocFile1)}
-            className="p-2 border rounded"
+            className="input-primary"
           />
         </div>
-        <div className="col-span-3 flex flex-col gap-2">
-          <label>Upload Document 2</label>
+        <div className="col-span-3 flex flex-col 1">
+          <label className="text-sm">Upload Document 2</label>
           <input
             type="file"
             accept=".pdf,.doc,.docx"
             onChange={handleFileChange(setDocFile2)}
-            className="p-2 border rounded"
+            className="input-primary"
           />
         </div>
-        <div className="col-span-3 flex flex-col gap-2">
-          <label>Upload Document 3</label>
+        <div className="col-span-3 flex flex-col 1">
+          <label className="text-sm">Upload Document 3</label>
           <input
             type="file"
             accept=".pdf,.doc,.docx"
             onChange={handleFileChange(setDocFile3)}
-            className="p-2 border rounded"
+            className="input-primary"
           />
         </div>
 
@@ -431,7 +433,7 @@ const CreateUser: React.FC = () => {
               onChange={(e) =>
                 setAgentSearch(e.target.value)
               }
-              className="w-full p-2 border rounded"
+              className="w-full input-primary"
               placeholder="Search agent codes..."
             />
             {agentsLoading && <p>Loading agents…</p>}
@@ -442,7 +444,7 @@ const CreateUser: React.FC = () => {
               {agents.map((code) => (
                 <label
                   key={code}
-                  className="flex items-center gap-2"
+                  className="flex items-center 1"
                 >
                   <input
                     type="checkbox"
@@ -486,7 +488,7 @@ const CreateUser: React.FC = () => {
               availability === "available"
             )
           }
-          className="w-60 bg-[#3a17c5] text-white py-2 rounded hover:bg-[#3a17c5e8] transition disabled:opacity-50 disabled:cursor-not-allowed"
+          className="btn-primary"
         >
           {createLoading
             ? langauge === "En"

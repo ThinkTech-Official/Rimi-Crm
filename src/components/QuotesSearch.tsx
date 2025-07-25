@@ -428,7 +428,7 @@ const QuotesSearch: React.FC = () => {
       </p>
 
       {/* Form Fields  */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 md:gap-x-16 lg:gap-x-36 gap-y-4 text-text-secondary">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 md:gap-x-16 lg:gap-x-24 gap-y-4 text-text-secondary">
         <div className="flex flex-col gap-1">
           <label className="text-sm">
             {langauge === "En" ? "Quote Number" : "Numéro de devis"}
@@ -517,7 +517,9 @@ const QuotesSearch: React.FC = () => {
         </div>
         {userType === "ADMIN" && (
           <div className="flex flex-col gap-1">
-            <label className="text-sm">{langauge === "En" ? "Agent" : "Agent"}</label>
+            <label className="text-sm">
+              {langauge === "En" ? "Agent" : "Agent"}
+            </label>
             <input
               className="input-primary"
               placeholder="Agent"
