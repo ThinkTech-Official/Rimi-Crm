@@ -140,6 +140,7 @@ export default function Dashboard() {
   const [breadCrumbState, setBreadCrumbState] = useState<string[]>([]);
 
   const handleSetComponent = (componentSeleted: string) => {
+    if (selectedComponent === componentSeleted) return;
     // if(selectedComponent === 'product' && componentSeleted ==='RIMI Canuck Voyage Travel Medical' || componentSeleted === 'RIMI Canuck Voyage Non-Medical Travel' || componentSeleted === 'Secure Study RIMI International Students to Canada' || componentSeleted === 'Secure Travel RIMI Visitors to Canada Travel'){
     //   setBreadCrumbState([...breadCrumbState,componentSeleted])
     // } else {
@@ -260,9 +261,9 @@ export default function Dashboard() {
                                   `}
                                   aria-hidden="true"
                                 />
-                                  <span className="capitalize transition-all duration-200">
-                                    {t(item.name)}
-                                  </span>
+                                <span className="capitalize transition-all duration-200">
+                                  {t(item.name)}
+                                </span>
                               </li>
                             ))}
                           </ul>
@@ -353,34 +354,41 @@ export default function Dashboard() {
         </div>
 
         <div className={`${isSidebarCollapsed ? "md:pl-64" : "md:pl-14"}`}>
-          {<div className="absolute top-0 left-0 -mt-1 z-5 flex items-center gap-x-3 px-4 py-4 sm:px-6 lg:px-8 md:hidden">
-            <button
-              type="button"
-              className=" text-gray-700 lg:hidden"
-              onClick={() => setSidebarOpen(true)}
-            >
-              <span className="sr-only">Open sidebar</span>
-              <Bars3Icon className="h-6 w-6 cursor-pointer" aria-hidden="true" />
-            </button>
-            <img className="h-8 w-auto " src="/rimi_en.png" alt="RIMI" />
+          {
+            <div className="absolute top-0 left-0 -mt-1 z-5 flex items-center gap-x-3 px-4 py-4 sm:px-6 lg:px-8 md:hidden">
+              <button
+                type="button"
+                className=" text-gray-700 lg:hidden"
+                onClick={() => setSidebarOpen(true)}
+              >
+                <span className="sr-only">Open sidebar</span>
+                <Bars3Icon
+                  className="h-6 w-6 cursor-pointer"
+                  aria-hidden="true"
+                />
+              </button>
+              <img className="h-8 w-auto " src="/rimi_en.png" alt="RIMI" />
 
-            {/* Separator */}
-            {/* <div className="h-6 w-px bg-gray-200 lg:hidden" aria-hidden="true" /> */}
-          </div>}
+              {/* Separator */}
+              {/* <div className="h-6 w-px bg-gray-200 lg:hidden" aria-hidden="true" /> */}
+            </div>
+          }
           <>
             {/* Bread crumbs STATE  */}
+            <div className="flex gap-0 px-5">
               {breadCrumbState.map((item) => (
-            <div className=" px-5 py-4 flex gap-2">
-                <p
-                  onClick={() => handleSetComponent(item)}
-                  key={item}
-                  className=" text-[#3a17c5] text-sm font-semibold underline underline-offset-2 flex items-center gap-1 cursor-pointer"
-                >
-                  {item.toLocaleUpperCase()}{" "}
-                  <ChevronRightIcon className="h-3 w-3" aria-hidden="true" />
-                </p>
-            </div>
+                <div className="py-4 flex gap-2">
+                  <p
+                    onClick={() => handleSetComponent(item)}
+                    key={item}
+                    className="capitalize text-[#3a17c5] text-sm font-semibold underline underline-offset-2 flex items-center gap-1 cursor-pointer"
+                  >
+                    {item}
+                    <ChevronRightIcon className="h-3 w-3" aria-hidden="true" />
+                  </p>
+                </div>
               ))}
+            </div>
             <main className="pt-4 pb-10">
               <div className="px-4 sm:px-6 lg:px-8">
                 {selectedComponent === "none" ? (

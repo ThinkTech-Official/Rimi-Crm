@@ -69,28 +69,26 @@ const RIMICanuckVoyageTravelMedical: React.FC = () => {
   };
 
   return (
-    <div className="max-w-5xl mx-auto mt-10 p-6 bg-white rounded-lg shadow-lg">
-      
-
+    <div className="max-w-5xl mx-auto px-2 py-4 sm:p-6">
       {/* Upper Navigation for form stages  */}
 
       <nav aria-label="Progress">
         <ol
           role="list"
-          className="divide-y divide-gray-300 rounded-md border border-gray-300 md:flex md:divide-y-0"
+          className="divide-y divide-inputBorder border border-inputBorder md:flex md:divide-y-0"
         >
           {steps.map((step, stepIdx) => (
             <li key={step.name} className="relative md:flex md:flex-1">
               {step.status === "complete" ? (
                 <a href={step.href} className="group flex w-full items-center">
-                  <span className="flex items-center px-6 py-4 text-sm font-medium">
-                    <span className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-[#2B00B7] group-hover:bg-[#2B00B7]">
+                  <span className="flex items-center px-3 sm:px-6 py-3 sm:py-4 text-sm font-medium">
+                    <span className="flex w-6 h-6 sm:h-8 sm:w-8 flex-shrink-0 items-center justify-center rounded-full bg-[#2B00B7] group-hover:bg-[#2B00B7]">
                       <CheckIcon
-                        className="h-6 w-6 text-white"
+                        className="h-4 sm:h-6 w-4 sm:w-6 text-white"
                         aria-hidden="true"
                       />
                     </span>
-                    <span className="ml-4 text-lg font-medium text-[#2B00B7] font-[inter]">
+                    <span className="ml-4 text-base font-medium text-[#2B00B7] font-[inter]">
                       {step.name}
                     </span>
                   </span>
@@ -98,25 +96,27 @@ const RIMICanuckVoyageTravelMedical: React.FC = () => {
               ) : step.status === "current" ? (
                 <a
                   href={step.href}
-                  className="flex items-center px-6 py-4 text-sm font-medium font-[inter]"
+                  className="flex items-center px-3 sm:px-6 py-3 sm:py-4 text-sm font-medium font-[inter]"
                   aria-current="step"
                 >
-                  <span className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full border-2 border-[#2B00B7]">
-                    <span className="text-[#2B00B7] font-[inter]">{step.id}</span>
+                  <span className="flex w-6 h-6 sm:h-8 sm:w-8 flex-shrink-0 items-center justify-center rounded-full border-2 border-[#2B00B7]">
+                    <span className="text-[#2B00B7] font-[inter] text-xs sm:text-sm">
+                      {step.id}
+                    </span>
                   </span>
-                  <span className="ml-4 text-lg font-medium text-[#2B00B7] font-[inter]">
+                  <span className="ml-4 text-base font-medium text-[#2B00B7] font-[inter]">
                     {step.name}
                   </span>
                 </a>
               ) : (
                 <a href={step.href} className="group flex items-center">
-                  <span className="flex items-center px-6 py-4 text-sm font-medium">
-                    <span className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full border-2 border-gray-300 group-hover:border-gray-400">
-                      <span className="text-gray-500 group-hover:text-gray-900 font-[inter]">
+                  <span className="flex items-center px-3 sm:px-6 py-3 sm:py-4 text-sm font-medium">
+                    <span className="flex w-6 h-6 sm:h-8 sm:w-8 flex-shrink-0 items-center justify-center rounded-full border-2 border-inputBorder group-hover:border-gray-400 transition-all duration-200">
+                      <span className="text-gray-500 group-hover:text-gray-900 text-xs sm:text-sm">
                         {step.id}
                       </span>
                     </span>
-                    <span className="ml-4 text-lg font-medium font-[inter] text-gray-500 group-hover:text-gray-900">
+                    <span className="ml-4 text-base font-medium font-[inter] text-gray-500 group-hover:text-gray-900">
                       {step.name}
                     </span>
                   </span>
@@ -131,7 +131,7 @@ const RIMICanuckVoyageTravelMedical: React.FC = () => {
                     aria-hidden="true"
                   >
                     <svg
-                      className="h-full w-full text-gray-300"
+                      className="h-full w-full text-inputBorder"
                       viewBox="0 0 22 80"
                       fill="none"
                       preserveAspectRatio="none"
@@ -152,7 +152,6 @@ const RIMICanuckVoyageTravelMedical: React.FC = () => {
       </nav>
 
       {/* // */}
-
 
       {/* STEP 1  */}
 
@@ -181,20 +180,20 @@ const RIMICanuckVoyageTravelMedical: React.FC = () => {
           {/* // */}
 
           <div className=" w-full h-2 mt-5 flex items-center justify-center font-[inter]">
-            <h3 className=" text-lg  ">Your Quote: $0.00</h3>
+            <h3 className=" text-base sm:text-lg  ">Your Quote: $0.00</h3>
           </div>
         </div>
       )}
 
-{/* STEP 1 ENDS  */}
+      {/* STEP 1 ENDS  */}
 
-{/* STEP 2  */}
+      {/* STEP 2  */}
 
       {steps[1].status === "current" && (
         <div>
           {/* Qoutes  */}
           <div className=" w-full h-2 mt-8 flex items-center justify-center font-[inter]">
-            <h3 className=" text-lg  ">Your Quote: $0.00</h3>
+            <h3 className=" text-base sm:text-lg  ">Your Quote: $0.00</h3>
           </div>
           {/* // */}
 
@@ -223,14 +222,14 @@ const RIMICanuckVoyageTravelMedical: React.FC = () => {
         </div>
       )}
 
-{/* STEP 2 ENDS  */}
+      {/* STEP 2 ENDS  */}
 
       {steps[2].status === "current" && (
         <div>
-          <h3 className="text-xl font-bold text-left text-[#1B1B1B] mt-5 mb-6 font-[inter] ">
-            Step 3: Confirmation
+          <h3 className="text-base sm:text-lg font-bold text-left text-[#1B1B1B] mt-5">
+            Confirmation
           </h3>
-          <p className="text-md  text-left text-[#1B1B1B] mb-6 font-[inter] ">
+          <p className="text-left font-medium text-[#6A6A6A] mb-8">
             Review your application details and submit.
           </p>
         </div>
@@ -238,7 +237,7 @@ const RIMICanuckVoyageTravelMedical: React.FC = () => {
       <div className="flex justify-center gap-10 mt-4">
         {formStep > 1 && (
           <button
-            className="w-[250px] mt-6 bg-[#ffffff] border border-[#2B00B7] text-[#2B00B7] p-3  hover:bg-[#2209a1] hover:text-white transition flex justify-center items-center cursor-pointer font-[inter]"
+            className="w-[200px] mt-6 bg-[#ffffff] border hover:border-[#2B00B7] hover:text-[#2B00B7] p-3 transition-all duration-200 flex justify-center items-center cursor-pointer font-[inter]"
             onClick={() => handleFormStepChange("back")}
           >
             Previous
@@ -246,7 +245,7 @@ const RIMICanuckVoyageTravelMedical: React.FC = () => {
         )}
         {formStep < 3 ? (
           <button
-            className="w-[250px] mt-6 bg-[#2B00B7] text-white p-3  hover:bg-[#2309A1] transition flex justify-center items-center cursor-pointer font-[inter]"
+            className="w-[200px] mt-6 bg-[#2B00B7] text-white p-3  hover:bg-[#2309A1] transition flex justify-center items-center cursor-pointer duration-200"
             onClick={() => handleFormStepChange("forward")}
           >
             Next
@@ -254,7 +253,7 @@ const RIMICanuckVoyageTravelMedical: React.FC = () => {
         ) : (
           <button
             onClick={handleSubmit}
-            className="w-[250px] mt-6 bg-[#2B00B7] text-white p-3  hover:bg-[#2309A1] transition flex justify-center items-center cursor-pointer font-[inter]"
+            className="w-[200px] mt-6 bg-[#2B00B7] text-white p-3  hover:bg-[#2309A1] transition flex justify-center items-center cursor-pointer duration-200"
           >
             Submit
           </button>

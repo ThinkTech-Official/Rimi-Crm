@@ -45,12 +45,12 @@ interface QuoteStage1Response {
   gender: string;
   preExMedCov: string;
   email: string;
-  applicants: Applicant[]
+  applicants: Applicant[];
 }
 
 interface ContactInfo {
-    additionalEmail: string,
-    phoneNumber: string
+  additionalEmail: string;
+  phoneNumber: string;
 }
 
 interface BeneficiaryInfo {
@@ -126,7 +126,7 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
     city: "",
     postalCode: "",
     country: "",
-    province: ""
+    province: "",
   });
 
   const [beneficiary, setBeneficiary] = useState<BeneficiaryInfo>({
@@ -134,10 +134,10 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
     relationshipToInsured: "",
   });
 
-  const [contactInfo,setContactInfo] = useState<ContactInfo>({
-    additionalEmail: '',
-    phoneNumber: ''
-  })
+  const [contactInfo, setContactInfo] = useState<ContactInfo>({
+    additionalEmail: "",
+    phoneNumber: "",
+  });
 
   // const [benifitiaryName, setBenifitaryName] = useState<string>('')
   // const [relationshipToInsured, setRelationshipToInsured] = useState<string>('')
@@ -163,22 +163,17 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
 
   // const { completeApplication, loading: submittingStage2, error: submitError } = useQuoteUpdate()
 
-
   const { saveQuoteNext, loading: savingStage1 } = useSaveQuoteNext();
 
-   const {
+  const {
     completeApplication,
     loading: submittingStage2,
     error: submitError,
     data: policyResponse,
   } = useQuoteUpdate();
 
-
-
   //----------------------------
 
-
- 
   const handleFormStepChange = (stepCommand: string) => {
     setFormStep((prevStep) => {
       let newStep = prevStep;
@@ -232,12 +227,12 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
       setQuoteNumber(response.quoteNumber);
       setStep1ResponseData({
         quoteNumber: response.quoteNumber,
-        effectiveDate: response.effectiveDate, 
-        expiryDate: response.expiryDate, 
+        effectiveDate: response.effectiveDate,
+        expiryDate: response.expiryDate,
         coverageLength: Number(response.coverageLength),
         numberOfTravellers: response.numberOfTravellers,
         policyType: response.policyType,
-        coverageLimit: response.coverageLimit, 
+        coverageLimit: response.coverageLimit,
         deductible: response.deductible,
         destinationProvince: response.destinationProvince,
         quoteAmount: response.quoteAmount,
@@ -247,7 +242,7 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
         gender: response.gender,
         preExMedCov: response.preExMedCov,
         email: response.email,
-        applicants: response.applicants
+        applicants: response.applicants,
       });
       console.log("from quote  getting response of stage 1", response);
       handleFormStepChange("forward");
@@ -257,7 +252,7 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
     }
   };
 
-    // Step‐2 “Buy Now”
+  // Step‐2 “Buy Now”
   const handleBuyNow = async () => {
     if (!quoteNumber || submittingStage2) return;
     const payload: Stage2Payload = {
@@ -268,7 +263,7 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
     };
     try {
       const resp = await completeApplication(payload);
-      console.log('from handle buy', resp)
+      console.log("from handle buy", resp);
       handleFormStepChange("forward");
     } catch {
       // show submitError…
@@ -299,22 +294,28 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
     agentCode: agentCode!,
     product: "Secure Travel RIMI Visitors to Canada Travel",
     quoteNumber: quoteNumber,
-    status: "Inactive"
+    status: "Inactive",
   };
 
   return (
-    <div className="max-w-5xl mx-auto mt-10 p-6 bg-white rounded-lg shadow-lg font-[inter]">
+    <div className="max-w-5xl mx-auto px-2 py-4 sm:p-6">
       <nav aria-label="Progress">
-        <ol className="divide-y divide-gray-300 rounded-md border border-gray-300 md:flex md:divide-y-0">
+        <ol
+          role="list"
+          className="divide-y divide-inputBorder border border-inputBorder md:flex md:divide-y-0"
+        >
           {steps.map((step, stepIdx) => (
             <li key={step.name} className="relative md:flex md:flex-1">
               {step.status === "complete" ? (
                 <a href={step.href} className="group flex w-full items-center">
-                  <span className="flex items-center px-6 py-4 text-sm font-medium">
-                    <span className="flex h-10 w-10 items-center justify-center rounded-full bg-indigo-600 group-hover:bg-indigo-800">
-                      <CheckIcon className="h-6 w-6 text-white" />
+                  <span className="flex items-center px-3 sm:px-6 py-3 sm:py-4 text-sm font-medium">
+                    <span className="flex w-6 h-6 sm:h-8 sm:w-8 flex-shrink-0 items-center justify-center rounded-full bg-[#2B00B7] group-hover:bg-[#2B00B7]">
+                      <CheckIcon
+                        className="h-4 sm:h-6 w-4 sm:w-6 text-white"
+                        aria-hidden="true"
+                      />
                     </span>
-                    <span className="ml-4 text-sm font-medium text-gray-900">
+                    <span className="ml-4 text-base font-medium text-[#2B00B7] font-[inter]">
                       {step.name}
                     </span>
                   </span>
@@ -322,46 +323,56 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
               ) : step.status === "current" ? (
                 <a
                   href={step.href}
-                  className="flex items-center px-6 py-4 text-sm font-medium"
+                  className="flex items-center px-3 sm:px-6 py-3 sm:py-4 text-sm font-medium font-[inter]"
                   aria-current="step"
                 >
-                  <span className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-indigo-600">
-                    <span className="text-indigo-600">{step.id}</span>
+                  <span className="flex w-6 h-6 sm:h-8 sm:w-8 flex-shrink-0 items-center justify-center rounded-full border-2 border-[#2B00B7]">
+                    <span className="text-[#2B00B7] font-[inter] text-xs sm:text-sm">
+                      {step.id}
+                    </span>
                   </span>
-                  <span className="ml-4 text-sm font-medium text-indigo-600">
+                  <span className="ml-4 text-base font-medium text-[#2B00B7] font-[inter]">
                     {step.name}
                   </span>
                 </a>
               ) : (
                 <a href={step.href} className="group flex items-center">
-                  <span className="flex items-center px-6 py-4 text-sm font-medium">
-                    <span className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-gray-300 group-hover:border-gray-400">
-                      <span className="text-gray-500 group-hover:text-gray-900">
+                  <span className="flex items-center px-3 sm:px-6 py-3 sm:py-4 text-sm font-medium">
+                    <span className="flex w-6 h-6 sm:h-8 sm:w-8 flex-shrink-0 items-center justify-center rounded-full border-2 border-inputBorder group-hover:border-gray-400 transition-all duration-200">
+                      <span className="text-gray-500 group-hover:text-gray-900 text-xs sm:text-sm">
                         {step.id}
                       </span>
                     </span>
-                    <span className="ml-4 text-sm font-medium text-gray-500 group-hover:text-gray-900">
+                    <span className="ml-4 text-base font-medium font-[inter] text-gray-500 group-hover:text-gray-900">
                       {step.name}
                     </span>
                   </span>
                 </a>
               )}
 
-              {stepIdx !== steps.length - 1 && (
-                <div className="absolute right-0 top-0 hidden h-full w-5 md:block">
-                  <svg
-                    className="h-full w-full text-gray-300"
-                    viewBox="0 0 22 80"
-                    fill="none"
+              {stepIdx !== steps.length - 1 ? (
+                <>
+                  {/* Arrow separator for lg screens and up */}
+                  <div
+                    className="absolute right-0 top-0 hidden h-full w-5 md:block"
+                    aria-hidden="true"
                   >
-                    <path
-                      d="M0 -2L20 40L0 82"
-                      stroke="currentcolor"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                </div>
-              )}
+                    <svg
+                      className="h-full w-full text-inputBorder"
+                      viewBox="0 0 22 80"
+                      fill="none"
+                      preserveAspectRatio="none"
+                    >
+                      <path
+                        d="M0 -2L20 40L0 82"
+                        vectorEffect="non-scaling-stroke"
+                        stroke="currentcolor"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  </div>
+                </>
+              ) : null}
             </li>
           ))}
         </ol>
@@ -441,20 +452,27 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
             applicants={step1ResponseData?.applicants ?? []}
           />
           {/* contactInfo,setContactInfo */}
-          <ContactInformation contactInfo={contactInfo} setContactInfo={setContactInfo} email={step1ResponseData?.email} />
+          <ContactInformation
+            contactInfo={contactInfo}
+            setContactInfo={setContactInfo}
+            email={step1ResponseData?.email}
+          />
           <Address address={address} setAddress={setAddress} />
           {/* beneficiary, setBeneficiary */}
-          <BeneficiaryInCaseOfDeath beneficiaryInfo={beneficiary} setBeneficiaryInfo={setBeneficiary} />
+          <BeneficiaryInCaseOfDeath
+            beneficiaryInfo={beneficiary}
+            setBeneficiaryInfo={setBeneficiary}
+          />
           <PaymentInformation />
         </div>
       )}
 
       {steps[2].status === "current" && (
         <div>
-          <h3 className="text-xl font-bold text-left text-[#1B1B1B] mt-5 mb-6">
-            Step 3: Confirmation
+          <h3 className="text-lg font-bold text-left text-[#1B1B1B] mt-5">
+            Confirmation
           </h3>
-          <p className="text-md text-left text-[#1B1B1B] mb-6">
+          <p className="text-md text-left text-[#6A6A6A] font-medium mb-8">
             Review your application details and submit.
           </p>
         </div>
@@ -488,14 +506,19 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
 
       <div className="flex justify-center gap-10 mt-4">
         {formStep > 1 && (
-          <button onClick={() => handleFormStepChange("back")} className=" btn-outline">Previous</button>
+          <button
+            onClick={() => handleFormStepChange("back")}
+            className="w-[200px] mt-6 bg-[#ffffff] border hover:border-[#2B00B7] hover:text-[#2B00B7] p-3 transition-all duration-200 flex justify-center items-center cursor-pointer"
+          >
+            Previous
+          </button>
         )}
 
-         {formStep === 1 && (
+        {formStep === 1 && (
           <button
             onClick={handleNext}
             disabled={!isStepOneFilled || savingStage1}
-            className={`btn-primary ${
+            className={`w-[200px] mt-6 bg-[#2B00B7] text-white p-3  hover:bg-[#2309A1] transition flex justify-center items-center cursor-pointer duration-200 ${
               savingStage1 ? "opacity-50 cursor-wait" : ""
             }`}
           >
@@ -507,7 +530,7 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
           <button
             onClick={handleBuyNow}
             disabled={submittingStage2}
-            className={`btn-primary ${
+            className={`w-[200px] mt-6 bg-[#2B00B7] text-white p-3  hover:bg-[#2309A1] transition flex justify-center items-center cursor-pointer duration-200 ${
               submittingStage2 ? "opacity-50 cursor-wait" : ""
             }`}
           >
@@ -516,7 +539,10 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
         )}
 
         {formStep === 3 && (
-          <button onClick={handleSubmit} className="btn-primary">
+          <button
+            onClick={handleSubmit}
+            className="w-[200px] mt-6 bg-[#2B00B7] text-white p-3  hover:bg-[#2309A1] transition flex justify-center items-center cursor-pointer duration-200"
+          >
             Submit
           </button>
         )}

@@ -129,7 +129,7 @@ const Users: React.FC = () => {
               onChange={(e) =>
                 setCriteria((c) => ({ ...c, userType: e.target.value }))
               }
-              className="input-primary appearance-none"
+              className="input-primary appearance-none cursor-pointer"
             >
               <option value="">All</option>
               <option value="ADMIN">Admin</option>
@@ -153,7 +153,7 @@ const Users: React.FC = () => {
               onChange={(e) =>
                 setCriteria((c) => ({ ...c, status: e.target.value }))
               }
-              className="input-primary appearance-none"
+              className="input-primary appearance-none cursor-pointer"
             >
               <option value="">All</option>
               <option value="ACTIVE">Active</option>

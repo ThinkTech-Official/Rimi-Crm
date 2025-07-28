@@ -1,10 +1,10 @@
 export default function QuoteSummary() {
   return (
-    <div className="max-w-5xl mx-auto mt-4 p-6 bg-[#F9F9F9]">
-      <h3 className="text-xl font-bold text-left text-[#1B1B1B] mb-2 font-[inter]">
+    <div className="max-w-5xl mx-auto mt-6 p-6 bg-[#F9F9F9]">
+      <h3 className="text-lg font-bold text-left text-[#1B1B1B]">
         Your Quote Summary
       </h3>
-      <p className="text-left font-semibold text-[#6A6A6A] mb-8 font-[inter]">
+      <p className="text-left font-medium text-[#6A6A6A] mb-8">
         Please review the details below before proceeding.
       </p>
 
