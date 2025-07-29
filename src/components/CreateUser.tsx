@@ -1,39 +1,37 @@
-
-
-
-import React, {
-  useContext,
-  useState,
-  FormEvent,
-  ChangeEvent,
-} from "react";
+import React, { useContext, useState, FormEvent, ChangeEvent } from "react";
 import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
 import { v4 as uuidv4 } from "uuid";
 import { LangContext } from "../context/LangContext";
 import { useAgentCodes } from "../hooks/useAgentCodes";
 import { useCreateUser } from "../hooks/useCreateUser";
+import { useForm } from "react-hook-form";
+
+type userType = "ADMIN" | "AGENT" | "READONLY" | "MGA" | "";
+
+export interface newUser {
+  firstName: string;
+  lastName: string;
+  email: string;
+  agentCode: string;
+  company: string;
+  userType: userType;
+  status: "ACTIVE" | "INACTIVE";
+  password: string;
+  confirmPassword: string;
+  validUpto: string;
+  docFile1: File | null;
+  docFile2: File | null;
+  docFile3: File | null;
+}
 
 const CreateUser: React.FC = () => {
   const { langauge } = useContext(LangContext);
 
   // ─── form fields ─────────────────────────────────────────────────────────────
   const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [email, setEmail] = useState("");
   const [agentCode, setAgentCode] = useState("");
-  const [company, setCompany] = useState("");
-  const [userType, setUserType] = useState<
-    "ADMIN" | "AGENT" | "READONLY" | "MGA" | ""
-  >("");
   const [status, setStatus] = useState<"ACTIVE" | "INACTIVE">("ACTIVE");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [validUpto, setValidUpto] = useState("");
-
-  // file uploads
-  const [docFile1, setDocFile1] = useState<File | null>(null);
-  const [docFile2, setDocFile2] = useState<File | null>(null);
-  const [docFile3, setDocFile3] = useState<File | null>(null);
+  const [userType, setUserType] = useState<userType>("ADMIN");
 
   // MGA-only agent selection
   const [agentSearch, setAgentSearch] = useState("");
@@ -41,10 +39,7 @@ const CreateUser: React.FC = () => {
 
   // password visibility toggles
   const [passwordVisible, setPasswordVisible] = useState(false);
-  const [confirmPasswordVisible, setConfirmPasswordVisible] =
-    useState(false);
-
-   
+  const [confirmPasswordVisible, setConfirmPasswordVisible] = useState(false);
 
   // ─── availability & create-user hook ────────────────────────────────────────
   const {
@@ -60,54 +55,24 @@ const CreateUser: React.FC = () => {
   // track which code we last checked
   const [lastCheckedCode, setLastCheckedCode] = useState("");
 
-
-   // Validation Error State
-   const [errors, setErrors] = useState<{ [key: string]: string }>({});
-
-   
-   // ─── Validation Function ──────────────────────────────────────────────────────
-   const validateForm = () => {
-    const newErrors: { [key: string]: string } = {};
-  
-    if (!firstName.trim()) newErrors.firstName = "First name is required";
-    if (!lastName.trim()) newErrors.lastName = "Last name is required";
-  
-    if (!email.trim()) {
-      newErrors.email = "Email is required";
-    } else if (!/^\S+@\S+\.\S+$/.test(email)) {
-      newErrors.email = "Invalid email address";
-    }
-  
-    if (!userType) newErrors.userType = "User type is required";
-    if (!agentCode.trim()) newErrors.agentCode = "Agent code is required";
-  
-    if (!password) {
-      newErrors.password = "Password is required";
-    } else if (password.length < 3) {
-      newErrors.password = "Password must be at least 3 characters";
-    }
-  
-    if (!confirmPassword) {
-      newErrors.confirmPassword = "Confirm your password";
-    } else if (confirmPassword !== password) {
-      newErrors.confirmPassword = "Passwords do not match";
-    }
-  
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  //
-
-
+  // Validation Error State
+  //  const [errors, setErrors] = useState<{ [key: string]: string }>({});
+  const {
+    register,
+    handleSubmit,
+    watch,
+    formState: { errors },
+  } = useForm<newUser>();
 
   // ─── auxiliary handlers ──────────────────────────────────────────────────────
-  const handleFileChange =
-    (setter: React.Dispatch<React.SetStateAction<File | null>>) =>
-    (e: ChangeEvent<HTMLInputElement>) =>
-      setter(e.target.files?.[0] ?? null);
+  // const handleFileChange =
+  //   (setter: React.Dispatch<React.SetStateAction<File | null>>) =>
+  //   (e: ChangeEvent<HTMLInputElement>) =>
+  //     setter(e.target.files?.[0] ?? null);
 
   const generateAgentCode = () => {
+    const firstName = watch("firstName");
+    // if (!firstName) return;
     const prefix = firstName.trim().slice(0, 4).toUpperCase();
     const uuidPart = uuidv4().split("-")[0].toUpperCase();
     setAgentCode(`${prefix}${uuidPart}`);
@@ -119,37 +84,12 @@ const CreateUser: React.FC = () => {
     setLastCheckedCode(agentCode);
   };
 
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault();
-
-    if (!validateForm()) return;
-
+  const onSubmit = async (newUser: newUser) => {
     if (availability !== "available" || lastCheckedCode !== agentCode) {
       return; // must confirm availability first
     }
-    const formData = new FormData();
-    formData.append("firstName", firstName);
-    formData.append("lastName", lastName);
-    formData.append("email", email);
-    formData.append("agentCode", agentCode);
-    formData.append("company", company);
-    formData.append("userType", userType);
-    formData.append("status", status);
-    formData.append("password", password);
-    formData.append("confirmPassword", confirmPassword);
-    formData.append("validUpto", validUpto);
 
-    if (docFile1) formData.append("documents", docFile1);
-    if (docFile2) formData.append("documents", docFile2);
-    if (docFile3) formData.append("documents", docFile3);
-
-    if (userType === "MGA") {
-      selectedAgents.forEach((code) =>
-        formData.append("agentCodes[]", code)
-      );
-    }
-
-    await createUser(formData);
+    await createUser(newUser);
   };
 
   // ─── fetch MGA agents ────────────────────────────────────────────────────────
@@ -161,7 +101,7 @@ const CreateUser: React.FC = () => {
 
   return (
     <form
-      onSubmit={handleSubmit}
+      onSubmit={handleSubmit(onSubmit)}
       className="max-w-5xl mx-auto mt-4 px-2 py-4 sm:p-6 bg-[#F9F9F9]"
       noValidate
     >
@@ -179,26 +119,32 @@ const CreateUser: React.FC = () => {
         <div className="flex flex-col col-span-3 sm:col-span-1">
           <label className="text-sm">First Name</label>
           <input
-            value={firstName}
-            onChange={(e) => setFirstName(e.target.value)}
-            className={`input-primary ${errors.firstName ? 'border-red-500' : 'border-black'}`}
+            type="text"
+            {...register("firstName", { required: "First name is required" })}
+            // value={firstName}
+            // onChange={(e) => setFirstName(e.target.value)}
+            className={`input-primary`}
             placeholder="First Name"
-            
           />
-          {errors.firstName && <p className="text-red-500 text-sm">{errors.firstName}</p>}
+          {errors.firstName && (
+            <p className="text-red-500 text-sm">{errors.firstName.message}</p>
+          )}
         </div>
 
         {/* Last Name */}
         <div className="flex flex-col col-span-3 sm:col-span-1">
           <label className="text-sm">Last Name</label>
           <input
-            value={lastName}
-            onChange={(e) => setLastName(e.target.value)}
-            className={`input-primary ${errors.lastName ? 'border-red-500' : 'border-black'}`}
+            {...register("lastName", { required: "Last name is required" })}
+            // value={lastName}
+            // onChange={(e) => setLastName(e.target.value)}
+            className={`input-primary`}
             placeholder="Last Name"
             // required
           />
-          {errors.lastName && <p className="text-red-500 text-sm">{errors.lastName}</p>}
+          {errors.lastName && (
+            <p className="text-red-500 text-sm">{errors.lastName.message}</p>
+          )}
         </div>
 
         {/* Email */}
@@ -206,13 +152,24 @@ const CreateUser: React.FC = () => {
           <label className="text-sm">Email</label>
           <input
             type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className={`input-primary ${errors.email ? 'border-red-500' : 'border-black'}`}
+            {...register("email", {
+              required: "Email is required",
+              pattern: {
+                value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                message: "Invalid email address",
+              },
+            })}
+            // value={email}
+            // onChange={(e) => setEmail(e.target.value)}
+            className={`input-primary ${
+              errors.email ? "border-red-500" : "border-black"
+            }`}
             placeholder="Email"
             // required
           />
-          {errors.email && <p className="text-red-500 text-sm">{errors.email}</p>}
+          {errors.email && (
+            <p className="text-red-500 text-sm">{errors.email.message}</p>
+          )}
         </div>
 
         {/* Agent Code + Generate / Check */}
@@ -220,76 +177,78 @@ const CreateUser: React.FC = () => {
           <div className=" flex flex-col col-span-3 sm:col-span-1">
             <label className="text-sm">Agent Code</label>
             <input
+              {...register("agentCode", { required: "Agent code is required" })}
               value={agentCode}
-              onChange={(e) => {
-                setAgentCode(e.target.value);
+              onChange={() => {
+                // setAgentCode(e.target.value);
                 setLastCheckedCode("");
               }}
-              className={`input-primary ${errors.agentCode ? 'border-red-500' : 'border-black'}`}
+              className={`input-primary`}
               placeholder="Agent Code"
               // required
             />
-            {errors.agentCode && <p className="text-red-500 text-sm">{errors.agentCode}</p>}
+            {errors.agentCode && (
+              <p className="text-red-500 text-sm">{errors.agentCode.message}</p>
+            )}
           </div>
           <div className="flex gap-4 mt-4">
-          <button
-            type="button"
-            onClick={generateAgentCode}
-            className="h-10 px-3 bg-gray-200 rounded hover:bg-gray-300 transition cursor-pointer"
-          >
-            Generate
-          </button>
-          <button
-            type="button"
-            onClick={handleCheckClick}
-            disabled={!agentCode || availability === "checking"}
-            className={`h-10 px-3 rounded transition ${
-              lastCheckedCode === agentCode &&
-              availability === "available"
-                ? "bg-green-200 hover:bg-green-300"
-                : lastCheckedCode === agentCode &&
-                  availability === "taken"
-                ? "bg-red-200 hover:bg-red-300"
-                : "bg-blue-200 hover:bg-blue-300 disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed"
-            }`}
-          >
-            {availability === "checking"
-              ? "Checking…"
-              : lastCheckedCode === agentCode &&
-                availability === "available"
-              ? "Available"
-              : lastCheckedCode === agentCode &&
-                availability === "taken"
-              ? "Taken"
-              : "Check"}
-          </button>
+            <button
+              type="button"
+              onClick={generateAgentCode}
+              className="h-10 px-3 bg-gray-200 rounded hover:bg-gray-300 transition cursor-pointer"
+            >
+              Generate
+            </button>
+            <button
+              type="button"
+              onClick={handleCheckClick}
+              disabled={!agentCode || availability === "checking"}
+              className={`h-10 px-3 rounded transition ${
+                lastCheckedCode === agentCode && availability === "available"
+                  ? "bg-green-200 hover:bg-green-300"
+                  : lastCheckedCode === agentCode && availability === "taken"
+                  ? "bg-red-200 hover:bg-red-300"
+                  : "bg-blue-200 hover:bg-blue-300 disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed"
+              }`}
+            >
+              {availability === "checking"
+                ? "Checking…"
+                : lastCheckedCode === agentCode && availability === "available"
+                ? "Available"
+                : lastCheckedCode === agentCode && availability === "taken"
+                ? "Taken"
+                : "Check"}
+            </button>
           </div>
         </div>
         {availabilityError && (
-          <p className="text-red-500 text-sm mt-1">
-            {availabilityError}
-          </p>
+          <p className="text-red-500 text-sm mt-1">{availabilityError}</p>
         )}
 
         {/* Company */}
         <div className="flex flex-col col-span-3 sm:col-span-1">
           <label className="text-sm">Company</label>
           <input
-            value={company}
-            onChange={(e) => setCompany(e.target.value)}
+            {...register("company", { required: "Company name is required" })}
+            // value={company}
+            // onChange={(e) => setCompany(e.target.value)}
             className="input-primary"
             placeholder="Company"
             required
           />
+          {errors.company && (
+            <p className="text-red-500 text-sm">{errors.company.message}</p>
+          )}
         </div>
 
         {/* User Type */}
         <div className="flex flex-col col-span-2 sm:col-span-1">
           <label className="text-sm">User Type</label>
           <select
-            value={userType}
-            onChange={(e) => setUserType(e.target.value as any)}
-            className={`input-primary ${errors.userType ? 'border-red-500' : 'border-black'}`}
+            {...register("userType", { required: "User type is required" })}
+            // value={userType}
+            // onChange={(e) => setUserType(e.target.value as any)}
+            className={`input-primary`}
             // required
           >
             <option value="">-- select --</option>
@@ -298,7 +257,9 @@ const CreateUser: React.FC = () => {
             <option value="READONLY">Read Only</option>
             <option value="MGA">MGA</option>
           </select>
-          {errors.userType && <p className="text-red-500 text-sm">{errors.userType}</p>}
+          {errors.userType && (
+            <p className="text-red-500 text-sm">{errors.userType.message}</p>
+          )}
         </div>
 
         {/* Status */}
@@ -333,11 +294,14 @@ const CreateUser: React.FC = () => {
           <div className="relative">
             <input
               type={passwordVisible ? "text" : "password"}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className={`w-full input-primary ${errors.password ? 'border-red-500' : 'border-black'}`}
+              // value={password}
+              // onChange={(e) => setPassword(e.target.value)}
               placeholder="New Password"
-              required
+              {...register("password", {
+                required: "Password is required",
+                minLength: { value: 6, message: "Minimum length is 6" },
+              })}
+              className={`w-full input-primary`}
             />
             <span
               className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer"
@@ -350,27 +314,27 @@ const CreateUser: React.FC = () => {
               )}
             </span>
           </div>
-          {errors.confirmPassword && <p className="text-red-500 text-sm">{errors.password}</p>}
+          {errors.confirmPassword && (
+            <p className="text-red-500 text-sm">{errors.password?.message}</p>
+          )}
 
           <label className="text-sm">Confirm Password</label>
           <div className="relative">
             <input
-              type={
-                confirmPasswordVisible ? "text" : "password"
-              }
-              value={confirmPassword}
-              onChange={(e) =>
-                setConfirmPassword(e.target.value)
-              }
-              className={`w-full input-primary ${errors.confirmPassword ? 'border-red-500' : 'border-black'}`}
+              type={confirmPasswordVisible ? "text" : "password"}
+              {...register("confirmPassword", {
+                required: "Please confirm password",
+                validate: (value) =>
+                  value === watch("password") || "Passwords do not match",
+              })}
+              // value={confirmPassword}
+              // onChange={(e) => setConfirmPassword(e.target.value)}
+              className={`w-full input-primary`}
               placeholder="Confirm Password"
-              required
             />
             <span
               className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer"
-              onClick={() =>
-                setConfirmPasswordVisible((v) => !v)
-              }
+              onClick={() => setConfirmPasswordVisible((v) => !v)}
             >
               {confirmPasswordVisible ? (
                 <EyeIcon className="h-5 w-5" />
@@ -379,7 +343,11 @@ const CreateUser: React.FC = () => {
               )}
             </span>
           </div>
-          {errors.confirmPassword && <p className="text-red-500 text-sm">{errors.confirmPassword}</p>}
+          {errors.confirmPassword && (
+            <p className="text-red-500 text-sm">
+              {errors.confirmPassword.message}
+            </p>
+          )}
         </div>
 
         {/* Valid Upto */}
@@ -387,11 +355,14 @@ const CreateUser: React.FC = () => {
           <label className="text-sm">Valid Upto</label>
           <input
             type="date"
-            value={validUpto}
-            onChange={(e) => setValidUpto(e.target.value)}
+            {...register("validUpto", { required: "Valid upto date is required" })}
+            // value={validUpto}
+            // onChange={(e) => setValidUpto(e.target.value)}
             className="input-primary"
-            required
           />
+          {errors.validUpto && (
+            <p className="text-red-500 text-sm">{errors.validUpto.message}</p>
+          )}
         </div>
 
         {/* Uploads */}
@@ -400,7 +371,8 @@ const CreateUser: React.FC = () => {
           <input
             type="file"
             accept=".pdf,.doc,.docx"
-            onChange={handleFileChange(setDocFile1)}
+            {...register("docFile1")}
+            // onChange={handleFileChange(setDocFile1)}
             className="input-primary"
           />
         </div>
@@ -409,7 +381,8 @@ const CreateUser: React.FC = () => {
           <input
             type="file"
             accept=".pdf,.doc,.docx"
-            onChange={handleFileChange(setDocFile2)}
+            {...register("docFile2")}
+            // onChange={handleFileChange(setDocFile2)}
             className="input-primary"
           />
         </div>
@@ -418,7 +391,8 @@ const CreateUser: React.FC = () => {
           <input
             type="file"
             accept=".pdf,.doc,.docx"
-            onChange={handleFileChange(setDocFile3)}
+            {...register("docFile3")}
+            // onChange={handleFileChange(setDocFile3)}
             className="input-primary"
           />
         </div>
@@ -430,22 +404,15 @@ const CreateUser: React.FC = () => {
             <input
               type="text"
               value={agentSearch}
-              onChange={(e) =>
-                setAgentSearch(e.target.value)
-              }
+              onChange={(e) => setAgentSearch(e.target.value)}
               className="w-full input-primary"
               placeholder="Search agent codes..."
             />
             {agentsLoading && <p>Loading agents…</p>}
-            {agentsError && (
-              <p className="text-red-500">{agentsError}</p>
-            )}
+            {agentsError && <p className="text-red-500">{agentsError}</p>}
             <div className="max-h-40 overflow-y-auto border rounded p-2 space-y-1 text-sm">
               {agents.map((code) => (
-                <label
-                  key={code}
-                  className="flex items-center 1"
-                >
+                <label key={code} className="flex items-center 1">
                   <input
                     type="checkbox"
                     checked={selectedAgents.includes(code)}
@@ -463,9 +430,7 @@ const CreateUser: React.FC = () => {
             </div>
             {selectedAgents.length > 0 && (
               <>
-                <p className="font-medium mt-2">
-                  Selected Agents:
-                </p>
+                <p className="font-medium mt-2">Selected Agents:</p>
                 <ul className="list-disc ml-6 text-sm text-gray-600">
                   {selectedAgents.map((a) => (
                     <li key={a}>{a}</li>
@@ -483,10 +448,7 @@ const CreateUser: React.FC = () => {
           type="submit"
           disabled={
             createLoading ||
-            !(
-              lastCheckedCode === agentCode &&
-              availability === "available"
-            )
+            !(lastCheckedCode === agentCode && availability === "available")
           }
           className="btn-primary"
         >
@@ -498,11 +460,9 @@ const CreateUser: React.FC = () => {
             ? "CREATE USER"
             : "CRÉER UN UTILISATEUR"}
         </button>
-        {createError && (
-          <p className="mt-2 text-red-500">{createError}</p>
-        )}
+        {createError && <p className="mt-2 text-red-500">{createError}</p>}
         {success && (
-          <p className="mt-2 text-green-600">
+          <p className="mt-2 text-green-700">
             {langauge === "En"
               ? "User created successfully!"
               : "Utilisateur créé avec succès !"}
