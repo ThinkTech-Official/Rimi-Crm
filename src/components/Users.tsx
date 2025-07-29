@@ -1,9 +1,10 @@
 // src/components/Users.tsx
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { LangContext } from "../context/LangContext";
 import { useSearchUsers, SearchCriteria, User } from "../hooks/useSearchUsers";
 import { ChevronDownIcon } from "@heroicons/react/24/outline";
+import { useForm } from "react-hook-form";
 
 const Users: React.FC = () => {
   const { langauge } = useContext(LangContext);
@@ -42,6 +43,12 @@ const Users: React.FC = () => {
     search,
   } = useSearchUsers();
 
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<SearchCriteria>({});
+
   // trigger search with current criteria
   const onSearch = () => {
     const updated = { ...criteria, page: 1 };
@@ -68,106 +75,103 @@ const Users: React.FC = () => {
       </p>
 
       {/* ── Search Form ───────────────────────────────────────── */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 md:gap-x-16 lg:gap-x-24 gap-y-4 text-text-secondary">
-        {[
-          { label: "First Name", key: "firstName" },
-          { label: "Last Name", key: "lastName" },
-          { label: "Email", key: "email" },
-          { label: "Agent Code", key: "agentCode" },
-          { label: "Created After", key: "createdAfter", type: "date" },
-          { label: "Created Before", key: "createdBefore", type: "date" },
-          { label: "Company", key: "company" },
-        ].map(({ label, key, type }) => (
-          // <div key={key}>
-          //   <label className="text-sm">{label}</label>
-          //   <input
-          //     type={(type as string) || "text"}
-          //     value={(criteria as any)[key]}
-          //     onChange={(e) =>
-          //       setCriteria((c) => ({ ...c, [key]: e.target.value }))
-          //     }
-          //     className="w-full p-2 border rounded border-[#3a17c5] focus:outline-[#3a17c5]"
-          //   />
-          // </div>
-          <div key={key}>
-            <label className="text-sm">{label}</label>
-            <input
-              type={(type as string) || "text"}
-              value={(criteria as any)[key]}
-              onChange={(e) => {
-                const value = e.target.value;
-                setCriteria((c) => ({ ...c, [key]: value }));
-                if (key === "email") {
-                  if (value && !/^\S+@\S+\.\S+$/.test(value)) {
-                    setInputErrors((prev) => ({
-                      ...prev,
-                      email: "Invalid email format",
-                    }));
-                  } else {
-                    setInputErrors((prev) => {
-                      const { email, ...rest } = prev;
-                      return rest;
-                    });
-                  }
+      <form onSubmit={handleSubmit(onSearch)}>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 md:gap-x-16 lg:gap-x-24 gap-y-4 text-text-secondary">
+          {[
+            { label: "First Name", key: "firstName" },
+            { label: "Last Name", key: "lastName" },
+            { label: "Email", key: "email" },
+            { label: "Agent Code", key: "agentCode" },
+            { label: "Created After", key: "createdAfter", type: "date" },
+            { label: "Created Before", key: "createdBefore", type: "date" },
+            { label: "Company", key: "company" },
+          ].map(({ label, key, type }) => (
+            // <div key={key}>
+            //   <label className="text-sm">{label}</label>
+            //   <input
+            //     type={(type as string) || "text"}
+            //     value={(criteria as any)[key]}
+            //     onChange={(e) =>
+            //       setCriteria((c) => ({ ...c, [key]: e.target.value }))
+            //     }
+            //     className="w-full p-2 border rounded border-[#3a17c5] focus:outline-[#3a17c5]"
+            //   />
+            // </div>
+            <div key={key}>
+              <label className="text-sm">{label}</label>
+              <input
+                type={type || "text"}
+                {...register(key as keyof SearchCriteria, {
+                  required: `${label} is required`,
+                  ...(key === "email" && {
+                    pattern: {
+                      value: /^\S+@\S+\.\S+$/,
+                      message: "Invalid email format",
+                    },
+                  }),
+                })}
+                className="input-primary"
+              />
+
+              {errors[key as keyof SearchCriteria] && (
+                <p className="text-red-500 text-sm mt-1">
+                  {(errors[key as keyof SearchCriteria]?.message as string) ||
+                    ""}
+                </p>
+              )}
+            </div>
+          ))}
+
+          <div>
+            <label className="text-sm">
+              {langauge === "En" ? "User Type" : `Type D'Utilisateur`}
+            </label>
+            <div className="relative">
+              <select
+                value={criteria.userType}
+                onChange={(e) =>
+                  setCriteria((c) => ({ ...c, userType: e.target.value }))
                 }
-              }}
-              className={`input-primary`}
-            />
-            {inputErrors[key] && (
-              <p className="text-red-500 text-sm mt-1">{inputErrors[key]}</p>
-            )}
+                className="input-primary appearance-none cursor-pointer"
+              >
+                <option value="">All</option>
+                <option value="ADMIN">Admin</option>
+                <option value="MGA">Mga</option>
+                <option value="AGENT">Agent</option>
+                <option value="READONLY">Read Only</option>
+              </select>
+              <div className="pointer-events-none absolute inset-y-0 right-2 flex items-center text-gray-500">
+                <ChevronDownIcon className="h-5 w-5" aria-hidden="true" />
+              </div>
+            </div>
           </div>
-        ))}
 
-        <div>
-          <label className="text-sm">
-            {langauge === "En" ? "User Type" : `Type D'Utilisateur`}
-          </label>
-          <div className="relative">
-            <select
-              value={criteria.userType}
-              onChange={(e) =>
-                setCriteria((c) => ({ ...c, userType: e.target.value }))
-              }
-              className="input-primary appearance-none cursor-pointer"
-            >
-              <option value="">All</option>
-              <option value="ADMIN">Admin</option>
-              <option value="MGA">Mga</option>
-              <option value="AGENT">Agent</option>
-              <option value="READONLY">Read Only</option>
-            </select>
-            <div className="pointer-events-none absolute inset-y-0 right-2 flex items-center text-gray-500">
-              <ChevronDownIcon className="h-5 w-5" aria-hidden="true" />
+          <div>
+            <label className="text-sm">
+              {langauge === "En" ? "Status" : "Statut"}
+            </label>
+            <div className="relative">
+              <select
+                value={criteria.status}
+                onChange={(e) =>
+                  setCriteria((c) => ({ ...c, status: e.target.value }))
+                }
+                className="input-primary appearance-none cursor-pointer"
+              >
+                <option value="">All</option>
+                <option value="ACTIVE">Active</option>
+                <option value="INACTIVE">Inactive</option>
+              </select>
+              <div className="pointer-events-none absolute inset-y-0 right-2 flex items-center text-gray-500">
+                <ChevronDownIcon className="h-5 w-5" aria-hidden="true" />
+              </div>
             </div>
           </div>
         </div>
-
-        <div>
-          <label className="text-sm">
-            {langauge === "En" ? "Status" : "Statut"}
-          </label>
-          <div className="relative">
-            <select
-              value={criteria.status}
-              onChange={(e) =>
-                setCriteria((c) => ({ ...c, status: e.target.value }))
-              }
-              className="input-primary appearance-none cursor-pointer"
-            >
-              <option value="">All</option>
-              <option value="ACTIVE">Active</option>
-              <option value="INACTIVE">Inactive</option>
-            </select>
-            <div className="pointer-events-none absolute inset-y-0 right-2 flex items-center text-gray-500">
-              <ChevronDownIcon className="h-5 w-5" aria-hidden="true" />
-            </div>
-          </div>
-        </div>
-      </div>
+      </form>
 
       <div className="flex justify-center mb-6 mt-8">
-        <button onClick={onSearch} className="btn-primary">
+        <button onClick={handleSubmit(onSearch)} className="btn-primary">
           {langauge === "En" ? "SEARCH" : "RECHERCHE"}
         </button>
       </div>
