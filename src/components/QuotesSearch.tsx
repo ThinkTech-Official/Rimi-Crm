@@ -337,6 +337,7 @@ import {
   PaginatedQuotes,
 } from "../hooks/useSearchQuotes";
 import { Link, useNavigate } from "react-router-dom";
+import { useForm } from "react-hook-form";
 
 const emailRegex = /^\S+@\S+\.\S+$/;
 
@@ -352,6 +353,16 @@ const QuotesSearch: React.FC = () => {
   const [page, setPage] = useState(1);
   const limit = 10;
   const { search, loading, error, data } = useSearchQuotes(limit);
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    watch,
+  } = useForm<SearchCriteria>({
+    defaultValues: {
+      products: ["All"],
+    },
+  });
 
   const products = [
     {
@@ -400,12 +411,10 @@ const QuotesSearch: React.FC = () => {
     });
   };
 
-  const onSearch = () => {
-    if (!emailError) {
-      setPage(1);
-      search(criteria, 1, limit);
-    }
-    console.log(data);
+  const onSearch = (formData: SearchCriteria) => {
+    console.log(formData);
+    setPage(1);
+    search(formData, 1, limit);
   };
 
   const goToPage = (p: number) => {
@@ -428,50 +437,78 @@ const QuotesSearch: React.FC = () => {
       </p>
 
       {/* Form Fields  */}
+      <form onSubmit={handleSubmit(onSearch)}>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 md:gap-x-16 lg:gap-x-24 gap-y-4 text-text-secondary">
         <div className="flex flex-col gap-1">
           <label className="text-sm">
             {langauge === "En" ? "Quote Number" : "Numéro de devis"}
           </label>
           <input
-            value={criteria.quoteNumber || ""}
-            onChange={handleChange("quoteNumber")}
+            {...register("quoteNumber", {
+              required: "Quote Number is required",
+            })}
+            type="text"
+            // value={criteria.quoteNumber || ""}
+            // onChange={handleChange("quoteNumber")}
             className="input-primary"
             placeholder="Enter Quote Number"
           />
+          {errors.quoteNumber && (
+            <span className="text-red-500 text-xs">
+              {errors.quoteNumber.message}
+            </span>
+          )}
         </div>
         <div className="flex flex-col gap-1">
           <label className="text-sm">
             {langauge === "En" ? "Quote Date" : "Date du devis"}
           </label>
           <input
+            {...register("quoteDate", { required: "Quote Date is required" })}
             className="input-primary"
             type="date"
-            value={criteria.quoteDate || ""}
+            // value={criteria.quoteDate || ""}
             onChange={handleChange("quoteDate")}
           />
+          {errors.quoteDate && (
+            <span className="text-red-500 text-xs">
+              {errors.quoteDate.message}
+            </span>
+          )}
         </div>
         <div className="flex flex-col gap-1">
           <label className="text-sm">
             {langauge === "En" ? "First Name" : "Prénom"}
           </label>
           <input
+            {...register("firstName", { required: "First Name is required" })}
             className="input-primary"
             placeholder="Enter First Name"
-            value={criteria.firstName || ""}
-            onChange={handleChange("firstName")}
+            // value={criteria.firstName || ""}
+            // onChange={handleChange("firstName")}
           />
+          {errors.firstName && (
+            <span className="text-red-500 text-xs">
+              {errors.firstName.message}
+            </span>
+          )}
         </div>
         <div className="flex flex-col gap-1">
           <label className="text-sm">
             {langauge === "En" ? "Last Name" : "Nom de famille"}
           </label>
           <input
+            {...register("lastName", { required: "Last Name is required" })}
             className="input-primary"
             placeholder="Enter Last Name"
-            value={criteria.lastName || ""}
-            onChange={handleChange("lastName")}
+            // value={criteria.lastName || ""}
+            // onChange={handleChange("lastName")}
           />
+          {errors.lastName && (
+            <span className="text-red-500 text-xs">
+              {errors.lastName.message}
+            </span>
+          )}
         </div>
         <div className="flex flex-col gap-1">
           <label className="text-sm">
@@ -480,18 +517,36 @@ const QuotesSearch: React.FC = () => {
           <input
             className="input-primary"
             type="date"
-            value={criteria.dateOfBirth || ""}
-            onChange={handleChange("dateOfBirth")}
+            {...register("dateOfBirth", {
+              required: "Date of Birth is required",
+            })}
+            // value={criteria.dateOfBirth || ""}
+            // onChange={handleChange("dateOfBirth")}
           />
+          {errors.dateOfBirth && (
+            <span className="text-red-500 text-xs">
+              {errors.dateOfBirth.message}
+            </span>
+          )}
         </div>
         <div className="flex flex-col gap-1">
           <label className="text-sm">Email</label>
           <input
+            {...register("email", {
+              required: "Email is required",
+              pattern: {
+                value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                message: "Invalid email address",
+              },
+            })}
             className="input-primary"
             placeholder="Email"
-            value={criteria.email || ""}
-            onChange={handleChange("email")}
+            // value={criteria.email || ""}
+            // onChange={handleChange("email")}
           />
+          {errors.email && (
+            <span className="text-red-500 text-xs">{errors.email.message}</span>
+          )}
         </div>
         <div className="flex flex-col gap-1">
           <label className="text-sm">
@@ -500,20 +555,35 @@ const QuotesSearch: React.FC = () => {
           <input
             className="input-primary"
             type="date"
-            value={criteria.effectiveDate || ""}
-            onChange={handleChange("effectiveDate")}
+            {...register("effectiveDate", {
+              required: "Effective Date is required",
+            })}
+            // value={criteria.effectiveDate || ""}
+            // onChange={handleChange("effectiveDate")}
           />
+          {errors.effectiveDate && (
+            <span className="text-red-500 text-xs">
+              {errors.effectiveDate.message}
+            </span>
+          )}
         </div>
         <div className="flex flex-col gap-1">
           <label className="text-sm">
             {langauge === "En" ? "Expiry Date" : `Date d'expiration`}
           </label>
           <input
+            {...register("expiryDate", { required: "Expiry Date is required" })}
             className="input-primary"
             type="date"
-            value={criteria.expiryDate || ""}
-            onChange={handleChange("expiryDate")}
+            // value={criteria.expiryDate || ""}
+            // onChange={handleChange("expiryDate")}
           />
+          {errors.expiryDate && (
+            <span className="text-red-500 text-xs">
+              {" "}
+              {errors.expiryDate.message}
+            </span>
+          )}
         </div>
         {userType === "ADMIN" && (
           <div className="flex flex-col gap-1">
@@ -521,14 +591,21 @@ const QuotesSearch: React.FC = () => {
               {langauge === "En" ? "Agent" : "Agent"}
             </label>
             <input
+              {...register("agent", { required: "Agent is required" })}
               className="input-primary"
               placeholder="Agent"
-              value={criteria.agent || ""}
-              onChange={handleChange("agent")}
+              // value={criteria.agent || ""}
+              // onChange={handleChange("agent")}
             />
+            {errors.agent && (
+              <span className="text-red-500 text-xs">
+                {errors.agent.message}
+              </span>
+            )}
           </div>
         )}
       </div>
+      </form>
       {/* Product Selector  */}
       <div className="mt-6">
         <p className="text-[#1B1B1B]   mb-2">
@@ -561,7 +638,7 @@ const QuotesSearch: React.FC = () => {
       {/* Search Button  */}
       <div className="w-full flex justify-center mt-6">
         <button
-          onClick={onSearch}
+          onClick={handleSubmit(onSearch)}
           disabled={!!emailError || loading}
           className="btn-primary"
         >
