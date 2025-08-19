@@ -2,6 +2,22 @@
 
 import { useState } from "react";
 import { useSelector } from "react-redux";
+import { API_BASE } from "../utils/urls";
+export interface newUser {
+  firstName: string;
+  lastName: string;
+  email: string;
+  agentCode: string;
+  company: string;
+  userType: "ADMIN" | "AGENT" | "READONLY" | "MGA" | "";
+  status: "ACTIVE" | "INACTIVE";
+  password: string;
+  confirmPassword: string;
+  validUpto: string;
+  docFile1: File | null;
+  docFile2: File | null;
+  docFile3: File | null;
+}
 
 type AvailabilityStatus = 
   | "unchecked"
@@ -21,11 +37,11 @@ interface UseCreateUserResult {
   availabilityError: string | null;
 
   /**
-   * Pass in a FormData containing all user fields
+   * Pass in a newUser containing all user fields
    * and any File objects under field name "documents".
    * Will throw / set error if code hasn't been confirmed available.
    */
-  createUser: (formData: FormData) => Promise<void>;
+  createUser: (formData: newUser) => Promise<void>;
 
   loading: boolean;
   error: string | null;
@@ -55,7 +71,7 @@ export function useCreateUser(): UseCreateUserResult {
 
     try {
       const res = await fetch(
-        `http://localhost:3000/auth/check?code=${encodeURIComponent(agentCode)}`,
+        `${API_BASE}/auth/check?code=${encodeURIComponent(agentCode)}`,
       );
       if (!res.ok) {
         throw new Error(`HTTP ${res.status}`);
@@ -70,44 +86,59 @@ export function useCreateUser(): UseCreateUserResult {
     }
   }
 
-  async function createUser(formData: FormData) {
-    // ensure and checked and code is free
-    if (availability !== "available") {
-      setError("Agent code must be checked and available before creating user.");
-      return;
-    }
-
-    if (!token) {
-      setError("No auth token");
-      return;
-    }
-
-    setLoading(true);
-    setError(null);
-    setSuccess(false);
-
-    try {
-      const res = await fetch("http://localhost:3000/auth/register", {
-        method: "POST",
-        headers: {
-          // browser will set Content-Type for multipart
-          Authorization: `Bearer ${token}`,
-        },
-        body: formData,
-      });
-
-      if (!res.ok) {
-        const errText = await res.text();
-        throw new Error(errText || `HTTP ${res.status}`);
-      }
-
-      setSuccess(true);
-    } catch (err: any) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
+  async function createUser(formData: newUser) {
+  if (availability !== "available") {
+    setError("Agent code must be checked and available before creating user.");
+    return;
   }
+
+  if (!token) {
+    setError("No auth token");
+    return;
+  }
+
+  setLoading(true);
+  setError(null);
+  setSuccess(false);
+
+  try {
+    const formDataToSend = new FormData();
+    formDataToSend.append("firstName", formData.firstName);
+    formDataToSend.append("lastName", formData.lastName);
+    formDataToSend.append("email", formData.email);
+    formDataToSend.append("agentCode", formData.agentCode);
+    formDataToSend.append("company", formData.company);
+    formDataToSend.append("userType", formData.userType);
+    formDataToSend.append("status", formData.status);
+    formDataToSend.append("password", formData.password);
+    formDataToSend.append("confirmPassword", formData.confirmPassword);
+    formDataToSend.append("validUpto", formData.validUpto);
+
+    if (formData.docFile1) formDataToSend.append("documents", formData.docFile1);
+    if (formData.docFile2) formDataToSend.append("documents", formData.docFile2);
+    if (formData.docFile3) formDataToSend.append("documents", formData.docFile3);
+
+    const res = await fetch(`${API_BASE}/auth/register`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        // DO NOT set Content-Type manually — browser handles it
+      },
+      body: formDataToSend,
+    });
+
+    if (!res.ok) {
+      const errText = await res.text();
+      throw new Error(errText || `HTTP ${res.status}`);
+    }
+
+    setSuccess(true);
+  } catch (err: any) {
+    setError(err.message);
+  } finally {
+    setLoading(false);
+  }
+}
 
   return {
     checkAvailability,

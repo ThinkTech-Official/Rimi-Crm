@@ -1,6 +1,7 @@
 // src/hooks/useSaveQuote.ts
 import { useState, useCallback } from 'react'
 import { useSelector } from "react-redux";
+import { API_BASE } from '../utils/urls';
 
 // mirror your types from the component
 export interface Applicant {
@@ -60,7 +61,7 @@ export interface QuotePayload {
   plan: number
 }
 
-const baseUrl = 'http://localhost:3000'
+const baseUrl = `${API_BASE}`
 
 export function useSaveQuote() {
 

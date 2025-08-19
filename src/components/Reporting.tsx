@@ -277,23 +277,16 @@
 //         </div>
 //       </div>
 
-      
 //     </>
 //   );
 // };
 
 // export default Reporting;
 
-
 // ====================================
 
 // src/components/Reporting.tsx
-import {
-  useContext,
-  useState,
-  useEffect,
-  Fragment,
-} from "react";
+import { useContext, useState, useEffect, Fragment } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { LangContext } from "../context/LangContext";
 import { useReporting, ReportingPayload } from "../hooks/useReporting";
@@ -302,6 +295,7 @@ import {
   XCircleIcon,
   CheckCircleIcon,
   XMarkIcon,
+  ChevronDownIcon,
 } from "@heroicons/react/24/outline";
 
 type ToastType = "error" | "success";
@@ -369,70 +363,81 @@ const Reporting: React.FC = () => {
     <>
       <form
         onSubmit={handleSubmit(onSubmit)}
-        className="max-w-3xl mx-auto mt-10 p-6 rounded-lg shadow-2xl"
+        className="max-w-5xl mx-auto mt-4 px-2 py-4 sm:p-6 bg-[#F9F9F9]"
         noValidate
       >
-        <h2 className="text-xl font-semibold text-center text-[#3a17c5] mb-2">
-          {langauge === "En" ? "REPORTING" : "RAPPORTS"}
+        <h2 className="text-lg font-bold text-left text-[#1B1B1B] mb-2">
+          {langauge === "En" ? "Reporting" : "Rapports"}
         </h2>
-        <p className="text-center text-gray-600 mb-4">
+        <p className="text-left font-medium text-[#6A6A6A] mb-8">
           {langauge === "En"
             ? "Enter all the criteria for the report"
             : "Saisissez tous les critères du rapport"}
         </p>
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 md:gap-x-16 lg:gap-x-24 gap-y-4 text-text-secondary">
           {/* PRODUCT */}
           <div className="flex flex-col gap-1">
-            <label className="text-gray-700">
-              {langauge === "En" ? "PRODUCT" : "PRODUIT"}
+            <label className="text-sm">
+              {langauge === "En" ? "Product" : "Produit"}
             </label>
-            <select
-              {...register("product", { required: "Product is required" })}
-              className={`w-full p-2 border rounded text-sm focus:outline-[#3a17c5] ${
-                errors.product ? "border-red-500" : "border-[#3a17c5]"
-              }`}
-            >
-              <option value="">---</option>
-              <option value="RIMI_CANUCK_VOYAGE_TRAVEL_MEDICAL">
-                RIMI Canuck Voyage Travel Medical
-              </option>
-              <option value="RIMI_CANUCK_VOYAGE_NON_MEDICAL_TRAVEL">
-                RIMI Canuck Voyage Non-Medical Travel
-              </option>
-              <option value="RIMI_MONTHLY">Rimi Monthly</option>
-              <option value="RIMI_WEEKLY">Rimi Weekly</option>
-              <option value="SECURE_STUDY_RIMI_INTERNATIONAL_STUDENTS_TO_CANADA">
-                Secure Study RIMI International Students to Canada
-              </option>
-              <option value="SECURE_TRAVEL_RIMI_VISITORS_TO_CANADA_TRAVEL">
-                Secure Travel RIMI Visitors to Canada Travel
-              </option>
-            </select>
+
+            <div className="relative">
+              <select
+                {...register("product", { required: "Product is required" })}
+                className={`appearance-none input-primary w-full pr-10
+                ${errors.product ? "border-red-500" : "border-[#3a17c5]"}
+              `}
+              >
+                <option value="">---</option>
+                <option value="RIMI_CANUCK_VOYAGE_TRAVEL_MEDICAL">
+                  RIMI Canuck Voyage Travel Medical
+                </option>
+                <option value="RIMI_CANUCK_VOYAGE_NON_MEDICAL_TRAVEL">
+                  RIMI Canuck Voyage Non-Medical Travel
+                </option>
+                <option value="RIMI_MONTHLY">Rimi Monthly</option>
+                <option value="RIMI_WEEKLY">Rimi Weekly</option>
+                <option value="SECURE_STUDY_RIMI_INTERNATIONAL_STUDENTS_TO_CANADA">
+                  Secure Study RIMI International Students to Canada
+                </option>
+                <option value="SECURE_TRAVEL_RIMI_VISITORS_TO_CANADA_TRAVEL">
+                  Secure Travel RIMI Visitors to Canada Travel
+                </option>
+              </select>
+
+              <div className="pointer-events-none absolute inset-y-0 right-2 flex items-center text-gray-500">
+                <ChevronDownIcon className="h-5 w-5" aria-hidden="true" />
+              </div>
+            </div>
+
             {errors.product && (
-              <p className="text-red-500 text-sm">
-                {errors.product.message}
-              </p>
+              <p className="text-red-500 text-sm">{errors.product.message}</p>
             )}
           </div>
 
           {/* REPORT TYPE */}
           <div className="flex flex-col gap-1">
-            <label className="text-gray-700">
-              {langauge === "En" ? "REPORT TYPE" : "TYPE DE RAPPORT"}
+            <label className="text-sm">
+              {langauge === "En" ? "Report Type" : "Type de rapport"}
             </label>
-            <select
-              {...register("reportType", {
-                required: "Report type is required",
-              })}
-              className={`w-full p-2 border rounded text-sm focus:outline-[#3a17c5] ${
-                errors.reportType ? "border-red-500" : "border-[#3a17c5]"
-              }`}
-            >
-              <option value="">---</option>
-              <option value="SALES">Sales</option>
-              <option value="CHANGE">Change</option>
-            </select>
+            <div className="relative">
+              <select
+                {...register("reportType", {
+                  required: "Report type is required",
+                })}
+                className={`appearance-none input-primary ${
+                  errors.reportType ? "border-red-500" : "border-[#3a17c5]"
+                }`}
+              >
+                <option value="">---</option>
+                <option value="SALES">Sales</option>
+                <option value="CHANGE">Change</option>
+              </select>
+              <div className="pointer-events-none absolute inset-y-0 right-2 flex items-center text-gray-500">
+                <ChevronDownIcon className="h-5 w-5" aria-hidden="true" />
+              </div>
+            </div>
             {errors.reportType && (
               <p className="text-red-500 text-sm">
                 {errors.reportType.message}
@@ -442,52 +447,49 @@ const Reporting: React.FC = () => {
 
           {/* START DATE */}
           <div className="flex flex-col gap-1">
-            <label className="text-gray-700">
-              {langauge === "En" ? "START DATE" : "DATE DE DÉBUT"}
+            <label className="text-sm">
+              {langauge === "En" ? "Start Date" : "Date de début"}
             </label>
             <input
               {...register("startDate", {
                 required: "Start date is required",
               })}
               type="date"
-              className={`w-full p-2 border rounded focus:outline-[#3a17c5] ${
+              className={`input-primary ${
                 errors.startDate ? "border-red-500" : "border-[#3a17c5]"
               }`}
             />
             {errors.startDate && (
-              <p className="text-red-500 text-sm">
-                {errors.startDate.message}
-              </p>
+              <p className="text-red-500 text-sm">{errors.startDate.message}</p>
             )}
           </div>
 
           {/* END DATE */}
           <div className="flex flex-col gap-1">
-            <label className="text-gray-700">
-              {langauge === "En" ? "END DATE" : "DATE DE FIN"}
+            <label className="text-sm">
+              {langauge === "En" ? "End Date" : "Date de fin"}
             </label>
             <input
               {...register("endDate", {
                 required: "End date is required",
               })}
               type="date"
-              className={`w-full p-2 border rounded focus:outline-[#3a17c5] ${
+              className={`input-primary ${
                 errors.endDate ? "border-red-500" : "border-[#3a17c5]"
               }`}
             />
             {errors.endDate && (
-              <p className="text-red-500 text-sm">
-                {errors.endDate.message}
-              </p>
+              <p className="text-red-500 text-sm">{errors.endDate.message}</p>
             )}
           </div>
 
           {/* EMAIL TO */}
           <div className="flex flex-col gap-1">
-            <label className="text-gray-700">
-              {langauge === "En" ? "EMAIL TO" : "EMAIL TO"}
+            <label className="text-sm">
+              {langauge === "En" ? "Email To" : "Email To"}
             </label>
             <input
+              placeholder="Email"
               {...register("emailTo", {
                 required: "Recipient email is required",
                 pattern: {
@@ -496,23 +498,22 @@ const Reporting: React.FC = () => {
                 },
               })}
               type="email"
-              className={`w-full p-2 border rounded focus:outline-[#3a17c5] ${
+              className={`input-primary ${
                 errors.emailTo ? "border-red-500" : "border-[#3a17c5]"
               }`}
             />
             {errors.emailTo && (
-              <p className="text-red-500 text-sm">
-                {errors.emailTo.message}
-              </p>
+              <p className="text-red-500 text-sm">{errors.emailTo.message}</p>
             )}
           </div>
 
           {/* EMAIL CC (optional) */}
           <div className="flex flex-col gap-1">
-            <label className="text-gray-700">
-              {langauge === "En" ? "EMAIL CC" : "EMAIL CC"}
+            <label className="text-sm">
+              {langauge === "En" ? "Email CC" : "Email CC"}
             </label>
             <input
+              placeholder="CC email address"
               {...register("emailCc", {
                 pattern: {
                   value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
@@ -520,24 +521,18 @@ const Reporting: React.FC = () => {
                 },
               })}
               type="email"
-              className={`w-full p-2 border rounded focus:outline-[#3a17c5] ${
+              className={`input-primary ${
                 errors.emailCc ? "border-red-500" : "border-[#3a17c5]"
               }`}
             />
             {errors.emailCc && (
-              <p className="text-red-500 text-sm">
-                {errors.emailCc.message}
-              </p>
+              <p className="text-red-500 text-sm">{errors.emailCc.message}</p>
             )}
           </div>
         </div>
 
-        <div className="flex justify-center items-center">
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-[250px] mt-4 bg-[#3a17c5] text-white p-2 rounded hover:bg-[#3a17c5e8] transition disabled:opacity-50"
-          >
+        <div className="flex justify-center items-center mt-6">
+          <button type="submit" disabled={loading} className="btn-primary">
             {langauge === "En" ? "SEND REPORT" : "ENVOYER LE RAPPORT"}
           </button>
         </div>
@@ -558,9 +553,7 @@ const Reporting: React.FC = () => {
             leave="transition ease-in duration-100"
             leaveFrom="opacity-100"
             leaveTo="opacity-0"
-            afterLeave={() =>
-              setToast((t) => ({ ...t, show: false }))
-            }
+            afterLeave={() => setToast((t) => ({ ...t, show: false }))}
           >
             <div className="pointer-events-auto w-full max-w-sm overflow-hidden rounded-lg bg-white shadow-lg ring-1 ring-black ring-opacity-5">
               <div className="p-4 flex items-start">
@@ -581,23 +574,16 @@ const Reporting: React.FC = () => {
                   <p className="text-sm font-medium text-gray-900">
                     {toast.type === "error" ? "Error" : "Success"}
                   </p>
-                  <p className="mt-1 text-sm text-gray-500">
-                    {toast.message}
-                  </p>
+                  <p className="mt-1 text-sm text-gray-500">{toast.message}</p>
                 </div>
                 <div className="ml-4 flex flex-shrink-0">
                   <button
                     type="button"
                     className="inline-flex rounded-md bg-white text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-                    onClick={() =>
-                      setToast((t) => ({ ...t, show: false }))
-                    }
+                    onClick={() => setToast((t) => ({ ...t, show: false }))}
                   >
                     <span className="sr-only">Close</span>
-                    <XMarkIcon
-                      className="h-5 w-5"
-                      aria-hidden="true"
-                    />
+                    <XMarkIcon className="h-5 w-5" aria-hidden="true" />
                   </button>
                 </div>
               </div>

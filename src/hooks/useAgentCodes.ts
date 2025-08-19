@@ -1,6 +1,7 @@
 // src/hooks/useAgentCodes.ts
 import { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
+import { API_BASE } from "../utils/urls";
 
 interface UseAgentCodesResult {
   agents: string[];
@@ -29,7 +30,7 @@ export function useAgentCodes(search: string): UseAgentCodesResult {
     setError(null);
 
     fetch(
-      `http://localhost:3000/auth/agent-codes?search=${encodeURIComponent(
+      `${API_BASE}/auth/agent-codes?search=${encodeURIComponent(
         search
       )}`,
       {

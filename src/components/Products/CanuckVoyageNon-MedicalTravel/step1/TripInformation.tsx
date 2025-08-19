@@ -1,4 +1,7 @@
-import { InformationCircleIcon } from "@heroicons/react/24/outline";
+import {
+  ChevronDownIcon,
+  InformationCircleIcon,
+} from "@heroicons/react/24/outline";
 import { useState } from "react";
 
 export default function TripInformation() {
@@ -6,14 +9,14 @@ export default function TripInformation() {
   const [showTripCancellation, setSshowTripCancellation] = useState(false);
 
   return (
-    <div className="max-w-5xl mx-auto mt-9 p-6 bg-[#F9F9F9]">
-      <h3 className="text-xl font-bold text-left text-[#1B1B1B] mb-6 font-[inter]">
+    <div className="max-w-5xl mx-auto mt-4 p-6 bg-[#F9F9F9]">
+      <h3 className="text-lg font-bold text-left text-[#1B1B1B] mb-5">
         Trip Information
       </h3>
 
       {/* Trip cost  */}
-      <div className="flex flex-col gap-2 mb-4">
-        <label className="flex gap-2 font-[inter]">
+      <div className="flex flex-col mb-4">
+        <label className="flex gap-1 text-sm items-center text-text-secondary">
           <InformationCircleIcon
             onClick={() => setShowTripCost((prevState) => !prevState)}
             className="h-5 w-5 text-[#3a17c5] cursor-pointer"
@@ -21,16 +24,18 @@ export default function TripInformation() {
           />
           Trip Cost
         </label>
-        <input
-          className="p-2 border border-[#DBDADE] font-[inter]"
-          type="text"
-          placeholder=""
-        />
+        <input className="input-primary" type="text" placeholder="" />
       </div>
 
       {showTripCost && (
-        <div className="border rounded-lg shadow-sm p-4 mt-4 bg-white font-[inter]">
-          <h2 className="text-lg font-semibold border-b pb-2">Trip Cost</h2>
+        <div className="border border-inputBorder shadow-sm p-4 mt-4 bg-white relative">
+          <button
+            className="text-primary underline absolute top-2 right-2 cursor-pointer underline-offset-2"
+            onClick={() => setShowTripCost(false)}
+          >
+            close
+          </button>
+          <h2 className="text-lg font-semibold border-b border-[#c2c2c2] pb-2">Trip Cost</h2>
           <p className="text-sm text-gray-600 mt-2">
             Enter the total cost, per person, of the non-refundable, pre-paid
             travel arrangements. The maximum available trip cost is{" "}
@@ -40,8 +45,8 @@ export default function TripInformation() {
       )}
 
       {/* Trip Cancellation */}
-      <div className="flex flex-col gap-2 mb-4 mt-4">
-        <label className="flex gap-2 font-[inter]">
+      <div className="flex flex-col mb-4 mt-4">
+        <label className="flex gap-1 text-sm items-center text-text-secondary">
           <InformationCircleIcon
             onClick={() => setSshowTripCancellation((prevState) => !prevState)}
             className="h-5 w-5 text-[#3a17c5] cursor-pointer"
@@ -49,16 +54,27 @@ export default function TripInformation() {
           />
           Trip Cancellation - Deluxe Option
         </label>
-        <select className="p-2 border border-[#DBDADE] font-[inter]">
-          <option value="">Please select...</option>
-          <option value="yes">Yes</option>
-          <option value="no">No</option>
-        </select>
+        <div className="relative">
+          <select className="input-primary appearance-none cursor-pointer">
+            <option value="">Please select...</option>
+            <option value="yes">Yes</option>
+            <option value="no">No</option>
+          </select>
+          <div className="pointer-events-none absolute inset-y-0 right-2 flex items-center text-gray-500">
+            <ChevronDownIcon className="h-5 w-5" aria-hidden="true" />
+          </div>
+        </div>
       </div>
 
       {showTripCancellation && (
-        <div className="border rounded-lg shadow-sm p-4 mt-4 bg-white font-[inter]">
-          <h2 className="text-lg font-semibold border-b pb-2">
+        <div className="border border-inputBorder shadow-sm p-4 my-4 bg-white relative">
+          <button
+            className="text-primary underline absolute top-2 right-2 cursor-pointer underline-offset-2"
+            onClick={() => setSshowTripCancellation(false)}
+          >
+            close
+          </button>
+          <h2 className="text-lg font-semibold border-b border-[#c2c2c2] pb-2">
             Trip Cancellation - Deluxe Option
           </h2>
           <p className="mt-2 text-sm text-gray-700">
@@ -121,35 +137,31 @@ export default function TripInformation() {
       )}
 
       {/* Date inputs */}
-      <div className="grid grid-cols-2 gap-x-36 gap-y-4 text-gray-700 mt-6">
-        <div className="flex flex-col gap-2">
-          <label className="font-[inter]">Date the Trip was Booked</label>
-          <input className="p-2 border border-[#DBDADE] font-[inter]" type="date" />
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 md:gap-x-16 lg:gap-x-24 gap-y-4 text-text-secondary">
+        <div className="flex flex-col">
+          <label className="text-sm">Date the Trip was Booked</label>
+          <input className="input-primary" type="date" />
         </div>
 
-        <div className="flex flex-col gap-2">
-          <label className="font-[inter]">Departure Date</label>
-          <input className="p-2 border border-[#DBDADE] font-[inter]" type="date" />
+        <div className="flex flex-col">
+          <label className="text-sm">Departure Date</label>
+          <input className="input-primary" type="date" />
         </div>
 
-        <div className="flex flex-col gap-2">
-          <label className="font-[inter]">Return Date</label>
-          <input className="p-2 border border-[#DBDADE] font-[inter]" type="date" />
+        <div className="flex flex-col">
+          <label className="text-sm">Return Date</label>
+          <input className="input-primary" type="date" />
         </div>
 
-        <div className="flex flex-col gap-2">
-          <label className="font-[inter]">Coverage Length</label>
+        <div className="flex flex-col">
+          <label className="text-sm">Coverage Length</label>
+          <input className="input-primary" type="text" disabled />
+        </div>
+
+        <div className="flex flex-col">
+          <label className="text-sm">Destination Country</label>
           <input
-            className="p-2 border border-[#DBDADE] font-[inter]"
-            type="text"
-            disabled
-          />
-        </div>
-
-        <div className="flex flex-col gap-2">
-          <label className="font-[inter]">Destination Country</label>
-          <input
-            className="p-2 border border-[#DBDADE] font-[inter]"
+            className="input-primary"
             type="text"
             value="Canada"
             disabled

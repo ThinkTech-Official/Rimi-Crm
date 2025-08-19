@@ -8,17 +8,20 @@ import { useContext, useEffect, useState } from "react";
 import { LangContext } from "../context/LangContext";
 import { getUserTypeFromToken } from "../utils/getUserType";
 import { useDocuments, DocumentItem } from "../hooks/useDocuments";
+import { API_BASE } from "../utils/urls";
 
 const demoDocuments: Omit<DocumentItem, "url" | "createdAt">[] = [
   { id: "1", filename: "RIMI Canuck Voyage Travel Medical - Claim Form (EN)" },
   { id: "2", filename: "RIMI Canuck Voyage Travel Medical - Claim Form (FR)" },
   {
     id: "3",
-    filename: "Secure Study RIMI International Students to Canada - Policy Wording (EN)",
+    filename:
+      "Secure Study RIMI International Students to Canada - Policy Wording (EN)",
   },
   {
     id: "4",
-    filename: "Secure Study RIMI International Students to Canada - Policy Wording (FR)",
+    filename:
+      "Secure Study RIMI International Students to Canada - Policy Wording (FR)",
   },
 ];
 
@@ -60,26 +63,23 @@ export default function Documents() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto mt-10">
-      <h2 className="text-xl font-semibold text-center text-[#3a17c5] mb-4">
-        {langauge === "En" ? "DOCUMENTS" : "DOCUMENTATION"}
+    <div className="w-full mx-auto mt-4 px-2 py-4 sm:py-6 sm:px-10 bg-[#F9F9F9]">
+      <h2 className="text-lg font-bold text-left text-[#1B1B1B] my-2">
+        {langauge === "En" ? "Documents" : "Documents"}
       </h2>
 
       {/* Demo Documents (static, non‑deletable) */}
-      <div className="max-w-4xl">
+      <div className="w-full space-y-6">
         {demoDocuments.map((item) => (
-          <div
-            key={item.id}
-            className="flex justify-between items-center border-b py-2 border-slate-200"
-          >
+          <div key={item.id} className="flex justify-between items-center gap-3">
             {item.filename}
             {userType === "ADMIN" && (
               <div className="flex gap-2">
-                <button className="px-2 py-2 border shadow flex">
-                  <PencilSquareIcon className="h-6 w-6" />
+                <button className="py-2 flex">
+                  <PencilSquareIcon className="h-6 w-6 text-primary cursor-pointer" />
                 </button>
-                <button className="px-2 py-2 border shadow flex opacity-50 cursor-not-allowed">
-                  <TrashIcon className="h-6 w-6" />
+                <button className="py-2 flex opacity-50 cursor-not-allowed">
+                  <TrashIcon className="h-6 w-6 text-primary cursor-pointer" />
                 </button>
               </div>
             )}
@@ -94,17 +94,17 @@ export default function Documents() {
             key={item.id}
             className="flex justify-between items-center border-b py-2 border-slate-200"
           >
-            <a
-                    href={`http://localhost:3000${item.url}`}
-                    target="_blank">{item.filename}</a>
+            <a href={`${API_BASE}${item.url}`} target="_blank">
+              {item.filename}
+            </a>
             {userType === "ADMIN" && (
               <div className="flex gap-2">
-                <button className="px-2 py-2 border shadow flex">
-                  <PencilSquareIcon className="h-6 w-6" />
+                <button className="px-2 py-2 flex">
+                  <PencilSquareIcon className="h-6 w-6 text-primary" />
                 </button>
                 <button
                   onClick={() => handleDelete(item.id)}
-                  className="px-2 py-2 border shadow flex"
+                  className="px-2 py-2 flex"
                 >
                   <TrashIcon className="h-6 w-6" />
                 </button>
@@ -115,7 +115,7 @@ export default function Documents() {
       </div>
 
       {userType === "ADMIN" && (
-        <div className="mt-5 flex justify-center">
+        <div className="mt-8 flex justify-center">
           <input
             type="file"
             id="document-upload"
@@ -124,10 +124,10 @@ export default function Documents() {
           />
           <label
             htmlFor="document-upload"
-            className="px-2 py-2 border shadow flex gap-2 cursor-pointer"
+            className="bg-primary text-white py-2 font-semibold flex gap-2 items-center w-[130px] justify-center cursor-pointer"
           >
             <FolderPlusIcon className="h-6 w-6" />
-            {langauge === "En" ? "ADD" : "AJOUTER"}
+            {langauge === "En" ? "Add" : "Ajouter"}
           </label>
         </div>
       )}

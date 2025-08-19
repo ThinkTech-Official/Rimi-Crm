@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useSelector } from "react-redux";
 import { ProfileForm } from "../utils/types";
+import { API_BASE } from "../utils/urls";
 
 interface UseUserDetailsResult {
   user: ProfileForm | null;
@@ -32,7 +33,7 @@ export function useUserDetails(id: string): UseUserDetailsResult {
     setLoading(true);
     setError(null);
 
-    fetch(`http://localhost:3000/auth/users/${id}`, {
+    fetch(`${API_BASE}/auth/users/${id}`, {
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
@@ -69,7 +70,7 @@ export function useUserDetails(id: string): UseUserDetailsResult {
       });
 
       try {
-        const res = await fetch(`http://localhost:3000/auth/update-user/${id}`, {
+        const res = await fetch(`${API_BASE}/auth/update-user/${id}`, {
           method: "PUT",
           headers: { Authorization: `Bearer ${token}` },
           body: fd,

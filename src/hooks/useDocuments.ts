@@ -4,6 +4,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import axios from "axios";
+import { API_BASE } from "../utils/urls";
 
 export interface DocumentItem {
   id: string;
@@ -12,7 +13,7 @@ export interface DocumentItem {
   createdAt?: string;
 }
 
-const localAddress = 'http://localhost:3000'
+const localAddress =  `${API_BASE}`
 
 export function useDocuments() {
   const [documents, setDocuments] = useState<DocumentItem[]>([]);

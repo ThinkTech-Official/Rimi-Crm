@@ -1,8 +1,10 @@
 // src/components/Users.tsx
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { LangContext } from "../context/LangContext";
 import { useSearchUsers, SearchCriteria, User } from "../hooks/useSearchUsers";
+import { ChevronDownIcon } from "@heroicons/react/24/outline";
+import { useForm } from "react-hook-form";
 
 const Users: React.FC = () => {
   const { langauge } = useContext(LangContext);
@@ -41,6 +43,12 @@ const Users: React.FC = () => {
     search,
   } = useSearchUsers();
 
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<SearchCriteria>({});
+
   // trigger search with current criteria
   const onSearch = () => {
     const updated = { ...criteria, page: 1 };
@@ -56,112 +64,114 @@ const Users: React.FC = () => {
   };
 
   return (
-    <div className="max-w-5xl mx-auto mt-10 p-6 rounded-lg shadow-2xl bg-white">
-      <h2 className="text-xl font-semibold text-center text-[#3a17c5] mb-2">
-        {langauge === "En" ? "SEARCH USERS" : "Rechercher Utilisateurs"}
+    <div className="max-w-5xl mx-auto mt-4 px-2 py-4 sm:p-6 bg-[#F9F9F9]">
+      <h2 className="text-lg font-bold text-left text-[#1B1B1B] mb-2">
+        {langauge === "En" ? "Search Users" : "Rchercher utilisateurs"}
       </h2>
-      <p className="text-center text-gray-600 mb-4">
+      <p className="text-left font-medium text-[#6A6A6A] mb-8">
         {langauge === "En"
           ? "Fill in as many of the following criteria as you can to generate a search."
           : "Remplissez autant de critères suivants que possible pour générer une recherche."}
       </p>
 
       {/* ── Search Form ───────────────────────────────────────── */}
-      <div className="grid grid-cols-2 gap-4 mb-6">
-        {[
-          { label: "FIRST NAME", key: "firstName" },
-          { label: "LAST NAME", key: "lastName" },
-          { label: "EMAIL", key: "email" },
-          { label: "AGENT CODE", key: "agentCode" },
-          { label: "CREATED AFTER", key: "createdAfter", type: "date" },
-          { label: "CREATED BEFORE", key: "createdBefore", type: "date" },
-          { label: "COMPANY", key: "company" },
-        ].map(({ label, key, type }) => (
-          // <div key={key}>
-          //   <label className="block text-gray-700">{label}</label>
-          //   <input
-          //     type={(type as string) || "text"}
-          //     value={(criteria as any)[key]}
-          //     onChange={(e) =>
-          //       setCriteria((c) => ({ ...c, [key]: e.target.value }))
-          //     }
-          //     className="w-full p-2 border rounded border-[#3a17c5] focus:outline-[#3a17c5]"
-          //   />
-          // </div>
-          <div key={key}>
-            <label className="block text-gray-700">{label}</label>
-            <input
-              type={(type as string) || "text"}
-              value={(criteria as any)[key]}
-              onChange={(e) => {
-                const value = e.target.value;
-                setCriteria((c) => ({ ...c, [key]: value }));
-                if (key === "email") {
-                  if (value && !/^\S+@\S+\.\S+$/.test(value)) {
-                    setInputErrors((prev) => ({
-                      ...prev,
-                      email: "Invalid email format",
-                    }));
-                  } else {
-                    setInputErrors((prev) => {
-                      const { email, ...rest } = prev;
-                      return rest;
-                    });
-                  }
+      <form onSubmit={handleSubmit(onSearch)}>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 md:gap-x-16 lg:gap-x-24 gap-y-4 text-text-secondary">
+          {[
+            { label: "First Name", key: "firstName" },
+            { label: "Last Name", key: "lastName" },
+            { label: "Email", key: "email" },
+            { label: "Agent Code", key: "agentCode" },
+            { label: "Created After", key: "createdAfter", type: "date" },
+            { label: "Created Before", key: "createdBefore", type: "date" },
+            { label: "Company", key: "company" },
+          ].map(({ label, key, type }) => (
+            // <div key={key}>
+            //   <label className="text-sm">{label}</label>
+            //   <input
+            //     type={(type as string) || "text"}
+            //     value={(criteria as any)[key]}
+            //     onChange={(e) =>
+            //       setCriteria((c) => ({ ...c, [key]: e.target.value }))
+            //     }
+            //     className="w-full p-2 border rounded border-[#3a17c5] focus:outline-[#3a17c5]"
+            //   />
+            // </div>
+            <div key={key}>
+              <label className="text-sm">{label}</label>
+              <input
+                type={type || "text"}
+                {...register(key as keyof SearchCriteria, {
+                  required: `${label} is required`,
+                  ...(key === "email" && {
+                    pattern: {
+                      value: /^\S+@\S+\.\S+$/,
+                      message: "Invalid email format",
+                    },
+                  }),
+                })}
+                className="input-primary"
+              />
+
+              {errors[key as keyof SearchCriteria] && (
+                <p className="text-red-500 text-sm mt-1">
+                  {(errors[key as keyof SearchCriteria]?.message as string) ||
+                    ""}
+                </p>
+              )}
+            </div>
+          ))}
+
+          <div>
+            <label className="text-sm">
+              {langauge === "En" ? "User Type" : `Type D'Utilisateur`}
+            </label>
+            <div className="relative">
+              <select
+                value={criteria.userType}
+                onChange={(e) =>
+                  setCriteria((c) => ({ ...c, userType: e.target.value }))
                 }
-              }}
-              className={`w-full p-2 border rounded focus:outline-[#3a17c5] ${
-                inputErrors[key] ? "border-red-500" : "border-[#3a17c5]"
-              }`}
-            />
-            {inputErrors[key] && (
-              <p className="text-red-500 text-sm mt-1">{inputErrors[key]}</p>
-            )}
+                className="input-primary appearance-none cursor-pointer"
+              >
+                <option value="">All</option>
+                <option value="ADMIN">Admin</option>
+                <option value="MGA">Mga</option>
+                <option value="AGENT">Agent</option>
+                <option value="READONLY">Read Only</option>
+              </select>
+              <div className="pointer-events-none absolute inset-y-0 right-2 flex items-center text-gray-500">
+                <ChevronDownIcon className="h-5 w-5" aria-hidden="true" />
+              </div>
+            </div>
           </div>
-        ))}
 
-        <div>
-          <label className="block text-gray-700">
-            {langauge === "En" ? "USER TYPE" : `TYPE D'UTILISATEUR`}
-          </label>
-          <select
-            value={criteria.userType}
-            onChange={(e) =>
-              setCriteria((c) => ({ ...c, userType: e.target.value }))
-            }
-            className="w-full p-2 border rounded border-[#3a17c5] focus:outline-[#3a17c5]"
-          >
-            <option value="">All</option>
-            <option value="ADMIN">Admin</option>
-            <option value="MGA">Mga</option>
-            <option value="AGENT">Agent</option>
-            <option value="READONLY">Read Only</option>
-          </select>
+          <div>
+            <label className="text-sm">
+              {langauge === "En" ? "Status" : "Statut"}
+            </label>
+            <div className="relative">
+              <select
+                value={criteria.status}
+                onChange={(e) =>
+                  setCriteria((c) => ({ ...c, status: e.target.value }))
+                }
+                className="input-primary appearance-none cursor-pointer"
+              >
+                <option value="">All</option>
+                <option value="ACTIVE">Active</option>
+                <option value="INACTIVE">Inactive</option>
+              </select>
+              <div className="pointer-events-none absolute inset-y-0 right-2 flex items-center text-gray-500">
+                <ChevronDownIcon className="h-5 w-5" aria-hidden="true" />
+              </div>
+            </div>
+          </div>
         </div>
+      </form>
 
-        <div>
-          <label className="block text-gray-700">
-            {langauge === "En" ? "STATUS" : "STATUT"}
-          </label>
-          <select
-            value={criteria.status}
-            onChange={(e) =>
-              setCriteria((c) => ({ ...c, status: e.target.value }))
-            }
-            className="w-full p-2 border rounded border-[#3a17c5] focus:outline-[#3a17c5]"
-          >
-            <option value="">All</option>
-            <option value="ACTIVE">Active</option>
-            <option value="INACTIVE">Inactive</option>
-          </select>
-        </div>
-      </div>
-
-      <div className="flex justify-center mb-6">
-        <button
-          onClick={onSearch}
-          className="w-[250px] bg-[#3a17c5] text-white p-2 rounded hover:bg-[#3a17c5e8] transition"
-        >
+      <div className="flex justify-center mb-6 mt-8">
+        <button onClick={handleSubmit(onSearch)} className="btn-primary">
           {langauge === "En" ? "SEARCH" : "RECHERCHE"}
         </button>
       </div>
@@ -204,7 +214,7 @@ const Users: React.FC = () => {
                   <td className="px-4 py-2">{u.status}</td>
                   <td className="px-4 py-2">
                     <Link
-                    target="_blank"
+                      target="_blank"
                       to={`/userdetail/${u.id}`}
                       className="px-3 py-1 bg-blue-600 text-white text-sm rounded"
                     >

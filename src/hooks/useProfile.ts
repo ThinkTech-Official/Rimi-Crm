@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
 import { ProfileData } from "../utils/types";
+import { API_BASE } from "../utils/urls";
 
 interface UseProfileResult {
   profile: ProfileData | null;
@@ -18,7 +19,7 @@ export function useProfile(): UseProfileResult {
   useEffect(() => {
     if (!token) { setError("No auth token"); setLoading(false); return; }
     setLoading(true);
-    fetch("http://localhost:3000/auth/profile", {
+    fetch(`${API_BASE}/auth/profile`, {
       credentials: "include",
       headers: { "Authorization": `Bearer ${token}` }
     })
@@ -33,7 +34,7 @@ export function useProfile(): UseProfileResult {
 
   const updateProfile = async (data: FormData): Promise<ProfileData> => {
     if (!token) throw new Error("No auth token");
-    const res = await fetch("http://localhost:3000/auth/update", {
+    const res = await fetch(`${API_BASE}/auth/update`, {
       method: "PUT",
       credentials: "include",
       headers: { "Authorization": `Bearer ${token}` },

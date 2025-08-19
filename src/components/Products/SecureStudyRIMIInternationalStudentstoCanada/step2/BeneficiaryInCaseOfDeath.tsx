@@ -1,4 +1,4 @@
-import { InformationCircleIcon } from "@heroicons/react/24/outline";
+import { ChevronDownIcon, InformationCircleIcon } from "@heroicons/react/24/outline";
 import { useState } from "react";
 
 export default function BeneficiaryInCaseOfDeath() {
@@ -6,22 +6,22 @@ export default function BeneficiaryInCaseOfDeath() {
 
   return (
     <div className="max-w-5xl mx-auto mt-4 p-6 bg-[#F9F9F9]">
-      <h3 className="text-xl font-bold text-left text-[#1B1B1B] mb-6 font-[inter]">
+      <h3 className="text-lg font-bold text-left text-[#1B1B1B] mb-5">
         Beneficiary In Case Of Death
       </h3>
 
-      <div className="grid grid-cols-2 gap-x-36 gap-y-4 text-gray-700 font-[inter]">
-        <div className="flex flex-col gap-2">
-          <label className="font-[inter]">Beneficiary Name</label>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 md:gap-x-16 lg:gap-x-24 gap-y-4 text-text-secondary">
+        <div className="flex flex-col">
+          <label className="text-sm">Beneficiary Name</label>
           <input
-            className="p-2 border border-[#DBDADE] placeholder-[#00000080] bg-white font-[inter]"
+            className="input-primary"
             type="text"
             placeholder=""
           />
         </div>
 
-        <div className="flex flex-col gap-2">
-          <label className="flex items-center gap-2 font-[inter]">
+        <div className="flex flex-col">
+          <label className="flex items-center gap-1">
             <InformationCircleIcon
               onClick={() => setDisplayInfoRelationShipToInsured((prev) => !prev)}
               className="h-5 w-5 text-[#3a17c5] cursor-pointer"
@@ -30,40 +30,41 @@ export default function BeneficiaryInCaseOfDeath() {
             Relationship to Insured
           </label>
           <input
-            className="p-2 border border-[#DBDADE] placeholder-[#00000080] bg-white font-[inter]"
+            className="input-primary"
             type="text"
             placeholder=""
           />
         </div>
 
         {displayInfoRelationShipToInsured && (
-          <div className="col-span-2 flex flex-col gap-2 items-start mt-2 mb-2 border border-gray-300 p-4 bg-white text-sm text-gray-700 rounded-md font-[inter]">
+          <div className="col-span-2 flex flex-col items-start mt-2 mb-2 border border-gray-300 p-4 bg-white text-sm text-gray-700 rounded-md font-[inter]">
             <h2 className="text-base font-semibold mb-2">Relationship to Insured</h2>
             <p>Enter the beneficiary's relationship to the Primary Applicant.</p>
           </div>
         )}
 
-        <div className="flex flex-col gap-2">
-          <label className="font-[inter]">Address</label>
+        <div className="flex flex-col">
+          <label className="text-sm">Address</label>
           <input
-            className="p-2 border border-[#DBDADE] placeholder-[#00000080] bg-white font-[inter]"
+            className="input-primary"
             type="text"
             placeholder=""
           />
         </div>
 
-        <div className="flex flex-col gap-2">
-          <label className="font-[inter]">City</label>
+        <div className="flex flex-col">
+          <label className="text-sm">City</label>
           <input
-            className="p-2 border border-[#DBDADE] placeholder-[#00000080] bg-white font-[inter]"
+            className="input-primary"
             type="text"
             placeholder=""
           />
         </div>
 
-        <div className="flex flex-col gap-2">
-          <label className="font-[inter]">Country</label>
-          <select className="p-2 border border-[#DBDADE] font-[inter] text-[#00000080] bg-white">
+        <div className="flex flex-col">
+          <label className="text-sm">Country</label>
+          <div className="relative">
+          <select className="input-primary appearance-none cursor-pointer">
             <option value="">Please select...</option>
             <option value="AF">Afghanistan</option>
             <option value="AX">Åland Islands</option>
@@ -309,6 +310,10 @@ export default function BeneficiaryInCaseOfDeath() {
                 <option value="ZM">Zambia</option>
             <option value="ZW">Zimbabwe</option>
           </select>
+           <div className="pointer-events-none absolute inset-y-0 right-2 flex items-center text-gray-500">
+              <ChevronDownIcon className="h-5 w-5" aria-hidden="true" />
+            </div>
+          </div>
         </div>
       </div>
     </div>

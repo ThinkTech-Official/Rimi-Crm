@@ -2,6 +2,7 @@
 import { useState, useCallback } from 'react';
 import { useSelector } from 'react-redux';
 import { Applicant } from './useSaveQuote';
+import { API_BASE } from '../utils/urls';
 
 export interface QuoteNextPayload {
   primaryFirstName:        string;
@@ -49,7 +50,7 @@ export interface QuoteNextResponse {
   applicants: Applicant[]
 }
 
-const baseUrl = 'http://localhost:3000'
+const baseUrl = `${API_BASE}`
 
 export function useSaveQuoteNext() {
   const [loading, setLoading] = useState(false);

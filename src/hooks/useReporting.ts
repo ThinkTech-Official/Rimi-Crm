@@ -1,6 +1,7 @@
 // src/hooks/useReporting.ts
 
 import { useState } from 'react';
+import { API_BASE } from '../utils/urls';
 
 export interface ReportingPayload {
   product: string;
@@ -20,7 +21,7 @@ export function useReporting() {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch('http://localhost:3000/reporting', {
+      const res = await fetch(`${API_BASE}/reporting`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),

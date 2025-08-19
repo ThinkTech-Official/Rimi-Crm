@@ -56,6 +56,7 @@
 
 import { useState } from 'react';
 import { useSelector } from 'react-redux';
+import { API_BASE } from '../utils/urls';
 
 // Extend the search criteria to include pagination
 export interface SearchCriteria {
@@ -88,7 +89,7 @@ export interface PaginatedQuotes<T> {
   totalPages: number;
 }
 
-const baseUrl = 'http://localhost:3000';
+const baseUrl = `${API_BASE}`;
 
 /**
  * Hook to search quotes with pagination

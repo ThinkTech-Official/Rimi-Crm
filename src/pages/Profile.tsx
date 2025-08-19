@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useProfile } from "../hooks/useProfile";
 import { ProfileForm } from "../utils/types";
 import { DocumentIcon } from "@heroicons/react/24/outline";
+import { API_BASE } from "../utils/urls";
 
 // Permission definitions
 const adminPermission = {
@@ -300,7 +301,7 @@ export default function Profile() {
               return (
                 <li key={idx}>
                   <a
-                    href={`http://localhost:3000${link}`}
+                    href={`${API_BASE}${link}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center gap-2 text-blue-600 hover:underline"

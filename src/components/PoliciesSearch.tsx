@@ -6,6 +6,8 @@ import {
   PolicyRecord,
 } from "../hooks/useSearchPolicies";
 import { Link, useNavigate } from "react-router-dom";
+import { FaAngleDown } from "react-icons/fa";
+import { useForm } from "react-hook-form";
 
 const allProducts = [
   "RIMI Canuck Voyage Travel Medical",
@@ -14,9 +16,12 @@ const allProducts = [
   "Secure Travel RIMI Visitors to Canada Travel",
 ];
 
+const status = ["All", "Active", "Sold", "Cancelled", "Expired"];
+
 const PoliciesSearch: React.FC = () => {
   const { langauge } = useContext(LangContext);
   const navigate = useNavigate();
+  const [isSelectStatusOpen, setIsSelectStatusOpen] = useState(false);
 
   const [criteria, setCriteria] = useState<
     Omit<SearchPoliciesCriteria, "page" | "limit">
@@ -24,6 +29,20 @@ const PoliciesSearch: React.FC = () => {
   const [page, setPage] = useState(1);
   const limit = 10;
   const { search, loading, error, data } = useSearchPolicies(limit);
+  const {
+    register,
+    setValue,
+    handleSubmit,
+    formState: { errors },
+    watch,
+  } = useForm<SearchPoliciesCriteria>({
+    defaultValues: {
+      products: ["All"],
+    },
+  });
+  useEffect(() => {
+    register("status", { required: "Status is required" });
+  }, [register]);
 
   const handleChange =
     (key: keyof Omit<SearchPoliciesCriteria, "page" | "limit">) =>
@@ -43,9 +62,10 @@ const PoliciesSearch: React.FC = () => {
     });
   };
 
-  const onSearch = () => {
+  const onSearch = (formData: SearchPoliciesCriteria) => {
+    console.log(formData);
     setPage(1);
-    search(criteria, 1, limit);
+    search(formData, 1, limit);
   };
 
   const goToPage = (p: number) => {
@@ -57,24 +77,22 @@ const PoliciesSearch: React.FC = () => {
   };
 
   return (
-    <div className="max-w-6xl mx-auto p-6 bg-[#f9f9f9] space-y-6">
+    <div className="max-w-5xl mx-auto mt-4 px-2 py-4 sm:p-6 bg-[#F9F9F9]">
       <div className="space-y-2">
-        <h2 className="text-xl font-bold font-[inter]">
+        <h2 className="text-lg font-bold text-left text-[#1B1B1B] mb-2">
           {langauge === "En" ? "Search Policies" : "Rechercher Polices"}
         </h2>
-        <p className="text-gray-700 font-[inter]">
+        <p className="text-left font-medium text-[#6A6A6A] mb-8">
           {langauge === "En"
             ? "Fill in as many criteria as you can to search."
             : "Remplissez autant de critères que possible pour la recherche."}
         </p>
       </div>
-   
 
+      {/* // */}
 
-   {/* // */}
-
-    {/* Product Selector  */}
-    {/* <div className="mt-6">
+      {/* Product Selector  */}
+      {/* <div className="mt-6">
         <p className="text-[#1B1B1B]  font-[inter] mb-2">
           {langauge === "En" ? "Product" : "PRODUIT"}
         </p>
@@ -102,130 +120,229 @@ const PoliciesSearch: React.FC = () => {
         </div>
       </div> */}
 
-
-   {/*  */}
-
-
-
-      <div className="grid grid-cols-2 gap-x-8 gap-y-4 text-[#1B1B1B]  font-[inter] mb-2">
-        {/* First Name */}
-        <div className="flex flex-col gap-2">
-          <label>First Name</label>
-          <input
-            value={criteria.firstName || ""}
-            onChange={handleChange("firstName")}
-            className="p-2 border border-[#DBDADE] placeholder-[#00000080] font-[inter]"
-          />
-        </div>
-        {/* Last Name */}
-        <div className="flex flex-col gap-2">
-          <label>Last Name</label>
-          <input
-            value={criteria.lastName || ""}
-            onChange={handleChange("lastName")}
-            className="p-2 border border-[#DBDADE] placeholder-[#00000080] font-[inter]"
-          />
-        </div>
-        {/* Date of Birth */}
-        <div className="flex flex-col gap-2">
-          <label>Date of Birth</label>
-          <input
-            type="date"
-            value={criteria.dateOfBirth || ""}
-            onChange={handleChange("dateOfBirth")}
-            className="p-2 border border-[#DBDADE] placeholder-[#00000080] font-[inter]"
-          />
-        </div>
-        {/* Policy Number */}
-        <div className="flex flex-col gap-2">
-          <label>Policy Number</label>
-          <input
-            value={criteria.policyNumber || ""}
-            onChange={handleChange("policyNumber")}
-            className="p-2 border border-[#DBDADE] placeholder-[#00000080] font-[inter]"
-          />
-        </div>
-        {/* Phone Number */}
-        <div className="flex flex-col gap-2">
-          <label>Phone Number</label>
-          <input
-            value={criteria.phoneNumber || ""}
-            onChange={handleChange("phoneNumber")}
-            className="p-2 border border-[#DBDADE] placeholder-[#00000080] font-[inter]"
-          />
-        </div>
-        {/* Email */}
-        <div className="flex flex-col gap-2">
-          <label>Email</label>
-          <input
-            type="email"
-            value={criteria.email || ""}
-            onChange={handleChange("email")}
-            className="p-2 border border-[#DBDADE] placeholder-[#00000080] font-[inter]"
-          />
-        </div>
-        {/* Sale Date From */}
-        <div className="flex flex-col gap-2">
-          <label>Sale Date From</label>
-          <input
-            type="date"
-            value={criteria.saleDateFrom || ""}
-            onChange={handleChange("saleDateFrom")}
-            className="p-2 border border-[#DBDADE] placeholder-[#00000080] font-[inter]"
-          />
-        </div>
-        {/* Sale Date To */}
-        <div className="flex flex-col gap-2">
-          <label>Sale Date To</label>
-          <input
-            type="date"
-            value={criteria.saleDateTo || ""}
-            onChange={handleChange("saleDateTo")}
-            className="p-2 border border-[#DBDADE] placeholder-[#00000080] font-[inter]"
-          />
-        </div>
-        {/* Effective Date From */}
-        <div className="flex flex-col gap-2">
-          <label>Effective Date From</label>
-          <input
-            type="date"
-            value={criteria.effectiveDateFrom || ""}
-            onChange={handleChange("effectiveDateFrom")}
-            className="p-2 border border-[#DBDADE] placeholder-[#00000080] font-[inter]"
-          />
-        </div>
-        {/* Effective Date To */}
-        <div className="flex flex-col gap-2">
-          <label>Effective Date To</label>
-          <input
-            type="date"
-            value={criteria.effectiveDateTo || ""}
-            onChange={handleChange("effectiveDateTo")}
-            className="p-2 border border-[#DBDADE] placeholder-[#00000080] font-[inter]"
-          />
-        </div>
-        {/* Application ID */}
-        <div className="flex flex-col gap-2">
-          <label>Application ID</label>
-          <input
-            value={criteria.applicationId || ""}
-            onChange={handleChange("applicationId")}
-            className="p-2 border border-[#DBDADE] placeholder-[#00000080] font-[inter]"
-          />
-        </div>
-        {/* Agent */}
-        <div className="flex flex-col gap-2">
-          <label>Agent</label>
-          <input
-            value={criteria.agent || ""}
-            onChange={handleChange("agent")}
-            className="p-2 border border-[#DBDADE] placeholder-[#00000080] font-[inter]"
-          />
-        </div>
-        {/* Status */}
-        <div className="flex flex-col gap-2">
-          <label>Status</label>
-          <select
+      {/*  */}
+      <form onSubmit={handleSubmit(onSearch)}>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 md:gap-x-16 lg:gap-x-24 gap-y-4 text-text-secondary">
+          {/* First Name */}
+          <div className="flex flex-col 1">
+            <label className="text-sm">First Name</label>
+            <input
+              {...register("firstName", { required: "First Name is required" })}
+              // value={criteria.firstName || ""}
+              // onChange={handleChange("firstName")}
+              className="input-primary"
+              placeholder="First Name"
+            />
+            {errors.firstName && (
+              <span className="text-red-500 text-sm">
+                {errors.firstName.message}
+              </span>
+            )}
+          </div>
+          {/* Last Name */}
+          <div className="flex flex-col 1">
+            <label className="text-sm">Last Name</label>
+            <input
+              {...register("lastName", { required: "Last Name is required" })}
+              // value={criteria.lastName || ""}
+              // onChange={handleChange("lastName")}
+              className="input-primary"
+              placeholder="Last Name"
+            />
+            {errors.lastName && (
+              <span className="text-red-500 text-sm">
+                {errors.lastName.message}
+              </span>
+            )}
+          </div>
+          {/* Date of Birth */}
+          <div className="flex flex-col 1">
+            <label className="text-sm">Date of Birth</label>
+            <input
+              type="date"
+              {...register("dateOfBirth", {
+                required: "Date of Birth is required",
+              })}
+              // value={criteria.dateOfBirth || ""}
+              // onChange={handleChange("dateOfBirth")}
+              className="input-primary"
+              placeholder="Date of Birth"
+            />
+            {errors.dateOfBirth && (
+              <span className="text-red-500 text-sm">
+                {errors.dateOfBirth.message}
+              </span>
+            )}
+          </div>
+          {/* Policy Number */}
+          <div className="flex flex-col 1">
+            <label className="text-sm">Policy Number</label>
+            <input
+              {...register("policyNumber", {
+                required: "Policy Number is required",
+              })}
+              // value={criteria.policyNumber || ""}
+              // onChange={handleChange("policyNumber")}
+              className="input-primary"
+              placeholder="Policy Number"
+            />
+            {errors.policyNumber && (
+              <span className="text-red-500 text-sm">
+                {errors.policyNumber.message}
+              </span>
+            )}
+          </div>
+          {/* Phone Number */}
+          <div className="flex flex-col 1">
+            <label className="text-sm">Phone Number</label>
+            <input
+              {...register("phoneNumber", {
+                required: "Phone Number is required",
+              })}
+              // value={criteria.phoneNumber || ""}
+              // onChange={handleChange("phoneNumber")}
+              className="input-primary"
+              placeholder="Phone Number"
+            />
+            {errors.phoneNumber && (
+              <span className="text-red-500 text-sm">
+                {errors.phoneNumber.message}
+              </span>
+            )}
+          </div>
+          {/* Email */}
+          <div className="flex flex-col 1">
+            <label className="text-sm">Email</label>
+            <input
+              type="email"
+              {...register("email", {
+                required: "Email is required",
+                pattern: {
+                  value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                  message: "Invalid email address",
+                },
+              })}
+              // value={criteria.email || ""}
+              // onChange={handleChange("email")}
+              className="input-primary"
+              placeholder="Email"
+            />
+            {errors.email && (
+              <span className="text-red-500 text-sm">
+                {errors.email.message}
+              </span>
+            )}
+          </div>
+          {/* Sale Date From */}
+          <div className="flex flex-col 1">
+            <label className="text-sm">Sale Date From</label>
+            <input
+              type="date"
+              {...register("saleDateFrom", {
+                required: "Sale Date From is required",
+              })}
+              // value={criteria.saleDateFrom || ""}
+              // onChange={handleChange("saleDateFrom")}
+              className="input-primary"
+            />
+            {errors.saleDateFrom && (
+              <span className="text-red-500 text-sm">
+                {errors.saleDateFrom.message}
+              </span>
+            )}
+          </div>
+          {/* Sale Date To */}
+          <div className="flex flex-col 1">
+            <label className="text-sm">Sale Date To</label>
+            <input
+              type="date"
+              {...register("saleDateTo", {
+                required: "Sale Date To is required",
+              })}
+              // value={criteria.saleDateTo || ""}
+              // onChange={handleChange("saleDateTo")}
+              className="input-primary"
+            />
+            {errors.saleDateTo && (
+              <span className="text-red-500 text-sm">
+                {errors.saleDateTo.message}
+              </span>
+            )}
+          </div>
+          {/* Effective Date From */}
+          <div className="flex flex-col 1">
+            <label className="text-sm">Effective Date From</label>
+            <input
+              type="date"
+              {...register("effectiveDateFrom", {
+                required: "Effective Date From is required",
+              })}
+              // value={criteria.effectiveDateFrom || ""}
+              // onChange={handleChange("effectiveDateFrom")}
+              className="input-primary"
+            />
+            {errors.effectiveDateFrom && (
+              <span className="text-red-500 text-sm">
+                {errors.effectiveDateFrom.message}
+              </span>
+            )}
+          </div>
+          {/* Effective Date To */}
+          <div className="flex flex-col 1">
+            <label className="text-sm">Effective Date To</label>
+            <input
+              type="date"
+              {...register("effectiveDateTo", {
+                required: "Effective Date To is required",
+              })}
+              // value={criteria.effectiveDateTo || ""}
+              // onChange={handleChange("effectiveDateTo")}
+              className="input-primary"
+            />
+            {errors.effectiveDateTo && (
+              <span className="text-red-500 text-sm">
+                {errors.effectiveDateTo.message}
+              </span>
+            )}
+          </div>
+          {/* Application ID */}
+          <div className="flex flex-col 1">
+            <label className="text-sm">Application ID</label>
+            <input
+              {...register("applicationId", {
+                required: "Application ID is required",
+              })}
+              // value={criteria.applicationId || ""}
+              // onChange={handleChange("applicationId")}
+              className="input-primary"
+              placeholder="Application ID"
+            />
+            {errors.applicationId && (
+              <span className="text-red-500 text-sm">
+                {errors.applicationId.message}
+              </span>
+            )}
+          </div>
+          {/* Agent */}
+          <div className="flex flex-col 1">
+            <label className="text-sm">Agent</label>
+            <input
+              {...register("agent", { required: "Agent is required" })}
+              // value={criteria.agent || ""}
+              // onChange={handleChange("agent")}
+              className="input-primary"
+              placeholder="Agent"
+            />
+            {errors.agent && (
+              <span className="text-red-500 text-sm">
+                {errors.agent.message}
+              </span>
+            )}
+          </div>
+          {/* Status */}
+          <div className="flex flex-col 1">
+            <label className="text-sm">Status</label>
+            {/* <select
             value={criteria.status || "All"}
             onChange={(e) =>
               setCriteria((prev) => ({
@@ -233,20 +350,62 @@ const PoliciesSearch: React.FC = () => {
                 status: e.target.value === "All" ? undefined : e.target.value,
               }))
             }
-            className="p-2 border border-[#DBDADE] placeholder-[#00000080] font-[inter]"
+            className="input-primary"
           >
-            <option>All</option>
+            <option className="border-0 hover:bg-gray-100">All</option>
             <option>Active</option>
             <option>Sold</option>
             <option>Expired</option>
             <option>Cancelled</option>
-          </select>
+          </select> */}
+            <div className="relative bg-white">
+              <button
+                type="button"
+                className="w-full border border-inputBorder py-2 sm:py-3 px-4 focus:border-0 focus:ring-1 focus:ring-primary capitalize flex items-center justify-between text-left text-text-light cursor-pointer"
+                onClick={() => setIsSelectStatusOpen((prev) => !prev)}
+              >
+                <span className="capitalize">{criteria.status || "All"}</span>
+                <FaAngleDown
+                  className={`ml-2 cusor-pointer transition-transform ${
+                    isSelectStatusOpen ? "rotate-180" : ""
+                  }`}
+                />
+              </button>
+
+              {isSelectStatusOpen && (
+                <div className="absolute mt-[2px] top-full left-0 w-full bg-white border border-inputBorder shadow-md z-10 max-h-60 overflow-y-auto custom-scrollbar3 pr-[2px]">
+                  {status.map((s, i) => (
+                    <div
+                      key={i}
+                      className={`px-4 py-2 hover:bg-gray-200 text-text-light cursor-pointer capitalize ${
+                        criteria.status === s
+                          ? "bg-primary text-white hover:bg-gray-200 hover:text-text-light"
+                          : ""
+                      }`}
+                      onClick={() => {
+                        setCriteria((prev) => ({ ...prev, status: s }));
+                        setValue("status", s, { shouldValidate: true });
+                        setIsSelectStatusOpen(false);
+                      }}
+                    >
+                      {s}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+            {errors.status && (
+              <p className="text-red-500 text-sm text-sm mt-1">
+                {errors.status.message}
+              </p>
+            )}
+          </div>
         </div>
-      </div>
+      </form>
 
       {/* Product list */}
-      <div>
-      <p className="text-[#1B1B1B]  font-[inter] mb-2">
+      <div className="mt-6">
+        <p className="text-[#1B1B1B]  font-[inter] mb-2">
           {langauge === "En" ? "Product" : "PRODUIT"}
         </p>
         <div className="border border-[#DBDADE] p-2 bg-[#F9F9F9] overflow-y-auto rounded text-sm font-[inter] text-[#1B1B1B] space-y-2">
@@ -255,7 +414,7 @@ const PoliciesSearch: React.FC = () => {
               type="checkbox"
               checked={(criteria.products || []).includes("All")}
               onChange={() => handleProductChange("All")}
-              className="mr-2 text-[#1B1B1B]"
+              className="mr-2 text-[#1B1B1B] accent-primary cursor-pointer"
             />
             All
           </label>
@@ -265,7 +424,7 @@ const PoliciesSearch: React.FC = () => {
                 type="checkbox"
                 checked={(criteria.products || []).includes(p)}
                 onChange={() => handleProductChange(p)}
-                className="mr-2"
+                className="mr-2 accent-primary cursor-pointer"
               />{" "}
               {p}
             </label>
@@ -273,11 +432,11 @@ const PoliciesSearch: React.FC = () => {
         </div>
       </div>
 
-      <div className="flex justify-center">
+      <div className="flex justify-center mt-6">
         <button
-          onClick={onSearch}
+          onClick={handleSubmit(onSearch)}
           disabled={loading}
-          className="px-6 py-2 bg-[#2b00b7] text-white rounded disabled:opacity-50 cursor-pointer"
+          className="btn-primary"
         >
           {loading ? "Searching..." : "Search Policies"}
         </button>
@@ -295,14 +454,14 @@ const PoliciesSearch: React.FC = () => {
                   // "ID",
                   "Policy No.",
                   "Status",
-                  
+
                   "First Name",
                   "Last Name",
                   "DOB",
                   "Eff. Date",
                   "Exp. Date",
                   "Product",
-                  
+
                   "Actions",
                 ].map((h) => (
                   <th key={h} className="px-4 py-2 text-left">
@@ -324,10 +483,10 @@ const PoliciesSearch: React.FC = () => {
                   <td className="px-4 py-2">{p.effectiveDate?.split("T")[0]}</td>
                   <td className="px-4 py-2">{p.expiryDate?.split("T")[0]}</td>
                   <td className="px-4 py-2">{p.product}</td>
-                  
+
                   <td className="px-4 py-2">
                     <Link
-                    target="_blank"
+                      target="_blank"
                       to={`/policy-detail/${p.id}`}
                       className="px-2 py-1 bg-blue-600 text-white rounded"
                     >

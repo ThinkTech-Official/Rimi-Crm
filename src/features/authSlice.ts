@@ -2,6 +2,7 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 import Cookies from "js-cookie";
 import { jwtDecode } from "jwt-decode";
+import { API_BASE } from "../utils/urls";
 
 interface DecodedToken {
   sub: string;
@@ -38,7 +39,7 @@ export const loginUser = createAsyncThunk(
   ) => {
     try {
       const response = await axios.post(
-        "http://localhost:3000/auth/login",
+        `${API_BASE}/auth/login`,
         credentials
       );
       const token = response.data.access_token;

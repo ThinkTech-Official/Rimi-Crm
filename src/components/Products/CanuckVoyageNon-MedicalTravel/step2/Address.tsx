@@ -1,50 +1,53 @@
+import { ChevronDownIcon } from "@heroicons/react/24/outline";
+
 export default function Address() {
   return (
-    <div className="max-w-5xl mx-auto mt-4 p-6 bg-[#F9F9F9]">
-      <h3 className="text-xl font-bold text-left text-[#1B1B1B] mb-6 font-[inter]">
+    <div className="max-w-5xl mx-auto mt-6 p-6 bg-[#F9F9F9]">
+      <h3 className="text-lg font-bold text-left text-[#1B1B1B] mb-5">
         Residence Information
       </h3>
 
-      <div className="grid grid-cols-2 gap-x-36 gap-y-4 text-gray-700">
-        <div className="flex flex-col gap-2">
-          <label className="font-[inter]">Address Line 1</label>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 md:gap-x-16 lg:gap-x-24 gap-y-4 text-text-secondary">
+        <div className="flex flex-col">
+          <label className="text-sm">Address Line 1</label>
           <input
             type="text"
-            className="p-2 border border-[#DBDADE] placeholder-[#00000080] font-[inter]"
+            className="input-primary"
             placeholder="Address Line 1"
           />
         </div>
 
-        <div className="flex flex-col gap-2">
-          <label className="font-[inter]">Address Line 2</label>
+        <div className="flex flex-col">
+          <label className="text-sm">Address Line 2</label>
           <input
             type="text"
-            className="p-2 border border-[#DBDADE] placeholder-[#00000080] font-[inter]"
+            className="input-primary"
             placeholder="Address Line 2"
           />
         </div>
 
-        <div className="flex flex-col gap-2">
-          <label className="font-[inter]">City</label>
+        <div className="flex flex-col">
+          <label className="text-sm">City</label>
           <input
             type="text"
-            className="p-2 border border-[#DBDADE] placeholder-[#00000080] font-[inter]"
+            className="input-primary"
             placeholder="City"
           />
         </div>
 
-        <div className="flex flex-col gap-2">
-          <label className="font-[inter]">Postal Code</label>
+        <div className="flex flex-col">
+          <label className="text-sm">Postal Code</label>
           <input
             type="text"
-            className="p-2 border border-[#DBDADE] placeholder-[#00000080] font-[inter]"
+            className="input-primary"
             placeholder="Postal Code"
           />
         </div>
 
-        <div className="flex flex-col gap-2">
-          <label className="font-[inter]">Country</label>
-          <select className="p-2 border border-[#DBDADE] font-[inter] text-[#00000080]">
+        <div className="flex flex-col">
+          <label className="text-sm">Country</label>
+          <div className="relative">
+          <select className="input-primary appearance-none cursor-pointer">
             <option value="">Please select...</option>
             <option value="AF">Afghanistan</option>
             <option value="AX">Åland Islands</option>
@@ -291,13 +294,17 @@ export default function Address() {
             
             <option value="ZW">Zimbabwe</option>
           </select>
+           <div className="pointer-events-none absolute inset-y-0 right-2 flex items-center text-gray-500">
+              <ChevronDownIcon className="h-5 w-5" aria-hidden="true" />
+            </div>
+          </div>
         </div>
 
-        <div className="flex flex-col gap-2">
-          <label className="font-[inter]">Province/State</label>
+        <div className="flex flex-col">
+          <label className="text-sm">Province/State</label>
           <input
             type="text"
-            className="p-2 border border-[#DBDADE] placeholder-[#00000080] font-[inter]"
+            className="input-primary"
             placeholder="Province/State"
           />
         </div>
