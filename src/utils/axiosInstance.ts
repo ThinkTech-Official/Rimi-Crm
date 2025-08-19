@@ -1,10 +1,10 @@
 import axios from "axios";
 import Cookies from "js-cookie";
-
-const API = "http://localhost:3000";
+import { API_BASE } from "./urls";
+;
 
 export const axiosInstance = axios.create({
-  baseURL: API,
+  baseURL: API_BASE,
 });
 
 // Automatically attach token from cookies
