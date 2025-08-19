@@ -443,6 +443,7 @@ const Step1STRVCT = ({ onValidityChange,
     countryOfOrigin,
     inCanada,
     superVisa,
+    coverageForPreMedCon,
     destinationProvince,
     effectiveDate,
     expiryDate,
@@ -465,7 +466,8 @@ const Step1STRVCT = ({ onValidityChange,
   coverageOption,
   deductible,
   primaryDateOfBirth,
-  paymentOption
+  paymentOption,
+  coverageForPreMedCon
 ]
 ) 
   // const payload = Object.defineProperty(PremiumCalculationData, "primarydateOfBirth", {value: primaryDateOfBirth});
@@ -1453,7 +1455,7 @@ const Step1STRVCT = ({ onValidityChange,
             <h3 className="text-lg">Your Quote: $0.00</h3>
           </div> */}
 
-          <div className="w-full h-2 mt-10 flex items-center justify-center">
+          <div className="w-full h-[250px] mt-10 flex items-center justify-center border-4 border-blue-700">
         {loading ? (
           <h3>Calculating your Premium…</h3>
         ) : error ? (
@@ -1488,6 +1490,7 @@ const Step1STRVCT = ({ onValidityChange,
 
   {schedule.length > 0 && (
               <div className="mb-4">
+                <p className=" text-xl font-semibold underline py-2">Payment Schedule</p>
                 {schedule.map((item: any, idx: any) => (
                   <div key={idx} className="flex justify-between">
                     <span>
@@ -1495,7 +1498,7 @@ const Step1STRVCT = ({ onValidityChange,
                         ? `${item.count} × ${item.label}`
                         : item.label}
                     </span>
-                    <span>${item.amount.toFixed(2)}</span>
+                    <span>${item.amount.toFixed(2)} CAD</span>
                   </div>
                 ))}
               </div>
@@ -1506,7 +1509,7 @@ const Step1STRVCT = ({ onValidityChange,
 
 
             <h3 className="text-lg text-center mt-2">
-            Your Quote: ${totalPremium}
+            Your Quote: ${totalPremium} CAD
           </h3>
           </div>
             {/* <h3 className=" text-center mt-2 cursor-pointer text-[#2b00b7]">

@@ -27,6 +27,7 @@ import QuoteDetails, { QuoteDetailPage } from './pages/QuoteDetails.tsx';
 import PolicyUploader from './pages/PolicyUploader.tsx';
 import PolicyDetails from './pages/PolicyDetails.tsx';
 import ImportSalesUpload from './pages/ImportSalesUpload.tsx';
+import AgentDashboard from './pages/AgentDashboard.tsx';
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -40,6 +41,8 @@ const router = createBrowserRouter(
         } />
 
 <Route path='/test-dash' element={<TestUi />} />
+
+<Route path='/agent-dashboard' element={<AgentDashboard />} />
       
       <Route path='/profile' element={<Profile />} />
       <Route path='/userdetail/:id' element={<UserDetails />} />

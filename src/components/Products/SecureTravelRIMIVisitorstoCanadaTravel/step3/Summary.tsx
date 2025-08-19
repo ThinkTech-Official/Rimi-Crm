@@ -70,10 +70,10 @@ const Summary: React.FC<SummaryProps> = ({ quoteId }) => {
               <th className="text-left px-4 py-2 border bg-gray-50">Quote Number</th>
               <td className="px-4 py-2 border">{maybe(data.quoteNumber)}</td>
             </tr>
-            <tr>
+            {/* <tr>
               <th className="text-left px-4 py-2 border bg-gray-50">Policy Number</th>
               <td className="px-4 py-2 border">{maybe(data.policyNumber)}</td>
-            </tr>
+            </tr> */}
             <tr>
               <th className="text-left px-4 py-2 border bg-gray-50">Product</th>
               <td className="px-4 py-2 border">{maybe(data.product)}</td>
