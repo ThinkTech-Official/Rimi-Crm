@@ -261,7 +261,59 @@ const CreateUser: React.FC = () => {
             <p className="text-red-500 text-sm">{errors.userType.message}</p>
           )}
         </div>
-
+        {/* MGA-only: Agent Codes */}
+        {userType === "MGA" && (
+          <div className="col-span-3 space-y-2">
+            <label className="font-semibold">Agent Codes</label>
+            <input
+              type="text"
+              value={agentSearch}
+              onChange={(e) => setAgentSearch(e.target.value)}
+              className="w-full input-primary"
+              placeholder="Search agent codes..."
+            />
+            {agentsLoading && <p>Loading agents…</p>}
+            {agentsError && <p className="text-red-500">{agentsError}</p>}
+            {agentSearch.length > 0 &&
+              (agents.length > 0 ? (
+                <div className="max-h-40 overflow-y-auto border border-inputBorder rounded p-2 space-y-1 text-sm">
+                  {agents.map((code) => (
+                    <label key={code} className="flex items-center 1">
+                      <input
+                        type="checkbox"
+                        checked={selectedAgents.includes(code)}
+                        onChange={(e) =>
+                          setSelectedAgents((prev) =>
+                            e.target.checked
+                              ? [...prev, code]
+                              : prev.filter((c) => c !== code)
+                          )
+                        }
+                        className="checked:accent-primary cursor-pointer"
+                      />
+                      <span className="pl-1">{code}</span>
+                    </label>
+                  ))}
+                </div>
+              ) : (
+                !agentsLoading && (
+                  <div className="max-h-40 overflow-y-auto border border-inputBorder rounded p-2 space-y-1 text-sm">
+                    <p>No agents found with code "{agentSearch}"</p>
+                  </div>
+                )
+              ))}
+            {selectedAgents.length > 0 && (
+              <>
+                <p className="font-medium mt-2">Selected Agents:</p>
+                <ul className="list-disc ml-6 text-sm text-gray-600">
+                  {selectedAgents.map((a) => (
+                    <li key={a}>{a}</li>
+                  ))}
+                </ul>
+              </>
+            )}
+          </div>
+        )}
         {/* Status */}
         <div className="col-span-3 flex space-x-6 items-center">
           <label className="flex items-center gap-2">
@@ -355,7 +407,9 @@ const CreateUser: React.FC = () => {
           <label className="text-sm">Valid Upto</label>
           <input
             type="date"
-            {...register("validUpto", { required: "Valid upto date is required" })}
+            {...register("validUpto", {
+              required: "Valid upto date is required",
+            })}
             // value={validUpto}
             // onChange={(e) => setValidUpto(e.target.value)}
             className="input-primary"
@@ -396,50 +450,6 @@ const CreateUser: React.FC = () => {
             className="input-primary"
           />
         </div>
-
-        {/* MGA-only: Agent Codes */}
-        {userType === "MGA" && (
-          <div className="col-span-3 border-t pt-4 space-y-2">
-            <label className="font-semibold">Agent Codes</label>
-            <input
-              type="text"
-              value={agentSearch}
-              onChange={(e) => setAgentSearch(e.target.value)}
-              className="w-full input-primary"
-              placeholder="Search agent codes..."
-            />
-            {agentsLoading && <p>Loading agents…</p>}
-            {agentsError && <p className="text-red-500">{agentsError}</p>}
-            <div className="max-h-40 overflow-y-auto border rounded p-2 space-y-1 text-sm">
-              {agents.map((code) => (
-                <label key={code} className="flex items-center 1">
-                  <input
-                    type="checkbox"
-                    checked={selectedAgents.includes(code)}
-                    onChange={(e) =>
-                      setSelectedAgents((prev) =>
-                        e.target.checked
-                          ? [...prev, code]
-                          : prev.filter((c) => c !== code)
-                      )
-                    }
-                  />
-                  {code}
-                </label>
-              ))}
-            </div>
-            {selectedAgents.length > 0 && (
-              <>
-                <p className="font-medium mt-2">Selected Agents:</p>
-                <ul className="list-disc ml-6 text-sm text-gray-600">
-                  {selectedAgents.map((a) => (
-                    <li key={a}>{a}</li>
-                  ))}
-                </ul>
-              </>
-            )}
-          </div>
-        )}
       </div>
 
       {/* Submit */}
