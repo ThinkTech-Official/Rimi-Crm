@@ -14,6 +14,7 @@ import {
   ChevronRightIcon,
   ChartPieIcon,
   ChevronLeftIcon,
+  HomeIcon,
 } from "@heroicons/react/24/outline";
 import { LangContext } from "../context/LangContext";
 import Products from "../components/Products";
@@ -29,15 +30,25 @@ import RIMICanuckVoyageNonMedicalTravel from "../components/Products/CanuckVoyag
 import SecureStudyRIMIInternationalStudentstoCanada from "../components/Products/SecureStudyRIMIInternationalStudentstoCanada/SecureStudyRIMIInternationalStudentstoCanada";
 import SecureTravelRIMIVisitorstoCanadaTravel from "../components/Products/SecureTravelRIMIVisitorstoCanadaTravel/SecureTravelRIMIVisitorstoCanadaTravel";
 import BulkUpload from "../components/Products/SecureStudyRIMIInternationalStudentstoCanada/BulkUpload";
-import Analytics from "../components/analytics/Analytics";
 import { getUserTypeFromToken } from "../utils/getUserType";
 import { HiOutlineDocumentCurrencyDollar } from "react-icons/hi2";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import Home from "../components/home/Home";
+import Footer from "../components/Footer";
 
 // import Cookies from 'js-cookie';
 
 const navigation = [
+  {
+    name: "Home",
+    nameFr: "Accueil",
+    href: "#",
+    icon: HomeIcon,
+    current: true,
+    slug: "home",
+    allowedRoles: ["ADMIN", "AGENT", "MGA"],
+  },
   {
     name: "Products",
     nameFr: "Produits",
@@ -110,15 +121,6 @@ const navigation = [
     slug: "trip-calculator",
     allowedRoles: ["ADMIN"],
   },
-  {
-    name: "Analytics",
-    nameFr: "Analytique",
-    href: "#",
-    icon: ChartPieIcon,
-    current: true,
-    slug: "analytics",
-    allowedRoles: ["ADMIN"],
-  },
 ];
 
 function classNames(...classes: any) {
@@ -126,14 +128,13 @@ function classNames(...classes: any) {
 }
 
 export default function Dashboard() {
-  const [selectedComponent, setSelectedComponent] = useState<string>("none");
+  const [selectedComponent, setSelectedComponent] = useState<string>("home");
 
   const [userType, setUserType] = useState<string | null>(null);
   const [userName, setUserName] = useState<string | null>(null);
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isSidebarCollapsed, setSidebarCollapsed] = useState(true); // to just show the icons
-  const navigate = useNavigate();
   const { t } = useTranslation();
 
   // State of braedcrumbs
@@ -389,7 +390,7 @@ export default function Dashboard() {
                 </div>
               ))}
             </div>
-            <main className="pt-4 pb-10">
+            <main className="pt-4 pb-10 min-h-[calc(100vh-64px)]">
               <div className="px-4 sm:px-6 lg:px-8">
                 {selectedComponent === "none" ? (
                   <div className=" h-full w-full flex justify-center items-center">
@@ -397,20 +398,8 @@ export default function Dashboard() {
                       Welcome to Rimi Insurance Dashboard
                     </p> */}
                     {/* <Analytics /> */}
-                    {userType === "ADMIN" ? (
-                      <Analytics />
-                    ) : (
-                      <div className=" w-screen">
-                        <h1 className="text-xl font-semibold text-center">
-                          Welcome {userName}
-                        </h1>
-                        <Products
-                          breadCrumbState={breadCrumbState}
-                          setBreadCrumbState={setBreadCrumbState}
-                          setSelectedComponent={setSelectedComponent}
-                        />
-                      </div>
-                    )}
+
+                    <Home />
                   </div>
                 ) : (
                   ""
@@ -448,12 +437,7 @@ export default function Dashboard() {
                   ""
                 )}
                 {/* {userType === "ADMIN" && selectedComponent === "analytics" ? <Analytics /> : ""} */}
-                {selectedComponent === "analytics" &&
-                  (userType === "ADMIN" ? (
-                    <Analytics />
-                  ) : (
-                    <h1 className="text-xl font-semibold">Welcome</h1>
-                  ))}
+                {selectedComponent === "home" && <Home />}
 
                 {/* products sub components  */}
                 {selectedComponent === "RIMI Canuck Voyage Travel Medical" ? (
@@ -489,6 +473,7 @@ export default function Dashboard() {
                 {/*  */}
               </div>
             </main>
+            <Footer />
           </>
         </div>
       </div>

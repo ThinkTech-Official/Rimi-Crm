@@ -247,7 +247,7 @@ const CreateUser: React.FC = () => {
           <select
             {...register("userType", { required: "User type is required" })}
             // value={userType}
-            // onChange={(e) => setUserType(e.target.value as any)}
+            onChange={(e) => setUserType(e.target.value as any)}
             className={`input-primary`}
             // required
           >

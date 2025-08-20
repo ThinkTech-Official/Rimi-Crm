@@ -28,6 +28,7 @@ import PolicyUploader from './pages/PolicyUploader.tsx';
 import PolicyDetails from './pages/PolicyDetails.tsx';
 import ImportSalesUpload from './pages/ImportSalesUpload.tsx';
 import AgentDashboard from './pages/AgentDashboard.tsx';
+import i18n from './i18n/i18.ts';
 
 const router = createBrowserRouter(
   createRoutesFromElements(

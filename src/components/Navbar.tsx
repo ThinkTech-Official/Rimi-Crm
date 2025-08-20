@@ -43,6 +43,7 @@ export default function Navbar() {
   const handleLogout = () => {
     dispatch(logout());
     navigate("/");
+    toggleProfileMenu();
   };
 
   const handleShowClick = () => {
@@ -50,6 +51,7 @@ export default function Navbar() {
   };
 
   const handleLanguageSelect = (lang: Language) => {
+    console.log(lang);
     if (lang === selectedLanguage) {
       setIsLanguageSelectOpen(false);
       return;

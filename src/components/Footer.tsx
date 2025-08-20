@@ -1,9 +1,11 @@
-
-
-export default function Footer() {
+const Footer = () => {
   return (
-    <div className=" w-screen h-12 bg-[#3a17c5]">
-        <p>Footer</p>
+    <div className="py-4 border-y border-inputBorder w-full">
+      <div className="text-center text-text-light-2 text-sm">
+        Copyright © 2025 RIMI. All rights reserved.
+      </div>
     </div>
-  )
-}
+  );
+};
+
+export default Footer;
