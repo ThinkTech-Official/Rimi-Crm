@@ -3,34 +3,16 @@ import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
 import { v4 as uuidv4 } from "uuid";
 import { LangContext } from "../context/LangContext";
 import { useAgentCodes } from "../hooks/useAgentCodes";
-import { useCreateUser } from "../hooks/useCreateUser";
+import { newUser, useCreateUser } from "../hooks/useCreateUser";
 import { useForm } from "react-hook-form";
 
 type userType = "ADMIN" | "AGENT" | "READONLY" | "MGA" | "";
 
-export interface newUser {
-  firstName: string;
-  lastName: string;
-  email: string;
-  agentCode: string;
-  company: string;
-  userType: userType;
-  status: "ACTIVE" | "INACTIVE";
-  password: string;
-  confirmPassword: string;
-  validUpto: string;
-  validUpto2: string;
-  docFile1: File | null;
-  docFile2: File | null;
-}
-
 const CreateUser: React.FC = () => {
   const { langauge } = useContext(LangContext);
-
-  // ─── form fields ─────────────────────────────────────────────────────────────
-  const [firstName, setFirstName] = useState("");
   // const [agentCode, setAgentCode] = useState("");
   const [status, setStatus] = useState<"ACTIVE" | "INACTIVE">("ACTIVE");
+  const [allowBulkUpload, setAllowBulkUpload] = useState<"YES" | "NO">("NO");
   const [userType, setUserType] = useState<userType>("ADMIN");
 
   // MGA-only agent selection
@@ -92,7 +74,9 @@ const CreateUser: React.FC = () => {
     if (availability !== "available" || lastCheckedCode !== agentCode) {
       return; // must confirm availability first
     }
-
+    // add status and allowBulkUpload to newUser
+    newUser.status = status;
+    newUser.allowBulkUpload = allowBulkUpload;
     await createUser(newUser);
   };
 
@@ -333,29 +317,60 @@ const CreateUser: React.FC = () => {
           </div>
         )}
         {/* Status */}
-        <div className="col-span-3 flex space-x-6 items-center">
-          <label className="flex items-center gap-2">
-            <input
-              type="radio"
-              name="status"
-              value="ACTIVE"
-              checked={status === "ACTIVE"}
-              onChange={() => setStatus("ACTIVE")}
-              className="accent-primary cursor-pointer"
-            />{" "}
-            Active
-          </label>
-          <label className="flex items-center gap-2">
-            <input
-              type="radio"
-              name="status"
-              value="INACTIVE"
-              checked={status === "INACTIVE"}
-              onChange={() => setStatus("INACTIVE")}
-              className="accent-primary cursor-pointer"
-            />{" "}
-            Inactive
-          </label>
+        <div className="col-span-1 space-y-2">
+          <label className="text-sm">Status</label>
+          <div className="flex space-x-6 items-center">
+            <label className="flex items-center gap-2">
+              <input
+                type="radio"
+                name="status"
+                value="ACTIVE"
+                checked={status === "ACTIVE"}
+                onChange={() => setStatus("ACTIVE")}
+                className="accent-primary cursor-pointer"
+              />{" "}
+              Active
+            </label>
+            <label className="flex items-center gap-2">
+              <input
+                type="radio"
+                name="status"
+                value="INACTIVE"
+                checked={status === "INACTIVE"}
+                onChange={() => setStatus("INACTIVE")}
+                className="accent-primary cursor-pointer"
+              />{" "}
+              Inactive
+            </label>
+          </div>
+        </div>
+        {/* bulk upload */}
+        <div className="col-span-1 space-y-2">
+          <label className="text-sm">Allow Bulk Upload</label>
+          <div className="flex space-x-6 items-center">
+            <label className="flex items-center gap-2">
+              <input
+                type="radio"
+                name="allowBulkUpload"
+                value="YES"
+                checked={allowBulkUpload === "YES"}
+                onChange={() => setAllowBulkUpload("YES")}
+                className="accent-primary cursor-pointer"
+              />{" "}
+              Yes
+            </label>
+            <label className="flex items-center gap-2">
+              <input
+                type="radio"
+                name="allowBulkUpload"
+                value="NO"
+                checked={allowBulkUpload === "NO"}
+                onChange={() => setAllowBulkUpload("NO")}
+                className="accent-primary cursor-pointer"
+              />{" "}
+              No
+            </label>
+          </div>
         </div>
 
         {/* Password */}
@@ -424,7 +439,7 @@ const CreateUser: React.FC = () => {
         <div className="flex justify-between col-span-3 gap-4">
           <div className="flex flex-col w-full">
             <label className="text-sm">Upload Document 1</label>
-           <div className="flex flex-col items-start space-y-2">
+            <div className="flex flex-col items-start space-y-2">
               <label className="input-primary cursor-pointer">
                 Choose File <span className="text-xs">(Max 5MB)</span>
                 <input
@@ -489,7 +504,9 @@ const CreateUser: React.FC = () => {
               className="input-primary"
             />
             {errors.validUpto2 && (
-              <p className="text-red-500 text-sm">{errors.validUpto2.message}</p>
+              <p className="text-red-500 text-sm">
+                {errors.validUpto2.message}
+              </p>
             )}
           </div>
         </div>

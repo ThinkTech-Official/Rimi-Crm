@@ -11,9 +11,11 @@ export interface newUser {
   company: string;
   userType: "ADMIN" | "AGENT" | "READONLY" | "MGA" | "";
   status: "ACTIVE" | "INACTIVE";
+  allowBulkUpload: "YES" | "NO";
   password: string;
   confirmPassword: string;
   validUpto: string;
+  validUpto2: string;
   docFile1: File | null;
   docFile2: File | null;
 }
