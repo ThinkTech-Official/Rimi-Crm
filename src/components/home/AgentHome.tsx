@@ -27,7 +27,7 @@ export default function AdminHome() {
     loading: qLoading,
     error: qError,
   } = useQuotes(qPage, limit);
-  const [filter, setFilter] = useState("Quotes");
+  const [filter, setFilter] = useState("Policies");
   console.log("distribution", dist);
   console.log("policies", policies);
   console.log("perror", pError);

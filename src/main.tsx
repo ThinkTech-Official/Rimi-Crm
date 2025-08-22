@@ -29,6 +29,7 @@ import PolicyDetails from './pages/PolicyDetails.tsx';
 import ImportSalesUpload from './pages/ImportSalesUpload.tsx';
 import AgentDashboard from './pages/AgentDashboard.tsx';
 import i18n from './i18n/i18.ts';
+import AgentDetails from './components/AgentDetails.tsx';
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -51,7 +52,7 @@ const router = createBrowserRouter(
       <Route path='/user-upload' element={<UserUpload />} />
       <Route path='/quote-upload' element={<QuoteUploader />} />
       <Route path='/quote-detail/:id' element={<QuoteDetailPage />} />
-
+        <Route path='/agent-details/:agentCode' element={<AgentDetails />} />
       <Route path='/policy-upload' element={<PolicyUploader />} />
       <Route path='/policy-detail/:id' element={<PolicyDetails />} />
       <Route path='/sales-data-upload' element={<ImportSalesUpload />} />

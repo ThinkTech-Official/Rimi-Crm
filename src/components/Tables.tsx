@@ -1,6 +1,7 @@
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
 import { PolicyRow, QuoteRow } from "../utils/types";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 export function PoliciesTable({
   data,
@@ -296,7 +297,10 @@ export function AgentsTable({
   loading?: boolean;
 }) {
   const [currentPage, setCurrentPage] = useState(1);
-
+const navigate = useNavigate();
+const handleAgentDetails = (agentCode: string) => {
+  navigate(`/agent-details/${agentCode}`);
+}
   return (
     <div className="mt-6 space-y-2 w-full">
       <h2 className="text-lg font-bold text-text-primary">
@@ -381,7 +385,7 @@ export function AgentsTable({
                 }}
               >
                 {" "}
-                <button className="text-primary hover:underline hover:underline-offset-2 cursor-pointer font-medium px-4 text-center w-full">
+                <button className="text-primary hover:underline hover:underline-offset-2 cursor-pointer font-medium px-4 text-center w-full" onClick={() => handleAgentDetails(agent.agentCode)}>
                   View Details
                 </button>
               </td>
