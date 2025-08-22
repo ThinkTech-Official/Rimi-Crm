@@ -7,8 +7,8 @@ import {
   ResponsiveContainer,
   Legend,
 } from "recharts";
-const PolicySalesChart = () => {
-  const data = [
+const PolicySalesChart = ({ data, loading, error }: { data: any, loading: boolean, error: string }) => {
+  const dist = [
     {
       policy: "RIMI Canuck Voyage Travel Medical",
       A: 120,
@@ -34,10 +34,12 @@ const PolicySalesChart = () => {
       fullMark: 150,
     },
   ];
+  if(loading) return <p className="text-primary">Loading...</p>;
+  if(error) return <p className="text-red-500">{error}</p>;
   return (
     <div className="py-10">
       <ResponsiveContainer width="100%" height={350}>
-        <RadarChart cx="50%" cy="50%" outerRadius="90%" data={data}>
+        <RadarChart cx="50%" cy="50%" outerRadius="90%" data={dist}>
           <PolarGrid />
           <PolarAngleAxis dataKey="policy" />
           <PolarRadiusAxis />

@@ -338,17 +338,17 @@ import {
 } from "../hooks/useSearchQuotes";
 import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
-
-const emailRegex = /^\S+@\S+\.\S+$/;
+import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
 
 const QuotesSearch: React.FC = () => {
   const { langauge } = useContext(LangContext);
   const navigate = useNavigate();
 
   const [userType, setUserType] = useState<string | null>(null);
-  const [criteria, setCriteria] = useState<
-    Omit<SearchCriteria, "page" | "limit">
-  >({ products: ["All"] });
+  const [searchData, setSearchData] = useState<SearchCriteria>({
+    products: ["All"],
+  });
+  const [selectedProducts, setSelectedProducts] = useState<string[]>(["All"]);
   const [emailError, setEmailError] = useState<string>("");
   const [page, setPage] = useState(1);
   const limit = 10;
@@ -357,13 +357,12 @@ const QuotesSearch: React.FC = () => {
     register,
     handleSubmit,
     formState: { errors },
-    watch,
   } = useForm<SearchCriteria>({
     defaultValues: {
       products: ["All"],
     },
   });
-
+  const totalPages = data?.totalPages || 0;
   const products = [
     {
       en: "RIMI Canuck Voyage Travel Medical",
@@ -388,33 +387,50 @@ const QuotesSearch: React.FC = () => {
     setUserType(type.userType);
   }, []);
 
-  const handleChange =
-    (key: keyof Omit<SearchCriteria, "page" | "limit">) =>
-    (e: ChangeEvent<HTMLInputElement>) => {
-      const value = e.target.value;
-      setCriteria((prev) => ({ ...prev, [key]: value || undefined }));
-      if (key === "email") {
-        setEmailError(
-          value && !emailRegex.test(value) ? "Invalid email format" : ""
-        );
-      }
-    };
+  // const handleChange =
+  //   (key: keyof Omit<SearchCriteria, "page" | "limit">) =>
+  //   (e: ChangeEvent<HTMLInputElement>) => {
+  //     const value = e.target.value;
+  //     setCriteria((prev) => ({ ...prev, [key]: value || undefined }));
+  //     if (key === "email") {
+  //       setEmailError(
+  //         value && !emailRegex.test(value) ? "Invalid email format" : ""
+  //       );
+  //     }
+  //   };
 
   const handleProductChange = (product: string) => {
-    setCriteria((prev) => {
-      const current = prev.products || [];
-      if (product === "All") return { ...prev, products: ["All"] };
+    setSelectedProducts((prev) => {
+      const current = prev;
+      if (product === "All") return ["All"];
       const next = current.includes(product)
         ? current.filter((p) => p !== product)
         : [...current.filter((p) => p !== "All"), product];
-      return { ...prev, products: next };
+      return next;
     });
   };
 
   const onSearch = (formData: SearchCriteria) => {
-    console.log(formData);
+    if (errors.email) return;
+
+    const filteredData = Object.fromEntries(
+      Object.entries(formData).filter(([_, v]) => {
+        if (v === undefined || v === null) return false;
+        if (typeof v === "string" && v.trim() === "") return false;
+        if (Array.isArray(v) && v.length === 0) return false;
+        return true;
+      })
+    ) as SearchCriteria;
+
+    const finalData: SearchCriteria = {
+      ...filteredData,
+      products: selectedProducts,
+    };
+    setSearchData(finalData);
+
+    console.log("finalData", finalData);
     setPage(1);
-    search(formData, 1, limit);
+    search(finalData, 1, limit);
   };
 
   const goToPage = (p: number) => {
@@ -422,7 +438,67 @@ const QuotesSearch: React.FC = () => {
     const tp = data.totalPages;
     const np = Math.max(1, Math.min(p, tp));
     setPage(np);
-    search(criteria, np, limit);
+    search(searchData, np, limit);
+  };
+
+  const renderPageNumbers = () => {
+    if (!data) return null;
+
+    const totalPages = data.totalPages;
+    const currentPage = page;
+    const maxVisiblePages = 5;
+
+    const pages: (number | string)[] = [];
+
+    if (totalPages <= maxVisiblePages) {
+      for (let i = 1; i <= totalPages; i++) {
+        pages.push(i);
+      }
+    } else {
+      if (currentPage < 3) {
+        //beginning: 1,2,3,...,last
+        for (let i = 1; i <= maxVisiblePages - 2; i++) {
+          pages.push(i);
+        }
+        pages.push("...");
+        pages.push(totalPages);
+      } else if (currentPage >= totalPages - 2) {
+        //ending: first,...,last-2,last-1,last
+        pages.push(1);
+        pages.push("...");
+        for (let i = totalPages - 2; i <= totalPages; i++) {
+          pages.push(i);
+        }
+      } else {
+        //middle: first,...,current-1,current,current+1,...,last
+        pages.push(1);
+        pages.push("...");
+        for (let i = currentPage - 1; i <= currentPage + 1; i++) {
+          pages.push(i);
+        }
+        pages.push("...");
+        pages.push(totalPages);
+      }
+    }
+    return pages.map((p, idx) =>
+      p === "..." ? (
+        <span key={`dots-${idx}`} className="px-2 mt-4">
+          ...
+        </span>
+      ) : (
+        <button
+          key={p}
+          onClick={() => goToPage(p as number)}
+          className={`px-3 py-2 cursor-pointer ${
+            p === currentPage
+              ? "bg-primary text-white"
+              : "bg-[#F1F0F2] text-[#808080]"
+          }`}
+        >
+          {p}
+        </button>
+      )
+    );
   };
 
   return (
@@ -438,173 +514,121 @@ const QuotesSearch: React.FC = () => {
 
       {/* Form Fields  */}
       <form onSubmit={handleSubmit(onSearch)}>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 md:gap-x-16 lg:gap-x-24 gap-y-4 text-text-secondary">
-        <div className="flex flex-col gap-1">
-          <label className="text-sm">
-            {langauge === "En" ? "Quote Number" : "Numéro de devis"}
-          </label>
-          <input
-            {...register("quoteNumber", {
-              required: "Quote Number is required",
-            })}
-            type="text"
-            // value={criteria.quoteNumber || ""}
-            // onChange={handleChange("quoteNumber")}
-            className="input-primary"
-            placeholder="Enter Quote Number"
-          />
-          {errors.quoteNumber && (
-            <span className="text-red-500 text-xs">
-              {errors.quoteNumber.message}
-            </span>
-          )}
-        </div>
-        <div className="flex flex-col gap-1">
-          <label className="text-sm">
-            {langauge === "En" ? "Quote Date" : "Date du devis"}
-          </label>
-          <input
-            {...register("quoteDate", { required: "Quote Date is required" })}
-            className="input-primary"
-            type="date"
-            // value={criteria.quoteDate || ""}
-            onChange={handleChange("quoteDate")}
-          />
-          {errors.quoteDate && (
-            <span className="text-red-500 text-xs">
-              {errors.quoteDate.message}
-            </span>
-          )}
-        </div>
-        <div className="flex flex-col gap-1">
-          <label className="text-sm">
-            {langauge === "En" ? "First Name" : "Prénom"}
-          </label>
-          <input
-            {...register("firstName", { required: "First Name is required" })}
-            className="input-primary"
-            placeholder="Enter First Name"
-            // value={criteria.firstName || ""}
-            // onChange={handleChange("firstName")}
-          />
-          {errors.firstName && (
-            <span className="text-red-500 text-xs">
-              {errors.firstName.message}
-            </span>
-          )}
-        </div>
-        <div className="flex flex-col gap-1">
-          <label className="text-sm">
-            {langauge === "En" ? "Last Name" : "Nom de famille"}
-          </label>
-          <input
-            {...register("lastName", { required: "Last Name is required" })}
-            className="input-primary"
-            placeholder="Enter Last Name"
-            // value={criteria.lastName || ""}
-            // onChange={handleChange("lastName")}
-          />
-          {errors.lastName && (
-            <span className="text-red-500 text-xs">
-              {errors.lastName.message}
-            </span>
-          )}
-        </div>
-        <div className="flex flex-col gap-1">
-          <label className="text-sm">
-            {langauge === "En" ? "Date of Birth" : "Date de naissance"}
-          </label>
-          <input
-            className="input-primary"
-            type="date"
-            {...register("dateOfBirth", {
-              required: "Date of Birth is required",
-            })}
-            // value={criteria.dateOfBirth || ""}
-            // onChange={handleChange("dateOfBirth")}
-          />
-          {errors.dateOfBirth && (
-            <span className="text-red-500 text-xs">
-              {errors.dateOfBirth.message}
-            </span>
-          )}
-        </div>
-        <div className="flex flex-col gap-1">
-          <label className="text-sm">Email</label>
-          <input
-            {...register("email", {
-              required: "Email is required",
-              pattern: {
-                value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                message: "Invalid email address",
-              },
-            })}
-            className="input-primary"
-            placeholder="Email"
-            // value={criteria.email || ""}
-            // onChange={handleChange("email")}
-          />
-          {errors.email && (
-            <span className="text-red-500 text-xs">{errors.email.message}</span>
-          )}
-        </div>
-        <div className="flex flex-col gap-1">
-          <label className="text-sm">
-            {langauge === "En" ? "Effective Date" : `Date d'entrée en vigueur`}
-          </label>
-          <input
-            className="input-primary"
-            type="date"
-            {...register("effectiveDate", {
-              required: "Effective Date is required",
-            })}
-            // value={criteria.effectiveDate || ""}
-            // onChange={handleChange("effectiveDate")}
-          />
-          {errors.effectiveDate && (
-            <span className="text-red-500 text-xs">
-              {errors.effectiveDate.message}
-            </span>
-          )}
-        </div>
-        <div className="flex flex-col gap-1">
-          <label className="text-sm">
-            {langauge === "En" ? "Expiry Date" : `Date d'expiration`}
-          </label>
-          <input
-            {...register("expiryDate", { required: "Expiry Date is required" })}
-            className="input-primary"
-            type="date"
-            // value={criteria.expiryDate || ""}
-            // onChange={handleChange("expiryDate")}
-          />
-          {errors.expiryDate && (
-            <span className="text-red-500 text-xs">
-              {" "}
-              {errors.expiryDate.message}
-            </span>
-          )}
-        </div>
-        {userType === "ADMIN" && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 md:gap-x-16 lg:gap-x-24 gap-y-4 text-text-secondary">
           <div className="flex flex-col gap-1">
             <label className="text-sm">
-              {langauge === "En" ? "Agent" : "Agent"}
+              {langauge === "En" ? "Quote Number" : "Numéro de devis"}
             </label>
             <input
-              {...register("agent", { required: "Agent is required" })}
+              {...register("quoteNumber")}
+              type="text"
+              // value={criteria.quoteNumber || ""}
+              // onChange={handleChange("quoteNumber")}
               className="input-primary"
-              placeholder="Agent"
-              // value={criteria.agent || ""}
-              // onChange={handleChange("agent")}
+              placeholder="Enter Quote Number"
             />
-            {errors.agent && (
-              <span className="text-red-500 text-xs">
-                {errors.agent.message}
-              </span>
-            )}
           </div>
-        )}
-      </div>
+          <div className="flex flex-col gap-1">
+            <label className="text-sm">
+              {langauge === "En" ? "Quote Date" : "Date du devis"}
+            </label>
+            <input
+              {...register("quoteDate")}
+              className="input-primary"
+              type="date"
+              // value={criteria.quoteDate || ""}
+              // onChange={handleChange("quoteDate")}
+            />
+          </div>
+          <div className="flex flex-col gap-1">
+            <label className="text-sm">
+              {langauge === "En" ? "First Name" : "Prénom"}
+            </label>
+            <input
+              {...register("firstName")}
+              className="input-primary"
+              placeholder="Enter First Name"
+              // value={criteria.firstName || ""}
+              // onChange={handleChange("firstName")}
+            />
+          </div>
+          <div className="flex flex-col gap-1">
+            <label className="text-sm">
+              {langauge === "En" ? "Last Name" : "Nom de famille"}
+            </label>
+            <input
+              {...register("lastName")}
+              className="input-primary"
+              placeholder="Enter Last Name"
+              // value={criteria.lastName || ""}
+              // onChange={handleChange("lastName")}
+            />
+          </div>
+          <div className="flex flex-col gap-1">
+            <label className="text-sm">
+              {langauge === "En" ? "Date of Birth" : "Date de naissance"}
+            </label>
+            <input
+              className="input-primary"
+              type="date"
+              {...register("dateOfBirth")}
+              // value={criteria.dateOfBirth || ""}
+              // onChange={handleChange("dateOfBirth")}
+            />
+          </div>
+          <div className="flex flex-col gap-1">
+            <label className="text-sm">Email</label>
+            <input
+              {...register("email", {
+                pattern: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+              })}
+              className="input-primary"
+              placeholder="Email"
+              // value={criteria.email || ""}
+              // onChange={handleChange("email")}
+            />
+          </div>
+          <div className="flex flex-col gap-1">
+            <label className="text-sm">
+              {langauge === "En"
+                ? "Effective Date"
+                : `Date d'entrée en vigueur`}
+            </label>
+            <input
+              className="input-primary"
+              type="date"
+              {...register("effectiveDate")}
+              // value={criteria.effectiveDate || ""}
+              // onChange={handleChange("effectiveDate")}
+            />
+          </div>
+          <div className="flex flex-col gap-1">
+            <label className="text-sm">
+              {langauge === "En" ? "Expiry Date" : `Date d'expiration`}
+            </label>
+            <input
+              {...register("expiryDate")}
+              className="input-primary"
+              type="date"
+              // value={criteria.expiryDate || ""}
+              // onChange={handleChange("expiryDate")}
+            />
+          </div>
+          {userType === "ADMIN" && (
+            <div className="flex flex-col gap-1">
+              <label className="text-sm">
+                {langauge === "En" ? "Agent" : "Agent"}
+              </label>
+              <input
+                {...register("agent")}
+                className="input-primary"
+                placeholder="Agent"
+                // value={criteria.agent || ""}
+                // onChange={handleChange("agent")}
+              />
+            </div>
+          )}
+        </div>
       </form>
       {/* Product Selector  */}
       <div className="mt-6">
@@ -616,7 +640,7 @@ const QuotesSearch: React.FC = () => {
             <input
               type="checkbox"
               className="mr-2 text-[#1B1B1B] accent-primary cursor-pointer"
-              checked={criteria.products?.includes("All")}
+              checked={selectedProducts?.includes("All")}
               onChange={() => handleProductChange("All")}
             />
             All
@@ -626,7 +650,7 @@ const QuotesSearch: React.FC = () => {
               <input
                 type="checkbox"
                 className="mr-2 text-[#1B1B1B] accent-primary cursor-pointer"
-                checked={criteria.products?.includes(p.en)}
+                checked={selectedProducts?.includes(p.en)}
                 onChange={() => handleProductChange(p.en)}
               />
               {langauge === "En" ? p.en : p.fr}
@@ -655,11 +679,13 @@ const QuotesSearch: React.FC = () => {
 
       {/* Result Table  */}
       {data && (
-        <>
-          <p className="mt-4">Found {data.total} quotes.</p>
+        <div className="w-full overflow-x-auto custom-scrollbar pb-2">
+          <p className="mt-4 mb-1 text-text-primary">
+            Found {data.total} quotes.
+          </p>
 
-          <table className="min-w-full border">
-            <thead className="bg-gray-100">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-primary text-white text-base 2xl:text-xl capitalize">
               <tr>
                 {[
                   "Quote Number",
@@ -674,22 +700,65 @@ const QuotesSearch: React.FC = () => {
                 ].map((h) => (
                   <th
                     key={h}
-                    className="px-4 py-2 text-left text-sm font-medium text-gray-700"
+                    className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium text-nowrap"
                   >
                     {h}
                   </th>
                 ))}
               </tr>
             </thead>
-            <tbody>
+            <tbody className="bg-white" style={{ border: "1px solid #AAA9A9" }}>
               {data.items.map((u: any) => (
-                <tr key={u.id} className="border-t">
-                  <td className="px-4 py-2">{u.quoteNumber}</td>
+                <tr key={u.id} className="text-[#808080] text-sm 2xl:text-xl">
+                  <td
+                    className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
+                    style={{
+                      borderWidth: "0px 1px 1px 0px",
+                      borderStyle: "solid",
+                      borderColor: "#AAA9A9",
+                    }}
+                  >
+                    {u.quoteNumber}
+                  </td>
 
-                  <td className="px-4 py-2">{u.firstName}</td>
-                  <td className="px-4 py-2">{u.lastName}</td>
-                  <td className="px-4 py-2">{u.status}</td>
-                  <td className="px-4 py-2">
+                  <td
+                    className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
+                    style={{
+                      borderWidth: "0px 1px 1px 0px",
+                      borderStyle: "solid",
+                      borderColor: "#AAA9A9",
+                    }}
+                  >
+                    {u.firstName}
+                  </td>
+                  <td
+                    className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
+                    style={{
+                      borderWidth: "0px 1px 1px 0px",
+                      borderStyle: "solid",
+                      borderColor: "#AAA9A9",
+                    }}
+                  >
+                    {u.lastName}
+                  </td>
+                  <td
+                    className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
+                    style={{
+                      borderWidth: "0px 1px 1px 0px",
+                      borderStyle: "solid",
+                      borderColor: "#AAA9A9",
+                    }}
+                  >
+                    {u.status}
+                  </td>
+                  <td
+                    className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
+                    style={{
+                      borderWidth: "0px 1px 1px 0px",
+                      borderStyle: "solid",
+                      borderColor: "#AAA9A9",
+                    }}
+                  >
                     {u.dateOfBirth
                       ? new Date(u.dateOfBirth).toLocaleDateString(
                           langauge === "En" ? "en-CA" : "fr-CA",
@@ -697,7 +766,14 @@ const QuotesSearch: React.FC = () => {
                         )
                       : "-"}
                   </td>
-                  <td className="px-4 py-2">
+                  <td
+                    className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
+                    style={{
+                      borderWidth: "0px 1px 1px 0px",
+                      borderStyle: "solid",
+                      borderColor: "#AAA9A9",
+                    }}
+                  >
                     {u.dateIssued
                       ? new Date(u.dateIssued).toLocaleDateString(
                           langauge === "En" ? "en-CA" : "fr-CA",
@@ -705,13 +781,29 @@ const QuotesSearch: React.FC = () => {
                         )
                       : "-"}
                   </td>
-                  <td className="px-4 py-2">{u.product}</td>
-                  <td className="px-4 py-2">
+                  <td
+                    className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
+                    style={{
+                      borderWidth: "0px 1px 1px 0px",
+                      borderStyle: "solid",
+                      borderColor: "#AAA9A9",
+                    }}
+                  >
+                    {u.product}
+                  </td>
+                  <td
+                    className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
+                    style={{
+                      borderWidth: "0px 1px 1px 0px",
+                      borderStyle: "solid",
+                      borderColor: "#AAA9A9",
+                    }}
+                  >
                     <Link
                       // onClick={() => navigate(``)}
                       target="_blank"
                       to={`/quote-detail/${u.id}`}
-                      className="px-3 py-1 bg-blue-600 text-white text-sm rounded"
+                      className="text-primary hover:underline hover:underline-offset-2 cursor-pointer font-medium px-4 text-center w-full"
                     >
                       View
                     </Link>
@@ -720,42 +812,29 @@ const QuotesSearch: React.FC = () => {
               ))}
             </tbody>
           </table>
+        </div>
+      )}
+      {/* Pagination Controls */}
+      {totalPages > 0 && (
+        <div className="flex justify-center items-center space-x-2 mt-4">
+          <button
+            onClick={() => goToPage(page - 1)}
+            disabled={page <= 1}
+            className="px-2 py-[10px] bg-[#CCCCCC] text-[#6F6B7D] cursor-pointer"
+          >
+            <ChevronLeftIcon className="h-5 w-5" />
+          </button>
 
-          {/* Pagination Controls */}
-          <div className="flex justify-center items-center space-x-2 mt-4">
-            <button
-              onClick={() => goToPage(page - 1)}
-              disabled={page <= 1}
-              className="px-3 py-1 rounded border bg-white disabled:opacity-50"
-            >
-              Prev
-            </button>
+          {renderPageNumbers()}
 
-            {Array.from({ length: data.totalPages }, (_, i) => i + 1).map(
-              (p) => (
-                <button
-                  key={p}
-                  onClick={() => goToPage(p)}
-                  className={`px-3 py-1 rounded border ${
-                    p === page
-                      ? "bg-indigo-600 text-white"
-                      : "bg-white text-indigo-600"
-                  }`}
-                >
-                  {p}
-                </button>
-              )
-            )}
-
-            <button
-              onClick={() => goToPage(page + 1)}
-              disabled={page >= data.totalPages}
-              className="px-3 py-1 rounded border bg-white disabled:opacity-50"
-            >
-              Next
-            </button>
-          </div>
-        </>
+          <button
+            onClick={() => goToPage(page + 1)}
+            disabled={page >= totalPages}
+            className="px-2 py-[10px] bg-[#CCCCCC] text-[#6F6B7D] cursor-pointer"
+          >
+            <ChevronRightIcon className="h-5 w-5" />
+          </button>
+        </div>
       )}
     </div>
   );

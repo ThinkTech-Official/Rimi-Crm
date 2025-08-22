@@ -57,7 +57,7 @@ export function useSearchPolicies(defaultLimit: number = 10) {
   ) {
     setLoading(true);
     setError(null);
-    setData(null);
+    // setData(null);
     try {
       const payload = { ...criteria, page, limit };
       const res = await fetch(`${baseUrl}/policies/search`, {

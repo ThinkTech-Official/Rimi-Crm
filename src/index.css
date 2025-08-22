@@ -23,8 +23,62 @@
     .input-primary{
         @apply w-full bg-white border border-inputBorder px-4 py-2 sm:py-3 focus:border-0 focus:outline-none focus:ring-1 focus:ring-primary text-black/80 placeholder:text-black/50;
     }
+    .custom-scrollbar::-webkit-scrollbar {
+    height: 8px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background-color: #2b00b7;
+    border-radius: 4px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background-color: #7367f029;
+    border-radius: 2px;
+  }
+  .custom-scrollbar2::-webkit-scrollbar {
+    height: 4px;
+  }
+
+  .custom-scrollbar2::-webkit-scrollbar-thumb {
+    background-color: #2b00b7;
+    border-radius: 4px;
+  }
+  .custom-scrollbar2::-webkit-scrollbar-track {
+    background-color: #7367f029;
+    border-radius: 2px;
+  }
+
+  .custom-scrollbar3::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .custom-scrollbar3::-webkit-scrollbar-thumb {
+    background-color: #2b00b7;
+    border-radius: 4px;
+  }
+  .custom-scrollbar3::-webkit-scrollbar-track {
+    background-color: #7367f029;
+    border-radius: 4px;
+  }
 }
 
 body {
   font-family: "Public Sans", sans-serif;
+}
+
+.spinner {
+  border-radius: 50%;
+  display: inline-block;
+  border-top: 3px solid #2b00b7;
+  border-right: 3px solid transparent;
+  box-sizing: border-box;
+  animation: rotation 1s linear infinite;
+}
+@keyframes rotation {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }

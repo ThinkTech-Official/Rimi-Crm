@@ -1,13 +1,13 @@
-import React, { ChangeEvent, useContext, useEffect, useState } from "react";
+import React, { useContext, useState } from "react";
 import { LangContext } from "../context/LangContext";
 import {
   useSearchPolicies,
   SearchPoliciesCriteria,
-  PolicyRecord,
 } from "../hooks/useSearchPolicies";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { FaAngleDown } from "react-icons/fa";
 import { useForm } from "react-hook-form";
+import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
 
 const allProducts = [
   "RIMI Canuck Voyage Travel Medical",
@@ -20,52 +20,67 @@ const status = ["All", "Active", "Sold", "Cancelled", "Expired"];
 
 const PoliciesSearch: React.FC = () => {
   const { langauge } = useContext(LangContext);
-  const navigate = useNavigate();
   const [isSelectStatusOpen, setIsSelectStatusOpen] = useState(false);
-
-  const [criteria, setCriteria] = useState<
-    Omit<SearchPoliciesCriteria, "page" | "limit">
-  >({ products: ["All"] });
+  const [searchData, setSearchData] = useState<SearchPoliciesCriteria>({
+    products: ["All"],
+  });
+  const [selectedStatus, setSelectedStatus] = useState<string>("");
+  const [selectedProducts, setSelectedProducts] = useState<string[]>(["All"]);
   const [page, setPage] = useState(1);
   const limit = 10;
   const { search, loading, error, data } = useSearchPolicies(limit);
+  const totalPages = data?.totalPages || 0;
   const {
     register,
     setValue,
     handleSubmit,
     formState: { errors },
-    watch,
   } = useForm<SearchPoliciesCriteria>({
     defaultValues: {
       products: ["All"],
     },
   });
-  useEffect(() => {
-    register("status", { required: "Status is required" });
-  }, [register]);
-
-  const handleChange =
-    (key: keyof Omit<SearchPoliciesCriteria, "page" | "limit">) =>
-    (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-      const val = e.target.value;
-      setCriteria((prev) => ({ ...prev, [key]: val || undefined }));
-    };
-
   const handleProductChange = (product: string) => {
-    setCriteria((prev) => {
-      const current = prev.products || [];
-      if (product === "All") return { ...prev, products: ["All"] };
+    setSelectedProducts((prev) => {
+      const current = prev;
+      if (product === "All") return ["All"];
       const next = current.includes(product)
         ? current.filter((p) => p !== product)
         : [...current.filter((p) => p !== "All"), product];
-      return { ...prev, products: next };
+      return next;
     });
   };
 
+  const handleStatusChange = (status: string) => {
+    if (status === "All") {
+      setSelectedStatus("");
+      return;
+    }
+    setSelectedStatus(status);
+    setIsSelectStatusOpen(false);
+  };
+
   const onSearch = (formData: SearchPoliciesCriteria) => {
-    console.log(formData);
+    if (errors.email) return;
+    const filteredData = Object.fromEntries(
+      Object.entries(formData).filter(([_, v]) => {
+        if (v === undefined || v === null) return false;
+        if (typeof v === "string" && v.trim() === "") return false;
+        if (Array.isArray(v) && v.length === 0) return false;
+        return true;
+      })
+    ) as SearchPoliciesCriteria;
+
+    const finalData: SearchPoliciesCriteria = {
+      ...filteredData,
+      products: selectedProducts,
+      status: selectedStatus,
+    };
+    setSearchData(finalData);
+
+    console.log("finalData", finalData);
     setPage(1);
-    search(formData, 1, limit);
+    search(finalData, 1, limit);
   };
 
   const goToPage = (p: number) => {
@@ -73,7 +88,66 @@ const PoliciesSearch: React.FC = () => {
     const tp = data.totalPages;
     const np = Math.max(1, Math.min(p, tp));
     setPage(np);
-    search(criteria, np, limit);
+    search(searchData, np, limit);
+  };
+  const renderPageNumbers = () => {
+    if (!data) return null;
+
+    const totalPages = data.totalPages;
+    const currentPage = page;
+    const maxVisiblePages = 5;
+
+    const pages: (number | string)[] = [];
+
+    if (totalPages <= maxVisiblePages) {
+      for (let i = 1; i <= totalPages; i++) {
+        pages.push(i);
+      }
+    } else {
+      if (currentPage < 3) {
+        //beginning: 1,2,3,...,last
+        for (let i = 1; i <= maxVisiblePages - 2; i++) {
+          pages.push(i);
+        }
+        pages.push("...");
+        pages.push(totalPages);
+      } else if (currentPage >= totalPages - 2) {
+        //ending: first,...,last-2,last-1,last
+        pages.push(1);
+        pages.push("...");
+        for (let i = totalPages - 2; i <= totalPages; i++) {
+          pages.push(i);
+        }
+      } else {
+        //middle: first,...,current-1,current,current+1,...,last
+        pages.push(1);
+        pages.push("...");
+        for (let i = currentPage - 1; i <= currentPage + 1; i++) {
+          pages.push(i);
+        }
+        pages.push("...");
+        pages.push(totalPages);
+      }
+    }
+    return pages.map((p, idx) =>
+      p === "..." ? (
+        <span key={`dots-${idx}`} className="px-2 mt-4">
+          ...
+        </span>
+      ) : (
+        <button
+          key={p}
+          onClick={() => goToPage(p as number)}
+          className={`px-3 py-2 cursor-pointer ${
+            p === currentPage
+              ? "bg-primary text-white"
+              : "bg-[#F1F0F2] text-[#808080]"
+          }`}
+        >
+          {p}
+        </button>
+      )
+    );
   };
 
   return (
@@ -89,37 +163,6 @@ const PoliciesSearch: React.FC = () => {
         </p>
       </div>
 
-      {/* // */}
-
-      {/* Product Selector  */}
-      {/* <div className="mt-6">
-        <p className="text-[#1B1B1B]  font-[inter] mb-2">
-          {langauge === "En" ? "Product" : "PRODUIT"}
-        </p>
-        <div className="border border-[#DBDADE] p-2 bg-[#F9F9F9] overflow-y-auto rounded text-sm font-[inter] text-[#1B1B1B] space-y-2">
-          <label className="block">
-            <input
-              type="checkbox"
-              className="mr-2 text-[#1B1B1B]"
-              checked={criteria.products?.includes("All")}
-              onChange={() => handleProductChange("All")}
-            />
-            All
-          </label>
-          {products.map((p) => (
-            <label key={p.en} className="block text-[#1B1B1B]">
-              <input
-                type="checkbox"
-                className="mr-2 text-[#1B1B1B]"
-                checked={criteria.products?.includes(p.en)}
-                onChange={() => handleProductChange(p.en)}
-              />
-              {langauge === "En" ? p.en : p.fr}
-            </label>
-          ))}
-        </div>
-      </div> */}
-
       {/*  */}
       <form onSubmit={handleSubmit(onSearch)}>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 md:gap-x-16 lg:gap-x-24 gap-y-4 text-text-secondary">
@@ -127,88 +170,57 @@ const PoliciesSearch: React.FC = () => {
           <div className="flex flex-col 1">
             <label className="text-sm">First Name</label>
             <input
-              {...register("firstName", { required: "First Name is required" })}
+              {...register("firstName")}
               // value={criteria.firstName || ""}
               // onChange={handleChange("firstName")}
               className="input-primary"
               placeholder="First Name"
             />
-            {errors.firstName && (
-              <span className="text-red-500 text-sm">
-                {errors.firstName.message}
-              </span>
-            )}
           </div>
           {/* Last Name */}
           <div className="flex flex-col 1">
             <label className="text-sm">Last Name</label>
             <input
-              {...register("lastName", { required: "Last Name is required" })}
+              {...register("lastName")}
               // value={criteria.lastName || ""}
               // onChange={handleChange("lastName")}
               className="input-primary"
               placeholder="Last Name"
             />
-            {errors.lastName && (
-              <span className="text-red-500 text-sm">
-                {errors.lastName.message}
-              </span>
-            )}
           </div>
           {/* Date of Birth */}
           <div className="flex flex-col 1">
             <label className="text-sm">Date of Birth</label>
             <input
               type="date"
-              {...register("dateOfBirth", {
-                required: "Date of Birth is required",
-              })}
+              {...register("dateOfBirth")}
               // value={criteria.dateOfBirth || ""}
               // onChange={handleChange("dateOfBirth")}
               className="input-primary"
               placeholder="Date of Birth"
             />
-            {errors.dateOfBirth && (
-              <span className="text-red-500 text-sm">
-                {errors.dateOfBirth.message}
-              </span>
-            )}
           </div>
           {/* Policy Number */}
           <div className="flex flex-col 1">
             <label className="text-sm">Policy Number</label>
             <input
-              {...register("policyNumber", {
-                required: "Policy Number is required",
-              })}
+              {...register("policyNumber")}
               // value={criteria.policyNumber || ""}
               // onChange={handleChange("policyNumber")}
               className="input-primary"
               placeholder="Policy Number"
             />
-            {errors.policyNumber && (
-              <span className="text-red-500 text-sm">
-                {errors.policyNumber.message}
-              </span>
-            )}
           </div>
           {/* Phone Number */}
           <div className="flex flex-col 1">
             <label className="text-sm">Phone Number</label>
             <input
-              {...register("phoneNumber", {
-                required: "Phone Number is required",
-              })}
+              {...register("phoneNumber")}
               // value={criteria.phoneNumber || ""}
               // onChange={handleChange("phoneNumber")}
               className="input-primary"
               placeholder="Phone Number"
             />
-            {errors.phoneNumber && (
-              <span className="text-red-500 text-sm">
-                {errors.phoneNumber.message}
-              </span>
-            )}
           </div>
           {/* Email */}
           <div className="flex flex-col 1">
@@ -216,7 +228,6 @@ const PoliciesSearch: React.FC = () => {
             <input
               type="email"
               {...register("email", {
-                required: "Email is required",
                 pattern: {
                   value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
                   message: "Invalid email address",
@@ -227,144 +238,83 @@ const PoliciesSearch: React.FC = () => {
               className="input-primary"
               placeholder="Email"
             />
-            {errors.email && (
-              <span className="text-red-500 text-sm">
-                {errors.email.message}
-              </span>
-            )}
           </div>
           {/* Sale Date From */}
           <div className="flex flex-col 1">
             <label className="text-sm">Sale Date From</label>
             <input
               type="date"
-              {...register("saleDateFrom", {
-                required: "Sale Date From is required",
-              })}
+              {...register("saleDateFrom")}
               // value={criteria.saleDateFrom || ""}
               // onChange={handleChange("saleDateFrom")}
               className="input-primary"
             />
-            {errors.saleDateFrom && (
-              <span className="text-red-500 text-sm">
-                {errors.saleDateFrom.message}
-              </span>
-            )}
           </div>
           {/* Sale Date To */}
           <div className="flex flex-col 1">
             <label className="text-sm">Sale Date To</label>
             <input
               type="date"
-              {...register("saleDateTo", {
-                required: "Sale Date To is required",
-              })}
+              {...register("saleDateTo")}
               // value={criteria.saleDateTo || ""}
               // onChange={handleChange("saleDateTo")}
               className="input-primary"
             />
-            {errors.saleDateTo && (
-              <span className="text-red-500 text-sm">
-                {errors.saleDateTo.message}
-              </span>
-            )}
           </div>
           {/* Effective Date From */}
           <div className="flex flex-col 1">
             <label className="text-sm">Effective Date From</label>
             <input
               type="date"
-              {...register("effectiveDateFrom", {
-                required: "Effective Date From is required",
-              })}
+              {...register("effectiveDateFrom")}
               // value={criteria.effectiveDateFrom || ""}
               // onChange={handleChange("effectiveDateFrom")}
               className="input-primary"
             />
-            {errors.effectiveDateFrom && (
-              <span className="text-red-500 text-sm">
-                {errors.effectiveDateFrom.message}
-              </span>
-            )}
           </div>
           {/* Effective Date To */}
           <div className="flex flex-col 1">
             <label className="text-sm">Effective Date To</label>
             <input
               type="date"
-              {...register("effectiveDateTo", {
-                required: "Effective Date To is required",
-              })}
+              {...register("effectiveDateTo")}
               // value={criteria.effectiveDateTo || ""}
               // onChange={handleChange("effectiveDateTo")}
               className="input-primary"
             />
-            {errors.effectiveDateTo && (
-              <span className="text-red-500 text-sm">
-                {errors.effectiveDateTo.message}
-              </span>
-            )}
           </div>
           {/* Application ID */}
           <div className="flex flex-col 1">
             <label className="text-sm">Application ID</label>
             <input
-              {...register("applicationId", {
-                required: "Application ID is required",
-              })}
+              {...register("applicationId")}
               // value={criteria.applicationId || ""}
               // onChange={handleChange("applicationId")}
               className="input-primary"
               placeholder="Application ID"
             />
-            {errors.applicationId && (
-              <span className="text-red-500 text-sm">
-                {errors.applicationId.message}
-              </span>
-            )}
           </div>
           {/* Agent */}
           <div className="flex flex-col 1">
             <label className="text-sm">Agent</label>
             <input
-              {...register("agent", { required: "Agent is required" })}
+              {...register("agent")}
               // value={criteria.agent || ""}
               // onChange={handleChange("agent")}
               className="input-primary"
               placeholder="Agent"
             />
-            {errors.agent && (
-              <span className="text-red-500 text-sm">
-                {errors.agent.message}
-              </span>
-            )}
           </div>
           {/* Status */}
           <div className="flex flex-col 1">
             <label className="text-sm">Status</label>
-            {/* <select
-            value={criteria.status || "All"}
-            onChange={(e) =>
-              setCriteria((prev) => ({
-                ...prev,
-                status: e.target.value === "All" ? undefined : e.target.value,
-              }))
-            }
-            className="input-primary"
-          >
-            <option className="border-0 hover:bg-gray-100">All</option>
-            <option>Active</option>
-            <option>Sold</option>
-            <option>Expired</option>
-            <option>Cancelled</option>
-          </select> */}
             <div className="relative bg-white">
               <button
                 type="button"
                 className="w-full border border-inputBorder py-2 sm:py-3 px-4 focus:border-0 focus:ring-1 focus:ring-primary capitalize flex items-center justify-between text-left text-text-light cursor-pointer"
                 onClick={() => setIsSelectStatusOpen((prev) => !prev)}
               >
-                <span className="capitalize">{criteria.status || "All"}</span>
+                <span className="capitalize">{selectedStatus || "All"}</span>
                 <FaAngleDown
                   className={`ml-2 cusor-pointer transition-transform ${
                     isSelectStatusOpen ? "rotate-180" : ""
@@ -378,12 +328,12 @@ const PoliciesSearch: React.FC = () => {
                     <div
                       key={i}
                       className={`px-4 py-2 hover:bg-gray-200 text-text-light cursor-pointer capitalize ${
-                        criteria.status === s
+                        selectedStatus === s
                           ? "bg-primary text-white hover:bg-gray-200 hover:text-text-light"
                           : ""
                       }`}
                       onClick={() => {
-                        setCriteria((prev) => ({ ...prev, status: s }));
+                        handleStatusChange(s);
                         setValue("status", s, { shouldValidate: true });
                         setIsSelectStatusOpen(false);
                       }}
@@ -394,61 +344,52 @@ const PoliciesSearch: React.FC = () => {
                 </div>
               )}
             </div>
-            {errors.status && (
-              <p className="text-red-500 text-sm text-sm mt-1">
-                {errors.status.message}
-              </p>
-            )}
           </div>
         </div>
-      </form>
-
-      {/* Product list */}
-      <div className="mt-6">
-        <p className="text-[#1B1B1B]  font-[inter] mb-2">
-          {langauge === "En" ? "Product" : "PRODUIT"}
-        </p>
-        <div className="border border-[#DBDADE] p-2 bg-[#F9F9F9] overflow-y-auto rounded text-sm font-[inter] text-[#1B1B1B] space-y-2">
-          <label className="block">
-            <input
-              type="checkbox"
-              checked={(criteria.products || []).includes("All")}
-              onChange={() => handleProductChange("All")}
-              className="mr-2 text-[#1B1B1B] accent-primary cursor-pointer"
-            />
-            All
-          </label>
-          {allProducts.map((p) => (
-            <label key={p} className="block">
+        {/* Product list */}
+        <div className="mt-6">
+          <p className="text-[#1B1B1B]  font-[inter] mb-2">
+            {langauge === "En" ? "Product" : "PRODUIT"}
+          </p>
+          <div className="border border-[#DBDADE] p-2 bg-[#F9F9F9] overflow-y-auto rounded text-sm font-[inter] text-[#1B1B1B] space-y-2">
+            <label className="block">
               <input
                 type="checkbox"
-                checked={(criteria.products || []).includes(p)}
-                onChange={() => handleProductChange(p)}
-                className="mr-2 accent-primary cursor-pointer"
-              />{" "}
-              {p}
+                checked={selectedProducts?.includes("All")}
+                onChange={() => handleProductChange("All")}
+                className="mr-2 text-[#1B1B1B] accent-primary cursor-pointer"
+              />
+              All
             </label>
-          ))}
+            {allProducts.map((p) => (
+              <label key={p} className="block">
+                <input
+                  type="checkbox"
+                  checked={selectedProducts?.includes(p)}
+                  onChange={() => handleProductChange(p)}
+                  className="mr-2 accent-primary cursor-pointer"
+                />{" "}
+                {p}
+              </label>
+            ))}
+          </div>
         </div>
-      </div>
-
-      <div className="flex justify-center mt-6">
-        <button
-          onClick={handleSubmit(onSearch)}
-          disabled={loading}
-          className="btn-primary"
-        >
-          {loading ? "Searching..." : "Search Policies"}
-        </button>
-      </div>
+        <div className="flex justify-center mt-6">
+          <button type="submit" disabled={loading} className="btn-primary">
+            { loading ? "Searching..." : "Search Policies"}
+          </button>
+        </div>
+      </form>
 
       {error && <p className="text-red-600">{error}</p>}
 
       {data && (
-        <>
-          <p>Found {data.total} policies.</p>
-          <table className="min-w-full border mt-4">
-            <thead className="bg-gray-100">
+        <div className="w-full overflow-x-auto custom-scrollbar pb-2">
+          <p className="mt-4 mb-1 text-text-primary">
+            Found {data.total} policies.
+          </p>
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-primary text-white text-base 2xl:text-xl capitalize">
               <tr>
                 {[
                   // "ID",
@@ -464,71 +405,171 @@ const PoliciesSearch: React.FC = () => {
 
                   "Actions",
                 ].map((h) => (
-                  <th key={h} className="px-4 py-2 text-left">
+                  <th
+                    key={h}
+                    className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium text-nowrap"
+                  >
                     {h}
                   </th>
                 ))}
               </tr>
             </thead>
-            <tbody>
-              {data.items.map((p) => (
-                <tr key={p.id} className="border-t">
-                  {/* <td className="px-4 py-2">{p.id}</td> */}
-                  <td className="px-4 py-2">{p.policyNumber}</td>
-                  <td className="px-4 py-2">{p.status}</td>
-                  {/* <td className="px-4 py-2">{p.policyType}</td> */}
-                  <td className="px-4 py-2">{p.firstName}</td>
-                  <td className="px-4 py-2">{p.lastName}</td>
-                  <td className="px-4 py-2">{p.dateOfBirth?.split("T")[0]}</td>
-                  <td className="px-4 py-2">{p.effectiveDate?.split("T")[0]}</td>
-                  <td className="px-4 py-2">{p.expiryDate?.split("T")[0]}</td>
-                  <td className="px-4 py-2">{p.product}</td>
-
-                  <td className="px-4 py-2">
-                    <Link
-                      target="_blank"
-                      to={`/policy-detail/${p.id}`}
-                      className="px-2 py-1 bg-blue-600 text-white rounded"
-                    >
-                      View
-                    </Link>
+            <tbody className="bg-white" style={{ border: "1px solid #AAA9A9" }}>
+              {loading ? (
+                <tr>
+                  <td className="p-2 text-primary text-center h-40 flex flex-col justify-center items-center" colSpan={9}>
+                    Loading…
                   </td>
                 </tr>
-              ))}
+              ) : error ? (
+                <tr>
+                  <td className="p-2 text-red-500" colSpan={9}>
+                    {error}
+                  </td>
+                </tr>
+              ) : data?.items.length === 0 ? (
+                <tr>
+                  <td
+                    className="p-2 text-text-secondary"
+                    colSpan={9}
+                  >
+                    No policies found
+                  </td>
+                </tr>
+              ) : (
+                data.items.map((p) => (
+                  <tr key={p.id} className="text-[#808080] text-sm 2xl:text-xl">
+                    {/* <td className="px-4 py-2">{p.id}</td> */}
+                    <td
+                      className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
+                      style={{
+                        borderWidth: "0px 1px 1px 0px",
+                        borderStyle: "solid",
+                        borderColor: "#AAA9A9",
+                      }}
+                    >
+                      {p.policyNumber}
+                    </td>
+                    <td
+                      className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
+                      style={{
+                        borderWidth: "0px 1px 1px 0px",
+                        borderStyle: "solid",
+                        borderColor: "#AAA9A9",
+                      }}
+                    >
+                      {p.status}
+                    </td>
+                    {/* <td className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
+                    style={{
+                      borderWidth: "0px 1px 1px 0px",
+                      borderStyle: "solid",
+                      borderColor: "#AAA9A9",
+                    }}>{p.policyType}</td> */}
+                    <td
+                      className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
+                      style={{
+                        borderWidth: "0px 1px 1px 0px",
+                        borderStyle: "solid",
+                        borderColor: "#AAA9A9",
+                      }}
+                    >
+                      {p.firstName}
+                    </td>
+                    <td
+                      className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
+                      style={{
+                        borderWidth: "0px 1px 1px 0px",
+                        borderStyle: "solid",
+                        borderColor: "#AAA9A9",
+                      }}
+                    >
+                      {p.lastName}
+                    </td>
+                    <td
+                      className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
+                      style={{
+                        borderWidth: "0px 1px 1px 0px",
+                        borderStyle: "solid",
+                        borderColor: "#AAA9A9",
+                      }}
+                    >
+                      {p.dateOfBirth?.split("T")[0]}
+                    </td>
+                    <td
+                      className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
+                      style={{
+                        borderWidth: "0px 1px 1px 0px",
+                        borderStyle: "solid",
+                        borderColor: "#AAA9A9",
+                      }}
+                    >
+                      {p.effectiveDate?.split("T")[0]}
+                    </td>
+                    <td
+                      className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
+                      style={{
+                        borderWidth: "0px 1px 1px 0px",
+                        borderStyle: "solid",
+                        borderColor: "#AAA9A9",
+                      }}
+                    >
+                      {p.expiryDate?.split("T")[0]}
+                    </td>
+                    <td
+                      className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
+                      style={{
+                        borderWidth: "0px 1px 1px 0px",
+                        borderStyle: "solid",
+                        borderColor: "#AAA9A9",
+                      }}
+                    >
+                      {p.product}
+                    </td>
+
+                    <td
+                      className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
+                      style={{
+                        borderWidth: "0px 1px 1px 0px",
+                        borderStyle: "solid",
+                        borderColor: "#AAA9A9",
+                      }}
+                    >
+                      <Link
+                        target="_blank"
+                        to={`/policy-detail/${p.id}`}
+                        className="text-primary hover:underline hover:underline-offset-2 cursor-pointer font-medium px-4 text-center w-full"
+                      >
+                        View
+                      </Link>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
-          <div className="flex justify-center space-x-2 mt-4">
-            <button
-              onClick={() => goToPage(page - 1)}
-              disabled={page <= 1}
-              className="px-3 py-1 border rounded disabled:opacity-50"
-            >
-              Prev
-            </button>
-            {Array.from({ length: data.totalPages }, (_, i) => i + 1).map(
-              (p) => (
-                <button
-                  key={p}
-                  onClick={() => goToPage(p)}
-                  className={`px-3 py-1 border rounded ${
-                    p === page
-                      ? "bg-purple-700 text-white"
-                      : "bg-white text-purple-700"
-                  }`}
-                >
-                  {p}
-                </button>
-              )
-            )}
-            <button
-              onClick={() => goToPage(page + 1)}
-              disabled={page >= data.totalPages}
-              className="px-3 py-1 border rounded disabled:opacity-50"
-            >
-              Next
-            </button>
-          </div>
-        </>
+        </div>
+      )}
+      {totalPages > 0 && (
+        <div className="flex justify-center items-center space-x-2 mt-4">
+          <button
+            onClick={() => goToPage(page - 1)}
+            disabled={page <= 1}
+            className="px-2 py-[10px] bg-[#CCCCCC] text-[#6F6B7D] cursor-pointer"
+          >
+            <ChevronLeftIcon className="h-5 w-5" />
+          </button>
+
+          {renderPageNumbers()}
+
+          <button
+            onClick={() => goToPage(page + 1)}
+            disabled={page >= totalPages}
+            className="px-2 py-[10px] bg-[#CCCCCC] text-[#6F6B7D] cursor-pointer"
+          >
+            <ChevronRightIcon className="h-5 w-5" />
+          </button>
+        </div>
       )}
     </div>
   );

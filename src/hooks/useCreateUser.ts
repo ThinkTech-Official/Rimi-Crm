@@ -16,7 +16,6 @@ export interface newUser {
   validUpto: string;
   docFile1: File | null;
   docFile2: File | null;
-  docFile3: File | null;
 }
 
 type AvailabilityStatus = 
@@ -116,7 +115,6 @@ export function useCreateUser(): UseCreateUserResult {
 
     if (formData.docFile1) formDataToSend.append("documents", formData.docFile1);
     if (formData.docFile2) formDataToSend.append("documents", formData.docFile2);
-    if (formData.docFile3) formDataToSend.append("documents", formData.docFile3);
 
     const res = await fetch(`${API_BASE}/auth/register`, {
       method: "POST",

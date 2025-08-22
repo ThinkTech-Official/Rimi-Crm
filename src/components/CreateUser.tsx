@@ -19,9 +19,9 @@ export interface newUser {
   password: string;
   confirmPassword: string;
   validUpto: string;
+  validUpto2: string;
   docFile1: File | null;
   docFile2: File | null;
-  docFile3: File | null;
 }
 
 const CreateUser: React.FC = () => {
@@ -29,7 +29,7 @@ const CreateUser: React.FC = () => {
 
   // ─── form fields ─────────────────────────────────────────────────────────────
   const [firstName, setFirstName] = useState("");
-  const [agentCode, setAgentCode] = useState("");
+  // const [agentCode, setAgentCode] = useState("");
   const [status, setStatus] = useState<"ACTIVE" | "INACTIVE">("ACTIVE");
   const [userType, setUserType] = useState<userType>("ADMIN");
 
@@ -61,8 +61,12 @@ const CreateUser: React.FC = () => {
     register,
     handleSubmit,
     watch,
+    setValue,
     formState: { errors },
   } = useForm<newUser>();
+  const agentCode = watch("agentCode");
+  const docFile1 = watch("docFile1");
+  const docFile2 = watch("docFile2");
 
   // ─── auxiliary handlers ──────────────────────────────────────────────────────
   // const handleFileChange =
@@ -75,7 +79,7 @@ const CreateUser: React.FC = () => {
     // if (!firstName) return;
     const prefix = firstName.trim().slice(0, 4).toUpperCase();
     const uuidPart = uuidv4().split("-")[0].toUpperCase();
-    setAgentCode(`${prefix}${uuidPart}`);
+    setValue("agentCode", `${prefix}${uuidPart}`);
     setLastCheckedCode(""); // force re-check
   };
 
@@ -98,6 +102,20 @@ const CreateUser: React.FC = () => {
     loading: agentsLoading,
     error: agentsError,
   } = useAgentCodes(agentSearch);
+
+  const handleDocsChange = (
+    e: ChangeEvent<HTMLInputElement>,
+    docType: "docFile1" | "docFile2"
+  ) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setValue(docType, file);
+    }
+  };
+  const handleFileSize = (file: File) => {
+    const fileSizeInMB = file.size / (1024 * 1024);
+    return fileSizeInMB.toFixed(2);
+  };
 
   return (
     <form
@@ -402,45 +420,80 @@ const CreateUser: React.FC = () => {
           )}
         </div>
 
-        {/* Valid Upto */}
-        <div className="col-span-3 flex flex-col 1">
-          <label className="text-sm">Valid Upto</label>
-          <input
-            type="date"
-            {...register("validUpto", {
-              required: "Valid upto date is required",
-            })}
-            // value={validUpto}
-            // onChange={(e) => setValidUpto(e.target.value)}
-            className="input-primary"
-          />
-          {errors.validUpto && (
-            <p className="text-red-500 text-sm">{errors.validUpto.message}</p>
-          )}
-        </div>
-
         {/* Uploads */}
-        <div className="col-span-3 flex flex-col 1">
-          <label className="text-sm">Upload Document 1</label>
-          <input
-            type="file"
-            accept=".pdf,.doc,.docx"
-            {...register("docFile1")}
-            // onChange={handleFileChange(setDocFile1)}
-            className="input-primary"
-          />
+        <div className="flex justify-between col-span-3 gap-4">
+          <div className="flex flex-col w-full">
+            <label className="text-sm">Upload Document 1</label>
+           <div className="flex flex-col items-start space-y-2">
+              <label className="input-primary cursor-pointer">
+                Choose File <span className="text-xs">(Max 5MB)</span>
+                <input
+                  type="file"
+                  onChange={(e) => handleDocsChange(e, "docFile1")}
+                  className="hidden"
+                />
+              </label>
+              {docFile1 && (
+                <p className="text-sm">
+                  {docFile1.name} - {handleFileSize(docFile1)} MB
+                </p>
+              )}
+            </div>
+          </div>
+          {/* Valid Upto: 1 */}
+          <div className="flex flex-col w-full">
+            <label className="text-sm">Valid Upto</label>
+            <input
+              type="date"
+              {...register("validUpto", {
+                required: "Valid upto date is required",
+              })}
+              // value={validUpto}
+              // onChange={(e) => setValidUpto(e.target.value)}
+              className="input-primary"
+            />
+            {errors.validUpto && (
+              <p className="text-red-500 text-sm">{errors.validUpto.message}</p>
+            )}
+          </div>
         </div>
-        <div className="col-span-3 flex flex-col 1">
-          <label className="text-sm">Upload Document 2</label>
-          <input
-            type="file"
-            accept=".pdf,.doc,.docx"
-            {...register("docFile2")}
-            // onChange={handleFileChange(setDocFile2)}
-            className="input-primary"
-          />
+        <div className="flex justify-between col-span-3 gap-4">
+          <div className="flex flex-col w-full">
+            <label className="text-sm">Upload Document 2</label>
+            <div className="flex flex-col items-start space-y-2">
+              <label className="input-primary cursor-pointer">
+                Choose File <span className="text-xs">(Max 5MB)</span>
+                <input
+                  type="file"
+                  onChange={(e) => handleDocsChange(e, "docFile2")}
+                  className="hidden"
+                />
+              </label>
+              {docFile2 && (
+                <p className="text-sm">
+                  {docFile2.name} - {handleFileSize(docFile2)} MB
+                </p>
+              )}
+            </div>
+          </div>
+          {/* Valid Upto: 2 */}
+          <div className="flex flex-col w-full">
+            <label className="text-sm">Valid Upto</label>
+            <input
+              type="date"
+              // {...register("validUpto2", {
+              //   required: "Valid upto date is required",
+              // })}
+              // value={validUpto}
+              // onChange={(e) => setValidUpto(e.target.value)}
+              className="input-primary"
+            />
+            {errors.validUpto2 && (
+              <p className="text-red-500 text-sm">{errors.validUpto2.message}</p>
+            )}
+          </div>
         </div>
-        <div className="col-span-3 flex flex-col 1">
+        {/* <div className="col-span-3 flex flex-col 1">
           <label className="text-sm">Upload Document 3</label>
           <input
             type="file"
@@ -449,7 +502,7 @@ const CreateUser: React.FC = () => {
             // onChange={handleFileChange(setDocFile3)}
             className="input-primary"
           />
-        </div>
+        </div> */}
       </div>
 
       {/* Submit */}

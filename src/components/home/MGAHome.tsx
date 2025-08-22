@@ -2,12 +2,13 @@ import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
 import { useState } from "react";
 import { useAgentSummary } from "../../hooks/agent-dashboard/useAgentSummary.ts";
 import PolicySalesChart from "../analytics/charts/PolicySalesChart.tsx";
+import { AgentsTable } from "../Tables.tsx";
+import Spinner from "../Spinner.tsx";
 
 export default function MGAHome() {
   const { data: summary, loading: sLoading, error: sError } = useAgentSummary();
   const [currentPage, setCurrentPage] = useState(1);
   const limit = 10;
-  const [filter, setFilter] = useState("Policies");
   console.log("summary", summary);
   const agents = [
     {
@@ -57,7 +58,13 @@ export default function MGAHome() {
     },
     { label: "Monthly Premiums", value: summary?.monthlyPremiums.length },
   ];
-  const toggleTableFilter = (option: string) => setFilter(option);
+ if (sLoading)
+    return (
+      <div className="flex flex-col justify-center items-center gap-3 fixed top-1/2 left-1/2">
+        <Spinner className="w-10 h-10" />
+        <p>Loading...</p>
+      </div>
+    );
   return (
     <>
       <div className="w-full flex flex-col gap-4">
@@ -90,158 +97,8 @@ export default function MGAHome() {
           </h2>
           <p className="text-base text-text-secondary -mt-1">Current Month</p>
         </div>
-        <PolicySalesChart />
-        <div className="flex items-center justify-between mt-6">
-          <h2 className="text-lg font-bold text-text-primary">
-            All Policies issued by agent
-          </h2>
-          <div className="px-2 sm:px-4 py-1 sm:py-3">
-            <label className="inline-flex items-center mr-4 text-[#4B465C] opacity-80">
-              <input
-                type="radio"
-                name="filter"
-                value="all"
-                checked={filter === "Policies"}
-                onChange={() => toggleTableFilter("Policies")}
-                className="form-radio cursor-pointer checked:accent-primary"
-              />
-              <span className="ml-2 capitalize">Policies</span>
-            </label>
-            <label className="inline-flex items-center text-[#4B465C] opacity-80">
-              <input
-                type="radio"
-                name="filter"
-                value="certified"
-                checked={filter === "Quotes"}
-                onChange={() => toggleTableFilter("Quotes")}
-                className="form-radio cursor-pointer checked:accent-primary"
-              />
-              <span className="ml-2 capitalize">Quotes</span>
-            </label>
-          </div>
-        </div>
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-primary text-white text-base 2xl:text-xl capitalize">
-            <tr>
-              <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium">
-                Agent Code
-              </th>
-              <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium">
-                Joined Date
-              </th>
-              <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium">
-                Name
-              </th>
-              <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium">
-                Validity
-              </th>
-              <th className="px-2 sm:px-6 py-1 sm:py-3 text-center font-medium">
-                Action
-              </th>
-            </tr>
-          </thead>
-          <tbody className="bg-white" style={{ border: "1px solid #AAA9A9" }}>
-            {agents.map((agent: any) => (
-              <tr
-                key={agent.agentCode}
-                className="text-[#808080] text-sm 2xl:text-xl"
-              >
-                <td
-                  className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
-                  style={{
-                    borderWidth: "0px 1px 1px 0px",
-                    borderStyle: "solid",
-                    borderColor: "#AAA9A9",
-                  }}
-                >
-                  {" "}
-                  {agent.agentCode}
-                </td>
-                <td
-                  className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
-                  style={{
-                    borderWidth: "0px 1px 1px 0px",
-                    borderStyle: "solid",
-                    borderColor: "#AAA9A9",
-                  }}
-                >
-                  {" "}
-                  {agent.joinedDate}
-                </td>
-                <td
-                  className="px-2 sm:px-6 py-2 sm:py-4 min-w-[200px] max-w-[250px] text-wrap"
-                  style={{
-                    borderWidth: "0px 1px 1px 0px",
-                    borderStyle: "solid",
-                    borderColor: "#AAA9A9",
-                  }}
-                >
-                  {" "}
-                  {agent.name}
-                </td>
-                <td
-                  className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
-                  style={{
-                    borderWidth: "0px 1px 1px 0px",
-                    borderStyle: "solid",
-                    borderColor: "#AAA9A9",
-                  }}
-                >
-                  {" "}
-                  {agent.validity}
-                </td>
-                <td
-                  className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
-                  style={{
-                    borderWidth: "0px 1px 1px 0px",
-                    borderStyle: "solid",
-                    borderColor: "#AAA9A9",
-                  }}
-                >
-                  {" "}
-                  <button className="text-primary hover:underline hover:underline-offset-2 cursor-pointer font-medium px-4 text-center w-full">
-                    View Details
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-        {/* Pagination */}
-        <div
-          className="flex items-center justify-center p-4 space-x-2"
-          role="pagination"
-        >
-          <button
-            disabled={currentPage === 1}
-            // onClick={() => setCurrentPage((p) => p - 1)}
-            className="px-2 py-[10px] bg-[#CCCCCC] text-[#6F6B7D] cursor-pointer"
-            title="Previous"
-          >
-            <ChevronLeftIcon className="h-5 w-5" />
-          </button>
-          {Array.from({ length: 5 }, (_, i) => i + 1).map((num) => (
-            <button
-              key={num}
-              //   onClick={() => setCurrentPage(num)}
-              className={`px-3 py-2 cursor-pointer ${
-                currentPage === num
-                  ? "bg-primary text-white"
-                  : "bg-[#F1F0F2] text-[#808080]"
-              }`}
-            >
-              {num}
-            </button>
-          ))}
-          <button
-            // disabled={currentPage === totalPages}
-            // onClick={() => setCurrentPage((p) => p + 1)}
-            className="px-2 py-[10px] bg-[#CCCCCC] text-[#6F6B7D] cursor-pointer"
-            title="Next"
-          >
-            <ChevronRightIcon className="h-5 w-5" />
-          </button>
-        </div>
+        <PolicySalesChart data={""} loading={false} error={""} />
+        <AgentsTable data={agents} loading={sLoading} />
       </div>
     </>
   );

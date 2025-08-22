@@ -1,6 +1,7 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { LangContext } from "../context/LangContext";
 import { useForm } from "react-hook-form";
+import { start } from "repl";
 
 interface TripCalculatorFormInputs {
   startDate: string;
@@ -10,6 +11,7 @@ interface TripCalculatorFormInputs {
   weeks?: string;
   days?: string;
   operation?: string;
+  daysInput?: string;
 }
 
 const TripCalculator: React.FC = () => {
@@ -20,8 +22,24 @@ const TripCalculator: React.FC = () => {
   const {
     register,
     handleSubmit,
+    watch,
+    setValue,
     formState: { errors },
   } = useForm<TripCalculatorFormInputs>();
+
+  const startDate = watch("startDate");
+  const daysInput = watch("daysInput");
+
+  useEffect(() => {
+  if (calculationType === "duration" && startDate && daysInput) {
+    const start = new Date(startDate);
+    const end = new Date(start);
+    // subtract 1 so "1 day" means start == end
+    end.setDate(start.getDate() + Number(daysInput) - 1);
+    setValue("endDate", end.toISOString().split("T")[0]);
+  }
+}, [calculationType, startDate, daysInput, setValue]);
+
 
   const onSubmit = (data: TripCalculatorFormInputs) => {
     console.log(data);
@@ -56,7 +74,11 @@ const TripCalculator: React.FC = () => {
       setResult("Invalid Input");
     }
   };
-
+const handleCalculationTypeChange = (type: string) => () => {
+  if(type === calculationType) return;
+  setCalculationType(type);
+  setResult('');
+}
   return (
     <div className="max-w-5xl mx-auto mt-4 px-2 py-4 sm:p-6 bg-[#F9F9F9]">
       <h2 className="text-lg font-bold text-left text-[#1B1B1B]">
@@ -74,7 +96,7 @@ const TripCalculator: React.FC = () => {
               type="radio"
               value="duration"
               checked={calculationType === "duration"}
-              onChange={() => setCalculationType("duration")}
+              onChange={handleCalculationTypeChange("duration")}
               className="accent-primary cursor-pointer"
             />
             {langauge === "En" ? "Calculate Duration" : "Calculer la durée"}
@@ -84,7 +106,7 @@ const TripCalculator: React.FC = () => {
               type="radio"
               value="newDate"
               checked={calculationType === "newDate"}
-              onChange={() => setCalculationType("newDate")}
+              onChange={handleCalculationTypeChange("newDate")}
               className="accent-primary cursor-pointer"
             />
             {langauge === "En"
@@ -165,24 +187,21 @@ const TripCalculator: React.FC = () => {
                     type="number"
                     className="input-primary"
                     placeholder="0"
-                    {...register(key as keyof TripCalculatorFormInputs, {
-                      required: `${label} is required`,
-                    })}
+                    {...register(key as keyof TripCalculatorFormInputs)}
                   />
-                  {errors[name as keyof TripCalculatorFormInputs] && (
-                    <p className="text-red-500 text-sm">
-                      {
-                        errors[name as keyof TripCalculatorFormInputs]
-                          ?.message as string
-                      }{" "}
-                    </p>
-                  )}
                 </div>
               ))}
             </>
           )}
         </div>
-
+        {calculationType === "duration" && (
+          <div className="w-[130px] mt-4 flex items-center gap-2">
+            <label className="text-sm">
+              {langauge === "En" ? "Days" : "Jours"}
+            </label>
+            <input type="number" className="input-primary" placeholder="0" {...register("daysInput")} />
+          </div>
+        )}
         <div className="w-full flex justify-center items-center mt-2">
           <button
             type="submit"
