@@ -1,14 +1,18 @@
 // src/components/Users.tsx
-import React, { useState, useContext, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import React, { useState, useContext } from "react";
+import { Link } from "react-router-dom";
 import { LangContext } from "../context/LangContext";
 import { useSearchUsers, SearchCriteria, User } from "../hooks/useSearchUsers";
-import { ChevronDownIcon } from "@heroicons/react/24/outline";
+import {
+  ChevronDownIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
+} from "@heroicons/react/24/outline";
 import { useForm } from "react-hook-form";
+import { RenderPageNumbers } from "./RenderPageNumbers";
 
 const Users: React.FC = () => {
   const { langauge } = useContext(LangContext);
-  const navigate = useNavigate();
 
   // combined search & pagination criteria
   const [criteria, setCriteria] = useState<SearchCriteria>({
@@ -25,11 +29,6 @@ const Users: React.FC = () => {
     limit: 20,
   });
 
-  // Validation
-  const [inputErrors, setInputErrors] = useState<{ [key: string]: string }>({});
-
-  //
-
   const {
     users,
     loading,
@@ -38,20 +37,15 @@ const Users: React.FC = () => {
     page,
     // limit,
     totalPages,
-    hasPrevPage,
-    hasNextPage,
     search,
   } = useSearchUsers();
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<SearchCriteria>({});
+  const { register, handleSubmit } = useForm<SearchCriteria>({});
 
   // trigger search with current criteria
-  const onSearch = () => {
-    const updated = { ...criteria, page: 1 };
+  const onSearch = (user: SearchCriteria) => {
+    console.log(".............", user);
+    const updated = { ...user, page: 1 };
     setCriteria(updated);
     search(updated);
   };
@@ -86,23 +80,11 @@ const Users: React.FC = () => {
             { label: "Created Before", key: "createdBefore", type: "date" },
             { label: "Company", key: "company" },
           ].map(({ label, key, type }) => (
-            // <div key={key}>
-            //   <label className="text-sm">{label}</label>
-            //   <input
-            //     type={(type as string) || "text"}
-            //     value={(criteria as any)[key]}
-            //     onChange={(e) =>
-            //       setCriteria((c) => ({ ...c, [key]: e.target.value }))
-            //     }
-            //     className="w-full p-2 border rounded border-[#3a17c5] focus:outline-[#3a17c5]"
-            //   />
-            // </div>
             <div key={key}>
               <label className="text-sm">{label}</label>
               <input
                 type={type || "text"}
                 {...register(key as keyof SearchCriteria, {
-                  required: `${label} is required`,
                   ...(key === "email" && {
                     pattern: {
                       value: /^\S+@\S+\.\S+$/,
@@ -113,12 +95,12 @@ const Users: React.FC = () => {
                 className="input-primary"
               />
 
-              {errors[key as keyof SearchCriteria] && (
+              {/* {errors[key as keyof SearchCriteria] && (
                 <p className="text-red-500 text-sm mt-1">
                   {(errors[key as keyof SearchCriteria]?.message as string) ||
                     ""}
                 </p>
-              )}
+              )} */}
             </div>
           ))}
 
@@ -172,18 +154,19 @@ const Users: React.FC = () => {
 
       <div className="flex justify-center mb-6 mt-8">
         <button onClick={handleSubmit(onSearch)} className="btn-primary">
-          {langauge === "En" ? "SEARCH" : "RECHERCHE"}
+          {loading
+            ? "Searching..."
+            : langauge === "En"
+            ? "SEARCH"
+            : "RECHERCHE"}
         </button>
       </div>
-
-      {/* ── Results Table ─────────────────────────────────────── */}
-      {loading && <p>Loading…</p>}
       {error && <p className="text-red-500">{error}</p>}
 
-      {!loading && !error && users.length > 0 && (
-        <>
-          <table className="min-w-full border">
-            <thead className="bg-gray-100">
+      {users.length > 0 && (
+        <div className="w-full overflow-x-auto custom-scrollbar pb-2">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-primary text-white text-base 2xl:text-xl capitalize">
               <tr>
                 {[
                   "Agent Code",
@@ -196,73 +179,146 @@ const Users: React.FC = () => {
                 ].map((h) => (
                   <th
                     key={h}
-                    className="px-4 py-2 text-left text-sm font-medium text-gray-700"
+                    className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium text-nowrap"
                   >
                     {h}
                   </th>
                 ))}
               </tr>
             </thead>
-            <tbody>
-              {users.map((u: User) => (
-                <tr key={u.id} className="border-t">
-                  <td className="px-4 py-2">{u.agentCode}</td>
-                  <td className="px-4 py-2">{u.firstName}</td>
-                  <td className="px-4 py-2">{u.lastName}</td>
-                  <td className="px-4 py-2">{u.email}</td>
-                  <td className="px-4 py-2">{u.userType}</td>
-                  <td className="px-4 py-2">{u.status}</td>
-                  <td className="px-4 py-2">
-                    <Link
-                      target="_blank"
-                      to={`/userdetail/${u.id}`}
-                      className="px-3 py-1 bg-blue-600 text-white text-sm rounded"
-                    >
-                      View
-                    </Link>
+            <tbody className="bg-white" style={{ border: "1px solid #AAA9A9" }}>
+              {loading ? (
+                <tr>
+                  <td
+                    className="p-2 text-primary text-center h-40 "
+                    colSpan={9}
+                  >
+                    Loading…
                   </td>
                 </tr>
-              ))}
+              ) : error ? (
+                <tr>
+                  <td className="p-2 text-red-500" colSpan={9}>
+                    {error}
+                  </td>
+                </tr>
+              ) : users?.length === 0 ? (
+                <tr>
+                  <td className="p-2 text-text-secondary" colSpan={9}>
+                    No users found
+                  </td>
+                </tr>
+              ) : (
+                users.map((u: User) => (
+                  <tr key={u.id} className="text-[#808080] text-sm 2xl:text-xl">
+                    <td
+                      className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
+                      style={{
+                        borderWidth: "0px 1px 1px 0px",
+                        borderStyle: "solid",
+                        borderColor: "#AAA9A9",
+                      }}
+                    >
+                      {u.agentCode}
+                    </td>
+                    <td
+                      className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
+                      style={{
+                        borderWidth: "0px 1px 1px 0px",
+                        borderStyle: "solid",
+                        borderColor: "#AAA9A9",
+                      }}
+                    >
+                      {u.firstName}
+                    </td>
+                    <td
+                      className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
+                      style={{
+                        borderWidth: "0px 1px 1px 0px",
+                        borderStyle: "solid",
+                        borderColor: "#AAA9A9",
+                      }}
+                    >
+                      {u.lastName}
+                    </td>
+                    <td
+                      className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
+                      style={{
+                        borderWidth: "0px 1px 1px 0px",
+                        borderStyle: "solid",
+                        borderColor: "#AAA9A9",
+                      }}
+                    >
+                      {u.email}
+                    </td>
+                    <td
+                      className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
+                      style={{
+                        borderWidth: "0px 1px 1px 0px",
+                        borderStyle: "solid",
+                        borderColor: "#AAA9A9",
+                      }}
+                    >
+                      {u.userType}
+                    </td>
+                    <td
+                      className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
+                      style={{
+                        borderWidth: "0px 1px 1px 0px",
+                        borderStyle: "solid",
+                        borderColor: "#AAA9A9",
+                      }}
+                    >
+                      {u.status}
+                    </td>
+                    <td
+                      className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
+                      style={{
+                        borderWidth: "0px 1px 1px 0px",
+                        borderStyle: "solid",
+                        borderColor: "#AAA9A9",
+                      }}
+                    >
+                      <Link
+                        target="_blank"
+                        to={`/userdetail/${u.id}`}
+                        className="text-primary hover:underline hover:underline-offset-2 cursor-pointer font-medium px-4 text-center w-full"
+                      >
+                        View
+                      </Link>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
-
-          {/* ── Pagination Controls ────────────────────────────── */}
-          <div className="flex justify-center items-center space-x-2 mt-4">
-            <button
-              onClick={() => goToPage(page - 1)}
-              disabled={!hasPrevPage}
-              className="px-3 py-1 rounded border bg-white disabled:opacity-50"
-            >
-              Prev
-            </button>
-
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
-              <button
-                key={p}
-                onClick={() => goToPage(p)}
-                className={`px-3 py-1 rounded border ${
-                  p === page
-                    ? "bg-indigo-600 text-white"
-                    : "bg-white text-indigo-600"
-                }`}
-              >
-                {p}
-              </button>
-            ))}
-
-            <button
-              onClick={() => goToPage(page + 1)}
-              disabled={!hasNextPage}
-              className="px-3 py-1 rounded border bg-white disabled:opacity-50"
-            >
-              Next
-            </button>
-          </div>
-        </>
+        </div>
       )}
+      {/* ── Pagination Controls ────────────────────────────── */}
+      {totalPages > 0 && (
+        <div className="flex justify-center items-center space-x-2 mt-4">
+          <button
+            onClick={() => goToPage(page - 1)}
+            disabled={page <= 1}
+            className="px-2 py-[10px] bg-[#CCCCCC] text-[#6F6B7D] cursor-pointer"
+          >
+            <ChevronLeftIcon className="h-5 w-5" />
+          </button>
 
-      {!loading && !error && users.length === 0 && (
-        <p className="text-center text-gray-500">No users found.</p>
+          <RenderPageNumbers
+            goToPage={goToPage}
+            totalPages={totalPages}
+            page={page}
+          />
+
+          <button
+            onClick={() => goToPage(page + 1)}
+            disabled={page >= totalPages}
+            className="px-2 py-[10px] bg-[#CCCCCC] text-[#6F6B7D] cursor-pointer"
+          >
+            <ChevronRightIcon className="h-5 w-5" />
+          </button>
+        </div>
       )}
     </div>
   );

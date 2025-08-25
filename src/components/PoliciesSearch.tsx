@@ -417,7 +417,7 @@ const PoliciesSearch: React.FC = () => {
             <tbody className="bg-white" style={{ border: "1px solid #AAA9A9" }}>
               {loading ? (
                 <tr>
-                  <td className="p-2 text-primary text-center h-40 flex flex-col justify-center items-center" colSpan={9}>
+                  <td className="p-2 text-primary text-center h-40" colSpan={9}>
                     Loading…
                   </td>
                 </tr>
