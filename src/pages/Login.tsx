@@ -43,7 +43,7 @@ const Login = () => {
     const result = await login(data.email, data.password);
     console.log(result.type);
     if (result.type === "auth/loginUser/fulfilled") {
-      navigate("/dashboard");
+      navigate("/");
     } else if (result.type === "auth/loginUser/rejected") {
       setErrMsg(result.payload);
       setShow(true);

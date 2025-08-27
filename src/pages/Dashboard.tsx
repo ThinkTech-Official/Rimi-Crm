@@ -32,7 +32,7 @@ import SecureTravelRIMIVisitorstoCanadaTravel from "../components/Products/Secur
 import BulkUpload from "../components/Products/SecureStudyRIMIInternationalStudentstoCanada/BulkUpload";
 import { getUserTypeFromToken } from "../utils/getUserType";
 import { HiOutlineDocumentCurrencyDollar } from "react-icons/hi2";
-import { useNavigate } from "react-router-dom";
+import { Outlet, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import Home from "../components/home/Home";
 import Footer from "../components/Footer";
@@ -48,6 +48,7 @@ const navigation = [
     current: true,
     slug: "home",
     allowedRoles: ["ADMIN", "AGENT", "MGA"],
+    url: "/",
   },
   {
     name: "Products",
@@ -57,6 +58,7 @@ const navigation = [
     current: false,
     slug: "product",
     allowedRoles: ["ADMIN", "AGENT", "MGA", "READONLY"],
+    url: "/products",
   },
   {
     name: "Quotes",
@@ -66,6 +68,7 @@ const navigation = [
     current: false,
     slug: "quotes-search",
     allowedRoles: ["ADMIN", "AGENT", "MGA"],
+    url: "/search-quotes",
   },
   {
     name: "Policies",
@@ -75,6 +78,7 @@ const navigation = [
     current: false,
     slug: "policy-search",
     allowedRoles: ["ADMIN", "AGENT", "MGA"],
+    url: "/search-policies",
   },
   {
     name: "Reporting",
@@ -84,6 +88,7 @@ const navigation = [
     current: false,
     slug: "reporting",
     allowedRoles: ["ADMIN"],
+    url: "/reporting",
   },
   {
     name: "Users",
@@ -93,6 +98,7 @@ const navigation = [
     current: false,
     slug: "users",
     allowedRoles: ["ADMIN"],
+    url: "/search-users",
   },
   {
     name: "Create User",
@@ -102,6 +108,7 @@ const navigation = [
     current: false,
     slug: "create-user",
     allowedRoles: ["ADMIN"],
+    url: "/create-user",
   },
   {
     name: "Documents",
@@ -111,6 +118,7 @@ const navigation = [
     current: false,
     slug: "documents",
     allowedRoles: ["ADMIN", "AGENT", "MGA"],
+    url: "/documents",
   },
   {
     name: "Trip Calculator",
@@ -120,6 +128,7 @@ const navigation = [
     current: false,
     slug: "trip-calculator",
     allowedRoles: ["ADMIN"],
+    url: "/trip-calculator",
   },
 ];
 
@@ -136,6 +145,7 @@ export default function Dashboard() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isSidebarCollapsed, setSidebarCollapsed] = useState(true); // to just show the icons
   const { t } = useTranslation();
+  const navigate = useNavigate();
 
   // State of braedcrumbs
   const [breadCrumbState, setBreadCrumbState] = useState<string[]>([]);
@@ -170,7 +180,10 @@ export default function Dashboard() {
   const filteredNavigation = navigation.filter((item) =>
     item.allowedRoles.includes(userType || "")
   );
-
+const handleLinkClick = (nav:any) => {
+  setSelectedComponent(nav.slug);
+  navigate(nav.url);
+}
   return (
     <>
       <div>
@@ -241,7 +254,7 @@ export default function Dashboard() {
                           <ul role="list" className="space-y-1">
                             {filteredNavigation.map((item) => (
                               <li
-                                onClick={() => handleSetComponent(item.slug)}
+                                onClick={() => handleLinkClick(item)}
                                 key={item.name}
                                 className={`group cursor-pointer hover:text-primary  
                             ${
@@ -313,7 +326,7 @@ export default function Dashboard() {
                   <ul role="list" className="space-y-1">
                     {filteredNavigation.map((item) => (
                       <li
-                        onClick={() => handleSetComponent(item.slug)}
+                        onClick={() => handleLinkClick(item)}
                         key={item.name}
                         className={`group cursor-pointer hover:text-primary  
                             ${
@@ -376,7 +389,7 @@ export default function Dashboard() {
           }
           <>
             {/* Bread crumbs STATE  */}
-            <div className="flex gap-0 px-5">
+            {/* <div className="flex gap-0 px-5">
               {breadCrumbState.map((item) => (
                 <div className="py-4 flex gap-2">
                   <p
@@ -389,89 +402,9 @@ export default function Dashboard() {
                   </p>
                 </div>
               ))}
-            </div>
-            <main className="pt-4 pb-10 min-h-[calc(100vh-64px)]">
-              <div className="px-4 sm:px-6 lg:px-8">
-                {selectedComponent === "none" ? (
-                  <div className=" h-full w-full flex justify-center items-center">
-                    {/* <p className=" text-2xl text-[#3a17c5]">
-                      Welcome to Rimi Insurance Dashboard
-                    </p> */}
-                    {/* <Analytics /> */}
-
-                    <Home />
-                  </div>
-                ) : (
-                  ""
-                )}
-                {selectedComponent === "product" ? (
-                  <Products
-                    breadCrumbState={breadCrumbState}
-                    setBreadCrumbState={setBreadCrumbState}
-                    setSelectedComponent={setSelectedComponent}
-                  />
-                ) : (
-                  ""
-                )}
-                {selectedComponent === "quotes-search" ? <QuotesSearch /> : ""}
-                {selectedComponent === "policy-search" ? (
-                  <PoliciesSearch />
-                ) : (
-                  ""
-                )}
-                {userType === "ADMIN" && selectedComponent === "reporting" && (
-                  <Reporting />
-                )}
-                {userType === "ADMIN" && selectedComponent === "users" ? (
-                  <Users />
-                ) : (
-                  ""
-                )}
-                {userType === "ADMIN" &&
-                  selectedComponent === "create-user" && <CreateUser />}
-                {selectedComponent === "documents" ? <Documents /> : ""}
-                {userType === "ADMIN" &&
-                selectedComponent === "trip-calculator" ? (
-                  <TripCalculator />
-                ) : (
-                  ""
-                )}
-                {/* {userType === "ADMIN" && selectedComponent === "analytics" ? <Analytics /> : ""} */}
-                {selectedComponent === "home" && <Home />}
-
-                {/* products sub components  */}
-                {selectedComponent === "RIMI Canuck Voyage Travel Medical" ? (
-                  <RIMICanuckVoyageTravelMedical />
-                ) : (
-                  ""
-                )}
-                {selectedComponent ===
-                "RIMI Canuck Voyage Non-Medical Travel" ? (
-                  <RIMICanuckVoyageNonMedicalTravel />
-                ) : (
-                  ""
-                )}
-                {selectedComponent ===
-                "Secure Study RIMI International Students to Canada" ? (
-                  <SecureStudyRIMIInternationalStudentstoCanada />
-                ) : (
-                  ""
-                )}
-                {selectedComponent ===
-                "Secure Travel RIMI Visitors to Canada Travel" ? (
-                  <SecureTravelRIMIVisitorstoCanadaTravel />
-                ) : (
-                  ""
-                )}
-
-                {userType === "ADMIN" && selectedComponent === "Bulk Upload" ? (
-                  <BulkUpload />
-                ) : (
-                  ""
-                )}
-
-                {/*  */}
-              </div>
+            </div> */}
+            <main className="pt-4 pb-10 min-h-[calc(100vh-64px)] px-2 sm:px-4 md:px-8">
+              <Outlet />
             </main>
             <Footer />
           </>
