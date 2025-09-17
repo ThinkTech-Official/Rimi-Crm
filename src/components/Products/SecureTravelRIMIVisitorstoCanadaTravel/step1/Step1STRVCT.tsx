@@ -439,7 +439,8 @@ const Step1STRVCT = ({ onValidityChange,
     deductible,
     primarydateOfBirth: primaryDateOfBirth,
     paymentOption,
-    plan: 1
+    plan: 1,
+    applicants
   }), [
   countryOfOrigin,
   inCanada,
@@ -453,7 +454,8 @@ const Step1STRVCT = ({ onValidityChange,
   deductible,
   primaryDateOfBirth,
   paymentOption,
-  coverageForPreMedCon
+  coverageForPreMedCon,
+  applicants
 ]
 ) 
   // const payload = Object.defineProperty(PremiumCalculationData, "primarydateOfBirth", {value: primaryDateOfBirth});

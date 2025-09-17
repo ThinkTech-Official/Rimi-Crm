@@ -32,7 +32,7 @@ import i18n from './i18n/i18.ts';
 import AgentDetails from './components/AgentDetails.tsx';
 
 
-
+// "build": "tsc -b && vite build",
 
 
 
