@@ -1,0 +1,241 @@
+// hooks/admin/index.ts
+import { useQuery,keepPreviousData  } from '@tanstack/react-query';
+import { axiosInstance } from "../../utils/axiosInstance";
+
+// Types
+interface AdminStats {
+  totalPolicies: number;
+  totalQuotes: number;
+  totalAgents: number;
+  totalMGAs: number;
+  totalCommissions: number;
+  currentMonthCommissions: number;
+  monthlyPremiums: number;
+  activeAgents: number;
+  commissionPercent: number;
+}
+
+interface ChartData {
+  labels: string[];
+  datasets: Array<{
+    label: string;
+    data: number[];
+    borderColor: string;
+    backgroundColor: string;
+    yAxisID?: string;
+  }>;
+  summary?: any;
+  statusDistribution?: Record<string, number>;
+  averageConversionRate?: number;
+}
+
+interface PaginatedResponse<T> {
+  data: T[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
+interface Agent {
+  id: string;
+  agentCode: string;
+  name: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  status: string;
+  joinedDate: string;
+  validity: string;
+  quotesCount: number;
+  policiesCount: number;
+  commissionPercent?: number;
+}
+
+interface Policy {
+  id: string;
+  policyNumber: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  policyType: string;
+  premium: number;
+  status: string;
+  dateIssued: string;
+  effectiveDate: string;
+  expiryDate: string;
+  product: string;
+}
+
+interface Quote {
+  id: string;
+  quoteNumber: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  policyType: string;
+  premium: number;
+  status: string;
+  product: string;
+  createdAt: string;
+  effectiveDate: string;
+  expiryDate: string;
+}
+
+// Hook for Admin Stats
+export const useAdminStats = () => {
+  return useQuery<AdminStats>({
+    queryKey: ['admin-stats'],
+    queryFn: async () => {
+      const response = await axiosInstance.get('/admin/stats');
+      return response.data;
+    },
+    refetchInterval: 60000, // Refetch every minute
+  });
+};
+
+// Hook for Quotes Analysis
+export const useQuotesAnalysis = (startDate?: string, endDate?: string) => {
+  return useQuery<ChartData>({
+    queryKey: ['quotes-analysis', startDate, endDate],
+    queryFn: async () => {
+      const params = new URLSearchParams();
+      if (startDate) params.append('startDate', startDate);
+      if (endDate) params.append('endDate', endDate);
+      
+      const response = await axiosInstance.get(`/admin/quotes-analysis?${params}`);
+      return response.data;
+    },
+  });
+};
+
+// Hook for Policy Analysis
+export const usePolicyAnalysis = (startDate?: string, endDate?: string) => {
+  return useQuery<ChartData>({
+    queryKey: ['policy-analysis', startDate, endDate],
+    queryFn: async () => {
+      const params = new URLSearchParams();
+      if (startDate) params.append('startDate', startDate);
+      if (endDate) params.append('endDate', endDate);
+      
+      const response = await axiosInstance.get(`/admin/policy-analysis?${params}`);
+      return response.data;
+    },
+  });
+};
+
+// Hook for Quotes vs Policy Conversion
+export const useQuotesPolicyConversion = (startDate?: string, endDate?: string) => {
+  return useQuery<ChartData>({
+    queryKey: ['quotes-policy-conversion', startDate, endDate],
+    queryFn: async () => {
+      const params = new URLSearchParams();
+      if (startDate) params.append('startDate', startDate);
+      if (endDate) params.append('endDate', endDate);
+      
+      const response = await axiosInstance.get(`/admin/quotes-policy-conversion?${params}`);
+      return response.data;
+    },
+  });
+};
+
+// Hook for Agent Types Monthly
+export const useAgentTypesMonthly = (months: number = 12) => {
+  return useQuery<ChartData>({
+    queryKey: ['agent-types-monthly', months],
+    queryFn: async () => {
+      const response = await axiosInstance.get(`/admin/agent-types-monthly?months=${months}`);
+      return response.data;
+    },
+  });
+};
+
+// Hook for Policy Sales
+export const usePolicySales = (period: 'daily' | 'weekly' | 'monthly' = 'daily') => {
+  return useQuery<ChartData>({
+    queryKey: ['policy-sales', period],
+    queryFn: async () => {
+      const response = await axiosInstance.get(`/admin/policy-sales?period=${period}`);
+      return response.data;
+    },
+  });
+};
+
+// Hook for Agents Table
+export const useAgents = (page: number = 1, limit: number = 10, search?: string, status?: string) => {
+  return useQuery<PaginatedResponse<Agent>>({
+    queryKey: ['agents', page, limit, search, status],
+    queryFn: async () => {
+      const params = new URLSearchParams({
+        page: page.toString(),
+        limit: limit.toString(),
+      });
+      if (search) params.append('search', search);
+      if (status) params.append('status', status);
+      
+      const response = await axiosInstance.get(`/admin/agents?${params}`);
+      return response.data;
+    },
+    placeholderData: keepPreviousData,
+  });
+};
+
+// Hook for Policies Table
+export const usePolicies = (page: number = 1, limit: number = 10, search?: string, status?: string) => {
+  return useQuery<PaginatedResponse<Policy>>({
+    queryKey: ['policies', page, limit, search, status],
+    queryFn: async () => {
+      const params = new URLSearchParams({
+        page: page.toString(),
+        limit: limit.toString(),
+      });
+      if (search) params.append('search', search);
+      if (status) params.append('status', status);
+      
+      const response = await axiosInstance.get(`/admin/policies?${params}`);
+      return response.data;
+    },
+    placeholderData: keepPreviousData,
+  });
+};
+
+// Hook for Quotes Table
+export const useQuotes = (page: number = 1, limit: number = 10, search?: string, status?: string) => {
+  return useQuery<PaginatedResponse<Quote>>({
+    queryKey: ['quotes', page, limit, search, status],
+    queryFn: async () => {
+      const params = new URLSearchParams({
+        page: page.toString(),
+        limit: limit.toString(),
+      });
+      if (search) params.append('search', search);
+      if (status) params.append('status', status);
+      
+      const response = await axiosInstance.get(`/admin/quotes?${params}`);
+      return response.data;
+    },
+    placeholderData: keepPreviousData,
+  });
+};
+
+// Hook for Agent Details
+export const useAgentDetails = (agentCode: string) => {
+  return useQuery({
+    queryKey: ['agent-details', agentCode],
+    queryFn: async () => {
+      const response = await axiosInstance.get(`/admin/agents/${agentCode}`);
+      return response.data;
+    },
+    enabled: !!agentCode,
+  });
+};
+
+// Export types for use in components
+export type {
+  AdminStats,
+  ChartData,
+  PaginatedResponse,
+  Agent,
+  Policy,
+  Quote,
+};

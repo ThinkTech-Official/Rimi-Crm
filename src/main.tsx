@@ -31,6 +31,31 @@ import AgentDashboard from './pages/AgentDashboard.tsx';
 import i18n from './i18n/i18.ts';
 import AgentDetails from './components/AgentDetails.tsx';
 
+
+
+
+
+
+// React Query
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+
+// Create ONE client (module-level singleton)
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 60_000,            // cache stays fresh for 1 min
+      refetchOnWindowFocus: false,  // calmer UX
+    },
+  },
+});
+
+
+
+
+
+
+
 const router = createBrowserRouter(
   createRoutesFromElements(
     <Route path='/' element={<App />}>
@@ -73,9 +98,12 @@ createRoot(document.getElementById('root')!).render(
     </Provider> */}
     <Provider store={store}>
   <PersistGate loading={null} persistor={persistor}>
+    <QueryClientProvider client={queryClient}>
     <LangContextProvider>
       <RouterProvider router={router} />
     </LangContextProvider>
+    <ReactQueryDevtools initialIsOpen={false} />
+        </QueryClientProvider>
   </PersistGate>
 </Provider>
   </StrictMode>,

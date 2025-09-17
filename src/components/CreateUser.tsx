@@ -70,14 +70,24 @@ const CreateUser: React.FC = () => {
     setLastCheckedCode(agentCode);
   };
 
-  const onSubmit = async (newUser: newUser) => {
+  const onSubmit = async (formData: newUser) => {
     if (availability !== "available" || lastCheckedCode !== agentCode) {
       return; // must confirm availability first
     }
     // add status and allowBulkUpload to newUser
-    newUser.status = status;
-    newUser.allowBulkUpload = allowBulkUpload;
-    await createUser(newUser);
+    // newUser.status = status;
+    // newUser.allowBulkUpload = allowBulkUpload;
+    // await createUser(newUser);
+
+    // Create the complete user object with all fields
+    const completeUserData: newUser = {
+      ...formData, // This includes all form fields from react-hook-form
+      status,
+      allowBulkUpload,
+      selectedAgents: userType === "MGA" ? selectedAgents : undefined,
+    };
+
+    await createUser(completeUserData);
   };
 
   // ─── fetch MGA agents ────────────────────────────────────────────────────────
@@ -132,7 +142,6 @@ const CreateUser: React.FC = () => {
             <p className="text-red-500 text-sm">{errors.firstName.message}</p>
           )}
         </div>
-
         {/* Last Name */}
         <div className="flex flex-col col-span-3 sm:col-span-1">
           <label className="text-sm">Last Name</label>
@@ -148,7 +157,6 @@ const CreateUser: React.FC = () => {
             <p className="text-red-500 text-sm">{errors.lastName.message}</p>
           )}
         </div>
-
         {/* Email */}
         <div className="flex flex-col col-span-3 sm:col-span-1">
           <label className="text-sm">Email</label>
@@ -173,7 +181,6 @@ const CreateUser: React.FC = () => {
             <p className="text-red-500 text-sm">{errors.email.message}</p>
           )}
         </div>
-
         {/* Agent Code + Generate / Check */}
         <div className="">
           <div className=" flex flex-col col-span-3 sm:col-span-1">
@@ -226,7 +233,6 @@ const CreateUser: React.FC = () => {
         {availabilityError && (
           <p className="text-red-500 text-sm mt-1">{availabilityError}</p>
         )}
-
         {/* Company */}
         <div className="flex flex-col col-span-3 sm:col-span-1">
           <label className="text-sm">Company</label>
@@ -242,7 +248,6 @@ const CreateUser: React.FC = () => {
             <p className="text-red-500 text-sm">{errors.company.message}</p>
           )}
         </div>
-
         {/* User Type */}
         <div className="flex flex-col col-span-2 sm:col-span-1">
           <label className="text-sm">User Type</label>
@@ -316,6 +321,36 @@ const CreateUser: React.FC = () => {
             )}
           </div>
         )}
+        {/* Agent Commission - Only show for AGENT user type */}
+        {userType === "AGENT" && (
+          <div className="flex flex-col col-span-3 sm:col-span-1">
+            <label className="text-sm">Agent Commission (%)</label>
+            <input
+              type="number"
+              step="0.01"
+              min="0"
+              max="100"
+              {...register("commissionPercent", {
+                min: { value: 0, message: "Commission cannot be negative" },
+                max: { value: 100, message: "Commission cannot exceed 100%" },
+                pattern: {
+                  value: /^\d+(\.\d{1,2})?$/,
+                  message: "Please enter a valid percentage (e.g., 15.5)",
+                },
+              })}
+              className="input-primary"
+              placeholder="e.g., 15.50"
+            />
+            {errors.commissionPercent && (
+              <p className="text-red-500 text-sm">
+                {errors.commissionPercent.message}
+              </p>
+            )}
+            <p className="text-xs text-gray-500 mt-1">
+              Enter the commission percentage for this agent (0-100%)
+            </p>
+          </div>
+        )}
         {/* Status */}
         <div className="col-span-1 space-y-2">
           <label className="text-sm">Status</label>
@@ -372,7 +407,6 @@ const CreateUser: React.FC = () => {
             </label>
           </div>
         </div>
-
         {/* Password */}
         <div className="col-span-3 space-y-2">
           <label className="text-sm">Password</label>
@@ -434,7 +468,6 @@ const CreateUser: React.FC = () => {
             </p>
           )}
         </div>
-
         {/* Uploads */}
         <div className="flex justify-between col-span-3 gap-4">
           <div className="flex flex-col w-full">
@@ -455,16 +488,15 @@ const CreateUser: React.FC = () => {
               )}
             </div>
           </div>
-          {/* Valid Upto: 1 */}
+
+          {/* Document 1 Valid Upto */}
           <div className="flex flex-col w-full">
-            <label className="text-sm">Valid Upto</label>
+            <label className="text-sm">Document 1 Valid Upto</label>
             <input
               type="date"
               {...register("validUpto", {
-                required: "Valid upto date is required",
+                required: "Document 1 validity date is required",
               })}
-              // value={validUpto}
-              // onChange={(e) => setValidUpto(e.target.value)}
               className="input-primary"
             />
             {errors.validUpto && (
@@ -472,6 +504,7 @@ const CreateUser: React.FC = () => {
             )}
           </div>
         </div>
+        {/* Document 2 */}
         <div className="flex justify-between col-span-3 gap-4">
           <div className="flex flex-col w-full">
             <label className="text-sm">Upload Document 2</label>
@@ -491,16 +524,15 @@ const CreateUser: React.FC = () => {
               )}
             </div>
           </div>
-          {/* Valid Upto: 2 */}
+
+          {/* Document 2 Valid Upto */}
           <div className="flex flex-col w-full">
-            <label className="text-sm">Valid Upto</label>
+            <label className="text-sm">Document 2 Valid Upto</label>
             <input
               type="date"
-              // {...register("validUpto2", {
-              //   required: "Valid upto date is required",
-              // })}
-              // value={validUpto}
-              // onChange={(e) => setValidUpto(e.target.value)}
+              {...register("validUpto2", {
+                required: "Document 2 validity date is required",
+              })}
               className="input-primary"
             />
             {errors.validUpto2 && (
