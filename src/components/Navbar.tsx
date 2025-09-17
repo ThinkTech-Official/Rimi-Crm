@@ -42,7 +42,7 @@ export default function Navbar() {
 
   const handleLogout = () => {
     dispatch(logout());
-    navigate("/");
+    navigate("/login");
     toggleProfileMenu();
   };
 

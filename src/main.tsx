@@ -1,7 +1,7 @@
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
-import './index.css'
-import App from './App.tsx'
+import { StrictMode } from "react";
+import { createRoot } from "react-dom/client";
+import "./index.css";
+import App from "./App.tsx";
 
 import {
   Route,
@@ -9,7 +9,7 @@ import {
   createBrowserRouter,
   createRoutesFromElements,
 } from "react-router-dom";
-import { PersistGate } from 'redux-persist/integration/react';
+import { PersistGate } from "redux-persist/integration/react";
 
 import Login from './pages/Login.tsx';
 import Dashboard from './pages/Dashboard.tsx';
@@ -39,6 +39,16 @@ import AgentDetails from './components/AgentDetails.tsx';
 // React Query
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import Products from "./components/Products.tsx";
+import Home from "./components/home/Home.tsx";
+import ProductWrapper from "./components/Products/ProductWrapper.tsx";
+import PoliciesSearch from "./components/PoliciesSearch.tsx";
+import QuotesSearch from "./components/QuotesSearch.tsx";
+import Reporting from "./components/Reporting.tsx";
+import Users from "./components/Users.tsx";
+import CreateUser from "./components/CreateUser.tsx";
+import Documents from "./components/Documents.tsx";
+import TripCalculator from "./components/TripCalculator.tsx";
 
 // Create ONE client (module-level singleton)
 const queryClient = new QueryClient({
@@ -58,44 +68,50 @@ const queryClient = new QueryClient({
 
 const router = createBrowserRouter(
   createRoutesFromElements(
-    <Route path='/' element={<App />}>
-      <Route path='/' element={<Login />} />
+    <Route path="/" element={<App />}>
+      <Route path="/login" element={<Login />} />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
       
-      <Route path='/dashboard' element={
-        <ProtectedRoute>
-        <Dashboard />
-        </ProtectedRoute>
-        } />
+      {/* Dashboard as parent route with nested children */}
+      <Route
+        path="/"
+        element={
+          <ProtectedRoute>
+            <Dashboard />
+          </ProtectedRoute>
+        }
+      >
+        {/* All dashboard routes as children */}
+        <Route index element={<Home />} />
+        <Route path="products" element={<Products />} />
+        <Route path="product/:slug" element={<ProductWrapper />} />
+        <Route path="search-quotes" element={<QuotesSearch />} />
+        <Route path="search-policies" element={<PoliciesSearch />} />
+        <Route path="reporting" element={<Reporting />} />
+        <Route path="search-users" element={<Users />} />
+        <Route path="create-user" element={<CreateUser />} />
+        <Route path="documents" element={<Documents />} />
+        <Route path="trip-calculator" element={<TripCalculator />} />
+        <Route path="profile" element={<Profile />} />
+        <Route path="userdetail/:id" element={<UserDetails />} />
+        <Route path="user-upload" element={<UserUpload />} />
+        <Route path="quote-upload" element={<QuoteUploader />} />
+        <Route path="quote-detail/:id" element={<QuoteDetailPage />} />
+        <Route path="agent-details/:agentCode" element={<AgentDetails />} />
+        <Route path="policy-upload" element={<PolicyUploader />} />
+        <Route path="policy-detail/:id" element={<PolicyDetails />} />
+        <Route path="sales-data-upload" element={<ImportSalesUpload />} />
+      </Route>
 
-<Route path='/test-dash' element={<TestUi />} />
-
-<Route path='/agent-dashboard' element={<AgentDashboard />} />
-      
-      <Route path='/profile' element={<Profile />} />
-      <Route path='/userdetail/:id' element={<UserDetails />} />
-      <Route path='/forgot-password' element={<ForgotPassword />} />
-      <Route path='/user-upload' element={<UserUpload />} />
-      <Route path='/quote-upload' element={<QuoteUploader />} />
-      <Route path='/quote-detail/:id' element={<QuoteDetailPage />} />
-        <Route path='/agent-details/:agentCode' element={<AgentDetails />} />
-      <Route path='/policy-upload' element={<PolicyUploader />} />
-      <Route path='/policy-detail/:id' element={<PolicyDetails />} />
-      <Route path='/sales-data-upload' element={<ImportSalesUpload />} />
+      {/* Routes outside of dashboard layout */}
+      <Route path="/test-dash" element={<TestUi />} />
+      <Route path="/agent-dashboard" element={<AgentDashboard />} />
     </Route>
   )
-)
+);
 
-createRoot(document.getElementById('root')!).render(
+createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    {/* <Provider store={store}>
-    
-    <LangContextProvider>
-    <PersistGate loading={null} persistor={persistor}>
-    <RouterProvider router={router} />
-    </PersistGate>
-    </LangContextProvider>
-    
-    </Provider> */}
     <Provider store={store}>
   <PersistGate loading={null} persistor={persistor}>
     <QueryClientProvider client={queryClient}>

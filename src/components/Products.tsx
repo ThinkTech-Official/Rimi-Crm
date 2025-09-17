@@ -5,6 +5,7 @@ import { PencilSquareIcon, ArrowUpTrayIcon } from "@heroicons/react/24/outline";
 import { LangContext } from "../context/LangContext";
 
 import { getUserTypeFromToken } from "../utils/getUserType";
+import { useNavigate } from "react-router-dom";
 
 interface Product {
   name: string;
@@ -37,18 +38,14 @@ const products: Product[] = [
   },
 ];
 
-const Products: React.FC<ProductsProps> = ({
-  breadCrumbState,
-  setBreadCrumbState,
-  setSelectedComponent,
-}) => {
+const Products: React.FC = () => {
   const { langauge } = useContext(LangContext);
   const token = useSelector((state: any) => state.auth.token);
   const [userType, setUserType] = useState<string | null>(null);
+  const navigate = useNavigate();
 
   const handleApplicationClick = (slug: string) => {
-    setBreadCrumbState([...breadCrumbState, slug]);
-    setSelectedComponent(slug);
+    navigate(`/product/${slug}`);
   };
 
   useEffect(() => {
@@ -71,7 +68,7 @@ const Products: React.FC<ProductsProps> = ({
           )}
           <button
             onClick={() =>
-              handleApplicationClick("RIMI Canuck Voyage Travel Medical")
+              handleApplicationClick("canuck-voyage-travel-medical")
             }
             className="btn-form"
           >
@@ -89,7 +86,7 @@ const Products: React.FC<ProductsProps> = ({
           )}
           <button
             onClick={() =>
-              handleApplicationClick("RIMI Canuck Voyage Non-Medical Travel")
+              handleApplicationClick("canuck-voyage-non-medical-travel")
             }
             className="btn-form"
           >
@@ -107,7 +104,7 @@ const Products: React.FC<ProductsProps> = ({
           <div className=" flex flex-col sm:flex-row gap-2">
             {userType === "ADMIN" && (
               <button
-                onClick={() => handleApplicationClick("Bulk Upload")}
+                onClick={() => handleApplicationClick("bulk-upload")}
                 className=" px-2 py-2 border border-[#bbbbbb] hover:border-[#777777] flex gap-2 cursor-pointer items-center text-text-secondary hover:text-text-primary transition-all duration-200 text-nowrap"
               >
                 <ArrowUpTrayIcon className="h-5 w-5" aria-hidden="true" />{" "}
@@ -118,7 +115,7 @@ const Products: React.FC<ProductsProps> = ({
             <button
               onClick={() =>
                 handleApplicationClick(
-                  "Secure Study RIMI International Students to Canada"
+                  "secure-study-international-students-to-canada"
                 )
               }
               className=" btn-form"
@@ -139,7 +136,7 @@ const Products: React.FC<ProductsProps> = ({
           <button
             onClick={() =>
               handleApplicationClick(
-                "Secure Travel RIMI Visitors to Canada Travel"
+                "secure-travel-visitors-to-canada"
               )
             }
             className="btn-form"
