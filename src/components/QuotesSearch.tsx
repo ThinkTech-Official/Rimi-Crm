@@ -708,108 +708,122 @@ const QuotesSearch: React.FC = () => {
               </tr>
             </thead>
             <tbody className="bg-white" style={{ border: "1px solid #AAA9A9" }}>
-              {data.items.map((u: any) => (
-                <tr key={u.id} className="text-[#808080] text-sm 2xl:text-xl">
-                  <td
-                    className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
-                    style={{
-                      borderWidth: "0px 1px 1px 0px",
-                      borderStyle: "solid",
-                      borderColor: "#AAA9A9",
-                    }}
-                  >
-                    {u.quoteNumber}
-                  </td>
-
-                  <td
-                    className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
-                    style={{
-                      borderWidth: "0px 1px 1px 0px",
-                      borderStyle: "solid",
-                      borderColor: "#AAA9A9",
-                    }}
-                  >
-                    {u.firstName}
-                  </td>
-                  <td
-                    className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
-                    style={{
-                      borderWidth: "0px 1px 1px 0px",
-                      borderStyle: "solid",
-                      borderColor: "#AAA9A9",
-                    }}
-                  >
-                    {u.lastName}
-                  </td>
-                  <td
-                    className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
-                    style={{
-                      borderWidth: "0px 1px 1px 0px",
-                      borderStyle: "solid",
-                      borderColor: "#AAA9A9",
-                    }}
-                  >
-                    {u.status}
-                  </td>
-                  <td
-                    className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
-                    style={{
-                      borderWidth: "0px 1px 1px 0px",
-                      borderStyle: "solid",
-                      borderColor: "#AAA9A9",
-                    }}
-                  >
-                    {u.dateOfBirth
-                      ? new Date(u.dateOfBirth).toLocaleDateString(
-                          langauge === "En" ? "en-CA" : "fr-CA",
-                          { year: "numeric", month: "short", day: "numeric" }
-                        )
-                      : "-"}
-                  </td>
-                  <td
-                    className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
-                    style={{
-                      borderWidth: "0px 1px 1px 0px",
-                      borderStyle: "solid",
-                      borderColor: "#AAA9A9",
-                    }}
-                  >
-                    {u.dateIssued
-                      ? new Date(u.dateIssued).toLocaleDateString(
-                          langauge === "En" ? "en-CA" : "fr-CA",
-                          { year: "numeric", month: "short", day: "numeric" }
-                        )
-                      : "-"}
-                  </td>
-                  <td
-                    className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
-                    style={{
-                      borderWidth: "0px 1px 1px 0px",
-                      borderStyle: "solid",
-                      borderColor: "#AAA9A9",
-                    }}
-                  >
-                    {u.product}
-                  </td>
-                  <td
-                    className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
-                    style={{
-                      borderWidth: "0px 1px 1px 0px",
-                      borderStyle: "solid",
-                      borderColor: "#AAA9A9",
-                    }}
-                  >
-                    <Link
-                      // onClick={() => navigate(``)}
-                      target="_blank"
-                      to={`/quote-detail/${u.id}`}
-                      className="text-primary hover:underline hover:underline-offset-2 cursor-pointer font-medium px-4 text-center w-full"
-                    >
-                      View
-                    </Link>
+              {loading ? (
+                <tr>
+                  <td className="p-2 text-primary text-center h-40" colSpan={8}>
+                    Loading…
                   </td>
                 </tr>
-              ))}
+              ) : error ? (
+                <tr>
+                  <td className="p-2 text-red-500" colSpan={8}>
+                    {error}
+                  </td>
+                </tr>
+              ) : (
+                data.items.map((u: any) => (
+                  <tr key={u.id} className="text-[#808080] text-sm 2xl:text-xl">
+                    <td
+                      className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
+                      style={{
+                        borderWidth: "0px 1px 1px 0px",
+                        borderStyle: "solid",
+                        borderColor: "#AAA9A9",
+                      }}
+                    >
+                      {u.quoteNumber}
+                    </td>
+
+                    <td
+                      className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
+                      style={{
+                        borderWidth: "0px 1px 1px 0px",
+                        borderStyle: "solid",
+                        borderColor: "#AAA9A9",
+                      }}
+                    >
+                      {u.firstName}
+                    </td>
+                    <td
+                      className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
+                      style={{
+                        borderWidth: "0px 1px 1px 0px",
+                        borderStyle: "solid",
+                        borderColor: "#AAA9A9",
+                      }}
+                    >
+                      {u.lastName}
+                    </td>
+                    <td
+                      className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
+                      style={{
+                        borderWidth: "0px 1px 1px 0px",
+                        borderStyle: "solid",
+                        borderColor: "#AAA9A9",
+                      }}
+                    >
+                      {u.status}
+                    </td>
+                    <td
+                      className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
+                      style={{
+                        borderWidth: "0px 1px 1px 0px",
+                        borderStyle: "solid",
+                        borderColor: "#AAA9A9",
+                      }}
+                    >
+                      {u.dateOfBirth
+                        ? new Date(u.dateOfBirth).toLocaleDateString(
+                            langauge === "En" ? "en-CA" : "fr-CA",
+                            { year: "numeric", month: "short", day: "numeric" }
+                          )
+                        : "-"}
+                    </td>
+                    <td
+                      className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
+                      style={{
+                        borderWidth: "0px 1px 1px 0px",
+                        borderStyle: "solid",
+                        borderColor: "#AAA9A9",
+                      }}
+                    >
+                      {u.dateIssued
+                        ? new Date(u.dateIssued).toLocaleDateString(
+                            langauge === "En" ? "en-CA" : "fr-CA",
+                            { year: "numeric", month: "short", day: "numeric" }
+                          )
+                        : "-"}
+                    </td>
+                    <td
+                      className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
+                      style={{
+                        borderWidth: "0px 1px 1px 0px",
+                        borderStyle: "solid",
+                        borderColor: "#AAA9A9",
+                      }}
+                    >
+                      {u.product}
+                    </td>
+                    <td
+                      className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
+                      style={{
+                        borderWidth: "0px 1px 1px 0px",
+                        borderStyle: "solid",
+                        borderColor: "#AAA9A9",
+                      }}
+                    >
+                      <Link
+                        // onClick={() => navigate(``)}
+                        target="_blank"
+                        to={`/quote-detail/${u.id}`}
+                        className="text-primary hover:underline hover:underline-offset-2 cursor-pointer font-medium px-4 text-center w-full"
+                      >
+                        View
+                      </Link>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>

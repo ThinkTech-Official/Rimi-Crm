@@ -112,7 +112,7 @@ export function useSearchQuotes(defaultLimit: number = 10) {
   ) {
     setLoading(true);
     setError(null);
-    setData(null);
+    // setData(null);
     try {
       const payload: SearchCriteria = { ...criteria, page, limit };
       const response = await fetch(`${baseUrl}/quotes/search`, {
