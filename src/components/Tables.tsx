@@ -306,7 +306,7 @@ const handleAgentDetails = (agentCode: string) => {
       <h2 className="text-lg font-bold text-text-primary">
         All Agents ({data?.length})
       </h2>
-      <table className="min-w-full divide-y divide-gray-200">
+      <table className="min-w-full divide-y divide-gray-200 overflow-x-auto">
         <thead className="bg-primary text-white text-base 2xl:text-xl capitalize">
           <tr>
             <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium">
