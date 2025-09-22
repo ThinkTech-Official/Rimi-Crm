@@ -1,7 +1,9 @@
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
 import { PolicyRow, QuoteRow } from "../utils/types";
-import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { Agent } from "../hooks/admin-dashboard";
+import Spinner from "./Spinner";
+import { RenderPageNumbers } from "./RenderPageNumbers";
 
 export function PoliciesTable({
   data,
@@ -288,139 +290,144 @@ export function QuotesTable({
     </div>
   );
 }
+type AgentsTableProps = {
+  data: Agent[];
+  loading?: boolean;
+  totalPages: number;
+  currentPage: number;
+  onPageChange: (page: number) => void;
+};
 
 export function AgentsTable({
   data,
   loading,
-}: {
-  data: any;
-  loading?: boolean;
-}) {
-  const [currentPage, setCurrentPage] = useState(1);
-const navigate = useNavigate();
-const handleAgentDetails = (agentCode: string) => {
-  navigate(`/agent-details/${agentCode}`);
-}
+  totalPages,
+  currentPage,
+  onPageChange,
+}: AgentsTableProps) {
+  const navigate = useNavigate();
+  const handleAgentDetails = (agentCode: string) => {
+    navigate(`/agent-details/${agentCode}`);
+  };
   return (
     <div className="mt-6 space-y-2 w-full">
-      <h2 className="text-lg font-bold text-text-primary">
-        All Agents ({data?.length})
-      </h2>
-      <table className="min-w-full divide-y divide-gray-200 overflow-x-auto">
-        <thead className="bg-primary text-white text-base 2xl:text-xl capitalize">
-          <tr>
-            <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium">
-              Agent Code
-            </th>
-            <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium">
-              Joined Date
-            </th>
-            <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium">
-              Name
-            </th>
-            <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium">
-              Validity
-            </th>
-            <th className="px-2 sm:px-6 py-1 sm:py-3 text-center font-medium">
-              Action
-            </th>
-          </tr>
-        </thead>
-        <tbody className="bg-white" style={{ border: "1px solid #AAA9A9" }}>
-          {data?.map((agent: any) => (
-            <tr
-              key={agent.agentCode}
-              className="text-[#808080] text-sm 2xl:text-xl"
-            >
-              <td
-                className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
-                style={{
-                  borderWidth: "0px 1px 1px 0px",
-                  borderStyle: "solid",
-                  borderColor: "#AAA9A9",
-                }}
-              >
-                {" "}
-                {agent.agentCode}
-              </td>
-              <td
-                className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
-                style={{
-                  borderWidth: "0px 1px 1px 0px",
-                  borderStyle: "solid",
-                  borderColor: "#AAA9A9",
-                }}
-              >
-                {" "}
-                {agent.joinedDate}
-              </td>
-              <td
-                className="px-2 sm:px-6 py-2 sm:py-4 min-w-[200px] max-w-[250px] text-wrap"
-                style={{
-                  borderWidth: "0px 1px 1px 0px",
-                  borderStyle: "solid",
-                  borderColor: "#AAA9A9",
-                }}
-              >
-                {" "}
-                {agent.name}
-              </td>
-              <td
-                className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
-                style={{
-                  borderWidth: "0px 1px 1px 0px",
-                  borderStyle: "solid",
-                  borderColor: "#AAA9A9",
-                }}
-              >
-                {" "}
-                {agent.validity}
-              </td>
-              <td
-                className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
-                style={{
-                  borderWidth: "0px 1px 1px 0px",
-                  borderStyle: "solid",
-                  borderColor: "#AAA9A9",
-                }}
-              >
-                {" "}
-                <button className="text-primary hover:underline hover:underline-offset-2 cursor-pointer font-medium px-4 text-center w-full" onClick={() => handleAgentDetails(agent.agentCode)}>
-                  View Details
-                </button>
-              </td>
+      <h2 className="text-lg font-bold text-text-primary">All Agents</h2>
+      <div className="w-full overflow-x-auto">
+        <table className="min-w-full divide-y divide-gray-200 overflow-x-auto">
+          <thead className="bg-primary text-white text-base 2xl:text-xl capitalize">
+            <tr>
+              <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium text-nowrap">
+                Agent Code
+              </th>
+              <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium text-nowrap">
+                Joined Date
+              </th>
+              <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium text-nowrap">
+                Name
+              </th>
+              <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium text-nowrap">
+                Validity
+              </th>
+              <th className="px-2 sm:px-6 py-1 sm:py-3 text-center font-medium text-nowrap">
+                Action
+              </th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody className="bg-white" style={{ border: "1px solid #AAA9A9" }}>
+            {loading ? (
+              <Spinner className="w-8 h-8" />
+            ) : (
+              data?.map((agent: any) => (
+                <tr
+                  key={agent.agentCode}
+                  className="text-[#808080] text-sm 2xl:text-xl"
+                >
+                  <td
+                    className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
+                    style={{
+                      borderWidth: "0px 1px 1px 0px",
+                      borderStyle: "solid",
+                      borderColor: "#AAA9A9",
+                    }}
+                  >
+                    {" "}
+                    {agent.agentCode}
+                  </td>
+                  <td
+                    className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
+                    style={{
+                      borderWidth: "0px 1px 1px 0px",
+                      borderStyle: "solid",
+                      borderColor: "#AAA9A9",
+                    }}
+                  >
+                    {" "}
+                    {agent.joinedDate}
+                  </td>
+                  <td
+                    className="px-2 sm:px-6 py-2 sm:py-4 min-w-[200px] max-w-[250px] text-wrap"
+                    style={{
+                      borderWidth: "0px 1px 1px 0px",
+                      borderStyle: "solid",
+                      borderColor: "#AAA9A9",
+                    }}
+                  >
+                    {" "}
+                    {agent.name}
+                  </td>
+                  <td
+                    className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
+                    style={{
+                      borderWidth: "0px 1px 1px 0px",
+                      borderStyle: "solid",
+                      borderColor: "#AAA9A9",
+                    }}
+                  >
+                    {" "}
+                    {agent.validity}
+                  </td>
+                  <td
+                    className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
+                    style={{
+                      borderWidth: "0px 1px 1px 0px",
+                      borderStyle: "solid",
+                      borderColor: "#AAA9A9",
+                    }}
+                  >
+                    {" "}
+                    <button
+                      className="text-primary hover:underline hover:underline-offset-2 cursor-pointer font-medium px-4 text-center w-full"
+                      onClick={() => handleAgentDetails(agent.agentCode)}
+                    >
+                      View Details
+                    </button>
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
       <div
         className="flex items-center justify-center p-4 space-x-2"
         role="pagination"
       >
         <button
           disabled={currentPage === 1}
-          // onClick={() => setCurrentPage((p) => p - 1)}
+          onClick={() => onPageChange(currentPage - 1)}
           className="px-2 py-[10px] bg-[#CCCCCC] text-[#6F6B7D] cursor-pointer"
           title="Previous"
         >
           <ChevronLeftIcon className="h-5 w-5" />
         </button>
-        {Array.from({ length: 5 }, (_, i) => i + 1).map((num) => (
-          <button
-            key={num}
-            //   onClick={() => setCurrentPage(num)}
-            className={`px-3 py-2 cursor-pointer ${
-              currentPage === num
-                ? "bg-primary text-white"
-                : "bg-[#F1F0F2] text-[#808080]"
-            }`}
-          >
-            {num}
-          </button>
-        ))}
+        <RenderPageNumbers
+          onPageChange={onPageChange}
+          totalPages={totalPages}
+          page={currentPage}
+        />
         <button
           // disabled={currentPage === totalPages}
-          // onClick={() => setCurrentPage((p) => p + 1)}
+          onClick={() => onPageChange(currentPage + 1)}
           className="px-2 py-[10px] bg-[#CCCCCC] text-[#6F6B7D] cursor-pointer"
           title="Next"
         >
