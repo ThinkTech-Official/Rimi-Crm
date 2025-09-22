@@ -190,7 +190,7 @@
 // ===========================================
 
 // components/AdminHome.tsx
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
 import { MdKeyboardArrowRight } from "react-icons/md";
 import { useNavigate } from "react-router-dom";
@@ -214,6 +214,7 @@ import QuotesAnalysis from "../analytics/admin-charts/QuotesAnalysis";
 import QuotesVsPolicyConversion from "../analytics/admin-charts/QuotesVsPolicyConversion";
 import AdminPolicySalesChart from "../analytics/admin-charts/AdminPolicySalesChart";
 import { RenderPageNumbers } from "../RenderPageNumbers";
+import { useOnClickOutside } from "../../hooks/useOnClickOutside";
 
 export default function AdminHome() {
   const navigate = useNavigate();
@@ -242,7 +243,10 @@ export default function AdminHome() {
     quotesPage,
     limit
   );
-
+  const tableDropDownRef = useRef<HTMLDivElement>(null);
+  useOnClickOutside(tableDropDownRef as React.RefObject<HTMLElement>, () => {
+    setIsFilterDropdownOpen(false);
+  });
   const options = ["Agent data", "Policy data", "Quotes data"];
 
   const toggleTableFilter = (option: string) => {
@@ -356,7 +360,7 @@ export default function AdminHome() {
 
       {/* Table Section */}
       <section className="mt-6">
-        <div className="relative">
+        <div className="relative" ref={tableDropDownRef}>
           <div className="flex gap-2 items-center absolute top-0 right-0">
             <span className="text-text-light">Show</span>
             <div className="relative">

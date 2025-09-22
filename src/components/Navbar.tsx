@@ -19,6 +19,7 @@ import { FaUserCircle } from "react-icons/fa";
 import { FaUser } from "react-icons/fa6";
 import { IoIosLogOut } from "react-icons/io";
 import { MdKeyboardArrowRight } from "react-icons/md";
+import { useOnClickOutside } from "../hooks/useOnClickOutside";
 
 export default function Navbar() {
   const [showSlider, setShowSlider] = useState(false);
@@ -40,23 +41,11 @@ export default function Navbar() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (
-        languageRef.current &&
-        !languageRef.current.contains(e.target as Node)
-      ) {
-        setIsLanguageSelectOpen(false);
-      }
-      if (
-        profileRef.current &&
-        !profileRef.current.contains(e.target as Node)
-      ) {
-        setIsProfileMenuOpen(false);
-      }
-    };
-    window.addEventListener("click", handleClickOutside);
-    return () => window.removeEventListener("click", handleClickOutside);
+  useOnClickOutside(languageRef as React.RefObject<HTMLElement>, () => {
+    setIsLanguageSelectOpen(false);
+  });
+  useOnClickOutside(profileRef as React.RefObject<HTMLElement>, () => {
+    setIsProfileMenuOpen(false);
   });
 
   const handleLogout = () => {
@@ -186,7 +175,11 @@ export default function Navbar() {
               >
                 <span className="flex gap-2 items-center">
                   <FaUserCircle className="h-5 w-5 2xl:w-6 2xl:h-6 text-primary" />
-                  {userName ? userName.length>10?`${userName.slice(0,10)}...`:userName:"Please log in"}
+                  {userName
+                    ? userName.length > 10
+                      ? `${userName.slice(0, 10)}...`
+                      : userName
+                    : "Please log in"}
                 </span>
                 <MdKeyboardArrowRight
                   className={`h-4 w-4 2xl:w-6 2xl:h-6 transform transition ${
