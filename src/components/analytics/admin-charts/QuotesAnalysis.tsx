@@ -396,78 +396,80 @@ const QuotesAnalysis = ({ data }: QuotesAnalysisProps) => {
   return (
     <div className="bg-white rounded-lg">
       <div className="flex flex-col">
-        <div className="mb-8 w-full flex flex-col md:flex-row gap-4 justify-center items-center">
+        <div className="mb-8 w-full flex flex-col md:flex-row gap-4 justify-center items-stretch min-h-[400px]">
           {/* Bar Chart */}
           <div
-            className="bg-white py-4 px-2 w-full md:w-2/3"
+            className="bg-white py-4 px-2 w-full md:w-2/3 flex flex-col"
             style={{ boxShadow: "0px 0px 6.6px 0px #0000001C" }}
           >
             <h3 className="font-semibold mb-5 px-2 sm:px-4 text-[#3a17c5]">
               Quotes Analysis Over Time
             </h3>
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart
-                data={chartData}
-                margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
-              >
-                <CartesianGrid
-                  strokeDasharray="0"
-                  vertical={false}
-                  stroke="#DBEAFE"
-                />
-                <XAxis
-                  dataKey="month"
-                  axisLine={false}
-                  tickLine={false}
-                  tickMargin={8}
-                  tick={{
-                    fill: "#94A3B8",
-                    fontSize:
-                      window.innerWidth < 640
-                        ? 14
-                        : window.innerWidth < 1600
-                        ? 16
-                        : 20,
-                  }}
-                />
-                <YAxis
-                  axisLine={false}
-                  tickLine={false}
-                  tickMargin={10}
-                  tick={{
-                    fill: "#94A3B8",
-                    fontSize:
-                      window.innerWidth < 640
-                        ? 14
-                        : window.innerWidth < 1600
-                        ? 16
-                        : 20,
-                  }}
-                />
-                <Tooltip
-                  labelClassName="text-[#1B1B1B] text-[16px]"
-                  cursor={{ fill: "#F1F5F9" }}
-                />
-                <Legend />
-                
-                {/* Dynamically render bars based on datasets */}
-                {data?.datasets ? (
-                  data.datasets.map((dataset, index) => (
-                    <Bar
-                      key={dataset.label}
-                      dataKey={dataset.label.replace(/\s+/g, '')}
-                      fill={dataset.borderColor || COLORS[index % COLORS.length]}
-                      name={dataset.label}
-                    />
-                  ))
-                ) : (
-                  <>
-                    <Bar dataKey="TotalQuotes" fill="#3B82F6" name="Total Quotes" />
-                    <Bar dataKey="TotalPremium" fill="#EAB308" name="Total Premium" />
-                  </>
-                )}
-              </BarChart>
-            </ResponsiveContainer>
+            <div className="flex-1 min-h-0">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart
+                  data={chartData}
+                  margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
+                >
+                  <CartesianGrid
+                    strokeDasharray="0"
+                    vertical={false}
+                    stroke="#DBEAFE"
+                  />
+                  <XAxis
+                    dataKey="month"
+                    axisLine={false}
+                    tickLine={false}
+                    tickMargin={8}
+                    tick={{
+                      fill: "#94A3B8",
+                      fontSize:
+                        window.innerWidth < 640
+                          ? 14
+                          : window.innerWidth < 1600
+                          ? 16
+                          : 20,
+                    }}
+                  />
+                  <YAxis
+                    axisLine={false}
+                    tickLine={false}
+                    tickMargin={10}
+                    tick={{
+                      fill: "#94A3B8",
+                      fontSize:
+                        window.innerWidth < 640
+                          ? 14
+                          : window.innerWidth < 1600
+                          ? 16
+                          : 20,
+                    }}
+                  />
+                  <Tooltip
+                    labelClassName="text-[#1B1B1B] text-[16px]"
+                    cursor={{ fill: "#F1F5F9" }}
+                  />
+                  <Legend />
+                  
+                  {/* Dynamically render bars based on datasets */}
+                  {data?.datasets ? (
+                    data.datasets.map((dataset, index) => (
+                      <Bar
+                        key={dataset.label}
+                        dataKey={dataset.label.replace(/\s+/g, '')}
+                        fill={dataset.borderColor || COLORS[index % COLORS.length]}
+                        name={dataset.label}
+                      />
+                    ))
+                  ) : (
+                    <>
+                      <Bar dataKey="TotalQuotes" fill="#3B82F6" name="Total Quotes" />
+                      <Bar dataKey="TotalPremium" fill="#EAB308" name="Total Premium" />
+                    </>
+                  )}
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
           </div>
 
           {/* Pie Chart / Statistics */}
