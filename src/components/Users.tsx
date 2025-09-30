@@ -306,7 +306,7 @@ const Users: React.FC = () => {
           </button>
 
           <RenderPageNumbers
-            goToPage={goToPage}
+            onPageChange={goToPage}
             totalPages={totalPages}
             page={page}
           />

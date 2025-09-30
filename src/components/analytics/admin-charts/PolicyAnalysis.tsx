@@ -285,11 +285,7 @@
 
 // export default PolicyAnalysis;
 
-
-
 // ===========================================
-
-
 
 import { useMemo } from "react";
 import {
@@ -311,7 +307,15 @@ type PolicyAnalysisProps = {
   data?: ChartData; // live data from usePolicyAnalysis()
 };
 
-const COLORS = ["#3B82F6", "#EAB308", "#D91656", "#3D8D7A", "#10B981", "#F97316", "#6366F1"];
+const COLORS = [
+  "#3B82F6",
+  "#EAB308",
+  "#D91656",
+  "#3D8D7A",
+  "#10B981",
+  "#F97316",
+  "#6366F1",
+];
 
 const PolicyAnalysis = ({ data }: PolicyAnalysisProps) => {
   // Transform ChartData -> [{ month, <dataset.label>: value, ... }, ...]
@@ -365,19 +369,39 @@ const PolicyAnalysis = ({ data }: PolicyAnalysisProps) => {
                     data={monthlyRows}
                     margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
                   >
-                    <CartesianGrid strokeDasharray="0" vertical={false} stroke="#DBEAFE" />
+                    <CartesianGrid
+                      strokeDasharray="0"
+                      vertical={false}
+                      stroke="#DBEAFE"
+                    />
                     <XAxis
                       dataKey="month"
                       axisLine={false}
                       tickLine={false}
                       tickMargin={8}
-                      tick={{ fill: "#94A3B8", fontSize: 12 }}
+                      tick={{
+                        fill: "#94A3B8",
+                        fontSize:
+                          window.innerWidth < 640
+                            ? 14
+                            : window.innerWidth < 1600
+                            ? 16
+                            : 20,
+                      }}
                     />
                     <YAxis
                       axisLine={false}
                       tickLine={false}
-                      tickMargin={10}
-                      tick={{ fill: "#94A3B8", fontSize: 12 }}
+                      tickMargin={5}
+                      tick={{
+                        fill: "#94A3B8",
+                        fontSize:
+                          window.innerWidth < 640
+                            ? 14
+                            : window.innerWidth < 1600
+                            ? 16
+                            : 20,
+                      }}
                     />
                     <Tooltip
                       labelClassName="text-[#1B1B1B] text-[14px]"
@@ -436,10 +460,15 @@ const PolicyAnalysis = ({ data }: PolicyAnalysisProps) => {
             {pieSeries.length > 0 && (
               <ul>
                 {pieSeries.map((entry, index) => (
-                  <li key={index} className="flex items-center mb-1 text-sm px-2">
+                  <li
+                    key={index}
+                    className="flex items-center mb-1 text-sm px-2"
+                  >
                     <span
                       className="inline-block relative w-4 h-4 mr-2 rounded-full"
-                      style={{ backgroundColor: entry.color + "33" /* 20% tint */ }}
+                      style={{
+                        backgroundColor: entry.color + "33" /* 20% tint */,
+                      }}
                     >
                       <span
                         className="absolute h-2 w-2 rounded-full top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"

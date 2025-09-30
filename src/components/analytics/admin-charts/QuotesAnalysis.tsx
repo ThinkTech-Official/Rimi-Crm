@@ -434,7 +434,7 @@ const QuotesAnalysis = ({ data }: QuotesAnalysisProps) => {
                   <YAxis
                     axisLine={false}
                     tickLine={false}
-                    tickMargin={10}
+                    tickMargin={5}
                     tick={{
                       fill: "#94A3B8",
                       fontSize:

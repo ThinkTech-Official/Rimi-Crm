@@ -217,7 +217,7 @@ const QuotesVsPolicyConversion = ({ data }: Props) => {
                   No data available
                 </div>
               ) : (
-                <ResponsiveContainer width="100%" height={chartHeight}>
+                <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={rows} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
                     <CartesianGrid strokeDasharray="0" vertical={false} stroke="#DBEAFE" />
                     <XAxis
@@ -238,7 +238,7 @@ const QuotesVsPolicyConversion = ({ data }: Props) => {
                     <YAxis
                       axisLine={false}
                       tickLine={false}
-                      tickMargin={10}
+                      tickMargin={5}
                       tick={{
                         fill: "#94A3B8",
                         fontSize:
