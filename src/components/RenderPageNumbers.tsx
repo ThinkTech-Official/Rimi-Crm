@@ -25,6 +25,10 @@ export const RenderPageNumbers = ({
   page: number;
 }) => {
   const pages = buildPages(totalPages, page);
+  const handlePageChnage = (p: number) => {
+    if (p === page) return;
+    onPageChange(p);
+  };
 
   return pages.map((p, idx) =>
     p === "..." ? (
@@ -34,7 +38,7 @@ export const RenderPageNumbers = ({
     ) : (
       <button
         key={p}
-        onClick={() => onPageChange(p as number)}
+        onClick={() => handlePageChnage(p)}
         className={`px-3 py-2 cursor-pointer ${
           p === page ? "bg-primary text-white" : "bg-[#F1F0F2] text-[#808080]"
         }`}

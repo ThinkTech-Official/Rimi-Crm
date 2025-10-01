@@ -40,7 +40,7 @@ const Users: React.FC = () => {
     search,
   } = useSearchUsers();
 
-  const { register, handleSubmit } = useForm<SearchCriteria>({});
+  const { register, handleSubmit, setValue } = useForm<SearchCriteria>({});
 
   // trigger search with current criteria
   const onSearch = (user: SearchCriteria) => {
@@ -58,8 +58,8 @@ const Users: React.FC = () => {
   };
 
   return (
-    <div className="max-w-5xl mx-auto mt-4 px-2 py-4 sm:p-6 bg-[#F9F9F9]">
-      <h2 className="text-lg font-bold text-left text-[#1B1B1B] mb-2">
+    <div className="w-full mx-auto mt-4 px-2 py-4 sm:p-6 bg-[#F9F9F9]">
+      <h2 className="text-lg 2xl:text-xl font-bold text-left text-[#1B1B1B] mb-2">
         {langauge === "En" ? "Search Users" : "Rchercher utilisateurs"}
       </h2>
       <p className="text-left font-medium text-[#6A6A6A] mb-8">
@@ -81,15 +81,17 @@ const Users: React.FC = () => {
             { label: "Company", key: "company" },
           ].map(({ label, key, type }) => (
             <div key={key}>
-              <label className="text-sm">{label}</label>
+              <label className="text-sm 2xl:text-base">{label}</label>
               <input
                 type={type || "text"}
                 {...register(key as keyof SearchCriteria, {
+                  setValueAs: (value) => value.trim(),
                   ...(key === "email" && {
                     pattern: {
                       value: /^\S+@\S+\.\S+$/,
                       message: "Invalid email format",
                     },
+                    setValueAs: (value) => value.trim().toLowerCase(),
                   }),
                 })}
                 className="input-primary"
@@ -110,10 +112,8 @@ const Users: React.FC = () => {
             </label>
             <div className="relative">
               <select
-                value={criteria.userType}
-                onChange={(e) =>
-                  setCriteria((c) => ({ ...c, userType: e.target.value }))
-                }
+                {...register("userType")}
+                onChange={(e) => setValue("userType", e.target.value)}
                 className="input-primary appearance-none cursor-pointer"
               >
                 <option value="">All</option>
@@ -134,10 +134,8 @@ const Users: React.FC = () => {
             </label>
             <div className="relative">
               <select
-                value={criteria.status}
-                onChange={(e) =>
-                  setCriteria((c) => ({ ...c, status: e.target.value }))
-                }
+                {...register("status")}
+                onChange={(e) => setValue("status", e.target.value)}
                 className="input-primary appearance-none cursor-pointer"
               >
                 <option value="">All</option>
@@ -163,7 +161,7 @@ const Users: React.FC = () => {
       </div>
       {error && <p className="text-red-500">{error}</p>}
 
-      {users.length > 0 && (
+      {users && (
         <div className="w-full overflow-x-auto custom-scrollbar pb-2">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-primary text-white text-base 2xl:text-xl capitalize">
@@ -173,6 +171,7 @@ const Users: React.FC = () => {
                   "First Name",
                   "Last Name",
                   "Email",
+                  "Company",
                   "User Type",
                   "Status",
                   "Actions",
@@ -204,13 +203,19 @@ const Users: React.FC = () => {
                 </tr>
               ) : users?.length === 0 ? (
                 <tr>
-                  <td className="p-2 text-text-secondary" colSpan={9}>
+                  <td
+                    className="p-2 text-text-secondary text-center"
+                    colSpan={9}
+                  >
                     No users found
                   </td>
                 </tr>
               ) : (
                 users.map((u: User) => (
-                  <tr key={u.id} className="text-[#808080] text-sm 2xl:text-xl">
+                  <tr
+                    key={u.id}
+                    className="text-[#808080] text-sm 2xl:text-base"
+                  >
                     <td
                       className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
                       style={{
@@ -250,6 +255,16 @@ const Users: React.FC = () => {
                       }}
                     >
                       {u.email}
+                    </td>
+                    <td
+                      className="px-2 sm:px-4 py-2 sm:py-4 max-w-[180px] break-words"
+                      style={{
+                        borderWidth: "0px 1px 1px 0px",
+                        borderStyle: "solid",
+                        borderColor: "#AAA9A9",
+                      }}
+                    >
+                      {u.company}
                     </td>
                     <td
                       className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"

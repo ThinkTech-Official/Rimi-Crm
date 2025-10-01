@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
+import { API_BASE } from '../utils/urls';
 
 export interface PolicyApplicant {
   id: string;
@@ -72,7 +73,6 @@ export interface PolicyDetail {
   paymentHistory?: any[];
 }
 
-const baseUrl = "http://localhost:3000";
 
 export function usePolicyDetail(id: string | null) {
   const [data, setData] = useState<PolicyDetail | null>(null);
@@ -83,7 +83,7 @@ export function usePolicyDetail(id: string | null) {
     if (!id) return;
     setLoading(true);
 
-    axios.get<PolicyDetail>(`${baseUrl}/policies/${id}`)
+    axios.get<PolicyDetail>(`${API_BASE}/policies/${id}`)
       .then(response => {
         console.log("Response from backend:", response.data);
         setData(response.data);

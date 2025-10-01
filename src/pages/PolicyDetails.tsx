@@ -4,8 +4,8 @@ import { usePolicyDetail, PolicyDetail, PolicyApplicant } from '../hooks/usePoli
 import { usePolicyNotes } from '../hooks/usePolicyNotes';
 import { usePolicyAttachments } from '../hooks/usePolicyAttachments';
 import { useFulfillment } from '../hooks/useFulfillment';
+import { API_BASE } from '../utils/urls';
 
-const baseUrl = "http://localhost:3000";
 
 const fmtDate = (iso?: string) =>
   iso ? new Date(iso).toLocaleDateString('en-CA') : '-';
@@ -525,7 +525,7 @@ const [agentEmail, setAgentEmail] = useState(p?.agentCode + '@example.com');
       {attachments.map(att => (
         <li key={att.id} className="flex items-center space-x-4">
           <a
-            href={`${baseUrl}${att.url}`}
+            href={`${API_BASE}${att.url}`}
             target="_blank"
             rel="noopener noreferrer"
             className="text-blue-600 underline"

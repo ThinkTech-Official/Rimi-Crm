@@ -89,6 +89,7 @@ export interface User {
   lastName: string;
   email: string;
   userType: string;
+  company: string;
   status: string;
 }
 
@@ -107,7 +108,7 @@ export interface SearchCriteria {
 }
 
 interface UseSearchUsersResult {
-  users: User[];
+  users: User[] | null;
   loading: boolean;
   error: string | null;
   total: number;
@@ -122,7 +123,7 @@ interface UseSearchUsersResult {
 export function useSearchUsers(): UseSearchUsersResult {
   const token = useSelector((state: any) => state.auth.token) as string | null;
 
-  const [users, setUsers] = useState<User[]>([]);
+  const [users, setUsers] = useState<User[] | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
