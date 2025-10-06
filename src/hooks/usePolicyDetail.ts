@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
+import { API_BASE } from '../utils/urls';
 
 export interface PolicyApplicant {
   id: string;
@@ -72,7 +73,7 @@ export interface PolicyDetail {
   paymentHistory?: any[];
 }
 
-const baseUrl = "http://localhost:3000";
+const baseUrl = API_BASE;
 
 export function usePolicyDetail(id: string | null) {
   const [data, setData] = useState<PolicyDetail | null>(null);

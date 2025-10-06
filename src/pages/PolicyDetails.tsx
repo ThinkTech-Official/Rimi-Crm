@@ -4,8 +4,9 @@ import { usePolicyDetail, PolicyDetail, PolicyApplicant } from '../hooks/usePoli
 import { usePolicyNotes } from '../hooks/usePolicyNotes';
 import { usePolicyAttachments } from '../hooks/usePolicyAttachments';
 import { useFulfillment } from '../hooks/useFulfillment';
+import { API_BASE } from '../utils/urls';
 
-const baseUrl = "http://localhost:3000";
+const baseUrl = API_BASE;
 
 const fmtDate = (iso?: string) =>
   iso ? new Date(iso).toLocaleDateString('en-CA') : '-';
