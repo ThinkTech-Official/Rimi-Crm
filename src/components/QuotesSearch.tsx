@@ -327,22 +327,17 @@
 // ================================================
 
 // src/components/QuotesSearch.tsx
-import React, { ChangeEvent, useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { LangContext } from "../context/LangContext";
 import { getUserTypeFromToken } from "../utils/getUserType";
-import {
-  useSearchQuotes,
-  SearchCriteria,
-  QuoteRecord,
-  PaginatedQuotes,
-} from "../hooks/useSearchQuotes";
-import { Link, useNavigate } from "react-router-dom";
+import { useSearchQuotes, SearchCriteria } from "../hooks/useSearchQuotes";
+import { Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
+import { RenderPageNumbers } from "./RenderPageNumbers";
 
 const QuotesSearch: React.FC = () => {
   const { langauge } = useContext(LangContext);
-  const navigate = useNavigate();
 
   const [userType, setUserType] = useState<string | null>(null);
   const [searchData, setSearchData] = useState<SearchCriteria>({
@@ -441,69 +436,9 @@ const QuotesSearch: React.FC = () => {
     search(searchData, np, limit);
   };
 
-  const renderPageNumbers = () => {
-    if (!data) return null;
-
-    const totalPages = data.totalPages;
-    const currentPage = page;
-    const maxVisiblePages = 5;
-
-    const pages: (number | string)[] = [];
-
-    if (totalPages <= maxVisiblePages) {
-      for (let i = 1; i <= totalPages; i++) {
-        pages.push(i);
-      }
-    } else {
-      if (currentPage < 3) {
-        //beginning: 1,2,3,...,last
-        for (let i = 1; i <= maxVisiblePages - 2; i++) {
-          pages.push(i);
-        }
-        pages.push("...");
-        pages.push(totalPages);
-      } else if (currentPage >= totalPages - 2) {
-        //ending: first,...,last-2,last-1,last
-        pages.push(1);
-        pages.push("...");
-        for (let i = totalPages - 2; i <= totalPages; i++) {
-          pages.push(i);
-        }
-      } else {
-        //middle: first,...,current-1,current,current+1,...,last
-        pages.push(1);
-        pages.push("...");
-        for (let i = currentPage - 1; i <= currentPage + 1; i++) {
-          pages.push(i);
-        }
-        pages.push("...");
-        pages.push(totalPages);
-      }
-    }
-    return pages.map((p, idx) =>
-      p === "..." ? (
-        <span key={`dots-${idx}`} className="px-2 mt-4">
-          ...
-        </span>
-      ) : (
-        <button
-          key={p}
-          onClick={() => goToPage(p as number)}
-          className={`px-3 py-2 cursor-pointer ${
-            p === currentPage
-              ? "bg-primary text-white"
-              : "bg-[#F1F0F2] text-[#808080]"
-          }`}
-        >
-          {p}
-        </button>
-      )
-    );
-  };
-
   return (
-    <div className="max-w-5xl mx-auto mt-4 px-2 py-4 sm:p-6 bg-[#F9F9F9]">
-      <h2 className="text-lg font-bold text-left text-[#1B1B1B] mb-2">
+    <div className="w-full mx-auto mt-4 px-2 py-4 sm:p-6 bg-[#F9F9F9]">
+      <h2 className="text-lg 2xl:text-xl font-bold text-left text-[#1B1B1B] mb-2">
         {langauge === "En" ? "Search Quotes" : "Rechercher Quotes"}
       </h2>
       <p className="text-left font-medium text-[#6A6A6A] mb-8">
@@ -516,80 +451,77 @@ const QuotesSearch: React.FC = () => {
       <form onSubmit={handleSubmit(onSearch)}>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 md:gap-x-16 lg:gap-x-24 gap-y-4 text-text-secondary">
           <div className="flex flex-col gap-1">
-            <label className="text-sm">
+            <label className="text-sm 2xl:text-base">
               {langauge === "En" ? "Quote Number" : "Numéro de devis"}
             </label>
             <input
-              {...register("quoteNumber")}
+              {...register("quoteNumber", {
+                setValueAs: (value) => value.trim(),
+              })}
               type="text"
-              // value={criteria.quoteNumber || ""}
-              // onChange={handleChange("quoteNumber")}
               className="input-primary"
               placeholder="Enter Quote Number"
             />
           </div>
-          <div className="flex flex-col gap-1">
-            <label className="text-sm">
+          <div className="flex flex-col">
+            <label className="text-sm 2xl:text-base">
               {langauge === "En" ? "Quote Date" : "Date du devis"}
             </label>
             <input
-              {...register("quoteDate")}
+              {...register("quoteDate", {
+                setValueAs: (value) => value.trim(),
+              })}
               className="input-primary"
               type="date"
-              // value={criteria.quoteDate || ""}
-              // onChange={handleChange("quoteDate")}
             />
           </div>
-          <div className="flex flex-col gap-1">
-            <label className="text-sm">
+          <div className="flex flex-col">
+            <label className="text-sm 2xl:text-base">
               {langauge === "En" ? "First Name" : "Prénom"}
             </label>
             <input
-              {...register("firstName")}
+              {...register("firstName", {
+                setValueAs: (value) => value.trim(),
+              })}
               className="input-primary"
               placeholder="Enter First Name"
-              // value={criteria.firstName || ""}
-              // onChange={handleChange("firstName")}
             />
           </div>
-          <div className="flex flex-col gap-1">
-            <label className="text-sm">
+          <div className="flex flex-col">
+            <label className="text-sm 2xl:text-base">
               {langauge === "En" ? "Last Name" : "Nom de famille"}
             </label>
             <input
-              {...register("lastName")}
+              {...register("lastName", {
+                setValueAs: (value) => value.trim(),
+              })}
               className="input-primary"
               placeholder="Enter Last Name"
-              // value={criteria.lastName || ""}
-              // onChange={handleChange("lastName")}
             />
           </div>
-          <div className="flex flex-col gap-1">
-            <label className="text-sm">
+          <div className="flex flex-col">
+            <label className="text-sm 2xl:text-base">
               {langauge === "En" ? "Date of Birth" : "Date de naissance"}
             </label>
             <input
               className="input-primary"
               type="date"
               {...register("dateOfBirth")}
-              // value={criteria.dateOfBirth || ""}
-              // onChange={handleChange("dateOfBirth")}
             />
           </div>
-          <div className="flex flex-col gap-1">
-            <label className="text-sm">Email</label>
+          <div className="flex flex-col">
+            <label className="text-sm 2xl:text-base">Email</label>
             <input
               {...register("email", {
+                setValueAs: (value) => value.trim().toLowerCase(),
                 pattern: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
               })}
               className="input-primary"
               placeholder="Email"
-              // value={criteria.email || ""}
-              // onChange={handleChange("email")}
             />
           </div>
-          <div className="flex flex-col gap-1">
-            <label className="text-sm">
+          <div className="flex flex-col">
+            <label className="text-sm 2xl:text-base">
               {langauge === "En"
                 ? "Effective Date"
                 : `Date d'entrée en vigueur`}
@@ -598,33 +530,29 @@ const QuotesSearch: React.FC = () => {
               className="input-primary"
               type="date"
               {...register("effectiveDate")}
-              // value={criteria.effectiveDate || ""}
-              // onChange={handleChange("effectiveDate")}
             />
           </div>
-          <div className="flex flex-col gap-1">
-            <label className="text-sm">
+          <div className="flex flex-col">
+            <label className="text-sm 2xl:text-base">
               {langauge === "En" ? "Expiry Date" : `Date d'expiration`}
             </label>
             <input
               {...register("expiryDate")}
               className="input-primary"
               type="date"
-              // value={criteria.expiryDate || ""}
-              // onChange={handleChange("expiryDate")}
             />
           </div>
           {userType === "ADMIN" && (
-            <div className="flex flex-col gap-1">
-              <label className="text-sm">
-                {langauge === "En" ? "Agent" : "Agent"}
+            <div className="flex flex-col">
+              <label className="text-sm 2xl:text-base">
+                {langauge === "En" ? "Agent Code" : "Agent Code"}
               </label>
               <input
-                {...register("agent")}
+                {...register("agent", {
+                  setValueAs: (value) => value.trim(),
+                })}
                 className="input-primary"
-                placeholder="Agent"
-                // value={criteria.agent || ""}
-                // onChange={handleChange("agent")}
+                placeholder="Agent Code"
               />
             </div>
           )}
@@ -680,16 +608,18 @@ const QuotesSearch: React.FC = () => {
       {/* Result Table  */}
       {data && (
         <div className="w-full overflow-x-auto custom-scrollbar pb-2">
-          <p className="mt-4 mb-1 text-text-primary">
-            Found {data.total} quotes.
-          </p>
-
+          <div className="mt-4">
+            {!loading && (
+              <p className="mb-1 text-text-primary">
+                Found {data.total} quotes.
+              </p>
+            )}
+          </div>
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-primary text-white text-base 2xl:text-xl capitalize">
               <tr>
                 {[
                   "Quote Number",
-
                   "First Name",
                   "Last Name",
                   "Status",
@@ -708,108 +638,134 @@ const QuotesSearch: React.FC = () => {
               </tr>
             </thead>
             <tbody className="bg-white" style={{ border: "1px solid #AAA9A9" }}>
-              {data.items.map((u: any) => (
-                <tr key={u.id} className="text-[#808080] text-sm 2xl:text-xl">
-                  <td
-                    className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
-                    style={{
-                      borderWidth: "0px 1px 1px 0px",
-                      borderStyle: "solid",
-                      borderColor: "#AAA9A9",
-                    }}
-                  >
-                    {u.quoteNumber}
-                  </td>
-
-                  <td
-                    className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
-                    style={{
-                      borderWidth: "0px 1px 1px 0px",
-                      borderStyle: "solid",
-                      borderColor: "#AAA9A9",
-                    }}
-                  >
-                    {u.firstName}
-                  </td>
-                  <td
-                    className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
-                    style={{
-                      borderWidth: "0px 1px 1px 0px",
-                      borderStyle: "solid",
-                      borderColor: "#AAA9A9",
-                    }}
-                  >
-                    {u.lastName}
-                  </td>
-                  <td
-                    className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
-                    style={{
-                      borderWidth: "0px 1px 1px 0px",
-                      borderStyle: "solid",
-                      borderColor: "#AAA9A9",
-                    }}
-                  >
-                    {u.status}
-                  </td>
-                  <td
-                    className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
-                    style={{
-                      borderWidth: "0px 1px 1px 0px",
-                      borderStyle: "solid",
-                      borderColor: "#AAA9A9",
-                    }}
-                  >
-                    {u.dateOfBirth
-                      ? new Date(u.dateOfBirth).toLocaleDateString(
-                          langauge === "En" ? "en-CA" : "fr-CA",
-                          { year: "numeric", month: "short", day: "numeric" }
-                        )
-                      : "-"}
-                  </td>
-                  <td
-                    className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
-                    style={{
-                      borderWidth: "0px 1px 1px 0px",
-                      borderStyle: "solid",
-                      borderColor: "#AAA9A9",
-                    }}
-                  >
-                    {u.dateIssued
-                      ? new Date(u.dateIssued).toLocaleDateString(
-                          langauge === "En" ? "en-CA" : "fr-CA",
-                          { year: "numeric", month: "short", day: "numeric" }
-                        )
-                      : "-"}
-                  </td>
-                  <td
-                    className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
-                    style={{
-                      borderWidth: "0px 1px 1px 0px",
-                      borderStyle: "solid",
-                      borderColor: "#AAA9A9",
-                    }}
-                  >
-                    {u.product}
-                  </td>
-                  <td
-                    className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
-                    style={{
-                      borderWidth: "0px 1px 1px 0px",
-                      borderStyle: "solid",
-                      borderColor: "#AAA9A9",
-                    }}
-                  >
-                    <Link
-                      // onClick={() => navigate(``)}
-                      target="_blank"
-                      to={`/quote-detail/${u.id}`}
-                      className="text-primary hover:underline hover:underline-offset-2 cursor-pointer font-medium px-4 text-center w-full"
-                    >
-                      View
-                    </Link>
+              {loading ? (
+                <tr>
+                  <td className="p-2 text-primary text-center h-40" colSpan={8}>
+                    Loading…
                   </td>
                 </tr>
-              ))}
+              ) : error ? (
+                <tr>
+                  <td className="p-2 text-red-500" colSpan={8}>
+                    {error}
+                  </td>
+                </tr>
+              ) : data?.items.length === 0 ? (
+                <tr>
+                  <td
+                    className="p-2 text-text-secondary text-center"
+                    colSpan={9}
+                  >
+                    No quotes found
+                  </td>
+                </tr>
+              ) : (
+                data.items.map((u: any) => (
+                  <tr
+                    key={u.id}
+                    className="text-[#808080] text-sm 2xl:text-base"
+                  >
+                    <td
+                      className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
+                      style={{
+                        borderWidth: "0px 1px 1px 0px",
+                        borderStyle: "solid",
+                        borderColor: "#AAA9A9",
+                      }}
+                    >
+                      {u.quoteNumber}
+                    </td>
+
+                    <td
+                      className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
+                      style={{
+                        borderWidth: "0px 1px 1px 0px",
+                        borderStyle: "solid",
+                        borderColor: "#AAA9A9",
+                      }}
+                    >
+                      {u.firstName}
+                    </td>
+                    <td
+                      className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
+                      style={{
+                        borderWidth: "0px 1px 1px 0px",
+                        borderStyle: "solid",
+                        borderColor: "#AAA9A9",
+                      }}
+                    >
+                      {u.lastName}
+                    </td>
+                    <td
+                      className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
+                      style={{
+                        borderWidth: "0px 1px 1px 0px",
+                        borderStyle: "solid",
+                        borderColor: "#AAA9A9",
+                      }}
+                    >
+                      {u.status}
+                    </td>
+                    <td
+                      className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
+                      style={{
+                        borderWidth: "0px 1px 1px 0px",
+                        borderStyle: "solid",
+                        borderColor: "#AAA9A9",
+                      }}
+                    >
+                      {u.dateOfBirth
+                        ? new Date(u.dateOfBirth).toLocaleDateString(
+                            langauge === "En" ? "en-CA" : "fr-CA",
+                            { year: "numeric", month: "short", day: "numeric" }
+                          )
+                        : "-"}
+                    </td>
+                    <td
+                      className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
+                      style={{
+                        borderWidth: "0px 1px 1px 0px",
+                        borderStyle: "solid",
+                        borderColor: "#AAA9A9",
+                      }}
+                    >
+                      {u.dateIssued
+                        ? new Date(u.dateIssued).toLocaleDateString(
+                            langauge === "En" ? "en-CA" : "fr-CA",
+                            { year: "numeric", month: "short", day: "numeric" }
+                          )
+                        : "-"}
+                    </td>
+                    <td
+                      className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
+                      style={{
+                        borderWidth: "0px 1px 1px 0px",
+                        borderStyle: "solid",
+                        borderColor: "#AAA9A9",
+                      }}
+                    >
+                      {u.product}
+                    </td>
+                    <td
+                      className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
+                      style={{
+                        borderWidth: "0px 1px 1px 0px",
+                        borderStyle: "solid",
+                        borderColor: "#AAA9A9",
+                      }}
+                    >
+                      <Link
+                        // onClick={() => navigate(``)}
+                        target="_blank"
+                        to={`/quote-detail/${u.id}`}
+                        className="text-primary hover:underline hover:underline-offset-2 cursor-pointer font-medium px-4 text-center w-full"
+                      >
+                        View
+                      </Link>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
@@ -825,7 +781,11 @@ const QuotesSearch: React.FC = () => {
             <ChevronLeftIcon className="h-5 w-5" />
           </button>
 
-          {renderPageNumbers()}
+          <RenderPageNumbers
+            onPageChange={goToPage}
+            totalPages={totalPages}
+            page={page}
+          />
 
           <button
             onClick={() => goToPage(page + 1)}

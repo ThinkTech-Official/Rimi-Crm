@@ -8,6 +8,7 @@ import { Link } from "react-router-dom";
 import { FaAngleDown } from "react-icons/fa";
 import { useForm } from "react-hook-form";
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
+import { RenderPageNumbers } from "./RenderPageNumbers";
 
 const allProducts = [
   "RIMI Canuck Voyage Travel Medical",
@@ -90,70 +91,11 @@ const PoliciesSearch: React.FC = () => {
     setPage(np);
     search(searchData, np, limit);
   };
-  const renderPageNumbers = () => {
-    if (!data) return null;
-
-    const totalPages = data.totalPages;
-    const currentPage = page;
-    const maxVisiblePages = 5;
-
-    const pages: (number | string)[] = [];
-
-    if (totalPages <= maxVisiblePages) {
-      for (let i = 1; i <= totalPages; i++) {
-        pages.push(i);
-      }
-    } else {
-      if (currentPage < 3) {
-        //beginning: 1,2,3,...,last
-        for (let i = 1; i <= maxVisiblePages - 2; i++) {
-          pages.push(i);
-        }
-        pages.push("...");
-        pages.push(totalPages);
-      } else if (currentPage >= totalPages - 2) {
-        //ending: first,...,last-2,last-1,last
-        pages.push(1);
-        pages.push("...");
-        for (let i = totalPages - 2; i <= totalPages; i++) {
-          pages.push(i);
-        }
-      } else {
-        //middle: first,...,current-1,current,current+1,...,last
-        pages.push(1);
-        pages.push("...");
-        for (let i = currentPage - 1; i <= currentPage + 1; i++) {
-          pages.push(i);
-        }
-        pages.push("...");
-        pages.push(totalPages);
-      }
-    }
-    return pages.map((p, idx) =>
-      p === "..." ? (
-        <span key={`dots-${idx}`} className="px-2 mt-4">
-          ...
-        </span>
-      ) : (
-        <button
-          key={p}
-          onClick={() => goToPage(p as number)}
-          className={`px-3 py-2 cursor-pointer ${
-            p === currentPage
-              ? "bg-primary text-white"
-              : "bg-[#F1F0F2] text-[#808080]"
-          }`}
-        >
-          {p}
-        </button>
-      )
-    );
-  };
 
   return (
-    <div className="max-w-5xl mx-auto mt-4 px-2 py-4 sm:p-6 bg-[#F9F9F9]">
+    <div className="w-full mx-auto mt-4 px-2 py-4 sm:p-6 bg-[#F9F9F9]">
       <div className="space-y-2">
-        <h2 className="text-lg font-bold text-left text-[#1B1B1B] mb-2">
+        <h2 className="text-lg 2xl:text-xl font-bold text-left text-[#1B1B1B] mb-2">
           {langauge === "En" ? "Search Policies" : "Rechercher Polices"}
         </h2>
         <p className="text-left font-medium text-[#6A6A6A] mb-8">
@@ -167,64 +109,62 @@ const PoliciesSearch: React.FC = () => {
       <form onSubmit={handleSubmit(onSearch)}>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 md:gap-x-16 lg:gap-x-24 gap-y-4 text-text-secondary">
           {/* First Name */}
-          <div className="flex flex-col 1">
-            <label className="text-sm">First Name</label>
+          <div className="flex flex-col">
+            <label className="text-sm 2xl:text-base">First Name</label>
             <input
-              {...register("firstName")}
-              // value={criteria.firstName || ""}
-              // onChange={handleChange("firstName")}
+              {...register("firstName", {
+                setValueAs: (value) => value.trim(),
+              })}
               className="input-primary"
               placeholder="First Name"
             />
           </div>
           {/* Last Name */}
-          <div className="flex flex-col 1">
-            <label className="text-sm">Last Name</label>
+          <div className="flex flex-col">
+            <label className="text-sm 2xl:text-base">Last Name</label>
             <input
-              {...register("lastName")}
-              // value={criteria.lastName || ""}
-              // onChange={handleChange("lastName")}
+              {...register("lastName", {
+                setValueAs: (value) => value.trim(),
+              })}
               className="input-primary"
               placeholder="Last Name"
             />
           </div>
           {/* Date of Birth */}
-          <div className="flex flex-col 1">
-            <label className="text-sm">Date of Birth</label>
+          <div className="flex flex-col">
+            <label className="text-sm 2xl:text-base">Date of Birth</label>
             <input
               type="date"
               {...register("dateOfBirth")}
-              // value={criteria.dateOfBirth || ""}
-              // onChange={handleChange("dateOfBirth")}
               className="input-primary"
               placeholder="Date of Birth"
             />
           </div>
           {/* Policy Number */}
-          <div className="flex flex-col 1">
-            <label className="text-sm">Policy Number</label>
+          <div className="flex flex-col">
+            <label className="text-sm 2xl:text-base">Policy Number</label>
             <input
-              {...register("policyNumber")}
-              // value={criteria.policyNumber || ""}
-              // onChange={handleChange("policyNumber")}
+              {...register("policyNumber", {
+                setValueAs: (value) => value.trim(),
+              })}
               className="input-primary"
               placeholder="Policy Number"
             />
           </div>
           {/* Phone Number */}
-          <div className="flex flex-col 1">
-            <label className="text-sm">Phone Number</label>
+          <div className="flex flex-col">
+            <label className="text-sm 2xl:text-base">Phone Number</label>
             <input
-              {...register("phoneNumber")}
-              // value={criteria.phoneNumber || ""}
-              // onChange={handleChange("phoneNumber")}
+              {...register("phoneNumber", {
+                setValueAs: (value) => value.trim(),
+              })}
               className="input-primary"
               placeholder="Phone Number"
             />
           </div>
           {/* Email */}
-          <div className="flex flex-col 1">
-            <label className="text-sm">Email</label>
+          <div className="flex flex-col">
+            <label className="text-sm 2xl:text-base">Email</label>
             <input
               type="email"
               {...register("email", {
@@ -233,81 +173,69 @@ const PoliciesSearch: React.FC = () => {
                   message: "Invalid email address",
                 },
               })}
-              // value={criteria.email || ""}
-              // onChange={handleChange("email")}
               className="input-primary"
               placeholder="Email"
             />
           </div>
           {/* Sale Date From */}
-          <div className="flex flex-col 1">
-            <label className="text-sm">Sale Date From</label>
+          <div className="flex flex-col">
+            <label className="text-sm 2xl:text-base">Sale Date From</label>
             <input
               type="date"
               {...register("saleDateFrom")}
-              // value={criteria.saleDateFrom || ""}
-              // onChange={handleChange("saleDateFrom")}
               className="input-primary"
             />
           </div>
           {/* Sale Date To */}
-          <div className="flex flex-col 1">
-            <label className="text-sm">Sale Date To</label>
+          <div className="flex flex-col">
+            <label className="text-sm 2xl:text-base">Sale Date To</label>
             <input
               type="date"
               {...register("saleDateTo")}
-              // value={criteria.saleDateTo || ""}
-              // onChange={handleChange("saleDateTo")}
               className="input-primary"
             />
           </div>
           {/* Effective Date From */}
-          <div className="flex flex-col 1">
-            <label className="text-sm">Effective Date From</label>
+          <div className="flex flex-col">
+            <label className="text-sm 2xl:text-base">Effective Date From</label>
             <input
               type="date"
               {...register("effectiveDateFrom")}
-              // value={criteria.effectiveDateFrom || ""}
-              // onChange={handleChange("effectiveDateFrom")}
               className="input-primary"
             />
           </div>
           {/* Effective Date To */}
-          <div className="flex flex-col 1">
-            <label className="text-sm">Effective Date To</label>
+          <div className="flex flex-col">
+            <label className="text-sm 2xl:text-base">Effective Date To</label>
             <input
               type="date"
               {...register("effectiveDateTo")}
-              // value={criteria.effectiveDateTo || ""}
-              // onChange={handleChange("effectiveDateTo")}
               className="input-primary"
             />
           </div>
           {/* Application ID */}
-          <div className="flex flex-col 1">
-            <label className="text-sm">Application ID</label>
+          <div className="flex flex-col">
+            <label className="text-sm 2xl:text-base">Application ID</label>
             <input
-              {...register("applicationId")}
-              // value={criteria.applicationId || ""}
-              // onChange={handleChange("applicationId")}
+              {...register("applicationId", {
+                setValueAs: (value) => value.trim(),
+              })}
               className="input-primary"
               placeholder="Application ID"
             />
           </div>
           {/* Agent */}
-          <div className="flex flex-col 1">
-            <label className="text-sm">Agent</label>
+          <div className="flex flex-col">
+            <label className="text-sm 2xl:text-base">Agent Code</label>
             <input
               {...register("agent")}
-              // value={criteria.agent || ""}
-              // onChange={handleChange("agent")}
               className="input-primary"
-              placeholder="Agent"
+              placeholder="Agent Code"
             />
           </div>
           {/* Status */}
-          <div className="flex flex-col 1">
-            <label className="text-sm">Status</label>
+          <div className="flex flex-col">
+            <label className="text-sm 2xl:text-base">Status</label>
             <div className="relative bg-white">
               <button
                 type="button"
@@ -376,7 +304,7 @@ const PoliciesSearch: React.FC = () => {
         </div>
         <div className="flex justify-center mt-6">
           <button type="submit" disabled={loading} className="btn-primary">
-            { loading ? "Searching..." : "Search Policies"}
+            {loading ? "Searching..." : "Search Policies"}
           </button>
         </div>
       </form>
@@ -385,9 +313,13 @@ const PoliciesSearch: React.FC = () => {
 
       {data && (
         <div className="w-full overflow-x-auto custom-scrollbar pb-2">
-          <p className="mt-4 mb-1 text-text-primary">
-            Found {data.total} policies.
-          </p>
+          <div className="mt-4">
+            {!loading && (
+              <p className="mb-1 text-text-primary">
+                Found {data.total} policies.
+              </p>
+            )}
+          </div>
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-primary text-white text-base 2xl:text-xl capitalize">
               <tr>
@@ -395,14 +327,12 @@ const PoliciesSearch: React.FC = () => {
                   // "ID",
                   "Policy No.",
                   "Status",
-
                   "First Name",
                   "Last Name",
                   "DOB",
                   "Eff. Date",
                   "Exp. Date",
                   "Product",
-
                   "Actions",
                 ].map((h) => (
                   <th
@@ -430,7 +360,7 @@ const PoliciesSearch: React.FC = () => {
               ) : data?.items.length === 0 ? (
                 <tr>
                   <td
-                    className="p-2 text-text-secondary"
+                    className="p-2 text-text-secondary text-center"
                     colSpan={9}
                   >
                     No policies found
@@ -438,7 +368,7 @@ const PoliciesSearch: React.FC = () => {
                 </tr>
               ) : (
                 data.items.map((p) => (
-                  <tr key={p.id} className="text-[#808080] text-sm 2xl:text-xl">
+                  <tr key={p.id} className="text-[#808080] text-sm 2xl:text-base">
                     {/* <td className="px-4 py-2">{p.id}</td> */}
                     <td
                       className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
@@ -560,7 +490,11 @@ const PoliciesSearch: React.FC = () => {
             <ChevronLeftIcon className="h-5 w-5" />
           </button>
 
-          {renderPageNumbers()}
+          <RenderPageNumbers
+            onPageChange={goToPage}
+            totalPages={totalPages}
+            page={page}
+          />
 
           <button
             onClick={() => goToPage(page + 1)}

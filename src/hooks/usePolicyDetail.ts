@@ -73,7 +73,6 @@ export interface PolicyDetail {
   paymentHistory?: any[];
 }
 
-const baseUrl = API_BASE;
 
 export function usePolicyDetail(id: string | null) {
   const [data, setData] = useState<PolicyDetail | null>(null);
@@ -84,7 +83,7 @@ export function usePolicyDetail(id: string | null) {
     if (!id) return;
     setLoading(true);
 
-    axios.get<PolicyDetail>(`${baseUrl}/policies/${id}`)
+    axios.get<PolicyDetail>(`${API_BASE}/policies/${id}`)
       .then(response => {
         console.log("Response from backend:", response.data);
         setData(response.data);

@@ -56,7 +56,6 @@
 
 //   const { data: summary, loading: sLoading, error: sError } = useAgentSummary();
 
-
 //     const stats = [
 //     { label: "Total Policies", value: summary?.totalPolicies || 0 },
 //     { label: "Total Quotes", value: summary?.totalQuotes || 0 },
@@ -71,7 +70,6 @@
 //     },
 //     { label: "Monthly Premiums Count", value: summary?.monthlyPremiums?.length || 0 },
 //   ];
-
 
 //   const options = ["Agent data", "Policy data", "Quotes data"];
 //   const toggleTableFilter = (option: string) => {
@@ -189,17 +187,10 @@
 //   );
 // }
 
-
-
-
-
 // ===========================================
 
-
-
-
 // components/AdminHome.tsx
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
 import { MdKeyboardArrowRight } from "react-icons/md";
 import { useNavigate } from "react-router-dom";
@@ -222,12 +213,14 @@ import PolicyAnalysis from "../analytics/admin-charts/PolicyAnalysis";
 import QuotesAnalysis from "../analytics/admin-charts/QuotesAnalysis";
 import QuotesVsPolicyConversion from "../analytics/admin-charts/QuotesVsPolicyConversion";
 import AdminPolicySalesChart from "../analytics/admin-charts/AdminPolicySalesChart";
+import { RenderPageNumbers } from "../RenderPageNumbers";
+import { useOnClickOutside } from "../../hooks/useOnClickOutside";
 
 export default function AdminHome() {
   const navigate = useNavigate();
   const [filter, setFilter] = useState("Agent data");
   const [isFilterDropdownOpen, setIsFilterDropdownOpen] = useState(false);
-  
+
   // Pagination states for tables
   const [agentsPage, setAgentsPage] = useState(1);
   const [policiesPage, setPoliciesPage] = useState(1);
@@ -238,12 +231,24 @@ export default function AdminHome() {
   const { data: stats, isLoading: statsLoading } = useAdminStats();
 
   // Fetch table data based on filter
-  const { data: agentsData, isLoading: agentsLoading } = useAgents(agentsPage, limit);
-  const { data: policiesData, isLoading: policiesLoading } = usePolicies(policiesPage, limit);
-  const { data: quotesData, isLoading: quotesLoading } = useQuotes(quotesPage, limit);
-
+  const { data: agentsData, isLoading: agentsLoading } = useAgents(
+    agentsPage,
+    limit
+  );
+  const { data: policiesData, isLoading: policiesLoading } = usePolicies(
+    policiesPage,
+    limit
+  );
+  const { data: quotesData, isLoading: quotesLoading } = useQuotes(
+    quotesPage,
+    limit
+  );
+  const tableDropDownRef = useRef<HTMLDivElement>(null);
+  useOnClickOutside(tableDropDownRef as React.RefObject<HTMLElement>, () => {
+    setIsFilterDropdownOpen(false);
+  });
   const options = ["Agent data", "Policy data", "Quotes data"];
-  
+
   const toggleTableFilter = (option: string) => {
     setFilter(option);
     setIsFilterDropdownOpen(false);
@@ -347,9 +352,7 @@ export default function AdminHome() {
       {/* Policy Sales */}
       <section className="mt-6">
         <div>
-          <h2 className="text-lg font-bold text-text-primary">
-            Policy Sales
-          </h2>
+          <h2 className="text-lg font-bold text-text-primary">Policy Sales</h2>
           <p className="text-base text-text-secondary">Current Month</p>
         </div>
         <PolicySalesChart />
@@ -357,7 +360,7 @@ export default function AdminHome() {
 
       {/* Table Section */}
       <section className="mt-6">
-        <div className="relative">
+        <div className="relative" ref={tableDropDownRef}>
           <div className="flex gap-2 items-center absolute top-0 right-0">
             <span className="text-text-light">Show</span>
             <div className="relative">
@@ -390,10 +393,10 @@ export default function AdminHome() {
             </div>
           </div>
         </div>
-        
-        <div className="mt-12">
+
+        <div className="mt-4">
           {filter === "Agent data" && (
-            <AgentsTable 
+            <AgentsTable
               data={agentsData}
               loading={agentsLoading}
               currentPage={agentsPage}
@@ -402,7 +405,7 @@ export default function AdminHome() {
             />
           )}
           {filter === "Policy data" && (
-            <PoliciesTable 
+            <PoliciesTable
               data={policiesData}
               loading={policiesLoading}
               currentPage={policiesPage}
@@ -410,7 +413,7 @@ export default function AdminHome() {
             />
           )}
           {filter === "Quotes data" && (
-            <QuotesTable 
+            <QuotesTable
               data={quotesData}
               loading={quotesLoading}
               currentPage={quotesPage}
@@ -426,51 +429,87 @@ export default function AdminHome() {
 // Chart wrapper components that fetch their own data
 function QuotesAnalysisChart() {
   const { data, isLoading, error } = useQuotesAnalysis();
-  
-  if (isLoading) return <div className="h-64 flex items-center justify-center"><Spinner /></div>;
-  if (error) return <div className="text-red-500">Failed to load quotes analysis</div>;
-  
+
+  if (isLoading)
+    return (
+      <div className="h-64 flex items-center justify-center">
+        <Spinner />
+      </div>
+    );
+  if (error)
+    return <div className="text-red-500">Failed to load quotes analysis</div>;
+
   return <QuotesAnalysis data={data} />;
 }
 
 function PolicyAnalysisChart() {
   const { data, isLoading, error } = usePolicyAnalysis();
-  
-  if (isLoading) return <div className="h-64 flex items-center justify-center"><Spinner /></div>;
-  if (error) return <div className="text-red-500">Failed to load policy analysis</div>;
-  
+
+  if (isLoading)
+    return (
+      <div className="h-64 flex items-center justify-center">
+        <Spinner />
+      </div>
+    );
+  if (error)
+    return <div className="text-red-500">Failed to load policy analysis</div>;
+
   return <PolicyAnalysis data={data} />;
 }
 
 function QuotesVsPolicyConversionChart() {
   const { data, isLoading, error } = useQuotesPolicyConversion();
-  
-  if (isLoading) return <div className="h-64 flex items-center justify-center"><Spinner /></div>;
-  if (error) return <div className="text-red-500">Failed to load conversion data</div>;
-  
+
+  if (isLoading)
+    return (
+      <div className="h-64 flex items-center justify-center">
+        <Spinner />
+      </div>
+    );
+  if (error)
+    return <div className="text-red-500">Failed to load conversion data</div>;
+
   return <QuotesVsPolicyConversion data={data} />;
 }
 
 function AgentTypesMonthlyChart() {
   const { data, isLoading, error } = useAgentTypesMonthly();
-  
-  if (isLoading) return <div className="h-64 flex items-center justify-center"><Spinner /></div>;
-  if (error) return <div className="text-red-500">Failed to load agent types data</div>;
-  
+
+  if (isLoading)
+    return (
+      <div className="h-64 flex items-center justify-center">
+        <Spinner />
+      </div>
+    );
+  if (error)
+    return <div className="text-red-500">Failed to load agent types data</div>;
+
   return <MultiLineChart data={data} />;
 }
 
 function PolicySalesChart() {
   const { data, isLoading, error } = usePolicySales();
-  
-  if (isLoading) return <div className="h-64 flex items-center justify-center"><Spinner /></div>;
-  if (error) return <div className="text-red-500">Failed to load sales data</div>;
-  
+
+  if (isLoading)
+    return (
+      <div className="h-64 flex items-center justify-center">
+        <Spinner />
+      </div>
+    );
+  if (error)
+    return <div className="text-red-500">Failed to load sales data</div>;
+
   return <AdminPolicySalesChart data={data} />;
 }
 
 // Table Components
-function AgentsTable({ data, loading, currentPage, onPageChange, onAgentClick }: any) {
+function AgentsTable({
+  data,
+  loading,
+  currentPage,
+  onPageChange,
+  onAgentClick,
+}: any) {
   if (loading) {
     return (
       <div className="flex justify-center p-8">
@@ -487,111 +526,107 @@ function AgentsTable({ data, loading, currentPage, onPageChange, onAgentClick }:
       <h2 className="text-lg font-bold text-text-primary">
         All Agents ({data?.total || 0})
       </h2>
-      <table className="min-w-full divide-y divide-gray-200">
-        <thead className="bg-primary text-white text-base 2xl:text-xl capitalize">
-          <tr>
-            <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium">
-              Agent Code
-            </th>
-            <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium">
-              Joined Date
-            </th>
-            <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium">
-              Name
-            </th>
-            <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium">
-              Validity
-            </th>
-            <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium">
-              Quotes
-            </th>
-            <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium">
-              Policies
-            </th>
-            <th className="px-2 sm:px-6 py-1 sm:py-3 text-center font-medium">
-              Action
-            </th>
-          </tr>
-        </thead>
-        <tbody className="bg-white" style={{ border: "1px solid #AAA9A9" }}>
-          {agents.length === 0 ? (
+      <div className="w-full overflow-x-auto custom-scrollbar pb-2">
+        <table className="min-w-full divide-y divide-gray-200 overflow-auto custom-scrollbar">
+          <thead className="bg-primary text-white text-base 2xl:text-xl capitalize">
             <tr>
-              <td colSpan={7} className="text-center py-4 text-gray-500">
-                No agents found
-              </td>
+              <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium text-nowrap">
+                Agent Code
+              </th>
+              <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium text-nowrap">
+                Joined Date
+              </th>
+              <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium text-nowrap">
+                Name
+              </th>
+              <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium text-nowrap">
+                Validity
+              </th>
+              <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium text-nowrap">
+                Quotes
+              </th>
+              <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium text-nowrap">
+                Policies
+              </th>
+              <th className="px-2 sm:px-6 py-1 sm:py-3 text-center font-medium">
+                Action
+              </th>
             </tr>
-          ) : (
-            agents.map((agent: any) => (
-              <tr
-                key={agent.agentCode}
-                className="text-[#808080] text-sm 2xl:text-xl"
-              >
-                <td className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap border-r border-b border-[#AAA9A9]">
-                  {agent.agentCode}
-                </td>
-                <td className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap border-r border-b border-[#AAA9A9]">
-                  {agent.joinedDate}
-                </td>
-                <td className="px-2 sm:px-6 py-2 sm:py-4 min-w-[200px] max-w-[250px] text-wrap border-r border-b border-[#AAA9A9]">
-                  {agent.name}
-                </td>
-                <td className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap border-r border-b border-[#AAA9A9]">
-                  {agent.validity}
-                </td>
-                <td className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap border-r border-b border-[#AAA9A9]">
-                  {agent.quotesCount}
-                </td>
-                <td className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap border-r border-b border-[#AAA9A9]">
-                  {agent.policiesCount}
-                </td>
-                <td className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap border-r border-b border-[#AAA9A9]">
-                  <button
-                    className="text-primary hover:underline hover:underline-offset-2 cursor-pointer font-medium px-4 text-center w-full"
-                    onClick={() => onAgentClick(agent.agentCode)}
-                  >
-                    View Details
-                  </button>
+          </thead>
+          <tbody className="bg-white" style={{ border: "1px solid #AAA9A9" }}>
+            {agents.length === 0 ? (
+              <tr>
+                <td colSpan={7} className="text-center py-4 text-gray-500">
+                  No agents found
                 </td>
               </tr>
-            ))
-          )}
-        </tbody>
-      </table>
-      
+            ) : (
+              agents.map((agent: any) => (
+                <tr
+                  key={agent.agentCode}
+                  className="text-[#808080] text-sm 2xl:text-base"
+                >
+                  <td className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap border-r border-b border-[#AAA9A9]">
+                    {agent.agentCode}
+                  </td>
+                  <td className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap border-r border-b border-[#AAA9A9]">
+                    {agent.joinedDate}
+                  </td>
+                  <td className="px-2 sm:px-6 py-2 sm:py-4 min-w-[200px] max-w-[250px] text-wrap border-r border-b border-[#AAA9A9]">
+                    {agent.name}
+                  </td>
+                  <td className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap border-r border-b border-[#AAA9A9]">
+                    {agent.validity}
+                  </td>
+                  <td className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap border-r border-b border-[#AAA9A9]">
+                    {agent.quotesCount}
+                  </td>
+                  <td className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap border-r border-b border-[#AAA9A9]">
+                    {agent.policiesCount}
+                  </td>
+                  <td className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap border-r border-b border-[#AAA9A9]">
+                    <button
+                      className="text-primary hover:underline hover:underline-offset-2 cursor-pointer font-medium px-4 text-center w-full"
+                      onClick={() => onAgentClick(agent.agentCode)}
+                    >
+                      View Details
+                    </button>
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
+
       {/* Pagination */}
-      <div className="flex items-center justify-center p-4 space-x-2" role="pagination">
+      <div
+        className="flex items-center justify-center p-4 space-x-2"
+        role="pagination"
+      >
         <button
           disabled={currentPage === 1}
           onClick={() => onPageChange(currentPage - 1)}
           className={`px-2 py-[10px] ${
-            currentPage === 1 ? 'bg-gray-300' : 'bg-[#CCCCCC] cursor-pointer'
+            currentPage === 1 ? "bg-gray-300" : "bg-[#CCCCCC] cursor-pointer"
           } text-[#6F6B7D]`}
         >
           <ChevronLeftIcon className="h-5 w-5" />
         </button>
-        
-        {[...Array(Math.min(5, totalPages))].map((_, i) => {
-          const pageNum = i + 1;
-          return (
-            <button
-              key={pageNum}
-              onClick={() => onPageChange(pageNum)}
-              className={`px-3 py-2 cursor-pointer ${
-                currentPage === pageNum
-                  ? "bg-primary text-white"
-                  : "bg-[#F1F0F2] text-[#808080]"
-              }`}
-            >
-              {pageNum}
-            </button>
-          );
-        })}
-        
+
+        <RenderPageNumbers
+          onPageChange={onPageChange}
+          totalPages={totalPages}
+          page={currentPage}
+        />
+
         <button
           disabled={currentPage === totalPages}
           onClick={() => onPageChange(currentPage + 1)}
           className={`px-2 py-[10px] ${
-            currentPage === totalPages ? 'bg-gray-300' : 'bg-[#CCCCCC] cursor-pointer'
+            currentPage === totalPages
+              ? "bg-gray-300"
+              : "bg-[#CCCCCC] cursor-pointer"
           } text-[#6F6B7D]`}
         >
           <ChevronRightIcon className="h-5 w-5" />
@@ -618,99 +653,98 @@ function PoliciesTable({ data, loading, currentPage, onPageChange }: any) {
       <h2 className="text-lg font-bold text-text-primary">
         All Policies ({data?.total || 0})
       </h2>
-      <table className="min-w-full divide-y divide-gray-200">
-        <thead className="bg-primary text-white text-base 2xl:text-xl capitalize">
-          <tr>
-            <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium">
-              Policy No.
-            </th>
-            <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium">
-              Name
-            </th>
-            <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium">
-              Type
-            </th>
-            <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium">
-              Premium
-            </th>
-            <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium">
-              Status
-            </th>
-            <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium">
-              Issued at
-            </th>
-          </tr>
-        </thead>
-        <tbody className="bg-white" style={{ border: "1px solid #AAA9A9" }}>
-          {policies.length === 0 ? (
+      <div className="w-full overflow-x-auto custom-scrollbar pb-2">
+        <table className="min-w-full divide-y divide-gray-200 overflow-auto custom-scrollbar">
+          <thead className="bg-primary text-white text-base 2xl:text-xl capitalize">
             <tr>
-              <td colSpan={6} className="text-center py-4 text-gray-500">
-                No policies found
-              </td>
+              <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium text-nowrap">
+                Policy No.
+              </th>
+              <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium text-nowrap">
+                Name
+              </th>
+              <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium text-nowrap">
+                Type
+              </th>
+              <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium text-nowrap">
+                Premium
+              </th>
+              <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium text-nowrap">
+                Status
+              </th>
+              <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium text-nowrap">
+                Issued at
+              </th>
             </tr>
-          ) : (
-            policies.map((policy: any) => (
-              <tr key={policy.id} className="text-[#808080] text-sm 2xl:text-xl">
-                <td className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap border-r border-b border-[#AAA9A9]">
-                  {policy.policyNumber}
-                </td>
-                <td className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap border-r border-b border-[#AAA9A9]">
-                  {policy.firstName} {policy.lastName}
-                </td>
-                <td className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap border-r border-b border-[#AAA9A9]">
-                  {policy.policyType || 'N/A'}
-                </td>
-                <td className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap border-r border-b border-[#AAA9A9]">
-                  ${policy.premium?.toFixed(2) || '0.00'}
-                </td>
-                <td className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap border-r border-b border-[#AAA9A9]">
-                  {policy.status || 'N/A'}
-                </td>
-                <td className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap border-r border-b border-[#AAA9A9]">
-                  {policy.dateIssued
-                    ? new Date(policy.dateIssued).toLocaleDateString()
-                    : 'N/A'}
+          </thead>
+          <tbody className="bg-white" style={{ border: "1px solid #AAA9A9" }}>
+            {policies.length === 0 ? (
+              <tr>
+                <td colSpan={6} className="text-center py-4 text-gray-500">
+                  No policies found
                 </td>
               </tr>
-            ))
-          )}
-        </tbody>
-      </table>
-      
+            ) : (
+              policies.map((policy: any) => (
+                <tr
+                  key={policy.id}
+                  className="text-[#808080] text-sm 2xl:text-base"
+                >
+                  <td className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap border-r border-b border-[#AAA9A9]">
+                    {policy.policyNumber}
+                  </td>
+                  <td className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap border-r border-b border-[#AAA9A9]">
+                    {policy.firstName} {policy.lastName}
+                  </td>
+                  <td className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap border-r border-b border-[#AAA9A9]">
+                    {policy.policyType || "N/A"}
+                  </td>
+                  <td className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap border-r border-b border-[#AAA9A9]">
+                    ${policy.premium?.toFixed(2) || "0.00"}
+                  </td>
+                  <td className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap border-r border-b border-[#AAA9A9]">
+                    {policy.status || "N/A"}
+                  </td>
+                  <td className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap border-r border-b border-[#AAA9A9]">
+                    {policy.dateIssued
+                      ? new Date(policy.dateIssued).toLocaleDateString()
+                      : "N/A"}
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
+
       {/* Pagination */}
-      <div className="flex items-center justify-center p-4 space-x-2" role="pagination">
+      <div
+        className="flex items-center justify-center p-4 space-x-2"
+        role="pagination"
+      >
         <button
           disabled={currentPage === 1}
           onClick={() => onPageChange(currentPage - 1)}
           className={`px-2 py-[10px] ${
-            currentPage === 1 ? 'bg-gray-300' : 'bg-[#CCCCCC] cursor-pointer'
+            currentPage === 1 ? "bg-gray-300" : "bg-[#CCCCCC] cursor-pointer"
           } text-[#6F6B7D]`}
         >
           <ChevronLeftIcon className="h-5 w-5" />
         </button>
-        
-        {[...Array(Math.min(5, totalPages))].map((_, i) => {
-          const pageNum = i + 1;
-          return (
-            <button
-              key={pageNum}
-              onClick={() => onPageChange(pageNum)}
-              className={`px-3 py-2 cursor-pointer ${
-                currentPage === pageNum
-                  ? "bg-primary text-white"
-                  : "bg-[#F1F0F2] text-[#808080]"
-              }`}
-            >
-              {pageNum}
-            </button>
-          );
-        })}
-        
+
+        <RenderPageNumbers
+          onPageChange={onPageChange}
+          totalPages={totalPages}
+          page={currentPage}
+        />
+
         <button
           disabled={currentPage === totalPages}
           onClick={() => onPageChange(currentPage + 1)}
           className={`px-2 py-[10px] ${
-            currentPage === totalPages ? 'bg-gray-300' : 'bg-[#CCCCCC] cursor-pointer'
+            currentPage === totalPages
+              ? "bg-gray-300"
+              : "bg-[#CCCCCC] cursor-pointer"
           } text-[#6F6B7D]`}
         >
           <ChevronRightIcon className="h-5 w-5" />
@@ -737,105 +771,104 @@ function QuotesTable({ data, loading, currentPage, onPageChange }: any) {
       <h2 className="text-lg font-bold text-text-primary">
         All Quotes ({data?.total || 0})
       </h2>
-      <table className="min-w-full divide-y divide-gray-200">
-        <thead className="bg-primary text-white text-base 2xl:text-xl capitalize">
-          <tr>
-            <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium">
-              Quote No.
-            </th>
-            <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium">
-              Name
-            </th>
-            <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium">
-              Type
-            </th>
-            <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium">
-              Premium
-            </th>
-            <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium">
-              Product
-            </th>
-            <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium">
-              Status
-            </th>
-            <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium">
-              Created at
-            </th>
-          </tr>
-        </thead>
-        <tbody className="bg-white" style={{ border: "1px solid #AAA9A9" }}>
-          {quotes.length === 0 ? (
+      <div className="w-full overflow-x-auto custom-scrollbar pb-2">
+        <table className="min-w-full divide-y divide-gray-200 overflow-auto custom-scrollbar">
+          <thead className="bg-primary text-white text-base 2xl:text-xl capitalize">
             <tr>
-              <td colSpan={7} className="text-center py-4 text-gray-500">
-                No quotes found
-              </td>
+              <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium text-nowrap">
+                Quote No.
+              </th>
+              <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium text-nowrap">
+                Name
+              </th>
+              <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium text-nowrap">
+                Type
+              </th>
+              <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium text-nowrap">
+                Premium
+              </th>
+              <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium text-nowrap">
+                Product
+              </th>
+              <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium text-nowrap">
+                Status
+              </th>
+              <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium text-nowrap">
+                Created at
+              </th>
             </tr>
-          ) : (
-            quotes.map((quote: any) => (
-              <tr key={quote.id} className="text-[#808080] text-sm 2xl:text-xl">
-                <td className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap border-r border-b border-[#AAA9A9]">
-                  {quote.quoteNumber}
-                </td>
-                <td className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap border-r border-b border-[#AAA9A9]">
-                  {quote.firstName} {quote.lastName}
-                </td>
-                <td className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap border-r border-b border-[#AAA9A9]">
-                  {quote.policyType || 'N/A'}
-                </td>
-                <td className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap border-r border-b border-[#AAA9A9]">
-                  ${quote.premium?.toFixed(2) || '0.00'}
-                </td>
-                <td className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap border-r border-b border-[#AAA9A9]">
-                  {quote.product || 'N/A'}
-                </td>
-                <td className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap border-r border-b border-[#AAA9A9]">
-                  {quote.status || 'N/A'}
-                </td>
-                <td className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap border-r border-b border-[#AAA9A9]">
-                  {quote.createdAt
-                    ? new Date(quote.createdAt).toLocaleDateString()
-                    : 'N/A'}
+          </thead>
+          <tbody className="bg-white" style={{ border: "1px solid #AAA9A9" }}>
+            {quotes.length === 0 ? (
+              <tr>
+                <td colSpan={7} className="text-center py-4 text-gray-500">
+                  No quotes found
                 </td>
               </tr>
-            ))
-          )}
-        </tbody>
-      </table>
-      
+            ) : (
+              quotes.map((quote: any) => (
+                <tr
+                  key={quote.id}
+                  className="text-[#808080] text-sm 2xl:text-base"
+                >
+                  <td className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap border-r border-b border-[#AAA9A9]">
+                    {quote.quoteNumber}
+                  </td>
+                  <td className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap border-r border-b border-[#AAA9A9]">
+                    {quote.firstName} {quote.lastName}
+                  </td>
+                  <td className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap border-r border-b border-[#AAA9A9]">
+                    {quote.policyType || "N/A"}
+                  </td>
+                  <td className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap border-r border-b border-[#AAA9A9]">
+                    ${quote.premium?.toFixed(2) || "0.00"}
+                  </td>
+                  <td className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap border-r border-b border-[#AAA9A9]">
+                    {quote.product || "N/A"}
+                  </td>
+                  <td className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap border-r border-b border-[#AAA9A9]">
+                    {quote.status || "N/A"}
+                  </td>
+                  <td className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap border-r border-b border-[#AAA9A9]">
+                    {quote.createdAt
+                      ? new Date(quote.createdAt).toLocaleDateString()
+                      : "N/A"}
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
+
       {/* Pagination */}
-      <div className="flex items-center justify-center p-4 space-x-2" role="pagination">
+      <div
+        className="flex items-center justify-center p-4 space-x-2"
+        role="pagination"
+      >
         <button
           disabled={currentPage === 1}
           onClick={() => onPageChange(currentPage - 1)}
           className={`px-2 py-[10px] ${
-            currentPage === 1 ? 'bg-gray-300' : 'bg-[#CCCCCC] cursor-pointer'
+            currentPage === 1 ? "bg-gray-300" : "bg-[#CCCCCC] cursor-pointer"
           } text-[#6F6B7D]`}
         >
           <ChevronLeftIcon className="h-5 w-5" />
         </button>
-        
-        {[...Array(Math.min(5, totalPages))].map((_, i) => {
-          const pageNum = i + 1;
-          return (
-            <button
-              key={pageNum}
-              onClick={() => onPageChange(pageNum)}
-              className={`px-3 py-2 cursor-pointer ${
-                currentPage === pageNum
-                  ? "bg-primary text-white"
-                  : "bg-[#F1F0F2] text-[#808080]"
-              }`}
-            >
-              {pageNum}
-            </button>
-          );
-        })}
-        
+
+        <RenderPageNumbers
+          onPageChange={onPageChange}
+          totalPages={totalPages}
+          page={currentPage}
+        />
+
         <button
           disabled={currentPage === totalPages}
           onClick={() => onPageChange(currentPage + 1)}
           className={`px-2 py-[10px] ${
-            currentPage === totalPages ? 'bg-gray-300' : 'bg-[#CCCCCC] cursor-pointer'
+            currentPage === totalPages
+              ? "bg-gray-300"
+              : "bg-[#CCCCCC] cursor-pointer"
           } text-[#6F6B7D]`}
         >
           <ChevronRightIcon className="h-5 w-5" />

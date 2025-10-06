@@ -8,7 +8,7 @@ import {
   Bars3Icon,
   XCircleIcon,
 } from "@heroicons/react/24/outline";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 // import Cookies from "js-cookie";
 import { useSelector } from "react-redux";
@@ -19,12 +19,13 @@ import { FaUserCircle } from "react-icons/fa";
 import { FaUser } from "react-icons/fa6";
 import { IoIosLogOut } from "react-icons/io";
 import { MdKeyboardArrowRight } from "react-icons/md";
-import { set } from "react-hook-form";
+import { useOnClickOutside } from "../hooks/useOnClickOutside";
 
 export default function Navbar() {
   const [showSlider, setShowSlider] = useState(false);
   const [userName, setUserName] = useState<string | null>(null);
-
+  const languageRef = useRef<HTMLDivElement>(null);
+  const profileRef = useRef<HTMLDivElement>(null);
   const token = useSelector((state: any) => state.auth.token);
   const [isLanguageSelectOpen, setIsLanguageSelectOpen] = useState(false);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
@@ -39,6 +40,13 @@ export default function Navbar() {
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
+  useOnClickOutside(languageRef as React.RefObject<HTMLElement>, () => {
+    setIsLanguageSelectOpen(false);
+  });
+  useOnClickOutside(profileRef as React.RefObject<HTMLElement>, () => {
+    setIsProfileMenuOpen(false);
+  });
 
   const handleLogout = () => {
     dispatch(logout());
@@ -83,7 +91,7 @@ export default function Navbar() {
 
   return (
     <>
-      <div className=" h-14 max-w-screen sticky top-0 z-5 bg-[#ffffff] border border-b-[#93C5FD] border-t-0 border-r-0 flex items-center justify-between px-4 sm:px-10">
+      <div className=" h-14 max-w-screen sticky top-0 z-5 bg-[#ffffff] border border-b-[#E9EEF1] border-t-0 border-r-0 flex items-center justify-between px-4 sm:px-10">
         {/* Link to Home, Policy , Qoutes */}
         <>
           {/* mid screen and above  */}
@@ -113,7 +121,7 @@ export default function Navbar() {
         </>
         <div className="flex justify-center items-center gap-4">
           {/* langauge selector */}
-          <div className="relative">
+          <div className="relative" ref={languageRef}>
             <button
               role="language-btn"
               className="flex items-center gap-2 text-primary text-[16px] font-medium relative cursor-pointer"
@@ -159,7 +167,7 @@ export default function Navbar() {
           </div>
           {/* User profile and logout drop ChevronDownIcon */}
           {token && (
-            <div className="relative">
+            <div className="relative" ref={profileRef}>
               <button
                 role="profile-btn"
                 className="flex items-center gap-2 text-primary text-[16px] font-medium cursor-pointer"
@@ -167,7 +175,11 @@ export default function Navbar() {
               >
                 <span className="flex gap-2 items-center">
                   <FaUserCircle className="h-5 w-5 2xl:w-6 2xl:h-6 text-primary" />
-                  {userName ? `${userName}` : "Please log in"}
+                  {userName
+                    ? userName.length > 10
+                      ? `${userName.slice(0, 10)}...`
+                      : userName
+                    : "Please log in"}
                 </span>
                 <MdKeyboardArrowRight
                   className={`h-4 w-4 2xl:w-6 2xl:h-6 transform transition ${

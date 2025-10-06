@@ -1,3 +1,4 @@
+import i18n from './i18n/i18.ts';
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import "./index.css";
@@ -23,12 +24,11 @@ import ForgotPassword from './pages/ForgotPassword.tsx';
 import UserUpload from './pages/UserUpload.tsx';
 import TestUi from './pages/TestUi.tsx';
 import QuoteUploader from './pages/QuoteUploader.tsx';
-import QuoteDetails, { QuoteDetailPage } from './pages/QuoteDetails.tsx';
+import { QuoteDetailPage } from './pages/QuoteDetails.tsx';
 import PolicyUploader from './pages/PolicyUploader.tsx';
 import PolicyDetails from './pages/PolicyDetails.tsx';
 import ImportSalesUpload from './pages/ImportSalesUpload.tsx';
 import AgentDashboard from './pages/AgentDashboard.tsx';
-import i18n from './i18n/i18.ts';
 import AgentDetails from './components/AgentDetails.tsx';
 
 
@@ -49,6 +49,7 @@ import Users from "./components/Users.tsx";
 import CreateUser from "./components/CreateUser.tsx";
 import Documents from "./components/Documents.tsx";
 import TripCalculator from "./components/TripCalculator.tsx";
+import { I18nextProvider } from 'react-i18next';
 
 // Create ONE client (module-level singleton)
 const queryClient = new QueryClient({
@@ -113,14 +114,16 @@ const router = createBrowserRouter(
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <Provider store={store}>
-  <PersistGate loading={null} persistor={persistor}>
-    <QueryClientProvider client={queryClient}>
-    <LangContextProvider>
-      <RouterProvider router={router} />
-    </LangContextProvider>
-    <ReactQueryDevtools initialIsOpen={false} />
+      <PersistGate loading={null} persistor={persistor}>
+        <QueryClientProvider client={queryClient}>
+          <I18nextProvider i18n={i18n}>
+            <LangContextProvider>
+              <RouterProvider router={router} />
+            </LangContextProvider>
+          </I18nextProvider>
+          <ReactQueryDevtools initialIsOpen={false} />
         </QueryClientProvider>
-  </PersistGate>
-</Provider>
+      </PersistGate>
+    </Provider>
   </StrictMode>,
 )
