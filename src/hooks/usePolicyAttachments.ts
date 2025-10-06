@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
+import { API_BASE } from '../utils/urls';
 
-const baseUrl = "http://localhost:3000";
+const baseUrl = API_BASE;
 
 export interface Attachment {
   id: string;

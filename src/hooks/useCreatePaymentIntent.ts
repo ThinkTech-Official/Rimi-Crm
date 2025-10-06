@@ -48,8 +48,9 @@
 import { useState, useCallback } from 'react';
 import axios from 'axios';
 import { Shipping } from '../components/Products/SecureTravelRIMIVisitorstoCanadaTravel/step2/PaymentInformation';
+import { API_BASE } from '../utils/urls';
 
-const localAddress = 'http://localhost:3000';
+const localAddress = API_BASE
 
 export function useCreatePaymentIntent(
   stripeCustomerId: string,

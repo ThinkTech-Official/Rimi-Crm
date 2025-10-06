@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
+import { API_BASE } from '../utils/urls';
 
 export interface Note {
   id: string;
@@ -7,7 +8,7 @@ export interface Note {
   createdAt: string;
 }
 
-const baseUrl = "http://localhost:3000";
+const baseUrl = API_BASE;
 
 export function usePolicyNotes(policyId: string) {
   const [notes, setNotes]       = useState<Note[]>([]);

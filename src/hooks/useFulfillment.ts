@@ -1,12 +1,13 @@
 import { useState, useCallback } from 'react';
 import axios from 'axios';
+import { API_BASE } from '../utils/urls';
 
 export function useFulfillment(policyId: string) {
   const [preview, setPreview] = useState<{ subject: string; html: string } | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError]     = useState<string|null>(null);
 
-  const baseUrl = "http://localhost:3000";
+  const baseUrl = API_BASE;
 
   const fetchPreview = useCallback(async () => {
     setLoading(true);
