@@ -1,9 +1,6 @@
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import {
-  UserCircleIcon,
-  LanguageIcon,
-  ChevronDownIcon,
   // HomeIcon,
   Bars3Icon,
   XCircleIcon,
@@ -24,6 +21,7 @@ import { useOnClickOutside } from "../hooks/useOnClickOutside";
 export default function Navbar() {
   const [showSlider, setShowSlider] = useState(false);
   const [userName, setUserName] = useState<string | null>(null);
+  const [userId, setUserId] = useState<string | null>(null);
   const languageRef = useRef<HTMLDivElement>(null);
   const profileRef = useRef<HTMLDivElement>(null);
   const token = useSelector((state: any) => state.auth.token);
@@ -78,14 +76,14 @@ export default function Navbar() {
     setIsLanguageSelectOpen(false);
   };
   const handleProfileClick = () => {
-    navigate("/admin/profile");
+    navigate(`/profile`);
     toggleProfileMenu();
   };
   useEffect(() => {
     const type = getUserTypeFromToken();
     if (type) {
       setUserName(type.fullName);
-      // console.log(type);
+      console.log(type);
     }
   }, [token]);
 

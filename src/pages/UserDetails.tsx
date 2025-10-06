@@ -2,11 +2,38 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { useUserDetails } from "../hooks/useUserDetails";
-import { ProfileForm } from "../utils/types";
 import { DocumentIcon } from "@heroicons/react/24/outline";
 import { API_BASE } from "../utils/urls";
 import Spinner from "../components/Spinner";
 import { MdCancel } from "react-icons/md";
+import { useForm, Controller } from "react-hook-form";
+
+// Interface for the form data
+export interface UserFormData {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  agentCode: string;
+  company: string;
+  userType: string;
+  status: string;
+  allowBulkUpload: boolean;
+  docLink1?: string;
+  docLink2?: string;
+  // docLink3?: string;
+  validUpto?: string;
+  validUpto2?: string;
+  mgaId?: string | null;
+  agentCodes?: string[];
+  newPwd?: string;
+  confirmPwd?: string;
+  // doc1ValidUpto?: string;
+  // doc2ValidUpto?: string;
+  // doc3ValidUpto?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
 
 // Permission definitions and map
 const adminPermission = {
@@ -52,6 +79,14 @@ export default function UserDetails() {
     (state: any) => state.auth.user?.userType
   ) as string;
   const { user, loading, error, save, saving, saveError } = useUserDetails(id!);
+  const {
+    register,
+    handleSubmit,
+    reset,
+    control,
+    formState: { errors },
+    watch,
+  } = useForm<UserFormData>();
 
   // Redirect non-admins
   useEffect(() => {
@@ -64,44 +99,22 @@ export default function UserDetails() {
   const [files, setFiles] = useState<{ [key: string]: File | null }>({
     doc1: null,
     doc2: null,
-    doc3: null,
-  });
-  const [formData, setFormData] = useState<ProfileForm>({
-    id: "",
-    firstName: "",
-    lastName: "",
-    email: "",
-    agentCode: "",
-    company: "",
-    userType: "",
-    status: "",
-    docLink1: "",
-    docLink2: "",
-    docLink3: "",
-    validUpto: "",
-    mgaId: null,
-    agentCodes: [],
-    password: "",
-    confirmPassword: "",
-    createdAt: "",
-    updatedAt: "",
+    // doc3: null,
   });
 
   useEffect(() => {
     if (user) {
-      setFormData({ ...user, password: "", confirmPassword: "" });
+      console.log(user);
+      console.log(typeof user.allowBulkUpload);
+      reset({
+        ...user,
+        validUpto: user.validUpto ? user.validUpto.split("T")[0] : "",
+        validUpto2: user.validUpto2 ? user.validUpto2.split("T")[0] : "",
+        newPwd: "",
+        confirmPwd: "",
+      });
     }
-  }, [user]);
-
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) => {
-    const { name, type, value, checked } = e.target as HTMLInputElement;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: type === "checkbox" ? checked : value,
-    }));
-  };
+  }, [user, reset]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, files: fileList } = e.target;
@@ -111,19 +124,20 @@ export default function UserDetails() {
     }));
   };
 
-  const handleSave = async () => {
+  const onSubmit = async (data: UserFormData) => {
     try {
-      await save(formData, files);
+      await save(data as UserFormData, files);
       setIsEditing(false);
-      // optionally reset passwords, etc.
     } catch {
       alert(saveError || "Save failed");
     }
   };
+
   const handleFileSize = (file: File) => {
     const fileSizeInMB = file.size / (1024 * 1024);
     return fileSizeInMB.toFixed(2);
   };
+
   const handleRemoveFile = (fileName: string) => {
     setFiles((prev) => ({
       ...prev,
@@ -140,8 +154,9 @@ export default function UserDetails() {
     );
   if (error) return <p className="text-red-500">Error: {error}</p>;
 
+  const formData = watch();
   const currentUserPermissions = PERMISSIONS_MAP[formData.userType] || {};
-  const docs = [formData.docLink1, formData.docLink2, formData.docLink3].filter(
+  const docs = [formData.docLink1, formData.docLink2].filter(
     Boolean
   );
 
@@ -158,12 +173,16 @@ export default function UserDetails() {
       <div className="flex justify-center sm:justify-end space-x-2 mb-4">
         {isEditing ? (
           <>
-            <button onClick={handleSave} className="btn-primary">
+            <button onClick={handleSubmit(onSubmit)} className="btn-primary">
               Save Changes
             </button>
             <button
               onClick={() => {
-                setFormData({ ...user!, password: "", confirmPassword: "" });
+                reset({
+                  ...user!,
+                  newPwd: "",
+                  confirmPwd: "",
+                });
                 setIsEditing(false);
               }}
               className="px-4 py-2 bg-white border border-inputBorder text-gray-700 hover:border-gray-600 transition cursor-pointer"
@@ -189,12 +208,18 @@ export default function UserDetails() {
               First Name
             </label>
             <input
-              name="firstName"
-              value={formData.firstName}
+              {...register("firstName", {
+                required: "First name is required",
+                setValueAs: (value) => value.trim(),
+              })}
               disabled={!isEditing}
-              onChange={handleChange}
               className="input-primary"
             />
+            {errors.firstName && (
+              <span className="text-red-500 text-xs">
+                {errors.firstName.message}
+              </span>
+            )}
           </div>
 
           <div className="flex flex-col gap-1">
@@ -202,58 +227,90 @@ export default function UserDetails() {
               Last Name
             </label>
             <input
-              name="lastName"
-              value={formData.lastName}
+              {...register("lastName", {
+                required: "Last name is required",
+                setValueAs: (value) => value.trim(),
+              })}
               disabled={!isEditing}
-              onChange={handleChange}
               className="input-primary"
             />
+            {errors.lastName && (
+              <span className="text-red-500 text-xs">
+                {errors.lastName.message}
+              </span>
+            )}
           </div>
+
           <div className="flex flex-col gap-1">
             <label htmlFor="agentCode" className="text-sm">
               Agent Code
             </label>
             <input
-              name="agentCode"
-              value={formData.agentCode}
+              {...register("agentCode", {
+                required: "Agent code is required",
+                setValueAs: (value) => value.trim(),
+              })}
               disabled={!isEditing}
-              onChange={handleChange}
               className="input-primary"
             />
+            {errors.agentCode && (
+              <span className="text-red-500 text-xs">
+                {errors.agentCode.message}
+              </span>
+            )}
           </div>
+
           <div className="flex flex-col gap-1">
             <label htmlFor="email" className="text-sm">
               Email
             </label>
             <input
-              name="email"
-              value={formData.email}
+              {...register("email", {
+                setValueAs: (value) => value.trim().toLowerCase(),
+                required: "Email is required",
+                pattern: {
+                  value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                  message: "Invalid email address",
+                },
+              })}
               disabled={!isEditing}
-              onChange={handleChange}
               className="input-primary"
             />
+            {errors.email && (
+              <span className="text-red-500 text-xs">
+                {errors.email.message}
+              </span>
+            )}
           </div>
+
           <div className="flex flex-col gap-1">
-            <label htmlFor="comapny" className="text-sm">
+            <label htmlFor="company" className="text-sm">
               Company
             </label>
             <input
-              name="company"
-              value={formData.company}
+              {...register("company", {
+                required: "Company is required",
+                setValueAs: (value) => value.trim(),
+              })}
               disabled={!isEditing}
-              onChange={handleChange}
               className="input-primary"
             />
+            {errors.company && (
+              <span className="text-red-500 text-xs">
+                {errors.company.message}
+              </span>
+            )}
           </div>
+
           <div className="flex flex-col gap-1">
             <label htmlFor="userType" className="text-sm">
               User Type
             </label>
             <select
-              name="userType"
-              value={formData.userType}
+              {...register("userType", {
+                required: "User type is required",
+              })}
               disabled={!isEditing}
-              onChange={handleChange}
               className="input-primary"
             >
               <option value="ADMIN">Admin</option>
@@ -261,63 +318,152 @@ export default function UserDetails() {
               <option value="MGA">MGA</option>
               <option value="READONLY">Read Only</option>
             </select>
+            {errors.userType && (
+              <span className="text-red-500 text-xs">
+                {errors.userType.message}
+              </span>
+            )}
           </div>
-          <div>
-            <label className="mr-4">
-              <input
-                type="radio"
-                name="status"
-                value="ACTIVE"
-                checked={formData.status === "ACTIVE"}
-                disabled={!isEditing}
-                onChange={handleChange}
-                className="mr-1"
-              />
-              Active
-            </label>
-            <label>
-              <input
-                type="radio"
-                name="status"
-                value="INACTIVE"
-                checked={formData.status === "INACTIVE"}
-                disabled={!isEditing}
-                onChange={handleChange}
-                className="mr-1"
-              />
-              Inactive
-            </label>
-          </div>
-        </div>
-
-        {isEditing && (
-          <div className="flex sm:flex-row flex-col gap-4 mt-2">
+          {isEditing && (
             <div className="flex flex-col gap-1 w-full">
-              <label htmlFor="password" className="text-sm">
+              <label htmlFor="newPwd" className="text-sm">
                 Password
               </label>
               <input
-                name="password"
+                {...register("newPwd", {
+                  minLength: {
+                    value: 6,
+                    message: "Password must be at least 6 characters",
+                  },
+                  validate: {
+                    hasLetter: (value) =>
+                      !value ||
+                      /[A-Za-z]/.test(value) ||
+                      "Password must contain at least one letter",
+                    hasNumber: (value) =>
+                      !value ||
+                      /\d/.test(value) ||
+                      "Password must contain at least one number",
+                  },
+                })}
                 type="password"
                 placeholder="New Password"
-                onChange={handleChange}
                 className="input-primary"
               />
+              {errors.newPwd && (
+                <span className="text-red-500 text-xs">
+                  {errors.newPwd.message}
+                </span>
+              )}
             </div>
+          )}
+          {isEditing && (
             <div className="flex flex-col gap-1 w-full">
-              <label htmlFor="confirmPassword" className="text-sm">
+              <label htmlFor="confirmPwd" className="text-sm">
                 Confirm Password
               </label>
               <input
-                name="confirmPassword"
+                {...register("confirmPwd", {
+                  validate: (value) =>
+                    !watch("newPwd") ||
+                    value === watch("newPwd") ||
+                    "Passwords don't match",
+                })}
                 type="password"
                 placeholder="Re-enter Password"
-                onChange={handleChange}
                 className="input-primary"
               />
+              {errors.confirmPwd && (
+                <span className="text-red-500 text-xs">
+                  {errors.confirmPwd.message}
+                </span>
+              )}
+            </div>
+          )}
+          <div className="flex flex-col gap-1">
+            <label htmlFor="allowBulkUpload" className="text-sm">
+              Allow Bulk Upload
+            </label>
+            <div>
+              <Controller
+                name="allowBulkUpload"
+                control={control}
+                render={({ field }) => (
+                  <>
+                    <label className="mr-4">
+                      <input
+                        type="radio"
+                        checked={field.value === true}
+                        disabled={!isEditing}
+                        onChange={() => field.onChange(true)}
+                        className="mr-1"
+                      />
+                      Yes
+                    </label>
+                    <label>
+                      <input
+                        type="radio"
+                        checked={field.value === false}
+                        disabled={!isEditing}
+                        onChange={() => field.onChange(false)}
+                        className="mr-1"
+                      />
+                      No
+                    </label>
+                  </>
+                )}
+              />
+              {errors.allowBulkUpload && (
+                <span className="text-red-500 text-xs block mt-1">
+                  {errors.allowBulkUpload.message}
+                </span>
+              )}
             </div>
           </div>
-        )}
+          <div className="flex flex-col gap-1">
+            <label htmlFor="status" className="text-sm">
+              Status
+            </label>
+            <div>
+              <Controller
+                name="status"
+                control={control}
+                rules={{ required: "Status is required" }}
+                render={({ field }) => (
+                  <>
+                    <label className="mr-4">
+                      <input
+                        type="radio"
+                        value="ACTIVE"
+                        checked={field.value === "ACTIVE"}
+                        disabled={!isEditing}
+                        onChange={() => field.onChange("ACTIVE")}
+                        className="mr-1"
+                      />
+                      Active
+                    </label>
+                    <label>
+                      <input
+                        type="radio"
+                        value="INACTIVE"
+                        checked={field.value === "INACTIVE"}
+                        disabled={!isEditing}
+                        onChange={() => field.onChange("INACTIVE")}
+                        className="mr-1"
+                      />
+                      Inactive
+                    </label>
+                  </>
+                )}
+              />
+              {errors.status && (
+                <span className="text-red-500 text-xs block mt-1">
+                  {errors.status.message}
+                </span>
+              )}
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Permissions */}
@@ -410,10 +556,10 @@ export default function UserDetails() {
               <div className="flex flex-col gap-1 w-full">
                 <label className="text-sm">Document 1 Valid Upto</label>
                 <input
-                  name="doc1"
+                  {...register("validUpto")}
                   type="date"
-                  onChange={handleFileChange}
                   className="input-primary"
+                  disabled={!isEditing}
                 />
               </div>
             </div>
@@ -448,16 +594,16 @@ export default function UserDetails() {
               <div className="flex flex-col gap-1 w-full">
                 <label className="text-sm">Document 2 Valid Upto</label>
                 <input
-                  name="doc2"
+                  {...register("validUpto2")}
                   type="date"
-                  onChange={handleFileChange}
                   className="input-primary"
+                  disabled={!isEditing}
                 />
               </div>
             </div>
-            <div className="flex gap-4">
+            {/* <div className="flex gap-4">
               <div className="flex flex-col gap-1 w-full">
-                <label htmlFor="doc1" className="text-sm">
+                <label htmlFor="doc3" className="text-sm">
                   Document 3
                 </label>
                 <label className="input-primary cursor-pointer">
@@ -486,16 +632,18 @@ export default function UserDetails() {
               <div className="flex flex-col gap-1 w-full">
                 <label className="text-sm">Document 3 Valid Upto</label>
                 <input
-                  name="doc3"
+                  {...register("doc3ValidUpto")}
                   type="date"
-                  onChange={handleFileChange}
                   className="input-primary"
+                  disabled={!isEditing}
                 />
               </div>
-            </div>
+            </div> */}
           </div>
         )}
       </div>
     </div>
   );
 }
+
+

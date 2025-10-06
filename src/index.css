@@ -24,6 +24,9 @@
     .input-primary{
         @apply w-full bg-white border border-inputBorder px-4 py-2 sm:py-3 focus:border-0 focus:outline-none focus:ring-1 focus:ring-primary text-black/80 placeholder:text-black/50;
     }
+    .input-primary2{
+        @apply w-full border border-inputBorder px-4 py-2 sm:py-3 focus:border-0 focus:outline-none focus:ring-1 focus:ring-primary text-black/80 placeholder:text-black/50;
+    }
     .custom-scrollbar::-webkit-scrollbar {
     height: 8px;
   }
