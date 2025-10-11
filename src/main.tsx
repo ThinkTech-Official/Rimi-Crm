@@ -50,6 +50,7 @@ import CreateUser from "./components/CreateUser.tsx";
 import Documents from "./components/Documents.tsx";
 import TripCalculator from "./components/TripCalculator.tsx";
 import { I18nextProvider } from 'react-i18next';
+import UserQuoteDetails from './components/UserQuoteDetails.tsx';
 
 // Create ONE client (module-level singleton)
 const queryClient = new QueryClient({
@@ -98,6 +99,7 @@ const router = createBrowserRouter(
         <Route path="user-upload" element={<UserUpload />} />
         <Route path="quote-upload" element={<QuoteUploader />} />
         <Route path="quote-detail/:id" element={<QuoteDetailPage />} />
+        <Route path="user-quote-detail/:id" element={<UserQuoteDetails />} />
         <Route path="agent-details/:agentCode" element={<AgentDetails />} />
         <Route path="policy-upload" element={<PolicyUploader />} />
         <Route path="policy-detail/:id" element={<PolicyDetails />} />

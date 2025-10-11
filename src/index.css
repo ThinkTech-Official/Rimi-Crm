@@ -86,3 +86,131 @@ body {
     transform: rotate(360deg);
   }
 }
+
+/* CustomCalendar.css */
+.react-calendar {
+  border: none; /* remove default border */
+  font-family: 'Inter', sans-serif;
+  color: #333;
+  background-color: white;
+}
+
+.react-calendar__tile {
+  border-radius: 0.2rem; /* round individual days */
+  transition: all 0.2s;
+}
+
+.react-calendar__tile:hover {
+  background-color: #e0f2fe; /* hover color */
+}
+
+.react-calendar__tile--active {
+  background-color: #2b00b7; /* selected date color */
+  color: white;
+}
+
+.react-calendar__navigation button {
+  color: #2b00b7; /* nav arrows color */
+  font-weight: bold;
+}
+
+.react-calendar__month-view__days__day--weekend {
+  color: #ef4444; /* weekends color */
+}
+
+.react-calendar__tile--active{
+  background-color: #2b00b7 !important;
+  color: white !important;
+}
+
+.notification {
+  margin: 10px;
+  display: flex;
+  border-radius: 5px;
+  align-items: center;
+}
+
+.success {
+  background-color: #f0fdf4;
+  border: 2px solid #889c91;
+}
+.info {
+  background-color: #eff7fe;
+  border: 2px solid #4b6a9f;
+}
+.error {
+  background-color: #fef5f6;
+  border: 2px solid #dc6266;
+}
+.warning {
+  background-color: #fff9e9;
+  border: 2px solid #dfa00a;
+}
+
+.top-right {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+}
+
+.top-left {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+}
+
+.bottom-right {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+}
+
+.bottom-left {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+}
+
+.bottom-center {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.top-center {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.slide-up {
+  animation: slide 0.5s ease-in-out;
+}
+
+.slide-down {
+  animation: slideDown 0.5s ease-in-out;
+}
+
+@keyframes slideDown {
+  from {
+    transform: translateY(-50%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slide {
+  from {
+    transform: translateY(50%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}

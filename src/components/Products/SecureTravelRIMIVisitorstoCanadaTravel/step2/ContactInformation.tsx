@@ -47,7 +47,7 @@ const ContactInformation: FC<ContactInfoProps> = ({
 
         <div className="flex flex-col">
           <label className="text-sm">Email Address</label>
-          <p className="p-2 border border-[#DBDADE] bg-white">{email}</p>
+          <p className="input-primary">{email}</p>
         </div>
 
         <div className="flex flex-col">
@@ -60,7 +60,7 @@ const ContactInformation: FC<ContactInfoProps> = ({
             Additional Email Address (Optional)
           </label>
           <input
-            className="p-2 border border-[#DBDADE] placeholder-[#00000080] bg-white font-[inter]"
+            className="input-primary"
             type="text"
             placeholder="Additional Email Address"
             value={contactInfo.additionalEmail}
@@ -69,12 +69,12 @@ const ContactInformation: FC<ContactInfoProps> = ({
         </div>
 
         {displayInfoAddEmail && (
-          <div className="col-span-2 flex flex-col gap-2 items-start mt-2 mb-2 border border-inputBorder p-4 bg-white text-sm text-text-secondary shadow-sm relative">
+          <div className="col-span-2 flex flex-col gap-2 items-start mt-2 mb-2 border border-inputBorder p-4 bg-white text-base text-text-secondary shadow-sm relative">
             <button
               className="text-primary underline absolute top-2 right-2 cursor-pointer underline-offset-2"
               onClick={() => setDisplayInfoAddEmail(false)}
             >
-              close
+              Close
             </button>
             <p>Enter up to 5 email addresses, separated with a semicolon “;”</p>
             <p>Example: School Administrator, Parent/Guardian, Agent</p>
@@ -84,7 +84,7 @@ const ContactInformation: FC<ContactInfoProps> = ({
         <div className="flex flex-col">
           <label className="text-sm">Phone Number</label>
           <input
-            className="p-2 border border-[#DBDADE] placeholder-[#00000080] bg-white font-[inter]"
+            className="input-primary"
             type="text"
             placeholder="Phone Number"
             value={contactInfo.phoneNumber}

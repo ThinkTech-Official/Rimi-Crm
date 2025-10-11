@@ -16,6 +16,7 @@ import { useQuoteUpdate, Stage2Payload } from "../../../hooks/useQuoteUpdate";
 import { Elements } from '@stripe/react-stripe-js';
 import { stripePromise } from "../../../utils/stripe";
 import Summary from "./step3/Summary";
+import useNotification from "../../../hooks/useNotification";
 
 type SuperVisaOption = "" | "yes" | "no";
 type SuperVisaYears = "" | "1" | "2";
@@ -103,6 +104,7 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
 
   const [coverageOption, setCoverageOption] = useState<string>("");
   const [applicants, setApplicants] = useState<Applicant[]>([]);
+  const {triggerNotification, NotificationComponent} = useNotification();
 
   //////////////////////////
 
@@ -339,7 +341,7 @@ if (paymentOption === "monthly-installments" && schedule.length >= 3) {
 
 
   const handlePaymentSuccess = () => {
-    alert('payment successfull')
+    triggerNotification({ message: 'Payment successfull', type: 'success' });
     handleFormStepChange('forward')
   }
 
@@ -351,6 +353,7 @@ if (paymentOption === "monthly-installments" && schedule.length >= 3) {
 
   return (
     <div className="max-w-5xl mx-auto px-2 py-4 sm:p-6">
+      {NotificationComponent}
       <nav aria-label="Progress">
         <ol
           role="list"
@@ -507,9 +510,9 @@ if (paymentOption === "monthly-installments" && schedule.length >= 3) {
 
       {steps[1].status === "current" && quoteNumber && (
         <div>
-          <div className="w-full h-2 mt-8 flex items-center justify-center">
-            <h3 className="text-lg">
-              Your Quote: ${step1ResponseData?.quoteAmount}
+          <div className="w-full h-2 mt-8 flex items-center justify-center mb-5">
+            <h3 className="text-xl">
+              <span className="text-text-primary font-semibold">Your Quote:</span> <span className="text-text-secondary">${step1ResponseData?.quoteAmount}</span>
             </h3>
           </div>
           <YourQuoteSummary step1ResponseData={step1ResponseData}  />
@@ -620,7 +623,7 @@ if (paymentOption === "monthly-installments" && schedule.length >= 3) {
 
       <div className="flex justify-center gap-10 mt-4">
         {formStep === 2 && (
-          <button onClick={() => handleFormStepChange("back")} className=" btn-outline">Previous</button>
+          <button onClick={() => handleFormStepChange("back")} className="btn-primary">Previous</button>
         )}
 
         {formStep === 1 && (
@@ -655,7 +658,6 @@ if (paymentOption === "monthly-installments" && schedule.length >= 3) {
 
        
       </div>
-
       {/*  */}
     </div>
   );

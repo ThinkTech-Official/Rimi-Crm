@@ -10,7 +10,7 @@ export interface NotificationProps {
   message: string;
   duration?: number; // in ms
   onClose: () => void;
-  animation: keyof typeof Animation;
+  animation?: keyof typeof Animation;
 }
 
 const icons = {

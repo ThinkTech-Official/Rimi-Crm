@@ -72,7 +72,7 @@ export default function YourQuoteSummary({ step1ResponseData }: QuoteSummaryProp
               <td className="p-3 text-left font-semibold text-[#1B1B1B] w-1/2">
                 {label}
               </td>
-              <td className="p-3 text-left text-[#6A6A6A]">{value}</td>
+              <td className="p-3 text-left text-[#6A6A6A] capitalize">{value}</td>
             </tr>
           ))}
         </tbody>

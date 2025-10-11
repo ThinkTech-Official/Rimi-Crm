@@ -25,7 +25,7 @@ const Summary: React.FC<SummaryProps> = ({ quoteId }) => {
     value === undefined || value === null || value === "" ? "N/A" : value;
 
   return (
-    <>
+    <div className="">
     <div className=" mt-4">
         <h2>Your Policy is under Process</h2>
         <h3>Note: This is not the Policy</h3>
@@ -222,7 +222,7 @@ const Summary: React.FC<SummaryProps> = ({ quoteId }) => {
         </table>
       </section>
     </div>
-    </>
+    </div>
   );
 };
 

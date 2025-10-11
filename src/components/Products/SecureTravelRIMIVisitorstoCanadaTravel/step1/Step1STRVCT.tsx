@@ -1,43 +1,25 @@
-// import ApplicantInformation from "./ApplicantInformation"
-// import CoverageInformation from "./CoverageInformation"
-import React, {
-  useEffect,
-  useState,
-  ChangeEvent,
-  FormEvent,
-  FC,
-  InputHTMLAttributes,
-  SelectHTMLAttributes,
-  useMemo,
-} from "react";
+import React, { useEffect, useState, ChangeEvent, useMemo } from "react";
 import {
   ChevronDownIcon,
   InformationCircleIcon,
 } from "@heroicons/react/24/outline";
 import { usePremiumCalculate } from "../../../../hooks/usePremiumCalculate";
 import { QuotePayload, useSaveQuote } from "../../../../hooks/useSaveQuote";
-import { getUserTypeFromToken } from "../../../../utils/getUserType";
-
 import { useSelector } from "react-redux";
 import type { RootState } from "../../../../app/store";
-
+import DatePicker from "../../../DatePicker";
+import { CanadaStates, Countries, allCoverageOptions } from "./Constants";
+import InfoBox from "../../../InfoBox";
+import TextInput from "../../../TextInput";
+import Dropdown from "../../../DropDown";
+import ConfirmEligibilityModal from "./ConfirmEligibility";
+import Spinner from "../../../Spinner";
+import EmailQuote from "../EmailQuote";
 type SuperVisaOption = "" | "yes" | "no";
 type SuperVisaYears = "" | "1" | "2";
 type YesNo = "" | "yes" | "no";
 
 const msPerDay = 1000 * 60 * 60 * 24;
-
-const today = new Date().toISOString().slice(0, 10);
-
-const allCoverageOptions = [
-  { value: "", label: "Please select..." },
-  { value: "25000", label: "$25,000.00 CAD" },
-  { value: "50000", label: "$50,000.00 CAD" },
-  { value: "100000", label: "$100,000.00 CAD" },
-  { value: "150000", label: "$150,000.00 CAD" },
-  { value: "500000", label: "$500,000.00 CAD" },
-  { value: "1000000", label: "$1,000,000.00 CAD" },
-];
 
 interface PrimaryApplicant {
   firstName: string;
@@ -88,60 +70,64 @@ export interface PremiumCalculationData {
   primarydateOfBirth?: string;
 }
 
-type Props = {
-  onValidityChange: (valid: boolean) => void;
-};
-
-const Step1STRVCT = ({ onValidityChange,
-  primaryFirstName, setPrimaryFirstName,
-          primaryLastName, setPrimaryLastName ,
-          primaryDateOfBirth, setPrimaryDateOfBirth ,
-          primaryEmail, setprimaryEmail,
-          applicantNumber ,setApplicantNumber,
-          superVisa, setSuperVisa,
-          superVisaYears ,setSuperVisaYears,
-          destinationProvince, setDestinationProvince,
-          effectiveDate, setEffectiveDate,
-          expiryDate ,setExpiryDate,
-          coverageLength, setCoverageLength,
-          inCanada, setInCanada,
-          paymentOption, setPaymentOption,
-          policyType, setPolicyType,
-          deductible, setDeductible,
-          countryOfOrigin, setCountryOfOrigin,
-          coverageOption, setCoverageOption,
-          applicants ,setApplicants,
-          coverageForPreMedCon , setCoverageForPreMedCon,
-          isConfirmed, setIsConfirmed,
-          quoteNumber, setQuoteNumber,
-          primaryApplicantGender , setPrimaryApplicantGender,
-           totalPremium, setTotalPremium,
-  schedule, setSchedule,
-  loading, setLoading,
-  error, setError,
-  formStep , handleFormStepChange,
-  handleNext , isStepOneFilled,
-  savingStage1
-
- }: any) => {
-
-
-  const agentCode = useSelector((state: RootState) => state.auth.agentCode)
-
-
-
+const Step1STRVCT = ({
+  onValidityChange,
+  primaryFirstName,
+  setPrimaryFirstName,
+  primaryLastName,
+  setPrimaryLastName,
+  primaryDateOfBirth,
+  setPrimaryDateOfBirth,
+  primaryEmail,
+  setprimaryEmail,
+  applicantNumber,
+  setApplicantNumber,
+  superVisa,
+  setSuperVisa,
+  superVisaYears,
+  setSuperVisaYears,
+  destinationProvince,
+  setDestinationProvince,
+  effectiveDate,
+  setEffectiveDate,
+  expiryDate,
+  setExpiryDate,
+  coverageLength,
+  setCoverageLength,
+  inCanada,
+  setInCanada,
+  paymentOption,
+  setPaymentOption,
+  policyType,
+  setPolicyType,
+  deductible,
+  setDeductible,
+  countryOfOrigin,
+  setCountryOfOrigin,
+  coverageOption,
+  setCoverageOption,
+  applicants,
+  setApplicants,
+  coverageForPreMedCon,
+  setCoverageForPreMedCon,
+  isConfirmed,
+  setIsConfirmed,
+  quoteNumber,
+  setQuoteNumber,
+  primaryApplicantGender,
+  setPrimaryApplicantGender,
+  totalPremium,
+  setTotalPremium,
+  schedule,
+  setSchedule,
+  loading,
+  setLoading,
+  error,
+  setError,
+}: any) => {
+  const agentCode = useSelector((state: RootState) => state.auth.agentCode);
 
   //===================== Applicant Information Functions and States =================================
-
-  const [displayInfoApplicantConfirm, setDisplayInfoApplicantConfirm] =
-    useState(false);
-
-  // const [coverageForPreMedCon, setCoverageForPreMedCon] = useState(false);
-
-  // const [primaryFirstName, setPrimaryFirstName] = useState("")
-  // const [primaryLastName, setPrimaryLastName] = useState("")
-  // const [primaryDateOfBirth, setPrimaryDateOfBirth] = useState("")
-  // const [primaryEmail, setprimaryEmail] = useState("")
 
   const [showInfocoverageForPreMedCon, setShowInfocoverageForPreMedCon] =
     useState(false);
@@ -200,21 +186,27 @@ const Step1STRVCT = ({ onValidityChange,
   };
 
   const handleCheckboxChange = () => {
+    if(isConfirmed){
+      return setIsConfirmed(false)
+    }
+    if(!isConfirmed){
+      setShowConfirmEligibility(true);
+    }
     // if they try to check before even opening, auto-open for them
     if (!showInfo) {
       setShowInfo(true);
     }
     // ask the confirm dialog
-    const ok = window.confirm(
-      "Have you read and understood the eligibility instructions above?"
-    );
-    if (ok) {
-      // toggle the checked state
-      setIsConfirmed((prev: any) => !prev);
-    } else {
-      // if they cancel, ensure it stays unchecked
-      setIsConfirmed(false);
-    }
+    // const ok = window.confirm(
+    //   "Have you read and understood the eligibility instructions above?"
+    // );
+    // if (ok) {
+    //   // toggle the checked state
+    //   setIsConfirmed((prev: any) => !prev);
+    // } else {
+    //   // if they cancel, ensure it stays unchecked
+    //   setIsConfirmed(false);
+    // }
   };
 
   //===============================  Applicant Information Functions And States End ===============================
@@ -231,30 +223,12 @@ const Step1STRVCT = ({ onValidityChange,
   const [showInfoCoverageOption, setShowInfoCoverageOption] = useState(false);
   const [showInfoDeductible, setShowInfoDeductible] = useState(false);
   const [showInfoPaymentOption, setShowInfoPaymentOption] = useState(false);
-
-  //
-  // const [superVisa, setSuperVisa] = useState<SuperVisaOption>("");
-  // const [superVisaYears, setSuperVisaYears] = useState<SuperVisaYears>("");
-  // const [destinationProvince, setDestinationProvince] = useState<string>("");
-  // const [effectiveDate, setEffectiveDate] = useState<string>("");
-  // const [expiryDate, setExpiryDate] = useState<string>("");
-  // const [coverageLength, setCoverageLength] = useState<string>("");
-
-  // const [inCanada, setInCanada] = useState<YesNo>("");
-
-  // const [paymentOption, setPaymentOption]     = useState<'lump-sum' | 'monthly-installments'>('lump-sum')
-  // // const [showPaymentOption, setShowPaymentOption] = useState(false)
-
-  // const [policyType, setPolicyType] = useState<string>("")
-
-  // const [deductible, setDeductible] = useState<number>(0)
-
-  // const [countryOfOrigin, setCountryOfOrigin] = useState<string>("")
-
+  const [showConfirmEligibility, setShowConfirmEligibility] = useState(false);
+  const [savedFormState, setSavedFormState] = useState<string | null>(null);
   const svOptions = allCoverageOptions.filter((o) =>
     ["", "100000", "150000", "500000", "1000000"].includes(o.value)
   );
-
+  const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
   const coverageOptions = superVisa === "yes" ? svOptions : allCoverageOptions;
 
   //
@@ -308,10 +282,9 @@ const Step1STRVCT = ({ onValidityChange,
     setSuperVisaYears(e.target.value as SuperVisaYears);
   const handleProvinceChange = (e: ChangeEvent<HTMLSelectElement>) =>
     setDestinationProvince(e.target.value);
-  const handleEffectiveDateChange = (e: ChangeEvent<HTMLInputElement>) =>
-    setEffectiveDate(e.target.value);
-  const handleExpiryChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const val = e.target.value;
+  const handleEffectiveDateChange = (e: Date) => setEffectiveDate(e);
+  const handleExpiryChange = (e: Date) => {
+    const val = e;
     setExpiryDate(val);
     if (effectiveDate) {
       const diff = Math.round(
@@ -405,7 +378,7 @@ const Step1STRVCT = ({ onValidityChange,
   //
 
   // check if coverage informatiion is completed for backend to calculate the premium
-  const CanClculatePremium = [
+  const CanCalculatePremium = [
     superVisa,
     destinationProvince,
     effectiveDate,
@@ -414,8 +387,8 @@ const Step1STRVCT = ({ onValidityChange,
     policyType,
     coverageOption,
     deductible,
-    primaryDateOfBirth
-  ].every(v => v !== '');
+    primaryDateOfBirth,
+  ].every((v) => v !== "");
 
   // console.log(CanClculatePremium)
 
@@ -425,54 +398,56 @@ const Step1STRVCT = ({ onValidityChange,
 
   //=====================================Backend Communication Data===========================
 
-  const premiumCalculationData = useMemo<PremiumCalculationData>(() => ({
-    countryOfOrigin,
-    inCanada,
-    superVisa,
-    coverageForPreMedCon,
-    destinationProvince,
-    effectiveDate,
-    expiryDate,
-    coverageLength,
-    policyType,
-    coverageOption,
-    deductible,
-    primarydateOfBirth: primaryDateOfBirth,
-    paymentOption,
-    plan: 1,
-    applicants
-  }), [
-  countryOfOrigin,
-  inCanada,
-  superVisa,
-  destinationProvince,
-  effectiveDate,
-  expiryDate,
-  coverageLength,
-  policyType,
-  coverageOption,
-  deductible,
-  primaryDateOfBirth,
-  paymentOption,
-  coverageForPreMedCon,
-  applicants
-]
-) 
+  const premiumCalculationData = useMemo<PremiumCalculationData>(
+    () => ({
+      countryOfOrigin,
+      inCanada,
+      superVisa,
+      coverageForPreMedCon,
+      destinationProvince,
+      effectiveDate,
+      expiryDate,
+      coverageLength,
+      policyType,
+      coverageOption,
+      deductible,
+      primarydateOfBirth: primaryDateOfBirth,
+      paymentOption,
+      plan: 1,
+      applicants,
+    }),
+    [
+      countryOfOrigin,
+      inCanada,
+      superVisa,
+      destinationProvince,
+      effectiveDate,
+      expiryDate,
+      coverageLength,
+      policyType,
+      coverageOption,
+      deductible,
+      primaryDateOfBirth,
+      paymentOption,
+      coverageForPreMedCon,
+      applicants,
+    ]
+  );
   // const payload = Object.defineProperty(PremiumCalculationData, "primarydateOfBirth", {value: primaryDateOfBirth});
 
   // const { totalPremium, schedule, loading, error } = usePremiumCalculate(premiumCalculationData, CanClculatePremium);
-    const {
+  const {
     totalPremium: hookTotalPremium,
     schedule: hookSchedule,
     loading: hookLoading,
     error: hookError,
-  } = usePremiumCalculate(premiumCalculationData, CanClculatePremium);
+  } = usePremiumCalculate(premiumCalculationData, CanCalculatePremium);
 
-   useEffect(() => {
+  useEffect(() => {
     setTotalPremium(hookTotalPremium);
   }, [hookTotalPremium, setTotalPremium]);
 
-   useEffect(() => {
+  useEffect(() => {
     setSchedule(hookSchedule);
   }, [hookSchedule, setSchedule]);
 
@@ -483,7 +458,7 @@ const Step1STRVCT = ({ onValidityChange,
   useEffect(() => {
     setError(hookError);
   }, [hookError, setError]);
-  
+
   // const hookResult = usePremiumCalculate(premiumCalculationData, CanClculatePremium);
 
   //   const { quote, loading, error } = useQuote(
@@ -527,22 +502,104 @@ const Step1STRVCT = ({ onValidityChange,
       deductible,
       paymentOption,
       agentCode: agentCode!,
-      product: 'Secure Travel RIMI Visitors to Canada Travel',
-      quotePremium: totalPremium,  // maybe we should calculate it directly from backend instead of fetching from frontend
+      product: "Secure Travel RIMI Visitors to Canada Travel",
+      quotePremium: totalPremium, // maybe we should calculate it directly from backend instead of fetching from frontend
       quoteNumber: quoteNumber,
-      plan: 1
-    }
+      plan: 1,
+    };
 
     try {
       const response = await saveQuote(payload);
       setQuoteNumber(response?.quote);
       console.log("quote Number is ", quoteNumber);
+      // Save the current form state as a snapshot
+    setSavedFormState(JSON.stringify({
+      primaryFirstName,
+      primaryLastName,
+      primaryDateOfBirth,
+      primaryEmail,
+      primaryApplicantGender,
+      coverageForPreMedCon,
+      applicantNumber,
+      countryOfOrigin,
+      inCanada,
+      superVisa,
+      superVisaYears,
+      destinationProvince,
+      effectiveDate,
+      expiryDate,
+      coverageLength,
+      policyType,
+      coverageOption,
+      deductible,
+      paymentOption,
+      applicants,
+    }));
       console.log("Saved successfully:", response);
     } catch {
       console.log("Save failed");
     }
   };
+useEffect(() => {
+  // Only reset if a quote was saved AND the form has actually changed
+  if (quoteNumber && savedFormState) {
+    const currentFormState = JSON.stringify({
+      primaryFirstName,
+      primaryLastName,
+      primaryDateOfBirth,
+      primaryEmail,
+      primaryApplicantGender,
+      coverageForPreMedCon,
+      applicantNumber,
+      countryOfOrigin,
+      inCanada,
+      superVisa,
+      superVisaYears,
+      destinationProvince,
+      effectiveDate,
+      expiryDate,
+      coverageLength,
+      policyType,
+      coverageOption,
+      deductible,
+      paymentOption,
+      applicants,
+    });
+    
+    // Only reset if the form state has changed from when it was saved
+    if (currentFormState !== savedFormState) {
+      setQuoteNumber(null);
+      setSavedFormState(null);
+    }
+  }
+}, [
+  quoteNumber,
+  savedFormState,
+  primaryFirstName,
+  primaryLastName,
+  primaryDateOfBirth,
+  primaryEmail,
+  primaryApplicantGender,
+  coverageForPreMedCon,
+  applicantNumber,
+  countryOfOrigin,
+  inCanada,
+  superVisa,
+  superVisaYears,
+  destinationProvince,
+  effectiveDate,
+  expiryDate,
+  coverageLength,
+  policyType,
+  coverageOption,
+  deductible,
+  paymentOption,
+  applicants,
+]);
 
+const handleEmailQuote = () => {
+  setIsEmailModalOpen(true);
+}
   //================================================================================
 
   return (
@@ -581,15 +638,12 @@ const Step1STRVCT = ({ onValidityChange,
                 onChange={(e) => setPrimaryLastName(e.target.value)}
               />
             </div>
-            <div className="flex flex-col">
-              <label className="text-sm">Date of Birth</label>
-              <input
-                className="input-primary"
-                type="date"
-                value={primaryDateOfBirth}
-                onChange={(e) => setPrimaryDateOfBirth(e.target.value)}
-              />
-            </div>
+            <DatePicker
+              label="Date of Birth"
+              value={primaryDateOfBirth}
+              onChange={(e) => setPrimaryDateOfBirth(e)}
+              maxDate={new Date()}
+            />
             <div className="flex flex-col">
               <label className="text-sm">Email</label>
               <input
@@ -686,7 +740,7 @@ const Step1STRVCT = ({ onValidityChange,
                 className="text-primary underline absolute top-2 right-2 cursor-pointer underline-offset-2"
                 onClick={() => setShowInfocoverageForPreMedCon(false)}
               >
-                close
+                Close
               </button>
               <div className="border-b border-[#c2c2c2] pb-2 text-lg font-semibold">
                 Coverage for stable pre-existing medical conditions
@@ -761,17 +815,13 @@ const Step1STRVCT = ({ onValidityChange,
                     }
                   />
                 </div>
-                <div className="flex flex-col">
-                  <label className="text-sm">Date of Birth</label>
-                  <input
-                    className="input-primary"
-                    type="date"
-                    value={app.dob}
-                    onChange={(e) =>
-                      updateApplicant(idx, "dob", e.target.value)
-                    }
-                  />
-                </div>
+                <DatePicker
+                  label="Date of Birth"
+                  value={app.dob}
+                  onChange={(e) => updateApplicant(idx, "dob", e)}
+                  maxDate={new Date()}
+                />
+
                 <div className="flex flex-col">
                   <label className="text-sm">Gender</label>
                   <div className="relative">
@@ -850,7 +900,7 @@ const Step1STRVCT = ({ onValidityChange,
                       }))
                     }
                   >
-                    close
+                    Close
                   </button>
                   <div className="border-b border-[#c2c2c2] pb-2 text-lg font-semibold">
                     Coverage for stable pre-existing medical conditions
@@ -916,7 +966,7 @@ const Step1STRVCT = ({ onValidityChange,
             </div>
 
             {showInfo && (
-              <div className="border rounded-lg shadow-sm p-4 mt-4 bg-white">
+              <div className="border border-inputBorder shadow-sm p-4 mt-4 bg-white relative">
                 <div className="border-b pb-2 text-lg font-semibold">
                   Eligibility
                 </div>
@@ -989,252 +1039,7 @@ const Step1STRVCT = ({ onValidityChange,
               value={countryOfOrigin}
               info={() => setShowInfoCountryOfOrigin((prev) => !prev)}
               onChange={handleChangeCountryOfOrigin}
-              options={[
-                { value: "", label: "Please select..." },
-                { value: "AF", label: "Afghanistan" },
-                { value: "AX", label: "Åland Islands" },
-                { value: "AL", label: "Albania" },
-                { value: "DZ", label: "Algeria" },
-                { value: "AS", label: "American Samoa" },
-                { value: "AD", label: "Andorra" },
-                { value: "AO", label: "Angola" },
-                { value: "AI", label: "Anguilla" },
-                { value: "AQ", label: "Antarctica" },
-                { value: "AG", label: "Antigua and Barbuda" },
-                { value: "AR", label: "Argentina" },
-                { value: "AM", label: "Armenia" },
-                { value: "AW", label: "Aruba" },
-                { value: "AU", label: "Australia" },
-                { value: "AT", label: "Austria" },
-                { value: "AZ", label: "Azerbaijan" },
-                { value: "BS", label: "Bahamas" },
-                { value: "BH", label: "Bahrain" },
-                { value: "BD", label: "Bangladesh" },
-                { value: "BB", label: "Barbados" },
-                { value: "BY", label: "Belarus" },
-                { value: "BE", label: "Belgium" },
-                { value: "BZ", label: "Belize" },
-                { value: "BJ", label: "Benin" },
-                { value: "BM", label: "Bermuda" },
-                { value: "BT", label: "Bhutan" },
-                { value: "BO", label: "Bolivia" },
-                { value: "BQ", label: "Bonaire, Sint Eustatius and Saba" },
-                { value: "BA", label: "Bosnia and Herzegovina" },
-                { value: "BW", label: "Botswana" },
-                { value: "BV", label: "Bouvet Island" },
-                { value: "BR", label: "Brazil" },
-                { value: "IO", label: "British Indian Ocean Territory" },
-                { value: "VG", label: "British Virgin Islands" },
-                { value: "BN", label: "Brunei" },
-                { value: "BG", label: "Bulgaria" },
-                { value: "BF", label: "Burkina Faso" },
-                { value: "BI", label: "Burundi" },
-                { value: "KH", label: "Cambodia" },
-                { value: "CM", label: "Cameroon" },
-                { value: "CA", label: "Canada" },
-                { value: "CV", label: "Cape Verde" },
-                { value: "KY", label: "Cayman Islands" },
-                { value: "CF", label: "Central African Republic" },
-                { value: "TD", label: "Chad" },
-                { value: "CL", label: "Chile" },
-                { value: "CN", label: "China" },
-                { value: "CX", label: "Christmas Island" },
-                { value: "CC", label: "Cocos (Keeling) Islands" },
-                { value: "CO", label: "Colombia" },
-                { value: "KM", label: "Comoros" },
-                { value: "CK", label: "Cook Islands" },
-                { value: "CR", label: "Costa Rica" },
-                { value: "HR", label: "Croatia" },
-                { value: "CW", label: "Curaçao" },
-                { value: "CY", label: "Cyprus" },
-                { value: "CZ", label: "Czech Republic" },
-                { value: "DK", label: "Denmark" },
-                { value: "DJ", label: "Djibouti" },
-                { value: "DM", label: "Dominica" },
-                { value: "DO", label: "Dominican Republic" },
-                { value: "CD", label: "DR Congo" },
-                { value: "EC", label: "Ecuador" },
-                { value: "EG", label: "Egypt" },
-                { value: "SV", label: "El Salvador" },
-                { value: "GQ", label: "Equatorial Guinea" },
-                { value: "ER", label: "Eritrea" },
-                { value: "EE", label: "Estonia" },
-                { value: "ET", label: "Ethiopia" },
-                { value: "FK", label: "Falkland Islands" },
-                { value: "FO", label: "Faroe Islands" },
-                { value: "FJ", label: "Fiji" },
-                { value: "FI", label: "Finland" },
-                { value: "FR", label: "France" },
-                { value: "GF", label: "French Guiana" },
-                { value: "PF", label: "French Polynesia" },
-                { value: "TF", label: "French Southern and Antarctic Lands" },
-                { value: "GA", label: "Gabon" },
-                { value: "GM", label: "Gambia" },
-                { value: "GE", label: "Georgia" },
-                { value: "DE", label: "Germany" },
-                { value: "GH", label: "Ghana" },
-                { value: "GI", label: "Gibraltar" },
-                { value: "GR", label: "Greece" },
-                { value: "GL", label: "Greenland" },
-                { value: "GD", label: "Grenada" },
-                { value: "GP", label: "Guadeloupe" },
-                { value: "GU", label: "Guam" },
-                { value: "GT", label: "Guatemala" },
-                { value: "GG", label: "Guernsey" },
-                { value: "GN", label: "Guinea" },
-                { value: "GW", label: "Guinea-Bissau" },
-                { value: "GY", label: "Guyana" },
-                { value: "HT", label: "Haiti" },
-                { value: "HM", label: "Heard Island and McDonald Islands" },
-                { value: "HN", label: "Honduras" },
-                { value: "HK", label: "Hong Kong" },
-                { value: "HU", label: "Hungary" },
-                { value: "IS", label: "Iceland" },
-                { value: "IN", label: "India" },
-                { value: "ID", label: "Indonesia" },
-                { value: "IQ", label: "Iraq" },
-                { value: "IE", label: "Ireland" },
-                { value: "IM", label: "Isle of Man" },
-                { value: "IL", label: "Israel" },
-                { value: "IT", label: "Italy" },
-                { value: "CI", label: "Ivory Coast" },
-                { value: "JM", label: "Jamaica" },
-                { value: "JP", label: "Japan" },
-                { value: "JE", label: "Jersey" },
-                { value: "JO", label: "Jordan" },
-                { value: "KZ", label: "Kazakhstan" },
-                { value: "KE", label: "Kenya" },
-                { value: "KI", label: "Kiribati" },
-                { value: "XK", label: "Kosovo" },
-                { value: "KW", label: "Kuwait" },
-                { value: "KG", label: "Kyrgyzstan" },
-                { value: "LA", label: "Laos" },
-                { value: "LV", label: "Latvia" },
-                { value: "LB", label: "Lebanon" },
-                { value: "LS", label: "Lesotho" },
-                { value: "LR", label: "Liberia" },
-                { value: "LY", label: "Libya" },
-                { value: "LI", label: "Liechtenstein" },
-                { value: "LT", label: "Lithuania" },
-                { value: "LU", label: "Luxembourg" },
-                { value: "MO", label: "Macau" },
-                { value: "MK", label: "Macedonia" },
-                { value: "MG", label: "Madagascar" },
-                { value: "MW", label: "Malawi" },
-                { value: "MY", label: "Malaysia" },
-                { value: "MV", label: "Maldives" },
-                { value: "ML", label: "Mali" },
-                { value: "MT", label: "Malta" },
-                { value: "MH", label: "Marshall Islands" },
-                { value: "MQ", label: "Martinique" },
-                { value: "MR", label: "Mauritania" },
-                { value: "MU", label: "Mauritius" },
-                { value: "YT", label: "Mayotte" },
-                { value: "MX", label: "Mexico" },
-                { value: "FM", label: "Micronesia" },
-                { value: "MD", label: "Moldova" },
-                { value: "MC", label: "Monaco" },
-                { value: "MN", label: "Mongolia" },
-                { value: "ME", label: "Montenegro" },
-                { value: "MS", label: "Montserrat" },
-                { value: "MA", label: "Morocco" },
-                { value: "MZ", label: "Mozambique" },
-                { value: "MM", label: "Myanmar" },
-                { value: "NA", label: "Namibia" },
-                { value: "NR", label: "Nauru" },
-                { value: "NP", label: "Nepal" },
-                { value: "NL", label: "Netherlands" },
-                { value: "NC", label: "New Caledonia" },
-                { value: "NZ", label: "New Zealand" },
-                { value: "NI", label: "Nicaragua" },
-                { value: "NE", label: "Niger" },
-                { value: "NG", label: "Nigeria" },
-                { value: "NU", label: "Niue" },
-                { value: "NF", label: "Norfolk Island" },
-                { value: "MP", label: "Northern Mariana Islands" },
-                { value: "NO", label: "Norway" },
-                { value: "OM", label: "Oman" },
-                { value: "PK", label: "Pakistan" },
-                { value: "PW", label: "Palau" },
-                { value: "PS", label: "Palestine" },
-                { value: "PA", label: "Panama" },
-                { value: "PG", label: "Papua New Guinea" },
-                { value: "PY", label: "Paraguay" },
-                { value: "PE", label: "Peru" },
-                { value: "PH", label: "Philippines" },
-                { value: "PN", label: "Pitcairn Islands" },
-                { value: "PL", label: "Poland" },
-                { value: "PT", label: "Portugal" },
-                { value: "PR", label: "Puerto Rico" },
-                { value: "QA", label: "Qatar" },
-                { value: "CG", label: "Republic of the Congo" },
-                { value: "RE", label: "Réunion" },
-                { value: "RO", label: "Romania" },
-                { value: "RW", label: "Rwanda" },
-                { value: "BL", label: "Saint Barthélemy" },
-                { value: "SH", label: "Saint Helena" },
-                { value: "KN", label: "Saint Kitts and Nevis" },
-                { value: "LC", label: "Saint Lucia" },
-                { value: "MF", label: "Saint Martin" },
-                { value: "PM", label: "Saint Pierre and Miquelon" },
-                { value: "VC", label: "Saint Vincent and the Grenadines" },
-                { value: "WS", label: "Samoa" },
-                { value: "SM", label: "San Marino" },
-                { value: "ST", label: "São Tomé and Príncipe" },
-                { value: "SA", label: "Saudi Arabia" },
-                { value: "SN", label: "Senegal" },
-                { value: "RS", label: "Serbia" },
-                { value: "SC", label: "Seychelles" },
-                { value: "SL", label: "Sierra Leone" },
-                { value: "SG", label: "Singapore" },
-                { value: "SX", label: "Sint Maarten" },
-                { value: "SK", label: "Slovakia" },
-                { value: "SI", label: "Slovenia" },
-                { value: "SB", label: "Solomon Islands" },
-                { value: "SO", label: "Somalia" },
-                { value: "ZA", label: "South Africa" },
-                { value: "GS", label: "South Georgia" },
-                { value: "KR", label: "South Korea" },
-                { value: "SS", label: "South Sudan" },
-                { value: "ES", label: "Spain" },
-                { value: "LK", label: "Sri Lanka" },
-                { value: "SR", label: "Suriname" },
-                { value: "SJ", label: "Svalbard and Jan Mayen" },
-                { value: "SZ", label: "Swaziland" },
-                { value: "SE", label: "Sweden" },
-                { value: "CH", label: "Switzerland" },
-                { value: "TW", label: "Taiwan" },
-                { value: "TJ", label: "Tajikistan" },
-                { value: "TZ", label: "Tanzania" },
-                { value: "TH", label: "Thailand" },
-                { value: "TL", label: "Timor-Leste" },
-                { value: "TG", label: "Togo" },
-                { value: "TK", label: "Tokelau" },
-                { value: "TO", label: "Tonga" },
-                { value: "TT", label: "Trinidad and Tobago" },
-                { value: "TN", label: "Tunisia" },
-                { value: "TR", label: "Turkey" },
-                { value: "TM", label: "Turkmenistan" },
-                { value: "TC", label: "Turks and Caicos Islands" },
-                { value: "TV", label: "Tuvalu" },
-                { value: "UG", label: "Uganda" },
-                { value: "AE", label: "United Arab Emirates" },
-                { value: "GB", label: "United Kingdom" },
-                { value: "US", label: "United States" },
-                { value: "UM", label: "United States Minor Outlying Islands" },
-                { value: "VI", label: "United States Virgin Islands" },
-                { value: "UY", label: "Uruguay" },
-                { value: "UZ", label: "Uzbekistan" },
-                { value: "VU", label: "Vanuatu" },
-                { value: "VA", label: "Vatican City" },
-                { value: "VE", label: "Venezuela" },
-                { value: "VN", label: "Vietnam" },
-                { value: "WF", label: "Wallis and Futuna" },
-                { value: "EH", label: "Western Sahara" },
-                { value: "YE", label: "Yemen" },
-                { value: "ZM", label: "Zambia" },
-                { value: "ZW", label: "Zimbabwe" },
-              ]}
+              options={Countries}
             />
 
             {/* Ques: Are applicants currently in Canada? */}
@@ -1268,9 +1073,9 @@ const Step1STRVCT = ({ onValidityChange,
 
           {/* Waiting Period Section */}
           {inCanada === "yes" && (
-            <div className="mt-6 p-6 border border-[#DBDADE] bg-white rounded-lg">
+            <div className="mt-6 p-6 border border-[#DBDADE] bg-white shadow-md">
               <h4 className="text-lg font-semibold mb-2">Waiting Period</h4>
-              <p className="text-sm text-[#555]">
+              <p className="text-base text-[#555]">
                 If the applicant is already in Canada and the policy effective
                 date is not the same as the arrival date, then a waiting period
                 will apply. The standard waiting period is:
@@ -1308,21 +1113,7 @@ const Step1STRVCT = ({ onValidityChange,
               <Dropdown
                 label="Destination Province"
                 info={() => setShowInfoDestinationProvince((prev) => !prev)}
-                options={[
-                  { value: "", label: "Please select..." },
-                  { value: "ON", label: "Ontario" },
-                  { value: "BC", label: "British Columbia" },
-                  { value: "QC", label: "Quebec" },
-                  { value: "AB", label: "Alberta" },
-                  { value: "MB", label: "Manitoba" },
-                  { value: "NB", label: "New Brunswick" },
-                  { value: "NL", label: "Newfoundland & Labrador" },
-                  { value: "NT", label: "Northwest Territories" },
-                  { value: "NS", label: "Nova Scotia" },
-                  { value: "PE", label: "Prince Edward Island" },
-                  { value: "SK", label: "Saskatchewan" },
-                  { value: "YT", label: "Yukon" },
-                ]}
+                options={CanadaStates}
                 value={destinationProvince}
                 onChange={handleProvinceChange}
               />
@@ -1361,20 +1152,18 @@ const Step1STRVCT = ({ onValidityChange,
 
             {/*  Next Rows: Dates & Coverage  */}
             <div className="grid grid-cols-2 gap-x-36 gap-y-4 text-text-secondary mt-10">
-              <TextInput
+              <DatePicker
                 label="Effective Date"
-                type="date"
-                min={today}
                 value={effectiveDate}
                 onChange={handleEffectiveDateChange}
+                minDate={new Date()}
               />
-              <TextInput
+              <DatePicker
                 label="Expiry Date"
-                type="date"
                 value={expiryDate}
-                disabled={superVisa === "yes"}
-                min={effectiveDate || today}
+                isDisabled={superVisa === "yes"}
                 onChange={handleExpiryChange}
+                minDate={new Date(effectiveDate)}
               />
             </div>
 
@@ -1488,63 +1277,40 @@ const Step1STRVCT = ({ onValidityChange,
             <h3 className="text-lg">Your Quote: $0.00</h3>
           </div> */}
 
-          <div className="w-full h-[250px] mt-10 flex items-center justify-center border-4 border-blue-700">
+      <div className="w-full mt-6 bg-greyBg p-6">
         {loading ? (
-          <h3>Calculating your Premium…</h3>
+          <div className="flex flex-col gap-2 items-center">
+            <Spinner className="h-6 w-6"/>
+            <p className="text-center text-text-primary">Calculating your Premium…</p>
+          </div>
         ) : error ? (
-          <h3 className="text-red-500">Error: {error}</h3>
+          <p className="text-red-500">Error: {error}</p>
         ) : (
           <div>
-          <div>
-            {/* {schedule.length > 0 && (
-              <div>
-                <h4>Policy Issue Fee: </h4>
-                <h4>Total Initial Payment: </h4>
-                <h4>Monthly Installment of: </h4>
-                <h4>Total Premium: </h4>
-              </div>
-            )} */}
-
-            {/* {schedule.length > 0 && (
-  <div>
-    {schedule.map((item, idx) => (
-      <div key={idx} className="flex justify-between">
-        <span>
-          {item.count
-            ? `${item.count} × ${item.label}`
-            : item.label}
-        </span>
-        <span>${item.amount.toFixed(2)}</span>
-      </div>
-    ))}
-  </div>
-)} */}
-
-
-  {schedule.length > 0 && (
-              <div className="mb-4">
-                <p className=" text-xl font-semibold underline py-2">Payment Schedule</p>
-                {schedule.map((item: any, idx: any) => (
-                  <div key={idx} className="flex justify-between">
-                    <span>
-                      {item.count
-                        ? `${item.count} × ${item.label}`
-                        : item.label}
-                    </span>
-                    <span>${item.amount.toFixed(2)} CAD</span>
+            <div>
+              {schedule.length > 0 && (
+                <div className="mb-4">
+                  <p className="text-text-primary text-xl font-bold text-center">
+                    Payment Schedule
+                  </p>
+                  <div className="flex flex-col gap-1 mt-2">
+                    {schedule.map((item: any, idx: any) => (
+                    <div key={idx} className="flex justify-between">
+                      <span className="text-text-primary font-medium">
+                        {item.count
+                          ? `${item.count} × ${item.label}`
+                          : item.label}
+                      </span>
+                      <span className="text-text-secondary">${item.amount.toFixed(2)} CAD</span>
+                    </div>
+                  ))}
                   </div>
-                ))}
-              </div>
-            )}
-
-
-
-
-
-            <h3 className="text-lg text-center mt-2">
-            Your Quote: ${totalPremium} CAD
-          </h3>
-          </div>
+                </div>
+              )}
+              <h3 className="text-lg text-center mt-2 text-text-secondary">
+                <span className="font-bold text-text-primary">Your Quote:</span> ${totalPremium} CAD
+              </h3>
+            </div>
             {/* <h3 className=" text-center mt-2 cursor-pointer text-[#2b00b7]">
               {isFormFilled ? <p onClick={handleQuoteSave}>Save Quote</p> : ''}
             </h3> */}
@@ -1556,14 +1322,14 @@ const Step1STRVCT = ({ onValidityChange,
             </div> */}
 
             {quoteNumber != null ? (
-              <div className=" flex flex-col justify-center items-center mb-2">
-                <p className="mt-2">Quote saved: {quoteNumber}</p>
-                <p className="text-[#2b00b7] cursor-pointer">Email Quote</p>
+              <div className=" flex flex-col justify-center items-center mb-2 gap-2">
+                <p className="mt-2"><span className="text-text-primary font-medium">Quote Saved: </span><span className="text-text-secondary">{quoteNumber}</span></p>
+                <p className="text-[#2b00b7] cursor-pointer text-base hover:underline underline-offset-2" onClick={handleEmailQuote}>Email Quote</p>
               </div>
             ) : (
               <h3 className=" text-center mt-2 cursor-pointer text-[#2b00b7]">
                 {isFormFilled ? (
-                  <p onClick={handleQuoteSave}>Save Quote</p>
+                  <p onClick={handleQuoteSave} className="text-base hover:underline underline-offset-2 cursor-pointer">Save Quote</p>
                 ) : (
                   ""
                 )}
@@ -1571,176 +1337,23 @@ const Step1STRVCT = ({ onValidityChange,
             )}
           </div>
         )}
+
+        {showConfirmEligibility && (
+          <ConfirmEligibilityModal
+            confirmEligibility={showConfirmEligibility}
+            setShowConfirmEligibility={setShowConfirmEligibility}
+            setIsConfirmed={setIsConfirmed}
+          />
+        )}
+        {isEmailModalOpen && (
+          <EmailQuote schedule={schedule} totalPremium={totalPremium} setIsEmailModalOpen={setIsEmailModalOpen} />
+        )}
         {/* {savedQuote != null && (
           <p className="mt-2">Quote saved: ${savedQuote}</p>
         )} */}
       </div>
-
-      {/* BOTTOM BUTTON  */}
-
-
-      {/* <div className="flex justify-center gap-10 mt-4"> */}
-        {/* {formStep > 1 && (
-          <button onClick={() => handleFormStepChange("back")} className=" btn-outline">Previous</button>
-        )} */}
-
-         {/* {formStep === 1 && (
-          <button
-            onClick={handleNext}
-            disabled={!isStepOneFilled || savingStage1}
-            className={`btn-primary ${
-              savingStage1 ? "opacity-50 cursor-wait" : ""
-            }`}
-          >
-            {savingStage1 ? "Saving…" : "Next"}
-          </button>
-        )} */}
-
-        {/* {formStep === 2 && (
-          <button
-            onClick={handleBuyNow}
-            disabled={submittingStage2}
-            className={`btn-primary ${
-              submittingStage2 ? "opacity-50 cursor-wait" : ""
-            }`}
-          >
-            {submittingStage2 ? "Processing…" : "Buy Now"}
-          </button>
-        )} */}
-
-        {/* {formStep === 3 && (
-          <button onClick={handleSubmitStage3} className="btn-primary">
-            Submit
-          </button>
-        )} */}
-
-        {/* {formStep < 3 ? (
-          <button
-            onClick={handleNext}
-            disabled={!isStepOneFilled || saving}
-            className={`px-6 py-2 ${
-              saving
-                ? "bg-gray-300 text-gray-600 cursor-wait"
-                : "bg-indigo-600 text-white hover:bg-indigo-700"
-            }`}
-          >
-            {saving ? "Saving…" : "Next"}
-          </button>
-        ) : (
-          <button onClick={handleSubmit}>Submit</button>
-        )} */}
-      {/* </div> */}
-
-
-
-
-
-
-      {/*  */}
     </>
-  )
-}
+  );
+};
 
-export default Step1STRVCT
-
-
-
-
-
-interface Option {
-  value: string;
-  label: string;
-}
-
-interface DropdownProps extends SelectHTMLAttributes<HTMLSelectElement> {
-  label: string;
-  info?: () => void;
-  options: Option[];
-}
-
-const Dropdown: FC<DropdownProps> = ({
-  label,
-  info,
-  options,
-  className = "",
-  ...selectProps
-}) => (
-  <div className="flex flex-col">
-    <label className="flex items-center text-text-secondary text-sm">
-      {info && (
-        <InformationCircleIcon
-          onClick={info}
-          className="h-5 w-5 text-[#3a17c5] cursor-pointer"
-        />
-      )}
-      {label}
-    </label>
-    <div className="relative">
-      <select
-        {...selectProps}
-        className={`input-primary appearance-none cursor-pointer ${className}`}
-      >
-        {options.map((opt) => (
-          <option key={opt.value} value={opt.value}>
-            {opt.label}
-          </option>
-        ))}
-      </select>
-      <div className="pointer-events-none absolute inset-y-0 right-2 flex items-center text-gray-500">
-        <ChevronDownIcon className="h-5 w-5" aria-hidden="true" />
-      </div>
-    </div>
-  </div>
-);
-
-interface TextInputProps extends InputHTMLAttributes<HTMLInputElement> {
-  label: string;
-  info?: () => void;
-}
-const TextInput: FC<TextInputProps> = ({
-  label,
-  info,
-  className = "",
-  ...inputProps
-}) => (
-  <div className="flex flex-col">
-    <label className="text-text-secondary">{label}</label>
-    {info && (
-      <button
-        type="button"
-        onClick={info}
-        className="self-start text-sm text-blue-500"
-      >
-        ℹ
-      </button>
-    )}
-    <input
-      {...inputProps}
-      className={`input-primary`}
-    />
-  </div>
-);
-
-// InfoBox
-const InfoBox = ({
-  title,
-  text,
-  onClose,
-}: {
-  title: string;
-  text: string;
-  onClose: () => void;
-}) => (
-  <div className="mx-auto p-4 mt-5 bg-white border border-inputBorder shadow-sm relative">
-    <button
-      className="text-primary underline absolute top-2 right-2 cursor-pointer underline-offset-2"
-      onClick={onClose}
-    >
-      close
-    </button>
-    <h2 className="text-lg font-semibold text-text-primary">{title}</h2>
-    <div className="text-text-secondary">
-      <p>{text}</p>
-    </div>
-  </div>
-);
+export default Step1STRVCT;
