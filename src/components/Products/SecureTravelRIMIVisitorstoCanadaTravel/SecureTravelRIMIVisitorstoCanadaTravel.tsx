@@ -30,6 +30,7 @@ interface Applicant {
   relationship: string;
   preMedCoverage: boolean;
   gender: string;
+  healthQuestionnaire: [{}];
 }
 
 interface QuoteStage1Response {
@@ -73,7 +74,7 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
   const [primaryDateOfBirth, setPrimaryDateOfBirth] = useState("");
   const [primaryEmail, setprimaryEmail] = useState("");
   const [applicantNumber, setApplicantNumber] = useState(0);
-
+  const [primaryQuestionaire, setPrimaryQuestionaire] = useState([]);
   const [coverageForPreMedCon, setCoverageForPreMedCon] = useState(false);
 
   const [isConfirmed, setIsConfirmed] = useState(false);
@@ -450,6 +451,8 @@ if (paymentOption === "monthly-installments" && schedule.length >= 3) {
             setPrimaryDateOfBirth={setPrimaryDateOfBirth}
             primaryEmail={primaryEmail}
             setprimaryEmail={setprimaryEmail}
+            primaryQuestionaire={primaryQuestionaire}
+            setPrimaryQuestionaire={setPrimaryQuestionaire}
             applicantNumber={applicantNumber}
             setApplicantNumber={setApplicantNumber}
             superVisa={superVisa}

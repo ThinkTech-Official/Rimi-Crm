@@ -15,6 +15,7 @@ import Dropdown from "../../../DropDown";
 import ConfirmEligibilityModal from "./ConfirmEligibility";
 import Spinner from "../../../Spinner";
 import EmailQuote from "../EmailQuote";
+import AgeQuestionaire from "../../../AgeQuotionaire";
 type SuperVisaOption = "" | "yes" | "no";
 type SuperVisaYears = "" | "1" | "2";
 type YesNo = "" | "yes" | "no";
@@ -39,6 +40,7 @@ interface Applicant {
   relationship: string;
   preMedCoverage: boolean;
   gender: string;
+  healthQuestionnaire: [{}];
 }
 
 interface CoverageInfo {
@@ -80,6 +82,8 @@ const Step1STRVCT = ({
   setPrimaryDateOfBirth,
   primaryEmail,
   setprimaryEmail,
+  primaryQuestionaire,
+  setPrimaryQuestionaire,
   applicantNumber,
   setApplicantNumber,
   superVisa,
@@ -161,6 +165,10 @@ const Step1STRVCT = ({
             relationship: "",
             preMedCoverage: false,
             gender: "",
+            healthQuestionnaire: {
+  questions: []
+}
+
           }
       )
     );
@@ -186,10 +194,10 @@ const Step1STRVCT = ({
   };
 
   const handleCheckboxChange = () => {
-    if(isConfirmed){
-      return setIsConfirmed(false)
+    if (isConfirmed) {
+      return setIsConfirmed(false);
     }
-    if(!isConfirmed){
+    if (!isConfirmed) {
       setShowConfirmEligibility(true);
     }
     // if they try to check before even opening, auto-open for them
@@ -230,7 +238,33 @@ const Step1STRVCT = ({
   );
   const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
   const coverageOptions = superVisa === "yes" ? svOptions : allCoverageOptions;
+  const [isAgeQuetionaireOpen, setIsAgeQuetionaireOpen] = useState(false);
+  const [isPrimary, setIsPrimary] = useState(false);
+  const [currentIdx, setCurrentIdx] = useState(0);
 
+  const getAge = (dob: string) => {
+    if (!dob) return 0;
+    const diff = Date.now() - new Date(dob).getTime();
+    return Math.floor(diff / (1000 * 60 * 60 * 24 * 365.25));
+  };
+
+  const handlePrimaryDOBChange = (e: Date) => {
+    setPrimaryDateOfBirth(e);
+    const age = getAge(e.toISOString());
+    if (age > 80) {
+      setIsPrimary(true);
+      setIsAgeQuetionaireOpen(true);
+    }
+  };
+
+  const handleAdditionalApplicantsDateChange = (idx: number,e: Date) => {
+    updateApplicant(idx, "dob", e)
+    const age = getAge(e.toISOString());
+    if (age > 80) {
+      setCurrentIdx(idx);
+      setIsAgeQuetionaireOpen(true);
+    }
+  }
   //
   // const [coverageOption, setCoverageOption] = useState<string>("");
 
@@ -513,93 +547,95 @@ const Step1STRVCT = ({
       setQuoteNumber(response?.quote);
       console.log("quote Number is ", quoteNumber);
       // Save the current form state as a snapshot
-    setSavedFormState(JSON.stringify({
-      primaryFirstName,
-      primaryLastName,
-      primaryDateOfBirth,
-      primaryEmail,
-      primaryApplicantGender,
-      coverageForPreMedCon,
-      applicantNumber,
-      countryOfOrigin,
-      inCanada,
-      superVisa,
-      superVisaYears,
-      destinationProvince,
-      effectiveDate,
-      expiryDate,
-      coverageLength,
-      policyType,
-      coverageOption,
-      deductible,
-      paymentOption,
-      applicants,
-    }));
+      setSavedFormState(
+        JSON.stringify({
+          primaryFirstName,
+          primaryLastName,
+          primaryDateOfBirth,
+          primaryEmail,
+          primaryApplicantGender,
+          coverageForPreMedCon,
+          applicantNumber,
+          countryOfOrigin,
+          inCanada,
+          superVisa,
+          superVisaYears,
+          destinationProvince,
+          effectiveDate,
+          expiryDate,
+          coverageLength,
+          policyType,
+          coverageOption,
+          deductible,
+          paymentOption,
+          applicants,
+        })
+      );
       console.log("Saved successfully:", response);
     } catch {
       console.log("Save failed");
     }
   };
-useEffect(() => {
-  // Only reset if a quote was saved AND the form has actually changed
-  if (quoteNumber && savedFormState) {
-    const currentFormState = JSON.stringify({
-      primaryFirstName,
-      primaryLastName,
-      primaryDateOfBirth,
-      primaryEmail,
-      primaryApplicantGender,
-      coverageForPreMedCon,
-      applicantNumber,
-      countryOfOrigin,
-      inCanada,
-      superVisa,
-      superVisaYears,
-      destinationProvince,
-      effectiveDate,
-      expiryDate,
-      coverageLength,
-      policyType,
-      coverageOption,
-      deductible,
-      paymentOption,
-      applicants,
-    });
-    
-    // Only reset if the form state has changed from when it was saved
-    if (currentFormState !== savedFormState) {
-      setQuoteNumber(null);
-      setSavedFormState(null);
-    }
-  }
-}, [
-  quoteNumber,
-  savedFormState,
-  primaryFirstName,
-  primaryLastName,
-  primaryDateOfBirth,
-  primaryEmail,
-  primaryApplicantGender,
-  coverageForPreMedCon,
-  applicantNumber,
-  countryOfOrigin,
-  inCanada,
-  superVisa,
-  superVisaYears,
-  destinationProvince,
-  effectiveDate,
-  expiryDate,
-  coverageLength,
-  policyType,
-  coverageOption,
-  deductible,
-  paymentOption,
-  applicants,
-]);
+  useEffect(() => {
+    // Only reset if a quote was saved AND the form has actually changed
+    if (quoteNumber && savedFormState) {
+      const currentFormState = JSON.stringify({
+        primaryFirstName,
+        primaryLastName,
+        primaryDateOfBirth,
+        primaryEmail,
+        primaryApplicantGender,
+        coverageForPreMedCon,
+        applicantNumber,
+        countryOfOrigin,
+        inCanada,
+        superVisa,
+        superVisaYears,
+        destinationProvince,
+        effectiveDate,
+        expiryDate,
+        coverageLength,
+        policyType,
+        coverageOption,
+        deductible,
+        paymentOption,
+        applicants,
+      });
 
-const handleEmailQuote = () => {
-  setIsEmailModalOpen(true);
-}
+      // Only reset if the form state has changed from when it was saved
+      if (currentFormState !== savedFormState) {
+        setQuoteNumber(null);
+        setSavedFormState(null);
+      }
+    }
+  }, [
+    quoteNumber,
+    savedFormState,
+    primaryFirstName,
+    primaryLastName,
+    primaryDateOfBirth,
+    primaryEmail,
+    primaryApplicantGender,
+    coverageForPreMedCon,
+    applicantNumber,
+    countryOfOrigin,
+    inCanada,
+    superVisa,
+    superVisaYears,
+    destinationProvince,
+    effectiveDate,
+    expiryDate,
+    coverageLength,
+    policyType,
+    coverageOption,
+    deductible,
+    paymentOption,
+    applicants,
+  ]);
+
+  const handleEmailQuote = () => {
+    setIsEmailModalOpen(true);
+  };
   //================================================================================
 
   return (
@@ -641,7 +677,7 @@ const handleEmailQuote = () => {
             <DatePicker
               label="Date of Birth"
               value={primaryDateOfBirth}
-              onChange={(e) => setPrimaryDateOfBirth(e)}
+              onChange={(e) => handlePrimaryDOBChange(e)}
               maxDate={new Date()}
             />
             <div className="flex flex-col">
@@ -818,7 +854,7 @@ const handleEmailQuote = () => {
                 <DatePicker
                   label="Date of Birth"
                   value={app.dob}
-                  onChange={(e) => updateApplicant(idx, "dob", e)}
+                  onChange={(e) => handleAdditionalApplicantsDateChange(idx, e)}
                   maxDate={new Date()}
                 />
 
@@ -1280,8 +1316,10 @@ const handleEmailQuote = () => {
       <div className="w-full mt-6 bg-greyBg p-6">
         {loading ? (
           <div className="flex flex-col gap-2 items-center">
-            <Spinner className="h-6 w-6"/>
-            <p className="text-center text-text-primary">Calculating your Premium…</p>
+            <Spinner className="h-6 w-6" />
+            <p className="text-center text-text-primary">
+              Calculating your Premium…
+            </p>
           </div>
         ) : error ? (
           <p className="text-red-500">Error: {error}</p>
@@ -1295,20 +1333,23 @@ const handleEmailQuote = () => {
                   </p>
                   <div className="flex flex-col gap-1 mt-2">
                     {schedule.map((item: any, idx: any) => (
-                    <div key={idx} className="flex justify-between">
-                      <span className="text-text-primary font-medium">
-                        {item.count
-                          ? `${item.count} × ${item.label}`
-                          : item.label}
-                      </span>
-                      <span className="text-text-secondary">${item.amount.toFixed(2)} CAD</span>
-                    </div>
-                  ))}
+                      <div key={idx} className="flex justify-between">
+                        <span className="text-text-primary font-medium">
+                          {item.count
+                            ? `${item.count} × ${item.label}`
+                            : item.label}
+                        </span>
+                        <span className="text-text-secondary">
+                          ${item.amount.toFixed(2)} CAD
+                        </span>
+                      </div>
+                    ))}
                   </div>
                 </div>
               )}
               <h3 className="text-lg text-center mt-2 text-text-secondary">
-                <span className="font-bold text-text-primary">Your Quote:</span> ${totalPremium} CAD
+                <span className="font-bold text-text-primary">Your Quote:</span>{" "}
+                ${totalPremium} CAD
               </h3>
             </div>
             {/* <h3 className=" text-center mt-2 cursor-pointer text-[#2b00b7]">
@@ -1323,13 +1364,28 @@ const handleEmailQuote = () => {
 
             {quoteNumber != null ? (
               <div className=" flex flex-col justify-center items-center mb-2 gap-2">
-                <p className="mt-2"><span className="text-text-primary font-medium">Quote Saved: </span><span className="text-text-secondary">{quoteNumber}</span></p>
-                <p className="text-[#2b00b7] cursor-pointer text-base hover:underline underline-offset-2" onClick={handleEmailQuote}>Email Quote</p>
+                <p className="mt-2">
+                  <span className="text-text-primary font-medium">
+                    Quote Saved:{" "}
+                  </span>
+                  <span className="text-text-secondary">{quoteNumber}</span>
+                </p>
+                <p
+                  className="text-[#2b00b7] cursor-pointer text-base hover:underline underline-offset-2"
+                  onClick={handleEmailQuote}
+                >
+                  Email Quote
+                </p>
               </div>
             ) : (
               <h3 className=" text-center mt-2 cursor-pointer text-[#2b00b7]">
                 {isFormFilled ? (
-                  <p onClick={handleQuoteSave} className="text-base hover:underline underline-offset-2 cursor-pointer">Save Quote</p>
+                  <p
+                    onClick={handleQuoteSave}
+                    className="text-base hover:underline underline-offset-2 cursor-pointer"
+                  >
+                    Save Quote
+                  </p>
                 ) : (
                   ""
                 )}
@@ -1337,7 +1393,19 @@ const handleEmailQuote = () => {
             )}
           </div>
         )}
-
+        {
+          isAgeQuetionaireOpen && (
+         <AgeQuestionaire
+          setPrimaryQuestionaire={setPrimaryQuestionaire}
+          setIsAgeQuetionaireOpen={setIsAgeQuetionaireOpen}
+          isPrimary={isPrimary}
+          applicants={applicants}
+          setIsPrimary={setIsPrimary}
+          currentIdx={currentIdx}
+          setApplicants={setApplicants}
+        />
+          )
+        }
         {showConfirmEligibility && (
           <ConfirmEligibilityModal
             confirmEligibility={showConfirmEligibility}
@@ -1346,7 +1414,11 @@ const handleEmailQuote = () => {
           />
         )}
         {isEmailModalOpen && (
-          <EmailQuote schedule={schedule} totalPremium={totalPremium} setIsEmailModalOpen={setIsEmailModalOpen} />
+          <EmailQuote
+            schedule={schedule}
+            totalPremium={totalPremium}
+            setIsEmailModalOpen={setIsEmailModalOpen}
+          />
         )}
         {/* {savedQuote != null && (
           <p className="mt-2">Quote saved: ${savedQuote}</p>
