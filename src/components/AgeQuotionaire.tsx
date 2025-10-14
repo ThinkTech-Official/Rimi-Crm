@@ -84,36 +84,36 @@ const AgeQuestionaire = ({
   };
 
   const handleSubmit = () => {
-  const completedAnswers = questions.map((q, i) => ({
-    question: q.question,
-    answer: responses[i] || "No",
-  }));
+    const completedAnswers = questions.map((q, i) => ({
+      question: q.question,
+      answer: responses[i] || "No",
+    }));
 
-  const questionnaireData = {
-    questions: completedAnswers,
+    const questionnaireData = {
+      questions: completedAnswers,
+    };
+    console.log(questionnaireData);
+    if (isPrimary) {
+      setPrimaryQuestionaire(questionnaireData);
+    } else {
+      const updatedApplicants = applicants.map((app, idx) => {
+        if (idx === currentIdx) {
+          return {
+            ...app,
+            healthQuestionnaire: {
+              ...app.healthQuestionnaire,
+              questions: completedAnswers,
+            },
+          };
+        }
+        return app;
+      });
+      setApplicants(updatedApplicants);
+      console.log(updatedApplicants);
+    }
+    setIsAgeQuetionaireOpen(false);
+    setIsPrimary(false);
   };
-  console.log(questionnaireData);
-  if (isPrimary) {
-    setPrimaryQuestionaire(questionnaireData);
-  } else {
-    const updatedApplicants = applicants.map((app, idx) => {
-      if (idx === currentIdx) {
-        return {
-          ...app,
-          healthQuestionnaire: {
-            ...app.healthQuestionnaire,
-            questions: completedAnswers,
-          },
-        };
-      }
-      return app;
-    });
-    setApplicants(updatedApplicants);
-    console.log(updatedApplicants);
-  }
-  setIsAgeQuetionaireOpen(false);
-  setIsPrimary(false);
-};
 
   useEffect(() => {
     setResponses({});

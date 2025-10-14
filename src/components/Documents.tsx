@@ -9,6 +9,7 @@ import { LangContext } from "../context/LangContext";
 import { getUserTypeFromToken } from "../utils/getUserType";
 import { useDocuments, DocumentItem } from "../hooks/useDocuments";
 import { API_BASE } from "../utils/urls";
+import AddDocument from "./AddDocument";
 
 const demoDocuments: Omit<DocumentItem, "url" | "createdAt">[] = [
   { id: "1", filename: "RIMI Canuck Voyage Travel Medical - Claim Form (EN)" },
@@ -131,6 +132,7 @@ export default function Documents() {
           </label>
         </div>
       )}
+      <AddDocument />
 
       {loading && <p className="text-center mt-4">Loading…</p>}
       {error && <p className="text-red-500 text-center mt-2">{error}</p>}

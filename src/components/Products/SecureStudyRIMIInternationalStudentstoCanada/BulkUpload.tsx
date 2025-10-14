@@ -15,11 +15,11 @@ export default function BulkUpload() {
           CSV FILE
         </label>
 
-        <div className="w-full border-2 border-dashed border-inputBorder p-6 flex flex-col items-center justify-center text-center mb-4 cursor-pointer hover:bg-gray-50 transition">
+        <label htmlFor="csvFile" className="w-full border-2 border-dashed border-inputBorder p-6 flex flex-col items-center justify-center text-center mb-4 cursor-pointer hover:bg-gray-50 transition">
           <ArrowUpTrayIcon className="h-8 w-8 text-[#3a17c5]" />
           <p className="text-sm text-gray-500 mt-2">Upload CSV here</p>
-          <input type="file" className="hidden" />
-        </div>
+          <input type="file" id="csvFile" className="hidden" accept=".csv"/>
+        </label>
 
         <label className="block text-text-secondary text-sm font-medium mb-2">
         Fulfillment Options

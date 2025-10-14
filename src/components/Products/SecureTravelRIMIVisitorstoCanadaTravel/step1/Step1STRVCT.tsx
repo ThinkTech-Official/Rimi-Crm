@@ -251,18 +251,22 @@ const Step1STRVCT = ({
   const handlePrimaryDOBChange = (e: Date) => {
     setPrimaryDateOfBirth(e);
     const age = getAge(e.toISOString());
-    if (age > 80) {
+    if (age >= 80) {
       setIsPrimary(true);
       setIsAgeQuetionaireOpen(true);
+    }else{
+      setPrimaryQuestionaire({});
     }
   };
-
   const handleAdditionalApplicantsDateChange = (idx: number,e: Date) => {
     updateApplicant(idx, "dob", e)
     const age = getAge(e.toISOString());
-    if (age > 80) {
+    if (age >= 80) {
       setCurrentIdx(idx);
       setIsAgeQuetionaireOpen(true);
+    }else{
+      applicants[idx].healthQuestionnaire = { questions: [] };
+      console.log("-----------",applicants)
     }
   }
   //
