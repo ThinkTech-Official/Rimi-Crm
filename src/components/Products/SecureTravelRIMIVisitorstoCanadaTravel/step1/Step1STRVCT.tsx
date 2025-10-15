@@ -92,44 +92,67 @@ type Props = {
   onValidityChange: (valid: boolean) => void;
 };
 
-const Step1STRVCT = ({ onValidityChange,
-  primaryFirstName, setPrimaryFirstName,
-          primaryLastName, setPrimaryLastName ,
-          primaryDateOfBirth, setPrimaryDateOfBirth ,
-          primaryEmail, setprimaryEmail,
-          applicantNumber ,setApplicantNumber,
-          superVisa, setSuperVisa,
-          superVisaYears ,setSuperVisaYears,
-          destinationProvince, setDestinationProvince,
-          effectiveDate, setEffectiveDate,
-          expiryDate ,setExpiryDate,
-          coverageLength, setCoverageLength,
-          inCanada, setInCanada,
-          paymentOption, setPaymentOption,
-          policyType, setPolicyType,
-          deductible, setDeductible,
-          countryOfOrigin, setCountryOfOrigin,
-          coverageOption, setCoverageOption,
-          applicants ,setApplicants,
-          coverageForPreMedCon , setCoverageForPreMedCon,
-          isConfirmed, setIsConfirmed,
-          quoteNumber, setQuoteNumber,
-          primaryApplicantGender , setPrimaryApplicantGender,
-           totalPremium, setTotalPremium,
-  schedule, setSchedule,
-  loading, setLoading,
-  error, setError,
-  formStep , handleFormStepChange,
-  handleNext , isStepOneFilled,
-  savingStage1
-
- }: any) => {
-
-
-  const agentCode = useSelector((state: RootState) => state.auth.agentCode)
-
-
-
+const Step1STRVCT = ({
+  onValidityChange,
+  primaryFirstName,
+  setPrimaryFirstName,
+  primaryLastName,
+  setPrimaryLastName,
+  primaryDateOfBirth,
+  setPrimaryDateOfBirth,
+  primaryEmail,
+  setprimaryEmail,
+  applicantNumber,
+  setApplicantNumber,
+  superVisa,
+  setSuperVisa,
+  superVisaYears,
+  setSuperVisaYears,
+  destinationProvince,
+  setDestinationProvince,
+  effectiveDate,
+  setEffectiveDate,
+  expiryDate,
+  setExpiryDate,
+  coverageLength,
+  setCoverageLength,
+  inCanada,
+  setInCanada,
+  paymentOption,
+  setPaymentOption,
+  policyType,
+  setPolicyType,
+  deductible,
+  setDeductible,
+  countryOfOrigin,
+  setCountryOfOrigin,
+  coverageOption,
+  setCoverageOption,
+  applicants,
+  setApplicants,
+  coverageForPreMedCon,
+  setCoverageForPreMedCon,
+  isConfirmed,
+  setIsConfirmed,
+  quoteNumber,
+  setQuoteNumber,
+  primaryApplicantGender,
+  setPrimaryApplicantGender,
+  totalPremium,
+  setTotalPremium,
+  schedule,
+  setSchedule,
+  loading,
+  setLoading,
+  error,
+  setError,
+  formStep,
+  handleFormStepChange,
+  handleNext,
+  isStepOneFilled,
+  savingStage1,
+}: any) => {
+  const agentCode = useSelector((state: RootState) => state.auth.agentCode);
 
   //===================== Applicant Information Functions and States =================================
 
@@ -414,8 +437,8 @@ const Step1STRVCT = ({ onValidityChange,
     policyType,
     coverageOption,
     deductible,
-    primaryDateOfBirth
-  ].every(v => v !== '');
+    primaryDateOfBirth,
+  ].every((v) => v !== "");
 
   // console.log(CanClculatePremium)
 
@@ -425,54 +448,56 @@ const Step1STRVCT = ({ onValidityChange,
 
   //=====================================Backend Communication Data===========================
 
-  const premiumCalculationData = useMemo<PremiumCalculationData>(() => ({
-    countryOfOrigin,
-    inCanada,
-    superVisa,
-    coverageForPreMedCon,
-    destinationProvince,
-    effectiveDate,
-    expiryDate,
-    coverageLength,
-    policyType,
-    coverageOption,
-    deductible,
-    primarydateOfBirth: primaryDateOfBirth,
-    paymentOption,
-    plan: 1,
-    applicants
-  }), [
-  countryOfOrigin,
-  inCanada,
-  superVisa,
-  destinationProvince,
-  effectiveDate,
-  expiryDate,
-  coverageLength,
-  policyType,
-  coverageOption,
-  deductible,
-  primaryDateOfBirth,
-  paymentOption,
-  coverageForPreMedCon,
-  applicants
-]
-) 
+  const premiumCalculationData = useMemo<PremiumCalculationData>(
+    () => ({
+      countryOfOrigin,
+      inCanada,
+      superVisa,
+      coverageForPreMedCon,
+      destinationProvince,
+      effectiveDate,
+      expiryDate,
+      coverageLength,
+      policyType,
+      coverageOption,
+      deductible,
+      primarydateOfBirth: primaryDateOfBirth,
+      paymentOption,
+      plan: 1,
+      applicants,
+    }),
+    [
+      countryOfOrigin,
+      inCanada,
+      superVisa,
+      destinationProvince,
+      effectiveDate,
+      expiryDate,
+      coverageLength,
+      policyType,
+      coverageOption,
+      deductible,
+      primaryDateOfBirth,
+      paymentOption,
+      coverageForPreMedCon,
+      applicants,
+    ]
+  );
   // const payload = Object.defineProperty(PremiumCalculationData, "primarydateOfBirth", {value: primaryDateOfBirth});
 
   // const { totalPremium, schedule, loading, error } = usePremiumCalculate(premiumCalculationData, CanClculatePremium);
-    const {
+  const {
     totalPremium: hookTotalPremium,
     schedule: hookSchedule,
     loading: hookLoading,
     error: hookError,
   } = usePremiumCalculate(premiumCalculationData, CanClculatePremium);
 
-   useEffect(() => {
+  useEffect(() => {
     setTotalPremium(hookTotalPremium);
   }, [hookTotalPremium, setTotalPremium]);
 
-   useEffect(() => {
+  useEffect(() => {
     setSchedule(hookSchedule);
   }, [hookSchedule, setSchedule]);
 
@@ -483,7 +508,7 @@ const Step1STRVCT = ({ onValidityChange,
   useEffect(() => {
     setError(hookError);
   }, [hookError, setError]);
-  
+
   // const hookResult = usePremiumCalculate(premiumCalculationData, CanClculatePremium);
 
   //   const { quote, loading, error } = useQuote(
@@ -527,11 +552,11 @@ const Step1STRVCT = ({ onValidityChange,
       deductible,
       paymentOption,
       agentCode: agentCode!,
-      product: 'Secure Travel RIMI Visitors to Canada Travel',
-      quotePremium: totalPremium,  // maybe we should calculate it directly from backend instead of fetching from frontend
+      product: "Secure Travel RIMI Visitors to Canada Travel",
+      quotePremium: totalPremium, // maybe we should calculate it directly from backend instead of fetching from frontend
       quoteNumber: quoteNumber,
-      plan: 1
-    }
+      plan: 1,
+    };
 
     try {
       const response = await saveQuote(payload);
@@ -1488,15 +1513,15 @@ const Step1STRVCT = ({ onValidityChange,
             <h3 className="text-lg">Your Quote: $0.00</h3>
           </div> */}
 
-          <div className="w-full h-[250px] mt-10 flex items-center justify-center border-4 border-blue-700">
+      <div className="w-full h-[250px] mt-10 flex items-center justify-center border-4 border-blue-700">
         {loading ? (
           <h3>Calculating your Premium…</h3>
         ) : error ? (
           <h3 className="text-red-500">Error: {error}</h3>
         ) : (
           <div>
-          <div>
-            {/* {schedule.length > 0 && (
+            <div>
+              {/* {schedule.length > 0 && (
               <div>
                 <h4>Policy Issue Fee: </h4>
                 <h4>Total Initial Payment: </h4>
@@ -1505,7 +1530,7 @@ const Step1STRVCT = ({ onValidityChange,
               </div>
             )} */}
 
-            {/* {schedule.length > 0 && (
+              {/* {schedule.length > 0 && (
   <div>
     {schedule.map((item, idx) => (
       <div key={idx} className="flex justify-between">
@@ -1520,31 +1545,28 @@ const Step1STRVCT = ({ onValidityChange,
   </div>
 )} */}
 
+              {schedule.length > 0 && (
+                <div className="mb-4">
+                  <p className=" text-xl font-semibold underline py-2">
+                    Payment Schedule
+                  </p>
+                  {schedule.map((item: any, idx: any) => (
+                    <div key={idx} className="flex justify-between">
+                      <span>
+                        {item.count
+                          ? `${item.count} × ${item.label}`
+                          : item.label}
+                      </span>
+                      <span>${item.amount.toFixed(2)} CAD</span>
+                    </div>
+                  ))}
+                </div>
+              )}
 
-  {schedule.length > 0 && (
-              <div className="mb-4">
-                <p className=" text-xl font-semibold underline py-2">Payment Schedule</p>
-                {schedule.map((item: any, idx: any) => (
-                  <div key={idx} className="flex justify-between">
-                    <span>
-                      {item.count
-                        ? `${item.count} × ${item.label}`
-                        : item.label}
-                    </span>
-                    <span>${item.amount.toFixed(2)} CAD</span>
-                  </div>
-                ))}
-              </div>
-            )}
-
-
-
-
-
-            <h3 className="text-lg text-center mt-2">
-            Your Quote: ${totalPremium} CAD
-          </h3>
-          </div>
+              <h3 className="text-lg text-center mt-2">
+                Your Quote: ${totalPremium} CAD
+              </h3>
+            </div>
             {/* <h3 className=" text-center mt-2 cursor-pointer text-[#2b00b7]">
               {isFormFilled ? <p onClick={handleQuoteSave}>Save Quote</p> : ''}
             </h3> */}
@@ -1578,13 +1600,12 @@ const Step1STRVCT = ({ onValidityChange,
 
       {/* BOTTOM BUTTON  */}
 
-
       {/* <div className="flex justify-center gap-10 mt-4"> */}
-        {/* {formStep > 1 && (
+      {/* {formStep > 1 && (
           <button onClick={() => handleFormStepChange("back")} className=" btn-outline">Previous</button>
         )} */}
 
-         {/* {formStep === 1 && (
+      {/* {formStep === 1 && (
           <button
             onClick={handleNext}
             disabled={!isStepOneFilled || savingStage1}
@@ -1596,7 +1617,7 @@ const Step1STRVCT = ({ onValidityChange,
           </button>
         )} */}
 
-        {/* {formStep === 2 && (
+      {/* {formStep === 2 && (
           <button
             onClick={handleBuyNow}
             disabled={submittingStage2}
@@ -1608,13 +1629,13 @@ const Step1STRVCT = ({ onValidityChange,
           </button>
         )} */}
 
-        {/* {formStep === 3 && (
+      {/* {formStep === 3 && (
           <button onClick={handleSubmitStage3} className="btn-primary">
             Submit
           </button>
         )} */}
 
-        {/* {formStep < 3 ? (
+      {/* {formStep < 3 ? (
           <button
             onClick={handleNext}
             disabled={!isStepOneFilled || saving}
@@ -1631,21 +1652,12 @@ const Step1STRVCT = ({ onValidityChange,
         )} */}
       {/* </div> */}
 
-
-
-
-
-
       {/*  */}
     </>
-  )
-}
+  );
+};
 
-export default Step1STRVCT
-
-
-
-
+export default Step1STRVCT;
 
 interface Option {
   value: string;
@@ -1714,10 +1726,7 @@ const TextInput: FC<TextInputProps> = ({
         ℹ
       </button>
     )}
-    <input
-      {...inputProps}
-      className={`input-primary`}
-    />
+    <input {...inputProps} className={`input-primary`} />
   </div>
 );
 

@@ -13,7 +13,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "../../../app/store";
 import { useSaveQuoteNext } from "../../../hooks/useSaveQuoteNext";
 import { useQuoteUpdate, Stage2Payload } from "../../../hooks/useQuoteUpdate";
-import { Elements } from '@stripe/react-stripe-js';
+import { Elements } from "@stripe/react-stripe-js";
 import { stripePromise } from "../../../utils/stripe";
 import Summary from "./step3/Summary";
 
@@ -62,7 +62,7 @@ interface BeneficiaryInfo {
   relationshipToInsured: string;
 }
 
-const productName = 'Secure Travel RIMI Visitors to Canada Travel'
+const productName = "Secure Travel RIMI Visitors to Canada Travel";
 
 export default function SecureTravelRIMIVisitorstoCanadaTravel() {
   const agentCode = useSelector((state: RootState) => state.auth.agentCode);
@@ -117,26 +117,74 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
 
   /////////////////////////////////
 
-   const [totalPremium, setTotalPremium] = useState<number>(0);
+  const [totalPremium, setTotalPremium] = useState<number>(0);
   const [schedule, setSchedule] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
   let monthlyAmount: number | undefined = undefined;
-let remainingInstallments: number | undefined = undefined;
+  let remainingInstallments: number | undefined = undefined;
 
+  let firstPaymentAmount: number = totalPremium; // Default to total premium
 
-const stripeProductId = "prod_SRGSLGPsB7SQxy";
+  const stripeProductId = "prod_SRGSLGPsB7SQxy";
 
+  console.log("\n PAYMENT CALCULATION");
+  console.log("Payment Option:", paymentOption);
+  console.log("Total Premium:", totalPremium);
+  console.log("Schedule:", schedule);
 
-// If the user picked monthly‐installments and the backend schedule array is in the
-// form [ {…Policy Issue Fee…}, {…Total Initial Payment…}, { label: "Monthly Installment of", amount: ###, count: N}, … ]
-if (paymentOption === "monthly-installments" && schedule.length >= 3) {
-  // schedule[2] is guaranteed (by your backend) to be
-  // { label: "Monthly Installment of", amount: X, count: Y }
-  monthlyAmount = schedule[2].amount;            // e.g. 96.69
-  remainingInstallments = schedule[2].count;     // e.g. 10
-}
+  // If the user picked monthly‐installments and the backend schedule array is in the
+  // form [ {…Policy Issue Fee…}, {…Total Initial Payment…}, { label: "Monthly Installment of", amount: ###, count: N}, … ]
+  if (paymentOption === "monthly-installments" && schedule.length >= 3) {
+    // schedule[2] is guaranteed (by your backend) to be
+    // { label: "Monthly Installment of", amount: X, count: Y }
+    console.log("\n📅 Processing monthly installments...");
+    // monthlyAmount = schedule[2].amount;            // e.g. 96.69
+    // remainingInstallments = schedule[2].count;     // e.g. 10
+
+    // Find the monthly installment item
+    const monthlyItem = schedule.find(
+      (item) => item.label === "Monthly Installment"
+    );
+
+    // Find the first payment item
+    const firstPaymentItem = schedule.find(
+      (item) => item.label === "First Payment (2 months + fee)"
+    );
+
+    if (monthlyItem && firstPaymentItem) {
+      monthlyAmount = monthlyItem.amount;
+      remainingInstallments = monthlyItem.count;
+      firstPaymentAmount = firstPaymentItem.amount;
+
+      console.log("Monthly amount:", monthlyAmount);
+      console.log("Remaining installments:", remainingInstallments);
+      console.log("First payment amount:", firstPaymentAmount);
+      console.log(
+        "   Breakdown:",
+        firstPaymentAmount,
+        "= $120 fee + $" + (firstPaymentAmount - 120) + " (2 months)"
+      );
+    } else {
+      console.error("Could not find schedule items!");
+      console.log("Available schedule:", schedule);
+    }
+  } else if (paymentOption === "lump-sum") {
+    console.log("\n Processing lump-sum payment...");
+    firstPaymentAmount = totalPremium;
+    console.log("Charging full premium:", firstPaymentAmount);
+  }
+
+  console.log("\n FINAL AMOUNTS TO CHARGE:");
+  console.log("First Payment:", firstPaymentAmount);
+  if (paymentOption === "monthly-installments") {
+    console.log(
+      "Then:",
+      remainingInstallments,
+      "x $" + monthlyAmount + "/month"
+    );
+  }
 
   ///--------------------------------------- Stage 2 -------------------------------------
 
@@ -156,7 +204,8 @@ if (paymentOption === "monthly-installments" && schedule.length >= 3) {
     province: "",
   });
 
-  {/* const shipping = {
+  {
+    /* const shipping = {
   name: 'Jane Doe',
   address: {
     line1: '123 Main St',
@@ -166,7 +215,8 @@ if (paymentOption === "monthly-installments" && schedule.length >= 3) {
     postal_code: '400001',
     country: 'IN',
   },
-}; */}
+}; */
+  }
 
   const [beneficiary, setBeneficiary] = useState<BeneficiaryInfo>({
     beneficiaryName: "",
@@ -303,7 +353,7 @@ if (paymentOption === "monthly-installments" && schedule.length >= 3) {
     };
     try {
       const resp = await completeApplication(payload);
-      console.log('from handle buy', resp)
+      console.log("from handle buy", resp);
       // handleFormStepChange("forward");
     } catch {
       // show submitError…
@@ -337,12 +387,10 @@ if (paymentOption === "monthly-installments" && schedule.length >= 3) {
     status: "Inactive",
   };
 
-
   const handlePaymentSuccess = () => {
-    alert('payment successfull')
-    handleFormStepChange('forward')
-  }
-
+    alert("payment successfull");
+    handleFormStepChange("forward");
+  };
 
   // const handlePaymentSuccess = () => {
   //   alert('payment successfull')
@@ -485,22 +533,22 @@ if (paymentOption === "monthly-installments" && schedule.length >= 3) {
             setPrimaryApplicantGender={setPrimaryApplicantGender}
             //
             totalPremium={totalPremium}
-        schedule={schedule}
-        loading={loading}
-        error={error}
-        setTotalPremium={setTotalPremium}
-        setSchedule={setSchedule}
-        setLoading={setLoading}
-        setError={setError}
-        // 
+            schedule={schedule}
+            loading={loading}
+            error={error}
+            setTotalPremium={setTotalPremium}
+            setSchedule={setSchedule}
+            setLoading={setLoading}
+            setError={setError}
+            //
 
-        formStep={formStep}
-        handleFormStepChange={handleFormStepChange}
-        handleNext={handleNext}
-        isStepOneFilled={isStepOneFilled}
-        savingStage1={savingStage1}
-        
-        // 
+            formStep={formStep}
+            handleFormStepChange={handleFormStepChange}
+            handleNext={handleNext}
+            isStepOneFilled={isStepOneFilled}
+            savingStage1={savingStage1}
+
+            //
           />
         </div>
       )}
@@ -512,7 +560,7 @@ if (paymentOption === "monthly-installments" && schedule.length >= 3) {
               Your Quote: ${step1ResponseData?.quoteAmount}
             </h3>
           </div>
-          <YourQuoteSummary step1ResponseData={step1ResponseData}  />
+          <YourQuoteSummary step1ResponseData={step1ResponseData} />
           <ApplicantInformationFinished
             dateOfBirth={step1ResponseData?.dateOfBirth ?? ""}
             firstName={step1ResponseData?.firstName ?? ""}
@@ -529,49 +577,132 @@ if (paymentOption === "monthly-installments" && schedule.length >= 3) {
           />
           <Address address={address} setAddress={setAddress} />
           {/* beneficiary, setBeneficiary */}
-          <BeneficiaryInCaseOfDeath beneficiaryInfo={beneficiary} setBeneficiaryInfo={setBeneficiary} />
-          
+          <BeneficiaryInCaseOfDeath
+            beneficiaryInfo={beneficiary}
+            setBeneficiaryInfo={setBeneficiary}
+          />
+
           {/* Payment Stripe   */}
           {/* <PaymentInformation /> */}
 
-          
+          {/* visual payment summary */}
+
+          {paymentOption === "monthly-installments" && schedule.length > 0 && (
+            <div className="max-w-md mx-auto mb-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
+              <h3 className="font-semibold text-lg mb-3">
+                Payment Plan Summary
+              </h3>
+
+              {/* Today's Payment */}
+              <div className="bg-white rounded p-3 border border-blue-300 mb-3">
+                <div className="flex justify-between items-center">
+                  <span className="font-medium">Due Today:</span>
+                  <span className="text-xl font-bold text-blue-600">
+                    ${firstPaymentAmount.toFixed(2)}
+                  </span>
+                </div>
+                <div className="text-sm text-gray-600 mt-1">
+                  Includes: $120 policy fee + $
+                  {(firstPaymentAmount - 120).toFixed(2)} (first 2 months)
+                </div>
+              </div>
+
+              {/* Future Payments */}
+              <div className="space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span>Monthly Payment:</span>
+                  <span className="font-semibold">
+                    ${monthlyAmount?.toFixed(2)}
+                  </span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span>Remaining Payments:</span>
+                  <span>{remainingInstallments} months</span>
+                </div>
+                <div className="flex justify-between text-sm pt-2 border-t">
+                  <span>Total Premium:</span>
+                  <span className="font-semibold">
+                    ${totalPremium.toFixed(2)}
+                  </span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span>Policy Fee (one-time):</span>
+                  <span className="font-semibold">$120.00</span>
+                </div>
+                <div className="flex justify-between font-bold text-base pt-2 border-t">
+                  <span>Grand Total:</span>
+                  <span>${(totalPremium + 120).toFixed(2)}</span>
+                </div>
+              </div>
+
+              <div className="text-xs text-gray-500 mt-3 pt-3 border-t">
+                Your card will be charged ${firstPaymentAmount.toFixed(2)}{" "}
+                today, then ${monthlyAmount?.toFixed(2)}/month for{" "}
+                {remainingInstallments} months
+              </div>
+            </div>
+          )}
+
+          {paymentOption === "lump-sum" && (
+            <div className="max-w-md mx-auto mb-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
+              <h3 className="font-semibold text-lg mb-2">Payment Summary</h3>
+              <div className="flex justify-between items-center">
+                <span>Total Premium:</span>
+                <span className="text-xl font-bold text-blue-600">
+                  ${totalPremium.toFixed(2)}
+                </span>
+              </div>
+              <div className="text-sm text-gray-600 mt-2">
+                 One-time payment and No additional fees
+              </div>
+            </div>
+          )}
 
           <Elements stripe={stripePromise}>
-  <PaymentInformation
-  quoteNumber={quoteNumber}
-  description={productName}
-  name={primaryFirstName}
-  shipping={address}
-  paymentOption={paymentOption}
+            <PaymentInformation
+              quoteNumber={quoteNumber}
+              description={productName}
+              name={primaryFirstName}
+              shipping={address}
+              paymentOption={paymentOption}
+              // amount={totalPremium}
+              amount={firstPaymentAmount}
+              // onPaymentSuccess={() => handleFormStepChange('forward')}
+              // handlePaymentSuccess
+              onPaymentSuccess={() => handlePaymentSuccess()}
+              onBuyNow={handleBuyNow}
+              // { ...(paymentOption === "monthly-installments" && {
+              //       monthlyAmount,
+              //       remainingInstallments,
+              //       stripeProductId,
+              //     })
+              //   }
 
-    amount={totalPremium}
-    // onPaymentSuccess={() => handleFormStepChange('forward')}
-    // handlePaymentSuccess
-    onPaymentSuccess={() => handlePaymentSuccess()}
-    onBuyNow={handleBuyNow}
-    
-      // { ...(paymentOption === "monthly-installments" && {
-      //       monthlyAmount,
-      //       remainingInstallments,
-      //       stripeProductId,
-      //     })
-      //   }
-
-       monthlyAmount={ paymentOption === "monthly-installments" ? monthlyAmount : undefined }
-  remainingInstallments={ paymentOption === "monthly-installments" ? remainingInstallments : undefined }
-  stripeProductId={ paymentOption === "monthly-installments" ? stripeProductId : undefined }
-
-  // 
-  formStep={formStep}
-  handleFormStepChange={handleFormStepChange}
-  // handleNext={handleNext}
-  // isStepOneFilled={isStepOneFilled}
-  // savingStage1={savingStage1}
-  handleBuyNow={handleBuyNow}
-  submittingStage2={submittingStage2}
-
-  />
-</Elements>
+              monthlyAmount={
+                paymentOption === "monthly-installments"
+                  ? monthlyAmount
+                  : undefined
+              }
+              remainingInstallments={
+                paymentOption === "monthly-installments"
+                  ? remainingInstallments
+                  : undefined
+              }
+              stripeProductId={
+                paymentOption === "monthly-installments"
+                  ? stripeProductId
+                  : undefined
+              }
+              //
+              formStep={formStep}
+              handleFormStepChange={handleFormStepChange}
+              // handleNext={handleNext}
+              // isStepOneFilled={isStepOneFilled}
+              // savingStage1={savingStage1}
+              handleBuyNow={handleBuyNow}
+              submittingStage2={submittingStage2}
+            />
+          </Elements>
 
           {/*  */}
         </div>
@@ -586,11 +717,11 @@ if (paymentOption === "monthly-installments" && schedule.length >= 3) {
         //     Review your application details and submit.
         //   </p>
         // </div>
-        <Summary quoteId={step1ResponseData?.quoteId ?? ''} />
+        <Summary quoteId={step1ResponseData?.quoteId ?? ""} />
       )}
 
       {/* <div className="flex justify-center gap-10 mt-4"> */}
-        {/* {formStep > 1 && (
+      {/* {formStep > 1 && (
           <button
             className="w-[250px] mt-6 bg-white border border-[#2B00B7] text-[#2B00B7] p-3 hover:bg-[#2209a1] hover:text-white transition flex justify-center items-center"
             onClick={() => handleFormStepChange("back")}
@@ -598,7 +729,7 @@ if (paymentOption === "monthly-installments" && schedule.length >= 3) {
             Previous
           </button>
         )} */}
-        {/* {formStep < 3 ? (
+      {/* {formStep < 3 ? (
           <button
             className="w-[250px] mt-6 bg-[#2B00B7] text-white p-3 hover:bg-[#2309A1] transition flex justify-center items-center"
             onClick={() => handleFormStepChange("forward")}
@@ -615,12 +746,16 @@ if (paymentOption === "monthly-installments" && schedule.length >= 3) {
         )} */}
       {/* </div> */}
 
-
-{/*  */}
+      {/*  */}
 
       <div className="flex justify-center gap-10 mt-4">
         {formStep === 2 && (
-          <button onClick={() => handleFormStepChange("back")} className=" btn-outline">Previous</button>
+          <button
+            onClick={() => handleFormStepChange("back")}
+            className=" btn-outline"
+          >
+            Previous
+          </button>
         )}
 
         {formStep === 1 && (
@@ -652,8 +787,6 @@ if (paymentOption === "monthly-installments" && schedule.length >= 3) {
             Submit
           </button>
         )} */}
-
-       
       </div>
 
       {/*  */}
@@ -661,8 +794,8 @@ if (paymentOption === "monthly-installments" && schedule.length >= 3) {
   );
 }
 
-
- {/* {formStep < 3 ? (
+{
+  /* {formStep < 3 ? (
           <button
             onClick={handleNext}
             disabled={!isStepOneFilled || saving}
@@ -676,4 +809,5 @@ if (paymentOption === "monthly-installments" && schedule.length >= 3) {
           </button>
         ) : (
           <button onClick={handleSubmit}>Submit</button>
-        )} */}
+        )} */
+}
