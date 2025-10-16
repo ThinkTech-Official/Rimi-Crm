@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { API_BASE } from "../../utils/urls";
+import { useSelector } from "react-redux";
 
 interface SaveQuotePayloadProduct2 {
   primaryFirstName: string;
@@ -30,18 +32,21 @@ interface SaveQuoteResponseProduct2 {
   policyType: string;
   destinationProvince: string;
   quoteAmount: number;
-  dateOfBirth: string;
+  dateOfBirth: string | null;
   firstName: string;
   lastName: string;
   gender: string;
   email: string;
   applicants: any[];
+  createdAt: string;
 }
 
 export function useSaveQuoteNextProduct2() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [data, setData] = useState<SaveQuoteResponseProduct2 | null>(null);
+
+  const token = useSelector((state: any) => state.auth.token) as string | null;
 
   const saveQuoteNext = async (
     payload: SaveQuotePayloadProduct2
@@ -50,40 +55,39 @@ export function useSaveQuoteNextProduct2() {
     setError(null);
 
     try {
-      // TODO: Replace with actual API endpoint
       console.log("Saving Product 2 quote with payload:", payload);
 
-      // Simulate API call
-      // const response = await fetch('/api/product2/save-quote', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify(payload),
-      // });
-      // const result = await response.json();
+      // Determine endpoint based on whether we're creating or updating
+      const endpoint = payload.quoteNumber
+        ? `${API_BASE}/quotes/product2/stage1/${payload.quoteNumber}` // Update existing
+        : `${API_BASE}/quotes/product2/stage1`; // Create new
+      
+      const method = payload.quoteNumber ? 'PUT' : 'POST';
 
-      // Mock response for now
-      const mockResponse: SaveQuoteResponseProduct2 = {
-        quoteId: "PROD2-" + Date.now(),
-        quoteNumber: "Q-STUDY-" + Math.floor(Math.random() * 10000),
-        effectiveDate: payload.effectiveDate,
-        expiryDate: payload.expiryDate,
-        coverageLength: Number(payload.coverageLength),
-        numberOfTravellers: payload.applicantNumber + 1,
-        policyType: payload.policyType,
-        destinationProvince: payload.destinationProvince,
-        quoteAmount: 450.0, // This would come from backend calculation
-        dateOfBirth: payload.primaryDateOfBirth,
-        firstName: payload.primaryFirstName,
-        lastName: payload.primaryLastName,
-        gender: payload.primaryApplicantGender,
-        email: payload.primaryEmail,
-        applicants: payload.applicants,
-      };
+      // 🔥 Call backend with credentials: 'include' to send cookie
+      const response = await fetch(endpoint, {
+        method,
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        credentials: 'include', // 🔑 This sends the HTTP-only cookie
+        body: JSON.stringify(payload),
+      });
 
-      setData(mockResponse);
-      return mockResponse;
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to save quote');
+      }
+
+      const result: SaveQuoteResponseProduct2 = await response.json();
+      console.log("Product 2 quote saved successfully:", result);
+
+      setData(result);
+      return result;
     } catch (err: any) {
       const errorMessage = err.message || "Failed to save quote";
+      console.error("Error saving Product 2 quote:", errorMessage);
       setError(errorMessage);
       throw new Error(errorMessage);
     } finally {

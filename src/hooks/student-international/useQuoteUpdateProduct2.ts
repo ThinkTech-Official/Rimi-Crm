@@ -1,19 +1,20 @@
 import { useState } from "react";
+import { API_BASE } from "../../utils/urls";
 
 export interface Stage2PayloadProduct2 {
   quoteNumber: string;
   address: {
     addressLine1: string;
-    addressLine2: string;
+    addressLine2?: string;
     city: string;
     postalCode: string;
     country: string;
     province: string;
   };
   contactInfo: {
-    additionalEmail: string;
+    additionalEmail?: string;
     phoneNumber: string;
-    legalGuardianName: string;
+    legalGuardianName?: string;
   };
   beneficiary: {
     beneficiaryName: string;
@@ -26,7 +27,8 @@ export interface Stage2PayloadProduct2 {
 
 interface CompleteApplicationResponseProduct2 {
   success: boolean;
-  policyNumber?: string;
+  quoteNumber: string;
+  quoteId: string;
   message: string;
 }
 
@@ -44,28 +46,31 @@ export function useQuoteUpdateProduct2() {
     setError(null);
 
     try {
-      // TODO: Replace with actual API endpoint
       console.log("Completing Product 2 application with payload:", payload);
 
-      // Simulate API call
-      // const response = await fetch('/api/product2/complete-application', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify(payload),
-      // });
-      // const result = await response.json();
+      // 🔥 Call backend API with cookie credentials
+      const response = await fetch(`${API_BASE}/quotes/product2/stage2`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include', // 🔑 This sends the HTTP-only cookie
+        body: JSON.stringify(payload),
+      });
 
-      // Mock response for now
-      const mockResponse: CompleteApplicationResponseProduct2 = {
-        success: true,
-        policyNumber: "POL-STUDY-" + Math.floor(Math.random() * 10000),
-        message: "Application completed successfully",
-      };
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to complete application');
+      }
 
-      setData(mockResponse);
-      return mockResponse;
+      const result: CompleteApplicationResponseProduct2 = await response.json();
+      console.log("Product 2 application completed successfully:", result);
+
+      setData(result);
+      return result;
     } catch (err: any) {
       const errorMessage = err.message || "Failed to complete application";
+      console.error("Error completing Product 2 application:", errorMessage);
       setError(errorMessage);
       throw new Error(errorMessage);
     } finally {

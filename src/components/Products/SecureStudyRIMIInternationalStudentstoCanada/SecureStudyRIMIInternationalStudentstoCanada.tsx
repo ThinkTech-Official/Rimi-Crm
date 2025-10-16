@@ -401,7 +401,7 @@ export default function SecureStudyRIMIInternationalStudentstoCanada() {
         policyType: response.policyType,
         destinationProvince: response.destinationProvince,
         quoteAmount: response.quoteAmount,
-        dateOfBirth: response.dateOfBirth,
+        dateOfBirth: response.dateOfBirth!,
         firstName: response.firstName,
         lastName: response.lastName,
         gender: response.gender,

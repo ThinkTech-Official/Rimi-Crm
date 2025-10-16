@@ -278,6 +278,7 @@
 import { useEffect, useState } from "react";
 import ApplicantInformation from "./ApplicantInformation";
 import CoverageInformation from "./CoverageInformation";
+import { usePremiumCalculationProduct2 } from "../../../../hooks/student-international/usePremiumCalculationProduct2";
 
 interface Applicant {
   index: string;
@@ -373,6 +374,37 @@ export default function Step1Container({
   const [savingQuote, setSavingQuote] = useState(false);
   const [saveQuoteError, setSaveQuoteError] = useState<string | null>(null);
   const [emailingQuote, setEmailingQuote] = useState(false);
+
+
+
+  // ═══════════════════════════════════════════════════════════════
+  // 🔥 USE PREMIUM CALCULATION HOOK
+  // ═══════════════════════════════════════════════════════════════
+  const { 
+    totalPremium: calculatedPremium, 
+    loading: calculatingPremium, 
+    error: premiumError 
+  } = usePremiumCalculationProduct2({
+    policyType,
+    countryOfOrigin,
+    destinationProvince,
+    effectiveDate,
+    expiryDate,
+    coverageLength,
+    primaryDateOfBirth,
+    applicants: applicants.map(a => ({ dob: a.dob })),
+    isConfirmed, // 🔑 Only calculate when confirmed
+  });
+
+  // ═══════════════════════════════════════════════════════════════
+  // 🔥 UPDATE PARENT STATE WHEN PREMIUM CHANGES
+  // ═══════════════════════════════════════════════════════════════
+  useEffect(() => {
+    setTotalPremium(calculatedPremium);
+    setLoading(calculatingPremium);
+    setError(premiumError);
+  }, [calculatedPremium, calculatingPremium, premiumError]);
+
   
   // Validate if all required fields are filled
   const validateStep1 = () => {
@@ -588,6 +620,9 @@ export default function Step1Container({
     }
   };
 
+
+
+
   return (
     <>
       <ApplicantInformation
@@ -625,30 +660,60 @@ export default function Step1Container({
       
       {/* Quote Display Section */}
       <div className="w-full mt-5 flex flex-col items-center justify-center gap-3">
-        <h3 className="text-lg font-semibold">
-          {loading ? "Calculating..." : `Your Quote: $${totalPremium.toFixed(2)}`}
-        </h3>
+
+          {/* ═══════════════════════════════════════════════════════════ */}
+      {/* 🔥 PREMIUM DISPLAY - Shows when confirmed and calculated    */}
+      {/* ═══════════════════════════════════════════════════════════ */}
+      {isConfirmed && (
+        <div className="mt-8 mb-6">
+          <div className="max-w-md mx-auto bg-blue-50 border-2 border-blue-500 rounded-lg p-6 text-center">
+            {calculatingPremium ? (
+              <div className="flex items-center justify-center gap-2">
+                <div className="animate-spin h-5 w-5 border-2 border-blue-600 border-t-transparent rounded-full"></div>
+                <span className="text-gray-600">Calculating premium...</span>
+              </div>
+            ) : premiumError ? (
+              <div className="text-red-600">
+                <p className="font-semibold">Error calculating premium</p>
+                <p className="text-sm">{premiumError}</p>
+              </div>
+            ) : calculatedPremium > 0 ? (
+              <>
+                <h3 className="text-2xl font-bold text-blue-900 mb-2">
+                  Your Quote: ${calculatedPremium.toFixed(2)}
+                </h3>
+                <p className="text-sm text-gray-600">
+                  Coverage for {Number(coverageLength)} days
+                </p>
+                <p className="text-xs text-gray-500 mt-1">
+                  {policyType} Plan • {applicantNumber + 1} traveller(s)
+                </p>
+                
+              </>
+              
+            ) : (
+              <p className="text-gray-600">
+                Fill out all fields to see your quote
+              </p>
+            )}
+          </div>
+
+          {/* Save Quote Button */}
+          <div className="text-center mt-4">
+            <button
+              onClick={() => {
+                // Your save quote logic here
+                console.log("Saving quote with premium:", calculatedPremium);
+              }}
+              disabled={calculatingPremium || calculatedPremium === 0}
+              className="text-blue-600 hover:text-blue-800 font-semibold underline disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Save Quote
+            </button>
+          </div>
+        </div>
+      )}
         
-        {error && (
-          <p className="text-red-600 text-sm">{error}</p>
-        )}
-
-        {saveQuoteError && (
-          <p className="text-red-600 text-sm">{saveQuoteError}</p>
-        )}
-
-        {/* Save Quote Button - Show when premium is calculated and quote not saved yet */}
-        {totalPremium > 0 && !loading && !quoteNumber && (
-          <button
-            onClick={handleSaveQuote}
-            disabled={savingQuote}
-            className={`text-[#2B00B7] underline font-semibold cursor-pointer ${
-              savingQuote ? "opacity-50" : "hover:text-[#2309A1]"
-            }`}
-          >
-            {savingQuote ? "Saving Quote..." : "Save Quote"}
-          </button>
-        )}
 
         {/* Quote Number Display and Email Button - Show after quote is saved */}
         {quoteNumber && (

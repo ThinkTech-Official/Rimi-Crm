@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { API_BASE } from "../../utils/urls";
 
 export interface QuoteDetailProduct2 {
   quoteId: string;
@@ -18,16 +19,16 @@ export interface QuoteDetailProduct2 {
   phoneNumber?: string;
   legalGuardianName?: string;
   applicants: any[];
-  street: string;
+  street?: string;
   street2?: string;
-  city: string;
-  province: string;
-  countryCode: string;
+  city?: string;
+  province?: string;
+  countryCode?: string;
   postalCode?: string;
   beneficiaryName?: string;
   beneficiaryRelation?: string;
   premium: number;
-  paidPremium: number;
+  paidPremium?: number;
 }
 
 export function useQuoteDetailProduct2(quoteId: string | null) {
@@ -46,47 +47,28 @@ export function useQuoteDetailProduct2(quoteId: string | null) {
       setError(null);
 
       try {
-        // TODO: Replace with actual API endpoint
         console.log("Fetching Product 2 quote detail for ID:", quoteId);
 
-        // Simulate API call
-        // const response = await fetch(`/api/product2/quote/${quoteId}`);
-        // const result = await response.json();
+        // 🔥 Call backend with cookie credentials
+        const response = await fetch(`${API_BASE}/quotes/search/${quoteId}`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include', // 🔑 This sends the HTTP-only cookie
+        });
 
-        // Mock data for now
-        const mockData: QuoteDetailProduct2 = {
-          quoteId: quoteId,
-          quoteNumber: "Q-STUDY-" + Math.floor(Math.random() * 10000),
-          product: "Secure Study RIMI International Students to Canada",
-          status: "Active",
-          effectiveDate: "2025-01-15",
-          expiryDate: "2025-06-15",
-          covLen: 152,
-          policyType: "Enhanced",
-          destProv: "ON",
-          countryOfOrigin: "IN",
-          firstName: "John",
-          lastName: "Doe",
-          email: "john.doe@example.com",
-          additionalEmail: "parent@example.com",
-          phoneNumber: "+1234567890",
-          legalGuardianName: "Jane Doe",
-          applicants: [],
-          street: "123 Main St",
-          street2: "Apt 4B",
-          city: "Toronto",
-          province: "ON",
-          countryCode: "CA",
-          postalCode: "M5H 2N2",
-          beneficiaryName: "Jane Doe",
-          beneficiaryRelation: "Parent",
-          premium: 450.0,
-          paidPremium: 450.0,
-        };
+        if (!response.ok) {
+          throw new Error('Failed to fetch quote details');
+        }
 
-        setData(mockData);
+        const result: QuoteDetailProduct2 = await response.json();
+        console.log("Product 2 quote details fetched:", result);
+
+        setData(result);
       } catch (err: any) {
         const errorMessage = err.message || "Failed to fetch quote details";
+        console.error("Error fetching Product 2 quote details:", errorMessage);
         setError(errorMessage);
       } finally {
         setLoading(false);
