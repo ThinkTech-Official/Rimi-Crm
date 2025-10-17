@@ -220,6 +220,8 @@ import Summary from "./step3/Summary";
 // Hooks
 import { useSaveQuoteNextProduct2 } from "../../../hooks/student-international/useSaveQuoteNextProduct2";
 import { useQuoteUpdateProduct2, Stage2PayloadProduct2 } from "../../../hooks/student-international/useQuoteUpdateProduct2";
+import { useCreateQuoteProduct2 } from "../../../hooks/student-international/useCreateQuoteProduct2";
+
 
 type YesNo = "" | "yes" | "no";
 
@@ -339,6 +341,9 @@ export default function SecureStudyRIMIInternationalStudentstoCanada() {
     error: submitError,
   } = useQuoteUpdateProduct2();
 
+
+  const { createQuote, loading: savingQuote } = useCreateQuoteProduct2();
+
   // ==================== HANDLERS ====================
   const handleFormStepChange = (stepCommand: string) => {
     setFormStep((prevStep) => {
@@ -364,6 +369,49 @@ export default function SecureStudyRIMIInternationalStudentstoCanada() {
       return newStep;
     });
   };
+
+  // 🔥 ADD THIS NEW HANDLER
+const handleSaveQuote = async () => {
+  if (!isStepOneFilled) {
+    alert("Please fill all required fields and confirm eligibility");
+    return;
+  }
+
+  const payload = {
+    primaryFirstName,
+    primaryLastName,
+    primaryDateOfBirth,
+    primaryEmail,
+    primaryApplicantGender,
+    applicantNumber,
+    applicants,
+    countryOfOrigin,
+    policyType,
+    destinationProvince,
+    effectiveDate,
+    expiryDate,
+    coverageLength,
+    agentCode: agentCode!,
+    product: productName,
+    status: "Inactive", // Save as Inactive (not ready for payment yet)
+  };
+
+  try {
+    console.log("Saving Product 2 quote as Inactive...");
+    const response = await createQuote(payload);
+    
+    // Update state with the saved quote number
+    setQuoteNumber(response.quote);
+    
+    // Show success message
+    alert(`Quote saved successfully!\n\nQuote Number: ${response.quote}\n\nYou can continue later or proceed to the next step.`);
+    
+    console.log("Quote saved:", response.quote);
+  } catch (err: any) {
+    console.error("Failed to save quote:", err);
+    alert(`Failed to save quote: ${err.message || "Please try again"}`);
+  }
+};
 
   const handleNext = async () => {
     if (!isStepOneFilled || savingStage1) return;
@@ -557,6 +605,9 @@ export default function SecureStudyRIMIInternationalStudentstoCanada() {
             quoteNumber={quoteNumber}
             setQuoteNumber={setQuoteNumber}
             agentCode={agentCode!}
+
+            onSaveQuote={handleSaveQuote}
+            savingQuote={savingQuote}
           />
         </div>
       )}

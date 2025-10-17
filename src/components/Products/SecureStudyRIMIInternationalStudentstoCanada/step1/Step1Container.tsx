@@ -328,6 +328,8 @@ interface Step1ContainerProps {
   quoteNumber: string | null;
   setQuoteNumber: (value: string | null) => void;
   agentCode: string;
+  onSaveQuote: () => void; 
+  savingQuote: boolean;  
 }
 
 export default function Step1Container({
@@ -369,17 +371,19 @@ export default function Step1Container({
   quoteNumber,
   setQuoteNumber,
   agentCode,
+  onSaveQuote,
+  savingQuote,
 }: Step1ContainerProps) {
   
-  const [savingQuote, setSavingQuote] = useState(false);
-  const [saveQuoteError, setSaveQuoteError] = useState<string | null>(null);
+  // const [savingQuote, setSavingQuote] = useState(false);
+  // const [saveQuoteError, setSaveQuoteError] = useState<string | null>(null);
   const [emailingQuote, setEmailingQuote] = useState(false);
 
 
 
-  // ═══════════════════════════════════════════════════════════════
-  // 🔥 USE PREMIUM CALCULATION HOOK
-  // ═══════════════════════════════════════════════════════════════
+  
+  // USE PREMIUM CALCULATION HOOK
+  
   const { 
     totalPremium: calculatedPremium, 
     loading: calculatingPremium, 
@@ -393,12 +397,12 @@ export default function Step1Container({
     coverageLength,
     primaryDateOfBirth,
     applicants: applicants.map(a => ({ dob: a.dob })),
-    isConfirmed, // 🔑 Only calculate when confirmed
+    isConfirmed, //Only calculate when confirmed
   });
 
-  // ═══════════════════════════════════════════════════════════════
-  // 🔥 UPDATE PARENT STATE WHEN PREMIUM CHANGES
-  // ═══════════════════════════════════════════════════════════════
+  
+  // UPDATE PARENT STATE WHEN PREMIUM CHANGES
+  
   useEffect(() => {
     setTotalPremium(calculatedPremium);
     setLoading(calculatingPremium);
@@ -542,55 +546,55 @@ export default function Step1Container({
     }
   };
 
-  const handleSaveQuote = async () => {
-    setSavingQuote(true);
-    setSaveQuoteError(null);
+  // const handleSaveQuote = async () => {
+  //   setSavingQuote(true);
+  //   setSaveQuoteError(null);
 
-    try {
-      // Use the same hook as "Next" button to save quote
-      const payload = {
-        primaryFirstName,
-        primaryLastName,
-        primaryDateOfBirth,
-        primaryEmail,
-        primaryApplicantGender,
-        applicantNumber,
-        applicants,
-        countryOfOrigin,
-        policyType,
-        destinationProvince,
-        effectiveDate,
-        expiryDate,
-        coverageLength,
-        agentCode,
-        product: "Secure Study RIMI International Students to Canada",
-        status: "Inactive",
-      };
+  //   try {
+  //     // Use the same hook as "Next" button to save quote
+  //     const payload = {
+  //       primaryFirstName,
+  //       primaryLastName,
+  //       primaryDateOfBirth,
+  //       primaryEmail,
+  //       primaryApplicantGender,
+  //       applicantNumber,
+  //       applicants,
+  //       countryOfOrigin,
+  //       policyType,
+  //       destinationProvince,
+  //       effectiveDate,
+  //       expiryDate,
+  //       coverageLength,
+  //       agentCode,
+  //       product: "Secure Study RIMI International Students to Canada",
+  //       status: "Inactive",
+  //     };
 
-      console.log("Saving Product 2 quote (manual save) with payload:", payload);
+  //     console.log("Saving Product 2 quote (manual save) with payload:", payload);
 
-      // TODO: This should call the same backend endpoint as saveQuoteNext
-      // For now, simulating the API call - replace with actual endpoint
-      // const response = await fetch('/api/product2/save-quote', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify(payload),
-      // });
-      // const data = await response.json();
-      // setQuoteNumber(data.quoteNumber);
+  //     // TODO: This should call the same backend endpoint as saveQuoteNext
+  //     // For now, simulating the API call - replace with actual endpoint
+  //     // const response = await fetch('/api/product2/save-quote', {
+  //     //   method: 'POST',
+  //     //   headers: { 'Content-Type': 'application/json' },
+  //     //   body: JSON.stringify(payload),
+  //     // });
+  //     // const data = await response.json();
+  //     // setQuoteNumber(data.quoteNumber);
 
-      // Mock response - Backend should generate unique quote number
-      const mockQuoteNumber = "Q-STUDY-" + Math.floor(Math.random() * 10000);
-      setQuoteNumber(mockQuoteNumber);
+  //     // Mock response - Backend should generate unique quote number
+  //     const mockQuoteNumber = "Q-STUDY-" + Math.floor(Math.random() * 10000);
+  //     setQuoteNumber(mockQuoteNumber);
       
-      alert(`Quote saved successfully! Quote Number: ${mockQuoteNumber}`);
-    } catch (err) {
-      console.error("Save quote error:", err);
-      setSaveQuoteError("Failed to save quote. Please try again.");
-    } finally {
-      setSavingQuote(false);
-    }
-  };
+  //     alert(`Quote saved successfully! Quote Number: ${mockQuoteNumber}`);
+  //   } catch (err) {
+  //     console.error("Save quote error:", err);
+  //     setSaveQuoteError("Failed to save quote. Please try again.");
+  //   } finally {
+  //     setSavingQuote(false);
+  //   }
+  // };
 
   const handleEmailQuote = async () => {
     if (!quoteNumber) {
@@ -661,9 +665,9 @@ export default function Step1Container({
       {/* Quote Display Section */}
       <div className="w-full mt-5 flex flex-col items-center justify-center gap-3">
 
-          {/* ═══════════════════════════════════════════════════════════ */}
-      {/* 🔥 PREMIUM DISPLAY - Shows when confirmed and calculated    */}
-      {/* ═══════════════════════════════════════════════════════════ */}
+          
+      {/* PREMIUM DISPLAY ==> Shows when confirmed and calculated    */}
+      
       {isConfirmed && (
         <div className="mt-8 mb-6">
           <div className="max-w-md mx-auto bg-blue-50 border-2 border-blue-500 rounded-lg p-6 text-center">
@@ -699,18 +703,20 @@ export default function Step1Container({
           </div>
 
           {/* Save Quote Button */}
-          <div className="text-center mt-4">
-            <button
-              onClick={() => {
-                // Your save quote logic here
-                console.log("Saving quote with premium:", calculatedPremium);
-              }}
-              disabled={calculatingPremium || calculatedPremium === 0}
-              className="text-blue-600 hover:text-blue-800 font-semibold underline disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              Save Quote
-            </button>
-          </div>
+           <div className="text-center mt-4">
+      <button
+        onClick={onSaveQuote}
+        disabled={savingQuote || calculatedPremium === 0}
+        className="text-blue-600 hover:text-blue-800 font-semibold underline disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+      >
+        {savingQuote ? "Saving..." : "Save Quote"}
+      </button>
+      {quoteNumber && (
+        <p className="text-sm text-green-600 mt-2">
+          Saved as: {quoteNumber}
+        </p>
+      )}
+    </div>
         </div>
       )}
         
