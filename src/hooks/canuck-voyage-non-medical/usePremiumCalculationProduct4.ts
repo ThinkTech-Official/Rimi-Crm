@@ -1,31 +1,23 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
 import { API_BASE } from '../../utils/urls';
 
 interface PremiumCalculationData {
-  policyType: string;
-  destinationCountry: string;
-  travelingThroughUS: string;
-  effectiveDate: string;
-  expiryDate: string;
-  coverageLength: number;
-  primaryDateOfBirth: string;
-  numberOfDaysPerTrip?: number;
-  deductible: number;
-  applicants: { dob: string }[];
+  tripCost: number;
+  numberOfTravellers: number;
+  tripCancellationDeluxe: boolean;
+  applicants: { age: number }[];
 }
 
 interface PremiumResponse {
   totalPremium: number;
   breakdown: {
     basePremium: number;
-    deductibleDiscount: number;
-    travelCompanionDiscount?: number;
+    deluxePremium?: number;
     finalPremium: number;
   };
 }
 
-export function usePremiumCalculationProduct3(
+export function usePremiumCalculationProduct4(
   data: PremiumCalculationData,
   shouldCalculate: boolean
 ) {
@@ -47,22 +39,31 @@ export function usePremiumCalculationProduct3(
       setError(null);
 
       try {
-        const response = await axios.post<PremiumResponse>(
-          `${API_BASE}/premium/product3/calculate`,
-          data,
-          {
-            signal: controller.signal,
-            withCredentials: true,
-          }
-        );
+        const response = await fetch(`${API_BASE}/premium/product4/calculate`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include',
+          signal: controller.signal,
+          body: JSON.stringify(data),
+        });
 
-        setTotalPremium(response.data.totalPremium);
-        setBreakdown(response.data.breakdown);
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({
+            message: `HTTP error! status: ${response.status}`,
+          }));
+          throw new Error(errorData.message || 'Failed to calculate premium');
+        }
+
+        const result: PremiumResponse = await response.json();
+        setTotalPremium(result.totalPremium);
+        setBreakdown(result.breakdown);
       } catch (err: any) {
-        if (axios.isCancel(err)) {
+        if (err.name === 'AbortError') {
           console.log('Request cancelled');
         } else {
-          const message = err.response?.data?.message || 'Failed to calculate premium';
+          const message = err.message || 'Failed to calculate premium';
           setError(message);
           console.error('Premium calculation error:', err);
         }
@@ -76,15 +77,9 @@ export function usePremiumCalculationProduct3(
       controller.abort();
     };
   }, [
-    data.policyType,
-    data.destinationCountry,
-    data.travelingThroughUS,
-    data.effectiveDate,
-    data.expiryDate,
-    data.coverageLength,
-    data.primaryDateOfBirth,
-    data.numberOfDaysPerTrip,
-    data.deductible,
+    data.tripCost,
+    data.numberOfTravellers,
+    data.tripCancellationDeluxe,
     JSON.stringify(data.applicants),
     shouldCalculate,
   ]);

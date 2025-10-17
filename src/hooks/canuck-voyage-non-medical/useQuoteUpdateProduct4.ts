@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import axios from 'axios';
 import { API_BASE } from '../../utils/urls';
 
 interface AddressInfo {
@@ -30,7 +29,7 @@ interface Stage2Response {
   message: string;
 }
 
-export function useQuoteUpdateProduct3() {
+export function useQuoteUpdateProduct4() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [data, setData] = useState<Stage2Response | null>(null);
@@ -40,16 +39,27 @@ export function useQuoteUpdateProduct3() {
     setError(null);
 
     try {
-      const response = await axios.post<Stage2Response>(
-        `${API_BASE}/quotes/product3/stage2`,
-        payload,
-        { withCredentials: true }
-      );
+      const response = await fetch(`${API_BASE}/quotes/product4/stage2`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify(payload),
+      });
 
-      setData(response.data);
-      return response.data;
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({
+          message: `HTTP error! status: ${response.status}`,
+        }));
+        throw new Error(errorData.message || 'Failed to complete application');
+      }
+
+      const result: Stage2Response = await response.json();
+      setData(result);
+      return result;
     } catch (err: any) {
-      const message = err.response?.data?.message || 'Failed to complete application';
+      const message = err.message || 'Failed to complete application';
       setError(message);
       throw new Error(message);
     } finally {

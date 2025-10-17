@@ -210,18 +210,25 @@ export default function ApplicantInformation({
   };
 
   const handleCheckboxChange = () => {
-    if (!showInfo) {
-      setShowInfo(true);
-    }
+  // If info panel isn't showing, open it first
+  if (!showInfo) {
+    setShowInfo(true);
+  }
+
+  // If user is trying to check the box (currently unchecked)
+  if (!isConfirmed) {
     const ok = window.confirm(
       "Have you read and understood the eligibility instructions above?"
     );
     if (ok) {
-      setIsConfirmed((prev) => !prev);
-    } else {
-      setIsConfirmed(false);
+      setIsConfirmed(true); // ✅ Check the box
     }
-  };
+    // If they cancel, do nothing (stays unchecked)
+  } else {
+    // If already checked, allow unchecking without confirmation
+    setIsConfirmed(false);
+  }
+};
 
   return (
     <div className="max-w-5xl mx-auto mt-4 p-6 bg-[#F9F9F9]">

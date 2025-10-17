@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import axios from 'axios';
 import { API_BASE } from '../../utils/urls';
 
 interface Applicant {
@@ -16,18 +15,17 @@ interface SaveQuotePayload {
   primaryDateOfBirth: string;
   primaryEmail: string;
   primaryApplicantGender: string;
-  provinceOfResidence: string;
+  countryOfOrigin: string;
+  provinceStateResidence: string;
   applicantNumber: number;
   applicants: Applicant[];
-  policyType: string;
+  tripCost: number;
+  dateBooked: string;
   effectiveDate: string;
   expiryDate: string;
   coverageLength: number;
   destinationCountry: string;
-  travelingThroughUS: string;
-  usTravelDays?: number;
-  numberOfDaysPerTrip?: number;
-  deductible: number;
+  tripCancellationDeluxe: boolean;
   agentCode: string;
   product: string;
   status: string;
@@ -37,7 +35,7 @@ interface SaveQuoteResponse {
   quote: string;
 }
 
-export function useCreateQuoteProduct3() {
+export function useCreateQuoteProduct4() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<SaveQuoteResponse | null>(null);
@@ -47,16 +45,27 @@ export function useCreateQuoteProduct3() {
     setError(null);
 
     try {
-      const response = await axios.post<SaveQuoteResponse>(
-        `${API_BASE}/quotes/product3/save`,
-        payload,
-        { withCredentials: true }
-      );
+      const response = await fetch(`${API_BASE}/quotes/product4/save`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify(payload),
+      });
 
-      setResult(response.data);
-      return response.data;
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({
+          message: `HTTP error! status: ${response.status}`,
+        }));
+        throw new Error(errorData.message || 'Failed to save quote');
+      }
+
+      const data: SaveQuoteResponse = await response.json();
+      setResult(data);
+      return data;
     } catch (err: any) {
-      const message = err.response?.data?.message || 'Failed to save quote';
+      const message = err.message || 'Failed to save quote';
       setError(message);
       throw new Error(message);
     } finally {
