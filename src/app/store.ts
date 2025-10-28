@@ -14,6 +14,7 @@
 // store.ts
 import { combineReducers, configureStore } from '@reduxjs/toolkit';
 import authReducer from '../features/authSlice';
+import verificationReducer  from '../features/verificationSlice'
 import {
   persistStore,
   persistReducer,
@@ -35,6 +36,7 @@ const persistConfig = {
 // 👇 Combine all reducers here
 const rootReducer = combineReducers({
   auth: authReducer,
+  verification: verificationReducer,
 });
 
 // 👇 Wrap the combined rootReducer

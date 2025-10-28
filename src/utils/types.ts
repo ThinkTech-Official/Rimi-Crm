@@ -1,29 +1,95 @@
 
+// export interface ProfileData {
+//   id: string
+//   firstName: string
+//   lastName: string
+//   email: string
+//   agentCode: string
+//   company: string
+//   userType: "MGA" | "AGENT" | "ADMIN" | string
+//   status: string
+//   docLink1: string
+//   docLink2: string
+//   docLink3: string
+//   validUpto: string
+//   createdAt: string
+//   updatedAt: string
+//   mgaId: string | null
+//   agentCodes?: string[]       // present on MGA
+// }
+
+// // Now make the two new fields optional
+// export interface ProfileForm extends ProfileData {
+//   password?: string
+//   confirmPassword?: string
+// }
+
+
+
 export interface ProfileData {
-  id: string
-  firstName: string
-  lastName: string
-  email: string
-  agentCode: string
-  company: string
-  userType: "MGA" | "AGENT" | "ADMIN" | string
-  status: string
-  docLink1: string
-  docLink2: string
-  docLink3: string
-  validUpto: string
-  createdAt: string
-  updatedAt: string
-  mgaId: string | null
-  agentCodes?: string[]       // present on MGA
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  agentCode: string;
+  company: string;
+  userType: string;
+  status: string;
+  docLink1?: string | null;
+  docLink2?: string | null;
+  docLink3?: string | null;
+  validUpto?: string | null;
+  validUpto2?: string | null;
+  createdAt: string;
+  updatedAt: string;
+  mgaId?: string | null;
+  agentCodes?: string[];
+  allowBulkUpload?: boolean;
+  commissionPercent?: number | null;
+  
+  // ADD THESE NEW FIELDS FOR VERIFICATION
+  verificationStatus?: string | null;          // 'DRAFT', 'PENDING', 'VERIFIED', 'REJECTED', 'EXPIRED'
+  documentsUploadedAt?: string | null;         // ISO timestamp
+  verificationRequestedAt?: string | null;     // ISO timestamp (NEW!)
+  verifiedAt?: string | null;                  // ISO timestamp
+  verifiedBy?: string | null;                  // Admin email
+  verificationValidTill?: string | null;       // ISO date
+  isImportedAgent?: boolean;
 }
 
-// Now make the two new fields optional
-export interface ProfileForm extends ProfileData {
-  password?: string
-  confirmPassword?: string
+export interface ProfileForm {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  agentCode: string;
+  company: string;
+  userType: string;
+  status: string;
+  
+  // ✅ Change these from 'string' to 'string | null'
+  docLink1?: string | null;  // was: string | undefined
+  docLink2?: string | null;  // was: string | undefined
+  docLink3?: string | null;  // was: string | undefined
+  validUpto?: string | null;
+  validUpto2?: string | null;
+  
+  createdAt: string;
+  updatedAt: string;
+  mgaId?: string | null;
+  agentCodes?: string[];
+  allowBulkUpload?: boolean;
+  commissionPercent?: number | null;
+  
+  // Verification fields
+  verificationStatus?: string | null;
+  documentsUploadedAt?: string | null;
+  verificationRequestedAt?: string | null;
+  verifiedAt?: string | null;
+  verifiedBy?: string | null;
+  verificationValidTill?: string | null;
+  isImportedAgent?: boolean;
 }
-
 
 
 
