@@ -6,6 +6,7 @@ export const useDeleteDocument = () => {
       const response = await fetch(`${API_BASE}/documents/${id}`, {
         method: "DELETE",
       });
+      
       const data = await response.json();
       return data;
     } catch (error) {
