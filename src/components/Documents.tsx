@@ -10,25 +10,44 @@ import { getUserTypeFromToken } from "../utils/getUserType";
 import { useDocuments, DocumentItem } from "../hooks/useDocuments";
 import { API_BASE } from "../utils/urls";
 import AddDocument from "./AddDocument";
+import { FaExternalLinkAlt } from "react-icons/fa";
 
-const demoDocuments: Omit<DocumentItem, "url" | "createdAt">[] = [
-  { id: "1", filename: "RIMI Canuck Voyage Travel Medical - Claim Form (EN)" },
-  { id: "2", filename: "RIMI Canuck Voyage Travel Medical - Claim Form (FR)" },
-  {
-    id: "3",
-    filename:
-      "Secure Study RIMI International Students to Canada - Policy Wording (EN)",
-  },
+interface CategorizedDocument {
+  id: string;
+  filename: string;
+  category: string;
+}
+
+const demoDocuments: CategorizedDocument[] = [
+  // Travel Medical Claims
+  { id: "1", filename: "RIMI Canuck Voyage Travel Medical - Claim Form (EN)", category: "Travel Medical Claims" },
+  { id: "2", filename: "RIMI Canuck Voyage Travel Medical - Claim Form (FR)", category: "Travel Medical Claims" },
+  { id: "3", filename: "Emergency Medical Assistance Guidelines", category: "Travel Medical Claims" },
+  
+  // Policy Documents
   {
     id: "4",
-    filename:
-      "Secure Study RIMI International Students to Canada - Policy Wording (FR)",
+    filename: "Secure Study RIMI International Students to Canada - Policy Wording (EN)",
+    category: "Policy Documents"
   },
+  {
+    id: "5",
+    filename: "Secure Study RIMI International Students to Canada - Policy Wording (FR)",
+    category: "Policy Documents"
+  },
+  { id: "6", filename: "Terms and Conditions - Travel Insurance", category: "Policy Documents" },
+  { id: "7", filename: "Coverage Details and Exclusions", category: "Policy Documents" },
+  
+  // Application Forms
+  { id: "8", filename: "New Student Application Form", category: "Application Forms" },
+  { id: "9", filename: "Policy Renewal Application", category: "Application Forms" },
+  { id: "10", filename: "Beneficiary Designation Form", category: "Application Forms" },
 ];
 
 export default function Documents() {
   const { langauge } = useContext(LangContext);
   const [userType, setUserType] = useState<string | null>(null);
+  const [showAddDocument, setShowAddDocument] = useState<boolean>(false);
 
   const {
     documents: fetchedDocs,
@@ -63,79 +82,104 @@ export default function Documents() {
     }
   };
 
+  // Group documents by category
+  const categorizedDocs = demoDocuments.reduce((acc, doc) => {
+    if (!acc[doc.category]) {
+      acc[doc.category] = [];
+    }
+    acc[doc.category].push(doc);
+    return acc;
+  }, {} as Record<string, CategorizedDocument[]>);
+
   return (
     <div className="w-full mx-auto mt-4 px-2 py-4 sm:py-6 sm:px-10 bg-[#F9F9F9]">
-      <h2 className="text-lg font-bold text-left text-[#1B1B1B] my-2">
-        {langauge === "En" ? "Documents" : "Documents"}
-      </h2>
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-xl font-bold text-left text-[#1B1B1B]">
+          {langauge === "En" ? "Documents" : "Documents"}
+        </h2>
+        
+        {userType === "ADMIN" && (
+          <button
+            onClick={() => setShowAddDocument(true)}
+            className="btn-primary flex items-center gap-2"
+          >
+            <FolderPlusIcon className="h-5 w-5" />
+            Add Document
+          </button>
+        )}
+      </div>
 
-      {/* Demo Documents (static, non‑deletable) */}
-      <div className="w-full space-y-6">
-        {demoDocuments.map((item) => (
-          <div key={item.id} className="flex justify-between items-center gap-3">
-            {item.filename}
-            {userType === "ADMIN" && (
-              <div className="flex gap-2">
-                <button className="py-2 flex">
-                  <PencilSquareIcon className="h-6 w-6 text-primary cursor-pointer" />
-                </button>
-                <button className="py-2 flex opacity-50 cursor-not-allowed">
-                  <TrashIcon className="h-6 w-6 text-primary cursor-pointer" />
-                </button>
-              </div>
-            )}
+      {/* Demo Documents grouped by category */}
+      <div className="w-full space-y-8">
+        {Object.entries(categorizedDocs).map(([category, docs]) => (
+          <div key={category} className="bg-white p-4 shadow-sm">
+            <h3 className="text-md font-semibold text-primary mb-4 border-b pb-2">
+              {category}
+            </h3>
+            <div className="space-y-3">
+              {docs.map((item) => (
+                <div key={item.id} className="flex justify-between items-center gap-3 hover:bg-gray-50 p-2 rounded transition">
+                  <span className="text-gray-700">{item.filename}</span>
+                  {userType === "ADMIN" && (
+                    <div className="flex gap-2">
+                      <button className="py-2 flex">
+                        <PencilSquareIcon className="h-5 w-5 text-primary cursor-pointer hover:text-primary-dark" />
+                      </button>
+                      <button className="py-2 flex">
+                        <TrashIcon className="h-5 w-5 text-red-500 cursor-pointer hover:text-red-600" />
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
           </div>
         ))}
       </div>
 
       {/* Fetched Documents (deletable) */}
-      <div className="max-w-4xl mt-6">
-        {fetchedDocs.map((item) => (
-          <div
-            key={item.id}
-            className="flex justify-between items-center border-b py-2 border-slate-200"
-          >
-            <a href={`${API_BASE}${item.url}`} target="_blank">
-              {item.filename}
-            </a>
-            {userType === "ADMIN" && (
-              <div className="flex gap-2">
-                <button className="px-2 py-2 flex">
-                  <PencilSquareIcon className="h-6 w-6 text-primary" />
-                </button>
-                <button
-                  onClick={() => handleDelete(item.id)}
-                  className="px-2 py-2 flex"
+      {fetchedDocs.length > 0 && (
+        <div className="bg-white p-4 shadow-sm mt-8">
+          <h3 className="text-md font-semibold text-primary mb-4 border-b pb-2">
+            Uploaded Documents
+          </h3>
+          <div className="space-y-3">
+            {fetchedDocs.map((item) => (
+              <div
+                key={item.id}
+                className="flex justify-between items-center hover:bg-gray-50 p-2 rounded transition"
+              >
+                <a 
+                  href={`${API_BASE}${item.url}`} 
+                  target="_blank"
+                  className="text-primary hover:underline"
                 >
-                  <TrashIcon className="h-6 w-6" />
-                </button>
+                  {item.filename}
+                </a>
+                {userType === "ADMIN" && (
+                  <div className="flex gap-2 items-center">
+                    <a 
+                  href={`${API_BASE}${item.url}`} 
+                  target="_blank"
+                  className="text-primary hover:underline"
+                >
+                  <FaExternalLinkAlt className="h-4 w-4 text-primary hover:text-primary-dark" />
+                </a>
+                    <button
+                      onClick={() => handleDelete(item.id)}
+                      className="py-2 flex"
+                    >
+                      <TrashIcon className="h-5 w-5 text-red-600 hover:text-red-700 cursor-pointer" />
+                    </button>
+                  </div>
+                )}
               </div>
-            )}
+            ))}
           </div>
-        ))}
-      </div>
-
-      {userType === "ADMIN" && (
-        <div className="mt-8 flex justify-center">
-          <input
-            type="file"
-            id="document-upload"
-            className="hidden"
-            onChange={handleFileChange}
-          />
-          <label
-            htmlFor="document-upload"
-            className="bg-primary text-white py-2 font-semibold flex gap-2 items-center w-[130px] justify-center cursor-pointer"
-          >
-            <FolderPlusIcon className="h-6 w-6" />
-            {langauge === "En" ? "Add" : "Ajouter"}
-          </label>
         </div>
       )}
-      <AddDocument />
 
-      {loading && <p className="text-center mt-4">Loading…</p>}
-      {error && <p className="text-red-500 text-center mt-2">{error}</p>}
+      {showAddDocument && <AddDocument setShowAddDocument={setShowAddDocument} />}
     </div>
   );
 }

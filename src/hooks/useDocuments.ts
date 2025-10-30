@@ -1,7 +1,3 @@
-
-
-
-
 import { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import { API_BASE } from "../utils/urls";
@@ -26,7 +22,7 @@ export function useDocuments() {
       const resp = await axios.get<DocumentItem[]>(`${localAddress}/documents`);
       setDocuments(Array.isArray(resp.data) ? resp.data : []);
       console.log(resp)
-      console.log(documents)
+      console.log("documentss",documents)
     } catch (err) {
       console.error(err);
       setError("Failed to load documents.");
