@@ -390,7 +390,7 @@ export default function MGAHome() {
                         className="text-primary hover:underline hover:underline-offset-2 cursor-pointer font-medium px-4 text-center w-full"
                         onClick={() => {
                           // Navigate to agent details page
-                          window.location.href = `/agent-details/${agent.agentCode}`;
+                          window.location.href = `/mga/agent-details/${agent.agentCode}`;
                         }}
                       >
                         View Details

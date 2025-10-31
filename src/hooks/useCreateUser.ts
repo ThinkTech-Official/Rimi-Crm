@@ -176,6 +176,7 @@ export interface newUser {
   validUpto: string; // Valid until date for document 1
   validUpto2: string; // Valid until date for document 2
   commissionPercent?: string; // Commission percentage for agents
+  mgaOverridePercent?: string; //// Commission override percentage for mga
   docFile1?: File | null;
   docFile2?: File | null;
   selectedAgents?: string[]; // Added for MGA users

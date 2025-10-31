@@ -322,7 +322,7 @@ const CreateUser: React.FC = () => {
           </div>
         )}
         {/* Agent Commission - Only show for AGENT user type */}
-        {userType === "AGENT" && (
+        {/* {userType === "AGENT" && (
           <div className="flex flex-col col-span-3 sm:col-span-1">
             <label className="text-sm">Agent Commission (%)</label>
             <input
@@ -350,7 +350,77 @@ const CreateUser: React.FC = () => {
               Enter the commission percentage for this agent (0-100%)
             </p>
           </div>
+        )} */}
+
+        {/* Commission Percent - Show for AGENT and MGA user types */}
+{(userType === "AGENT" || userType === "MGA") && (
+  <div className="flex flex-col col-span-3 sm:col-span-1">
+    <label className="text-sm">
+      {userType === "MGA" ? "MGA Commission (%)" : "Agent Commission (%)"}
+    </label>
+    <input
+      type="number"
+      step="0.01"
+      min="0"
+      max="100"
+      {...register("commissionPercent", {
+        min: { value: 0, message: "Commission cannot be negative" },
+        max: { value: 100, message: "Commission cannot exceed 100%" },
+        pattern: {
+          value: /^\d+(\.\d{1,2})?$/,
+          message: "Please enter a valid percentage (e.g., 15.5)",
+        },
+      })}
+      className="input-primary"
+      placeholder={userType === "MGA" ? "e.g., 20.00" : "e.g., 15.50"}
+    />
+    {errors.commissionPercent && (
+      <p className="text-red-500 text-sm">
+        {errors.commissionPercent.message}
+      </p>
+    )}
+    <p className="text-xs text-gray-500 mt-1">
+      {userType === "MGA" 
+        ? "Commission for MGA's direct policy sales (0-100%)"
+        : "Enter the commission percentage for this agent (0-100%)"
+      }
+    </p>
+  </div>
+)}
+
+
+         {/* MGA Override Percent - Only show for MGA user type */}
+        {userType === "MGA" && (
+          <div className="flex flex-col col-span-3 sm:col-span-1">
+            <label className="text-sm">MGA Override Percent (%)</label>
+            <input
+              type="number"
+              step="0.01"
+              min="0"
+              max="100"
+              {...register("mgaOverridePercent", {
+                required: "MGA override percent is required",
+                min: { value: 0, message: "Override percent cannot be negative" },
+                max: { value: 100, message: "Override percent cannot exceed 100%" },
+                pattern: {
+                  value: /^\d+(\.\d{1,2})?$/,
+                  message: "Please enter a valid percentage (e.g., 5.0)",
+                },
+              })}
+              className="input-primary"
+              placeholder="e.g., 5.00"
+            />
+            {errors.mgaOverridePercent && (
+              <p className="text-red-500 text-sm">
+                {errors.mgaOverridePercent.message}
+              </p>
+            )}
+            <p className="text-xs text-gray-500 mt-1">
+              MGA's share of commission from sub-agents (0-100%)
+            </p>
+          </div>
         )}
+        
         {/* Status */}
         <div className="col-span-1 space-y-2">
           <label className="text-sm">Status</label>

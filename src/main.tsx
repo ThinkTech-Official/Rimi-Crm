@@ -47,10 +47,12 @@ import QuotesSearch from "./components/QuotesSearch.tsx";
 import Reporting from "./components/Reporting.tsx";
 import Users from "./components/Users.tsx";
 import CreateUser from "./components/CreateUser.tsx";
-import Documents from "./components/Documents.tsx";
+import Documents from "./components/Documents/Documents.tsx";
 import TripCalculator from "./components/TripCalculator.tsx";
 import { I18nextProvider } from 'react-i18next';
 import VerificationRequests from './components/agent-verification/VerificationRequests.tsx';
+import AdminAgentDetails from './pages/AdminAgentDetails.tsx';
+import MGAAgentDetails from './pages/MgaAgentDetails.tsx';
 
 // Create ONE client (module-level singleton)
 const queryClient = new QueryClient({
@@ -158,7 +160,8 @@ const router = createBrowserRouter(
         <Route path="user-upload" element={<UserUpload />} />
         <Route path="quote-upload" element={<QuoteUploader />} />
         <Route path="quote-detail/:id" element={<QuoteDetailPage />} />
-        <Route path="agent-details/:agentCode" element={<AgentDetails />} />
+        <Route path="admin/agent-details/:agentCode" element={<AdminAgentDetails />} />
+        <Route path="mga/agent-details/:agentCode" element={<MGAAgentDetails />} />
         <Route path="policy-upload" element={<PolicyUploader />} />
         <Route path="policy-detail/:id" element={<PolicyDetails />} />
         <Route path="sales-data-upload" element={<ImportSalesUpload />} />
