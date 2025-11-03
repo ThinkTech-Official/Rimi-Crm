@@ -14,8 +14,10 @@ type TabType = "document" | "category";
 
 const AddDocument = ({
   setShowAddDocument,
+  onSuccess,
 }: {
   setShowAddDocument: (val: boolean) => void;
+  onSuccess?: () => void;
 }) => {
   const [activeTab, setActiveTab] = useState<TabType>("document");
   const [files, setFiles] = useState<FileItem[]>([]);

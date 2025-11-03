@@ -861,17 +861,7 @@ export default function Dashboard() {
           </div>
 
           {/* Header with Verification Indicator */}
-          <div className="hidden md:flex items-center justify-between px-4 py-4 bg-white border-b">
-            <div className="flex items-center space-x-4">
-              <h1 className="text-lg font-semibold text-gray-900">
-                Welcome, {userName || 'User'}
-              </h1>
-            </div>
-            <div className="flex items-center space-x-4">
-              {/* Verification Status Indicator */}
-              <VerificationIndicator />
-            </div>
-          </div>
+         
 
           {/* Verification Warning Banner */}
           <VerificationBanner />
