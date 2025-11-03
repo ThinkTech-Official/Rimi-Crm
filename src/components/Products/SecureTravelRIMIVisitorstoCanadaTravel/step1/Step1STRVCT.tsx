@@ -72,6 +72,10 @@ export interface PremiumCalculationData {
   primarydateOfBirth?: string;
 }
 
+type Props = {
+  onValidityChange: (valid: boolean) => void;
+};
+
 const Step1STRVCT = ({
   onValidityChange,
   primaryFirstName,
@@ -82,8 +86,6 @@ const Step1STRVCT = ({
   setPrimaryDateOfBirth,
   primaryEmail,
   setprimaryEmail,
-  primaryQuestionaire,
-  setPrimaryQuestionaire,
   applicantNumber,
   setApplicantNumber,
   superVisa,
@@ -128,6 +130,11 @@ const Step1STRVCT = ({
   setLoading,
   error,
   setError,
+  formStep,
+  handleFormStepChange,
+  handleNext,
+  isStepOneFilled,
+  savingStage1,
 }: any) => {
   const agentCode = useSelector((state: RootState) => state.auth.agentCode);
 
@@ -427,6 +434,8 @@ const Step1STRVCT = ({
     deductible,
     primaryDateOfBirth,
   ].every((v) => v !== "");
+    primaryDateOfBirth,
+  ].every((v) => v !== "");
 
   // console.log(CanClculatePremium)
 
@@ -471,9 +480,45 @@ const Step1STRVCT = ({
       applicants,
     ]
   );
+  const premiumCalculationData = useMemo<PremiumCalculationData>(
+    () => ({
+      countryOfOrigin,
+      inCanada,
+      superVisa,
+      coverageForPreMedCon,
+      destinationProvince,
+      effectiveDate,
+      expiryDate,
+      coverageLength,
+      policyType,
+      coverageOption,
+      deductible,
+      primarydateOfBirth: primaryDateOfBirth,
+      paymentOption,
+      plan: 1,
+      applicants,
+    }),
+    [
+      countryOfOrigin,
+      inCanada,
+      superVisa,
+      destinationProvince,
+      effectiveDate,
+      expiryDate,
+      coverageLength,
+      policyType,
+      coverageOption,
+      deductible,
+      primaryDateOfBirth,
+      paymentOption,
+      coverageForPreMedCon,
+      applicants,
+    ]
+  );
   // const payload = Object.defineProperty(PremiumCalculationData, "primarydateOfBirth", {value: primaryDateOfBirth});
 
   // const { totalPremium, schedule, loading, error } = usePremiumCalculate(premiumCalculationData, CanClculatePremium);
+  const {
   const {
     totalPremium: hookTotalPremium,
     schedule: hookSchedule,
@@ -482,9 +527,11 @@ const Step1STRVCT = ({
   } = usePremiumCalculate(premiumCalculationData, CanCalculatePremium);
 
   useEffect(() => {
+  useEffect(() => {
     setTotalPremium(hookTotalPremium);
   }, [hookTotalPremium, setTotalPremium]);
 
+  useEffect(() => {
   useEffect(() => {
     setSchedule(hookSchedule);
   }, [hookSchedule, setSchedule]);
@@ -496,6 +543,7 @@ const Step1STRVCT = ({
   useEffect(() => {
     setError(hookError);
   }, [hookError, setError]);
+
 
   // const hookResult = usePremiumCalculate(premiumCalculationData, CanClculatePremium);
 
@@ -542,7 +590,11 @@ const Step1STRVCT = ({
       agentCode: agentCode!,
       product: "Secure Travel RIMI Visitors to Canada Travel",
       quotePremium: totalPremium, // maybe we should calculate it directly from backend instead of fetching from frontend
+      product: "Secure Travel RIMI Visitors to Canada Travel",
+      quotePremium: totalPremium, // maybe we should calculate it directly from backend instead of fetching from frontend
       quoteNumber: quoteNumber,
+      plan: 1,
+    };
       plan: 1,
     };
 

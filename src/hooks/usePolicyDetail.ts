@@ -71,6 +71,11 @@ export interface PolicyDetail {
   paymentOption?: string;
   creditCardLast4?: string;
   paymentHistory?: any[];
+
+
+  createdAt?: string;
+  updatedAt?: string;
+
 }
 
 

@@ -47,10 +47,13 @@ import QuotesSearch from "./components/QuotesSearch.tsx";
 import Reporting from "./components/Reporting.tsx";
 import Users from "./components/Users.tsx";
 import CreateUser from "./components/CreateUser.tsx";
-import Documents from "./components/Documents.tsx";
+import Documents from "./components/Documents/Documents.tsx";
 import TripCalculator from "./components/TripCalculator.tsx";
 import { I18nextProvider } from 'react-i18next';
 import UserQuoteDetails from './components/UserQuoteDetails.tsx';
+import VerificationRequests from './components/agent-verification/VerificationRequests.tsx';
+import AdminAgentDetails from './pages/AdminAgentDetails.tsx';
+import MGAAgentDetails from './pages/MgaAgentDetails.tsx';
 
 // Create ONE client (module-level singleton)
 const queryClient = new QueryClient({
@@ -66,6 +69,51 @@ const queryClient = new QueryClient({
 
 
 
+
+
+// const router = createBrowserRouter(
+//   createRoutesFromElements(
+//     <Route path="/" element={<App />}>
+//       <Route path="/login" element={<Login />} />
+//       <Route path="/forgot-password" element={<ForgotPassword />} />
+      
+//       {/* Dashboard as parent route with nested children */}
+//       <Route
+//         path="/"
+//         element={
+//           <ProtectedRoute>
+//             <Dashboard />
+//           </ProtectedRoute>
+//         }
+//       >
+//         {/* All dashboard routes as children */}
+//         <Route index element={<Home />} />
+//         <Route path="products" element={<Products />} />
+//         <Route path="product/:slug" element={<ProductWrapper />} />
+//         <Route path="search-quotes" element={<QuotesSearch />} />
+//         <Route path="search-policies" element={<PoliciesSearch />} />
+//         <Route path="reporting" element={<Reporting />} />
+//         <Route path="search-users" element={<Users />} />
+//         <Route path="create-user" element={<CreateUser />} />
+//         <Route path="documents" element={<Documents />} />
+//         <Route path="trip-calculator" element={<TripCalculator />} />
+//         <Route path="profile" element={<Profile />} />
+//         <Route path="userdetail/:id" element={<UserDetails />} />
+//         <Route path="user-upload" element={<UserUpload />} />
+//         <Route path="quote-upload" element={<QuoteUploader />} />
+//         <Route path="quote-detail/:id" element={<QuoteDetailPage />} />
+//         <Route path="agent-details/:agentCode" element={<AgentDetails />} />
+//         <Route path="policy-upload" element={<PolicyUploader />} />
+//         <Route path="policy-detail/:id" element={<PolicyDetails />} />
+//         <Route path="sales-data-upload" element={<ImportSalesUpload />} />
+//       </Route>
+
+//       {/* Routes outside of dashboard layout */}
+//       <Route path="/test-dash" element={<TestUi />} />
+//       <Route path="/agent-dashboard" element={<AgentDashboard />} />
+//     </Route>
+//   )
+// );
 
 
 const router = createBrowserRouter(
@@ -86,9 +134,23 @@ const router = createBrowserRouter(
         {/* All dashboard routes as children */}
         <Route index element={<Home />} />
         <Route path="products" element={<Products />} />
-        <Route path="product/:slug" element={<ProductWrapper />} />
+        
+        {/* Product detail routes - These require verification for AGENT/MGA */}
+        <Route 
+          path="product/:slug" 
+          element={
+            <ProtectedRoute requiresVerification={true}>
+              <ProductWrapper />
+            </ProtectedRoute>
+          } 
+        />
+        
         <Route path="search-quotes" element={<QuotesSearch />} />
         <Route path="search-policies" element={<PoliciesSearch />} />
+        
+        {/* Add the new verification requests route for admin */}
+        <Route path="verification-requests" element={<VerificationRequests />} />
+        
         <Route path="reporting" element={<Reporting />} />
         <Route path="search-users" element={<Users />} />
         <Route path="create-user" element={<CreateUser />} />
@@ -100,7 +162,8 @@ const router = createBrowserRouter(
         <Route path="quote-upload" element={<QuoteUploader />} />
         <Route path="quote-detail/:id" element={<QuoteDetailPage />} />
         <Route path="user-quote-detail/:id" element={<UserQuoteDetails />} />
-        <Route path="agent-details/:agentCode" element={<AgentDetails />} />
+        <Route path="admin/agent-details/:agentCode" element={<AdminAgentDetails />} />
+        <Route path="mga/agent-details/:agentCode" element={<MGAAgentDetails />} />
         <Route path="policy-upload" element={<PolicyUploader />} />
         <Route path="policy-detail/:id" element={<PolicyDetails />} />
         <Route path="sales-data-upload" element={<ImportSalesUpload />} />

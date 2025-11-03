@@ -1,7 +1,100 @@
+// import { InformationCircleIcon } from "@heroicons/react/24/outline";
+// import { useState } from "react";
+
+// export default function ContactInformation() {
+//   const [displayInfoAddEmail, setDisplayInfoAddEmail] = useState(false);
+
+//   return (
+//     <div className="max-w-5xl mx-auto mt-6 p-6 bg-[#F9F9F9]">
+//       <h3 className="text-lg font-bold text-left text-[#1B1B1B] mb-5">
+//         Contact Information
+//       </h3>
+
+//       <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 md:gap-x-16 lg:gap-x-24 gap-y-4 text-text-secondary">
+//         <div className="flex flex-col">
+//           <label className="text-sm">Email Address</label>
+//           <input
+//             className="input-primary"
+//             type="text"
+//             placeholder="Email Address"
+//           />
+//         </div>
+
+//         <div className="flex flex-col">
+//           <label className="flex items-center gap-1 text-sm">
+//             <InformationCircleIcon
+//               onClick={() => setDisplayInfoAddEmail((prev) => !prev)}
+//               className="h-5 w-5 text-[#3a17c5] cursor-pointer"
+//               aria-hidden="true"
+//             />
+//             Additional Email Address (Optional)
+//           </label>
+//           <input
+//             className="input-primary"
+//             type="text"
+//             placeholder="Additional Email Address"
+//           />
+//         </div>
+
+//         {displayInfoAddEmail && (
+//           <div className="col-span-2 flex flex-col items-start mt-2 mb-2 border border-gray-300 p-4 bg-white text-sm text-gray-700 rounded-md font-[inter]">
+//             <p>Enter up to 5 email addresses, separated with a semicolon “;”</p>
+//             <p>Example: School Administrator, Parent/Guardian, Agent</p>
+//           </div>
+//         )}
+
+//         <div className="flex flex-col">
+//           <label className="text-sm">Phone Number</label>
+//           <input
+//             className="input-primary"
+//             type="text"
+//             placeholder="Phone Number"
+//           />
+//         </div>
+//       </div>
+//     </div>
+//   );
+// }
+
+
+
+
+
+
+
+
+
+
+
+
+
+// ===============================================
+
+
+
+
+
+
 import { InformationCircleIcon } from "@heroicons/react/24/outline";
 import { useState } from "react";
 
-export default function ContactInformation() {
+interface ContactInfo {
+  email: string;
+  additionalEmail: string;
+  phoneNumber: string;
+}
+
+interface ContactInformationProps {
+  contactInfo: ContactInfo;
+  setContactInfo: React.Dispatch<React.SetStateAction<ContactInfo>>;
+  email?: string;
+}
+
+export default function ContactInformation({
+  contactInfo,
+  setContactInfo,
+  email,
+}: ContactInformationProps) {
   const [displayInfoAddEmail, setDisplayInfoAddEmail] = useState(false);
 
   return (
@@ -15,8 +108,12 @@ export default function ContactInformation() {
           <label className="text-sm">Email Address</label>
           <input
             className="input-primary"
-            type="text"
+            type="email"
             placeholder="Email Address"
+            value={contactInfo.email || email || ""}
+            onChange={(e) =>
+              setContactInfo({ ...contactInfo, email: e.target.value })
+            }
           />
         </div>
 
@@ -31,15 +128,19 @@ export default function ContactInformation() {
           </label>
           <input
             className="input-primary"
-            type="text"
+            type="email"
             placeholder="Additional Email Address"
+            value={contactInfo.additionalEmail}
+            onChange={(e) =>
+              setContactInfo({ ...contactInfo, additionalEmail: e.target.value })
+            }
           />
         </div>
 
         {displayInfoAddEmail && (
           <div className="col-span-2 flex flex-col items-start mt-2 mb-2 border border-gray-300 p-4 bg-white text-sm text-gray-700 rounded-md font-[inter]">
-            <p>Enter up to 5 email addresses, separated with a semicolon “;”</p>
-            <p>Example: School Administrator, Parent/Guardian, Agent</p>
+            <p>Enter up to 5 email addresses, separated with a semicolon ";"</p>
+            <p>Example: parent@email.com; school@email.com; agent@email.com</p>
           </div>
         )}
 
@@ -47,8 +148,12 @@ export default function ContactInformation() {
           <label className="text-sm">Phone Number</label>
           <input
             className="input-primary"
-            type="text"
+            type="tel"
             placeholder="Phone Number"
+            value={contactInfo.phoneNumber}
+            onChange={(e) =>
+              setContactInfo({ ...contactInfo, phoneNumber: e.target.value })
+            }
           />
         </div>
       </div>

@@ -255,7 +255,7 @@ export default function AdminHome() {
   };
 
   const handleAgentDetails = (agentCode: string) => {
-    navigate(`/agent-details/${agentCode}`);
+    navigate(`/admin/agent-details/${agentCode}`);
   };
 
   if (statsLoading) {
@@ -350,13 +350,13 @@ export default function AdminHome() {
       </section>
 
       {/* Policy Sales */}
-      <section className="mt-6">
+      {/* <section className="mt-6">
         <div>
           <h2 className="text-lg font-bold text-text-primary">Policy Sales</h2>
           <p className="text-base text-text-secondary">Current Month</p>
         </div>
         <PolicySalesChart />
-      </section>
+      </section> */}
 
       {/* Table Section */}
       <section className="mt-6">
