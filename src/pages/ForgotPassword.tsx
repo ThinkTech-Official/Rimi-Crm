@@ -1,16 +1,12 @@
 // src/components/ForgotPassword.tsx
-import { useState, Fragment, useContext, useEffect } from "react";
+import { useState, useContext, useEffect } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
-import { Transition } from "@headlessui/react";
-import {
-  XCircleIcon,
-  CheckCircleIcon,
-  XMarkIcon,
-} from "@heroicons/react/24/outline";
 import { useNavigate } from "react-router-dom";
 import rimilogo from "../assets/rimi_en.png";
 import { LangContext } from "../context/LangContext";
 import { useForgotPassword } from "../hooks/useForgotPassword";
+import useNotification from "../hooks/useNotification";
+import { useTranslation } from "react-i18next";
 
 interface ForgotFormInputs {
   email: string;
@@ -38,40 +34,21 @@ const ForgotPassword: React.FC = () => {
     handleSubmit,
     formState: { errors, isSubmitting },
   } = useForm<ForgotFormInputs>();
-
-  const [toast, setToast] = useState<Toast>({
-    type: "error",
-    message: "",
-    show: false,
-  });
-
+  const { NotificationComponent, triggerNotification } = useNotification();
+  const { t } = useTranslation();
   // Show error toast when hookError changes
   useEffect(() => {
     if (hookError) {
-      setToast({ type: "error", message: hookError, show: true });
+      triggerNotification({ type: "error", message: hookError });
     }
   }, [hookError]);
 
   // Show success toast when result.success is true
   useEffect(() => {
     if (result?.success) {
-      setToast({
-        type: "success",
-        message: result.message,
-        show: true,
-      });
+     triggerNotification({ type: "success", message: result.message });
     }
   }, [result]);
-
-  // Auto-hide toast after 4 seconds
-  useEffect(() => {
-    if (toast.show) {
-      const id = setTimeout(() => {
-        setToast((t) => ({ ...t, show: false }));
-      }, 4000);
-      return () => clearTimeout(id);
-    }
-  }, [toast.show]);
 
   const onSubmit: SubmitHandler<ForgotFormInputs> = async ({ email }) => {
     await sendResetLink(email);
@@ -79,132 +56,71 @@ const ForgotPassword: React.FC = () => {
 
   return (
     <>
-      <div className="flex h-[calc(100vh-64px)] flex-1  justify-center items-center -mt-10 sm:mt-0">
+      <div className="flex items-center justify-center bg-white px-4 h-[calc(100vh-64px)]">
         {/* Left: form */}
-        <div className="flex flex-1 flex-col  justify-center items-center">
-          <div className="mx-auto w-full  max-w-md lg:w-130  items-center">
-            <div className="flex flex-col justify-center items-center">
-              <a href="#">
-                <img className="h-14 sm:h-20 w-[140px] sm:w-[170px]" src={rimilogo} alt="Rimi" />
-              </a>
-              <h2 className="mt-8 text-2xl sm:text-3xl font-bold font-[inter] sm:leading-9  text-text-primary">
-                {langauge === "En" ? "Forgot Password" : "Mot de passe oublié"}
-              </h2>
-            </div>
-            <form
-              onSubmit={handleSubmit(onSubmit)}
-              className="mt-10 space-y-5 mx-2"
-              noValidate
-            >
-              <div>
-                <label
-                  htmlFor="email"
-                  className="sr-only block text-sm font-medium leading-6 text-[#D9D9D9]"
-                >
-                  {langauge === "En" ? "Email address" : "Adresse email"}
-                </label>
-                <div className="mt-2">
-                  <input
-                    id="email"
-                    type="email"
-                    autoComplete="email"
-                    {...register("email", {
-                      required: "Email is required",
-                      pattern: {
-                        value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                        message: "Invalid email address",
-                      },
-                    })}
-                    className={`input-primary`}
-                    placeholder="Your Email Address"
-                  />
-
-                  {errors.email && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {errors.email.message}
-                    </p>
-                  )}
-                </div>
-              </div>
-
-              <div className="flex flex-col gap-4">
-                <button
-                  type="submit"
-                  disabled={loading || isSubmitting}
-                  className={`btn-primary`}
-                >
-                  {langauge === "En" ? "Send Reset Link" : "Envoyer le lien"}
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => navigate("/")}
-                  className="flex w-full justify-center p-1 mt-1 text-sm font-semibold font-[inter] leading-6 text-[#4340DA] hover:text-[#2B00B7] cursor-pointer"
-                >
-                  {langauge === "En"
-                    ? "Back to Login"
-                    : "Retour à la connexion"}
-                </button>
-              </div>
-            </form>
+        <div className="w-full max-w-md bg-white p-8 rounded-lg shadow-md">
+          {/* Logo */}
+          <div className="flex justify-center mb-4">
+            <img
+              src={rimilogo}
+              alt="RIMI Logo"
+              className="h-12 w-32 sm:h-[75px] sm:w-40"
+            />
           </div>
+          <h1 className="text-center text-2xl font-bold text-neutral-800 mb-6 capitalize">
+            Reset Password
+          </h1>
+          {/* Login Form */}
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+            <div>
+              <label htmlFor="email" className="sr-only">
+                Username/email
+              </label>
+              <input
+                id="email"
+                type="email"
+                autoComplete="email"
+                {...register("email", {
+                  setValueAs: (value) => value.trim().toLowerCase(),
+                  required: "Email is required",
+                  pattern: {
+                    value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                    message: "Invalid email address",
+                  },
+                })}
+                placeholder="Email"
+                className="w-full px-4 py-3 border border-zinc-300 focus:outline-none focus:ring-1 focus:ring-primary"
+              />
+              {errors.email && (
+                <p className="mt-1 text-sm text-red-600">
+                  {t(String(errors.email.message))}
+                </p>
+              )}
+            </div>
+            <div className="flex flex-col gap-4">
+              <button
+                type="submit"
+                disabled={loading || isSubmitting}
+                className={`btn-primary`}
+              >
+                {langauge === "En" ? "Send Reset Link" : "Envoyer le lien"}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => navigate("/")}
+                className="flex w-full justify-center p-1 text-sm font-[inter] leading-6 text-primary hover:underline cursor-pointer"
+              >
+                {langauge === "En" ? "Back to Login" : "Retour à la connexion"}
+              </button>
+            </div>
+          </form>
         </div>
 
         {/* Right: image */}
       </div>
 
-      {/* Toast */}
-      <div
-        aria-live="assertive"
-        className="pointer-events-none fixed inset-0 flex items-end px-4 py-6 sm:items-start sm:p-6"
-      >
-        <div className="flex w-full flex-col items-center space-y-4 sm:items-end">
-          <Transition
-            show={toast.show}
-            as={Fragment}
-            enter="transform ease-out duration-300 transition"
-            enterFrom="translate-y-2 opacity-0 sm:translate-y-0 sm:translate-x-2"
-            enterTo="translate-y-0 opacity-100 sm:translate-x-0"
-            leave="transition ease-in duration-100"
-            leaveFrom="opacity-100"
-            leaveTo="opacity-0"
-          >
-            <div className="pointer-events-auto w-full max-w-sm overflow-hidden rounded-lg bg-white shadow-lg ring-1 ring-black ring-opacity-5">
-              <div className="p-4 flex items-start">
-                <div className="flex-shrink-0">
-                  {toast.type === "error" ? (
-                    <XCircleIcon
-                      className="h-6 w-6 text-red-400"
-                      aria-hidden="true"
-                    />
-                  ) : (
-                    <CheckCircleIcon
-                      className="h-6 w-6 text-green-400"
-                      aria-hidden="true"
-                    />
-                  )}
-                </div>
-                <div className="ml-3 w-0 flex-1 pt-0.5">
-                  <p className="text-sm font-medium text-gray-900">
-                    {toast.type === "error" ? "Error" : "Success"}
-                  </p>
-                  <p className="mt-1 text-sm text-gray-500">{toast.message}</p>
-                </div>
-                <div className="ml-4 flex flex-shrink-0">
-                  <button
-                    type="button"
-                    className="inline-flex rounded-md bg-white text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-                    onClick={() => setToast((t) => ({ ...t, show: false }))}
-                  >
-                    <span className="sr-only">Close</span>
-                    <XMarkIcon className="h-5 w-5" aria-hidden="true" />
-                  </button>
-                </div>
-              </div>
-            </div>
-          </Transition>
-        </div>
-      </div>
+      {NotificationComponent}
     </>
   );
 };
