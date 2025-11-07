@@ -56,11 +56,9 @@ export function useVerifyAgent() {
       const result = await response.json();
       setData(result);
       setSuccess(true);
-      alert('Agent verified successfully!');
       return result;
     } catch (err: any) {
       setError(err.message);
-      alert(`Failed to verify agent: ${err.message}`);
       console.error('Error verifying agent:', err);
       return null;
     } finally {

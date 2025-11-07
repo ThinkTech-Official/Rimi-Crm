@@ -829,8 +829,8 @@ export default function Dashboard() {
                          userType === 'ADMIN' && 
                          pendingCount > 0 && (
                           <span className={`absolute ${
-                            isSidebarCollapsed ? 'right-2' : 'right-1'
-                          } top-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center`}>
+                            isSidebarCollapsed ? 'right-2 top-2.5' : 'left-5 top-0'
+                          } bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center`}>
                             {pendingCount > 9 ? '9+' : pendingCount}
                           </span>
                         )}
@@ -861,7 +861,17 @@ export default function Dashboard() {
           </div>
 
           {/* Header with Verification Indicator */}
-         
+          <div className="hidden md:flex items-center justify-between px-2 sm:px-4 md:px-8 py-4">
+            <div className="flex items-center space-x-4">
+              <h1 className="text-lg font-semibold text-gray-900">
+                Welcome, {userName || 'User'}
+              </h1>
+            </div>
+            <div className="flex items-center space-x-4">
+              {/* Verification Status Indicator */}
+              <VerificationIndicator />
+            </div>
+          </div>
 
           {/* Verification Warning Banner */}
           <VerificationBanner />

@@ -204,20 +204,20 @@ const CreateUser: React.FC = () => {
             <button
               type="button"
               onClick={generateAgentCode}
-              className="h-10 px-3 bg-gray-200 rounded hover:bg-gray-300 transition cursor-pointer"
+              className="h-10 px-3 bg-gray-200 hover:bg-gray-300 transition delay-100 cursor-pointer text-text-primary"
             >
               Generate
             </button>
             <button
               type="button"
               onClick={handleCheckClick}
-              disabled={!agentCode || availability === "checking"}
-              className={`h-10 px-3 rounded transition ${
+              disabled={!agentCode || availability === "checking" || lastCheckedCode === agentCode}
+              className={`h-10 px-3 transition ${
                 lastCheckedCode === agentCode && availability === "available"
-                  ? "bg-green-200 hover:bg-green-300"
+                  ? "bg-green-700 text-white"
                   : lastCheckedCode === agentCode && availability === "taken"
                   ? "bg-red-200 hover:bg-red-300"
-                  : "bg-blue-200 hover:bg-blue-300 disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed"
+                  : "bg-primary hover:bg-indigo-700 text-white disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed"
               }`}
             >
               {availability === "checking"

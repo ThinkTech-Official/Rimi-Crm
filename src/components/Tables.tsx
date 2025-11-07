@@ -196,8 +196,8 @@ export function QuotesTable({
             </tr>
           ) : data?.length === 0 ? (
             <tr>
-              <td className="p-2 text-text-secondary text-center" colSpan={6}>
-                No policies issued
+              <td className="p-2 text-text-secondary text-center" colSpan={9}>
+                No quotes found
               </td>
             </tr>
           ) : (

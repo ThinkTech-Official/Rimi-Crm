@@ -1,4 +1,3 @@
-import React from 'react';
 import { useSelector } from 'react-redux';
 import { selectVerificationStatus } from '../../features/verificationSlice';
 import { 
@@ -38,7 +37,7 @@ export default function VerificationIndicator() {
       case 'VERIFIED':
         return {
           icon: CheckBadgeIcon,
-          color: 'text-green-500',
+          color: 'text-green-600',
           bgColor: 'bg-green-100',
           title: 'Verified'
         };

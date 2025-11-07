@@ -74,6 +74,7 @@ export function useGetVerificationRequests() {
       }
 
       const result = await response.json();
+      console.log('Verification requests fetched successfully:', result);
       setData(result);
       return result;
     } catch (err: any) {

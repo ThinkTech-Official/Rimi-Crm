@@ -62,10 +62,6 @@ const Login = () => {
     //   }
   };
 
-  const handleForgotPassword = () => {
-    navigate("/forgot-password");
-  };
-
   return (
     <>
       {/*
@@ -133,18 +129,18 @@ const Login = () => {
                   {...register("password", {
                     setValueAs: (value) => value.trim(),
                     required: t("Password is required"),
-                    minLength: {
-                      value: 6,
-                      message: "Password must be at least 6 characters",
-                    },
-                    validate: {
-                      hasLetter: (value) =>
-                        /[A-Za-z]/.test(value) ||
-                        "Password must contain at least one letter",
-                      hasNumber: (value) =>
-                        /\d/.test(value) ||
-                        "Password must contain at least one number",
-                    },
+                    // minLength: {
+                    //   value: 6,
+                    //   message: "Password must be at least 6 characters",
+                    // },
+                    // validate: {
+                    //   hasLetter: (value) =>
+                    //     /[A-Za-z]/.test(value) ||
+                    //     "Password must contain at least one letter",
+                    //   hasNumber: (value) =>
+                    //     /\d/.test(value) ||
+                    //     "Password must contain at least one number",
+                    // },
                   })}
                   placeholder="Password"
                   className="w-full px-4 py-3 border border-zinc-300 focus:border-0 focus:outline-none focus:ring-1 focus:ring-primary pr-10"

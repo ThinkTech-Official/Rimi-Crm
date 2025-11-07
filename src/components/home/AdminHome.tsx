@@ -291,7 +291,7 @@ export default function AdminHome() {
   ];
 
   return (
-    <div className="w-full flex flex-col gap-4 p-4">
+    <div className="w-full flex flex-col gap-4 pb-4">
       {/* Stats Cards */}
       <div
         className="grid grid-cols-2 lg:grid-cols-4 gap-4 xl:gap-8 w-full"

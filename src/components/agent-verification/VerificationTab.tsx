@@ -261,14 +261,14 @@ export default function VerificationTab({ onUploadClick, userType }: Verificatio
               <div className="mt-4 flex gap-3">
                 <button
                   onClick={onUploadClick}
-                  className="px-4 py-2 bg-white border border-yellow-300 text-yellow-700 rounded hover:bg-yellow-50 transition-colors"
+                  className="px-4 py-2 bg-white border border-yellow-300 text-yellow-700 hover:bg-yellow-50 transition-colors delay-100 cursor-pointer"
                 >
                   Edit Documents
                 </button>
                 <button
                   onClick={handleRequestVerification}
                   disabled={requesting}
-                  className="px-4 py-2 bg-[#3a17c5] text-white rounded hover:bg-[#2d1299] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  className="px-4 py-2 bg-[#3a17c5] text-white hover:bg-[#2d1299] disabled:opacity-50 disabled:cursor-not-allowed transition-colors delay-100 cursor-pointer"
                 >
                   {requesting ? 'Submitting...' : 'Request Verification'}
                 </button>
