@@ -628,7 +628,7 @@ export default function Step1Container({
 
 
   return (
-    <>
+    <div className="max-w-5xl mx-auto mt-4 p-6 bg-[#F9F9F9]">
       <ApplicantInformation
         primaryFirstName={primaryFirstName}
         setPrimaryFirstName={setPrimaryFirstName}
@@ -739,6 +739,6 @@ export default function Step1Container({
           </div>
         )}
       </div>
-    </>
+    </div>
   );
 }

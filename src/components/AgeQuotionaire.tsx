@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import useNotification from "../hooks/useNotification";
 
 const questions = [
   {
@@ -78,12 +79,19 @@ const AgeQuestionaire = ({
   currentIdx,
 }: Props) => {
   const [responses, setResponses] = useState<{ [key: number]: string }>({});
+  const {NotificationComponent, triggerNotification} = useNotification();
 
   const handleOptionChange = (index: number, answer: string) => {
     setResponses((prev) => ({ ...prev, [index]: answer }));
   };
-
+  const isAllAnswered = questions.every(
+    (_, index) => responses[index] !== undefined
+  );
   const handleSubmit = () => {
+    if (!isAllAnswered) {
+      triggerNotification({ type: "error", message: "Please answer all questions" });
+      return;
+    }
     const completedAnswers = questions.map((q, i) => ({
       question: q.question,
       answer: responses[i] || "No",
@@ -172,6 +180,7 @@ const AgeQuestionaire = ({
           </button>
         </div>
       </div>
+      {NotificationComponent}
     </div>
   );
 };

@@ -339,7 +339,6 @@ import { useDispatch } from "react-redux";
 import { useGetVerificationStatus } from "../hooks/agent-verification/useGetVerificationStatus";
 import {
   setVerificationStatus,
-  updateDocumentUploadStatus,
 } from "../features/verificationSlice";
 import { useRequestVerification } from "../hooks/agent-verification/useRequestVerification";
 import { useUploadDocuments } from "../hooks/agent-verification/useUploadDocuments";
@@ -591,8 +590,8 @@ export default function Profile() {
   );
 
   return (
-    <div className="max-w-5xl mx-auto px-2 py-6 sm:p-6 bg-greyBg">
-      <h2 className="text-xl font-semibold text-center text-[#3a17c5] mb-4">
+    <div className="max-w-5xl mx-auto p-6 bg-white shadow-lg border border-gray-200">
+      <h2 className="text-xl font-semibold text-center text-primary mb-4">
         {isEditing ? "MODIFY USER" : "USER PROFILE"}
       </h2>
 
@@ -699,28 +698,32 @@ export default function Profile() {
       {/* Tabs - Show only for AGENT and MGA users */}
       {showVerificationTab && (
         <div className="border-b border-gray-200 mb-6">
-          <nav className="-mb-px flex space-x-8">
+          <nav className="-mb-px flex gap-2">
             <button
               onClick={() => setActiveTab("profile")}
               className={`${
                 activeTab === "profile"
-                  ? "border-[#3a17c5] text-[#3a17c5]"
-                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-              } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm flex items-center gap-2`}
+                  ? "border-primary text-primary"
+                  : "border-transparent text-text-secondary hover:text-gray-700 hover:border-gray-300"
+              } whitespace-nowrap py-4 px-3 border-b-2 font-medium text-sm transition-colors cursor-pointer`}
             >
-              <UserIcon className="h-5 w-5" />
-              Profile Information
+              <div className="flex items-center gap-1">
+                <UserIcon className="h-5 w-5" />
+              <span>Profile Information</span>
+              </div>
             </button>
             <button
               onClick={() => setActiveTab("verification")}
               className={`${
                 activeTab === "verification"
-                  ? "border-[#3a17c5] text-[#3a17c5]"
-                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-              } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm flex items-center gap-2`}
+                  ? "border-primary text-primary"
+                  : "border-transparent text-text-secondary hover:text-gray-700 hover:border-gray-300"
+              } whitespace-nowrap py-4 px-3 border-b-2 font-medium text-sm transition-colors cursor-pointer`}
             >
-              <ShieldCheckIcon className="h-5 w-5" />
-              Verification Status
+              <div className="flex items-center gap-1">
+                <ShieldCheckIcon className="h-5 w-5" />
+              <span>Verification Status</span>
+              </div>
             </button>
           </nav>
         </div>
@@ -734,13 +737,13 @@ export default function Profile() {
               <>
                 <button
                   onClick={handleSave}
-                  className="px-4 py-2 bg-green-500 text-white rounded"
+                  className="btn-primary"
                 >
                   Save Changes
                 </button>
                 <button
                   onClick={() => setIsEditing(false)}
-                  className="px-4 py-2 bg-gray-300 text-gray-700 rounded"
+                  className="px-4 py-2 bg-gray-50 hover:bg-gray-100 border border-gray-300 hover:border-gray-500 cursor-pointer transition-all delay-100"
                 >
                   Discard Changes
                 </button>
@@ -748,14 +751,14 @@ export default function Profile() {
             ) : (
               <button
                 onClick={() => setIsEditing(true)}
-                className="px-4 py-2 bg-gray-300 text-gray-700 rounded"
+                className="btn-primary"
               >
                 Modify User
               </button>
             )}
           </div>
 
-          <div className="border border-inputBorder bg-white p-4 mb-4">
+          <div className="border border-inputBorder bg-white p-4 mb-4 relative">
         <h3 className="text-primary font-semibold mb-2 capitalize text-lg">
           User Information
         </h3>
@@ -798,7 +801,7 @@ export default function Profile() {
             <input
               name="agentCode"
                 value={formData.agentCode}
-                disabled={!isEditing}
+                disabled
               className="input-primary2 bg-gray-100"
             />
           </div>
@@ -851,12 +854,9 @@ export default function Profile() {
               />
             </div>
           )}
-          <div className="flex items-center space-x-2 mt-5">
-            <span>Status:</span>
-            <span className="px-2 py-1 bg-gray-100">{formData.status}</span>
-          </div>
+          
           {isEditing && (
-            <>
+            <div className="flex gap-4 col-span-full">
               <div className="flex flex-col gap-1 w-full">
                 <label htmlFor="password" className="text-sm">
                   New Password
@@ -883,8 +883,11 @@ export default function Profile() {
                   className="input-primary"
                 />
               </div>
-            </>
+            </div>
           )}
+          <div className="flex items-center space-x-2 mt-5 absolute right-4 top-0">
+            <span className={`px-2 py-1 text-white rounded-full ${formData.status === "ACTIVE" ? "bg-green-600" : "bg-red-500"}`}>{formData.status}</span>
+          </div>
         </div>
       </div>
 

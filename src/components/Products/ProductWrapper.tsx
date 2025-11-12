@@ -5,6 +5,7 @@ import RIMICanuckVoyageNonMedicalTravel from "./CanuckVoyageNon-MedicalTravel/RI
 import SecureStudyRIMIInternationalStudentstoCanada from "./SecureStudyRIMIInternationalStudentstoCanada/SecureStudyRIMIInternationalStudentstoCanada";
 import SecureTravelRIMIVisitorstoCanadaTravel from "./SecureTravelRIMIVisitorstoCanadaTravel/SecureTravelRIMIVisitorstoCanadaTravel";
 import BulkUpload from "./SecureStudyRIMIInternationalStudentstoCanada/BulkUpload";
+import { MdChevronRight } from "react-icons/md";
 
 const ProductWrapper: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -35,14 +36,14 @@ const ProductWrapper: React.FC = () => {
 
   return (
     <div className="flex flex-col">
-      <div className="flex gap-1">
+      <div className="flex gap-1 items-center">
         <span
           className="underline underline-offset-2 cursor-pointer text-sm text-primary font-medium"
           onClick={() => navigate("/products")}
         >
           Products
         </span>
-        &gt;
+        <MdChevronRight className="text-primary"/>
         <span className="text-sm text-primary font-medium capitalize">
           {slug}
         </span>

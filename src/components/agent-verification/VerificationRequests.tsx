@@ -70,7 +70,7 @@ export default function VerificationRequests() {
       <div className="bg-white shadow">
         {/* Tabs */}
         <div className="border-b border-gray-200">
-          <nav className="-mb-px flex">
+          <nav className="-mb-px flex gap-2">
             <button
               onClick={() => {
                 setActiveTab("unverified");
@@ -80,7 +80,7 @@ export default function VerificationRequests() {
                 activeTab === "unverified"
                   ? "border-primary text-primary"
                   : "border-transparent text-text-secondary hover:text-gray-700 hover:border-gray-300"
-              } whitespace-nowrap py-4 px-6 border-b-2 font-medium text-sm transition-colors cursor-pointer`}
+              } whitespace-nowrap py-4 px-3 border-b-2 font-medium text-sm transition-colors cursor-pointer`}
             >
               <div className="flex items-center gap-2">
                 <ClockIcon className="h-5 w-5" />
@@ -103,7 +103,7 @@ export default function VerificationRequests() {
                 activeTab === "verified"
                   ? "border-primary text-primary"
                   : "border-transparent text-text-secondary hover:text-gray-700 hover:border-gray-300"
-              } whitespace-nowrap py-4 px-6 border-b-2 font-medium text-sm transition-colors cursor-pointer`}
+              } whitespace-nowrap py-4 px-3 border-b-2 font-medium text-sm transition-colors cursor-pointer`}
             >
               <div className="flex items-center gap-2">
                 <CheckCircleIcon className="h-5 w-5" />

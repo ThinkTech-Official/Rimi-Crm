@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import Calendar from "react-calendar";
 import { AiOutlineCalendar } from "react-icons/ai";
-import 'react-calendar/dist/Calendar.css';
+import "react-calendar/dist/Calendar.css";
+import { useOnClickOutside } from "../hooks/useOnClickOutside";
 
 interface DatePickerProps {
   label: string;
@@ -28,9 +29,13 @@ export default function DatePicker({
     const year = date.getFullYear();
     return `${day}-${month}-${year}`;
   };
+  const dateRef = useRef<HTMLDivElement>(null);
+  useOnClickOutside(dateRef as React.RefObject<HTMLElement>, () => {
+    setShowCalendar(false);
+  });
 
   return (
-    <div className="flex flex-col relative w-full">
+    <div className="flex flex-col relative w-full" ref={dateRef}>
       <label className="text-sm mb-1">{label}</label>
 
       <div className="relative">
@@ -39,7 +44,7 @@ export default function DatePicker({
           disabled={isDisabled}
           className="input-primary cursor-pointer pr-10"
           placeholder="Select date"
-         value={dateValue ? formatDate(dateValue) : ""}
+          value={dateValue ? formatDate(dateValue) : ""}
           onClick={() => setShowCalendar(!showCalendar)}
         />
         <AiOutlineCalendar

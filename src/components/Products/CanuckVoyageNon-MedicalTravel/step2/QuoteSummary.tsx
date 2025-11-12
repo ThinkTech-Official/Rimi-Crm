@@ -109,7 +109,7 @@ export default function QuoteSummary({ step1ResponseData }: QuoteSummaryProps) {
         Please review the details below before proceeding.
       </p>
 
-      <table className="w-full border border-[#DBDADE] font-[inter]">
+      <table className="w-full border border-[#DBDADE]">
         <tbody>
           {rows.map(([label, value], index) => (
             <tr

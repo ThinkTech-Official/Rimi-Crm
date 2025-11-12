@@ -485,7 +485,7 @@ const handleSaveQuote = async () => {
   };
 
   return (
-    <div className="max-w-5xl mx-auto px-2 py-4 sm:p-6">
+    <div className="max-w-5xl xl:w-5xl mx-auto px-2 py-4 sm:p-6">
       {/* PROGRESS NAVIGATION */}
       <nav aria-label="Progress">
         <ol
@@ -539,24 +539,27 @@ const handleSaveQuote = async () => {
               )}
 
               {stepIdx !== steps.length - 1 ? (
-                <div
-                  className="absolute right-0 top-0 hidden h-full w-5 md:block"
-                  aria-hidden="true"
-                >
-                  <svg
-                    className="h-full w-full text-inputBorder"
-                    viewBox="0 0 22 80"
-                    fill="none"
-                    preserveAspectRatio="none"
+                <>
+                  {/* Arrow separator for lg screens and up */}
+                  <div
+                    className="absolute right-0 top-0 hidden h-full w-5 md:block"
+                    aria-hidden="true"
                   >
-                    <path
-                      d="M0 -2L20 40L0 82"
-                      vectorEffect="non-scaling-stroke"
-                      stroke="currentcolor"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                </div>
+                    <svg
+                      className="h-full w-full text-inputBorder"
+                      viewBox="0 0 22 80"
+                      fill="none"
+                      preserveAspectRatio="none"
+                    >
+                      <path
+                        d="M0 -2L20 40L0 82"
+                        vectorEffect="non-scaling-stroke"
+                        stroke="currentcolor"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  </div>
+                </>
               ) : null}
             </li>
           ))}
