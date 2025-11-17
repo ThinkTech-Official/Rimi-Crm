@@ -62,7 +62,8 @@ interface BeneficiaryInfo {
   relationshipToInsured: string;
 }
 
-const productName = "Secure Travel RIMI Visitors to Canada Travel";
+// const productName = "Secure Travel RIMI Visitors to Canada Travel";
+const productName = "SECURE_TRAVEL_RIMI_VISITORS_TO_CANADA_TRAVEL";
 
 export default function SecureTravelRIMIVisitorstoCanadaTravel() {
   const agentCode = useSelector((state: RootState) => state.auth.agentCode);
@@ -382,7 +383,8 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
     deductible,
     paymentOption,
     agentCode: agentCode!,
-    product: "Secure Travel RIMI Visitors to Canada Travel",
+    // product: "Secure Travel RIMI Visitors to Canada Travel",
+    product: "SECURE_TRAVEL_RIMI_VISITORS_TO_CANADA_TRAVEL",
     quoteNumber: quoteNumber,
     status: "Inactive",
   };

@@ -332,7 +332,8 @@ interface ContactInfo {
   phoneNumber: string;
 }
 
-const productName = "RIMI Canuck Voyage Travel Medical";
+// const productName = "RIMI Canuck Voyage Travel Medical";
+const productName = "RIMI_CANUCK_VOYAGE_TRAVEL_MEDICAL";
 
 const RIMICanuckVoyageTravelMedical: React.FC = () => {
   const agentCode = useSelector((state: RootState) => state.auth.agentCode);

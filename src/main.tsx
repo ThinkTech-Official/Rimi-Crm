@@ -53,6 +53,7 @@ import { I18nextProvider } from 'react-i18next';
 import VerificationRequests from './components/agent-verification/VerificationRequests.tsx';
 import AdminAgentDetails from './pages/AdminAgentDetails.tsx';
 import MGAAgentDetails from './pages/MgaAgentDetails.tsx';
+import AgentApplicationOpen from './pages/AgentApplicationOpen.tsx';
 
 // Create ONE client (module-level singleton)
 const queryClient = new QueryClient({
@@ -119,6 +120,7 @@ const router = createBrowserRouter(
   createRoutesFromElements(
     <Route path="/" element={<App />}>
       <Route path="/login" element={<Login />} />
+      <Route path="/open-signup" element={<AgentApplicationOpen />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
       
       {/* Dashboard as parent route with nested children */}
