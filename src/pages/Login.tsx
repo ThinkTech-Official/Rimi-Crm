@@ -166,7 +166,9 @@ const Login = () => {
                         id="password"
                         type={showPassword ? "text" : "password"}
                         autoComplete="current-password"
-                        {...register("password", { required: "Password is required" })}
+                        {...register("password", {
+                          required: "Password is required",
+                        })}
                         className="input-primary"
                         style={{ paddingRight: "40px" }}
                         placeholder="Password"
@@ -206,7 +208,16 @@ const Login = () => {
                           </a>
                         </div> */}
                   {/* </div> */}
-               
+
+                  {/* <div className="flex items-center justify-between">
+                    <button
+                      type="button"
+                      onClick={() => navigate("/forgot-password")}
+                      className="text-sm font-semibold text-[#4340DA] hover:text-[#2B00B7]"
+                    >
+                      Forgot password?
+                    </button>
+                  </div> */}
 
                   <div className=" flex flex-col gap-4">
                     {/* {signInClicked ? (
@@ -218,13 +229,14 @@ const Login = () => {
                         )}
                       </button>
                     ) : ( */}
-                      <button type="submit" className={`btn-primary ${signInClicked && 'disabled bg-indigo-100'}`}>
-                        {langauge === "En" ? (
-                          <p>Sign in</p>
-                        ) : (
-                          <p>Se connecter</p>
-                        )}
-                      </button>
+                    <button
+                      type="submit"
+                      className={`btn-primary ${
+                        signInClicked && "disabled bg-indigo-100"
+                      }`}
+                    >
+                      {langauge === "En" ? <p>Sign in</p> : <p>Se connecter</p>}
+                    </button>
                     {/* )} */}
                     {/* <button
                       type="submit"
@@ -233,19 +245,18 @@ const Login = () => {
                       {langauge === "En" ? <p>Sign in</p> : <p>Se connecter</p>}
                     </button> */}
                   </div>
-                  
                 </form>
               </div>
-                 <button
-                    onClick={handleForgotPassword}
-                    className="flex w-full mt-1 justify-left text-sm font-semibold font-[inter] leading-6 text-[#4340DA] hover:text-[#2B00B7] cursor-pointer"
-                  >
-                    {langauge === "En" ? (
-                      <p>Forgot Password?</p>
-                    ) : (
-                      <p>Mot de passe oublié?</p>
-                    )}
-                  </button>
+              <button
+                onClick={handleForgotPassword}
+                className="flex w-full mt-1 justify-left text-sm font-semibold font-[inter] leading-6 text-[#4340DA] hover:text-[#2B00B7] cursor-pointer"
+              >
+                {langauge === "En" ? (
+                  <p>Forgot Password?</p>
+                ) : (
+                  <p>Mot de passe oublié?</p>
+                )}
+              </button>
 
               {/* <div className="mt-10">
                     <div className="relative">

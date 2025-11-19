@@ -1,9 +1,4 @@
-
-
 // ==============================================================
-
-
-
 
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
@@ -26,6 +21,7 @@ import PremiumChangeModal from "../components/PremiumChangeModal";
 import ValidationErrorModal from "../components/ValidationErrorModal";
 import { usePaymentSchedule } from "../hooks/usePaymentSchedule";
 import { PaymentScheduleTable } from "../components/policy/PaymentScheduleTable";
+import { UpdateCardModal } from "../components/UpdateCardModal";
 
 const fmtDate = (iso?: string) =>
   iso ? new Date(iso).toLocaleDateString("en-CA") : "-";
@@ -92,39 +88,54 @@ const PolicyDetailsPage: React.FC = () => {
   const [agentEmail, setAgentEmail] = useState(p?.agentCode + "@example.com");
 
   const [showCancelModal, setShowCancelModal] = useState(false);
-  
-  const { 
-    loading: refundLoading, 
-    error: refundError, 
-    refundPolicyFee 
+
+  // Card update
+  const [showUpdateCardModal, setShowUpdateCardModal] = useState(false);
+
+  const {
+    loading: refundLoading,
+    error: refundError,
+    refundPolicyFee,
   } = usePolicyFeeRefund();
 
-  const { activities, loading: activityLoading, error: activityError } = usePolicyActivity(id!);
+  const {
+    activities,
+    loading: activityLoading,
+    error: activityError,
+  } = usePolicyActivity(id!);
 
+  const {
+    data: paymentSchedule,
+    loading: scheduleLoading,
+    error: scheduleError,
+  } = usePaymentSchedule(id || null);
 
-  const { 
-  data: paymentSchedule, 
-  loading: scheduleLoading, 
-  error: scheduleError 
-} = usePaymentSchedule(id || null);
-
-  
   // MODIFY POLICY STATE
-  
+
   const [isEditMode, setIsEditMode] = useState(false);
   const [editedPolicy, setEditedPolicy] = useState<Partial<PolicyDetail>>({});
-  const [editedApplicants, setEditedApplicants] = useState<PolicyApplicant[]>([]);
-  
-  const { loading: modifyLoading, error: modifyError, modifyPolicy, calculateRefund } = useModifyPolicy();
-  
+  const [editedApplicants, setEditedApplicants] = useState<PolicyApplicant[]>(
+    []
+  );
+
+  const {
+    loading: modifyLoading,
+    error: modifyError,
+    modifyPolicy,
+    calculateRefund,
+  } = useModifyPolicy();
+
   const [showRefundModal, setShowRefundModal] = useState(false);
   const [refundData, setRefundData] = useState<any>(null);
-  
+
   const [showPremiumModal, setShowPremiumModal] = useState(false);
   const [premiumData, setPremiumData] = useState<any>(null);
-  
+
   const [showValidationModal, setShowValidationModal] = useState(false);
-  const [validationMessage, setValidationMessage] = useState({ title: '', message: '' });
+  const [validationMessage, setValidationMessage] = useState({
+    title: "",
+    message: "",
+  });
 
   useEffect(() => {
     if (!p) return;
@@ -144,16 +155,19 @@ const PolicyDetailsPage: React.FC = () => {
 
   const history = p.paymentHistory ?? [];
 
-  
   // BUTTON VISIBILITY
-  
-  const canModify = p.status === 'SOLD' || p.status === 'ACTIVE';
-  const canCancel = p.status !== 'CANCELLED';
 
-  
+  const canModify = p.status === "SOLD" || p.status === "ACTIVE";
+  const canCancel = p.status !== "CANCELLED";
+
+  // helper to check if policy can update card
+  const canUpdateCard =
+    p.paymentOption === "monthly-installments" &&
+    p.status !== "CANCELLED" &&
+    p.stripeSubscriptionScheduleId;
+
   // MODIFY POLICY HANDLERS
-  
-  
+
   const handleModifyClick = () => {
     setIsEditMode(true);
     setEditedPolicy({ ...p });
@@ -167,11 +181,11 @@ const PolicyDetailsPage: React.FC = () => {
   };
 
   const handleFieldChange = (field: string, value: any) => {
-    setEditedPolicy(prev => ({ ...prev, [field]: value }));
+    setEditedPolicy((prev) => ({ ...prev, [field]: value }));
   };
 
   const handleApplicantChange = (index: number, field: string, value: any) => {
-    setEditedApplicants(prev => {
+    setEditedApplicants((prev) => {
       const updated = [...prev];
       updated[index] = { ...updated[index], [field]: value };
       return updated;
@@ -185,31 +199,39 @@ const PolicyDetailsPage: React.FC = () => {
     return Math.floor(diffMs / (1000 * 60 * 60 * 24));
   };
 
-  const validateModification = (): { valid: boolean; error?: { title: string; message: string } } => {
-    const effectiveDate = editedPolicy.effectiveDate || p.effectiveDate!.toString();
+  const validateModification = (): {
+    valid: boolean;
+    error?: { title: string; message: string };
+  } => {
+    const effectiveDate =
+      editedPolicy.effectiveDate || p.effectiveDate!.toString();
     const expiryDate = editedPolicy.expiryDate || p.expiryDate!.toString();
-    const today = new Date().toISOString().split('T')[0];
+    const today = new Date().toISOString().split("T")[0];
 
     //  Effective date validation
-    if (p.status === 'SOLD' && editedPolicy.effectiveDate) {
+    if (p.status === "SOLD" && editedPolicy.effectiveDate) {
       if (editedPolicy.effectiveDate < today) {
         return {
           valid: false,
           error: {
-            title: 'Invalid Effective Date',
-            message: 'Effective date cannot be in the past.'
-          }
+            title: "Invalid Effective Date",
+            message: "Effective date cannot be in the past.",
+          },
         };
       }
     }
 
-    if (p.status === 'ACTIVE' && editedPolicy.effectiveDate && editedPolicy.effectiveDate !== p.effectiveDate!.toString()) {
+    if (
+      p.status === "ACTIVE" &&
+      editedPolicy.effectiveDate &&
+      editedPolicy.effectiveDate !== p.effectiveDate!.toString()
+    ) {
       return {
         valid: false,
         error: {
-          title: 'Cannot Modify Effective Date',
-          message: 'Cannot change effective date for active policies.'
-        }
+          title: "Cannot Modify Effective Date",
+          message: "Cannot change effective date for active policies.",
+        },
       };
     }
 
@@ -218,35 +240,40 @@ const PolicyDetailsPage: React.FC = () => {
       return {
         valid: false,
         error: {
-          title: 'Invalid Expiry Date',
-          message: 'Expiry date must be after effective date.'
-        }
+          title: "Invalid Expiry Date",
+          message: "Expiry date must be after effective date.",
+        },
       };
     }
 
-    if (p.status === 'ACTIVE' && editedPolicy.expiryDate) {
+    if (p.status === "ACTIVE" && editedPolicy.expiryDate) {
       if (editedPolicy.expiryDate > p.expiryDate!.toString()) {
         return {
           valid: false,
           error: {
-            title: 'Cannot Extend Coverage',
-            message: 'Cannot extend coverage for active policies. Only early return is allowed.'
-          }
+            title: "Cannot Extend Coverage",
+            message:
+              "Cannot extend coverage for active policies. Only early return is allowed.",
+          },
         };
       }
     }
 
     // Rule V3: Super Visa check
     const newCoverageLength = calculateDays(effectiveDate, expiryDate);
-    const superVisaStatus = editedPolicy.applicantOnSuperVisa || p.applicantOnSuperVisa;
-    
-    if ((superVisaStatus === 'YES' || superVisaStatus === 'yes') && newCoverageLength < 365) {
+    const superVisaStatus =
+      editedPolicy.applicantOnSuperVisa || p.applicantOnSuperVisa;
+
+    if (
+      (superVisaStatus === "YES" || superVisaStatus === "yes") &&
+      newCoverageLength < 365
+    ) {
       return {
         valid: false,
         error: {
-          title: 'Super Visa Validation Error',
-          message: `This policy is marked as Super Visa but coverage is only ${newCoverageLength} days (less than 365). Please change "Are Applicants Travelling on a Super Visa?" to "No" in Coverage Details section before saving.`
-        }
+          title: "Super Visa Validation Error",
+          message: `This policy is marked as Super Visa but coverage is only ${newCoverageLength} days (less than 365). Please change "Are Applicants Travelling on a Super Visa?" to "No" in Coverage Details section before saving.`,
+        },
       };
     }
 
@@ -262,8 +289,10 @@ const PolicyDetailsPage: React.FC = () => {
       return;
     }
 
-    const effectiveDate = editedPolicy.effectiveDate || fmtDate(p.effectiveDate?.toString());
-    const expiryDate = editedPolicy.expiryDate || fmtDate(p.expiryDate?.toString());
+    const effectiveDate =
+      editedPolicy.effectiveDate || fmtDate(p.effectiveDate?.toString());
+    const expiryDate =
+      editedPolicy.expiryDate || fmtDate(p.expiryDate?.toString());
     const originalExpiryDate = fmtDate(p.expiryDate?.toString());
 
     // Check if dates changed
@@ -278,14 +307,14 @@ const PolicyDetailsPage: React.FC = () => {
           originalExpiryDate,
           expiryDate,
           p.premium || 0,
-          parseInt(p.covLen || '365')
+          parseInt(p.covLen || "365")
         );
 
         if (refundCalc) {
           setRefundData({
             originalExpiryDate,
             newExpiryDate: expiryDate,
-            ...refundCalc
+            ...refundCalc,
           });
           setShowRefundModal(true);
           return;
@@ -304,13 +333,18 @@ const PolicyDetailsPage: React.FC = () => {
 
   const performSave = async (refund?: any) => {
     const modifyData: ModifyPolicyData = {
-      language: editedPolicy.language || p.language || '',
-      firstName: editedPolicy.firstName || p.firstName || '',
-      lastName: editedPolicy.lastName || p.lastName || '',
-      dateOfBirth: p.status === 'SOLD' ? (editedPolicy.dateOfBirth || fmtDate(p.dateOfBirth?.toString())) : undefined,
+      language: editedPolicy.language || p.language || "",
+      firstName: editedPolicy.firstName || p.firstName || "",
+      lastName: editedPolicy.lastName || p.lastName || "",
+      dateOfBirth:
+        p.status === "SOLD"
+          ? editedPolicy.dateOfBirth || fmtDate(p.dateOfBirth?.toString())
+          : undefined,
       gender: editedPolicy.gender || p.gender,
       email: editedPolicy.email || p.email!,
-      additionalEmail: (editedPolicy.additionalEmail ?? p.additionalEmail ?? '').trim() || undefined,
+      additionalEmail:
+        (editedPolicy.additionalEmail ?? p.additionalEmail ?? "").trim() ||
+        undefined,
       phoneNumber: editedPolicy.phoneNumber || p.phoneNumber,
       street: editedPolicy.street || p.street!,
       street2: editedPolicy.street2 || p.street2,
@@ -318,16 +352,21 @@ const PolicyDetailsPage: React.FC = () => {
       province: editedPolicy.province || p.province!,
       countryCode: editedPolicy.countryCode || p.countryCode!,
       postalCode: editedPolicy.postalCode || p.postalCode!,
-      effectiveDate: p.status === 'SOLD' ? (editedPolicy.effectiveDate || fmtDate(p.effectiveDate?.toString())) : undefined,
+      effectiveDate:
+        p.status === "SOLD"
+          ? editedPolicy.effectiveDate || fmtDate(p.effectiveDate?.toString())
+          : undefined,
       expiryDate: editedPolicy.expiryDate || fmtDate(p.expiryDate?.toString()),
       destination: editedPolicy.destination || p.destination!,
       deductible: editedPolicy.deductible || p.deductible!,
-      applicantOnSuperVisa: editedPolicy.applicantOnSuperVisa || p.applicantOnSuperVisa,
-      applicants: editedApplicants.map(a => ({
+      applicantOnSuperVisa:
+        editedPolicy.applicantOnSuperVisa || p.applicantOnSuperVisa,
+      applicants: editedApplicants.map((a) => ({
         id: a.id,
         firstName: a.firstName,
         lastName: a.lastName,
-        dateOfBirth: p.status === 'SOLD' ? fmtDate(a.dateOfBirth?.toString()) : undefined,
+        dateOfBirth:
+          p.status === "SOLD" ? fmtDate(a.dateOfBirth?.toString()) : undefined,
         gender: a.gender,
         email: a.email,
         province: a.province,
@@ -348,7 +387,10 @@ const PolicyDetailsPage: React.FC = () => {
     }
   };
 
-  const handleRefundConfirm = async (transactionFee: number, netRefund: number) => {
+  const handleRefundConfirm = async (
+    transactionFee: number,
+    netRefund: number
+  ) => {
     const refundPayload = {
       originalExpiryDate: refundData.originalExpiryDate,
       newExpiryDate: refundData.newExpiryDate,
@@ -368,31 +410,35 @@ const PolicyDetailsPage: React.FC = () => {
     setShowCancelModal(true);
   };
 
-  const handleRefund = async (paymentHistoryId: string, amount: number, paymentType: string) => {
-    console.log('Refund for policy fee pressed', {
+  const handleRefund = async (
+    paymentHistoryId: string,
+    amount: number,
+    paymentType: string
+  ) => {
+    console.log("Refund for policy fee pressed", {
       paymentHistoryId,
       amount,
       paymentType,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
-    
+
     if (!id) {
-      alert('Policy ID not found');
+      alert("Policy ID not found");
       return;
     }
-    
+
     const confirmMessage = `Are you sure you want to refund the policy fee of ${amount}?\n\nThis action cannot be undone.`;
     if (!window.confirm(confirmMessage)) {
       return;
     }
-    
+
     const result = await refundPolicyFee(
       id,
       paymentHistoryId,
       `Manual refund of policy fee`,
-      'admin'
+      "admin"
     );
-    
+
     if (result) {
       alert(`Success: ${result.message}`);
       window.location.reload();
@@ -401,48 +447,56 @@ const PolicyDetailsPage: React.FC = () => {
     }
   };
 
-  
   // RENDER HELPERS
-  
-  
+
   const renderEditableField = (
     label: string,
     field: keyof PolicyDetail,
-    type: 'text' | 'email' | 'date' | 'select' = 'text',
+    type: "text" | "email" | "date" | "select" = "text",
     options?: string[]
   ) => {
-    const value = editedPolicy[field] ?? p[field] ?? '';
-    
+    const value = editedPolicy[field] ?? p[field] ?? "";
+
     return (
       <div>
         <div className="font-medium">{label}</div>
         {isEditMode ? (
-          type === 'select' ? (
+          type === "select" ? (
             <select
               value={value as string}
-              onChange={(e) => handleFieldChange(field as string, e.target.value)}
+              onChange={(e) =>
+                handleFieldChange(field as string, e.target.value)
+              }
               className="w-full p-1 border border-blue-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
-              {options?.map(opt => (
-                <option key={opt} value={opt}>{opt}</option>
+              {options?.map((opt) => (
+                <option key={opt} value={opt}>
+                  {opt}
+                </option>
               ))}
             </select>
           ) : (
             <input
               type={type}
-              value={type === 'date' ? fmtDate(value as string) : (value as string)}
-              onChange={(e) => handleFieldChange(field as string, e.target.value)}
+              value={
+                type === "date" ? fmtDate(value as string) : (value as string)
+              }
+              onChange={(e) =>
+                handleFieldChange(field as string, e.target.value)
+              }
               className="w-full p-1 border border-blue-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
               disabled={
                 // Disable effectiveDate for ACTIVE policies
-                (field === 'effectiveDate' && p.status === 'ACTIVE') ||
+                (field === "effectiveDate" && p.status === "ACTIVE") ||
                 // Disable dateOfBirth for ACTIVE policies
-                (field === 'dateOfBirth' && p.status === 'ACTIVE')
+                (field === "dateOfBirth" && p.status === "ACTIVE")
               }
             />
           )
         ) : (
-          <div>{type === 'date' ? fmtDate(value as string) : (value as string)}</div>
+          <div>
+            {type === "date" ? fmtDate(value as string) : (value as string)}
+          </div>
         )}
       </div>
     );
@@ -455,6 +509,25 @@ const PolicyDetailsPage: React.FC = () => {
         <div className="space-x-2">
           {!isEditMode ? (
             <>
+              {/* Update Card  */}
+              {canUpdateCard && !isEditMode && (
+                <button
+                  onClick={() => {
+                    if (
+                      window.confirm(
+                        "Are you sure you want to update the payment method for this policy? All future recurring payments will use the new card."
+                      )
+                    ) {
+                      setShowUpdateCardModal(true);
+                    }
+                  }}
+                  className="px-3 py-1 bg-purple-600 text-white rounded hover:bg-purple-700"
+                >
+                  Update Card
+                </button>
+              )}
+
+              {/* Reload  */}
               <button
                 onClick={() => window.location.reload()}
                 className="px-3 py-1 border rounded"
@@ -492,7 +565,7 @@ const PolicyDetailsPage: React.FC = () => {
                 className="px-3 py-1 bg-green-600 text-white rounded disabled:opacity-50"
                 disabled={modifyLoading}
               >
-                {modifyLoading ? 'Saving...' : 'Save Changes'}
+                {modifyLoading ? "Saving..." : "Save Changes"}
               </button>
             </>
           )}
@@ -504,13 +577,22 @@ const PolicyDetailsPage: React.FC = () => {
         <div className="bg-blue-50 border-l-4 border-blue-400 p-4">
           <div className="flex items-center">
             <div className="flex-shrink-0">
-              <svg className="h-5 w-5 text-blue-400" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+              <svg
+                className="h-5 w-5 text-blue-400"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                  clipRule="evenodd"
+                />
               </svg>
             </div>
             <div className="ml-3">
               <p className="text-sm text-blue-700">
-                <strong>Edit Mode:</strong> You are now editing this policy. Make your changes and click "Save Changes" when done.
+                <strong>Edit Mode:</strong> You are now editing this policy.
+                Make your changes and click "Save Changes" when done.
               </p>
             </div>
           </div>
@@ -533,11 +615,15 @@ const PolicyDetailsPage: React.FC = () => {
           </div>
           <div>
             <div className="font-medium">Status</div>
-            <div className={p.status === 'CANCELLED' ? 'text-red-600 font-semibold' : ''}>
+            <div
+              className={
+                p.status === "CANCELLED" ? "text-red-600 font-semibold" : ""
+              }
+            >
               {p.status}
             </div>
           </div>
-          {renderEditableField('Language', 'language')}
+          {renderEditableField("Language", "language")}
           <div>
             <div className="font-medium mt-4">Sales Channel</div>
             <div>{p.salesChannel || "-"}</div>
@@ -559,14 +645,23 @@ const PolicyDetailsPage: React.FC = () => {
             <div className="font-medium">Policy Number</div>
             <div>{p.policyNumber}</div>
           </div>
-          {renderEditableField('First Name', 'firstName')}
-          {renderEditableField('Last Name', 'lastName')}
-          {renderEditableField('Date of Birth', 'dateOfBirth', 'date')}
+          {renderEditableField("First Name", "firstName")}
+          {renderEditableField("Last Name", "lastName")}
+          {renderEditableField("Date of Birth", "dateOfBirth", "date")}
           <div>
             <div className="font-medium mt-4">Age on Effective Date</div>
-            <div>{calcAge(editedPolicy.dateOfBirth || p.dateOfBirth?.toString(), editedPolicy.effectiveDate || p.effectiveDate?.toString())}</div>
+            <div>
+              {calcAge(
+                editedPolicy.dateOfBirth || p.dateOfBirth?.toString(),
+                editedPolicy.effectiveDate || p.effectiveDate?.toString()
+              )}
+            </div>
           </div>
-          {renderEditableField('Gender', 'gender', 'select', ['Male', 'Female', 'Other'])}
+          {renderEditableField("Gender", "gender", "select", [
+            "Male",
+            "Female",
+            "Other",
+          ])}
           <div className="col-span-2 mt-4">
             <div className="font-medium">
               Include Coverage for Stable Pre-Existing Medical Conditions
@@ -586,126 +681,143 @@ const PolicyDetailsPage: React.FC = () => {
           Contact Information
         </div>
         <div className="col-span-10 grid grid-cols-3 gap-x-4">
-          {renderEditableField('Email Address', 'email', 'email')}
-          {renderEditableField('Additional Email Address', 'additionalEmail', 'email')}
-          {renderEditableField('Phone Number', 'phoneNumber')}
+          {renderEditableField("Email Address", "email", "email")}
+          {renderEditableField(
+            "Additional Email Address",
+            "additionalEmail",
+            "email"
+          )}
+          {renderEditableField("Phone Number", "phoneNumber")}
           <div className="mt-4 col-span-2">
-            {renderEditableField('Address Line 1', 'street')}
+            {renderEditableField("Address Line 1", "street")}
           </div>
           <div className="mt-4">
-            {renderEditableField('Address Line 2', 'street2')}
+            {renderEditableField("Address Line 2", "street2")}
           </div>
-          {renderEditableField('City', 'city')}
-          {renderEditableField('Province', 'province')}
-          {renderEditableField('Country', 'countryCode')}
-          {renderEditableField('Postal Code', 'postalCode')}
+          {renderEditableField("City", "city")}
+          {renderEditableField("Province", "province")}
+          {renderEditableField("Country", "countryCode")}
+          {renderEditableField("Postal Code", "postalCode")}
         </div>
       </section>
 
       {/* Other insured persons */}
-      {editedApplicants.length > 0 && editedApplicants.map((a: any, idx: number) => (
-        <section
-          key={a.id}
-          className="grid grid-cols-12 gap-x-4 border-b py-4 text-sm"
-        >
-          <div className="col-span-2 text-purple-600 uppercase font-semibold">
-            Insured Person {idx + 2}
-          </div>
-          <div className="col-span-10 grid grid-cols-3 gap-x-4 text-sm">
-            <div>
-              <div className="font-medium">Policy Number</div>
-              <div>{a.policyNumber}</div>
+      {editedApplicants.length > 0 &&
+        editedApplicants.map((a: any, idx: number) => (
+          <section
+            key={a.id}
+            className="grid grid-cols-12 gap-x-4 border-b py-4 text-sm"
+          >
+            <div className="col-span-2 text-purple-600 uppercase font-semibold">
+              Insured Person {idx + 2}
             </div>
-            <div>
-              <div className="font-medium">First Name</div>
-              {isEditMode ? (
-                <input
-                  type="text"
-                  value={a.firstName}
-                  onChange={(e) => handleApplicantChange(idx, 'firstName', e.target.value)}
-                  className="w-full p-1 border border-blue-300 rounded"
-                />
-              ) : (
-                <div>{a.firstName}</div>
-              )}
-            </div>
-            <div>
-              <div className="font-medium">Last Name</div>
-              {isEditMode ? (
-                <input
-                  type="text"
-                  value={a.lastName}
-                  onChange={(e) => handleApplicantChange(idx, 'lastName', e.target.value)}
-                  className="w-full p-1 border border-blue-300 rounded"
-                />
-              ) : (
-                <div>{a.lastName}</div>
-              )}
-            </div>
-            <div>
-              <div className="font-medium mt-4">Date of Birth</div>
-              {isEditMode && p.status === 'SOLD' ? (
-                <input
-                  type="date"
-                  value={fmtDate(a.dateOfBirth?.toString())}
-                  onChange={(e) => handleApplicantChange(idx, 'dateOfBirth', e.target.value)}
-                  className="w-full p-1 border border-blue-300 rounded"
-                />
-              ) : (
-                <div>{fmtDate(a.dateOfBirth)}</div>
-              )}
-            </div>
-            <div>
-              <div className="font-medium mt-4">Age on Effective Date</div>
-              <div>{calcAge(a.dateOfBirth, p.effectiveDate?.toString())}</div>
-            </div>
-            <div>
-              <div className="font-medium mt-4">Gender</div>
-              {isEditMode ? (
-                <select
-                  value={a.gender || ''}
-                  onChange={(e) => handleApplicantChange(idx, 'gender', e.target.value)}
-                  className="w-full p-1 border border-blue-300 rounded"
-                >
-                  <option value="Male">Male</option>
-                  <option value="Female">Female</option>
-                  <option value="Other">Other</option>
-                </select>
-              ) : (
-                <div>{a.gender}</div>
-              )}
-            </div>
-            <div>
-              <div className="font-medium mt-4">Relationship to Primary Applicant</div>
-              {isEditMode ? (
-                <input
-                  type="text"
-                  value={a.relation || ''}
-                  onChange={(e) => handleApplicantChange(idx, 'relation', e.target.value)}
-                  className="w-full p-1 border border-blue-300 rounded"
-                />
-              ) : (
-                <div>{a.relation}</div>
-              )}
-            </div>
-            <div className="col-span-2 mt-4">
-              <div className="font-medium">
-                Include Coverage for Stable Pre-Existing Medical Conditions
-              </div>
-              <div>{a.PreExCoverage || "No"}</div>
-            </div>
-            <div className="mt-4">
-              <div className="font-medium">Premium</div>
+            <div className="col-span-10 grid grid-cols-3 gap-x-4 text-sm">
               <div>
-                {a.premium?.toLocaleString("en-CA", {
-                  style: "currency",
-                  currency: "CAD",
-                })}
+                <div className="font-medium">Policy Number</div>
+                <div>{a.policyNumber}</div>
+              </div>
+              <div>
+                <div className="font-medium">First Name</div>
+                {isEditMode ? (
+                  <input
+                    type="text"
+                    value={a.firstName}
+                    onChange={(e) =>
+                      handleApplicantChange(idx, "firstName", e.target.value)
+                    }
+                    className="w-full p-1 border border-blue-300 rounded"
+                  />
+                ) : (
+                  <div>{a.firstName}</div>
+                )}
+              </div>
+              <div>
+                <div className="font-medium">Last Name</div>
+                {isEditMode ? (
+                  <input
+                    type="text"
+                    value={a.lastName}
+                    onChange={(e) =>
+                      handleApplicantChange(idx, "lastName", e.target.value)
+                    }
+                    className="w-full p-1 border border-blue-300 rounded"
+                  />
+                ) : (
+                  <div>{a.lastName}</div>
+                )}
+              </div>
+              <div>
+                <div className="font-medium mt-4">Date of Birth</div>
+                {isEditMode && p.status === "SOLD" ? (
+                  <input
+                    type="date"
+                    value={fmtDate(a.dateOfBirth?.toString())}
+                    onChange={(e) =>
+                      handleApplicantChange(idx, "dateOfBirth", e.target.value)
+                    }
+                    className="w-full p-1 border border-blue-300 rounded"
+                  />
+                ) : (
+                  <div>{fmtDate(a.dateOfBirth)}</div>
+                )}
+              </div>
+              <div>
+                <div className="font-medium mt-4">Age on Effective Date</div>
+                <div>{calcAge(a.dateOfBirth, p.effectiveDate?.toString())}</div>
+              </div>
+              <div>
+                <div className="font-medium mt-4">Gender</div>
+                {isEditMode ? (
+                  <select
+                    value={a.gender || ""}
+                    onChange={(e) =>
+                      handleApplicantChange(idx, "gender", e.target.value)
+                    }
+                    className="w-full p-1 border border-blue-300 rounded"
+                  >
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                    <option value="Other">Other</option>
+                  </select>
+                ) : (
+                  <div>{a.gender}</div>
+                )}
+              </div>
+              <div>
+                <div className="font-medium mt-4">
+                  Relationship to Primary Applicant
+                </div>
+                {isEditMode ? (
+                  <input
+                    type="text"
+                    value={a.relation || ""}
+                    onChange={(e) =>
+                      handleApplicantChange(idx, "relation", e.target.value)
+                    }
+                    className="w-full p-1 border border-blue-300 rounded"
+                  />
+                ) : (
+                  <div>{a.relation}</div>
+                )}
+              </div>
+              <div className="col-span-2 mt-4">
+                <div className="font-medium">
+                  Include Coverage for Stable Pre-Existing Medical Conditions
+                </div>
+                <div>{a.PreExCoverage || "No"}</div>
+              </div>
+              <div className="mt-4">
+                <div className="font-medium">Premium</div>
+                <div>
+                  {a.premium?.toLocaleString("en-CA", {
+                    style: "currency",
+                    currency: "CAD",
+                  })}
+                </div>
               </div>
             </div>
-          </div>
-        </section>
-      ))}
+          </section>
+        ))}
 
       {/* Coverage Details */}
       <section className="grid grid-cols-12 gap-x-4 border-b py-4 text-sm">
@@ -713,13 +825,14 @@ const PolicyDetailsPage: React.FC = () => {
           Coverage Details
         </div>
         <div className="col-span-10 grid grid-cols-3 gap-x-4">
-          {renderEditableField('Effective Date', 'effectiveDate', 'date')}
-          {renderEditableField('Expiry Date', 'expiryDate', 'date')}
+          {renderEditableField("Effective Date", "effectiveDate", "date")}
+          {renderEditableField("Expiry Date", "expiryDate", "date")}
           <div>
             <div className="font-medium">Coverage Length</div>
             <div>
               {calculateDays(
-                editedPolicy.effectiveDate || fmtDate(p.effectiveDate?.toString()),
+                editedPolicy.effectiveDate ||
+                  fmtDate(p.effectiveDate?.toString()),
                 editedPolicy.expiryDate || fmtDate(p.expiryDate?.toString())
               )}{" "}
               Days
@@ -733,7 +846,7 @@ const PolicyDetailsPage: React.FC = () => {
             <div className="font-medium mt-4">Country of Origin</div>
             <div>{p.countryOfOrigin}</div>
           </div>
-          {renderEditableField('Destination Province', 'destination')}
+          {renderEditableField("Destination Province", "destination")}
           <div>
             <div className="font-medium mt-4">
               Are Applicants Currently in Canada?
@@ -746,8 +859,14 @@ const PolicyDetailsPage: React.FC = () => {
             </div>
             {isEditMode ? (
               <select
-                value={editedPolicy.applicantOnSuperVisa || p.applicantOnSuperVisa || ''}
-                onChange={(e) => handleFieldChange('applicantOnSuperVisa', e.target.value)}
+                value={
+                  editedPolicy.applicantOnSuperVisa ||
+                  p.applicantOnSuperVisa ||
+                  ""
+                }
+                onChange={(e) =>
+                  handleFieldChange("applicantOnSuperVisa", e.target.value)
+                }
                 className="w-full p-1 border border-blue-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 <option value="">Select</option>
@@ -762,7 +881,7 @@ const PolicyDetailsPage: React.FC = () => {
             <div className="font-medium mt-4">Coverage</div>
             <div>{p.coverage}</div>
           </div>
-          {renderEditableField('Deductible', 'deductible')}
+          {renderEditableField("Deductible", "deductible")}
         </div>
       </section>
 
@@ -910,49 +1029,52 @@ const PolicyDetailsPage: React.FC = () => {
       )} */}
 
       {/* Premium / Payment Info */}
-{(history?.length > 0 || (paymentSchedule && paymentSchedule.length > 0)) && (
-  <section className="border-b py-4 text-sm space-y-4">
-    <div className="uppercase text-purple-600 font-semibold">
-      Premium / Payment Info
-    </div>
+      {(history?.length > 0 ||
+        (paymentSchedule && paymentSchedule.length > 0)) && (
+        <section className="border-b py-4 text-sm space-y-4">
+          <div className="uppercase text-purple-600 font-semibold">
+            Premium / Payment Info
+          </div>
 
-    <div className="grid grid-cols-4 gap-x-4">
-      <div>
-        <div className="font-medium">Premium</div>
-        <div>
-          {p?.premium.toLocaleString("en-CA", {
-            style: "currency",
-            currency: history[0]?.currency || 'CAD',
-            currencyDisplay: "code",
-          })}
-        </div>
-      </div>
-      <div>
-        <div className="font-medium">Payment Option</div>
-        <div>{p.paymentOption || "-"}</div>
-      </div>
-      <div>
-        <div className="font-medium">Credit Card</div>
-        <div>{history[0]?.last4 ? `•••• ${history[0].last4}` : "-"}</div>
-      </div>
-      <div>
-        <div className="font-medium">Date</div>
-        <div>{history[0]?.date ? fmtDate(history[0].date) : "-"}</div>
-      </div>
-    </div>
+          <div className="grid grid-cols-4 gap-x-4">
+            <div>
+              <div className="font-medium">Premium</div>
+              <div>
+                {p?.premium.toLocaleString("en-CA", {
+                  style: "currency",
+                  currency: history[0]?.currency || "CAD",
+                  currencyDisplay: "code",
+                })}
+              </div>
+            </div>
+            <div>
+              <div className="font-medium">Payment Option</div>
+              <div>{p.paymentOption || "-"}</div>
+            </div>
+            <div>
+              <div className="font-medium">Credit Card</div>
+              <div>{history[0]?.last4 ? `•••• ${history[0].last4}` : "-"}</div>
+            </div>
+            <div>
+              <div className="font-medium">Date</div>
+              <div>{history[0]?.date ? fmtDate(history[0].date) : "-"}</div>
+            </div>
+          </div>
 
-    {/* Payment Schedule Table */}
-    <div className="mt-6">
-      <h3 className="font-semibold text-sm mb-3">Payment Schedule</h3>
-      <PaymentScheduleTable
-        schedule={paymentSchedule || []}
-        loading={scheduleLoading}
-        error={scheduleError}
-        onProcessRefund={p.status === 'CANCELLED' ? handleRefund : undefined}
-      />
-    </div>
-  </section>
-)}
+          {/* Payment Schedule Table */}
+          <div className="mt-6">
+            <h3 className="font-semibold text-sm mb-3">Payment Schedule</h3>
+            <PaymentScheduleTable
+              schedule={paymentSchedule || []}
+              loading={scheduleLoading}
+              error={scheduleError}
+              onProcessRefund={
+                p.status === "CANCELLED" ? handleRefund : undefined
+              }
+            />
+          </div>
+        </section>
+      )}
 
       {/* Fulfillment */}
       <section className="border-b py-4 space-y-2 text-sm">
@@ -1042,7 +1164,9 @@ const PolicyDetailsPage: React.FC = () => {
 
       {/* History & Notes */}
       <section className="border-b py-4 text-sm space-y-4">
-        <div className="uppercase text-purple-600 font-semibold">Notes History</div>
+        <div className="uppercase text-purple-600 font-semibold">
+          Notes History
+        </div>
 
         {notesLoading ? (
           <p>Loading notes…</p>
@@ -1097,9 +1221,11 @@ const PolicyDetailsPage: React.FC = () => {
 
       {/* Activity History */}
       <section className="border-b py-4 text-sm space-y-4">
-        <div className="uppercase text-purple-600 font-semibold">Activity History</div>
-        
-        <PolicyActivityTimeline 
+        <div className="uppercase text-purple-600 font-semibold">
+          Activity History
+        </div>
+
+        <PolicyActivityTimeline
           activities={activities}
           loading={activityLoading}
           error={activityError}
@@ -1194,8 +1320,8 @@ const PolicyDetailsPage: React.FC = () => {
         isOpen={showRefundModal}
         onClose={() => setShowRefundModal(false)}
         onConfirm={handleRefundConfirm}
-        originalExpiryDate={refundData?.originalExpiryDate || ''}
-        newExpiryDate={refundData?.newExpiryDate || ''}
+        originalExpiryDate={refundData?.originalExpiryDate || ""}
+        newExpiryDate={refundData?.newExpiryDate || ""}
         daysToRefund={refundData?.daysToRefund || 0}
         maxRefundable={refundData?.maxRefundable || 0}
         loading={modifyLoading}
@@ -1222,16 +1348,18 @@ const PolicyDetailsPage: React.FC = () => {
         message={validationMessage.message}
         type="warning"
       />
+
+      <UpdateCardModal
+        isOpen={showUpdateCardModal}
+        onClose={() => setShowUpdateCardModal(false)}
+        policyId={id!}
+        policyNumber={p.policyNumber!}
+        onSuccess={() => {
+          window.location.reload();
+        }}
+      />
     </div>
   );
 };
 
 export default PolicyDetailsPage;
-
-
-
-
-
-
-
-
