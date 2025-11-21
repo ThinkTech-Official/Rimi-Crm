@@ -66,7 +66,7 @@ export default function CoverageInformation() {
       const eff = new Date(effectiveDate);
       const exp = new Date(eff);
       exp.setFullYear(eff.getFullYear() + Number(superVisaYears));
-      const days = Math.round((exp.getTime() - eff.getTime()) / msPerDay);
+      const days = Math.round((exp.getTime() - eff.getTime()) / msPerDay) + 1;
 
       setExpiryDate(exp.toISOString().slice(0, 10));
       setCoverageLength(String(days));
@@ -114,7 +114,7 @@ export default function CoverageInformation() {
     if (effectiveDate) {
       const diff = Math.round(
         (new Date(val).getTime() - new Date(effectiveDate).getTime()) / msPerDay
-      );
+      ) + 1;
       setCoverageLength(String(diff));
     }
   };
@@ -123,7 +123,7 @@ export default function CoverageInformation() {
     setCoverageLength(val);
     if (effectiveDate) {
       const exp = new Date(
-        new Date(effectiveDate).getTime() + Number(val) * msPerDay
+        new Date(effectiveDate).getTime() + (Number(val) - 1) * msPerDay
       );
       setExpiryDate(exp.toISOString().slice(0, 10));
     }

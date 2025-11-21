@@ -262,7 +262,7 @@ export default function TripInformation({
     if (effectiveDate && expiryDate) {
       const eff = new Date(effectiveDate);
       const exp = new Date(expiryDate);
-      const days = Math.round((exp.getTime() - eff.getTime()) / msPerDay);
+      const days = Math.round((exp.getTime() - eff.getTime()) / msPerDay) + 1;
       if (days > 0) {
         setCoverageLength(String(days));
       } else {
