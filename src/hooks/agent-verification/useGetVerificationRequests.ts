@@ -7,15 +7,50 @@ import { API_BASE } from '../../utils/urls';
 
 
 
-interface VerificationRequest {
+// interface VerificationRequest {
+//   id: string;
+//   firstName: string;
+//   lastName: string;
+//   email: string;
+//   agentCode: string;
+//   company: string | null;
+//   verificationStatus: string;
+//   documentsUploadedAt: string | null;
+//   verifiedAt: string | null;
+//   verificationValidTill: string | null;
+//   docLink1: string | null;
+//   docLink2: string | null;
+//   docLink3: string | null;
+//   validUpto: string | null;
+//   validUpto2: string | null;
+//   isImportedAgent: boolean;
+// }
+
+// interface VerificationRequestsResponse {
+//   data: VerificationRequest[];
+//   total: number;
+//   page: number;
+//   limit: number;
+//   totalPages: number;
+//   hasNextPage: boolean;
+//   hasPrevPage: boolean;
+// }
+
+
+export interface VerificationRequest {
   id: string;
   firstName: string;
   lastName: string;
   email: string;
   agentCode: string;
   company: string | null;
-  verificationStatus: string;
+  userType: string; // 'AGENT' | 'MGA'
+  status: string; // 'ACTIVE' | 'INACTIVE'
+  commissionPercent: number | null;
+  mgaOverridePercent: number | null;
+  verificationStatus: string; // 'PENDING' | 'VERIFIED' | 'DRAFT' | 'REJECTED' | 'EXPIRED'
   documentsUploadedAt: string | null;
+  verificationRequestedAt: string | null;
   verifiedAt: string | null;
   verificationValidTill: string | null;
   docLink1: string | null;
@@ -26,7 +61,7 @@ interface VerificationRequest {
   isImportedAgent: boolean;
 }
 
-interface VerificationRequestsResponse {
+export interface VerificationRequestsResponse {
   data: VerificationRequest[];
   total: number;
   page: number;
@@ -35,6 +70,7 @@ interface VerificationRequestsResponse {
   hasNextPage: boolean;
   hasPrevPage: boolean;
 }
+
 
 export function useGetVerificationRequests() {
   const [data, setData] = useState<VerificationRequestsResponse | null>(null);

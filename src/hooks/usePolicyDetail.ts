@@ -76,6 +76,8 @@ export interface PolicyDetail {
   createdAt?: string;
   updatedAt?: string;
 
+  stripeSubscriptionScheduleId: any;
+
 }
 
 

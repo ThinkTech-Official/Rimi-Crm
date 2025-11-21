@@ -54,6 +54,8 @@ import UserQuoteDetails from './components/UserQuoteDetails.tsx';
 import VerificationRequests from './components/agent-verification/VerificationRequests.tsx';
 import AdminAgentDetails from './pages/AdminAgentDetails.tsx';
 import MGAAgentDetails from './pages/MgaAgentDetails.tsx';
+import AgentApplicationOpen from './pages/AgentApplicationOpen.tsx';
+import ResetPassword from './components/ResetPassword.tsx';
 
 // Create ONE client (module-level singleton)
 const queryClient = new QueryClient({
@@ -120,7 +122,10 @@ const router = createBrowserRouter(
   createRoutesFromElements(
     <Route path="/" element={<App />}>
       <Route path="/login" element={<Login />} />
+      <Route path="/open-signup" element={<AgentApplicationOpen />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
+      
+      <Route path="/reset-password" element={<ResetPassword />} />
       
       {/* Dashboard as parent route with nested children */}
       <Route

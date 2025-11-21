@@ -23,12 +23,14 @@ const useNotification = (position: Position = "top-center") => {
   const triggerNotification = useCallback(
     ({
       duration = 3000,
+      animation = "slide-down",
       ...rest
-    }: Omit<NotificationProps, "onClose"> & { duration?: number }) => {
+    }: Omit<NotificationProps, "onClose" | "animation"> & { duration?: number;  animation?: any; }) => {
       const id = uuidv4();
       const newNotification: NotificationWithId = {
         ...rest,
         id,
+        animation,
         duration,
         onClose: () => removeNotification(id),
       };

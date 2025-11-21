@@ -287,7 +287,8 @@ export interface Step1FormData {
   coverageLength: string;
 }
 
-const productName = "Secure Study RIMI International Students to Canada";
+// const productName = "Secure Study RIMI International Students to Canada";
+const productName = "SECURE_STUDY_RIMI_INTERNATIONAL_STUDENTS_TO_CANADA";
 
 export default function SecureStudyRIMIInternationalStudentstoCanada() {
   const agentCode = useSelector((state: RootState) => state.auth.agentCode);

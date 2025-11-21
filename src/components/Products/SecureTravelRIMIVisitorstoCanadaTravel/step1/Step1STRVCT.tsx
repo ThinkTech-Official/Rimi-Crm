@@ -540,7 +540,8 @@ const Step1STRVCT = ({
       deductible,
       paymentOption,
       agentCode: agentCode!,
-      product: "Secure Travel RIMI Visitors to Canada Travel",
+      // product: "Secure Travel RIMI Visitors to Canada Travel",
+      product: "SECURE_TRAVEL_RIMI_VISITORS_TO_CANADA_TRAVEL",
       quotePremium: totalPremium, // maybe we should calculate it directly from backend instead of fetching from frontend
       quoteNumber: quoteNumber,
       plan: 1,
