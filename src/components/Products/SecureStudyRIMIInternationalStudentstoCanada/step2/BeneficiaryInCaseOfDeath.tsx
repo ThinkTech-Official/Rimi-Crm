@@ -371,7 +371,7 @@ export default function BeneficiaryInCaseOfDeath({
             })}
           />
           {errors.beneficiaryName && (
-            <p className="text-red-500 text-xs mt-1">
+            <p className="text-red-500 text-sm mt-1">
               {errors.beneficiaryName.message}
             </p>
           )}
@@ -397,7 +397,7 @@ export default function BeneficiaryInCaseOfDeath({
             })}
           />
            {errors.relationshipToInsured && (
-            <p className="text-red-500 text-xs mt-1">
+            <p className="text-red-500 text-sm mt-1">
               {errors.relationshipToInsured.message}
             </p>
           )}
@@ -430,7 +430,7 @@ export default function BeneficiaryInCaseOfDeath({
             })}
           />
            {errors.address && (
-            <p className="text-red-500 text-xs mt-1">
+            <p className="text-red-500 text-sm mt-1">
               {errors.address.message}
             </p>
           )}
@@ -452,7 +452,7 @@ export default function BeneficiaryInCaseOfDeath({
             })}
           />
            {errors.city && (
-            <p className="text-red-500 text-xs mt-1">
+            <p className="text-red-500 text-sm mt-1">
               {errors.city.message}
             </p>
           )}
@@ -469,8 +469,8 @@ export default function BeneficiaryInCaseOfDeath({
               })}
             >
               {StudentsToCanadaCountries.map((c) => (
-                <option key={c.code} value={c.code}>
-                  {c.name}
+                <option key={c.value} value={c.value}>
+                  {c.label}
                 </option>
               ))}
             </select>
@@ -480,7 +480,7 @@ export default function BeneficiaryInCaseOfDeath({
             </div>
           </div>
            {errors.country && (
-            <p className="text-red-500 text-xs mt-1">
+            <p className="text-red-500 text-sm mt-1">
               {errors.country.message}
             </p>
           )}
