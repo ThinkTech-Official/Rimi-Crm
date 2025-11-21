@@ -526,67 +526,47 @@
 // }
 // ========================================================
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 import {
   ChevronDownIcon,
   InformationCircleIcon,
 } from "@heroicons/react/24/outline";
 import { useState, useEffect } from "react";
+import { Controller, UseFormReturn } from "react-hook-form";
+import { Step1FormData } from "./Step1Container";
+import Dropdown from "../../../DropDown";
+import { CanadaStates } from "../../SecureTravelRIMIVisitorstoCanadaTravel/step1/Constants";
+import InfoBox from "../../../InfoBox";
+import DatePicker from "../../../DatePicker";
 
 interface CoverageInformationProps {
-  policyType: string;
-  setPolicyType: (value: string) => void;
-  countryOfOrigin: string;
-  setCountryOfOrigin: (value: string) => void;
-  destinationProvince: string;
-  setDestinationProvince: (value: string) => void;
-  effectiveDate: string;
-  setEffectiveDate: (value: string) => void;
-  expiryDate: string;
-  setExpiryDate: (value: string) => void;
-  coverageLength: string;
-  setCoverageLength: (value: string) => void;
+  methods: UseFormReturn<Step1FormData>;
 }
 
 export default function CoverageInformation({
-  policyType,
-  setPolicyType,
-  countryOfOrigin,
-  setCountryOfOrigin,
-  destinationProvince,
-  setDestinationProvince,
-  effectiveDate,
-  setEffectiveDate,
-  expiryDate,
-  setExpiryDate,
-  coverageLength,
-  setCoverageLength,
+  methods,
 }: CoverageInformationProps) {
+  const {
+    register,
+    watch,
+    setValue,
+    control,
+    formState: { errors },
+  } = methods;
+
+  // watch form values from react-hook-form
+  const { effectiveDate, expiryDate, coverageLength } = watch();
+
   const [showInfoPolicyType, setShowInfoPolicyType] = useState(false);
   const [showInfoCountryOfOrigin, setShowInfoCountryOfOrigin] = useState(false);
-  const [showInfoDestinationProvince, setShowDestinationProvince] =
+  const [showInfoDestinationProvince, setShowInfoDestinationProvince] =
     useState(false);
+  const destinationProvince = watch("destinationProvince");
 
-  // Track which field was last modified to prevent circular updates
   const [lastModified, setLastModified] = useState<
     "effectiveDate" | "expiryDate" | "coverageLength" | null
   >(null);
 
-  // Calculate days between two dates
+  // date calculation helpers
   const calculateDaysBetween = (start: string, end: string): number => {
     if (!start || !end) return 0;
     const startDate = new Date(start);
@@ -596,7 +576,6 @@ export default function CoverageInformation({
     return diffDays > 0 ? diffDays : 0;
   };
 
-  // Add days to a date
   const addDaysToDate = (dateString: string, days: number): string => {
     if (!dateString || days <= 0) return "";
     const date = new Date(dateString);
@@ -612,363 +591,220 @@ export default function CoverageInformation({
     return date.toISOString().split("T")[0];
   };
 
-  // Handle Effective Date change
-  const handleEffectiveDateChange = (value: string) => {
-    setEffectiveDate(value);
-    setLastModified("effectiveDate");
-  };
-
-  // Handle Expiry Date change
-  const handleExpiryDateChange = (value: string) => {
-    setExpiryDate(value);
-    setLastModified("expiryDate");
-  };
-
-  // Handle Coverage Length change
-  const handleCoverageLengthChange = (value: string) => {
-    // Only allow positive integers
-    if (value === "" || /^\d+$/.test(value)) {
-      setCoverageLength(value);
-      setLastModified("coverageLength");
-    }
-  };
-
-  // Bidirectional calculation effect
+  // auto-sync between effectiveDate, expiryDate, and coverageLength
   useEffect(() => {
-    if (!lastModified) return;
-
-    if (lastModified === "effectiveDate" && expiryDate) {
-      // Calculate coverage length from dates
-      const days = calculateDaysBetween(effectiveDate, expiryDate);
-      setCoverageLength(String(days));
-    } else if (lastModified === "expiryDate" && effectiveDate) {
-      // Calculate coverage length from dates
-      const days = calculateDaysBetween(effectiveDate, expiryDate);
-      setCoverageLength(String(days));
-    } else if (lastModified === "coverageLength" && coverageLength) {
-      const days = Number(coverageLength);
-      if (days > 0) {
-        if (effectiveDate && !expiryDate) {
-          // Calculate expiry date from effective date + coverage length
-          const newExpiryDate = addDaysToDate(effectiveDate, days);
-          setExpiryDate(newExpiryDate);
-        } else if (!effectiveDate && expiryDate) {
-          // Calculate effective date from expiry date - coverage length
-          const newEffectiveDate = subtractDaysFromDate(expiryDate, days);
-          setEffectiveDate(newEffectiveDate);
-        } else if (effectiveDate && expiryDate) {
-          // If both dates exist, update expiry date based on effective date + coverage length
-          const newExpiryDate = addDaysToDate(effectiveDate, days);
-          setExpiryDate(newExpiryDate);
-        }
-      }
+    if (effectiveDate && expiryDate && lastModified !== "coverageLength") {
+      const diffDays = calculateDaysBetween(effectiveDate, expiryDate);
+      setValue("coverageLength", String(diffDays));
     }
+  }, [effectiveDate, expiryDate]);
 
-    // Reset last modified after calculation
-    setLastModified(null);
-  }, [lastModified]);
+  useEffect(() => {
+    if (effectiveDate && coverageLength && lastModified === "coverageLength") {
+      const newExpiry = addDaysToDate(effectiveDate, Number(coverageLength));
+      setValue("expiryDate", newExpiry);
+    }
+  }, [coverageLength]);
+
+  useEffect(() => {
+    if (expiryDate && coverageLength && lastModified === "expiryDate") {
+      const diffDays = calculateDaysBetween(effectiveDate, expiryDate);
+      setValue("coverageLength", String(diffDays));
+    }
+  }, [expiryDate]);
+
+  const setDestinationProvince = (value: string) => {
+    setValue("destinationProvince", value);
+  };
+
+  const handleProvinceChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setDestinationProvince(e.target.value);
+  };
 
   return (
-    <div className="max-w-5xl mx-auto mt-9 p-6 bg-[#F9F9F9]">
+    <div className="max-w-5xl mx-auto mt-6 p-3 sm:p-6 bg-[#F9F9F9]">
       <h3 className="text-lg font-bold text-left text-[#1B1B1B] mb-5">
-        Coverage Information
+        Policy & Coverage Information
       </h3>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 md:gap-x-16 lg:gap-x-24 gap-y-4 text-text-secondary">
-        {/* Policy Type */}
-        <div className="flex flex-col">
-          <label className="flex gap-1 items-center text-sm">
-            Policy Type
-            <InformationCircleIcon
-              onClick={() => setShowInfoPolicyType((prevState) => !prevState)}
-              className="h-5 w-5 text-[#3a17c5] cursor-pointer"
-              aria-hidden="true"
-            />
-          </label>
-          <div className="relative">
-            <select
-              className="input-primary appearance-none cursor-pointer"
-              value={policyType}
-              onChange={(e) => setPolicyType(e.target.value)}
-            >
-              <option value="">Please select...</option>
-              <option value="standard">Standard</option>
-              <option value="enhanced">Enhanced</option>
-              <option value="premium">Premium</option>
-            </select>
-            <div className="pointer-events-none absolute inset-y-0 right-2 flex items-center text-gray-500">
-              <ChevronDownIcon className="h-5 w-5" aria-hidden="true" />
+      <div className="space-y-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 md:gap-x-16 lg:gap-x-24 gap-y-4 text-text-secondary">
+          {/* Policy Type */}
+          <div className="flex flex-col">
+            <label className="text-sm font-medium text-gray-700 flex items-center gap-1">
+              <InformationCircleIcon
+                className="h-5 w-5 text-[#3a17c5] cursor-pointer"
+                onClick={() => setShowInfoPolicyType((prev) => !prev)}
+              />
+              Policy Type
+            </label>
+
+            <div className="relative">
+              <select
+                {...register("policyType", {
+                  required: "Policy type is required",
+                })}
+                className="input-primary appearance-none cursor-pointer"
+              >
+                <option value="">Select Policy Type</option>
+                <option value="single">Single</option>
+                <option value="family">Family</option>
+              </select>
+              <ChevronDownIcon className="h-5 w-5 text-gray-400 absolute right-3 top-1/2 transform -translate-y-1/2" />
             </div>
+            {errors.policyType && (
+              <p className="text-red-500 text-sm">
+                {errors.policyType.message}
+              </p>
+            )}
+          </div>
+
+          {/* Country of Origin */}
+          <div className="flex flex-col">
+            <label className="text-sm font-medium text-gray-700 flex items-center gap-1">
+              <InformationCircleIcon
+                className="h-5 w-5 text-[#3a17c5] cursor-pointer"
+                onClick={() => setShowInfoCountryOfOrigin((prev) => !prev)}
+              />{" "}
+              Country of Origin
+            </label>
+            <input
+              type="text"
+              {...register("countryOfOrigin", {
+                required: "Country of origin is required",
+              })}
+              className="input-primary"
+              placeholder="Enter country name"
+            />
+            {errors.countryOfOrigin && (
+              <p className="text-red-500 text-sm">
+                {errors.countryOfOrigin.message}
+              </p>
+            )}
           </div>
         </div>
-
-        {/* Country of Origin */}
-        <div className="flex flex-col">
-          <label className="flex gap-1 items-center text-sm">
-            Country of Origin
-            <InformationCircleIcon
-              onClick={() =>
-                setShowInfoCountryOfOrigin((prevState) => !prevState)
-              }
-              className="h-5 w-5 text-[#3a17c5] cursor-pointer"
-              aria-hidden="true"
+        {showInfoPolicyType && (
+          <InfoBox
+            title="Policy Type"
+            text="A single policy is for a single person. A family policy is for a family of up to 4 people."
+            onClose={() => setShowInfoPolicyType(false)}
+          />
+        )}
+        {showInfoCountryOfOrigin && (
+          <InfoBox
+            title="Country of Origin"
+            text="The applicant’s country of residence before arriving in Canada."
+            onClose={() => setShowInfoCountryOfOrigin(false)}
+          />
+        )}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 md:gap-x-16 lg:gap-x-24 gap-y-4 text-text-secondary">
+          <div className="flex flex-col">
+            <Controller
+              control={control}
+              name="destinationProvince"
+              rules={{ required: "Destination province is required" }}
+              render={({ field }) => (
+                <Dropdown
+                  label="Destination Province"
+                  info={() => setShowInfoDestinationProvince((prev) => !prev)}
+                  options={CanadaStates}
+                  value={field.value}
+                  onChange={(value) => {
+                    field.onChange(value);
+                  }}
+                />
+              )}
             />
-          </label>
-          <div className="relative">
-            <select
-              className="input-primary appearance-none cursor-pointer"
-              value={countryOfOrigin}
-              onChange={(e) => setCountryOfOrigin(e.target.value)}
-            >
-              <option value="">Please select...</option>
-              <option value="IN">India</option>
-              <option value="CN">China</option>
-              <option value="US">United States</option>
-              <option value="GB">United Kingdom</option>
-              <option value="AU">Australia</option>
-              {/* Add more countries as needed */}
-            </select>
-            <div className="pointer-events-none absolute inset-y-0 right-2 flex items-center text-gray-500">
-              <ChevronDownIcon className="h-5 w-5" aria-hidden="true" />
-            </div>
+            {errors.destinationProvince && (
+              <p className="text-red-500 text-sm">
+                {errors.destinationProvince.message}
+              </p>
+            )}
+          </div>
+          {/* Effective Date */}
+          <div className="flex flex-col">
+            <Controller
+              control={control}
+              name="effectiveDate"
+              rules={{ required: "Effective date is required" }}
+              render={({ field }) => (
+                <DatePicker
+                  label="Effective Date"
+                  value={field.value}
+                  onChange={(date) => {
+                    field.onChange(date);
+                    setLastModified("effectiveDate");
+                  }}
+                  minDate={new Date()}
+                />
+              )}
+            />
+            {errors.effectiveDate && (
+              <p className="text-red-500 text-sm">
+                {errors.effectiveDate.message}
+              </p>
+            )}
           </div>
         </div>
 
         {/* Destination Province */}
-        <div className="flex flex-col">
-          <label className="flex gap-1 items-center text-sm">
-            Destination Province
-            <InformationCircleIcon
-              onClick={() =>
-                setShowDestinationProvince((prevState) => !prevState)
-              }
-              className="h-5 w-5 text-[#3a17c5] cursor-pointer"
-              aria-hidden="true"
+
+        {showInfoDestinationProvince && (
+          <InfoBox
+            title="Destination Province"
+            text="Select the primary destination Province for your trip."
+            onClose={() => setShowInfoDestinationProvince(false)}
+          />
+        )}
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 md:gap-x-16 lg:gap-x-24 gap-y-4 text-text-secondary">
+          {/* Expiry Date */}
+          <div className="flex flex-col">
+            <Controller
+              control={control}
+              name="expiryDate"
+              rules={{ required: "Expiry date is required" }}
+              render={({ field }) => (
+                <DatePicker
+                  label="Expiry Date"
+                  value={field.value}
+                  onChange={(date) => {
+                    field.onChange(date);
+                    setLastModified("expiryDate");
+                  }}
+                  minDate={new Date()}
+                />
+              )}
             />
-          </label>
-          <div className="relative">
-            <select
-              className="input-primary appearance-none cursor-pointer"
-              value={destinationProvince}
-              onChange={(e) => setDestinationProvince(e.target.value)}
-            >
-              <option value="">Please select...</option>
-              <option value="AB">Alberta</option>
-              <option value="BC">British Columbia</option>
-              <option value="MB">Manitoba</option>
-              <option value="NB">New Brunswick</option>
-              <option value="NL">Newfoundland and Labrador</option>
-              <option value="NT">Northwest Territories</option>
-              <option value="NU">Nunavut</option>
-              <option value="NS">Nova Scotia</option>
-              <option value="ON">Ontario</option>
-              <option value="PE">Prince Edward Island</option>
-              <option value="QC">Quebec</option>
-              <option value="SK">Saskatchewan</option>
-              <option value="YT">Yukon Territories</option>
-            </select>
-            <div className="pointer-events-none absolute inset-y-0 right-2 flex items-center text-gray-500">
-              <ChevronDownIcon className="h-5 w-5" aria-hidden="true" />
-            </div>
+            {errors.expiryDate && (
+              <p className="text-red-500 text-sm">
+                {errors.expiryDate.message}
+              </p>
+            )}
           </div>
-        </div>
-
-        {/* Effective Date */}
-        <div className="flex flex-col">
-          <label className="text-sm">Effective Date</label>
-          <input
-            className="input-primary"
-            type="date"
-            value={effectiveDate}
-            onChange={(e) => handleEffectiveDateChange(e.target.value)}
-          />
-        </div>
-
-        {/* Expiry Date */}
-        <div className="flex flex-col">
-          <label className="text-sm">Expiry Date</label>
-          <input
-            className="input-primary"
-            type="date"
-            value={expiryDate}
-            onChange={(e) => handleExpiryDateChange(e.target.value)}
-          />
-        </div>
-
-        {/* Coverage Length */}
-        <div className="flex flex-col">
-          <label className="text-sm">Coverage Length (Days)</label>
-          <input
-            className="input-primary"
-            type="text"
-            placeholder="Number of days"
-            value={coverageLength}
-            onChange={(e) => handleCoverageLengthChange(e.target.value)}
-          />
+          {/* Coverage Length */}
+          <div className="flex flex-col">
+            <label className="text-sm font-medium text-gray-700">
+              Coverage Length (Days)
+            </label>
+            <input
+              type="number"
+              {...register("coverageLength", {
+                required: "Coverage length is required",
+                min: { value: 1, message: "Must be at least 1 day" },
+                onChange: () => setLastModified("coverageLength"),
+              })}
+              className="input-primary"
+              placeholder="Enter number of days"
+            />
+            {errors.coverageLength && (
+              <p className="text-red-500 text-sm">
+                {errors.coverageLength.message}
+              </p>
+            )}
+          </div>
         </div>
       </div>
-
-      {/* Info Boxes */}
-      {showInfoPolicyType && (
-        <div className="border rounded-lg shadow-sm p-4 mt-4 bg-white font-[inter]">
-          <h2 className="text-lg font-semibold border-b pb-2">Policy Type</h2>
-          <div className="overflow-x-auto mt-2">
-            <table className="w-full border border-gray-300 text-sm font-[inter]">
-              <thead className="bg-gray-100">
-                <tr>
-                  <th className="border border-gray-300 p-2 text-left">
-                    Benefits
-                  </th>
-                  <th className="border border-gray-300 p-2 text-left">
-                    Standard Plan
-                  </th>
-                  <th className="border border-gray-300 p-2 text-left">
-                    Enhanced Plan
-                  </th>
-                  <th className="border border-gray-300 p-2 text-left">
-                    Premium Plan
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {[
-                  ["Policy Limit:", "$2,000,000", "$2,000,000", "$2,000,000"],
-                  [
-                    "Hospital Accommodation:",
-                    "Up to Semi Private Room",
-                    "Up to Semi Private Room",
-                    "Up to Semi Private Room",
-                  ],
-                  [
-                    "Medical Services:",
-                    "Included (no limit)",
-                    "Included (no limit)",
-                    "Included (no limit)",
-                  ],
-                  [
-                    "Diagnostic Services:",
-                    "Included (no limit)",
-                    "Included (no limit)",
-                    "Included (no limit)",
-                  ],
-                  [
-                    "Prescriptions Drugs:",
-                    "Up to 30 days per prescription",
-                    "Up to 30 days per prescription",
-                    "Up to 60 days per prescription",
-                  ],
-                  [
-                    "Private Duty Nurse:",
-                    "X X",
-                    "Included (no limit)",
-                    "Included (no limit)",
-                  ],
-                  [
-                    "Emergency Dental:",
-                    "$2,500 due to accident & $600 for pain",
-                    "$4,000 due to accident & $600 for pain",
-                    "$4,000 due to accident & $600 for pain",
-                  ],
-                  [
-                    "Medical Appliances:",
-                    "X X",
-                    "Included (no limit)",
-                    "Included (no limit)",
-                  ],
-                  [
-                    "Emergency Transportation:",
-                    "Included (no limit)",
-                    "Included (no limit)",
-                    "Included (no limit)",
-                  ],
-                  [
-                    "Maternity:",
-                    "X X",
-                    "Up to $10,000 (condition apply)",
-                    "Up to $15,000 (condition apply)",
-                  ],
-                  [
-                    "Physical Examination:",
-                    "$150 for one exam per year",
-                    "$150 for one exam per year",
-                    "$150 for one exam per year",
-                  ],
-                  [
-                    "Eye Examination:",
-                    "$100 for one exam per year",
-                    "$100 for one exam per year",
-                    "$100 for one exam per year",
-                  ],
-                  [
-                    "Psychiatric/Psychological:",
-                    "$500 per incident",
-                    "$1,000 per incident",
-                    "$1,000 per incident",
-                  ],
-                  [
-                    "Trauma Counselling:",
-                    "X X",
-                    "6 counseling sessions",
-                    "6 counseling sessions",
-                  ],
-                  ["Corrective Devices:", "", "$1,000", "$1,000"],
-                  [
-                    "Sexual Health Consultation:",
-                    "X X",
-                    "X X",
-                    "$100 per year",
-                  ],
-                  [
-                    "Tutorial Services:",
-                    "X X",
-                    "X X",
-                    "$20 per hour, maximum $500",
-                  ],
-                  ["Repatriation of Remains:", "$5,000", "$10,000", "$10,000"],
-                  [
-                    "Accidental Death & Dismemberment:",
-                    "$10,000",
-                    "$25,000",
-                    "$25,000",
-                  ],
-                  ["Common Carrier:", "$25,000", "$100,000", "$100,000"],
-                ].map(([benefit, standard, enhanced, premium], index) => (
-                  <tr key={index}>
-                    <td className="border border-gray-300 p-2 font-semibold">
-                      {benefit}
-                    </td>
-                    <td className="border border-gray-300 p-2">{standard}</td>
-                    <td className="border border-gray-300 p-2">{enhanced}</td>
-                    <td className="border border-gray-300 p-2">{premium}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
-
-      {showInfoCountryOfOrigin && (
-        <div className="border rounded-lg shadow-sm p-4 mt-4 bg-white font-[inter]">
-          <h2 className="text-lg font-semibold border-b pb-2">
-            Country of Origin
-          </h2>
-          <p className="text-sm text-gray-600 mt-2">
-            <strong>Country of Origin</strong> means the country for which the
-            insured person holds a passport. Where the insured person holds more
-            than one passport, the country of origin will be taken to mean the
-            country that the insured person has declared on the application.
-          </p>
-        </div>
-      )}
-
-      {showInfoDestinationProvince && (
-        <div className="border rounded-lg shadow-sm p-4 mt-4 bg-white font-[inter]">
-          <p className="text-sm text-gray-700">
-            Select the primary destination Province for your trip.
-          </p>
-        </div>
-      )}
     </div>
   );
 }

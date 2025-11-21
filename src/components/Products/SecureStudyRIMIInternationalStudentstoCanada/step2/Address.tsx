@@ -308,34 +308,15 @@
 //   );
 // }
 
-
-
-
-
-
-
-
-
 // ================================================
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 import { ChevronDownIcon } from "@heroicons/react/24/outline";
+import { Controller, UseFormReturn } from "react-hook-form";
+import { StudentsToCanadaCountries } from "../../SecureTravelRIMIVisitorstoCanadaTravel/step1/Constants";
+import { useEffect } from "react";
+import Dropdown from "../../../DropDown";
 
-interface AddressInfo {
+export interface AddressInfo {
   addressLine1: string;
   addressLine2: string;
   city: string;
@@ -345,95 +326,148 @@ interface AddressInfo {
 }
 
 interface AddressProps {
-  address: AddressInfo;
-  setAddress: (address: AddressInfo) => void;
+  methods: UseFormReturn<AddressInfo>;
 }
 
-export default function Address({ address, setAddress }: AddressProps) {
-  const handleChange = (field: keyof AddressInfo, value: string) => {
-    setAddress({
-      ...address,
-      [field]: value,
-    });
-  };
+export default function Address({ methods }: AddressProps) {
+  const {
+    register,
+    control,
+    formState: { errors },
+  } = methods;
 
   return (
-    <div className="max-w-5xl mx-auto mt-4 p-6 bg-[#F9F9F9]">
+    <div className="max-w-5xl mx-auto mt-4 p-3 sm:p-6 bg-[#F9F9F9]">
       <h3 className="text-lg font-bold text-left text-[#1B1B1B] mb-5">
         Address
       </h3>
+
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 md:gap-x-16 lg:gap-x-24 gap-y-4 text-text-secondary">
+        {/* Address Line 1 */}
         <div className="flex flex-col">
           <label className="text-sm">Address Line 1</label>
           <input
             type="text"
             className="input-primary"
             placeholder="Address Line 1"
-            value={address.addressLine1}
-            onChange={(e) => handleChange("addressLine1", e.target.value)}
+            {...register("addressLine1", {
+              required: "Address Line 1 is required",
+              maxLength: {
+                value: 100,
+                message: "Address Line 1 cannot exceed 100 characters",
+              },
+            })}
           />
+          {errors.addressLine1 && (
+            <p className="text-red-500 text-sm mt-1">
+              {errors.addressLine1.message}
+            </p>
+          )}
         </div>
+
+        {/* Address Line 2 (optional but limited) */}
         <div className="flex flex-col">
           <label className="text-sm">Address Line 2</label>
           <input
             type="text"
             className="input-primary"
             placeholder="Address Line 2"
-            value={address.addressLine2}
-            onChange={(e) => handleChange("addressLine2", e.target.value)}
+            {...register("addressLine2", {
+              required: "Address Line 2 is required",
+              maxLength: {
+                value: 100,
+                message: "Address Line 2 cannot exceed 100 characters",
+              },
+            })}
           />
+          {errors.addressLine2 && (
+            <p className="text-red-500 text-sm mt-1">
+              {errors.addressLine2.message}
+            </p>
+          )}
         </div>
+
+        {/* City */}
         <div className="flex flex-col">
           <label className="text-sm">City</label>
           <input
             type="text"
             className="input-primary"
             placeholder="City"
-            value={address.city}
-            onChange={(e) => handleChange("city", e.target.value)}
+            {...register("city", {
+              required: "City is required",
+            })}
           />
+          {errors.city && (
+            <p className="text-red-500 text-sm mt-1">{errors.city.message}</p>
+          )}
         </div>
+
+        {/* Postal Code */}
         <div className="flex flex-col">
           <label className="text-sm">Postal Code</label>
           <input
             type="text"
             className="input-primary"
             placeholder="Postal Code"
-            value={address.postalCode}
-            onChange={(e) => handleChange("postalCode", e.target.value)}
+            {...register("postalCode", {
+              required: "Postal Code is required",
+              maxLength: {
+                value: 10,
+                message: "Postal Code cannot exceed 10 characters",
+              },
+              pattern: {
+                value: /^[A-Za-z0-9\s-]+$/,
+                message:
+                  "Postal Code must contain only letters, numbers, spaces, or hyphens",
+              },
+            })}
           />
+          {errors.postalCode && (
+            <p className="text-red-500 text-sm mt-1">
+              {errors.postalCode.message}
+            </p>
+          )}
         </div>
+
+        {/* Country */}
         <div className="flex flex-col">
-          <label className="text-sm">Country</label>
-          <div className="relative">
-            <select
-              className="input-primary appearance-none cursor-pointer"
-              value={address.country}
-              onChange={(e) => handleChange("country", e.target.value)}
-            >
-              <option value="">Please select...</option>
-              <option value="AF">Afghanistan</option>
-              <option value="CA">Canada</option>
-              <option value="CN">China</option>
-              <option value="IN">India</option>
-              <option value="US">United States</option>
-              <option value="GB">United Kingdom</option>
-              {/* Add more countries as needed */}
-            </select>
-            <div className="pointer-events-none absolute inset-y-0 right-2 flex items-center text-gray-500">
-              <ChevronDownIcon className="h-5 w-5" aria-hidden="true" />
-            </div>
-          </div>
+          <Controller
+            control={control}
+            name="country"
+            rules={{ required: "Country is required" }}
+            render={({ field }) => (
+              <Dropdown
+                label="Country"
+                options={StudentsToCanadaCountries}
+                value={field.value}
+                onChange={(value) => {
+                  field.onChange(value);
+                }}
+              />
+            )}
+          />
+          {errors.country && (
+            <p className="text-red-500 text-sm">{errors.country.message}</p>
+          )}
         </div>
+
+        {/* Province */}
         <div className="flex flex-col">
           <label className="text-sm">Province/State</label>
           <input
             type="text"
             className="input-primary"
             placeholder="Province/State"
-            value={address.province}
-            onChange={(e) => handleChange("province", e.target.value)}
+            {...register("province", {
+              required: "Province/State is required",
+            })}
           />
+          {errors.province && (
+            <p className="text-red-500 text-sm mt-1">
+              {errors.province.message}
+            </p>
+          )}
         </div>
       </div>
     </div>

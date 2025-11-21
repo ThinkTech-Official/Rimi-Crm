@@ -845,7 +845,7 @@ export default function Dashboard() {
 
         <div className={`${isSidebarCollapsed ? "md:pl-64" : "md:pl-14"}`}>
           {/* Mobile Header */}
-          <div className="absolute top-0 left-0 -mt-1 z-5 flex items-center gap-x-3 px-4 py-4 sm:px-6 lg:px-8 md:hidden">
+          <div className="fixed top-0 left-0 -mt-1 z-5 flex items-center gap-x-3 px-4 py-4 sm:px-6 lg:px-8 md:hidden">
             <button
               type="button"
               className="text-gray-700 lg:hidden"

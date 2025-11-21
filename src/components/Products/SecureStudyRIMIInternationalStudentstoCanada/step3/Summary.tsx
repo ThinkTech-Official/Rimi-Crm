@@ -22,172 +22,151 @@ const Summary: React.FC<SummaryProps> = ({ quoteId }) => {
     return <p className="text-center mt-8">No data to display.</p>;
   }
 
-  const maybe = (value: string | number | undefined | null) =>
+  const maybe = (value: any) =>
     value === undefined || value === null || value === "" ? "N/A" : value;
 
+  const contactInfoRows: [string, React.ReactNode][] = [
+    ["First Name", maybe(data.firstName)],
+    ["Last Name", maybe(data.lastName)],
+    ["Primary Email", maybe(data.email)],
+    ["Additional Email", maybe((data as any).additionalEmail)],
+    ["Phone Number", maybe((data as any).phoneNumber)],
+    ["Legal Guardian", maybe((data as any).legalGuardianName)],
+  ];
+
+  const quoteSummaryRows: [string, React.ReactNode][] = [
+    ["Quote Number", maybe(data.quoteNumber)],
+    ["Product", maybe(data.product)],
+    ["Status", maybe(data.status)],
+    ["Effective Date", maybe(data.effectiveDate)],
+    ["Expiry Date", maybe(data.expiryDate)],
+    ["Coverage Length (Days)", maybe(data.covLen)],
+    ["Policy Type", maybe(data.policyType)],
+    ["Destination Province", maybe(data.destProv)],
+    ["Country of Origin", maybe((data as any).countryOfOrigin)],
+  ];
+
+  const addressRows: [string, React.ReactNode][] = [
+    ["Street 1", maybe(data.street)],
+    ["Street 2", maybe((data as any).street2)],
+    ["City", maybe(data.city)],
+    ["Province/State", maybe(data.province)],
+    ["Country Code", maybe(data.countryCode)],
+    ["Postal Code", maybe((data as any).postalCode)],
+  ];
+
+  const beneficiaryRows: [string, React.ReactNode][] = [
+    ["Beneficiary Name", maybe((data as any).beneficiaryName)],
+    ["Relationship to Insured", maybe((data as any).beneficiaryRelation)],
+  ];
+
+  const premiumRows: [string, React.ReactNode][] = [
+    ["Premium", `$${maybe(data.premium)}`],
+    ["Paid Premium", `$${maybe(data.paidPremium)}`],
+  ];
+
+  //reusable table
+const renderTable = (rows: [string, React.ReactNode][]) => (
+  <div className="w-full overflow-x-auto">
+    <table className="min-w-max w-full border border-[#DBDADE]">
+      <tbody>
+        {rows.map(([label, value], idx) => (
+          <tr
+            key={idx}
+            className="border border-[#DBDADE] even:bg-[#F5F5F5] odd:bg-white text-sm sm:text-base"
+          >
+            <td className="p-3 text-left font-semibold text-[#1B1B1B] w-1/2 whitespace-nowrap">
+              {label}
+            </td>
+            <td className="p-3 text-left text-[#6A6A6A] capitalize whitespace-nowrap">
+              {value}
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+);
+
+
   return (
-    <>
-      <div className="mt-4 text-center">
-        <h2 className="text-2xl font-bold text-[#2B00B7]">
-          Your Policy is Under Process
-        </h2>
-        <h3 className="text-lg text-gray-600 mt-2">
-          Note: This is not the final policy document
+    <div className="max-w-5xl xl:min-w-4xl mt-4 p-6 bg-[#F9F9F9]">
+      <div className="text-center text-text-primary my-6">
+        <h2 className="text-xl font-semibold">Your Policy is under Process</h2>
+        <h3 className="text-sm">
+          <b>Note:</b> This is not the Policy
         </h3>
       </div>
+
       <div className="space-y-8 px-4 py-6">
         {/* CONTACT INFORMATION */}
         <section>
           <h2 className="text-xl font-semibold mb-2">Contact Information</h2>
-          <table className="min-w-full border border-gray-200">
-            <tbody>
-              <tr>
-                <th className="text-left px-4 py-2 border bg-gray-50">
-                  First Name
-                </th>
-                <td className="px-4 py-2 border">{maybe(data.firstName)}</td>
-              </tr>
-              <tr>
-                <th className="text-left px-4 py-2 border bg-gray-50">
-                  Last Name
-                </th>
-                <td className="px-4 py-2 border">{maybe(data.lastName)}</td>
-              </tr>
-              <tr>
-                <th className="text-left px-4 py-2 border bg-gray-50">
-                  Primary Email
-                </th>
-                <td className="px-4 py-2 border">{maybe(data.email)}</td>
-              </tr>
-              <tr>
-                <th className="text-left px-4 py-2 border bg-gray-50">
-                  Additional Email
-                </th>
-                <td className="px-4 py-2 border">
-                  {maybe((data as any).additionalEmail)}
-                </td>
-              </tr>
-              <tr>
-                <th className="text-left px-4 py-2 border bg-gray-50">
-                  Phone Number
-                </th>
-                <td className="px-4 py-2 border">
-                  {maybe((data as any).phoneNumber)}
-                </td>
-              </tr>
-              <tr>
-                <th className="text-left px-4 py-2 border bg-gray-50">
-                  Legal Guardian
-                </th>
-                <td className="px-4 py-2 border">
-                  {maybe((data as any).legalGuardianName)}
-                </td>
-              </tr>
-            </tbody>
-          </table>
+          {renderTable(contactInfoRows)}
         </section>
 
         {/* QUOTE SUMMARY */}
         <section>
           <h2 className="text-xl font-semibold mb-2">Quote Summary</h2>
-          <table className="min-w-full border border-gray-200">
-            <tbody>
-              <tr>
-                <th className="text-left px-4 py-2 border bg-gray-50">
-                  Quote Number
-                </th>
-                <td className="px-4 py-2 border">{maybe(data.quoteNumber)}</td>
-              </tr>
-              <tr>
-                <th className="text-left px-4 py-2 border bg-gray-50">
-                  Product
-                </th>
-                <td className="px-4 py-2 border">{maybe(data.product)}</td>
-              </tr>
-              <tr>
-                <th className="text-left px-4 py-2 border bg-gray-50">
-                  Status
-                </th>
-                <td className="px-4 py-2 border">{maybe(data.status)}</td>
-              </tr>
-              <tr>
-                <th className="text-left px-4 py-2 border bg-gray-50">
-                  Effective Date
-                </th>
-                <td className="px-4 py-2 border">
-                  {maybe(data.effectiveDate)}
-                </td>
-              </tr>
-              <tr>
-                <th className="text-left px-4 py-2 border bg-gray-50">
-                  Expiry Date
-                </th>
-                <td className="px-4 py-2 border">{maybe(data.expiryDate)}</td>
-              </tr>
-              <tr>
-                <th className="text-left px-4 py-2 border bg-gray-50">
-                  Coverage Length (Days)
-                </th>
-                <td className="px-4 py-2 border">{maybe(data.covLen)}</td>
-              </tr>
-              <tr>
-                <th className="text-left px-4 py-2 border bg-gray-50">
-                  Policy Type
-                </th>
-                <td className="px-4 py-2 border">{maybe(data.policyType)}</td>
-              </tr>
-              <tr>
-                <th className="text-left px-4 py-2 border bg-gray-50">
-                  Destination Province
-                </th>
-                <td className="px-4 py-2 border">{maybe(data.destProv)}</td>
-              </tr>
-              <tr>
-                <th className="text-left px-4 py-2 border bg-gray-50">
-                  Country of Origin
-                </th>
-                <td className="px-4 py-2 border">
-                  {maybe((data as any).countryOfOrigin)}
-                </td>
-              </tr>
-            </tbody>
-          </table>
+          {renderTable(quoteSummaryRows)}
         </section>
 
         {/* APPLICANT SUMMARY */}
         <section>
           <h2 className="text-xl font-semibold mb-2">Applicant Summary</h2>
+
           {Array.isArray(data.applicants) && data.applicants.length > 0 ? (
-            <table className="min-w-full border border-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-4 py-2 border text-left">#</th>
-                  <th className="px-4 py-2 border text-left">First Name</th>
-                  <th className="px-4 py-2 border text-left">Last Name</th>
-                  <th className="px-4 py-2 border text-left">Date of Birth</th>
-                  <th className="px-4 py-2 border text-left">Relationship</th>
-                  <th className="px-4 py-2 border text-left">Gender</th>
-                </tr>
-              </thead>
-              <tbody>
-                {data.applicants.map((app: any, idx: number) => (
-                  <tr key={idx}>
-                    <td className="px-4 py-2 border">{maybe(app.index)}</td>
-                    <td className="px-4 py-2 border">{maybe(app.firstName)}</td>
-                    <td className="px-4 py-2 border">{maybe(app.lastName)}</td>
-                    <td className="px-4 py-2 border">
-                      {maybe(app.dateOfBirth)}
-                    </td>
-                    <td className="px-4 py-2 border">
-                      {maybe((app as any).relation)}
-                    </td>
-                    <td className="px-4 py-2 border">
-                      {maybe((app as any).gender)}
-                    </td>
+            <div className="overflow-scroll">
+              <table className="w-full border border-[#DBDADE]">
+                <thead className="bg-[#F5F5F5] border-b border-[#DBDADE]">
+                  <tr>
+                    {[
+                      "Sr. No.",
+                      "First Name",
+                      "Last Name",
+                      "Date of Birth",
+                      "Relationship",
+                      "Gender",
+                    ].map((header, i) => (
+                      <th
+                        key={i}
+                        className="p-3 text-left font-semibold text-[#1B1B1B] text-nowrap"
+                      >
+                        {header}
+                      </th>
+                    ))}
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+
+                <tbody>
+                  {data.applicants.map((app: any, idx: number) => (
+                    <tr
+                      key={idx}
+                      className="border border-[#DBDADE] even:bg-[#F5F5F5] odd:bg-white textnow"
+                    >
+                      <td className="p-3 text-left text-[#6A6A6A]">
+                        {Number(maybe(app.index)) + 1}
+                      </td>
+                      <td className="p-3 text-left text-[#6A6A6A]">
+                        {maybe(app.firstName)}
+                      </td>
+                      <td className="p-3 text-left text-[#6A6A6A]">
+                        {maybe(app.lastName)}
+                      </td>
+                      <td className="p-3 text-left text-[#6A6A6A]">
+                        {maybe(app.dateOfBirth)}
+                      </td>
+                      <td className="p-3 text-left text-[#6A6A6A]">
+                        {maybe((app as any).relation)}
+                      </td>
+                      <td className="p-3 text-left text-[#6A6A6A]">
+                        {maybe((app as any).gender)}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           ) : (
             <p>No additional applicants found.</p>
           )}
@@ -196,48 +175,7 @@ const Summary: React.FC<SummaryProps> = ({ quoteId }) => {
         {/* ADDRESS */}
         <section>
           <h2 className="text-xl font-semibold mb-2">Address</h2>
-          <table className="min-w-full border border-gray-200">
-            <tbody>
-              <tr>
-                <th className="text-left px-4 py-2 border bg-gray-50">
-                  Street 1
-                </th>
-                <td className="px-4 py-2 border">{maybe(data.street)}</td>
-              </tr>
-              <tr>
-                <th className="text-left px-4 py-2 border bg-gray-50">
-                  Street 2
-                </th>
-                <td className="px-4 py-2 border">
-                  {maybe((data as any).street2)}
-                </td>
-              </tr>
-              <tr>
-                <th className="text-left px-4 py-2 border bg-gray-50">City</th>
-                <td className="px-4 py-2 border">{maybe(data.city)}</td>
-              </tr>
-              <tr>
-                <th className="text-left px-4 py-2 border bg-gray-50">
-                  Province / State
-                </th>
-                <td className="px-4 py-2 border">{maybe(data.province)}</td>
-              </tr>
-              <tr>
-                <th className="text-left px-4 py-2 border bg-gray-50">
-                  Country Code
-                </th>
-                <td className="px-4 py-2 border">{maybe(data.countryCode)}</td>
-              </tr>
-              <tr>
-                <th className="text-left px-4 py-2 border bg-gray-50">
-                  Postal Code
-                </th>
-                <td className="px-4 py-2 border">
-                  {maybe((data as any).postalCode)}
-                </td>
-              </tr>
-            </tbody>
-          </table>
+          {renderTable(addressRows)}
         </section>
 
         {/* BENEFICIARY */}
@@ -245,52 +183,16 @@ const Summary: React.FC<SummaryProps> = ({ quoteId }) => {
           <h2 className="text-xl font-semibold mb-2">
             Beneficiary (In Case of Death)
           </h2>
-          <table className="min-w-full border border-gray-200">
-            <tbody>
-              <tr>
-                <th className="text-left px-4 py-2 border bg-gray-50">
-                  Beneficiary Name
-                </th>
-                <td className="px-4 py-2 border">
-                  {maybe((data as any).beneficiaryName)}
-                </td>
-              </tr>
-              <tr>
-                <th className="text-left px-4 py-2 border bg-gray-50">
-                  Relationship to Insured
-                </th>
-                <td className="px-4 py-2 border">
-                  {maybe((data as any).beneficiaryRelation)}
-                </td>
-              </tr>
-            </tbody>
-          </table>
+          {renderTable(beneficiaryRows)}
         </section>
 
         {/* PREMIUM */}
         <section>
           <h2 className="text-xl font-semibold mb-2">Premium Details</h2>
-          <table className="min-w-full border border-gray-200">
-            <tbody>
-              <tr>
-                <th className="text-left px-4 py-2 border bg-gray-50">
-                  Premium
-                </th>
-                <td className="px-4 py-2 border">${maybe(data.premium)}</td>
-              </tr>
-              <tr>
-                <th className="text-left px-4 py-2 border bg-gray-50">
-                  Paid Premium
-                </th>
-                <td className="px-4 py-2 border">
-                  ${maybe(data.paidPremium)}
-                </td>
-              </tr>
-            </tbody>
-          </table>
+          {renderTable(premiumRows)}
         </section>
       </div>
-    </>
+    </div>
   );
 };
 

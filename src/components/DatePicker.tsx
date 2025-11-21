@@ -36,7 +36,7 @@ export default function DatePicker({
 
   return (
     <div className="flex flex-col relative w-full" ref={dateRef}>
-      <label className="text-sm mb-1">{label}</label>
+      <label className="text-sm">{label}</label>
 
       <div className="relative">
         <input

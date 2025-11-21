@@ -89,7 +89,7 @@ export default function Navbar() {
 
   return (
     <>
-      <div className=" h-14 max-w-screen sticky top-0 z-5 bg-[#ffffff] border border-b-[#E9EEF1] border-t-0 border-r-0 flex items-center justify-between px-4 sm:px-10">
+      <div className=" h-14 max-w-screen sticky top-0 z-5 bg-[#ffffff] border-b border-b-[#E9EEF1] border-t-0 border-r-0 flex items-center justify-between px-4 sm:px-10">
         {/* Link to Home, Policy , Qoutes */}
         <>
           {/* mid screen and above  */}

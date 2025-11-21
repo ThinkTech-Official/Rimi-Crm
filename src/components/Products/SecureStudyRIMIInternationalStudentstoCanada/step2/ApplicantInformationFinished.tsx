@@ -107,7 +107,7 @@ const ApplicantInformationFinished: React.FC<
   return (
     <>
       {/* PRIMARY APPLICANT */}
-      <div className="max-w-5xl mx-auto mt-4 p-6 bg-[#F9F9F9]">
+      <div className="max-w-5xl mx-auto mt-4 p-3 sm:p-6 bg-[#F9F9F9]">
         <h3 className="text-lg font-bold text-left text-[#1B1B1B] mb-5">
           Applicant Information
         </h3>
@@ -115,38 +115,46 @@ const ApplicantInformationFinished: React.FC<
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 md:gap-x-16 lg:gap-x-24 gap-y-4 text-text-secondary">
           <div className="flex flex-col">
             <label className="text-sm">Date of Birth</label>
-            <p className="p-2 border border-[#DBDADE] bg-white">
-              {formatDate(dateOfBirth)}
-            </p>
+            <input
+            value={formatDate(dateOfBirth)}
+            disabled
+            className="input-primary"
+            />
           </div>
 
           <div className="flex flex-col">
             <label className="text-sm">First Name</label>
-            <p className="p-2 border border-[#DBDADE] bg-white">
-              {firstName || "N/A"}
-            </p>
+            <input
+            value={firstName || "N/A"}
+            disabled
+            className="input-primary"
+            />
           </div>
 
           <div className="flex flex-col">
             <label className="text-sm">Last Name</label>
-            <p className="p-2 border border-[#DBDADE] bg-white">
-              {lastName || "N/A"}
-            </p>
+           <input
+            value={lastName || "N/A"}
+            disabled
+            className="input-primary"
+            />
           </div>
 
           <div className="flex flex-col">
             <label className="text-sm">Gender</label>
-            <p className="p-2 border border-[#DBDADE] bg-white">
-              {gender || "N/A"}
-            </p>
+            <input
+            value={gender || "N/A"}
+            disabled
+            className="input-primary"
+            />
           </div>
         </div>
       </div>
 
       {/* ADDITIONAL APPLICANTS */}
       {applicants && applicants.length > 0 && (
-        <div className="max-w-5xl mx-auto mt-4 p-6 bg-[#F9F9F9]">
-          <h3 className="text-lg font-bold text-left text-[#1B1B1B] mb-5">
+        <div className="max-w-5xl mx-auto mt-4 p-3 sm:p-6 bg-[#F9F9F9]">
+          <h3 className="text-lg font-bold text-left text-[#1B1B1B] mb-3 sm:mb-5">
             Additional Applicants
           </h3>
 
@@ -158,35 +166,35 @@ const ApplicantInformationFinished: React.FC<
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 md:gap-x-16 lg:gap-x-24 gap-y-4 text-text-secondary">
                 <div className="flex flex-col">
                   <label className="text-sm">First Name</label>
-                  <p className="p-2 border border-[#DBDADE] bg-white">
+                  <p className="input-primary">
                     {applicant.firstName || "N/A"}
                   </p>
                 </div>
 
                 <div className="flex flex-col">
                   <label className="text-sm">Last Name</label>
-                  <p className="p-2 border border-[#DBDADE] bg-white">
+                  <p className="input-primary">
                     {applicant.lastName || "N/A"}
                   </p>
                 </div>
 
                 <div className="flex flex-col">
                   <label className="text-sm">Date of Birth</label>
-                  <p className="p-2 border border-[#DBDADE] bg-white">
+                  <p className="input-primary">
                     {formatDate(applicant.dob)}
                   </p>
                 </div>
 
                 <div className="flex flex-col">
                   <label className="text-sm">Relationship</label>
-                  <p className="p-2 border border-[#DBDADE] bg-white">
+                  <p className="input-primary">
                     {applicant.relationship || "N/A"}
                   </p>
                 </div>
 
                 <div className="flex flex-col">
                   <label className="text-sm">Gender</label>
-                  <p className="p-2 border border-[#DBDADE] bg-white">
+                  <p className="input-primary">
                     {applicant.gender || "N/A"}
                   </p>
                 </div>

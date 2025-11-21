@@ -1419,6 +1419,7 @@ const Step1STRVCT = ({
         )}
         {isEmailModalOpen && (
           <EmailQuote
+            quoteNumber={quoteNumber}
             schedule={schedule}
             totalPremium={totalPremium}
             setIsEmailModalOpen={setIsEmailModalOpen}

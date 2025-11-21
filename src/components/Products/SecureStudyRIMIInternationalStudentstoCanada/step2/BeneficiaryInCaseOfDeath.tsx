@@ -320,47 +320,15 @@
 //   );
 // }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 // =============================================
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 import {
   ChevronDownIcon,
   InformationCircleIcon,
 } from "@heroicons/react/24/outline";
 import { useState } from "react";
+import { UseFormReturn } from "react-hook-form";
+import { StudentsToCanadaCountries } from "../../SecureTravelRIMIVisitorstoCanadaTravel/step1/Constants";
 
 interface BeneficiaryInfo {
   beneficiaryName: string;
@@ -371,40 +339,45 @@ interface BeneficiaryInfo {
 }
 
 interface BeneficiaryInCaseOfDeathProps {
-  beneficiaryInfo: BeneficiaryInfo;
-  setBeneficiaryInfo: (info: BeneficiaryInfo) => void;
+  methods: UseFormReturn<BeneficiaryInfo>;
 }
 
 export default function BeneficiaryInCaseOfDeath({
-  beneficiaryInfo,
-  setBeneficiaryInfo,
+  methods,
 }: BeneficiaryInCaseOfDeathProps) {
-  const [displayInfoRelationShipToInsured, setDisplayInfoRelationShipToInsured] =
-    useState(false);
+  const { register, formState:{ errors } } = methods;
 
-  const handleChange = (field: keyof BeneficiaryInfo, value: string) => {
-    setBeneficiaryInfo({
-      ...beneficiaryInfo,
-      [field]: value,
-    });
-  };
+  const [
+    displayInfoRelationShipToInsured,
+    setDisplayInfoRelationShipToInsured,
+  ] = useState(false);
 
   return (
-    <div className="max-w-5xl mx-auto mt-4 p-6 bg-[#F9F9F9]">
+    <div className="form-container">
       <h3 className="text-lg font-bold text-left text-[#1B1B1B] mb-5">
         Beneficiary In Case Of Death
       </h3>
+
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 md:gap-x-16 lg:gap-x-24 gap-y-4 text-text-secondary">
+        {/* BENEFICIARY NAME */}
         <div className="flex flex-col">
           <label className="text-sm">Beneficiary Name</label>
           <input
             className="input-primary"
             type="text"
             placeholder="Beneficiary Name"
-            value={beneficiaryInfo.beneficiaryName}
-            onChange={(e) => handleChange("beneficiaryName", e.target.value)}
+            {...register("beneficiaryName",{
+              required: "Beneficiary Name is required",
+            })}
           />
+          {errors.beneficiaryName && (
+            <p className="text-red-500 text-xs mt-1">
+              {errors.beneficiaryName.message}
+            </p>
+          )}
         </div>
+
+        {/* RELATIONSHIP */}
         <div className="flex flex-col">
           <label className="flex items-center gap-1">
             <InformationCircleIcon
@@ -412,7 +385,6 @@ export default function BeneficiaryInCaseOfDeath({
                 setDisplayInfoRelationShipToInsured((prev) => !prev)
               }
               className="h-5 w-5 text-[#3a17c5] cursor-pointer"
-              aria-hidden="true"
             />
             Relationship to Insured
           </label>
@@ -420,61 +392,98 @@ export default function BeneficiaryInCaseOfDeath({
             className="input-primary"
             type="text"
             placeholder="e.g., Spouse, Parent, Sibling"
-            value={beneficiaryInfo.relationshipToInsured}
-            onChange={(e) =>
-              handleChange("relationshipToInsured", e.target.value)
-            }
+            {...register("relationshipToInsured",{
+              required: "Relationship to Insured is required",
+            })}
           />
+           {errors.relationshipToInsured && (
+            <p className="text-red-500 text-xs mt-1">
+              {errors.relationshipToInsured.message}
+            </p>
+          )}
         </div>
+
         {displayInfoRelationShipToInsured && (
           <div className="col-span-2 flex flex-col items-start mt-2 mb-2 border border-gray-300 p-4 bg-white text-sm text-gray-700 rounded-md font-[inter]">
             <h2 className="text-base font-semibold mb-2">
               Relationship to Insured
             </h2>
-            <p>Enter the beneficiary's relationship to the Primary Applicant.</p>
+            <p>
+              Enter the beneficiary's relationship to the Primary Applicant.
+            </p>
           </div>
         )}
+
+        {/* ADDRESS */}
         <div className="flex flex-col">
           <label className="text-sm">Address</label>
           <input
             className="input-primary"
             type="text"
             placeholder="Address"
-            value={beneficiaryInfo.address}
-            onChange={(e) => handleChange("address", e.target.value)}
+            {...register("address",{
+              required: "Address is required",
+              maxLength:{
+                value: 100,
+                message: "Address must be less than 100 characters",
+              }
+            })}
           />
+           {errors.address && (
+            <p className="text-red-500 text-xs mt-1">
+              {errors.address.message}
+            </p>
+          )}
         </div>
+
+        {/* CITY */}
         <div className="flex flex-col">
           <label className="text-sm">City</label>
           <input
             className="input-primary"
             type="text"
             placeholder="City"
-            value={beneficiaryInfo.city}
-            onChange={(e) => handleChange("city", e.target.value)}
+            {...register("city",{
+              required: "City is required",
+              maxLength:{
+                value: 100,
+                message: "City must be less than 100 characters",
+              }
+            })}
           />
+           {errors.city && (
+            <p className="text-red-500 text-xs mt-1">
+              {errors.city.message}
+            </p>
+          )}
         </div>
+
+        {/* COUNTRY */}
         <div className="flex flex-col">
           <label className="text-sm">Country</label>
           <div className="relative">
             <select
               className="input-primary appearance-none cursor-pointer"
-              value={beneficiaryInfo.country}
-              onChange={(e) => handleChange("country", e.target.value)}
+              {...register("country",{
+                required: "Country is required",
+              })}
             >
-              <option value="">Please select...</option>
-              <option value="AF">Afghanistan</option>
-              <option value="CA">Canada</option>
-              <option value="CN">China</option>
-              <option value="IN">India</option>
-              <option value="US">United States</option>
-              <option value="GB">United Kingdom</option>
-              {/* Add more countries as needed */}
+              {StudentsToCanadaCountries.map((c) => (
+                <option key={c.code} value={c.code}>
+                  {c.name}
+                </option>
+              ))}
             </select>
+
             <div className="pointer-events-none absolute inset-y-0 right-2 flex items-center text-gray-500">
-              <ChevronDownIcon className="h-5 w-5" aria-hidden="true" />
+              <ChevronDownIcon className="h-5 w-5" />
             </div>
           </div>
+           {errors.country && (
+            <p className="text-red-500 text-xs mt-1">
+              {errors.country.message}
+            </p>
+          )}
         </div>
       </div>
     </div>

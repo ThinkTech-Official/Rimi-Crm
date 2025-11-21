@@ -191,10 +191,7 @@
 //   );
 // }
 
-
-
 // ==========================================================
-
 
 import { CheckIcon } from "@heroicons/react/24/outline";
 import { useState } from "react";
@@ -210,7 +207,7 @@ import Step1Container from "./step1/Step1Container";
 import QuoteSummary from "./step2/QuotesSummary";
 import ApplicantInformationFinished from "./step2/ApplicantInformationFinished";
 import ContactInformation from "./step2/ContactInformation";
-import Address from "./step2/Address";
+import Address, { AddressInfo } from "./step2/Address";
 import BeneficiaryInCaseOfDeath from "./step2/BeneficiaryInCaseOfDeath";
 import PaymentInformation from "./step2/PaymentInformation";
 
@@ -219,19 +216,26 @@ import Summary from "./step3/Summary";
 
 // Hooks
 import { useSaveQuoteNextProduct2 } from "../../../hooks/student-international/useSaveQuoteNextProduct2";
-import { useQuoteUpdateProduct2, Stage2PayloadProduct2 } from "../../../hooks/student-international/useQuoteUpdateProduct2";
+import {
+  useQuoteUpdateProduct2,
+  Stage2PayloadProduct2,
+} from "../../../hooks/student-international/useQuoteUpdateProduct2";
 import { useCreateQuoteProduct2 } from "../../../hooks/student-international/useCreateQuoteProduct2";
-
+import { FormProvider, useForm } from "react-hook-form";
+import useNotification from "../../../hooks/useNotification";
 
 type YesNo = "" | "yes" | "no";
 
-interface Applicant {
+export interface Applicant {
   index: string;
   firstName: string;
   lastName: string;
   dob: string;
   relationship: string;
   gender: string;
+  healthQuestionnaire?: {
+    questions: any[];
+  };
 }
 
 interface QuoteStage1ResponseProduct2 {
@@ -252,7 +256,7 @@ interface QuoteStage1ResponseProduct2 {
   applicants: Applicant[];
 }
 
-interface ContactInfo {
+export interface ContactInfo {
   additionalEmail: string;
   phoneNumber: string;
   legalGuardianName: string;
@@ -266,28 +270,76 @@ interface BeneficiaryInfo {
   country: string;
 }
 
+export interface Step1FormData {
+  primaryFirstName: string;
+  primaryLastName: string;
+  primaryDateOfBirth: string;
+  primaryEmail: string;
+  primaryApplicantGender: string;
+  applicantNumber: number;
+  applicants: Applicant[];
+  isConfirmed: boolean;
+  policyType: string;
+  countryOfOrigin: string;
+  destinationProvince: string;
+  effectiveDate: string;
+  expiryDate: string;
+  coverageLength: string;
+}
+
 const productName = "Secure Study RIMI International Students to Canada";
 
 export default function SecureStudyRIMIInternationalStudentstoCanada() {
   const agentCode = useSelector((state: RootState) => state.auth.agentCode);
 
-  // ==================== APPLICANT INFORMATION STATE ====================
-  const [primaryFirstName, setPrimaryFirstName] = useState("");
-  const [primaryLastName, setPrimaryLastName] = useState("");
-  const [primaryDateOfBirth, setPrimaryDateOfBirth] = useState("");
-  const [primaryEmail, setPrimaryEmail] = useState("");
-  const [primaryApplicantGender, setPrimaryApplicantGender] = useState("");
-  const [applicantNumber, setApplicantNumber] = useState(0);
-  const [applicants, setApplicants] = useState<Applicant[]>([]);
-  const [isConfirmed, setIsConfirmed] = useState(false);
+  // ==================== HOOK FORM FOR STEP 1 ====================
+  const step1Methods = useForm<Step1FormData>({
+    defaultValues: {
+      primaryFirstName: "",
+      primaryLastName: "",
+      primaryDateOfBirth: "",
+      primaryEmail: "",
+      primaryApplicantGender: "",
+      applicantNumber: 0,
+      applicants: [],
+      isConfirmed: false,
+      policyType: "",
+      countryOfOrigin: "",
+      destinationProvince: "",
+      effectiveDate: "",
+      expiryDate: "",
+      coverageLength: "",
+    },
+  });
 
-  // ==================== COVERAGE INFORMATION STATE ====================
-  const [policyType, setPolicyType] = useState<string>("");
-  const [countryOfOrigin, setCountryOfOrigin] = useState<string>("");
-  const [destinationProvince, setDestinationProvince] = useState<string>("");
-  const [effectiveDate, setEffectiveDate] = useState<string>("");
-  const [expiryDate, setExpiryDate] = useState<string>("");
-  const [coverageLength, setCoverageLength] = useState<string>("");
+  const contactInfoMethods = useForm<ContactInfo>({
+    defaultValues: {
+      additionalEmail: "",
+      phoneNumber: "",
+      legalGuardianName: "",
+    },
+  });
+
+  const beneficiaryInfoMethods = useForm<BeneficiaryInfo>({
+    defaultValues: {
+      beneficiaryName: "",
+      relationshipToInsured: "",
+      address: "",
+      city: "",
+      country: "",
+    },
+  });
+
+  const addressInfoMethods = useForm<AddressInfo>({
+    defaultValues: {
+      addressLine1: "",
+      addressLine2: "",
+      city: "",
+      postalCode: "",
+      country: "",
+      province: "",
+    },
+  });
 
   // ==================== PREMIUM STATE ====================
   const [totalPremium, setTotalPremium] = useState<number>(0);
@@ -317,21 +369,22 @@ export default function SecureStudyRIMIInternationalStudentstoCanada() {
     country: "",
   });
 
-  const [contactInfo, setContactInfo] = useState<ContactInfo>({
-    additionalEmail: "",
-    phoneNumber: "",
-    legalGuardianName: "",
-  });
+  // const [contactInfo, setContactInfo] = useState<ContactInfo>({
+  //   additionalEmail: "",
+  //   phoneNumber: "",
+  //   legalGuardianName: "",
+  // });
 
   // ==================== WIZARD STATE ====================
   const [steps, setSteps] = useState([
     { id: "01", name: "Get Quote", href: "#", status: "current" },
     { id: "02", name: "Complete Application", href: "#", status: "upcoming" },
-    { id: "03", name: "Confirmation", href: "#", status: "upcoming" },
+    { id: "03", name: "Summary", href: "#", status: "upcoming" },
   ]);
 
   const [formStep, setFormStep] = useState(1);
   const [isStepOneFilled, setIsStepOneFilled] = useState(false);
+  const { NotificationComponent, triggerNotification } = useNotification();
 
   // ==================== HOOKS ====================
   const { saveQuoteNext, loading: savingStage1 } = useSaveQuoteNextProduct2();
@@ -340,7 +393,6 @@ export default function SecureStudyRIMIInternationalStudentstoCanada() {
     loading: submittingStage2,
     error: submitError,
   } = useQuoteUpdateProduct2();
-
 
   const { createQuote, loading: savingQuote } = useCreateQuoteProduct2();
 
@@ -370,66 +422,64 @@ export default function SecureStudyRIMIInternationalStudentstoCanada() {
     });
   };
 
-  // 🔥 ADD THIS NEW HANDLER
-const handleSaveQuote = async () => {
-  if (!isStepOneFilled) {
-    alert("Please fill all required fields and confirm eligibility");
-    return;
-  }
+  // Save Quote Handler
+  const handleSaveQuote = async () => {
+    const isValid = await step1Methods.trigger();
 
-  const payload = {
-    primaryFirstName,
-    primaryLastName,
-    primaryDateOfBirth,
-    primaryEmail,
-    primaryApplicantGender,
-    applicantNumber,
-    applicants,
-    countryOfOrigin,
-    policyType,
-    destinationProvince,
-    effectiveDate,
-    expiryDate,
-    coverageLength,
-    agentCode: agentCode!,
-    product: productName,
-    status: "Inactive", // Save as Inactive (not ready for payment yet)
+    if (!isValid) {
+      console.log("Validation failed", step1Methods.formState.errors);
+      triggerNotification({
+        message: "Please fill all required fields correctly.",
+        type: "error",
+      });
+      return;
+    }
+
+    // Get values from react-hook-form
+    const formValues = step1Methods.getValues();
+
+    const payload = {
+      ...formValues,
+      agentCode: agentCode!,
+      product: productName,
+      status: "Inactive", // Save as Inactive (not ready for payment yet)
+    };
+
+    try {
+      console.log("Saving Product 2 quote as Inactive...");
+      const response = await createQuote(payload);
+
+      // Update state with the saved quote number
+      setQuoteNumber(response.quote);
+
+      // Show success message
+      triggerNotification({
+        message: "Quote saved successfully",
+        type: "success",
+      });
+
+      console.log("Quote saved:", response.quote);
+    } catch (err: any) {
+      console.error("Failed to save quote:", err);
+      triggerNotification({ message: "Failed to save quote", type: "error" });
+    }
   };
 
-  try {
-    console.log("Saving Product 2 quote as Inactive...");
-    const response = await createQuote(payload);
-    
-    // Update state with the saved quote number
-    setQuoteNumber(response.quote);
-    
-    // Show success message
-    alert(`Quote saved successfully!\n\nQuote Number: ${response.quote}\n\nYou can continue later or proceed to the next step.`);
-    
-    console.log("Quote saved:", response.quote);
-  } catch (err: any) {
-    console.error("Failed to save quote:", err);
-    alert(`Failed to save quote: ${err.message || "Please try again"}`);
-  }
-};
-
-  const handleNext = async () => {
+  const handleNext = async (e?: React.FormEvent) => {
+    console.log("-----------");
+    e?.preventDefault();
     if (!isStepOneFilled || savingStage1) return;
+    const isValid = await step1Methods.trigger();
+    if (!isValid) {
+      console.log("Validation failed", step1Methods.formState.errors);
+      return;
+    }
+
+    // Get values from react-hook-form
+    const formValues = step1Methods.getValues();
 
     const stage1Payload = {
-      primaryFirstName,
-      primaryLastName,
-      primaryDateOfBirth,
-      primaryEmail,
-      primaryApplicantGender,
-      applicantNumber,
-      applicants,
-      countryOfOrigin,
-      policyType,
-      destinationProvince,
-      effectiveDate,
-      expiryDate,
-      coverageLength,
+      ...formValues,
       agentCode: agentCode!,
       product: productName,
       quoteNumber: quoteNumber,
@@ -464,12 +514,39 @@ const handleSaveQuote = async () => {
   };
 
   const handleBuyNow = async () => {
+    console.log("========");
     if (!quoteNumber || submittingStage2) return;
+    const [isValid1, isValid2, isValid3] = await Promise.all([
+      addressInfoMethods.trigger(),
+      contactInfoMethods.trigger(),
+      beneficiaryInfoMethods.trigger(),
+    ]);
+
+    if (!isValid1) {
+      console.log(
+        "Address validation failed",
+        addressInfoMethods.formState.errors
+      );
+    }
+    if (!isValid2) {
+      console.log(
+        "Contact validation failed",
+        contactInfoMethods.formState.errors
+      );
+    }
+    if (!isValid3) {
+      console.log(
+        "Beneficiary validation failed",
+        beneficiaryInfoMethods.formState.errors
+      );
+    }
+
+    if (!isValid1 || !isValid2 || !isValid3) return;
     const payload: Stage2PayloadProduct2 = {
       quoteNumber,
-      address,
-      contactInfo,
-      beneficiary,
+      address: addressInfoMethods.getValues(),
+      contactInfo: contactInfoMethods.getValues(),
+      beneficiary: beneficiaryInfoMethods.getValues(),
     };
     try {
       const resp = await completeApplication(payload);
@@ -480,9 +557,11 @@ const handleSaveQuote = async () => {
   };
 
   const handlePaymentSuccess = () => {
-    alert("Payment successful");
     handleFormStepChange("forward");
   };
+
+  // Get form values for display
+  const formValues = step1Methods.watch();
 
   return (
     <div className="max-w-5xl xl:w-5xl mx-auto px-2 py-4 sm:p-6">
@@ -503,7 +582,7 @@ const handleSaveQuote = async () => {
                         aria-hidden="true"
                       />
                     </span>
-                    <span className="ml-4 text-base font-medium text-[#2B00B7] font-[inter]">
+                    <span className="ml-4 font-medium text-[#2B00B7]">
                       {step.name}
                     </span>
                   </span>
@@ -568,59 +647,61 @@ const handleSaveQuote = async () => {
 
       {/* STEP 1: GET QUOTE */}
       {steps[0].status === "current" && (
-        <div>
-          <Step1Container
-            onValidityChange={setIsStepOneFilled}
-            primaryFirstName={primaryFirstName}
-            setPrimaryFirstName={setPrimaryFirstName}
-            primaryLastName={primaryLastName}
-            setPrimaryLastName={setPrimaryLastName}
-            primaryDateOfBirth={primaryDateOfBirth}
-            setPrimaryDateOfBirth={setPrimaryDateOfBirth}
-            primaryEmail={primaryEmail}
-            setPrimaryEmail={setPrimaryEmail}
-            primaryApplicantGender={primaryApplicantGender}
-            setPrimaryApplicantGender={setPrimaryApplicantGender}
-            applicantNumber={applicantNumber}
-            setApplicantNumber={setApplicantNumber}
-            applicants={applicants}
-            setApplicants={setApplicants}
-            isConfirmed={isConfirmed}
-            setIsConfirmed={setIsConfirmed}
-            policyType={policyType}
-            setPolicyType={setPolicyType}
-            countryOfOrigin={countryOfOrigin}
-            setCountryOfOrigin={setCountryOfOrigin}
-            destinationProvince={destinationProvince}
-            setDestinationProvince={setDestinationProvince}
-            effectiveDate={effectiveDate}
-            setEffectiveDate={setEffectiveDate}
-            expiryDate={expiryDate}
-            setExpiryDate={setExpiryDate}
-            coverageLength={coverageLength}
-            setCoverageLength={setCoverageLength}
-            totalPremium={totalPremium}
-            setTotalPremium={setTotalPremium}
-            loading={loading}
-            setLoading={setLoading}
-            error={error}
-            setError={setError}
-            quoteNumber={quoteNumber}
-            setQuoteNumber={setQuoteNumber}
-            agentCode={agentCode!}
+        <FormProvider {...step1Methods}>
+          <form
+            onSubmit={step1Methods.handleSubmit(async () => {
+              // Validate
+              const isValid = await step1Methods.trigger();
 
-            onSaveQuote={handleSaveQuote}
-            savingQuote={savingQuote}
-          />
-        </div>
+              if (!isValid) {
+                console.log("Validation failed", step1Methods.formState.errors);
+                return;
+              }
+              handleNext();
+            })}
+          >
+            <Step1Container
+              methods={step1Methods}
+              totalPremium={totalPremium}
+              setTotalPremium={setTotalPremium}
+              loading={loading}
+              setLoading={setLoading}
+              error={error}
+              setError={setError}
+              quoteNumber={quoteNumber}
+              setQuoteNumber={setQuoteNumber}
+              agentCode={agentCode!}
+              onSaveQuote={handleSaveQuote}
+              savingQuote={savingQuote}
+              onValidityChange={setIsStepOneFilled}
+            />
+
+            <div className="flex justify-center gap-10 mt-4">
+              <button
+                type="submit"
+                disabled={!isStepOneFilled || savingStage1}
+                className={`mt-6 bg-[#2B00B7] text-white p-3 hover:bg-[#2309A1] transition flex justify-center items-center cursor-pointer duration-200 disabled:cursor-default ${
+                  savingStage1 ? "opacity-50 cursor-wait" : ""
+                }`}
+              >
+                Next
+              </button>
+            </div>
+          </form>
+        </FormProvider>
       )}
 
       {/* STEP 2: COMPLETE APPLICATION */}
       {steps[1].status === "current" && quoteNumber && (
         <div>
           <div className="w-full h-2 mt-8 flex items-center justify-center">
-            <h3 className="text-lg">
-              Your Quote: ${step1ResponseData?.quoteAmount}
+            <h3 className="text-lg sm:text-xl">
+              <span className="text-text-primary font-semibold">
+                Your Quote:
+              </span>{" "}
+              <span className="text-text-secondary">
+                ${step1ResponseData?.quoteAmount}
+              </span>
             </h3>
           </div>
           <QuoteSummary step1ResponseData={step1ResponseData} />
@@ -632,26 +713,26 @@ const handleSaveQuote = async () => {
             applicants={step1ResponseData?.applicants ?? []}
           />
           <ContactInformation
-            contactInfo={contactInfo}
-            setContactInfo={setContactInfo}
+            methods={contactInfoMethods}
             email={step1ResponseData?.email}
           />
-          <Address address={address} setAddress={setAddress} />
-          <BeneficiaryInCaseOfDeath
-            beneficiaryInfo={beneficiary}
-            setBeneficiaryInfo={setBeneficiary}
-          />
+          <Address methods={addressInfoMethods} />
+          <BeneficiaryInCaseOfDeath methods={beneficiaryInfoMethods} />
 
           {/* Payment Summary - Lump Sum Only */}
-          <div className="max-w-md mx-auto mb-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
-            <h3 className="font-semibold text-lg mb-2">Payment Summary</h3>
+          <div className="mx-auto mb-6 mt-4 bg-greyBg p-4">
+            <h3 className="text-lg font-bold text-left text-[#1B1B1B] mb-2 sm:mb-5">
+              Payment Summary
+            </h3>
             <div className="flex justify-between items-center">
-              <span>Total Premium:</span>
-              <span className="text-xl font-bold text-blue-600">
+              <span className="text-text-primary font-medium text-base sm:text-lg">
+                Total Premium:
+              </span>
+              <span className="text-lg sm:text-xl font-bold text-primary">
                 ${totalPremium.toFixed(2)}
               </span>
             </div>
-            <div className="text-sm text-gray-600 mt-2">
+            <div className="text-sm text-text-secondary mt-1">
               One-time payment • No additional fees
             </div>
           </div>
@@ -660,7 +741,7 @@ const handleSaveQuote = async () => {
             <PaymentInformation
               quoteNumber={quoteNumber}
               description={productName}
-              name={primaryFirstName}
+              name={formValues.primaryFirstName}
               shipping={address}
               amount={totalPremium}
               onPaymentSuccess={handlePaymentSuccess}
@@ -674,7 +755,7 @@ const handleSaveQuote = async () => {
         </div>
       )}
 
-      {/* STEP 3: CONFIRMATION */}
+      {/* STEP 3: Summary */}
       {steps[2].status === "current" && (
         <Summary quoteId={step1ResponseData?.quoteId ?? ""} />
       )}
@@ -684,24 +765,27 @@ const handleSaveQuote = async () => {
         {formStep === 2 && (
           <button
             onClick={() => handleFormStepChange("back")}
-            className="w-[200px] mt-6 bg-white border border-[#2B00B7] text-[#2B00B7] p-3 hover:bg-[#2209a1] hover:text-white transition flex justify-center items-center"
+            className="btn-primary"
           >
             Previous
           </button>
         )}
 
-        {formStep === 1 && (
+        {/* {formStep === 1 && (
           <button
+          type="submit"
             onClick={handleNext}
             disabled={!isStepOneFilled || savingStage1}
-            className={`w-[200px] mt-6 bg-[#2B00B7] text-white p-3 hover:bg-[#2309A1] transition flex justify-center items-center cursor-pointer duration-200 ${
+            className={`mt-6 bg-[#2B00B7] text-white p-3 hover:bg-[#2309A1] transition flex justify-center items-center cursor-pointer duration-200 ${
               savingStage1 ? "opacity-50 cursor-wait" : ""
             }`}
           >
             {savingStage1 ? "Saving…" : "Next"}
           </button>
-        )}
+        )} */}
       </div>
+
+      {NotificationComponent}
     </div>
   );
 }

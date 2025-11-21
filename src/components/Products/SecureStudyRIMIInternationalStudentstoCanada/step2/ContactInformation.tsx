@@ -94,53 +94,32 @@
 //   );
 // }
 
-
-
 // ==========================================
-
-
-
-
-
-
-
-
-
-
 
 import { InformationCircleIcon } from "@heroicons/react/24/outline";
 import { useState } from "react";
-
-interface ContactInfo {
-  additionalEmail: string;
-  phoneNumber: string;
-  legalGuardianName: string;
-}
+import { ContactInfo } from "../SecureStudyRIMIInternationalStudentstoCanada";
+import { UseFormReturn } from "react-hook-form";
 
 interface ContactInformationProps {
-  contactInfo: ContactInfo;
-  setContactInfo: (info: ContactInfo) => void;
+  methods: UseFormReturn<ContactInfo>;
   email?: string;
 }
 
 export default function ContactInformation({
-  contactInfo,
-  setContactInfo,
+  methods,
   email,
 }: ContactInformationProps) {
   const [displayInfoAddEmail, setDisplayInfoAddEmail] = useState(false);
   const [displayInfoLegalGuardian, setDisplayInfoLegalGuardian] =
     useState(false);
-
-  const handleChange = (field: keyof ContactInfo, value: string) => {
-    setContactInfo({
-      ...contactInfo,
-      [field]: value,
-    });
-  };
-
+  const {
+    register,
+    formState: { errors },
+  } = methods;
+  
   return (
-    <div className="max-w-5xl mx-auto mt-4 p-6 bg-[#F9F9F9]">
+    <div className="max-w-5xl mx-auto mt-4 p-3 sm:p-6 bg-[#F9F9F9]">
       <h3 className="text-lg font-bold text-left text-[#1B1B1B] mb-5">
         Contact Information
       </h3>
@@ -148,9 +127,7 @@ export default function ContactInformation({
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 md:gap-x-16 lg:gap-x-24 gap-y-4 text-text-secondary">
         <div className="flex flex-col">
           <label className="text-sm">Email Address</label>
-          <p className="p-2 border border-[#DBDADE] bg-white">
-            {email || "N/A"}
-          </p>
+          <p className="input-primary">{email || "N/A"}</p>
         </div>
 
         <div className="flex flex-col">
@@ -166,13 +143,12 @@ export default function ContactInformation({
             className="input-primary"
             type="text"
             placeholder="Additional Email Address"
-            value={contactInfo.additionalEmail}
-            onChange={(e) => handleChange("additionalEmail", e.target.value)}
+            {...register("additionalEmail")}
           />
         </div>
 
         {displayInfoAddEmail && (
-          <div className="col-span-2 flex flex-col items-start mt-2 mb-2 border border-inputBorder p-4 bg-white text-sm text-text-secondary shadow-sm relative">
+          <div className="col-span-2 flex flex-col items-start mt-2 mb-2 border border-inputBorder p-4 bg-white text-text-secondary shadow-sm relative">
             <button
               className="text-primary underline absolute top-2 right-2 cursor-pointer underline-offset-2"
               onClick={() => setDisplayInfoAddEmail(false)}
@@ -190,9 +166,30 @@ export default function ContactInformation({
             className="input-primary"
             type="text"
             placeholder="Phone Number"
-            value={contactInfo.phoneNumber}
-            onChange={(e) => handleChange("phoneNumber", e.target.value)}
+            {...register("phoneNumber", {
+              required: "Phone number is required",
+              pattern: {
+                value: /^[0-9]*$/,
+                message: "Phone number must contain digits only",
+              },
+              minLength: {
+                value: 10,
+                message: "Phone number must be at least 10 digits",
+              },
+              maxLength: {
+                value: 10,
+                message: "Phone number must be at most 10 digits",
+              },
+            })}
+            onInput={(e: React.ChangeEvent<HTMLInputElement>) => {
+              e.target.value = e.target.value.replace(/[^0-9]/g, "");
+            }}
           />
+          {errors.phoneNumber && (
+        <p className="text-red-500 text-sm mt-1">
+          {errors.phoneNumber.message}
+        </p>
+      )}
         </div>
 
         <div className="flex flex-col">
@@ -208,9 +205,15 @@ export default function ContactInformation({
             className="input-primary"
             type="text"
             placeholder="Legal Guardian Name"
-            value={contactInfo.legalGuardianName}
-            onChange={(e) => handleChange("legalGuardianName", e.target.value)}
+            {...register("legalGuardianName", {
+              required: "Legal guardian name is required",
+            })}
           />
+          {errors.legalGuardianName && (
+            <p className="text-red-500 text-sm">
+              {errors.legalGuardianName.message}
+            </p>
+          )}
         </div>
 
         {displayInfoLegalGuardian && (

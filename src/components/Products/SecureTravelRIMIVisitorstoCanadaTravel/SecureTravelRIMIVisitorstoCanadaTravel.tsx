@@ -239,7 +239,7 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
   const [steps, setSteps] = useState([
     { id: "01", name: "Get Quote", href: "#", status: "current" },
     { id: "02", name: "Complete Application", href: "#", status: "upcoming" },
-    { id: "03", name: "Confirmation", href: "#", status: "upcoming" },
+    { id: "03", name: "Summary", href: "#", status: "upcoming" },
   ]);
 
   const [formStep, setFormStep] = useState(1);
@@ -660,7 +660,7 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
                 </span>
               </div>
               <div className="text-sm text-text-secondary mt-2">
-                 One-time payment and No additional fees
+                 One-time payment • No additional fees
               </div>
             </div>
           )}

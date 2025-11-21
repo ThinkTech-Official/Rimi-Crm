@@ -4,7 +4,7 @@
 //       <h3 className="text-lg font-bold text-left text-[#1B1B1B]">
 //         Your Quote Summary
 //       </h3>
-//       <p className="text-left font-medium text-[#6A6A6A] mb-8">
+//       <p className="text-left font-medium text-text-secondary mb-8">
 //         Please review the details below before proceeding.
 //       </p>
 
@@ -25,7 +25,7 @@
 //               <td className="p-3 text-left font-semibold text-[#1B1B1B] w-1/2">
 //                 {label}
 //               </td>
-//               <td className="p-3 text-left text-[#6A6A6A]">{value}</td>
+//               <td className="p-3 text-left text-text-secondary">{value}</td>
 //             </tr>
 //           ))}
 //         </tbody>
@@ -104,15 +104,15 @@ export default function QuoteSummary({ step1ResponseData }: QuoteSummaryProps) {
   ];
 
   return (
-    <div className="max-w-5xl mx-auto mt-6 p-6 bg-[#F9F9F9]">
+    <div className="max-w-5xl mx-auto mt-6 p-3 sm:p-6 bg-[#F9F9F9]">
       <h3 className="text-lg font-bold text-left text-[#1B1B1B]">
         Your Quote Summary
       </h3>
-      <p className="text-left font-medium text-[#6A6A6A] mb-8">
+      <p className="text-left font-medium text-text-secondary mb-4 sm:mb-8 text-sm sm:text-base">
         Please review the details below before proceeding.
       </p>
 
-      <table className="w-full border border-[#DBDADE] font-[inter]">
+      <table className="w-full border border-[#DBDADE] font-[inter] text-sm sm:text-base">
         <tbody>
           {summaryData.map(([label, value], index) => (
             <tr
@@ -122,7 +122,7 @@ export default function QuoteSummary({ step1ResponseData }: QuoteSummaryProps) {
               <td className="p-3 text-left font-semibold text-[#1B1B1B] w-1/2">
                 {label}
               </td>
-              <td className="p-3 text-left text-[#6A6A6A]">{value}</td>
+              <td className="p-3 text-left text-text-secondary">{value}</td>
             </tr>
           ))}
         </tbody>

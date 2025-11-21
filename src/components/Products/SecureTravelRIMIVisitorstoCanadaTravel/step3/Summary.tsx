@@ -120,12 +120,13 @@ const Summary: React.FC<SummaryProps> = ({ quoteId }) => {
           <h2 className="text-xl font-semibold mb-2">
             Applicant Summary
           </h2>
-          {Array.isArray(data.applicants) && data.applicants.length > 0 ? (
+         <div className="overflow-auto custom-scrollbar2">
+           {Array.isArray(data.applicants) && data.applicants.length > 0 ? (
             <table className="w-full border border-[#DBDADE]">
               <thead className="bg-[#F5F5F5] border-b border-[#DBDADE]">
                 <tr>
                   {[
-                    "#",
+                    "Sr. No.",
                     "First Name",
                     "Last Name",
                     "Date of Birth",
@@ -135,7 +136,7 @@ const Summary: React.FC<SummaryProps> = ({ quoteId }) => {
                   ].map((header, i) => (
                     <th
                       key={i}
-                      className="p-3 text-left font-semibold text-[#1B1B1B]"
+                      className="p-3 text-left font-semibold text-[#1B1B1B] text-nowrap"
                     >
                       {header}
                     </th>
@@ -146,10 +147,10 @@ const Summary: React.FC<SummaryProps> = ({ quoteId }) => {
                 {data.applicants.map((app: QuoteApplicant, idx: number) => (
                   <tr
                     key={idx}
-                    className="border border-[#DBDADE] even:bg-[#F5F5F5] odd:bg-white"
+                    className="border border-[#DBDADE] even:bg-[#F5F5F5] odd:bg-white text-nowrap"
                   >
                     <td className="p-3 text-left text-[#6A6A6A]">
-                      {maybe(app.index)}
+                      {Number(maybe(app.index)) +1}
                     </td>
                     <td className="p-3 text-left text-[#6A6A6A]">
                       {maybe(app.firstName)}
@@ -166,7 +167,7 @@ const Summary: React.FC<SummaryProps> = ({ quoteId }) => {
                     <td className="p-3 text-left text-[#6A6A6A]">
                       {maybe((app as any).gender)}
                     </td>
-                    <td className="p-3 text-left text-[#6A6A6A]">
+                    <td className="p-3 text-[#6A6A6A] text-center">
                       {maybe((app as any).PreExCoverage)}
                     </td>
                   </tr>
@@ -176,6 +177,7 @@ const Summary: React.FC<SummaryProps> = ({ quoteId }) => {
           ) : (
             <p>No Additional applicants found.</p>
           )}
+         </div>
         </section>
 
         {/* ADDRESS */}
