@@ -235,19 +235,20 @@
 
 // export default RIMICanuckVoyageNonMedicalTravel;
 
-
-
 // ===============================================
-
-
-
 
 import { CheckIcon } from "@heroicons/react/24/outline";
 import React, { useState } from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../app/store";
-import { useSaveQuoteNextProduct4 } from "../../../hooks/canuck-voyage-non-medical/useSaveQuoteNextProduct4";
-import { useQuoteUpdateProduct4, Stage2Payload } from "../../../hooks/canuck-voyage-non-medical/useQuoteUpdateProduct4";
+import {
+  Stage1Payload,
+  useSaveQuoteNextProduct4,
+} from "../../../hooks/canuck-voyage-non-medical/useSaveQuoteNextProduct4";
+import {
+  useQuoteUpdateProduct4,
+  Stage2Payload,
+} from "../../../hooks/canuck-voyage-non-medical/useQuoteUpdateProduct4";
 import { Elements } from "@stripe/react-stripe-js";
 import { stripePromise } from "../../../utils/stripe";
 
@@ -259,6 +260,7 @@ import ContactInformation from "./step2/ContactInformation";
 import Address from "./step2/Address";
 import PaymentInformation from "./step2/PaymentInformation";
 import Summary from "./step3/Summary";
+import { FormProvider, useForm } from "react-hook-form";
 
 interface Applicant {
   index: string;
@@ -267,6 +269,9 @@ interface Applicant {
   dob: string;
   relationship: string;
   gender: string;
+  healthQuestionnaire?: {
+    questions: any[];
+  };
 }
 
 interface QuoteStage1Response {
@@ -307,11 +312,15 @@ interface ContactInfo {
   phoneNumber: string;
 }
 
+export interface Step1Payload extends Stage1Payload {
+  isConfirmed: boolean;
+}
+
 // const productName = "RIMI Canuck Voyage Non-Medical Travel";
 const productName = "RIMI_CANUCK_VOYAGE_NON_MEDICAL_TRAVEL";
 
 const RIMICanuckVoyageNonMedicalTravel: React.FC = () => {
-  const agentCode = useSelector((state: RootState) => state.auth.agentCode);
+  const agentCode = useSelector((state: RootState) => state.auth.agentCode!);
 
   // ========== STEP MANAGEMENT ==========
   const [steps, setSteps] = useState([
@@ -323,42 +332,25 @@ const RIMICanuckVoyageNonMedicalTravel: React.FC = () => {
 
   // ========== APPLICANT INFORMATION ==========
   const [primaryFirstName, setPrimaryFirstName] = useState("");
-  const [primaryLastName, setPrimaryLastName] = useState("");
-  const [primaryDateOfBirth, setPrimaryDateOfBirth] = useState("");
-  const [primaryEmail, setPrimaryEmail] = useState("");
-  const [primaryApplicantGender, setPrimaryApplicantGender] = useState("");
-  const [countryOfOrigin, setCountryOfOrigin] = useState("");
-  const [provinceStateResidence, setProvinceStateResidence] = useState("");
-  const [applicantNumber, setApplicantNumber] = useState(0);
-  const [applicants, setApplicants] = useState<Applicant[]>([]);
-  const [isConfirmed, setIsConfirmed] = useState(false);
-
-  // ========== TRIP INFORMATION ==========
-  const [tripCost, setTripCost] = useState<number>(0);
-  const [dateBooked, setDateBooked] = useState<string>("");
-  const [effectiveDate, setEffectiveDate] = useState<string>("");
-  const [expiryDate, setExpiryDate] = useState<string>("");
-  const [coverageLength, setCoverageLength] = useState<string>("");
-  const [destinationCountry] = useState<string>("Canada"); // Fixed for Product 4
-  const [tripCancellationDeluxe, setTripCancellationDeluxe] = useState<boolean>(false);
 
   // ========== QUOTE & PREMIUM ==========
   const [quoteNumber, setQuoteNumber] = useState<string | null>(null);
-  const [step1ResponseData, setStep1ResponseData] = useState<QuoteStage1Response | null>(null);
+  const [step1ResponseData, setStep1ResponseData] =
+    useState<QuoteStage1Response | null>(null);
   const [totalPremium, setTotalPremium] = useState<number>(0);
   const [premiumBreakdown, setPremiumBreakdown] = useState<any>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
   // ========== STAGE 2 INFORMATION ==========
-  const [address, setAddress] = useState<AddressInfo>({
-    addressLine1: "",
-    addressLine2: "",
-    city: "",
-    postalCode: "",
-    country: "",
-    province: "",
-  });
+  // const [address, setAddress] = useState<AddressInfo>({
+  //   addressLine1: "",
+  //   addressLine2: "",
+  //   city: "",
+  //   postalCode: "",
+  //   country: "",
+  //   province: "",
+  // });
   const [contactInfo, setContactInfo] = useState<ContactInfo>({
     email: "",
     additionalEmail: "",
@@ -376,6 +368,53 @@ const RIMICanuckVoyageNonMedicalTravel: React.FC = () => {
     error: submitError,
   } = useQuoteUpdateProduct4();
 
+  const step1Methods = useForm<Step1Payload>({
+    defaultValues: {
+      primaryFirstName: "",
+      primaryLastName: "",
+      primaryDateOfBirth: "",
+      primaryEmail: "",
+      primaryApplicantGender: "",
+      countryOfOrigin: "",
+      provinceStateResidence: "",
+      applicantNumber: 0,
+      applicants: [],
+      tripCost: 0,
+      dateBooked: "",
+      effectiveDate: "",
+      expiryDate: "",
+      coverageLength: 0,
+      destinationCountry: "",
+      tripCancellationDeluxe: false,
+      agentCode: "",
+      product: "",
+      quoteNumber: "",
+      isConfirmed: false,
+    },
+  });
+
+  const contactInfoMethods = useForm({
+    defaultValues: {
+      contactInfo: {
+        email: step1ResponseData?.email || "",
+        additionalEmail: "",
+        phoneNumber: "",
+      }
+    },
+  })
+
+  const addressMethods = useForm({ 
+    defaultValues: {
+      address:{
+        addressLine1: "",
+        addressLine2: "",
+        city: "",
+        postalCode: "",
+        country: "",
+        province: "",
+      }
+    },
+  })
   // ========== STEP NAVIGATION ==========
   const handleFormStepChange = (stepCommand: string) => {
     setFormStep((prevStep) => {
@@ -405,31 +444,16 @@ const RIMICanuckVoyageNonMedicalTravel: React.FC = () => {
   // ========== STAGE 1: NEXT BUTTON ==========
   const handleNext = async () => {
     if (!isStepOneFilled || savingStage1) return;
-
+    const formValues = step1Methods.getValues();
+    const stage1Payload = {
+      ...formValues,
+      agentCode: agentCode!,
+      product: productName,
+      quoteNumber: quoteNumber || undefined,
+      status: "Inactive",
+    };
+    console.log("Stage 1 payload:", stage1Payload);
     try {
-      const stage1Payload = {
-        primaryFirstName,
-        primaryLastName,
-        primaryDateOfBirth,
-        primaryEmail,
-        primaryApplicantGender,
-        countryOfOrigin,
-        provinceStateResidence,
-        applicantNumber,
-        applicants,
-        tripCost,
-        dateBooked,
-        effectiveDate,
-        expiryDate,
-        coverageLength: Number(coverageLength),
-        destinationCountry,
-        tripCancellationDeluxe,
-        agentCode: agentCode!,
-        product: productName,
-        quoteNumber: quoteNumber || undefined,
-        status: "Inactive",
-      };
-
       const response = await saveQuoteNext(stage1Payload);
       setQuoteNumber(response.quoteNumber);
       setStep1ResponseData(response);
@@ -443,6 +467,9 @@ const RIMICanuckVoyageNonMedicalTravel: React.FC = () => {
   // ========== STAGE 2: BUY NOW ==========
   const handleBuyNow = async () => {
     if (!quoteNumber || submittingStage2) return;
+
+    const address = addressMethods.getValues().address;
+    const contactInfo = contactInfoMethods.getValues().contactInfo;
 
     const payload: Stage2Payload = {
       quoteNumber,
@@ -464,8 +491,26 @@ const RIMICanuckVoyageNonMedicalTravel: React.FC = () => {
     handleFormStepChange("forward");
   };
 
+  const handleSaveQuote = async () => {
+    const formValues = step1Methods.getValues();
+    const stage1Payload = {
+      ...formValues,
+      agentCode: agentCode!,
+      product: productName,
+      quoteNumber: quoteNumber || undefined,
+      status: "Inactive",
+    };
+    try {
+      const response = await saveQuoteNext(stage1Payload);
+      setQuoteNumber(response.quoteNumber);
+      console.log("Saved quote number:", response.quoteNumber);
+    } catch (err) {
+      console.error("Failed to save quote:", err);
+    }
+  }
+
   return (
-    <div className="max-w-5xl mx-auto px-2 py-4 sm:p-6">
+    <div className="max-w-5xl xl:w-5xl mx-auto px-2 py-4 sm:p-6">
       {/* ========== PROGRESS STEPPER ========== */}
       <nav aria-label="Progress">
         <ol
@@ -483,7 +528,7 @@ const RIMICanuckVoyageNonMedicalTravel: React.FC = () => {
                         aria-hidden="true"
                       />
                     </span>
-                    <span className="ml-4 text-base font-medium text-[#2B00B7] font-[inter]">
+                    <span className="ml-4 font-medium text-[#2B00B7]">
                       {step.name}
                     </span>
                   </span>
@@ -545,65 +590,52 @@ const RIMICanuckVoyageNonMedicalTravel: React.FC = () => {
 
       {/* ========== STEP 1: GET QUOTE ========== */}
       {steps[0].status === "current" && (
-        <div>
-          <ApplicantInformation
-            primaryFirstName={primaryFirstName}
-            setPrimaryFirstName={setPrimaryFirstName}
-            primaryLastName={primaryLastName}
-            setPrimaryLastName={setPrimaryLastName}
-            primaryDateOfBirth={primaryDateOfBirth}
-            setPrimaryDateOfBirth={setPrimaryDateOfBirth}
-            primaryEmail={primaryEmail}
-            setPrimaryEmail={setPrimaryEmail}
-            primaryApplicantGender={primaryApplicantGender}
-            setPrimaryApplicantGender={setPrimaryApplicantGender}
-            countryOfOrigin={countryOfOrigin}
-            setCountryOfOrigin={setCountryOfOrigin}
-            provinceStateResidence={provinceStateResidence}
-            setProvinceStateResidence={setProvinceStateResidence}
-            applicantNumber={applicantNumber}
-            setApplicantNumber={setApplicantNumber}
-            applicants={applicants}
-            setApplicants={setApplicants}
-            isConfirmed={isConfirmed}
-            setIsConfirmed={setIsConfirmed}
-          />
+        <FormProvider {...step1Methods}>
+         <form onSubmit={step1Methods.handleSubmit(async () => {
+              // Validate
+              const isValid = await step1Methods.trigger();
+
+              if (!isValid) {
+                console.log("Validation failed", step1Methods.formState.errors);
+                return;
+              }
+              handleNext();
+            })}>
+           <ApplicantInformation methods={step1Methods} />
 
           <TripInformation
-            tripCost={tripCost}
-            setTripCost={setTripCost}
-            dateBooked={dateBooked}
-            setDateBooked={setDateBooked}
-            effectiveDate={effectiveDate}
-            setEffectiveDate={setEffectiveDate}
-            expiryDate={expiryDate}
-            setExpiryDate={setExpiryDate}
-            coverageLength={coverageLength}
-            setCoverageLength={setCoverageLength}
-            tripCancellationDeluxe={tripCancellationDeluxe}
-            setTripCancellationDeluxe={setTripCancellationDeluxe}
-            primaryDateOfBirth={primaryDateOfBirth}
-            applicants={applicants}
-            totalPremium={totalPremium}
-            setTotalPremium={setTotalPremium}
+            methods={step1Methods}
             premiumBreakdown={premiumBreakdown}
             setPremiumBreakdown={setPremiumBreakdown}
-            loading={loading}
+            setTotalPremium={setTotalPremium}
             setLoading={setLoading}
             error={error}
             setError={setError}
             onValidityChange={setIsStepOneFilled}
             quoteNumber={quoteNumber}
-            setQuoteNumber={setQuoteNumber}
-            agentCode={agentCode!}
+            handleSaveQuote={handleSaveQuote}
           />
 
           <div className="w-full h-2 mt-5 flex items-center justify-center font-[inter]">
             <h3 className="text-base sm:text-lg">
-              {loading ? "Calculating..." : `Your Quote: $${totalPremium.toFixed(2)} CAD`}
+              {loading
+                ? "Calculating..."
+                : `Your Quote: $${totalPremium.toFixed(2)} CAD`}
             </h3>
           </div>
-        </div>
+          {formStep === 1 && (
+            <button
+            onClick={handleNext}
+            disabled={!isStepOneFilled || savingStage1}
+            className={`w-[200px] mx-auto mt-6 bg-[#2B00B7] text-white p-3 hover:bg-[#2309A1] transition flex justify-center items-center cursor-pointer duration-200 ${
+              savingStage1 ? "opacity-50 cursor-wait" : ""
+              }`}
+              >
+              {savingStage1 ? "Saving…" : "Next"}
+            </button>
+          )}
+          </form>
+        </FormProvider>
       )}
 
       {/* ========== STEP 2: COMPLETE APPLICATION ========== */}
@@ -624,21 +656,19 @@ const RIMICanuckVoyageNonMedicalTravel: React.FC = () => {
             applicants={step1ResponseData?.applicants ?? []}
           />
           <ContactInformation
-            contactInfo={contactInfo}
-            setContactInfo={setContactInfo}
-            email={step1ResponseData?.email}
+            methods={contactInfoMethods}
           />
-          <Address address={address} setAddress={setAddress} />
+          <Address methods={addressMethods} />
 
-          <div className="max-w-md mx-auto mb-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
-            <h3 className="font-semibold text-lg mb-2">Payment Summary</h3>
+          <div className="max-w-5xl mx-auto mt-6 p-6 bg-[#F9F9F9]">
+            <h3 className="text-lg font-bold text-left text-[#1B1B1B] mb-5">Payment Summary</h3>
             <div className="flex justify-between items-center">
               <span>Total Premium:</span>
-              <span className="text-xl font-bold text-blue-600">
+              <span className="text-xl font-bold text-primary">
                 ${totalPremium.toFixed(2)} CAD
               </span>
             </div>
-            <div className="text-sm text-gray-600 mt-2">
+            <div className="text-sm text-gray-600 mt-1">
               One-time payment • No additional fees
             </div>
           </div>
@@ -648,7 +678,7 @@ const RIMICanuckVoyageNonMedicalTravel: React.FC = () => {
               quoteNumber={quoteNumber}
               description={productName}
               name={primaryFirstName}
-              shipping={address}
+              shipping={addressMethods.getValues().address}
               amount={totalPremium}
               onPaymentSuccess={handlePaymentSuccess}
               onBuyNow={handleBuyNow}
@@ -668,21 +698,9 @@ const RIMICanuckVoyageNonMedicalTravel: React.FC = () => {
         {formStep === 2 && (
           <button
             onClick={() => handleFormStepChange("back")}
-            className="w-[200px] mt-6 bg-white border border-[#2B00B7] text-[#2B00B7] p-3 hover:bg-[#2209a1] hover:text-white transition flex justify-center items-center"
+            className="btn-primary"
           >
             Previous
-          </button>
-        )}
-
-        {formStep === 1 && (
-          <button
-            onClick={handleNext}
-            disabled={!isStepOneFilled || savingStage1}
-            className={`w-[200px] mt-6 bg-[#2B00B7] text-white p-3 hover:bg-[#2309A1] transition flex justify-center items-center cursor-pointer duration-200 ${
-              savingStage1 ? "opacity-50 cursor-wait" : ""
-            }`}
-          >
-            {savingStage1 ? "Saving…" : "Next"}
           </button>
         )}
       </div>

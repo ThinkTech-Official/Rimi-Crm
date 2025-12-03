@@ -22,10 +22,10 @@ const Summary: React.FC<SummaryProps> = ({ quoteId }) => {
     return <p className="text-center mt-8">No data to display.</p>;
   }
 
-  const maybe = (value: string | number | undefined | null) =>
+  const maybe = (value: any) =>
     value === undefined || value === null || value === "" ? "N/A" : value;
 
-  const formatDate = (dateString: string | null | undefined) => {
+  const formatDate = (dateString: any) => {
     if (!dateString) return "N/A";
     try {
       return new Date(dateString).toLocaleDateString("en-US", {
@@ -38,244 +38,190 @@ const Summary: React.FC<SummaryProps> = ({ quoteId }) => {
     }
   };
 
-  const pluralize = (
-    value: string | number | undefined | null,
-    singular: string,
-    plural: string
-  ) => {
+  const pluralize = (value: any, singular: string, plural: string) => {
     const num = Number(value);
     if (isNaN(num) || num === 0) return plural;
     return num === 1 ? singular : plural;
   };
 
+  // ---------------------------
+  // TABLE GROUPS
+  // ---------------------------
+
+  const contactInfoRows: [string, React.ReactNode][] = [
+    ["First Name", maybe(data.firstName)],
+    ["Last Name", maybe(data.lastName)],
+    ["Date of Birth", formatDate(data.dateOfBirth)],
+    ["Gender", maybe(data.gender)],
+    ["Primary Email", maybe(data.email)],
+    ["Additional Email", maybe((data as any).additionalEmail)],
+    ["Phone Number", maybe((data as any).phoneNumber)],
+  ];
+
+  const quoteRows: [string, React.ReactNode][] = [
+    ["Quote Number", maybe(data.quoteNumber)],
+    ["Product", maybe(data.product)],
+    [
+      "Status",
+      <span className="inline-block px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm font-semibold">
+        {maybe(data.status)}
+      </span>,
+    ],
+    ["Policy Type", maybe(data.policyType)],
+    ["Trip Cost (per person)", `$${maybe((data as any).tripCost)} CAD`],
+    ["Date Trip was Booked", formatDate((data as any).dateBooked)],
+    ["Departure Date", formatDate(data.effectiveDate)],
+    ["Return Date", formatDate(data.expiryDate)],
+    [
+      "Coverage Length",
+      `${maybe(data.covLen)} ${pluralize(data.covLen, "day", "days")}`,
+    ],
+    ["Destination Country", maybe(data.destination)],
+    [
+      "Trip Cancellation - Deluxe",
+      (data as any).tripCancellationDeluxe ? (
+        <span className="text-green-600 font-semibold">Yes</span>
+      ) : (
+        <span className="text-gray-600">No</span>
+      ),
+    ],
+    ["Country of Origin", maybe((data as any).countryOfOrigin)],
+    ["Province/State of Residence", maybe((data as any).provinceStateResidence)],
+  ];
+
+  const addressRows: [string, React.ReactNode][] = [
+    ["Address Line 1", maybe(data.street)],
+    ["Address Line 2", maybe((data as any).street2)],
+    ["City", maybe(data.city)],
+    ["Province / State", maybe(data.province)],
+    ["Postal Code", maybe((data as any).postalCode)],
+    ["Country", maybe(data.countryCode)],
+  ];
+
+  const premiumRows: [string, React.ReactNode][] = [
+    [
+      "Total Premium",
+      <span className="font-semibold text-text-primary">
+        ${maybe(data.premium)} CAD
+      </span>,
+    ],
+    ["Paid Premium", `$${maybe(data.paidPremium)} CAD`],
+    [
+      "Payment Status",
+      <span className="inline-block px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-semibold">
+        Paid
+      </span>,
+    ],
+  ];
+
+  // ---------------------------
+  // TABLE RENDERER
+  // ---------------------------
+  const renderTable = (rows: [string, React.ReactNode][]) => (
+    <table className="w-full border border-[#DBDADE]">
+      <tbody>
+        {rows.map(([label, value], idx) => (
+          <tr
+            key={idx}
+            className="border border-[#DBDADE] even:bg-[#F5F5F5] odd:bg-white"
+          >
+            <td className="p-3 text-left font-semibold text-[#1B1B1B] w-1/2">
+              {label}
+            </td>
+            <td className="p-3 text-left text-[#6A6A6A] capitalize text-nowrap">
+              {value}
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  );
+
+  // ---------------------------
+  // FINAL JSX
+  // ---------------------------
   return (
-    <>
-      <div className="mt-4 text-center">
+    <div className="w-full mt-4 p-6 bg-[#F9F9F9]">
+      <div className="text-center mb-6">
         <h2 className="text-2xl font-bold text-[#2B00B7]">
           Your Policy is Under Process
         </h2>
-        <h3 className="text-lg text-gray-600 mt-2">
-          Note: This is not the final policy document
+        <h3 className="text-lg text-gray-600 mt-1">
+          <b>Note:</b> This is not the final policy document
         </h3>
         <p className="text-sm text-gray-500 mt-1">
           You will receive a confirmation email shortly
         </p>
       </div>
 
-      <div className="space-y-8 px-4 py-6">
-        {/* ========== CONTACT INFORMATION ========== */}
+      <div className="space-y-10">
+        {/* CONTACT INFO */}
         <section>
-          <h2 className="text-xl font-semibold mb-2 text-[#2B00B7] border-b-2 border-[#2B00B7] pb-2">
+          <h2 className="text-xl font-semibold mb-2">
             Contact Information
           </h2>
-          <table className="min-w-full border border-gray-200">
-            <tbody>
-              <tr>
-                <th className="text-left px-4 py-2 border bg-gray-50 w-1/3">
-                  First Name
-                </th>
-                <td className="px-4 py-2 border">{maybe(data.firstName)}</td>
-              </tr>
-              <tr>
-                <th className="text-left px-4 py-2 border bg-gray-50">
-                  Last Name
-                </th>
-                <td className="px-4 py-2 border">{maybe(data.lastName)}</td>
-              </tr>
-              <tr>
-                <th className="text-left px-4 py-2 border bg-gray-50">
-                  Date of Birth
-                </th>
-                <td className="px-4 py-2 border">
-                  {formatDate(data.dateOfBirth)}
-                </td>
-              </tr>
-              <tr>
-                <th className="text-left px-4 py-2 border bg-gray-50">
-                  Gender
-                </th>
-                <td className="px-4 py-2 border">{maybe(data.gender)}</td>
-              </tr>
-              <tr>
-                <th className="text-left px-4 py-2 border bg-gray-50">
-                  Primary Email
-                </th>
-                <td className="px-4 py-2 border">{maybe(data.email)}</td>
-              </tr>
-              <tr>
-                <th className="text-left px-4 py-2 border bg-gray-50">
-                  Additional Email
-                </th>
-                <td className="px-4 py-2 border">
-                  {maybe((data as any).additionalEmail)}
-                </td>
-              </tr>
-              <tr>
-                <th className="text-left px-4 py-2 border bg-gray-50">
-                  Phone Number
-                </th>
-                <td className="px-4 py-2 border">
-                  {maybe((data as any).phoneNumber)}
-                </td>
-              </tr>
-            </tbody>
-          </table>
+          {renderTable(contactInfoRows)}
         </section>
 
-        {/* ========== QUOTE SUMMARY ========== */}
+        {/* QUOTE SUMMARY */}
         <section>
-          <h2 className="text-xl font-semibold mb-2 text-[#2B00B7] border-b-2 border-[#2B00B7] pb-2">
+          <h2 className="text-xl font-semibold mb-2">
             Quote Summary
           </h2>
-          <table className="min-w-full border border-gray-200">
-            <tbody>
-              <tr>
-                <th className="text-left px-4 py-2 border bg-gray-50 w-1/3">
-                  Quote Number
-                </th>
-                <td className="px-4 py-2 border font-semibold text-[#2B00B7]">
-                  {maybe(data.quoteNumber)}
-                </td>
-              </tr>
-              <tr>
-                <th className="text-left px-4 py-2 border bg-gray-50">
-                  Product
-                </th>
-                <td className="px-4 py-2 border">{maybe(data.product)}</td>
-              </tr>
-              <tr>
-                <th className="text-left px-4 py-2 border bg-gray-50">
-                  Status
-                </th>
-                <td className="px-4 py-2 border">
-                  <span className="inline-block px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm font-semibold">
-                    {maybe(data.status)}
-                  </span>
-                </td>
-              </tr>
-              <tr>
-                <th className="text-left px-4 py-2 border bg-gray-50">
-                  Policy Type
-                </th>
-                <td className="px-4 py-2 border">{maybe(data.policyType)}</td>
-              </tr>
-              <tr>
-                <th className="text-left px-4 py-2 border bg-gray-50">
-                  Trip Cost (per person)
-                </th>
-                <td className="px-4 py-2 border">
-                  ${maybe((data as any).tripCost)} CAD
-                </td>
-              </tr>
-              <tr>
-                <th className="text-left px-4 py-2 border bg-gray-50">
-                  Date Trip was Booked
-                </th>
-                <td className="px-4 py-2 border">
-                  {formatDate((data as any).dateBooked)}
-                </td>
-              </tr>
-              <tr>
-                <th className="text-left px-4 py-2 border bg-gray-50">
-                  Departure Date
-                </th>
-                <td className="px-4 py-2 border">
-                  {formatDate(data.effectiveDate)}
-                </td>
-              </tr>
-              <tr>
-                <th className="text-left px-4 py-2 border bg-gray-50">
-                  Return Date
-                </th>
-                <td className="px-4 py-2 border">
-                  {formatDate(data.expiryDate)}
-                </td>
-              </tr>
-              <tr>
-                <th className="text-left px-4 py-2 border bg-gray-50">
-                  Coverage Length
-                </th>
-                <td className="px-4 py-2 border">
-                  {maybe(data.covLen)} {pluralize(data.covLen, "day", "days")}
-                </td>
-              </tr>
-              <tr>
-                <th className="text-left px-4 py-2 border bg-gray-50">
-                  Destination Country
-                </th>
-                <td className="px-4 py-2 border">
-                  {maybe(data.destination)}
-                </td>
-              </tr>
-              <tr>
-                <th className="text-left px-4 py-2 border bg-gray-50">
-                  Trip Cancellation - Deluxe
-                </th>
-                <td className="px-4 py-2 border">
-                  {(data as any).tripCancellationDeluxe ? (
-                    <span className="text-green-600 font-semibold">Yes</span>
-                  ) : (
-                    <span className="text-gray-600">No</span>
-                  )}
-                </td>
-              </tr>
-              <tr>
-                <th className="text-left px-4 py-2 border bg-gray-50">
-                  Country of Origin
-                </th>
-                <td className="px-4 py-2 border">
-                  {maybe((data as any).countryOfOrigin)}
-                </td>
-              </tr>
-              <tr>
-                <th className="text-left px-4 py-2 border bg-gray-50">
-                  Province/State of Residence
-                </th>
-                <td className="px-4 py-2 border">
-                  {maybe((data as any).provinceStateResidence)}
-                </td>
-              </tr>
-            </tbody>
-          </table>
+          {renderTable(quoteRows)}
         </section>
 
-        {/* ========== ADDITIONAL TRAVELERS ========== */}
+        {/* ADDITIONAL TRAVELLERS */}
         {Array.isArray(data.applicants) && data.applicants.length > 0 && (
           <section>
-            <h2 className="text-xl font-semibold mb-2 text-[#2B00B7] border-b-2 border-[#2B00B7] pb-2">
+            <h2 className="text-xl font-semibold mb-2">
               Additional Travellers
             </h2>
-            <div className="overflow-x-auto">
-              <table className="min-w-full border border-gray-200">
-                <thead className="bg-gray-50">
+
+            <div className="overflow-auto">
+              <table className="w-full border border-[#DBDADE]">
+                <thead className="bg-[#F5F5F5] border-b border-[#DBDADE]">
                   <tr>
-                    <th className="px-4 py-2 border text-left">#
-                        </th>
-                    <th className="px-4 py-2 border text-left">First Name</th>
-                    <th className="px-4 py-2 border text-left">Last Name</th>
-                    <th className="px-4 py-2 border text-left">Date of Birth</th>
-                    <th className="px-4 py-2 border text-left">Relationship</th>
-                    <th className="px-4 py-2 border text-left">Gender</th>
+                    {[
+                      "#",
+                      "First Name",
+                      "Last Name",
+                      "Date of Birth",
+                      "Relationship",
+                      "Gender",
+                    ].map((h) => (
+                      <th
+                        key={h}
+                        className="p-3 text-left font-semibold text-[#1B1B1B]"
+                      >
+                        {h}
+                      </th>
+                    ))}
                   </tr>
                 </thead>
                 <tbody>
                   {data.applicants.map((app: any, idx: number) => (
-                    <tr key={idx} className="hover:bg-gray-50">
-                      <td className="px-4 py-2 border">{idx + 1}</td>
-                      <td className="px-4 py-2 border">
+                    <tr
+                      key={idx}
+                      className="border border-[#DBDADE] even:bg-[#F5F5F5] odd:bg-white"
+                    >
+                      <td className="p-3 text-left text-[#6A6A6A]">
+                        {idx + 1}
+                      </td>
+                      <td className="p-3 text-left text-[#6A6A6A]">
                         {maybe(app.firstName)}
                       </td>
-                      <td className="px-4 py-2 border">
+                      <td className="p-3 text-left text-[#6A6A6A]">
                         {maybe(app.lastName)}
                       </td>
-                      <td className="px-4 py-2 border">
+                      <td className="p-3 text-left text-[#6A6A6A]">
                         {formatDate(app.dateOfBirth)}
                       </td>
-                      <td className="px-4 py-2 border">
-                        {maybe((app as any).relation)}
+                      <td className="p-3 text-left text-[#6A6A6A]">
+                        {maybe(app.relation)}
                       </td>
-                      <td className="px-4 py-2 border">
-                        {maybe((app as any).gender)}
+                      <td className="p-3 text-left text-[#6A6A6A]">
+                        {maybe(app.gender)}
                       </td>
                     </tr>
                   ))}
@@ -285,145 +231,23 @@ const Summary: React.FC<SummaryProps> = ({ quoteId }) => {
           </section>
         )}
 
-        {/* ========== ADDRESS ========== */}
+        {/* ADDRESS */}
         <section>
-          <h2 className="text-xl font-semibold mb-2 text-[#2B00B7] border-b-2 border-[#2B00B7] pb-2">
+          <h2 className="text-xl font-semibold mb-2">
             Residence Address
           </h2>
-          <table className="min-w-full border border-gray-200">
-            <tbody>
-              <tr>
-                <th className="text-left px-4 py-2 border bg-gray-50 w-1/3">
-                  Address Line 1
-                </th>
-                <td className="px-4 py-2 border">{maybe(data.street)}</td>
-              </tr>
-              <tr>
-                <th className="text-left px-4 py-2 border bg-gray-50">
-                  Address Line 2
-                </th>
-                <td className="px-4 py-2 border">
-                  {maybe((data as any).street2)}
-                </td>
-              </tr>
-              <tr>
-                <th className="text-left px-4 py-2 border bg-gray-50">City</th>
-                <td className="px-4 py-2 border">{maybe(data.city)}</td>
-              </tr>
-              <tr>
-                <th className="text-left px-4 py-2 border bg-gray-50">
-                  Province / State
-                </th>
-                <td className="px-4 py-2 border">{maybe(data.province)}</td>
-              </tr>
-              <tr>
-                <th className="text-left px-4 py-2 border bg-gray-50">
-                  Postal Code
-                </th>
-                <td className="px-4 py-2 border">
-                  {maybe((data as any).postalCode)}
-                </td>
-              </tr>
-              <tr>
-                <th className="text-left px-4 py-2 border bg-gray-50">
-                  Country
-                </th>
-                <td className="px-4 py-2 border">{maybe(data.countryCode)}</td>
-              </tr>
-            </tbody>
-          </table>
+          {renderTable(addressRows)}
         </section>
 
-        {/* ========== PREMIUM DETAILS ========== */}
+        {/* PREMIUM */}
         <section>
-          <h2 className="text-xl font-semibold mb-2 text-[#2B00B7] border-b-2 border-[#2B00B7] pb-2">
+          <h2 className="text-xl font-semibold mb-2">
             Premium Details
           </h2>
-          <table className="min-w-full border border-gray-200">
-            <tbody>
-              <tr>
-                <th className="text-left px-4 py-2 border bg-gray-50 w-1/3">
-                  Total Premium
-                </th>
-                <td className="px-4 py-2 border">
-                  <span className="text-xl font-bold text-green-600">
-                    ${maybe(data.premium)} CAD
-                  </span>
-                </td>
-              </tr>
-              <tr>
-                <th className="text-left px-4 py-2 border bg-gray-50">
-                  Paid Premium
-                </th>
-                <td className="px-4 py-2 border">
-                  <span className="font-semibold">
-                    ${maybe(data.paidPremium)} CAD
-                  </span>
-                </td>
-              </tr>
-              <tr>
-                <th className="text-left px-4 py-2 border bg-gray-50">
-                  Payment Status
-                </th>
-                <td className="px-4 py-2 border">
-                  <span className="inline-block px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-semibold">
-                    Paid
-                  </span>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </section>
-
-        {/* ========== NEXT STEPS ========== */}
-        <section className="bg-blue-50 border border-blue-200 rounded-lg p-6">
-          <h2 className="text-xl font-semibold mb-3 text-[#2B00B7]">
-            📋 What Happens Next?
-          </h2>
-          <ol className="list-decimal list-inside space-y-2 text-gray-700">
-            <li>
-              Your payment has been processed successfully and your policy is
-              being generated.
-            </li>
-            <li>
-              You will receive a confirmation email at{" "}
-              <strong>{data.email}</strong> within the next 24 hours.
-            </li>
-            <li>
-              Your official policy document will be sent to your email address
-              once finalized.
-            </li>
-            <li>
-              Please save your quote number:{" "}
-              <strong className="text-[#2B00B7]">{data.quoteNumber}</strong> for
-              future reference.
-            </li>
-          </ol>
-        </section>
-
-        {/* ========== SUPPORT CONTACT ========== */}
-        <section className="bg-gray-50 border border-gray-200 rounded-lg p-6">
-          <h2 className="text-xl font-semibold mb-3 text-[#2B00B7]">
-            📞 Need Help?
-          </h2>
-          <p className="text-gray-700 mb-3">
-            If you have any questions about your policy, please contact our
-            support team:
-          </p>
-          <div className="space-y-2 text-gray-700">
-            <p>
-              <strong>Email:</strong> support@rimiinsurance.com
-            </p>
-            <p>
-              <strong>Phone:</strong> 1-800-XXX-XXXX
-            </p>
-            <p>
-              <strong>Hours:</strong> Monday - Friday, 9:00 AM - 5:00 PM EST
-            </p>
-          </div>
+          {renderTable(premiumRows)}
         </section>
       </div>
-    </>
+    </div>
   );
 };
 

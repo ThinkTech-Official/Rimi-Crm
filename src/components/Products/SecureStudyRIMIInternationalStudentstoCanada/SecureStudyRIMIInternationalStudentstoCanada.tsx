@@ -484,7 +484,7 @@ export default function SecureStudyRIMIInternationalStudentstoCanada() {
       agentCode: agentCode!,
       product: productName,
       quoteNumber: quoteNumber,
-      status: "Inactive",
+      status: "Active",
     };
 
     try {
@@ -681,7 +681,7 @@ export default function SecureStudyRIMIInternationalStudentstoCanada() {
               <button
                 type="submit"
                 disabled={!isStepOneFilled || savingStage1}
-                className={`mt-6 bg-[#2B00B7] text-white p-3 hover:bg-[#2309A1] transition flex justify-center items-center cursor-pointer duration-200 disabled:cursor-default ${
+                className={`w-[200px] mt-6 bg-[#2B00B7] text-white p-3 hover:bg-[#2309A1] transition flex justify-center items-center cursor-pointer duration-200 disabled:cursor-default ${
                   savingStage1 ? "opacity-50 cursor-wait" : ""
                 }`}
               >

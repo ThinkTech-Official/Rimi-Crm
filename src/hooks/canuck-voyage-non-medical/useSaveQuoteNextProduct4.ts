@@ -2,16 +2,19 @@ import { useState } from 'react';
 import { API_BASE } from '../../utils/urls';
 import { useSelector } from 'react-redux';
 
-interface Applicant {
+export interface Applicant {
   index: string;
   firstName: string;
   lastName: string;
   dob: string;
   relationship: string;
   gender: string;
+   healthQuestionnaire?: {
+    questions: any[];
+  };
 }
 
-interface Stage1Payload {
+export interface Stage1Payload {
   primaryFirstName: string;
   primaryLastName: string;
   primaryDateOfBirth: string;
@@ -32,6 +35,9 @@ interface Stage1Payload {
   product: string;
   quoteNumber?: string;
   status: string;
+  primaryHealthQuestionnaire?: {
+    questions: any[];
+  };
 }
 
 interface Stage1Response {

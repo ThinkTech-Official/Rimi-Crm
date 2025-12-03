@@ -520,7 +520,6 @@ export default function ApplicantInformation({
     }
     if (!isConfirmed) {
       setShowConfirmEligibility(true);
-      setValue("isConfirmed", true);
     }
     // if they try to check before even opening, auto-open for them
     if (!showInfo) {
@@ -577,7 +576,6 @@ export default function ApplicantInformation({
   const setPrimaryDateOfBirth = (value: Date) => {
     setValue("primaryDateOfBirth", value.toDateString());
   };
-  const primaryDateOfBirth = watch("primaryDateOfBirth");
 
   const handlePrimaryDOBChange = (e: Date) => {
     setPrimaryDateOfBirth(e);

@@ -424,17 +424,18 @@
 //   );
 // }
 
-
-
 // ==============================================================
-
-
 
 import React, { useEffect, useState } from "react";
 import {
   ChevronDownIcon,
   InformationCircleIcon,
 } from "@heroicons/react/24/outline";
+import { Controller, UseFormReturn } from "react-hook-form";
+import { Step1Payload } from "../RIMICanuckVoyageNon-MedicalTravel";
+import DatePicker from "../../../DatePicker";
+import ConfirmEligibilityModal from "../../SecureTravelRIMIVisitorstoCanadaTravel/step1/ConfirmEligibility";
+import AgeQuestionaire from "../../../AgeQuotionaire";
 
 interface Applicant {
   index: string;
@@ -443,99 +444,143 @@ interface Applicant {
   dob: string;
   relationship: string;
   gender: string;
+  healthQuestionnaire?: {
+    questions: any[];
+  };
 }
 
 interface ApplicantInformationProps {
-  primaryFirstName: string;
-  setPrimaryFirstName: (value: string) => void;
-  primaryLastName: string;
-  setPrimaryLastName: (value: string) => void;
-  primaryDateOfBirth: string;
-  setPrimaryDateOfBirth: (value: string) => void;
-  primaryEmail: string;
-  setPrimaryEmail: (value: string) => void;
-  primaryApplicantGender: string;
-  setPrimaryApplicantGender: (value: string) => void;
-  countryOfOrigin: string;
-  setCountryOfOrigin: (value: string) => void;
-  provinceStateResidence: string;
-  setProvinceStateResidence: (value: string) => void;
-  applicantNumber: number;
-  setApplicantNumber: (value: number) => void;
-  applicants: Applicant[];
-  setApplicants: React.Dispatch<React.SetStateAction<Applicant[]>>;
-  isConfirmed: boolean;
-  setIsConfirmed: (value: boolean) => void;
+  methods: UseFormReturn<Step1Payload>;
 }
 
 export default function ApplicantInformation({
-  primaryFirstName,
-  setPrimaryFirstName,
-  primaryLastName,
-  setPrimaryLastName,
-  primaryDateOfBirth,
-  setPrimaryDateOfBirth,
-  primaryEmail,
-  setPrimaryEmail,
-  primaryApplicantGender,
-  setPrimaryApplicantGender,
-  countryOfOrigin,
-  setCountryOfOrigin,
-  provinceStateResidence,
-  setProvinceStateResidence,
-  applicantNumber,
-  setApplicantNumber,
-  applicants,
-  setApplicants,
-  isConfirmed,
-  setIsConfirmed,
+  methods,
 }: ApplicantInformationProps) {
-  const [displayInfoCountryOfOrigin, setDisplayInfoCountryOfOrigin] = useState(false);
-  const [displayInfoApplicantConfirm, setDisplayInfoApplicantConfirm] = useState(false);
+  const {
+    register,
+    watch,
+    setValue,
+    control,
+    formState: { errors },
+  } = methods;
 
+  // Watch form values
+  const formValues = watch();
+  const { applicantNumber, applicants, isConfirmed } = formValues;
+
+  const [displayInfoCountryOfOrigin, setDisplayInfoCountryOfOrigin] =
+    useState(false);
+  const [displayInfoApplicantConfirm, setDisplayInfoApplicantConfirm] =
+    useState(false);
+  const [showConfirmEligibility, setShowConfirmEligibility] = useState(false);
+  const [isPrimary, setIsPrimary] = useState(false);
+  const [currentIdx, setCurrentIdx] = useState(0);
+  const [isAgeQuetionaireOpen, setIsAgeQuetionaireOpen] = useState(false);
+
+  const setIsConfirmed = (value: boolean) => {
+    setValue("isConfirmed", value);
+  };
   // Resize applicants array when number changes
   useEffect(() => {
-    setApplicants((prev) =>
-      Array.from(
-        { length: applicantNumber },
-        (_, i) =>
-          prev[i] ?? {
-            index: String(i),
-            firstName: "",
-            lastName: "",
-            dob: "",
-            relationship: "",
-            gender: "",
-          }
-      )
+    const currentApplicants = watch("applicants") || [];
+    const newApplicants = Array.from(
+      { length: applicantNumber || 0 },
+      (_, i) =>
+        currentApplicants[i] ?? {
+          index: String(i + 1),
+          firstName: "",
+          lastName: "",
+          dob: "",
+          relationship: "",
+          gender: "",
+          healthQuestionnaire: {
+            questions: [],
+          },
+        }
     );
-  }, [applicantNumber, setApplicants]);
-
-  const updateApplicant = (idx: number, field: keyof Applicant, value: string) => {
-    setApplicants((prev) => {
-      const copy = [...prev];
-      copy[idx] = { ...copy[idx], [field]: value };
-      return copy;
-    });
-  };
+    setValue("applicants", newApplicants);
+  }, [applicantNumber, setValue, watch]);
 
   const handleCheckboxChange = () => {
+    if (isConfirmed) {
+      return setValue("isConfirmed", false);
+    }
+    if (!isConfirmed) {
+      setShowConfirmEligibility(true);
+    }
+    // if they try to check before even opening, auto-open for them
     if (!displayInfoApplicantConfirm) {
       setDisplayInfoApplicantConfirm(true);
     }
-
-    if (!isConfirmed) {
-      const ok = window.confirm(
-        "Have you read and understood the eligibility instructions above?"
-      );
-      if (ok) {
-        setIsConfirmed(true);
-      }
-    } else {
-      setIsConfirmed(false);
-    }
   };
 
+  const getAge = (dob: string) => {
+    if (!dob) return 0;
+    const diff = Date.now() - new Date(dob).getTime();
+    return Math.floor(diff / (1000 * 60 * 60 * 24 * 365.25));
+  };
+
+  const handleAdditionalApplicantsDateChange = (idx: number, e: Date) => {
+    // Update the date field
+    const currentApplicants = applicants || [];
+    const updated = [...currentApplicants];
+    updated[idx] = { ...updated[idx], dob: e.toISOString() };
+
+    const age = getAge(e.toISOString());
+    if (age >= 80) {
+      setCurrentIdx(idx);
+      setIsPrimary(false);
+      setIsAgeQuetionaireOpen(true);
+    } else {
+      // Clear health questionnaire
+      updated[idx] = {
+        ...updated[idx],
+        healthQuestionnaire: { questions: [] },
+      };
+    }
+
+    setValue("applicants", updated);
+  };
+  const handleApplicantNumberChange = (num: number) => {
+    setValue("applicantNumber", num);
+
+    // Initialize or update applicants array
+    const newApplicants: Applicant[] = Array.from({ length: num }, (_, i) => {
+      const existing = applicants?.[i];
+      return (
+        existing || {
+          index: String(i + 1),
+          firstName: "",
+          lastName: "",
+          dob: "",
+          relationship: "",
+          gender: "",
+        }
+      );
+    });
+
+    setValue("applicants", newApplicants);
+  };
+
+  const setApplicants = (value: Applicant[]) => {
+    setValue("applicants", value);
+  };
+  const setPrimaryQuestionaire = (value: any) => {
+    setValue("primaryHealthQuestionnaire", value);
+  };
+  const setPrimaryDateOfBirth = (value: Date) => {
+    setValue("primaryDateOfBirth", value.toDateString());
+  };
+  const handlePrimaryDOBChange = (e: Date) => {
+    setPrimaryDateOfBirth(e);
+    const age = getAge(e.toISOString());
+    if (age >= 80) {
+      setIsPrimary(true);
+      setIsAgeQuetionaireOpen(true);
+    } else {
+      setPrimaryQuestionaire({});
+    }
+  };
   return (
     <div className="max-w-5xl mx-auto mt-4 p-6 bg-[#F9F9F9]">
       <h3 className="text-lg font-bold text-left text-[#1B1B1B] mb-5">
@@ -544,52 +589,108 @@ export default function ApplicantInformation({
 
       {/* Primary Applicant */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 md:gap-x-16 lg:gap-x-24 gap-y-4 text-text-secondary">
+        {/* First Name */}
         <div className="flex flex-col">
           <label className="text-sm">First Name</label>
           <input
             className="input-primary"
             type="text"
             placeholder="Enter First Name"
-            value={primaryFirstName}
-            onChange={(e) => setPrimaryFirstName(e.target.value)}
+            {...register("primaryFirstName", {
+              required: "First Name is required",
+              maxLength: {
+                value: 64,
+                message: "First Name cannot exceed 64 characters",
+              },
+            })}
           />
+          {errors.primaryFirstName && (
+            <p className="text-red-500 text-sm mt-1">
+              {errors.primaryFirstName.message}
+            </p>
+          )}
         </div>
+
+        {/* Last Name */}
         <div className="flex flex-col">
           <label className="text-sm">Last Name</label>
           <input
             className="input-primary"
             type="text"
             placeholder="Enter Last Name"
-            value={primaryLastName}
-            onChange={(e) => setPrimaryLastName(e.target.value)}
+            {...register("primaryLastName", {
+              required: "Last Name is required",
+              maxLength: {
+                value: 64,
+                message: "Last Name cannot exceed 64 characters",
+              },
+            })}
           />
+          {errors.primaryLastName && (
+            <p className="text-red-500 text-sm mt-1">
+              {errors.primaryLastName.message}
+            </p>
+          )}
         </div>
+
+        {/* Date of Birth */}
         <div className="flex flex-col">
-          <label className="text-sm">Date of Birth</label>
-          <input
-            className="input-primary"
-            type="date"
-            value={primaryDateOfBirth}
-            onChange={(e) => setPrimaryDateOfBirth(e.target.value)}
+          <Controller
+            name="primaryDateOfBirth"
+            control={control}
+            rules={{ required: "Date of Birth is required" }}
+            render={({ field }) => (
+              <div className="flex flex-col">
+                <DatePicker
+                  label="Date of Birth"
+                  value={field.value}
+                  onChange={(date) => {
+                    field.onChange(date);
+                    handlePrimaryDOBChange(date);
+                  }}
+                  maxDate={new Date()}
+                />
+                {errors.primaryDateOfBirth && (
+                  <p className="text-red-500 text-sm">
+                    {errors.primaryDateOfBirth.message}
+                  </p>
+                )}
+              </div>
+            )}
           />
         </div>
+
+        {/* Email */}
         <div className="flex flex-col">
           <label className="text-sm">Email</label>
           <input
             className="input-primary"
             type="email"
             placeholder="Enter Email Address"
-            value={primaryEmail}
-            onChange={(e) => setPrimaryEmail(e.target.value)}
+            {...register("primaryEmail", {
+              required: "Email is required",
+              pattern: {
+                value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                message: "Invalid email address",
+              },
+            })}
           />
+          {errors.primaryEmail && (
+            <p className="text-red-500 text-sm mt-1">
+              {errors.primaryEmail.message}
+            </p>
+          )}
         </div>
+
+        {/* Gender */}
         <div className="flex flex-col">
           <label className="text-sm">Gender</label>
           <div className="relative">
             <select
               className="input-primary appearance-none cursor-pointer"
-              value={primaryApplicantGender}
-              onChange={(e) => setPrimaryApplicantGender(e.target.value)}
+              {...register("primaryApplicantGender", {
+                required: "Gender is required",
+              })}
             >
               <option value="">Please select</option>
               <option value="Female">Female</option>
@@ -601,6 +702,11 @@ export default function ApplicantInformation({
               <ChevronDownIcon className="h-5 w-5" aria-hidden="true" />
             </div>
           </div>
+          {errors.primaryApplicantGender && (
+            <p className="text-red-500 text-sm mt-1">
+              {errors.primaryApplicantGender.message}
+            </p>
+          )}
         </div>
 
         {/* Country of Origin */}
@@ -608,7 +714,7 @@ export default function ApplicantInformation({
           <label className="flex items-center text-sm">
             <InformationCircleIcon
               onClick={() => setDisplayInfoCountryOfOrigin((prev) => !prev)}
-              className="h-5 w-5 text-[#3a17c5] cursor-pointer"
+              className="h-5 w-5 text-[#3a17c5] cursor-pointer mr-1"
               aria-hidden="true"
             />
             Country of Origin
@@ -616,8 +722,9 @@ export default function ApplicantInformation({
           <div className="relative">
             <select
               className="input-primary appearance-none cursor-pointer"
-              value={countryOfOrigin}
-              onChange={(e) => setCountryOfOrigin(e.target.value)}
+              {...register("countryOfOrigin", {
+                required: "Country of Origin is required",
+              })}
             >
               <option value="">Please select...</option>
               <option value="AF">Afghanistan</option>
@@ -675,6 +782,11 @@ export default function ApplicantInformation({
               <ChevronDownIcon className="h-5 w-5" aria-hidden="true" />
             </div>
           </div>
+          {errors.countryOfOrigin && (
+            <p className="text-red-500 text-sm mt-1">
+              {errors.countryOfOrigin.message}
+            </p>
+          )}
         </div>
 
         {displayInfoCountryOfOrigin && (
@@ -698,24 +810,36 @@ export default function ApplicantInformation({
           </div>
         )}
 
+        {/* Province/State of Residence */}
         <div className="flex flex-col">
           <label className="text-sm">Province/State of Residence</label>
           <input
             className="input-primary"
             type="text"
             placeholder="Province/State of Residence"
-            value={provinceStateResidence}
-            onChange={(e) => setProvinceStateResidence(e.target.value)}
+            {...register("provinceStateResidence", {
+              required: "Province/State is required",
+            })}
           />
+          {errors.provinceStateResidence && (
+            <p className="text-red-500 text-sm mt-1">
+              {errors.provinceStateResidence.message}
+            </p>
+          )}
         </div>
 
+        {/* Number of Additional Applicants */}
         <div className="flex flex-col">
           <label className="text-sm">Number of Additional Applicants</label>
           <div className="relative">
             <select
               className="input-primary appearance-none cursor-pointer"
-              value={applicantNumber}
-              onChange={(e) => setApplicantNumber(Number(e.target.value))}
+              {...register("applicantNumber", {
+                valueAsNumber: true,
+              })}
+              onChange={(e) =>
+                handleApplicantNumberChange(Number(e.target.value))
+              }
             >
               <option value={0}>0</option>
               <option value={1}>1</option>
@@ -732,7 +856,7 @@ export default function ApplicantInformation({
       </div>
 
       {/* Additional Applicants */}
-      {applicants.map((app, idx) => (
+      {Array.from({ length: applicantNumber || 0 }).map((_, idx) => (
         <React.Fragment key={idx}>
           <h1 className="text-md font-semibold text-left text-[#1B1B1B] mt-5 mb-3">
             APPLICANT {idx + 1}
@@ -744,8 +868,7 @@ export default function ApplicantInformation({
                 className="input-primary"
                 type="text"
                 placeholder="Enter First Name"
-                value={app.firstName}
-                onChange={(e) => updateApplicant(idx, "firstName", e.target.value)}
+                {...register(`applicants.${idx}.firstName`)}
               />
             </div>
             <div className="flex flex-col">
@@ -754,26 +877,37 @@ export default function ApplicantInformation({
                 className="input-primary"
                 type="text"
                 placeholder="Enter Last Name"
-                value={app.lastName}
-                onChange={(e) => updateApplicant(idx, "lastName", e.target.value)}
+                {...register(`applicants.${idx}.lastName`)}
               />
             </div>
-            <div className="flex flex-col">
-              <label className="text-sm">Date of Birth</label>
-              <input
-                className="input-primary"
-                type="date"
-                value={app.dob}
-                onChange={(e) => updateApplicant(idx, "dob", e.target.value)}
-              />
-            </div>
+            <Controller
+              name={`applicants.${idx}.dob`}
+              control={control}
+              rules={{ required: "Date of Birth is required" }}
+              render={({ field }) => (
+                <DatePicker
+                  label="Date of Birth"
+                  value={field.value}
+                  onChange={(date: Date) => {
+                    field.onChange(date);
+                    handleAdditionalApplicantsDateChange(idx, date);
+                  }}
+                  maxDate={new Date()}
+                />
+              )}
+            />
+
+            {errors.applicants?.[idx]?.dob && (
+              <p className="text-red-500 text-sm">
+                {errors.applicants[idx].dob.message}
+              </p>
+            )}
             <div className="flex flex-col">
               <label className="text-sm">Gender</label>
               <div className="relative">
                 <select
                   className="input-primary appearance-none cursor-pointer"
-                  value={app.gender}
-                  onChange={(e) => updateApplicant(idx, "gender", e.target.value)}
+                  {...register(`applicants.${idx}.gender`)}
                 >
                   <option value="">Please select</option>
                   <option value="Female">Female</option>
@@ -787,13 +921,14 @@ export default function ApplicantInformation({
               </div>
             </div>
             <div className="flex flex-col">
-              <label className="text-sm">Relationship to Primary Applicant</label>
+              <label className="text-sm">
+                Relationship to Primary Applicant
+              </label>
               <input
                 className="input-primary"
                 type="text"
                 placeholder="Relation"
-                value={app.relationship}
-                onChange={(e) => updateApplicant(idx, "relationship", e.target.value)}
+                {...register(`applicants.${idx}.relationship`)}
               />
             </div>
           </div>
@@ -802,7 +937,7 @@ export default function ApplicantInformation({
 
       {/* Eligibility Confirmation */}
       <div className="w-full">
-        <div className="mt-6 flex items-center justify-start gap-1">
+        <div className="mt-6 flex items-center justify-center gap-1">
           <InformationCircleIcon
             onClick={() => setDisplayInfoApplicantConfirm((prev) => !prev)}
             className="h-5 w-5 text-[#3a17c5] cursor-pointer"
@@ -811,7 +946,7 @@ export default function ApplicantInformation({
           <input
             type="checkbox"
             className="accent-primary cursor-pointer"
-            checked={isConfirmed}
+            checked={isConfirmed || false}
             onChange={handleCheckboxChange}
           />
           <span className="font-semibold font-[inter] text-[#2B00B7] text-sm">
@@ -835,40 +970,61 @@ export default function ApplicantInformation({
             </p>
             <ol className="list-decimal pl-5 mt-2 text-gray-700 space-y-2">
               <li>
-                Be at least 15 days of age and less than 86 years of age traveling
-                for no more than 90 days; and
+                Be at least 15 days of age and less than 86 years of age
+                traveling for no more than 90 days; and
               </li>
               <li>
-                Be a member in good standing of an association or organization, or
-                a client of a tour operator, that has agreed to participate in
-                this insurance plan, or be the spouse or dependent child of a
+                Be a member in good standing of an association or organization,
+                or a client of a tour operator, that has agreed to participate
+                in this insurance plan, or be the spouse or dependent child of a
                 member insured under the same policy; and
               </li>
               <li>
                 Purchase coverage within 10 days of the initial deposit for your
-                trip or prior to any cancellation penalties being applicable; and
+                trip or prior to any cancellation penalties being applicable;
+                and
               </li>
               <li>
                 Purchase coverage for the full value of the non-refundable,
                 pre-paid travel arrangements; and
               </li>
-              <li>Purchase coverage for the entire duration of your trip; and</li>
+              <li>
+                Purchase coverage for the entire duration of your trip; and
+              </li>
               <li>
                 For traveling Canadians, purchase coverage prior to the date of
                 departure from your province or territory of residence or Canada
-                or; for visitors to Canada, purchase coverage prior to the date of
-                departure from your home country; and
+                or; for visitors to Canada, purchase coverage prior to the date
+                of departure from your home country; and
               </li>
               <li>
                 Know of no reason that you, an immediate family member, a travel
                 companion, a travel companion's immediate family member, or
-                business partner would be unable to start or complete the trip as
-                booked.
+                business partner would be unable to start or complete the trip
+                as booked.
               </li>
             </ol>
           </div>
         )}
       </div>
+      {showConfirmEligibility && (
+        <ConfirmEligibilityModal
+          confirmEligibility={showConfirmEligibility}
+          setShowConfirmEligibility={setShowConfirmEligibility}
+          setIsConfirmed={setIsConfirmed}
+        />
+      )}
+      {isAgeQuetionaireOpen && (
+        <AgeQuestionaire
+          setPrimaryQuestionaire={setPrimaryQuestionaire}
+          setIsAgeQuetionaireOpen={setIsAgeQuetionaireOpen}
+          isPrimary={isPrimary}
+          applicants={applicants}
+          setIsPrimary={setIsPrimary}
+          currentIdx={currentIdx}
+          setApplicants={setApplicants}
+        />
+      )}
     </div>
   );
 }

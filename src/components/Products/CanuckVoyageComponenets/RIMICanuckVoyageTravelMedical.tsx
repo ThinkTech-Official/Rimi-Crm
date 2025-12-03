@@ -492,7 +492,7 @@ const RIMICanuckVoyageTravelMedical: React.FC = () => {
   };
 
   return (
-    <div className="max-w-5xl mx-auto px-2 py-4 sm:p-6">
+    <div className="max-w-5xl xl:w-5xl mx-auto px-2 py-4 sm:p-6">
       {/* ========== PROGRESS STEPPER ========== */}
       <nav aria-label="Progress">
         <ol
