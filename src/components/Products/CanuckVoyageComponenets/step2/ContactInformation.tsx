@@ -64,24 +64,29 @@
 
 import { InformationCircleIcon } from "@heroicons/react/24/outline";
 import { useState } from "react";
+import { UseFormReturn } from "react-hook-form";
 
 interface ContactInfo {
-  email: string;
-  additionalEmail: string;
-  phoneNumber: string;
+  contactInfo: {
+    email: string;
+    additionalEmail: string;
+    phoneNumber: string;
+  };
 }
 
 interface ContactInformationProps {
-  contactInfo: ContactInfo;
-  setContactInfo: React.Dispatch<React.SetStateAction<ContactInfo>>;
   email?: string;
+  methods: UseFormReturn<ContactInfo>;
 }
 
 export default function ContactInformation({
-  contactInfo,
-  setContactInfo,
   email,
+  methods,
 }: ContactInformationProps) {
+   const {
+    register,
+    formState: { errors },
+  } = methods;
   const [displayInfoAddEmail, setDisplayInfoAddEmail] = useState(false);
 
   return (
@@ -93,19 +98,11 @@ export default function ContactInformation({
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 md:gap-x-16 lg:gap-x-24 gap-y-4 text-text-secondary">
         <div className="flex flex-col">
           <label className="text-sm">Email Address</label>
-          <input
-            className="input-primary"
-            type="email"
-            placeholder="Email Address"
-            value={contactInfo.email || email || ""}
-            onChange={(e) =>
-              setContactInfo({ ...contactInfo, email: e.target.value })
-            }
-          />
+          <p className="input-primary">{email}</p>
         </div>
 
-        <div className="flex flex-col">
-          <label className="text-sm flex items-center">
+     <div className="flex flex-col">
+          <label className="flex items-center gap-1 text-sm">
             <InformationCircleIcon
               onClick={() => setDisplayInfoAddEmail((prev) => !prev)}
               className="h-5 w-5 text-[#3a17c5] cursor-pointer"
@@ -117,10 +114,7 @@ export default function ContactInformation({
             className="input-primary"
             type="email"
             placeholder="Additional Email Address"
-            value={contactInfo.additionalEmail}
-            onChange={(e) =>
-              setContactInfo({ ...contactInfo, additionalEmail: e.target.value })
-            }
+            {...register("contactInfo.additionalEmail")}
           />
         </div>
 
@@ -137,11 +131,27 @@ export default function ContactInformation({
             className="input-primary"
             type="tel"
             placeholder="Phone Number"
-            value={contactInfo.phoneNumber}
-            onChange={(e) =>
-              setContactInfo({ ...contactInfo, phoneNumber: e.target.value })
-            }
+            {...register("contactInfo.phoneNumber", {
+              required: "Phone number is required",
+              pattern: {
+                value: /^[0-9]*$/,
+                message: "Phone number must contain digits only",
+              },
+              minLength: {
+                value: 10,
+                message: "Phone number must be at least 10 digits",
+              },
+              maxLength: {
+                value: 10,
+                message: "Phone number must be at most 10 digits",
+              },
+            })}
           />
+          {errors.contactInfo?.phoneNumber && (
+            <p className="text-red-500 text-sm mt-1">
+              {errors.contactInfo.phoneNumber.message}
+            </p>
+          )}
         </div>
       </div>
     </div>

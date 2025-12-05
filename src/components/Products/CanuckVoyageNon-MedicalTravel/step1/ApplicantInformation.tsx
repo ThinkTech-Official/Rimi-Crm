@@ -435,7 +435,6 @@ import { Controller, UseFormReturn } from "react-hook-form";
 import { Step1Payload } from "../RIMICanuckVoyageNon-MedicalTravel";
 import DatePicker from "../../../DatePicker";
 import ConfirmEligibilityModal from "../../SecureTravelRIMIVisitorstoCanadaTravel/step1/ConfirmEligibility";
-import AgeQuestionaire from "../../../AgeQuotionaire";
 
 interface Applicant {
   index: string;
@@ -444,9 +443,6 @@ interface Applicant {
   dob: string;
   relationship: string;
   gender: string;
-  healthQuestionnaire?: {
-    questions: any[];
-  };
 }
 
 interface ApplicantInformationProps {
@@ -473,33 +469,26 @@ export default function ApplicantInformation({
   const [displayInfoApplicantConfirm, setDisplayInfoApplicantConfirm] =
     useState(false);
   const [showConfirmEligibility, setShowConfirmEligibility] = useState(false);
-  const [isPrimary, setIsPrimary] = useState(false);
-  const [currentIdx, setCurrentIdx] = useState(0);
-  const [isAgeQuetionaireOpen, setIsAgeQuetionaireOpen] = useState(false);
-
   const setIsConfirmed = (value: boolean) => {
     setValue("isConfirmed", value);
   };
   // Resize applicants array when number changes
   useEffect(() => {
-    const currentApplicants = watch("applicants") || [];
-    const newApplicants = Array.from(
+    const currentApplicants = applicants || [];
+    const newApplicants: Applicant[] = Array.from(
       { length: applicantNumber || 0 },
       (_, i) =>
         currentApplicants[i] ?? {
-          index: String(i + 1),
+          index: String(i),
           firstName: "",
           lastName: "",
           dob: "",
           relationship: "",
           gender: "",
-          healthQuestionnaire: {
-            questions: [],
-          },
         }
     );
     setValue("applicants", newApplicants);
-  }, [applicantNumber, setValue, watch]);
+  }, [applicantNumber, setValue]);
 
   const handleCheckboxChange = () => {
     if (isConfirmed) {
@@ -507,6 +496,7 @@ export default function ApplicantInformation({
     }
     if (!isConfirmed) {
       setShowConfirmEligibility(true);
+      setValue("isConfirmed", true);
     }
     // if they try to check before even opening, auto-open for them
     if (!displayInfoApplicantConfirm) {
@@ -514,73 +504,6 @@ export default function ApplicantInformation({
     }
   };
 
-  const getAge = (dob: string) => {
-    if (!dob) return 0;
-    const diff = Date.now() - new Date(dob).getTime();
-    return Math.floor(diff / (1000 * 60 * 60 * 24 * 365.25));
-  };
-
-  const handleAdditionalApplicantsDateChange = (idx: number, e: Date) => {
-    // Update the date field
-    const currentApplicants = applicants || [];
-    const updated = [...currentApplicants];
-    updated[idx] = { ...updated[idx], dob: e.toISOString() };
-
-    const age = getAge(e.toISOString());
-    if (age >= 80) {
-      setCurrentIdx(idx);
-      setIsPrimary(false);
-      setIsAgeQuetionaireOpen(true);
-    } else {
-      // Clear health questionnaire
-      updated[idx] = {
-        ...updated[idx],
-        healthQuestionnaire: { questions: [] },
-      };
-    }
-
-    setValue("applicants", updated);
-  };
-  const handleApplicantNumberChange = (num: number) => {
-    setValue("applicantNumber", num);
-
-    // Initialize or update applicants array
-    const newApplicants: Applicant[] = Array.from({ length: num }, (_, i) => {
-      const existing = applicants?.[i];
-      return (
-        existing || {
-          index: String(i + 1),
-          firstName: "",
-          lastName: "",
-          dob: "",
-          relationship: "",
-          gender: "",
-        }
-      );
-    });
-
-    setValue("applicants", newApplicants);
-  };
-
-  const setApplicants = (value: Applicant[]) => {
-    setValue("applicants", value);
-  };
-  const setPrimaryQuestionaire = (value: any) => {
-    setValue("primaryHealthQuestionnaire", value);
-  };
-  const setPrimaryDateOfBirth = (value: Date) => {
-    setValue("primaryDateOfBirth", value.toDateString());
-  };
-  const handlePrimaryDOBChange = (e: Date) => {
-    setPrimaryDateOfBirth(e);
-    const age = getAge(e.toISOString());
-    if (age >= 80) {
-      setIsPrimary(true);
-      setIsAgeQuetionaireOpen(true);
-    } else {
-      setPrimaryQuestionaire({});
-    }
-  };
   return (
     <div className="max-w-5xl mx-auto mt-4 p-6 bg-[#F9F9F9]">
       <h3 className="text-lg font-bold text-left text-[#1B1B1B] mb-5">
@@ -646,7 +569,6 @@ export default function ApplicantInformation({
                   value={field.value}
                   onChange={(date) => {
                     field.onChange(date);
-                    handlePrimaryDOBChange(date);
                   }}
                   maxDate={new Date()}
                 />
@@ -837,9 +759,6 @@ export default function ApplicantInformation({
               {...register("applicantNumber", {
                 valueAsNumber: true,
               })}
-              onChange={(e) =>
-                handleApplicantNumberChange(Number(e.target.value))
-              }
             >
               <option value={0}>0</option>
               <option value={1}>1</option>
@@ -890,7 +809,6 @@ export default function ApplicantInformation({
                   value={field.value}
                   onChange={(date: Date) => {
                     field.onChange(date);
-                    handleAdditionalApplicantsDateChange(idx, date);
                   }}
                   maxDate={new Date()}
                 />
@@ -937,7 +855,7 @@ export default function ApplicantInformation({
 
       {/* Eligibility Confirmation */}
       <div className="w-full">
-        <div className="mt-6 flex items-center justify-center gap-1">
+        <div className="mt-6 flex items-center justify-start gap-1">
           <InformationCircleIcon
             onClick={() => setDisplayInfoApplicantConfirm((prev) => !prev)}
             className="h-5 w-5 text-[#3a17c5] cursor-pointer"
@@ -1012,17 +930,6 @@ export default function ApplicantInformation({
           confirmEligibility={showConfirmEligibility}
           setShowConfirmEligibility={setShowConfirmEligibility}
           setIsConfirmed={setIsConfirmed}
-        />
-      )}
-      {isAgeQuetionaireOpen && (
-        <AgeQuestionaire
-          setPrimaryQuestionaire={setPrimaryQuestionaire}
-          setIsAgeQuetionaireOpen={setIsAgeQuetionaireOpen}
-          isPrimary={isPrimary}
-          applicants={applicants}
-          setIsPrimary={setIsPrimary}
-          currentIdx={currentIdx}
-          setApplicants={setApplicants}
         />
       )}
     </div>

@@ -106,7 +106,7 @@ interface Applicant {
   gender: string;
 }
 
-interface Stage1Payload {
+export interface Stage1Payload {
   primaryFirstName: string;
   primaryLastName: string;
   primaryDateOfBirth: string;

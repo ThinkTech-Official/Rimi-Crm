@@ -495,21 +495,20 @@
 //   );
 // }
 
-
-
-
 // ===================================
-
-
-
 
 import React, { useEffect, useMemo, useState } from "react";
 import {
   ChevronDownIcon,
   InformationCircleIcon,
 } from "@heroicons/react/24/outline";
+import { Controller, UseFormReturn } from "react-hook-form";
 import { usePremiumCalculationProduct3 } from "../../../../hooks/canuck-voyage/usePremiumCalculationProduct3";
 import { useCreateQuoteProduct3 } from "../../../../hooks/canuck-voyage/useCreateQuoteProduct3";
+import { Step1Payload } from "../RIMICanuckVoyageTravelMedical";
+import DatePicker from "../../../DatePicker";
+import EmailQuoteNonMed from "../../CanuckVoyageNon-MedicalTravel/step1/EmailQuoteNonMed";
+import EmailQuoteMedical from "./EmailQuoteMedical";
 
 const today = new Date().toISOString().slice(0, 10);
 const msPerDay = 1000 * 60 * 60 * 24;
@@ -524,26 +523,7 @@ interface Applicant {
 }
 
 interface CoverageInformationProps {
-  policyType: string;
-  setPolicyType: (value: string) => void;
-  effectiveDate: string;
-  setEffectiveDate: (value: string) => void;
-  expiryDate: string;
-  setExpiryDate: (value: string) => void;
-  coverageLength: string;
-  setCoverageLength: (value: string) => void;
-  destinationCountry: string;
-  setDestinationCountry: (value: string) => void;
-  travelingThroughUS: string;
-  setTravelingThroughUS: (value: string) => void;
-  usTravelDays: number;
-  setUsTravelDays: (value: number) => void;
-  numberOfDaysPerTrip: number | undefined;
-  setNumberOfDaysPerTrip: (value: number | undefined) => void;
-  deductible: number;
-  setDeductible: (value: number) => void;
-  primaryDateOfBirth: string;
-  applicants: Applicant[];
+  methods: UseFormReturn<Step1Payload>;
   totalPremium: number;
   setTotalPremium: (value: number) => void;
   premiumBreakdown: any;
@@ -554,46 +534,50 @@ interface CoverageInformationProps {
   setError: (value: string | null) => void;
   onValidityChange: (valid: boolean) => void;
   quoteNumber: string | null;
-  setQuoteNumber: (value: string | null) => void;
   agentCode: string;
+  handleSaveQuote: () => void;
 }
 
 export default function CoverageInformation({
-  policyType,
-  setPolicyType,
-  effectiveDate,
-  setEffectiveDate,
-  expiryDate,
-  setExpiryDate,
-  coverageLength,
-  setCoverageLength,
-  destinationCountry,
-  setDestinationCountry,
-  travelingThroughUS,
-  setTravelingThroughUS,
-  usTravelDays,
-  setUsTravelDays,
-  numberOfDaysPerTrip,
-  setNumberOfDaysPerTrip,
-  deductible,
-  setDeductible,
-  primaryDateOfBirth,
-  applicants,
-  totalPremium,
+  methods,
   setTotalPremium,
-  premiumBreakdown,
   setPremiumBreakdown,
-  loading,
   setLoading,
-  error,
   setError,
   onValidityChange,
   quoteNumber,
-  setQuoteNumber,
-  agentCode,
+  handleSaveQuote,
+  premiumBreakdown
 }: CoverageInformationProps) {
-  const [displayInfoDestinationCountry, setDisplayInfoDestinationCountry] = useState(false);
+  const {
+    register,
+    watch,
+    setValue,
+    control,
+    formState: { errors },
+  } = methods;
+
+  const [displayInfoDestinationCountry, setDisplayInfoDestinationCountry] =
+    useState(false);
   const [displayInfoDeductible, setDisplayInfoDeductible] = useState(false);
+    const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
+  
+
+  // Watch form values
+  const formValues = watch();
+  const {
+    policyType,
+    effectiveDate,
+    expiryDate,
+    coverageLength,
+    destinationCountry,
+    travelingThroughUS,
+    usTravelDays,
+    numberOfDaysPerTrip,
+    deductible,
+    primaryDateOfBirth,
+    applicants,
+  } = formValues;
 
   // Auto-calculate coverage length for Single Trip
   useEffect(() => {
@@ -602,10 +586,10 @@ export default function CoverageInformation({
       const exp = new Date(expiryDate);
       const days = Math.round((exp.getTime() - eff.getTime()) / msPerDay) + 1;
       if (days > 0) {
-        setCoverageLength(String(days));
+        setValue("coverageLength", days);
       }
     }
-  }, [effectiveDate, expiryDate, policyType, setCoverageLength]);
+  }, [effectiveDate, expiryDate, policyType, setValue]);
 
   // Auto-calculate coverage length for Multi-Trip Annual (always 365 days)
   useEffect(() => {
@@ -613,10 +597,10 @@ export default function CoverageInformation({
       const eff = new Date(effectiveDate);
       const exp = new Date(eff);
       exp.setFullYear(eff.getFullYear() + 1);
-      setExpiryDate(exp.toISOString().slice(0, 10));
-      setCoverageLength("365");
+      setValue("expiryDate", exp.toISOString().slice(0, 10));
+      setValue("coverageLength", 365);
     }
-  }, [policyType, effectiveDate, setCoverageLength, setExpiryDate]);
+  }, [policyType, effectiveDate, setValue]);
 
   // Check if form can calculate premium
   const canCalculatePremium = useMemo(() => {
@@ -629,7 +613,7 @@ export default function CoverageInformation({
       travelingThroughUS,
       primaryDateOfBirth,
       String(deductible),
-    ].every((v) => v !== "" && v !== undefined);
+    ].every((v) => v !== "" && v !== undefined && v !== null);
 
     if (policyType === "Multi-Trip Annual") {
       return baseFields && numberOfDaysPerTrip !== undefined;
@@ -659,7 +643,7 @@ export default function CoverageInformation({
       travelingThroughUS,
       primaryDateOfBirth,
       String(deductible),
-    ].every((v) => v !== "" && v !== undefined);
+    ].every((v) => v !== "" && v !== undefined && v !== null);
 
     if (policyType === "Multi-Trip Annual") {
       return baseFields && numberOfDaysPerTrip !== undefined;
@@ -694,7 +678,7 @@ export default function CoverageInformation({
       primaryDateOfBirth,
       numberOfDaysPerTrip,
       deductible,
-      applicants: applicants.map((a) => ({ dob: a.dob })),
+      applicants: applicants.map((a: any) => ({ dob: a.dob })),
     }),
     [
       policyType,
@@ -715,7 +699,10 @@ export default function CoverageInformation({
     breakdown: hookBreakdown,
     loading: hookLoading,
     error: hookError,
-  } = usePremiumCalculationProduct3(premiumCalculationData, canCalculatePremium);
+  } = usePremiumCalculationProduct3(
+    premiumCalculationData,
+    canCalculatePremium
+  );
 
   useEffect(() => {
     setTotalPremium(hookTotalPremium);
@@ -734,46 +721,51 @@ export default function CoverageInformation({
   }, [hookError, setError]);
 
   // Save Quote functionality
-  const { saveQuote, loading: saving, error: saveError } = useCreateQuoteProduct3();
+  const {
+    saveQuote,
+    loading: saving,
+    error: saveError,
+  } = useCreateQuoteProduct3();
 
-  const handleQuoteSave = async () => {
-    const payload = {
-      primaryFirstName: "", // Get from parent if needed
-      primaryLastName: "",
-      primaryDateOfBirth,
-      primaryEmail: "",
-      primaryApplicantGender: "",
-      provinceOfResidence: "",
-      applicantNumber: applicants.length,
-      applicants: applicants.map((a) => ({
-        firstName: a.firstName,
-        lastName: a.lastName,
-        dob: a.dob,
-        relationship: a.relationship,
-        gender: a.gender,
-      })),
-      policyType,
-      effectiveDate,
-      expiryDate,
-      coverageLength: Number(coverageLength),
-      destinationCountry,
-      travelingThroughUS,
-      usTravelDays: usTravelDays > 0 ? usTravelDays : undefined,
-      numberOfDaysPerTrip,
-      deductible,
-      agentCode,
-      product: "RIMI Canuck Voyage Travel Medical",
-      status: "Inactive",
-    };
+  // const handleQuoteSave = async () => {
+  //   const payload = {
+  //     primaryFirstName: "", // Get from parent if needed
+  //     primaryLastName: "",
+  //     primaryDateOfBirth,
+  //     primaryEmail: "",
+  //     primaryApplicantGender: "",
+  //     provinceOfResidence: "",
+  //     applicantNumber: applicants.length,
+  //     applicants: applicants.map((a) => ({
+  //       firstName: a.firstName,
+  //       lastName: a.lastName,
+  //       dob: a.dob,
+  //       relationship: a.relationship,
+  //       gender: a.gender,
+  //     })),
+  //     policyType,
+  //     effectiveDate,
+  //     expiryDate,
+  //     coverageLength: Number(coverageLength),
+  //     destinationCountry,
+  //     travelingThroughUS,
+  //     usTravelDays: usTravelDays! > 0 ? usTravelDays : undefined,
+  //     numberOfDaysPerTrip,
+  //     deductible,
+  //     agentCode,
+  //     product: "RIMI Canuck Voyage Travel Medical",
+  //     status: "Inactive",
+  //   };
 
-    try {
-      const response = await saveQuote(payload);
-      setQuoteNumber(response?.quote);
-      console.log("✅ Quote saved:", response?.quote);
-    } catch (err) {
-      console.error("❌ Save failed:", err);
-    }
-  };
+  //   try {
+  //     const response = await saveQuote(payload);
+  //     setQuoteNumber(response?.quote);
+  //     console.log("✅ Quote saved:", response?.quote);
+  //   } catch (err) {
+  //     console.error("❌ Save failed:", err);
+  //   }
+  // };
+  
 
   return (
     <div className="max-w-5xl mx-auto mt-6 p-6 bg-[#F9F9F9]">
@@ -788,11 +780,14 @@ export default function CoverageInformation({
           <div className="relative">
             <select
               className="input-primary appearance-none cursor-pointer"
-              value={policyType}
-              onChange={(e) => {
-                setPolicyType(e.target.value);
-                setNumberOfDaysPerTrip(undefined);
-              }}
+              {...register("policyType", {
+                required: "Policy Type is required",
+                onChange: (e) => {
+                  if (e.target.value !== "Multi-Trip Annual") {
+                    setValue("numberOfDaysPerTrip", undefined);
+                  }
+                },
+              })}
             >
               <option value="">Please select</option>
               <option value="Single Trip">Single Trip</option>
@@ -802,31 +797,59 @@ export default function CoverageInformation({
               <ChevronDownIcon className="h-5 w-5" aria-hidden="true" />
             </div>
           </div>
+          {errors.policyType && (
+            <p className="text-red-500 text-sm mt-1">
+              {errors.policyType.message}
+            </p>
+          )}
         </div>
 
         {/* Effective Date */}
-        <div className="flex flex-col">
-          <label className="text-sm">Effective Date</label>
-          <input
-            className="input-primary"
-            type="date"
-            min={today}
-            value={effectiveDate}
-            onChange={(e) => setEffectiveDate(e.target.value)}
-          />
+        <div>
+          <Controller
+          name={`effectiveDate`}
+          control={control}
+          rules={{ required: "Effective Date is required" }}
+          render={({ field }) => (
+            <DatePicker
+              label="Effective Date"
+              value={field.value}
+              onChange={(date: Date) => {
+                field.onChange(date);
+              }}
+              minDate={new Date()}
+            />
+          )}
+        />
+         {errors.effectiveDate && (
+          <p className="text-red-500 text-sm mt-1">
+            {errors.effectiveDate.message}
+          </p>
+        )}
         </div>
 
         {/* Expiry Date */}
-        <div className="flex flex-col">
-          <label className="text-sm">Expiry Date</label>
-          <input
-            className="input-primary"
-            type="date"
-            value={expiryDate}
-            disabled={policyType === "Multi-Trip Annual"}
-            min={effectiveDate || today}
-            onChange={(e) => setExpiryDate(e.target.value)}
-          />
+        <div>
+          <Controller
+          name={`expiryDate`}
+          control={control}
+          rules={{ required: "Expiry Date is required" }}
+          render={({ field }) => (
+            <DatePicker
+              label="Expiry Date"
+              value={field.value}
+              onChange={(date: Date) => {
+                field.onChange(date);
+              }}
+              minDate={new Date()}
+            />
+          )}
+        />
+        {errors.expiryDate && (
+          <p className="text-red-500 text-sm mt-1">
+            {errors.expiryDate.message}
+          </p>
+        )}
         </div>
 
         {/* Coverage Length */}
@@ -836,7 +859,7 @@ export default function CoverageInformation({
             className="input-primary"
             type="text"
             disabled
-            value={coverageLength}
+            {...register("coverageLength")}
           />
         </div>
 
@@ -847,8 +870,13 @@ export default function CoverageInformation({
             <div className="relative">
               <select
                 className="input-primary appearance-none cursor-pointer"
-                value={numberOfDaysPerTrip || ""}
-                onChange={(e) => setNumberOfDaysPerTrip(Number(e.target.value))}
+                {...register("numberOfDaysPerTrip", {
+                  required:
+                    policyType === "Multi-Trip Annual"
+                      ? "Number of days per trip is required"
+                      : false,
+                  valueAsNumber: true,
+                })}
               >
                 <option value="">Please select...</option>
                 <option value={5}>5 days</option>
@@ -863,6 +891,11 @@ export default function CoverageInformation({
                 <ChevronDownIcon className="h-5 w-5" aria-hidden="true" />
               </div>
             </div>
+            {errors.numberOfDaysPerTrip && (
+              <p className="text-red-500 text-sm mt-1">
+                {errors.numberOfDaysPerTrip.message}
+              </p>
+            )}
           </div>
         )}
 
@@ -879,8 +912,9 @@ export default function CoverageInformation({
           <div className="relative">
             <select
               className="input-primary appearance-none cursor-pointer"
-              value={destinationCountry}
-              onChange={(e) => setDestinationCountry(e.target.value)}
+              {...register("destinationCountry", {
+                required: "Destination Country is required",
+              })}
             >
               <option value="">Please select</option>
               <option value="CA">Canada</option>
@@ -893,6 +927,11 @@ export default function CoverageInformation({
               <ChevronDownIcon className="h-5 w-5" aria-hidden="true" />
             </div>
           </div>
+          {errors.destinationCountry && (
+            <p className="text-red-500 text-sm mt-1">
+              {errors.destinationCountry.message}
+            </p>
+          )}
         </div>
       </div>
 
@@ -904,7 +943,9 @@ export default function CoverageInformation({
           >
             close
           </button>
-          <h2 className="text-center text-primary font-semibold">Destination</h2>
+          <h2 className="text-center text-primary font-semibold">
+            Destination
+          </h2>
           <p className="text-sm text-text-secondary mt-2">
             Select the primary destination country for your trip. Select Canada
             only if you are travelling outside your home province, but within
@@ -920,26 +961,31 @@ export default function CoverageInformation({
           <label className="flex items-center space-x-1">
             <input
               type="radio"
-              name="travelUS"
               value="yes"
-              checked={travelingThroughUS === "yes"}
               className="form-radio accent-primary cursor-pointer"
-              onChange={() => setTravelingThroughUS("yes")}
+              {...register("travelingThroughUS", {
+                required: "Please select if travelling through US",
+              })}
             />
             <span>Yes</span>
           </label>
           <label className="flex items-center space-x-1">
             <input
               type="radio"
-              name="travelUS"
               value="no"
-              checked={travelingThroughUS === "no"}
               className="form-radio accent-primary cursor-pointer"
-              onChange={() => setTravelingThroughUS("no")}
+              {...register("travelingThroughUS", {
+                required: "Please select if travelling through US",
+              })}
             />
             <span>No</span>
           </label>
         </div>
+        {errors.travelingThroughUS && (
+          <p className="text-red-500 text-sm mt-1">
+            {errors.travelingThroughUS.message}
+          </p>
+        )}
       </div>
 
       {travelingThroughUS === "yes" && (
@@ -949,9 +995,23 @@ export default function CoverageInformation({
             type="number"
             className="input-primary"
             placeholder="Enter number of days"
-            value={usTravelDays || ""}
-            onChange={(e) => setUsTravelDays(Number(e.target.value))}
+            {...register("usTravelDays", {
+              required:
+                travelingThroughUS === "yes"
+                  ? "Number of US travel days is required"
+                  : false,
+              valueAsNumber: true,
+              min: {
+                value: 1,
+                message: "Must be at least 1 day",
+              },
+            })}
           />
+          {errors.usTravelDays && (
+            <p className="text-red-500 text-sm mt-1">
+              {errors.usTravelDays.message}
+            </p>
+          )}
         </div>
       )}
 
@@ -968,8 +1028,10 @@ export default function CoverageInformation({
         <div className="relative">
           <select
             className="input-primary appearance-none cursor-pointer"
-            value={deductible}
-            onChange={(e) => setDeductible(Number(e.target.value))}
+            {...register("deductible", {
+              required: "Deductible is required",
+              valueAsNumber: true,
+            })}
           >
             <option value="">Please select...</option>
             <option value={0}>$0.00 CAD</option>
@@ -983,6 +1045,11 @@ export default function CoverageInformation({
             <ChevronDownIcon className="h-5 w-5" aria-hidden="true" />
           </div>
         </div>
+        {errors.deductible && (
+          <p className="text-red-500 text-sm mt-1">
+            {errors.deductible.message}
+          </p>
+        )}
       </div>
 
       {displayInfoDeductible && (
@@ -1042,24 +1109,37 @@ export default function CoverageInformation({
       {/* Save Quote Button */}
       {quoteNumber ? (
         <div className="flex flex-col justify-center items-center mt-4">
-          <p className="mt-2 text-green-600 font-semibold">✓ Saved as: {quoteNumber}</p>
-          <p className="text-[#2b00b7] cursor-pointer text-sm">Email Quote</p>
-        </div>
+              <span className="text-text-primary font-medium">
+                Quote Saved:{" "}
+              </span>
+              <span className="text-text-secondary">{quoteNumber}</span>
+
+              <button className="text-[#2b00b7] cursor-pointer text-base hover:underline underline-offset-2 mt-2" onClick={()=>setIsEmailModalOpen(true)}>
+                Email Quote
+              </button>
+            </div>
       ) : (
         isFormFilled && (
           <div className="text-center mt-4">
             <button
-              onClick={handleQuoteSave}
+              onClick={handleSaveQuote}
               disabled={saving}
-              className={`text-[#2b00b7] font-semibold cursor-pointer ${
-                saving ? "opacity-50" : ""
-              }`}
+              className={`text-base hover:underline underline-offset-2 cursor-pointer text-primary mt-2 ${
+                    saving ? "opacity-50" : ""
+                  }`}
             >
               {saving ? "Saving..." : "Save Quote"}
             </button>
           </div>
         )
       )}
+       {isEmailModalOpen && (
+              <EmailQuoteMedical
+                quoteNumber={quoteNumber}
+                premiumBreakdown={premiumBreakdown}
+                setIsEmailModalOpen={setIsEmailModalOpen}
+              />
+            )}
     </div>
   );
 }

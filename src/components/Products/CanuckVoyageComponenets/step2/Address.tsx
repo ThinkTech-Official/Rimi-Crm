@@ -337,105 +337,145 @@
 
 
 import { ChevronDownIcon } from "@heroicons/react/24/outline";
+import { UseFormReturn } from "react-hook-form";
 
 interface AddressInfo {
-  addressLine1: string;
-  addressLine2: string;
-  city: string;
-  postalCode: string;
-  country: string;
-  province: string;
+  address: {
+    addressLine1: string;
+    addressLine2: string;
+    city: string;
+    postalCode: string;
+    country: string;
+    province: string;
+  };
 }
 
 interface AddressProps {
-  address: AddressInfo;
-  setAddress: React.Dispatch<React.SetStateAction<AddressInfo>>;
+  methods: UseFormReturn<AddressInfo>;
 }
 
-export default function Address({ address, setAddress }: AddressProps) {
+export default function Address({ methods }: AddressProps) {
+  const { register, formState: { errors } } = methods;
+
   return (
     <div className="max-w-5xl mx-auto mt-4 p-6 bg-[#F9F9F9]">
       <h3 className="text-lg font-bold text-left text-[#1B1B1B] mb-5">
         Residence Information
       </h3>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 md:gap-x-16 lg:gap-x-24 gap-y-4 text-text-secondary">
-        <div className="flex flex-col">
+        {/* Address Line 1 */}
+         <div className="flex flex-col">
           <label className="text-sm">Address Line 1</label>
           <input
             type="text"
             className="input-primary"
             placeholder="Address Line 1"
-            value={address.addressLine1}
-            onChange={(e) =>
-              setAddress({ ...address, addressLine1: e.target.value })
-            }
+            {...register("address.addressLine1", {
+              required: "Address Line 1 is required",
+            })}
           />
+          {errors.address?.addressLine1 && (
+            <p className="text-red-500 text-sm mt-1">
+              {errors.address.addressLine1.message}
+            </p>
+          )}
         </div>
+        {/* Address Line 2 */}
         <div className="flex flex-col">
-          <label className="text-sm">Address Line 2</label>
+          <label className="text-sm">Address Line 2 (Optional)</label>
           <input
             type="text"
             className="input-primary"
             placeholder="Address Line 2"
-            value={address.addressLine2}
-            onChange={(e) =>
-              setAddress({ ...address, addressLine2: e.target.value })
-            }
+            {...register("address.addressLine2")}
           />
+          {errors.address?.addressLine2 && (
+            <p className="text-red-500 text-sm mt-1">
+              {errors.address.addressLine2.message}
+            </p>
+          )}
         </div>
+         {/* City */}
         <div className="flex flex-col">
           <label className="text-sm">City</label>
           <input
             type="text"
             className="input-primary"
             placeholder="City"
-            value={address.city}
-            onChange={(e) => setAddress({ ...address, city: e.target.value })}
+            {...register("address.city", {
+              required: "City is required",
+            })}
           />
+          {errors.address?.city && (
+            <p className="text-red-500 text-sm mt-1">
+              {errors.address.city.message}
+            </p>
+          )}
         </div>
+        {/* Postal Code */}
         <div className="flex flex-col">
           <label className="text-sm">Postal Code</label>
           <input
             type="text"
             className="input-primary"
             placeholder="Postal Code"
-            value={address.postalCode}
-            onChange={(e) =>
-              setAddress({ ...address, postalCode: e.target.value })
-            }
+            {...register("address.postalCode", {
+              required: "Postal Code is required",
+              pattern: {
+                value: /^[A-Za-z0-9\s-]+$/,
+                message: "Invalid postal code format",
+              },
+            })}
           />
+          {errors.address?.postalCode && (
+            <p className="text-red-500 text-sm mt-1">
+              {errors.address.postalCode.message}
+            </p>
+          )}
         </div>
+
+          {/* Country */}
         <div className="flex flex-col">
           <label className="text-sm">Country</label>
           <div className="relative">
             <select
               className="input-primary appearance-none cursor-pointer"
-              value={address.country}
-              onChange={(e) =>
-                setAddress({ ...address, country: e.target.value })
-              }
+              {...register("address.country", {
+                required: "Country is required",
+              })}
             >
               <option value="">Please select...</option>
               <option value="CA">Canada</option>
               <option value="US">United States</option>
-              {/* Add more countries as needed */}
             </select>
+
             <div className="pointer-events-none absolute inset-y-0 right-2 flex items-center text-gray-500">
               <ChevronDownIcon className="h-5 w-5" aria-hidden="true" />
             </div>
           </div>
+
+          {errors.address?.country && (
+            <p className="text-red-500 text-sm mt-1">
+              {errors.address.country.message}
+            </p>
+          )}
         </div>
+       {/* Province */}
         <div className="flex flex-col">
           <label className="text-sm">Province/State</label>
           <input
             type="text"
             className="input-primary"
             placeholder="Province/State"
-            value={address.province}
-            onChange={(e) =>
-              setAddress({ ...address, province: e.target.value })
-            }
+            {...register("address.province", {
+              required: "Province/State is required",
+            })}
           />
+          {errors.address?.province && (
+            <p className="text-red-500 text-sm mt-1">
+              {errors.address.province.message}
+            </p>
+          )}
         </div>
       </div>
     </div>

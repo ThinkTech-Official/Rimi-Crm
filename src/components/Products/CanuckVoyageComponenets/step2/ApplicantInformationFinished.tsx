@@ -39,26 +39,26 @@ export default function ApplicantInformationFinished({
           <label className="text-sm font-semibold text-[#1B1B1B]">
             First Name
           </label>
-          <p className="text-[#00000080]">{firstName}</p>
+          <p className="input-primary">{firstName}</p>
         </div>
 
         <div className="flex flex-col gap-1">
           <label className="text-sm font-semibold text-[#1B1B1B]">
             Last Name
           </label>
-          <p className="text-[#00000080]">{lastName}</p>
+          <p className="input-primary">{lastName}</p>
         </div>
 
         <div className="flex flex-col gap-1">
           <label className="text-sm font-semibold text-[#1B1B1B]">
             Date of Birth
           </label>
-          <p className="text-[#00000080]">{fmtDate(dateOfBirth)}</p>
+          <p className="input-primary">{fmtDate(dateOfBirth)}</p>
         </div>
 
         <div className="flex flex-col gap-1">
           <label className="text-sm font-semibold text-[#1B1B1B]">Gender</label>
-          <p className="text-[#00000080]">{gender}</p>
+          <p className="input-primary">{gender}</p>
         </div>
       </div>
 
@@ -73,28 +73,28 @@ export default function ApplicantInformationFinished({
               <label className="text-sm font-semibold text-[#1B1B1B]">
                 First Name
               </label>
-              <p className="text-[#00000080]">{app.firstName}</p>
+              <p className="input-primary">{app.firstName}</p>
             </div>
 
             <div className="flex flex-col gap-1">
               <label className="text-sm font-semibold text-[#1B1B1B]">
                 Last Name
               </label>
-              <p className="text-[#00000080]">{app.lastName}</p>
+              <p className="input-primary">{app.lastName}</p>
             </div>
 
             <div className="flex flex-col gap-1">
               <label className="text-sm font-semibold text-[#1B1B1B]">
                 Date of Birth
               </label>
-              <p className="text-[#00000080]">{fmtDate(app.dob)}</p>
+              <p className="input-primary">{fmtDate(app.dob)}</p>
             </div>
 
             <div className="flex flex-col gap-1">
               <label className="text-sm font-semibold text-[#1B1B1B]">
                 Gender
               </label>
-              <p className="text-[#00000080]">{app.gender}</p>
+              <p className="input-primary">{app.gender}</p>
             </div>
           </div>
         </div>

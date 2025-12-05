@@ -130,13 +130,17 @@ export default function PaymentInformation({
   return (
     <form
       onSubmit={handleSubmit}
-      className="max-w-md mx-auto bg-white p-6 rounded-lg shadow space-y-6"
+      className="bg-greyBg p-3 sm:p-6 space-y-6 mt-6"
     >
+
+      <h3 className="text-lg font-bold text-left text-[#1B1B1B]">
+        Payment Information
+      </h3>
       {/* Amount */}
       <div>
         <label
           htmlFor="paymentAmount"
-          className="block text-sm font-medium text-gray-700"
+          className="block text-sm font-medium text-text-secondary"
         >
           Amount
         </label>
@@ -145,7 +149,7 @@ export default function PaymentInformation({
           type="text"
           readOnly
           value={`$${amount.toFixed(2)} CAD`}
-          className="mt-1 block w-full border-gray-300 rounded-md shadow-sm bg-gray-50"
+          className="input-primary"
         />
       </div>
 
@@ -153,7 +157,7 @@ export default function PaymentInformation({
       <div>
         <label
           htmlFor="cardholder-name"
-          className="block text-sm font-medium text-gray-700"
+          className="block text-sm font-medium text-text-secondary"
         >
           Cardholder Name
         </label>
@@ -163,7 +167,7 @@ export default function PaymentInformation({
           value={cardholderName}
           onChange={(e) => setCardholderName(e.target.value)}
           required
-          className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
+          className="input-primary"
         />
       </div>
 
@@ -172,7 +176,7 @@ export default function PaymentInformation({
         <label className="block text-sm font-medium text-gray-700">
           Card Details
         </label>
-        <div className="mt-1 p-3 border rounded-md bg-white">
+        <div className="input-primary">
           <CardElement
             options={{
               style: {
@@ -197,7 +201,7 @@ export default function PaymentInformation({
         type="submit"
         disabled={!stripe || intentLoading || submittingStage2}
         className={`
-          w-full py-2 px-4 bg-indigo-600 text-white rounded
+           w-full btn-primary
           ${
             intentLoading || submittingStage2
               ? "opacity-50 cursor-wait"
