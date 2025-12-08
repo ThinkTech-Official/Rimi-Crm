@@ -384,6 +384,8 @@ const RIMICanuckVoyageTravelMedical: React.FC = () => {
   });
 
   const step1Methods = useForm<Step1Payload>({
+    mode: 'onTouched',
+    reValidateMode: 'onChange',
     defaultValues: {
       primaryFirstName: "",
       primaryLastName: "",
@@ -408,6 +410,8 @@ const RIMICanuckVoyageTravelMedical: React.FC = () => {
   });
 
     const contactInfoMethods = useForm({
+    mode: 'onTouched',
+    reValidateMode: 'onChange',
     defaultValues: {
       contactInfo: {
         email: step1ResponseData?.email || "",
@@ -418,6 +422,8 @@ const RIMICanuckVoyageTravelMedical: React.FC = () => {
   })
 
   const addressMethods = useForm({ 
+    mode: 'onTouched',
+    reValidateMode: 'onChange',
     defaultValues: {
       address:{
         addressLine1: "",
@@ -491,8 +497,12 @@ const RIMICanuckVoyageTravelMedical: React.FC = () => {
       setStep1ResponseData(response);
       console.log("✅ Stage 1 response:", response);
       handleFormStepChange("forward");
-    } catch (err) {
+    } catch (err: any) {
       console.error("❌ Stage 1 failed:", err);
+      triggerNotification({
+        message: err.message || "Failed to save quote. Please try again.",
+        type: "error",
+      });
     }
   };
 
@@ -506,15 +516,23 @@ const RIMICanuckVoyageTravelMedical: React.FC = () => {
 
     if (!isValid1) {
       console.log(
-        "Address validation failed",
-        addressMethods.formState.errors
-      );
-    }
-    if (!isValid2) {
-      console.log(
         "Contact validation failed",
         contactInfoMethods.formState.errors
       );
+      triggerNotification({
+        message: "Please fill all required contact information fields.",
+        type: "error",
+      });
+    }
+    if (!isValid2) {
+      console.log(
+        "Address validation failed",
+        addressMethods.formState.errors
+      );
+      triggerNotification({
+        message: "Please fill all required address fields.",
+        type: "error",
+      });
     }
 
     if (!isValid1 || !isValid2) return;
@@ -529,14 +547,17 @@ const address = addressMethods.getValues().address;
     try {
       const resp = await completeApplication(payload);
       console.log("✅ Stage 2 complete:", resp);
-    } catch (err) {
+    } catch (err: any) {
       console.error("❌ Stage 2 failed:", err);
+      triggerNotification({
+        message: err.message || "Failed to complete application. Please try again.",
+        type: "error",
+      });
     }
   };
 
   // ========== PAYMENT SUCCESS ==========
   const handlePaymentSuccess = () => {
-    alert("Payment successful!");
     handleFormStepChange("forward");
   };
 
@@ -563,8 +584,16 @@ const address = addressMethods.getValues().address;
       const response = await saveQuoteNext(stage1Payload);
       setQuoteNumber(response.quoteNumber);
       console.log("Saved quote number:", response.quoteNumber);
-    } catch (err) {
+      triggerNotification({
+        message: `Quote saved successfully!`,
+        type: "success",
+      });
+    } catch (err: any) {
       console.error("Failed to save quote:", err);
+      triggerNotification({
+        message: err.message || "Failed to save quote. Please try again.",
+        type: "error",
+      });
     }
   }
 
@@ -651,16 +680,7 @@ const address = addressMethods.getValues().address;
       {/* ========== STEP 1: GET QUOTE ========== */}
       {steps[0].status === "current" && (
         <FormProvider {...step1Methods}>
-          <form onSubmit={step1Methods.handleSubmit(async () => {
-              // Validate
-              const isValid = await step1Methods.trigger();
-
-              if (!isValid) {
-                console.log("Validation failed", step1Methods.formState.errors);
-                return;
-              }
-              handleNext();
-            })}>
+          <form onSubmit={step1Methods.handleSubmit(handleNext)}>
          <ApplicantInformation methods={step1Methods} />
 
           <CoverageInformation
@@ -741,8 +761,8 @@ const address = addressMethods.getValues().address;
             <PaymentInformation
               quoteNumber={quoteNumber}
               description={productName}
-              name={primaryFirstName}
-              shipping={address}
+              name={step1ResponseData?.firstName ?? ""}
+              shipping={addressMethods.getValues().address}
               amount={totalPremium}
               onPaymentSuccess={handlePaymentSuccess}
               onBuyNow={handleBuyNow}
@@ -761,7 +781,6 @@ const address = addressMethods.getValues().address;
       <div className="flex justify-center gap-10 mt-4">
         {formStep === 2 && (
           <button
-          disabled={!isStepOneFilled}
             onClick={() => handleFormStepChange("back")}
             className="w-[200px] mt-6 bg-[#2B00B7] text-white p-3 hover:bg-[#2309A1] transition flex justify-center items-center cursor-pointer duration-200"
           >

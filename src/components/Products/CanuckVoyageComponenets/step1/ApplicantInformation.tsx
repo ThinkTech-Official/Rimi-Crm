@@ -144,7 +144,7 @@ export default function ApplicantInformation({
     watch,
     setValue,
     control,
-    formState: { errors },
+    formState: { errors, isSubmitted },
   } = methods;
 
   // Watch form values
@@ -184,7 +184,7 @@ export default function ApplicantInformation({
     }
     if (!isConfirmed) {
       setShowConfirmEligibility(true);
-      setValue("isConfirmed", true);
+      // setValue("isConfirmed", true);
     }
     // if they try to check before even opening, auto-open for them
     if (!displayInfoApplicantConfirm) {
@@ -388,8 +388,19 @@ export default function ApplicantInformation({
                 className="input-primary"
                 type="text"
                 placeholder="Enter First Name"
-                {...register(`applicants.${idx}.firstName`)}
+                {...register(`applicants.${idx}.firstName`, {
+                  required: "First Name is required",
+                  maxLength: {
+                    value: 64,
+                    message: "First Name cannot exceed 64 characters",
+                  },
+                })}
               />
+              {errors.applicants?.[idx]?.firstName && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.applicants[idx].firstName.message}
+                </p>
+              )}
             </div>
             <div className="flex flex-col">
               <label className="text-sm">Last Name</label>
@@ -397,8 +408,19 @@ export default function ApplicantInformation({
                 className="input-primary"
                 type="text"
                 placeholder="Enter Last Name"
-                {...register(`applicants.${idx}.lastName`)}
+                {...register(`applicants.${idx}.lastName`, {
+                  required: "Last Name is required",
+                  maxLength: {
+                    value: 64,
+                    message: "Last Name cannot exceed 64 characters",
+                  },
+                })}
               />
+              {errors.applicants?.[idx]?.lastName && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.applicants[idx].lastName.message}
+                </p>
+              )}
             </div>
             <Controller
               name={`applicants.${idx}.dob`}
@@ -426,7 +448,9 @@ export default function ApplicantInformation({
               <div className="relative">
                 <select
                   className="input-primary appearance-none cursor-pointer"
-                  {...register(`applicants.${idx}.gender`)}
+                  {...register(`applicants.${idx}.gender`, {
+                    required: "Gender is required",
+                  })}
                 >
                   <option value="">Please select</option>
                   <option value="Female">Female</option>
@@ -438,6 +462,11 @@ export default function ApplicantInformation({
                   <ChevronDownIcon className="h-5 w-5" aria-hidden="true" />
                 </div>
               </div>
+              {errors.applicants?.[idx]?.gender && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.applicants[idx].gender.message}
+                </p>
+              )}
             </div>
             <div className="flex flex-col">
               <label className="text-sm">
@@ -447,8 +476,15 @@ export default function ApplicantInformation({
                 className="input-primary"
                 type="text"
                 placeholder="Relation"
-                {...register(`applicants.${idx}.relationship`)}
+                {...register(`applicants.${idx}.relationship`, {
+                  required: "Relationship is required",
+                })}
               />
+              {errors.applicants?.[idx]?.relationship && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.applicants[idx].relationship.message}
+                </p>
+              )}
             </div>
           </div>
         </React.Fragment>
@@ -465,6 +501,9 @@ export default function ApplicantInformation({
           <input
             type="checkbox"
             className="accent-primary cursor-pointer"
+            {...register("isConfirmed", {
+              required: "You must confirm that all applicants are eligible",
+            })}
             checked={isConfirmed || false}
             onChange={handleCheckboxChange}
           />
@@ -472,6 +511,11 @@ export default function ApplicantInformation({
             Confirm that all applicants are eligible for this insurance
           </span>
         </div>
+        {errors.isConfirmed && isSubmitted && (
+          <p className="text-red-500 text-sm mt-1 text-center">
+            {errors.isConfirmed.message}
+          </p>
+        )}
 
         {displayInfoApplicantConfirm && (
           <div className="border border-inputBorder shadow-sm p-4 mt-4 bg-white relative">

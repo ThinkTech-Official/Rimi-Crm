@@ -562,6 +562,9 @@ export default function CoverageInformation({
   const [displayInfoDeductible, setDisplayInfoDeductible] = useState(false);
     const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
   
+  // Track form changes for re-saving quotes
+  const [savedFormSnapshot, setSavedFormSnapshot] = useState<any>(null);
+  const [hasFormChanged, setHasFormChanged] = useState(false);
 
   // Watch form values
   const formValues = watch();
@@ -719,6 +722,25 @@ export default function CoverageInformation({
   useEffect(() => {
     setError(hookError);
   }, [hookError, setError]);
+
+  // Initialize snapshot when quote number exists (e.g., when returning from step 2)
+  useEffect(() => {
+    if (quoteNumber && !savedFormSnapshot) {
+      const snapshot = JSON.stringify(formValues);
+      setSavedFormSnapshot(snapshot);
+      setHasFormChanged(false);
+    }
+  }, [quoteNumber, savedFormSnapshot, formValues]);
+
+  // Detect form changes after quote save
+  useEffect(() => {
+    if (savedFormSnapshot && quoteNumber) {
+      // Compare current form values with saved snapshot
+      const currentSnapshot = JSON.stringify(formValues);
+      
+      setHasFormChanged(currentSnapshot !== savedFormSnapshot);
+    }
+  }, [savedFormSnapshot, quoteNumber, formValues]);
 
   // Save Quote functionality
   const {
@@ -878,7 +900,7 @@ export default function CoverageInformation({
                   valueAsNumber: true,
                 })}
               >
-                <option value="">Please select...</option>
+                <option value={0}>Please select...</option>
                 <option value={5}>5 days</option>
                 <option value={10}>10 days</option>
                 <option value={20}>20 days</option>
@@ -1107,39 +1129,49 @@ export default function CoverageInformation({
       )}
 
       {/* Save Quote Button */}
-      {quoteNumber ? (
+      {quoteNumber && !hasFormChanged ? (
         <div className="flex flex-col justify-center items-center mt-4">
-              <span className="text-text-primary font-medium">
-                Quote Saved:{" "}
-              </span>
-              <span className="text-text-secondary">{quoteNumber}</span>
+          <span className="text-text-primary font-medium">
+            Quote Saved:{" "}
+          </span>
+          <span className="text-text-secondary">{quoteNumber}</span>
 
-              <button className="text-[#2b00b7] cursor-pointer text-base hover:underline underline-offset-2 mt-2" onClick={()=>setIsEmailModalOpen(true)}>
-                Email Quote
-              </button>
-            </div>
+          <button
+            type="button"
+            className="text-[#2b00b7] cursor-pointer text-base hover:underline underline-offset-2 mt-2"
+            onClick={() => setIsEmailModalOpen(true)}
+          >
+            Email Quote
+          </button>
+        </div>
       ) : (
         isFormFilled && (
           <div className="text-center mt-4">
             <button
-              onClick={handleSaveQuote}
+              onClick={async () => {
+                await handleSaveQuote();
+                // Save snapshot after successful save
+                const snapshot = JSON.stringify(formValues);
+                setSavedFormSnapshot(snapshot);
+                setHasFormChanged(false);
+              }}
               disabled={saving}
               className={`text-base hover:underline underline-offset-2 cursor-pointer text-primary mt-2 ${
-                    saving ? "opacity-50" : ""
-                  }`}
+                saving ? "opacity-50" : ""
+              }`}
             >
               {saving ? "Saving..." : "Save Quote"}
             </button>
           </div>
         )
       )}
-       {isEmailModalOpen && (
-              <EmailQuoteMedical
-                quoteNumber={quoteNumber}
-                premiumBreakdown={premiumBreakdown}
-                setIsEmailModalOpen={setIsEmailModalOpen}
-              />
-            )}
+      {isEmailModalOpen && (
+        <EmailQuoteMedical
+          quoteNumber={quoteNumber}
+          premiumBreakdown={premiumBreakdown}
+          setIsEmailModalOpen={setIsEmailModalOpen}
+        />
+      )}
     </div>
   );
 }

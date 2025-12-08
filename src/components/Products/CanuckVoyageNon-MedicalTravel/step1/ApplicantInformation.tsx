@@ -496,7 +496,7 @@ export default function ApplicantInformation({
     }
     if (!isConfirmed) {
       setShowConfirmEligibility(true);
-      setValue("isConfirmed", true);
+      // setValue("isConfirmed", true);
     }
     // if they try to check before even opening, auto-open for them
     if (!displayInfoApplicantConfirm) {
@@ -855,7 +855,7 @@ export default function ApplicantInformation({
 
       {/* Eligibility Confirmation */}
       <div className="w-full">
-        <div className="mt-6 flex items-center justify-start gap-1">
+        <div className="mt-6 flex items-center justify-center gap-1">
           <InformationCircleIcon
             onClick={() => setDisplayInfoApplicantConfirm((prev) => !prev)}
             className="h-5 w-5 text-[#3a17c5] cursor-pointer"
