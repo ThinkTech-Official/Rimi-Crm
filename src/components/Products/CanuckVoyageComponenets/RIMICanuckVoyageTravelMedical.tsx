@@ -519,20 +519,12 @@ const RIMICanuckVoyageTravelMedical: React.FC = () => {
         "Contact validation failed",
         contactInfoMethods.formState.errors
       );
-      triggerNotification({
-        message: "Please fill all required contact information fields.",
-        type: "error",
-      });
     }
     if (!isValid2) {
       console.log(
         "Address validation failed",
         addressMethods.formState.errors
       );
-      triggerNotification({
-        message: "Please fill all required address fields.",
-        type: "error",
-      });
     }
 
     if (!isValid1 || !isValid2) return;

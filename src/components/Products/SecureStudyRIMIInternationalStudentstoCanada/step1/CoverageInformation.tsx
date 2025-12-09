@@ -530,7 +530,7 @@ import {
   ChevronDownIcon,
   InformationCircleIcon,
 } from "@heroicons/react/24/outline";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Controller, UseFormReturn } from "react-hook-form";
 import { Step1FormData } from "./Step1Container";
 import Dropdown from "../../../DropDown";
@@ -540,10 +540,12 @@ import DatePicker from "../../../DatePicker";
 
 interface CoverageInformationProps {
   methods: UseFormReturn<Step1FormData>;
+  onValidityChange: (valid: boolean) => void;
 }
 
 export default function CoverageInformation({
   methods,
+  onValidityChange,
 }: CoverageInformationProps) {
   const {
     register,
@@ -620,6 +622,64 @@ export default function CoverageInformation({
   const handleProvinceChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setDestinationProvince(e.target.value);
   };
+
+  // Watch all form values for validation
+  const allFormValues = watch();
+  const {
+    policyType,
+    countryOfOrigin,
+    effectiveDate: effDate,
+    expiryDate: expDate,
+    coverageLength: covLength,
+    primaryFirstName,
+    primaryLastName,
+    primaryDateOfBirth,
+    primaryEmail,
+    primaryApplicantGender,
+    isConfirmed,
+  } = allFormValues;
+
+  // Validate that all required fields are filled
+  const isFormFilled = useMemo(() => {
+    const coverageFields = [
+      policyType,
+      countryOfOrigin,
+      destinationProvince,
+      effDate,
+      expDate,
+      covLength,
+    ].every((v) => v !== "" && v !== undefined && v !== null);
+
+    const applicantFields = [
+      primaryFirstName,
+      primaryLastName,
+      primaryDateOfBirth,
+      primaryEmail,
+      primaryApplicantGender,
+    ].every((v) => v !== "" && v !== undefined && v !== null);
+
+    const eligibilityConfirmed = isConfirmed === true;
+
+    return coverageFields && applicantFields && eligibilityConfirmed;
+  }, [
+    policyType,
+    countryOfOrigin,
+    destinationProvince,
+    effDate,
+    expDate,
+    covLength,
+    primaryFirstName,
+    primaryLastName,
+    primaryDateOfBirth,
+    primaryEmail,
+    primaryApplicantGender,
+    isConfirmed,
+  ]);
+
+  // Notify parent of validation changes
+  useEffect(() => {
+    onValidityChange(isFormFilled);
+  }, [isFormFilled, onValidityChange]);
 
   return (
     <div className="max-w-5xl mx-auto mt-6 p-3 sm:p-6 bg-[#F9F9F9]">

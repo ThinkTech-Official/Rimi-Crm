@@ -313,6 +313,7 @@ interface Step1ContainerProps {
   agentCode: string;
   onSaveQuote: () => void;
   savingQuote: boolean;
+  isStepOneFilled: boolean;
 }
 
 export default function Step1Container({
@@ -323,20 +324,21 @@ export default function Step1Container({
   setError,
   quoteNumber,
   onSaveQuote,
+  isStepOneFilled,
 }: Step1ContainerProps) {
   const [emailingQuote, setEmailingQuote] = useState(false);
   const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
+
+  // Track form changes for re-saving quotes
+  const [savedFormSnapshot, setSavedFormSnapshot] = useState<any>(null);
+  const [hasFormChanged, setHasFormChanged] = useState(false);
 
   // Watch all form values using react-hook-form
   const formValues = methods.watch();
 
   // Destructure for easier access
   const {
-    primaryFirstName,
-    primaryLastName,
     primaryDateOfBirth,
-    primaryEmail,
-    primaryApplicantGender,
     applicantNumber,
     applicants,
     isConfirmed,
@@ -379,61 +381,24 @@ export default function Step1Container({
     setError,
   ]);
 
-  methods.register("isConfirmed", {
-  validate: (val) => val === true || "You must confirm eligibility",
-});
-
-
-  // Validate if all required fields are filled
-  const validateStep1 = () => {
-    // Check primary applicant fields
-    const isPrimaryApplicantValid =
-      primaryFirstName?.trim() !== "" &&
-      primaryLastName?.trim() !== "" &&
-      primaryDateOfBirth?.trim() !== "" &&
-      primaryEmail?.trim() !== "" &&
-      primaryApplicantGender?.trim() !== "";
-
-    // Check if additional applicants are filled correctly
-    const areAdditionalApplicantsValid =
-      applicantNumber === 0 ||
-      (applicants.length === applicantNumber &&
-        applicants.every(
-          (app) =>
-            app.firstName.trim() !== "" &&
-            app.lastName.trim() !== "" &&
-            app.dob.trim() !== "" &&
-            app.relationship.trim() !== "" &&
-            app.gender.trim() !== ""
-        ));
-
-    // Check coverage information
-    const isCoverageInfoValid =
-      policyType?.trim() !== "" &&
-      countryOfOrigin?.trim() !== "" &&
-      destinationProvince?.trim() !== "" &&
-      effectiveDate !== "" &&
-      expiryDate !== "" &&
-      coverageLength?.trim() !== "";
-
-    // Check eligibility confirmation
-    const isConfirmationValid = isConfirmed === true;
-
-    const isValid =
-      isPrimaryApplicantValid &&
-      areAdditionalApplicantsValid &&
-      isCoverageInfoValid &&
-      isConfirmationValid;
-
-    return isValid;
-  };
-
-  // Validate form on every change
+  // Initialize snapshot when quote number exists (e.g., when returning from step 2)
   useEffect(() => {
-    const isValid = validateStep1();
-    onValidityChange(isValid);
-    console.log("------------------------",isValid);
-  }, [formValues, onValidityChange]);
+    if (quoteNumber && !savedFormSnapshot) {
+      const snapshot = JSON.stringify(formValues);
+      setSavedFormSnapshot(snapshot);
+      setHasFormChanged(false);
+    }
+  }, [quoteNumber, savedFormSnapshot, formValues]);
+
+  // Detect form changes after quote save
+  useEffect(() => {
+    if (savedFormSnapshot && quoteNumber) {
+      // Compare current form values with saved snapshot
+      const currentSnapshot = JSON.stringify(formValues);
+      
+      setHasFormChanged(currentSnapshot !== savedFormSnapshot);
+    }
+  }, [savedFormSnapshot, quoteNumber, formValues]);
 
   const handleEmailQuote = async () => {
     setIsEmailModalOpen(true);
@@ -442,7 +407,7 @@ export default function Step1Container({
   return (
     <div className="max-w-5xl mx-auto mt-4 pb-2 bg-[#F9F9F9]">
       <ApplicantInformation methods={methods} />
-      <CoverageInformation methods={methods} />
+      <CoverageInformation methods={methods} onValidityChange={onValidityChange} />
 
       {/* Quote Display Section */}
       <div className="w-full mt-5 flex flex-col items-center justify-center gap-3">
@@ -507,7 +472,7 @@ export default function Step1Container({
         )}
 
         {/* Quote Number Display and Email Button - Show after quote is saved */}
-        {quoteNumber != null ? (
+        {quoteNumber != null && !hasFormChanged ? (
           <div className=" flex flex-col justify-center items-center mb-2 gap-2">
             <p className="mt-2">
               <span className="text-text-primary font-medium">
@@ -524,10 +489,16 @@ export default function Step1Container({
           </div>
         ) : (
           <h3 className="  text-center mt-2 cursor-pointer text-[#2b00b7]">
-            {isConfirmed ? (
+            {isStepOneFilled ? (
               <p
-                onClick={onSaveQuote}
-                className="text-base hover:underline underline-offset-2 cursor-pointer"
+                onClick={async () => {
+                  await onSaveQuote();
+                  // Save snapshot after successful save
+                  const snapshot = JSON.stringify(formValues);
+                  setSavedFormSnapshot(snapshot);
+                  setHasFormChanged(false);
+                }}
+                className="text-base hover:underline underline-offset-2 cursor-pointer text-[#2b00b7]"
               >
                 Save Quote
               </p>

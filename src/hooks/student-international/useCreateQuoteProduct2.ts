@@ -60,7 +60,9 @@ export function useCreateQuoteProduct2() {
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
+        const errorData = await response.json().catch(() => ({
+          message: `HTTP error! status: ${response.status}`,
+        }));
         throw new Error(errorData.message || "Failed to save quote");
       }
 

@@ -222,6 +222,10 @@ export default function TripInformation({
   const [showTripCancellation, setShowTripCancellation] = useState(false);
   const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
 
+  // Track form changes for re-saving quotes
+  const [savedFormSnapshot, setSavedFormSnapshot] = useState<any>(null);
+  const [hasFormChanged, setHasFormChanged] = useState(false);
+
   const {
     register,
     watch,
@@ -349,6 +353,25 @@ export default function TripInformation({
     setError(hookError);
   }, [hookError, setError]);
 
+  // Initialize snapshot when quote number exists (e.g., when returning from step 2)
+  useEffect(() => {
+    if (quoteNumber && !savedFormSnapshot) {
+      const snapshot = JSON.stringify(formValues);
+      setSavedFormSnapshot(snapshot);
+      setHasFormChanged(false);
+    }
+  }, [quoteNumber, savedFormSnapshot, formValues]);
+
+  // Detect form changes after quote save
+  useEffect(() => {
+    if (savedFormSnapshot && quoteNumber) {
+      // Compare current form values with saved snapshot
+      const currentSnapshot = JSON.stringify(formValues);
+      
+      setHasFormChanged(currentSnapshot !== savedFormSnapshot);
+    }
+  }, [savedFormSnapshot, quoteNumber, formValues]);
+
   // Save Quote functionality
   const { loading: saving } = useCreateQuoteProduct4();
 
@@ -425,16 +448,24 @@ export default function TripInformation({
             Trip Cancellation - Deluxe Option
           </label>
           <div className="relative">
-             <select
-              className="input-primary appearance-none cursor-pointer"
-              {...register("tripCancellationDeluxe", {
-                setValueAs: (v) => v === "yes",
-              })}
-            >
-              <option value="">Please select...</option>
-              <option value="yes">Yes (+15% premium)</option>
-              <option value="no">No</option>
-            </select>
+            <Controller
+              name="tripCancellationDeluxe"
+              control={control}
+              render={({ field }) => (
+                <select
+                  className="input-primary appearance-none cursor-pointer"
+                  value={field.value ? "yes" : field.value === false ? "no" : ""}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    field.onChange(val === "yes" ? true : val === "no" ? false : false);
+                  }}
+                >
+                  <option value="">Please select...</option>
+                  <option value="yes">Yes (+15% premium)</option>
+                  <option value="no">No</option>
+                </select>
+              )}
+            />
 
             <div className="pointer-events-none absolute inset-y-0 right-2 flex items-center text-gray-500">
               <ChevronDownIcon className="h-5 w-5" aria-hidden="true" />
@@ -625,7 +656,7 @@ export default function TripInformation({
           )}
 
           {/* Save Quote Button */}
-          {quoteNumber ? (
+          {quoteNumber && !hasFormChanged ? (
             <div className="flex flex-col justify-center items-center mt-4">
               <span className="text-text-primary font-medium">
                 Quote Saved:{" "}
@@ -640,7 +671,13 @@ export default function TripInformation({
             isFormFilled && (
               <div className="text-center mt-4">
                 <button
-                  onClick={handleSaveQuote}
+                  onClick={async () => {
+                    await handleSaveQuote();
+                    // Save snapshot after successful save
+                    const snapshot = JSON.stringify(formValues);
+                    setSavedFormSnapshot(snapshot);
+                    setHasFormChanged(false);
+                  }}
                   disabled={saving}
                   className={`text-base hover:underline underline-offset-2 cursor-pointer text-primary mt-2 ${
                     saving ? "opacity-50" : ""

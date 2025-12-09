@@ -482,17 +482,17 @@ export default function ApplicantInformation({
   // Watch form values
   const formValues = watch();
   const { applicantNumber, applicants, isConfirmed } = formValues;
-
   const [showInfo, setShowInfo] = useState(false);
   const [showConfirmEligibility, setShowConfirmEligibility] = useState(false);
   const [isAgeQuetionaireOpen, setIsAgeQuetionaireOpen] = useState(false);
-  const [primaryQuestionaire, setPrimaryQuestionaire] = useState({});
+  const [, setPrimaryQuestionaire] = useState<any>({});
   const [isPrimary, setIsPrimary] = useState(false);
   const [currentIdx, setCurrentIdx] = useState(0);
 
+  // Resize applicants array when number changes
   useEffect(() => {
-    const currentApplicants = watch("applicants") || [];
-    const newApplicants = Array.from(
+    const currentApplicants = applicants || [];
+    const newApplicants: Applicant[] = Array.from(
       { length: applicantNumber || 0 },
       (_, i) =>
         currentApplicants[i] ?? {
@@ -508,24 +508,24 @@ export default function ApplicantInformation({
         }
     );
     setValue("applicants", newApplicants);
-  }, [applicantNumber, setValue, watch]);
-
-  const handleIconClick = () => {
-    setShowInfo((prev) => !prev);
-  };
+  }, [applicantNumber, setValue, applicants, watch]);
 
   const handleCheckboxChange = () => {
     if (isConfirmed) {
-      return setValue("isConfirmed", false);
+      // If already checked, uncheck it
+      return setValue("isConfirmed", false, { shouldValidate: true, shouldDirty: true });
     }
+    // If unchecked, open modal to confirm
     if (!isConfirmed) {
       setShowConfirmEligibility(true);
     }
-    // if they try to check before even opening, auto-open for them
+    // Auto-open info if not open
     if (!showInfo) {
       setShowInfo(true);
     }
   };
+
+
 
   const handleApplicantNumberChange = (num: number) => {
     setValue("applicantNumber", num);
@@ -548,16 +548,7 @@ export default function ApplicantInformation({
     setValue("applicants", newApplicants);
   };
 
-  const updateApplicant = (
-    index: number,
-    field: keyof Applicant,
-    value: string
-  ) => {
-    const currentApplicants = applicants || [];
-    const updated = [...currentApplicants];
-    updated[index] = { ...updated[index], [field]: value };
-    setValue("applicants", updated);
-  };
+
 
   const getAge = (dob: string) => {
     if (!dob) return 0;
@@ -570,7 +561,7 @@ export default function ApplicantInformation({
   };
 
   const setIsConfirmed = (value: boolean) => {
-    setValue("isConfirmed", value);
+    setValue("isConfirmed", value, { shouldValidate: true, shouldDirty: true });
   };
 
   const setPrimaryDateOfBirth = (value: Date) => {
@@ -853,27 +844,32 @@ export default function ApplicantInformation({
       ))}
 
       {/* ELIGIBILITY CONFIRMATION */}
-      <div className="mt-6 flex justify-center items-center gap-1">
-        <InformationCircleIcon
-          onClick={handleIconClick}
-          className="h-5 w-5 text-[#3a17c5] cursor-pointer"
-          aria-hidden="true"
-        />
-        <input
-          type="checkbox"
-          className="accent-primary cursor-pointer"
-          checked={isConfirmed || false}
-          onChange={handleCheckboxChange}
-        />
-        <span className="font-semibold text-[#2B00B7] text-sm">
-          Confirm that all applicants are eligible for this insurance
-        </span>
+      <div className="mt-6 flex flex-col items-center gap-1">
+        <div className="flex items-center gap-1">
+          <InformationCircleIcon
+            onClick={() => setShowInfo((prev) => !prev)}
+            className="h-5 w-5 text-[#3a17c5] cursor-pointer"
+            aria-hidden="true"
+          />
+          <input
+            type="checkbox"
+            className="accent-primary cursor-pointer"
+            {...register("isConfirmed", {
+              required: "You must confirm that all applicants are eligible for this insurance",
+            })}
+            checked={isConfirmed || false}
+            onChange={handleCheckboxChange}
+          />
+          <span className="font-semibold text-[#2B00B7] text-sm">
+            Confirm that all applicants are eligible for this insurance
+          </span>
+        </div>
+        {errors.isConfirmed && (
+          <p className="text-red-500 text-sm text-center mt-1">
+            {errors.isConfirmed.message}
+          </p>
+        )}
       </div>
-      {errors.isConfirmed && (
-        <p className="text-red-500 text-sm text-center">
-          {errors.isConfirmed.message}
-        </p>
-      )}
 
       {showInfo && (
         <div className="border border-inputBorder shadow-sm p-4 mt-4 bg-white relative">

@@ -220,7 +220,6 @@ import {
   useQuoteUpdateProduct2,
   Stage2PayloadProduct2,
 } from "../../../hooks/student-international/useQuoteUpdateProduct2";
-import { useCreateQuoteProduct2 } from "../../../hooks/student-international/useCreateQuoteProduct2";
 import { FormProvider, useForm } from "react-hook-form";
 import useNotification from "../../../hooks/useNotification";
 
@@ -295,6 +294,8 @@ export default function SecureStudyRIMIInternationalStudentstoCanada() {
 
   // ==================== HOOK FORM FOR STEP 1 ====================
   const step1Methods = useForm<Step1FormData>({
+    mode: 'onTouched',
+    reValidateMode: 'onChange',
     defaultValues: {
       primaryFirstName: "",
       primaryLastName: "",
@@ -314,6 +315,8 @@ export default function SecureStudyRIMIInternationalStudentstoCanada() {
   });
 
   const contactInfoMethods = useForm<ContactInfo>({
+    mode: 'onTouched',
+    reValidateMode: 'onChange',
     defaultValues: {
       additionalEmail: "",
       phoneNumber: "",
@@ -322,6 +325,8 @@ export default function SecureStudyRIMIInternationalStudentstoCanada() {
   });
 
   const beneficiaryInfoMethods = useForm<BeneficiaryInfo>({
+    mode: 'onTouched',
+    reValidateMode: 'onChange',
     defaultValues: {
       beneficiaryName: "",
       relationshipToInsured: "",
@@ -332,6 +337,8 @@ export default function SecureStudyRIMIInternationalStudentstoCanada() {
   });
 
   const addressInfoMethods = useForm<AddressInfo>({
+    mode: 'onTouched',
+    reValidateMode: 'onChange',
     defaultValues: {
       addressLine1: "",
       addressLine2: "",
@@ -395,8 +402,6 @@ export default function SecureStudyRIMIInternationalStudentstoCanada() {
     error: submitError,
   } = useQuoteUpdateProduct2();
 
-  const { createQuote, loading: savingQuote } = useCreateQuoteProduct2();
-
   // ==================== HANDLERS ====================
   const handleFormStepChange = (stepCommand: string) => {
     setFormStep((prevStep) => {
@@ -443,41 +448,35 @@ export default function SecureStudyRIMIInternationalStudentstoCanada() {
       ...formValues,
       agentCode: agentCode!,
       product: productName,
+      quoteNumber: quoteNumber || null,
       status: "Inactive", // Save as Inactive (not ready for payment yet)
     };
 
     try {
       console.log("Saving Product 2 quote as Inactive...");
-      const response = await createQuote(payload);
+      const response = await saveQuoteNext(payload);
 
       // Update state with the saved quote number
-      setQuoteNumber(response.quote);
+      setQuoteNumber(response.quoteNumber);
 
       // Show success message
       triggerNotification({
-        message: "Quote saved successfully",
+        message: "Quote saved successfully!",
         type: "success",
       });
 
-      console.log("Quote saved:", response.quote);
+      console.log("Quote saved:", response.quoteNumber);
     } catch (err: any) {
       console.error("Failed to save quote:", err);
-      triggerNotification({ message: "Failed to save quote", type: "error" });
+      triggerNotification({ 
+        message: err.message || "Failed to save quote. Please try again.", 
+        type: "error" 
+      });
     }
   };
 
-  const handleNext = async (e?: React.FormEvent) => {
-    console.log("-----------");
-    e?.preventDefault();
+  const handleNext = async (formValues: Step1FormData) => {
     if (!isStepOneFilled || savingStage1) return;
-    const isValid = await step1Methods.trigger();
-    if (!isValid) {
-      console.log("Validation failed", step1Methods.formState.errors);
-      return;
-    }
-
-    // Get values from react-hook-form
-    const formValues = step1Methods.getValues();
 
     const stage1Payload = {
       ...formValues,
@@ -509,8 +508,12 @@ export default function SecureStudyRIMIInternationalStudentstoCanada() {
       });
       console.log("Product 2 - Stage 1 response:", response);
       handleFormStepChange("forward");
-    } catch (err) {
+    } catch (err: any) {
       console.error("saveQuoteNext failed", err);
+      triggerNotification({
+        message: err.message || "Failed to save quote. Please try again.",
+        type: "error",
+      });
     }
   };
 
@@ -649,18 +652,7 @@ export default function SecureStudyRIMIInternationalStudentstoCanada() {
       {/* STEP 1: GET QUOTE */}
       {steps[0].status === "current" && (
         <FormProvider {...step1Methods}>
-          <form
-            onSubmit={step1Methods.handleSubmit(async () => {
-              // Validate
-              const isValid = await step1Methods.trigger();
-
-              if (!isValid) {
-                console.log("Validation failed", step1Methods.formState.errors);
-                return;
-              }
-              handleNext();
-            })}
-          >
+          <form onSubmit={step1Methods.handleSubmit(handleNext)}>
             <Step1Container
               methods={step1Methods}
               totalPremium={totalPremium}
@@ -673,8 +665,9 @@ export default function SecureStudyRIMIInternationalStudentstoCanada() {
               setQuoteNumber={setQuoteNumber}
               agentCode={agentCode!}
               onSaveQuote={handleSaveQuote}
-              savingQuote={savingQuote}
+              savingQuote={savingStage1}
               onValidityChange={setIsStepOneFilled}
+              isStepOneFilled={isStepOneFilled}
             />
 
             <div className="flex justify-center gap-10 mt-4">
@@ -743,7 +736,7 @@ export default function SecureStudyRIMIInternationalStudentstoCanada() {
               quoteNumber={quoteNumber}
               description={productName}
               name={formValues.primaryFirstName}
-              shipping={address}
+              shipping={addressInfoMethods.getValues()}
               amount={totalPremium}
               onPaymentSuccess={handlePaymentSuccess}
               onBuyNow={handleBuyNow}

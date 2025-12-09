@@ -261,6 +261,7 @@ import Address from "./step2/Address";
 import PaymentInformation from "./step2/PaymentInformation";
 import Summary from "./step3/Summary";
 import { FormProvider, useForm } from "react-hook-form";
+import useNotification from "../../../hooks/useNotification";
 
 interface Applicant {
   index: string;
@@ -341,6 +342,7 @@ const RIMICanuckVoyageNonMedicalTravel: React.FC = () => {
   const [premiumBreakdown, setPremiumBreakdown] = useState<any>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const { NotificationComponent, triggerNotification } = useNotification();
 
   // ========== STAGE 2 INFORMATION ==========
   // const [address, setAddress] = useState<AddressInfo>({
@@ -369,6 +371,8 @@ const RIMICanuckVoyageNonMedicalTravel: React.FC = () => {
   } = useQuoteUpdateProduct4();
 
   const step1Methods = useForm<Step1Payload>({
+    mode: 'onTouched',
+    reValidateMode: 'onChange',
     defaultValues: {
       primaryFirstName: "",
       primaryLastName: "",
@@ -394,6 +398,8 @@ const RIMICanuckVoyageNonMedicalTravel: React.FC = () => {
   });
 
   const contactInfoMethods = useForm({
+    mode: 'onTouched',
+    reValidateMode: 'onChange',
     defaultValues: {
       contactInfo: {
         email: step1ResponseData?.email || "",
@@ -404,6 +410,8 @@ const RIMICanuckVoyageNonMedicalTravel: React.FC = () => {
   })
 
   const addressMethods = useForm({ 
+    mode: 'onTouched',
+    reValidateMode: 'onChange',
     defaultValues: {
       address:{
         addressLine1: "",
@@ -444,29 +452,58 @@ const RIMICanuckVoyageNonMedicalTravel: React.FC = () => {
   // ========== STAGE 1: NEXT BUTTON ==========
   const handleNext = async () => {
     if (!isStepOneFilled || savingStage1) return;
-    const formValues = step1Methods.getValues();
-    const stage1Payload = {
-      ...formValues,
-      agentCode: agentCode!,
-      product: productName,
-      quoteNumber: quoteNumber || undefined,
-      status: "Inactive",
-    };
-    console.log("Stage 1 payload:", stage1Payload);
+    const isValid = await step1Methods.trigger();
+    if (!isValid) {
+      console.log("Validation failed", step1Methods.formState.errors);
+      return;
+    }
+
     try {
+      const formValues = step1Methods.getValues();
+      const stage1Payload = {
+        ...formValues,
+        agentCode: agentCode!,
+        product: productName,
+        quoteNumber: quoteNumber || undefined,
+        status: "Inactive",
+      };
+      console.log("Stage 1 payload:", stage1Payload);
       const response = await saveQuoteNext(stage1Payload);
       setQuoteNumber(response.quoteNumber);
       setStep1ResponseData(response);
-      console.log("Stage 1 response:", response);
+      console.log("✅ Stage 1 response:", response);
       handleFormStepChange("forward");
-    } catch (err) {
-      console.error("Stage 1 failed:", err);
+    } catch (err: any) {
+      console.error("❌ Stage 1 failed:", err);
+      triggerNotification({
+        message: err.message || "Failed to save quote. Please try again.",
+        type: "error",
+      });
     }
   };
 
   // ========== STAGE 2: BUY NOW ==========
   const handleBuyNow = async () => {
     if (!quoteNumber || submittingStage2) return;
+    const [isValid1, isValid2] = await Promise.all([
+      contactInfoMethods.trigger(),
+      addressMethods.trigger(),
+    ]);
+
+    if (!isValid1) {
+      console.log(
+        "Contact validation failed",
+        contactInfoMethods.formState.errors
+      );
+    }
+    if (!isValid2) {
+      console.log(
+        "Address validation failed",
+        addressMethods.formState.errors
+      );
+    }
+
+    if (!isValid1 || !isValid2) return;
 
     const address = addressMethods.getValues().address;
     const contactInfo = contactInfoMethods.getValues().contactInfo;
@@ -479,19 +516,32 @@ const RIMICanuckVoyageNonMedicalTravel: React.FC = () => {
 
     try {
       const resp = await completeApplication(payload);
-      console.log("Stage 2 complete:", resp);
-    } catch (err) {
-      console.error("Stage 2 failed:", err);
+      console.log("✅ Stage 2 complete:", resp);
+    } catch (err: any) {
+      console.error("❌ Stage 2 failed:", err);
+      triggerNotification({
+        message: err.message || "Failed to complete application. Please try again.",
+        type: "error",
+      });
     }
   };
 
   // ========== PAYMENT SUCCESS ==========
   const handlePaymentSuccess = () => {
-    alert("Payment successful!");
     handleFormStepChange("forward");
   };
 
   const handleSaveQuote = async () => {
+    const isValid = await step1Methods.trigger();
+
+    if (!isValid) {
+      console.log("Validation failed", step1Methods.formState.errors);
+      triggerNotification({
+        message: "Please fill all required fields correctly.",
+        type: "error",
+      });
+      return;
+    }
     const formValues = step1Methods.getValues();
     const stage1Payload = {
       ...formValues,
@@ -504,8 +554,16 @@ const RIMICanuckVoyageNonMedicalTravel: React.FC = () => {
       const response = await saveQuoteNext(stage1Payload);
       setQuoteNumber(response.quoteNumber);
       console.log("Saved quote number:", response.quoteNumber);
-    } catch (err) {
+      triggerNotification({
+        message: `Quote saved successfully!`,
+        type: "success",
+      });
+    } catch (err: any) {
       console.error("Failed to save quote:", err);
+      triggerNotification({
+        message: err.message || "Failed to save quote. Please try again.",
+        type: "error",
+      });
     }
   }
 
@@ -590,17 +648,8 @@ const RIMICanuckVoyageNonMedicalTravel: React.FC = () => {
 
       {/* ========== STEP 1: GET QUOTE ========== */}
       {steps[0].status === "current" && (
-        <FormProvider {...step1Methods}>
-         <form onSubmit={step1Methods.handleSubmit(async () => {
-              // Validate
-              const isValid = await step1Methods.trigger();
-
-              if (!isValid) {
-                console.log("Validation failed", step1Methods.formState.errors);
-                return;
-              }
-              handleNext();
-            })}>
+         <FormProvider {...step1Methods}>
+         <form onSubmit={step1Methods.handleSubmit(handleNext)}>
            <ApplicantInformation methods={step1Methods} />
 
           <TripInformation
@@ -627,7 +676,7 @@ const RIMICanuckVoyageNonMedicalTravel: React.FC = () => {
             <button
             onClick={handleNext}
             disabled={!isStepOneFilled || savingStage1}
-            className={`w-[200px] mx-auto mt-6 bg-[#2B00B7] text-white p-3 hover:bg-[#2309A1] transition flex justify-center items-center cursor-pointer duration-200 ${
+            className={`w-[200px] mx-auto mt-6 bg-[#2B00B7] text-white p-3 hover:bg-[#2309A1] transition flex justify-center items-center cursor-pointer duration-200 disabled:cursor-default ${
               savingStage1 ? "opacity-50 cursor-wait" : ""
               }`}
               >
@@ -677,7 +726,7 @@ const RIMICanuckVoyageNonMedicalTravel: React.FC = () => {
             <PaymentInformation
               quoteNumber={quoteNumber}
               description={productName}
-              name={primaryFirstName}
+              name={step1ResponseData?.firstName ?? ""}
               shipping={addressMethods.getValues().address}
               amount={totalPremium}
               onPaymentSuccess={handlePaymentSuccess}
@@ -704,6 +753,7 @@ const RIMICanuckVoyageNonMedicalTravel: React.FC = () => {
           </button>
         )}
       </div>
+      {NotificationComponent}
     </div>
   );
 };
