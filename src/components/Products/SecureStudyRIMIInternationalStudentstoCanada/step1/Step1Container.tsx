@@ -405,7 +405,7 @@ export default function Step1Container({
   };
 
   return (
-    <div className="max-w-5xl mx-auto mt-4 pb-2 bg-[#F9F9F9]">
+    <div className="max-w-5xl mx-auto mt-4 pb-2">
       <ApplicantInformation methods={methods} />
       <CoverageInformation methods={methods} onValidityChange={onValidityChange} />
 
