@@ -478,13 +478,12 @@
 
 import React, { useContext, useState, ChangeEvent, useEffect } from "react";
 import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
-import { LangContext } from "../context/LangContext";
 import {
   usePublicAgentRegistration,
   PublicAgentFormData,
 } from "../hooks/usePublicAgentRegistration";
 import { useForm, Controller } from "react-hook-form";
-import { useTranslation } from "react-i18next";
+// import { useTranslation } from "react-i18next";
 import useNotification from "../hooks/useNotification";
 import DatePicker from "../components/DatePicker";
 
@@ -492,7 +491,7 @@ const AgentApplicationOpen: React.FC = () => {
   // const { langauge } = useContext(LangContext);
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [confirmPasswordVisible, setConfirmPasswordVisible] = useState(false);
-  
+
   const { NotificationComponent, triggerNotification } = useNotification();
 
   // State for applicant type selection
@@ -528,15 +527,15 @@ const AgentApplicationOpen: React.FC = () => {
     applicantType === "independent" ||
     (applicantType === "under_mga" && mgaType === "other");
   const showWfgCodeField = applicantType === "under_mga" && mgaType === "wfg";
-  
+
   // Register/Unregister Document 1 validation dynamically
   useEffect(() => {
     if (documentsRequired) {
-      register("docFile1", { required: t("Document 1 is required") });
+      register("docFile1", { required: "Document 1 is required" });
     } else {
       unregister("docFile1");
     }
-  }, [documentsRequired, register, unregister, t]);
+  }, [documentsRequired, register, unregister]);
 
   const onSubmit = async (formData: PublicAgentFormData) => {
     // Add applicant type data to form submission
@@ -553,9 +552,7 @@ const AgentApplicationOpen: React.FC = () => {
       triggerNotification({
         type: "success",
         message:
-          langauge === "En"
-            ? "Application submitted successfully! Admin will review and activate your account."
-            : "Demande soumise avec succès ! L'administrateur examinera et activera votre compte.",
+          "Application submitted successfully! Admin will review and activate your account.",
         duration: 5000,
       });
 
@@ -567,10 +564,7 @@ const AgentApplicationOpen: React.FC = () => {
       // Show error notification
       triggerNotification({
         type: "error",
-        message:
-          langauge === "En"
-            ? "Failed to submit application. Please try again."
-            : "Échec de la soumission de la demande. Veuillez réessayer.",
+        message: "Failed to submit application. Please try again.",
         duration: 5000,
       });
     }
@@ -587,16 +581,10 @@ const AgentApplicationOpen: React.FC = () => {
       if (file.size > maxSize) {
         triggerNotification({
           type: "error",
-          message:
-            langauge === "En"
-              ? `File size must be less than 5MB. Selected file is ${(
-                  file.size /
-                  (1024 * 1024)
-                ).toFixed(2)}MB`
-              : `La taille du fichier doit être inférieure à 5 Mo. Le fichier sélectionné fait ${(
-                  file.size /
-                  (1024 * 1024)
-                ).toFixed(2)} Mo`,
+          message: `File size must be less than 5MB. Selected file is ${(
+            file.size /
+            (1024 * 1024)
+          ).toFixed(2)}MB`,
           duration: 5000,
         });
         return;
@@ -626,48 +614,26 @@ const AgentApplicationOpen: React.FC = () => {
             className="h-12 w-24 sm:h-14 sm:w-32 mb-4"
           />
 
-            {/* Heading */}
-            <div className="mb-4 sm:mb-8 text-center lg:text-left">
-              <h2 className="text-2xl font-bold text-text-dark">
-                Apply to Become an Agent
-              </h2>
-              <p className="text-text-light-2 text-sm sm:text-base">
-                Join as an advisor and start your journey
-              </p>
-            </div>
           {/* Heading */}
           <div className="mb-4 sm:mb-8 text-center lg:text-left">
             <h2 className="text-2xl font-bold text-text-dark">
-              {t("Apply to Become an Agent")}
+              Apply to Become an Agent
             </h2>
             <p className="text-text-light-2 text-sm sm:text-base">
-              {t("Join as an advisor and start your journey")}
+              Join as an advisor and start your journey
             </p>
           </div>
 
-            {/* Success Message */}
-            {success && (
-              <div className="mb-6 bg-green-50 border border-green-300 rounded-lg p-4">
-                <h3 className="text-green-800 font-medium mb-2">
-                  Application Submitted!
-                </h3>
-                <p className="text-green-700 text-sm">
-                  Your application has been submitted successfully. Admin will review your documents and activate your account. You will receive an email notification once approved.,
-                </p>
-              </div>
-            )}
           {/* Success Message */}
           {success && (
             <div className="mb-6 bg-green-50 border border-green-300 rounded-lg p-4">
               <h3 className="text-green-800 font-medium mb-2">
-                {langauge === "En"
-                  ? "Application Submitted!"
-                  : "Demande soumise !"}
+                Application Submitted!
               </h3>
               <p className="text-green-700 text-sm">
-                {langauge === "En"
-                  ? "Your application has been submitted successfully. Admin will review your documents and activate your account. You will receive an email notification once approved."
-                  : "Votre demande a été soumise avec succès. L'administrateur examinera vos documents et activera votre compte. Vous recevrez une notification par e-mail une fois approuvé."}
+                Your application has been submitted successfully. Admin will
+                review your documents and activate your account. You will
+                receive an email notification once approved.
               </p>
             </div>
           )}
@@ -688,7 +654,7 @@ const AgentApplicationOpen: React.FC = () => {
             {/* Applicant Type Selection */}
             <div className="flex flex-col items-center">
               <label className="font-medium text-text-primary mb-3 block">
-                {t("Are you Independent or under some MGA?")}{" "}
+                Are you Independent or under some MGA?{" "}
                 <span className="text-red-500">*</span>
               </label>
               <div className="flex gap-4">
@@ -701,9 +667,7 @@ const AgentApplicationOpen: React.FC = () => {
                     onChange={() => handleApplicantTypeChange("independent")}
                     className="mr-2 h-4 w-4 text-primary focus:ring-primary accent-primary cursor-pointer"
                   />
-                  <span className="text-sm text-gray-700">
-                    {t("Independent")}
-                  </span>
+                  <span className="text-sm text-gray-700">Independent</span>
                 </label>
                 <label className="flex items-center cursor-pointer">
                   <input
@@ -714,14 +678,12 @@ const AgentApplicationOpen: React.FC = () => {
                     onChange={() => handleApplicantTypeChange("under_mga")}
                     className="mr-2 h-4 w-4 text-primary focus:ring-primary accent-primary cursor-pointer"
                   />
-                  <span className="text-sm text-gray-700">
-                    {t("Under MGA")}
-                  </span>
+                  <span className="text-sm text-gray-700">Under MGA</span>
                 </label>
               </div>
               {!applicantType && (
                 <p className="text-red-500 text-xs mt-2">
-                  {t("Please select your applicant type")}
+                  Please select your applicant type
                 </p>
               )}
             </div>
@@ -730,7 +692,7 @@ const AgentApplicationOpen: React.FC = () => {
             {applicantType === "under_mga" && (
               <div className="flex flex-col items-center">
                 <label className="font-medium text-text-primary mb-3 block">
-                  {t("Select MGA Type")} <span className="text-red-500">*</span>
+                  Select MGA Type <span className="text-red-500">*</span>
                 </label>
                 <div className="flex gap-4">
                   <label className="flex items-center cursor-pointer">
@@ -742,7 +704,7 @@ const AgentApplicationOpen: React.FC = () => {
                       onChange={() => setMgaType("wfg")}
                       className="mr-2 h-4 w-4 text-primary focus:ring-primary accent-primary cursor-pointer"
                     />
-                    <span className="text-sm text-gray-700">{t("WFG")}</span>
+                    <span className="text-sm text-gray-700">WFG</span>
                   </label>
                   <label className="flex items-center cursor-pointer">
                     <input
@@ -753,12 +715,12 @@ const AgentApplicationOpen: React.FC = () => {
                       onChange={() => setMgaType("other")}
                       className="mr-2 h-4 w-4 text-primary focus:ring-primary accent-primary cursor-pointer"
                     />
-                    <span className="text-sm text-gray-700">{t("Other")}</span>
+                    <span className="text-sm text-gray-700">Other</span>
                   </label>
                 </div>
                 {!mgaType && (
                   <p className="text-red-500 text-xs mt-2">
-                    {t("Please select MGA type")}
+                    Please select MGA type
                   </p>
                 )}
               </div>
@@ -770,15 +732,15 @@ const AgentApplicationOpen: React.FC = () => {
                 {/* First Name */}
                 <div className="flex flex-col">
                   <label className="text-sm font-medium mb-1">
-                    {t("First Name")} <span className="text-red-500">*</span>
+                    First Name <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="text"
                     {...register("firstName", {
-                      required: t("First name is required"),
+                      required: "First name is required",
                     })}
                     className="input-primary"
-                    placeholder={t("First Name")}
+                    placeholder="First Name"
                   />
                   {errors.firstName && (
                     <p className="text-red-500 text-sm mt-1">
@@ -790,15 +752,15 @@ const AgentApplicationOpen: React.FC = () => {
                 {/* Last Name */}
                 <div className="flex flex-col">
                   <label className="text-sm font-medium mb-1">
-                    {t("Last Name")} <span className="text-red-500">*</span>
+                    Last Name <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="text"
                     {...register("lastName", {
-                      required: t("Last name is required"),
+                      required: "Last name is required",
                     })}
                     className="input-primary"
-                    placeholder={t("Last Name")}
+                    placeholder="Last Name"
                   />
                   {errors.lastName && (
                     <p className="text-red-500 text-sm mt-1">
@@ -810,21 +772,21 @@ const AgentApplicationOpen: React.FC = () => {
                 {/* Email */}
                 <div className="flex flex-col ">
                   <label className="text-sm font-medium mb-1">
-                    {t("Email")} <span className="text-red-500">*</span>
+                    Email <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="email"
                     {...register("email", {
-                      required: t("Email is required"),
+                      required: "Email is required",
                       pattern: {
                         value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                        message: t("Invalid email address"),
+                        message: "Invalid email address",
                       },
                     })}
                     className={`input-primary ${
                       errors.email ? "border-red-500" : ""
                     }`}
-                    placeholder={t("Email")}
+                    placeholder="Email"
                   />
                   {errors.email && (
                     <p className="text-red-500 text-sm mt-1">
@@ -837,17 +799,17 @@ const AgentApplicationOpen: React.FC = () => {
                 {showWfgCodeField && (
                   <div className="flex flex-col ">
                     <label className="text-sm font-medium mb-1">
-                      {t("WFG Code")} <span className="text-red-500">*</span>
+                      WFG Code <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="text"
                       {...register("wfgCode", {
                         required: showWfgCodeField
-                          ? t("WFG Code is required")
+                          ? "WFG Code is required"
                           : false,
                       })}
                       className="input-primary"
-                      placeholder={t("Enter your WFG Code")}
+                      placeholder="Enter your WFG Code"
                     />
                     {errors.wfgCode && (
                       <p className="text-red-500 text-sm mt-1">
@@ -861,7 +823,7 @@ const AgentApplicationOpen: React.FC = () => {
                 {showCompanyField && (
                   <div className="flex flex-col ">
                     <label className="text-sm font-medium mb-1">
-                      {t("Company")}
+                      Company
                       {applicantType === "independent" ? (
                         <span className="text-gray-400 text-xs ml-1">
                           (Optional)
@@ -875,11 +837,11 @@ const AgentApplicationOpen: React.FC = () => {
                       {...register("company", {
                         required:
                           mgaType === "other"
-                            ? t("Company name is required")
+                            ? "Company name is required"
                             : false,
                       })}
                       className="input-primary"
-                      placeholder={t("Company")}
+                      placeholder="Company"
                     />
                     {errors.company && (
                       <p className="text-red-500 text-sm mt-1">
@@ -892,20 +854,20 @@ const AgentApplicationOpen: React.FC = () => {
                 {/* Password */}
                 <div className="flex flex-col ">
                   <label className="text-sm font-medium mb-1">
-                    {t("Password")} <span className="text-red-500">*</span>
+                    Password <span className="text-red-500">*</span>
                   </label>
                   <div className="relative">
                     <input
                       type={passwordVisible ? "text" : "password"}
                       {...register("password", {
-                        required: t("Password is required"),
+                        required: "Password is required",
                         minLength: {
                           value: 6,
-                          message: t("Minimum length is 6"),
+                          message: "Minimum length is 6",
                         },
                       })}
                       className="w-full input-primary"
-                      placeholder={t("Create Password")}
+                      placeholder="Create Password"
                     />
                     <span
                       className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer"
@@ -928,19 +890,18 @@ const AgentApplicationOpen: React.FC = () => {
                 {/* Confirm Password */}
                 <div className="flex flex-col ">
                   <label className="text-sm font-medium mb-1">
-                    {t("Confirm Password")}{" "}
-                    <span className="text-red-500">*</span>
+                    Confirm Password <span className="text-red-500">*</span>
                   </label>
                   <div className="relative">
                     <input
                       type={confirmPasswordVisible ? "text" : "password"}
                       {...register("confirmPassword", {
-                        required: t("Please confirm password"),
+                        required: "Please confirm password",
                         validate: (value) =>
-                          value === password || t("Passwords do not match"),
+                          value === password || "Passwords do not match",
                       })}
                       className="w-full input-primary"
-                      placeholder={t("Confirm Password")}
+                      placeholder="Confirm Password"
                     />
                     <span
                       className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer"
@@ -968,25 +929,22 @@ const AgentApplicationOpen: React.FC = () => {
                     {/* Document Upload Section Header */}
                     <div className=" mt-4">
                       <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                        {t("Verification Documents")}
+                        Verification Documents
                       </h3>
                       <p className="text-sm text-gray-600 mb-4">
-                        {t(
-                          "Upload your verification documents (PDF, JPG, PNG - Max 5MB each)"
-                        )}
+                        Upload your verification documents (PDF, JPG, PNG - Max
+                        5MB each)
                       </p>
                     </div>
 
                     {/* Upload Document 1 */}
                     <div className="flex flex-col">
                       <label className="text-sm font-medium mb-1">
-                        {t("Upload Document 1")}{" "}
+                        Upload Document 1{" "}
                         <span className="text-red-500">*</span>
                       </label>
                       <label className="input-primary cursor-pointer flex items-center justify-between">
-                        <span className="text-gray-500">
-                          {t("Choose File")}
-                        </span>
+                        <span className="text-gray-500">Choose File</span>
                         <span className="text-xs text-gray-400">(Max 5MB)</span>
                         <input
                           type="file"
@@ -1014,12 +972,12 @@ const AgentApplicationOpen: React.FC = () => {
                         name="validUpto"
                         rules={{
                           required: documentsRequired
-                            ? t("Document 1 validity date is required")
+                            ? "Document 1 validity date is required"
                             : false,
                         }}
                         render={({ field }) => (
                           <DatePicker
-                            label={t("Document 1 Valid Until") + " *"}
+                            label={"Document 1 Valid Until *"}
                             value={field.value || ""}
                             onChange={(date: Date) => {
                               const year = date.getFullYear();
@@ -1046,15 +1004,13 @@ const AgentApplicationOpen: React.FC = () => {
                     {/* Upload Document 2 (Optional) */}
                     <div className="flex flex-col">
                       <label className="text-sm font-medium mb-1">
-                        {t("Upload Document 2")}{" "}
+                        Upload Document 2{" "}
                         <span className="text-gray-400 text-xs">
                           (Optional)
                         </span>
                       </label>
                       <label className="input-primary cursor-pointer flex items-center justify-between">
-                        <span className="text-gray-500">
-                          {t("Choose File")}
-                        </span>
+                        <span className="text-gray-500">Choose File</span>
                         <span className="text-xs text-gray-400">(Max 5MB)</span>
                         <input
                           type="file"
@@ -1077,7 +1033,7 @@ const AgentApplicationOpen: React.FC = () => {
                         name="validUpto2"
                         render={({ field }) => (
                           <DatePicker
-                            label={`${t("Document 2 Valid Until")} (Optional)`}
+                            label={"Document 2 Valid Until (Optional)"}
                             value={field.value || ""}
                             onChange={(date: Date) => {
                               const year = date.getFullYear();
@@ -1104,33 +1060,23 @@ const AgentApplicationOpen: React.FC = () => {
             {applicantType && (applicantType === "independent" || mgaType) && (
               <div className="border border-inputBorder shadow-sm p-4 mt-6">
                 <h4 className="text-sm font-medium text-blue-900 mb-2">
-                  📋 {t("What happens next?")}
+                  📋 What happens next?
                 </h4>
                 <ul className="text-sm text-blue-700 space-y-1 list-disc list-inside">
-                  <li>
-                    {t("Your application will be reviewed by our admin team")}
-                  </li>
+                  <li>Your application will be reviewed by our admin team</li>
                   {documentsRequired && (
                     <li>
-                      {t(
-                        "Admin will verify your documents and assign credentials"
-                      )}
+                      Admin will verify your documents and assign credentials
                     </li>
                   )}
                   {showWfgCodeField && (
                     <li>
-                      {t(
-                        "Admin will verify your WFG code and assign credentials"
-                      )}
+                      Admin will verify your WFG code and assign credentials
                     </li>
                   )}
+                  <li>You'll receive an email notification once approved</li>
                   <li>
-                    {t("You'll receive an email notification once approved")}
-                  </li>
-                  <li>
-                    {t(
-                      "After approval, you can login and start issuing policies"
-                    )}
+                    After approval, you can login and start issuing policies
                   </li>
                 </ul>
               </div>
@@ -1170,20 +1116,20 @@ const AgentApplicationOpen: React.FC = () => {
                           d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                         ></path>
                       </svg>
-                      {t("Submitting Application...")}
+                      Submitting Application...
                     </>
                   ) : (
-                    t("Submit Application")
+                    "Submit Application"
                   )}
                 </button>
 
                 <p className="mt-4 text-sm text-gray-600 text-center">
-                  {t("Already have an account?")}{" "}
+                  Already have an account?{" "}
                   <a
                     href="/login"
                     className="text-primary hover:underline font-medium"
                   >
-                    {t("Login here")}
+                    Login here
                   </a>
                 </p>
               </div>

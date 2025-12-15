@@ -57,6 +57,7 @@ import AdminAgentDetails from './pages/AdminAgentDetails.tsx';
 import MGAAgentDetails from './pages/MgaAgentDetails.tsx';
 import AgentApplicationOpen from './pages/AgentApplicationOpen.tsx';
 import ResetPassword from './components/ResetPassword.tsx';
+import UserQuoteDetails from "./components/UserQuoteDetails.tsx";
 
 // Create ONE client (module-level singleton)
 const queryClient = new QueryClient({

@@ -1,4 +1,4 @@
-import { useState, Fragment, useContext } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { EyeIcon, EyeSlashIcon } from "@heroicons/react/16/solid";
 // import useAdmin from '../hooks/useAdmin';
@@ -8,6 +8,7 @@ import rimilogo from "../assets/rimi_en.png";
 // import { LangContext } from "../context/LangContext";
 import { useAuth } from "../hooks/useAuth";
 import useNotification from "../hooks/useNotification";
+import { useLanguage } from "../context/LanguageContext";
 
 interface LoginFormInputs {
   email: string;
@@ -17,13 +18,13 @@ interface LoginFormInputs {
 const Login = () => {
   const navigate = useNavigate();
 
-  // const { langauge } = useContext(LangContext);
+  const { t } = useLanguage();
 
-  const [show, setShow] = useState(false);
+  // const { langauge } = useContext(LangContext);
   const [errMsg, setErrMsg] = useState("");
   const [signInClicked, setSignInClicked] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const {triggerNotification, NotificationComponent } = useNotification();
+  const { triggerNotification, NotificationComponent } = useNotification();
 
   // const { login, loading, error} = useAuth()
   const { login } = useAuth();
@@ -90,16 +91,16 @@ const Login = () => {
         <div className="flex flex-1 flex-col  justify-center items-center m-4">
           <div className="w-full max-w-md bg-white p-8 rounded-lg shadow-md">
             <div className="flex flex-col justify-center items-center">
-                <img
-                  className="h-12 w-32 sm:h-[75px] sm:w-40"
-                  src={rimilogo}
-                  alt="Your Company"
-                />
+              <img
+                className="h-12 w-32 sm:h-[75px] sm:w-40"
+                src={rimilogo}
+                alt="Your Company"
+              />
               <h2 className="mt-8 sm:mt-12 text-3xl sm:text-4xl font-bold font-[inter] leading-9  text-[#232323]">
-                <p>Sign in</p>
+                <p>{t("login")}</p>
               </h2>
               <h4 className="mt-3 text-md font-normal font-[inter] text-[#969696]">
-                Please login to continue to your account.
+                {t("loginTitle")}
               </h4>
 
               {/* <p className="mt-2 text-sm leading-6 text-gray-500">
@@ -122,7 +123,7 @@ const Login = () => {
                       htmlFor="email"
                       className="sr-only block text-sm font-medium leading-6 text-[#D9D9D9]"
                     >
-                      <p>Email Address</p>
+                      <p>{t("email")}</p>
                     </label>
 
                     <div className="mt-2">
@@ -131,14 +132,14 @@ const Login = () => {
                         type="email"
                         autoComplete="email"
                         {...register("email", {
-                          required: "Email is required",
+                          required: t("emailRequired"),
                           pattern: {
                             value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                            message: "Invalid email address",
+                            message: t("invalidEmail"),
                           },
                         })}
                         className="input-primary"
-                        placeholder="Username/email"
+                        placeholder={t("emailPlaceholder")}
                       />
                       {errors.email && (
                         <span className="text-red-500  text-sm  font-[inter]">
@@ -154,7 +155,7 @@ const Login = () => {
                       htmlFor="password"
                       className="sr-only block text-sm font-medium leading-6 text-[#D9D9D9]"
                     >
-                     <p>Password</p>
+                      <p>{t("password")}</p>
                     </label>
                     <div className="mt-2 relative">
                       <input
@@ -162,11 +163,11 @@ const Login = () => {
                         type={showPassword ? "text" : "password"}
                         autoComplete="current-password"
                         {...register("password", {
-                          required: "Password is required",
+                          required: t("passwordRequired"),
                         })}
                         className="input-primary"
                         style={{ paddingRight: "40px" }}
-                        placeholder="Password"
+                        placeholder={t("passwordPlaceholder")}
                       />
                       <div
                         className="absolute inset-y-0 right-3 flex items-center cursor-pointer text-black/50"
@@ -230,7 +231,7 @@ const Login = () => {
                         signInClicked && "disabled bg-indigo-100"
                       }`}
                     >
-                      <p>Sign in</p>
+                      <p>{t("login")}</p>
                     </button>
                     {/* )} */}
                     {/* <button
@@ -246,19 +247,17 @@ const Login = () => {
                 onClick={handleForgotPassword}
                 className="flex w-full mt-1 justify-end text-sm font-semibold font-[inter] leading-6 text-[#4340DA] hover:text-[#2B00B7] cursor-pointer"
               >
-                <p>Forgot Password?</p>
+                <p>{t("forgotPassword")}</p>
               </button>
-              
+
               <div className="mt-6 text-center">
                 <p className="text-sm text-gray-600">
-                  {langauge === "En" 
-                    ? "Don't have an account? " 
-                    : "Vous n'avez pas de compte? "}
+                  {t("noAccount")}{" "}
                   <button
                     onClick={() => navigate("/apply")}
                     className="font-semibold text-[#4340DA] hover:text-[#2B00B7] cursor-pointer"
                   >
-                    {langauge === "En" ? "Apply" : "Postuler"}
+                    {t("apply")}
                   </button>
                 </p>
               </div>
@@ -303,7 +302,7 @@ const Login = () => {
           </div>
         </div>
       </div>
-{NotificationComponent}
+      {NotificationComponent}
       {/* ///  */}
     </>
   );
