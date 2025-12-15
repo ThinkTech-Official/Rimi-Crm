@@ -1,4 +1,4 @@
-import i18n from './i18n/i18.ts';
+// import i18n from './i18n/i18.ts';
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import "./index.css";
@@ -14,7 +14,7 @@ import { PersistGate } from "redux-persist/integration/react";
 
 import Login from './pages/Login.tsx';
 import Dashboard from './pages/Dashboard.tsx';
-import { LangContextProvider } from './context/LangContext.tsx';
+// import { LangContextProvider } from './context/LangContext.tsx';
 import Profile from './pages/Profile.tsx';
 import { Provider } from 'react-redux'
 import { store,persistor } from './app/store.ts';
@@ -30,6 +30,8 @@ import PolicyDetails from './pages/PolicyDetails.tsx';
 import ImportSalesUpload from './pages/ImportSalesUpload.tsx';
 import AgentDashboard from './pages/AgentDashboard.tsx';
 import AgentDetails from './components/AgentDetails.tsx';
+
+import { LanguageProvider } from './context/LanguageContext.tsx';
 
 
 // "build": "tsc -b && vite build",
@@ -49,8 +51,7 @@ import Users from "./components/Users.tsx";
 import CreateUser from "./components/CreateUser.tsx";
 import Documents from "./components/Documents/Documents.tsx";
 import TripCalculator from "./components/TripCalculator.tsx";
-import { I18nextProvider } from 'react-i18next';
-import UserQuoteDetails from './components/UserQuoteDetails.tsx';
+// import { I18nextProvider } from 'react-i18next';
 import VerificationRequests from './components/agent-verification/VerificationRequests.tsx';
 import AdminAgentDetails from './pages/AdminAgentDetails.tsx';
 import MGAAgentDetails from './pages/MgaAgentDetails.tsx';
@@ -186,11 +187,13 @@ createRoot(document.getElementById("root")!).render(
     <Provider store={store}>
       <PersistGate loading={null} persistor={persistor}>
         <QueryClientProvider client={queryClient}>
-          <I18nextProvider i18n={i18n}>
-            <LangContextProvider>
+          {/* <I18nextProvider i18n={i18n}> */}
+            {/* <LangContextProvider> */}
+            <LanguageProvider>
               <RouterProvider router={router} />
-            </LangContextProvider>
-          </I18nextProvider>
+              </LanguageProvider>
+            {/* </LangContextProvider> */}
+          {/* </I18nextProvider> */}
           <ReactQueryDevtools initialIsOpen={false} />
         </QueryClientProvider>
       </PersistGate>

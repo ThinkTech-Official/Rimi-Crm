@@ -489,10 +489,10 @@ import useNotification from "../hooks/useNotification";
 import DatePicker from "../components/DatePicker";
 
 const AgentApplicationOpen: React.FC = () => {
-  const { langauge } = useContext(LangContext);
+  // const { langauge } = useContext(LangContext);
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [confirmPasswordVisible, setConfirmPasswordVisible] = useState(false);
-  const { t } = useTranslation();
+  
   const { NotificationComponent, triggerNotification } = useNotification();
 
   // State for applicant type selection
@@ -626,6 +626,15 @@ const AgentApplicationOpen: React.FC = () => {
             className="h-12 w-24 sm:h-14 sm:w-32 mb-4"
           />
 
+            {/* Heading */}
+            <div className="mb-4 sm:mb-8 text-center lg:text-left">
+              <h2 className="text-2xl font-bold text-text-dark">
+                Apply to Become an Agent
+              </h2>
+              <p className="text-text-light-2 text-sm sm:text-base">
+                Join as an advisor and start your journey
+              </p>
+            </div>
           {/* Heading */}
           <div className="mb-4 sm:mb-8 text-center lg:text-left">
             <h2 className="text-2xl font-bold text-text-dark">
@@ -636,6 +645,17 @@ const AgentApplicationOpen: React.FC = () => {
             </p>
           </div>
 
+            {/* Success Message */}
+            {success && (
+              <div className="mb-6 bg-green-50 border border-green-300 rounded-lg p-4">
+                <h3 className="text-green-800 font-medium mb-2">
+                  Application Submitted!
+                </h3>
+                <p className="text-green-700 text-sm">
+                  Your application has been submitted successfully. Admin will review your documents and activate your account. You will receive an email notification once approved.,
+                </p>
+              </div>
+            )}
           {/* Success Message */}
           {success && (
             <div className="mb-6 bg-green-50 border border-green-300 rounded-lg p-4">

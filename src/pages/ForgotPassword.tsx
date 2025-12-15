@@ -3,7 +3,7 @@ import { useState, useContext, useEffect } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import rimilogo from "../assets/rimi_en.png";
-import { LangContext } from "../context/LangContext";
+// import { LangContext } from "../context/LangContext";
 import { useForgotPassword } from "../hooks/useForgotPassword";
 import useNotification from "../hooks/useNotification";
 import { useTranslation } from "react-i18next";
@@ -21,7 +21,7 @@ interface Toast {
 
 const ForgotPassword: React.FC = () => {
   const navigate = useNavigate();
-  const { langauge } = useContext(LangContext);
+  // const { langauge } = useContext(LangContext);
   const {
     sendResetLink,
     loading,
