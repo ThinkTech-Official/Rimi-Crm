@@ -52,28 +52,7 @@
 
 // export default ApplicantInformationFinished;
 
-
-
-
-
 // =============================
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 import { ChevronDownIcon } from "@heroicons/react/24/outline";
 import React from "react";
@@ -116,36 +95,36 @@ const ApplicantInformationFinished: React.FC<
           <div className="flex flex-col">
             <label className="text-sm">Date of Birth</label>
             <input
-            value={formatDate(dateOfBirth)}
-            disabled
-            className="input-primary"
+              value={formatDate(dateOfBirth)}
+              disabled
+              className="input-primary break-words h-auto"
             />
           </div>
 
           <div className="flex flex-col">
             <label className="text-sm">First Name</label>
             <input
-            value={firstName || "N/A"}
-            disabled
-            className="input-primary"
+              value={firstName || "N/A"}
+              disabled
+              className="input-primary break-words h-auto"
             />
           </div>
 
           <div className="flex flex-col">
             <label className="text-sm">Last Name</label>
-           <input
-            value={lastName || "N/A"}
-            disabled
-            className="input-primary"
+            <input
+              value={lastName || "N/A"}
+              disabled
+              className="input-primary break-words h-auto"
             />
           </div>
 
           <div className="flex flex-col">
             <label className="text-sm">Gender</label>
             <input
-            value={gender || "N/A"}
-            disabled
-            className="input-primary"
+              value={gender || "N/A"}
+              disabled
+              className="input-primary break-words h-auto"
             />
           </div>
         </div>
@@ -166,35 +145,35 @@ const ApplicantInformationFinished: React.FC<
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 md:gap-x-16 lg:gap-x-24 gap-y-4 text-text-secondary">
                 <div className="flex flex-col">
                   <label className="text-sm">First Name</label>
-                  <p className="input-primary">
+                  <p className="input-primary break-words h-auto">
                     {applicant.firstName || "N/A"}
                   </p>
                 </div>
 
                 <div className="flex flex-col">
                   <label className="text-sm">Last Name</label>
-                  <p className="input-primary">
+                  <p className="input-primary break-words h-auto">
                     {applicant.lastName || "N/A"}
                   </p>
                 </div>
 
                 <div className="flex flex-col">
                   <label className="text-sm">Date of Birth</label>
-                  <p className="input-primary">
+                  <p className="input-primary break-words h-auto">
                     {formatDate(applicant.dob)}
                   </p>
                 </div>
 
                 <div className="flex flex-col">
                   <label className="text-sm">Relationship</label>
-                  <p className="input-primary">
+                  <p className="input-primary break-words h-auto">
                     {applicant.relationship || "N/A"}
                   </p>
                 </div>
 
                 <div className="flex flex-col">
                   <label className="text-sm">Gender</label>
-                  <p className="input-primary">
+                  <p className="input-primary break-words h-auto">
                     {applicant.gender || "N/A"}
                   </p>
                 </div>

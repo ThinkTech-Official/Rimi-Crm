@@ -497,7 +497,7 @@
 
 // ===================================
 
-import React, { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   ChevronDownIcon,
   InformationCircleIcon,
@@ -507,7 +507,6 @@ import { usePremiumCalculationProduct3 } from "../../../../hooks/canuck-voyage/u
 import { useCreateQuoteProduct3 } from "../../../../hooks/canuck-voyage/useCreateQuoteProduct3";
 import { Step1Payload } from "../RIMICanuckVoyageTravelMedical";
 import DatePicker from "../../../DatePicker";
-import EmailQuoteNonMed from "../../CanuckVoyageNon-MedicalTravel/step1/EmailQuoteNonMed";
 import EmailQuoteMedical from "./EmailQuoteMedical";
 
 const today = new Date().toISOString().slice(0, 10);
@@ -535,7 +534,7 @@ interface CoverageInformationProps {
   onValidityChange: (valid: boolean) => void;
   quoteNumber: string | null;
   agentCode: string;
-  handleSaveQuote: () => void;
+  handleSaveQuote: () => Promise<boolean>;
 }
 
 export default function CoverageInformation({
@@ -790,7 +789,7 @@ export default function CoverageInformation({
   
 
   return (
-    <div className="max-w-5xl mx-auto mt-6 p-6 bg-[#F9F9F9]">
+    <div className="max-w-5xl mx-auto mt-6 p-3 sm:p-6 bg-[#F9F9F9]">
       <h3 className="text-lg font-bold text-left text-[#1B1B1B] mb-5">
         Coverage Information
       </h3>
@@ -1149,11 +1148,13 @@ export default function CoverageInformation({
           <div className="text-center mt-4">
             <button
               onClick={async () => {
-                await handleSaveQuote();
-                // Save snapshot after successful save
-                const snapshot = JSON.stringify(formValues);
-                setSavedFormSnapshot(snapshot);
-                setHasFormChanged(false);
+                const success = await handleSaveQuote();
+                if (success) {
+                  // Save snapshot after successful save
+                  const snapshot = JSON.stringify(formValues);
+                  setSavedFormSnapshot(snapshot);
+                  setHasFormChanged(false);
+                }
               }}
               disabled={saving}
               className={`text-base hover:underline underline-offset-2 cursor-pointer text-primary mt-2 ${

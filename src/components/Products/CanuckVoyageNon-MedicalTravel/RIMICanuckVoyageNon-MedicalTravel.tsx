@@ -389,7 +389,7 @@ const RIMICanuckVoyageNonMedicalTravel: React.FC = () => {
       expiryDate: "",
       coverageLength: 0,
       destinationCountry: "",
-      tripCancellationDeluxe: false,
+      tripCancellationDeluxe: null,
       agentCode: "",
       product: "",
       quoteNumber: "",
@@ -540,7 +540,7 @@ const RIMICanuckVoyageNonMedicalTravel: React.FC = () => {
         message: "Please fill all required fields correctly.",
         type: "error",
       });
-      return;
+      return false;
     }
     const formValues = step1Methods.getValues();
     const stage1Payload = {
@@ -558,12 +558,14 @@ const RIMICanuckVoyageNonMedicalTravel: React.FC = () => {
         message: `Quote saved successfully!`,
         type: "success",
       });
+      return true;
     } catch (err: any) {
       console.error("Failed to save quote:", err);
       triggerNotification({
         message: err.message || "Failed to save quote. Please try again.",
         type: "error",
       });
+      return false;
     }
   }
 
@@ -705,11 +707,12 @@ const RIMICanuckVoyageNonMedicalTravel: React.FC = () => {
             applicants={step1ResponseData?.applicants ?? []}
           />
           <ContactInformation
+          email={step1ResponseData?.email ?? ""}
             methods={contactInfoMethods}
           />
           <Address methods={addressMethods} />
 
-          <div className="max-w-5xl mx-auto mt-6 p-6 bg-[#F9F9F9]">
+          <div className="max-w-5xl mx-auto mt-6 p-3 sm:p-6 bg-[#F9F9F9]">
             <h3 className="text-lg font-bold text-left text-[#1B1B1B] mb-5">Payment Summary</h3>
             <div className="flex justify-between items-center">
               <span>Total Premium:</span>

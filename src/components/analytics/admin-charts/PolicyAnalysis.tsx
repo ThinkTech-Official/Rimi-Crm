@@ -428,7 +428,7 @@ const PolicyAnalysis = ({ data }: PolicyAnalysisProps) => {
 
           {/* Pie Chart - Policies by Product Type */}
           <div
-            className="bg-white py-4 pb-2 2xl:px-2 max-w-sm md:w-1/3 flex flex-col gap-3"
+            className="bg-white py-4 pb-2 2xl:px-2 xs:max-w-sm md:w-1/3 flex flex-col gap-3"
             style={{ boxShadow: "0px 0px 6.6px 0px #0000001C" }}
           >
             <span className="font-semibold px-2 sm:px-4 text-[#475569]">
@@ -530,7 +530,7 @@ const PolicyAnalysis = ({ data }: PolicyAnalysisProps) => {
 
           <div className="w-full overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-primary text-white">
+              <thead className="bg-primary text-white text-nowrap">
                 <tr>
                   <th className="px-4 py-3 text-left text-sm 2xl:text-base font-medium">
                     Rank

@@ -16,7 +16,7 @@
 //         <div className="flex flex-col">
 //           <label className="text-sm">Email Address</label>
 //           <input
-//             className="input-primary"
+//             className="input-primary break-words h-auto"
 //             type="text"
 //             placeholder="Email Address"
 //           />
@@ -32,7 +32,7 @@
 //             Additional Email Address (Optional)
 //           </label>
 //           <input
-//             className="input-primary"
+//             className="input-primary break-words h-auto"
 //             type="text"
 //             placeholder="Additional Email Address"
 //           />
@@ -54,7 +54,7 @@
 //         <div className="flex flex-col">
 //           <label className="text-sm">Phone Number</label>
 //           <input
-//             className="input-primary"
+//             className="input-primary break-words h-auto"
 //             type="text"
 //             placeholder="Phone Number"
 //           />
@@ -69,7 +69,7 @@
 //             />
 //             Name of Legal Guardian/Custodian
 //           </label>
-//           <input className="input-primary" type="text" placeholder="" />
+//           <input className="input-primary break-words h-auto" type="text" placeholder="" />
 //         </div>
 
 //         {displayInfoLegalGuardian && (
@@ -127,7 +127,7 @@ export default function ContactInformation({
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 md:gap-x-16 lg:gap-x-24 gap-y-4 text-text-secondary">
         <div className="flex flex-col">
           <label className="text-sm">Email Address</label>
-          <p className="input-primary">{email || "N/A"}</p>
+          <p className="input-primary break-words h-auto">{email || "N/A"}</p>
         </div>
 
         <div className="flex flex-col">
@@ -140,7 +140,7 @@ export default function ContactInformation({
             Additional Email Address (Optional)
           </label>
           <input
-            className="input-primary"
+            className="input-primary break-words h-auto"
             type="text"
             placeholder="Additional Email Address"
             {...register("additionalEmail")}
@@ -163,7 +163,7 @@ export default function ContactInformation({
         <div className="flex flex-col">
           <label className="text-sm">Phone Number</label>
           <input
-            className="input-primary"
+            className="input-primary break-words h-auto"
             type="text"
             placeholder="Phone Number"
             {...register("phoneNumber", {

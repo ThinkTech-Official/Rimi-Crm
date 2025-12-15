@@ -14,7 +14,7 @@
 //         <div className="flex flex-col">
 //           <label className="text-sm">Email Address</label>
 //           <input
-//             className="input-primary"
+//             className="input-primary break-words h-auto"
 //             type="text"
 //             placeholder="Email Address"
 //           />
@@ -30,7 +30,7 @@
 //             Additional Email Address (Optional)
 //           </label>
 //           <input
-//             className="input-primary"
+//             className="input-primary break-words h-auto"
 //             type="text"
 //             placeholder="Email Address"
 //           />
@@ -46,7 +46,7 @@
 //         <div className="flex flex-col">
 //           <label className="text-sm">Phone Number</label>
 //           <input
-//             className="input-primary"
+//             className="input-primary break-words h-auto"
 //             type="text"
 //             placeholder="Phone Number"
 //           />
@@ -56,11 +56,7 @@
 //   );
 // }
 
-
-
 // ==============================
-
-
 
 import { InformationCircleIcon } from "@heroicons/react/24/outline";
 import { useState } from "react";
@@ -83,14 +79,14 @@ export default function ContactInformation({
   email,
   methods,
 }: ContactInformationProps) {
-   const {
+  const {
     register,
     formState: { errors },
   } = methods;
   const [displayInfoAddEmail, setDisplayInfoAddEmail] = useState(false);
 
   return (
-    <div className="max-w-5xl mx-auto mt-4 p-6 bg-[#F9F9F9]">
+    <div className="max-w-5xl mx-auto mt-4 p-3 sm:p-6 bg-[#F9F9F9]">
       <h3 className="text-lg font-bold text-left text-[#1B1B1B] mb-5">
         Contact Information
       </h3>
@@ -98,10 +94,10 @@ export default function ContactInformation({
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 md:gap-x-16 lg:gap-x-24 gap-y-4 text-text-secondary">
         <div className="flex flex-col">
           <label className="text-sm">Email Address</label>
-          <p className="input-primary">{email}</p>
+          <p className="input-primary break-words h-auto">{email}</p>
         </div>
 
-     <div className="flex flex-col">
+        <div className="col-span-2 sm:col-span-1 flex flex-col">
           <label className="flex items-center gap-1 text-sm">
             <InformationCircleIcon
               onClick={() => setDisplayInfoAddEmail((prev) => !prev)}
@@ -111,7 +107,7 @@ export default function ContactInformation({
             Additional Email Address (Optional)
           </label>
           <input
-            className="input-primary"
+            className="input-primary break-words h-auto"
             type="email"
             placeholder="Additional Email Address"
             {...register("contactInfo.additionalEmail")}
@@ -128,7 +124,7 @@ export default function ContactInformation({
         <div className="flex flex-col">
           <label className="text-sm">Phone Number</label>
           <input
-            className="input-primary"
+            className="input-primary break-words h-auto"
             type="tel"
             placeholder="Phone Number"
             {...register("contactInfo.phoneNumber", {

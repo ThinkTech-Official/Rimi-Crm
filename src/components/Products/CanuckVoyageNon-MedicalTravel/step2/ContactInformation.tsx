@@ -14,7 +14,7 @@
 //         <div className="flex flex-col">
 //           <label className="text-sm">Email Address</label>
 //           <input
-//             className="input-primary"
+//             className="input-primary break-words h-auto"
 //             type="text"
 //             placeholder="Email Address"
 //           />
@@ -30,7 +30,7 @@
 //             Additional Email Address (Optional)
 //           </label>
 //           <input
-//             className="input-primary"
+//             className="input-primary break-words h-auto"
 //             type="text"
 //             placeholder="Additional Email Address"
 //           />
@@ -46,7 +46,7 @@
 //         <div className="flex flex-col">
 //           <label className="text-sm">Phone Number</label>
 //           <input
-//             className="input-primary"
+//             className="input-primary break-words h-auto"
 //             type="text"
 //             placeholder="Phone Number"
 //           />
@@ -71,10 +71,12 @@ interface ContactInfo {
 }
 
 interface ContactInformationProps {
+  email: string;
   methods: UseFormReturn<ContactInfo>;
 }
 
 export default function ContactInformation({
+  email,
   methods,
 }: ContactInformationProps) {
   const {
@@ -84,7 +86,7 @@ export default function ContactInformation({
   const [displayInfoAddEmail, setDisplayInfoAddEmail] = useState(false);
 
   return (
-    <div className="max-w-5xl mx-auto mt-6 p-6 bg-[#F9F9F9]">
+    <div className="max-w-5xl mx-auto mt-6 p-3 sm:p-6 bg-[#F9F9F9]">
       <h3 className="text-lg font-bold text-left text-[#1B1B1B] mb-5">
         Contact Information
       </h3>
@@ -93,19 +95,7 @@ export default function ContactInformation({
         {/* Email */}
         <div className="flex flex-col">
           <label className="text-sm">Email Address</label>
-          <input
-            className="input-primary"
-            type="email"
-            placeholder="Email Address"
-            {...register("contactInfo.email", {
-              required: "Email is required",
-            })}
-          />
-          {errors.contactInfo?.email && (
-            <p className="text-red-500 text-sm mt-1">
-              {errors.contactInfo.email.message}
-            </p>
-          )}
+          <p className="input-primary break-words">{email}</p>
         </div>
 
         {/* Additional Email */}
@@ -119,7 +109,7 @@ export default function ContactInformation({
             Additional Email Address (Optional)
           </label>
           <input
-            className="input-primary"
+            className="input-primary break-words h-auto"
             type="email"
             placeholder="Additional Email Address"
             {...register("contactInfo.additionalEmail")}
@@ -137,7 +127,7 @@ export default function ContactInformation({
         <div className="flex flex-col">
           <label className="text-sm">Phone Number</label>
           <input
-            className="input-primary"
+            className="input-primary break-words h-auto"
             type="tel"
             placeholder="Phone Number"
             {...register("contactInfo.phoneNumber", {

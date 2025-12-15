@@ -22,6 +22,7 @@ import ValidationErrorModal from "../components/ValidationErrorModal";
 import { usePaymentSchedule } from "../hooks/usePaymentSchedule";
 import { PaymentScheduleTable } from "../components/policy/PaymentScheduleTable";
 import { UpdateCardModal } from "../components/UpdateCardModal";
+import { MdClose, MdUploadFile } from "react-icons/md";
 
 const fmtDate = (iso?: string) =>
   iso ? new Date(iso).toLocaleDateString("en-CA") : "-";
@@ -33,6 +34,14 @@ const calcAge = (dob?: string, ref?: string) => {
   let age = d2.getFullYear() - d1.getFullYear();
   if (d2 < new Date(d1.setFullYear(d1.getFullYear() + age))) age--;
   return age;
+};
+
+const formatFileSize = (bytes: number): string => {
+  if (bytes === 0) return '0 Bytes';
+  const k = 1024;
+  const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + ' ' + sizes[i];
 };
 
 function getCoverageLength(
@@ -459,7 +468,7 @@ const PolicyDetailsPage: React.FC = () => {
 
     return (
       <div>
-        <div className="font-medium">{label}</div>
+        <div className="font-semibold text-base">{label}</div>
         {isEditMode ? (
           type === "select" ? (
             <select
@@ -467,7 +476,7 @@ const PolicyDetailsPage: React.FC = () => {
               onChange={(e) =>
                 handleFieldChange(field as string, e.target.value)
               }
-              className="w-full p-1 border border-blue-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="input-primary"
             >
               {options?.map((opt) => (
                 <option key={opt} value={opt}>
@@ -484,7 +493,7 @@ const PolicyDetailsPage: React.FC = () => {
               onChange={(e) =>
                 handleFieldChange(field as string, e.target.value)
               }
-              className="w-full p-1 border border-blue-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="input-primary"
               disabled={
                 // Disable effectiveDate for ACTIVE policies
                 (field === "effectiveDate" && p.status === "ACTIVE") ||
@@ -494,7 +503,7 @@ const PolicyDetailsPage: React.FC = () => {
             />
           )
         ) : (
-          <div>
+          <div className="text-sm text-[#6F6B7D]">
             {type === "date" ? fmtDate(value as string) : (value as string)}
           </div>
         )}
@@ -530,24 +539,25 @@ const PolicyDetailsPage: React.FC = () => {
               {/* Reload  */}
               <button
                 onClick={() => window.location.reload()}
-                className="px-3 py-1 border rounded"
+                className="px-4 py-2 hover:bg-gray-50/50 border border-gray-300 hover:border-gray-400 cursor-pointer transition-all delay-100"
               >
                 Reload
               </button>
-              {canModify && (
-                <button
-                  onClick={handleModifyClick}
-                  className="px-3 py-1 bg-blue-600 text-white rounded"
-                >
-                  Modify Policy
-                </button>
-              )}
+
               {canCancel && (
                 <button
                   onClick={() => handleCancelPolicy(id, p.policyNumber)}
-                  className="px-3 py-1 border rounded"
+                  className="px-4 py-2 hover:bg-gray-50/50 border border-gray-300 hover:border-gray-400 cursor-pointer transition-all delay-100"
                 >
                   Cancel Policy
+                </button>
+              )}
+              {canModify && (
+                <button
+                  onClick={handleModifyClick}
+                  className="bg-primary text-white py-2 sm:py-2 px-4 font-semibold hover:bg-[#2309A1] transition-all duration-200 cursor-pointer disabled:cursor-default disabled:opacity-70"
+                >
+                  Modify Policy
                 </button>
               )}
             </>
@@ -555,14 +565,14 @@ const PolicyDetailsPage: React.FC = () => {
             <>
               <button
                 onClick={handleCancelEdit}
-                className="px-3 py-1 border rounded"
+                className="px-4 py-2 hover:bg-gray-50/50 border border-gray-300 hover:border-gray-400 cursor-pointer transition-all delay-100"
                 disabled={modifyLoading}
               >
                 Cancel
               </button>
               <button
                 onClick={handleSaveChanges}
-                className="px-3 py-1 bg-green-600 text-white rounded disabled:opacity-50"
+                className="bg-primary text-white py-2 sm:py-2 px-4 font-semibold hover:bg-[#2309A1] transition-all duration-200 cursor-pointer disabled:cursor-default disabled:opacity-70"
                 disabled={modifyLoading}
               >
                 {modifyLoading ? "Saving..." : "Save Changes"}
@@ -600,24 +610,28 @@ const PolicyDetailsPage: React.FC = () => {
       )}
 
       {/* Policy Information */}
-      <section className="grid grid-cols-12 gap-x-4 border-b pb-4">
-        <div className="col-span-2 text-purple-600 uppercase font-semibold">
+      <div className="flex flex-col gap-4 justify-between w-full border-b border-[#D8D8D8] pb-4">
+        <div className="text-primary capitalize font-semibold text-xl">
           Policy Information
         </div>
-        <div className="col-span-10 grid grid-cols-3 gap-x-4 text-sm">
+        <div className="grid grid-cols-3 gap-4 text-sm capitalize w-full">
           <div>
-            <div className="font-medium">Policy Number</div>
-            <div>{p.policyNumber}</div>
+            <div className="font-semibold text-base">Policy Number</div>
+            <div className="text-sm text-[#6F6B7D]">{p.policyNumber}</div>
           </div>
           <div>
-            <div className="font-medium">Sale Date</div>
-            <div>{fmtDate(p.dateIssued)}</div>
+            <div className="font-semibold text-base">Sale Date</div>
+            <div className="text-sm text-[#6F6B7D]">
+              {fmtDate(p.dateIssued)}
+            </div>
           </div>
           <div>
-            <div className="font-medium">Status</div>
+            <div className="font-semibold text-base">Status</div>
             <div
               className={
-                p.status === "CANCELLED" ? "text-red-600 font-semibold" : ""
+                p.status === "CANCELLED"
+                  ? "text-red-600 font-semibold"
+                  : "text-sm text-[#6F6B7D]"
               }
             >
               {p.status}
@@ -625,32 +639,34 @@ const PolicyDetailsPage: React.FC = () => {
           </div>
           {renderEditableField("Language", "language")}
           <div>
-            <div className="font-medium mt-4">Sales Channel</div>
-            <div>{p.salesChannel || "-"}</div>
+            <div className="font-semibold mt-4">Sales Channel</div>
+            <div className="text-sm text-[#6F6B7D]">
+              {p.salesChannel || "-"}
+            </div>
           </div>
           <div>
-            <div className="font-medium mt-4">Agent</div>
-            <div>{p.agentCode}</div>
+            <div className="font-semibold mt-4">Agent</div>
+            <div className="text-sm text-[#6F6B7D]">{p.agentCode}</div>
           </div>
         </div>
-      </section>
+      </div>
 
       {/* Primary Insured */}
-      <section className="grid grid-cols-12 gap-x-4 border-b py-4">
-        <div className="col-span-2 text-purple-600 uppercase font-semibold">
+      <div className="flex flex-col gap-4 justify-between w-full border-b border-[#D8D8D8] pb-4">
+        <div className="text-primary capitalize font-semibold text-xl">
           Primary Insured Person
         </div>
-        <div className="col-span-10 grid grid-cols-3 gap-x-4 text-sm">
+        <div className="grid grid-cols-3 gap-4 text-sm w-full capitalize">
           <div>
-            <div className="font-medium">Policy Number</div>
-            <div>{p.policyNumber}</div>
+            <div className="font-semibold text-base">Policy Number</div>
+            <div className="text-sm text-[#6F6B7D]">{p.policyNumber}</div>
           </div>
           {renderEditableField("First Name", "firstName")}
           {renderEditableField("Last Name", "lastName")}
           {renderEditableField("Date of Birth", "dateOfBirth", "date")}
           <div>
-            <div className="font-medium mt-4">Age on Effective Date</div>
-            <div>
+            <div className="font-semibold mt-4">Age on Effective Date</div>
+            <div className="text-sm text-[#6F6B7D]">
               {calcAge(
                 editedPolicy.dateOfBirth || p.dateOfBirth?.toString(),
                 editedPolicy.effectiveDate || p.effectiveDate?.toString()
@@ -663,24 +679,26 @@ const PolicyDetailsPage: React.FC = () => {
             "Other",
           ])}
           <div className="col-span-2 mt-4">
-            <div className="font-medium">
+            <div className="font-semibold text-base">
               Include Coverage for Stable Pre-Existing Medical Conditions
             </div>
-            <div>{p.PreExCoverage || "No"}</div>
+            <div className="text-sm text-[#6F6B7D]">
+              {p.PreExCoverage || "No"}
+            </div>
           </div>
           <div className="mt-4">
-            <div className="font-medium">Premium</div>
-            <div>CAD {p.premium}</div>
+            <div className="font-semibold text-base">Premium</div>
+            <div className="text-sm text-[#6F6B7D]">CAD {p.premium}</div>
           </div>
         </div>
-      </section>
+      </div>
 
       {/* Contact Information */}
-      <section className="grid grid-cols-12 gap-x-4 border-b py-4 text-sm">
-        <div className="col-span-2 text-purple-600 uppercase font-semibold">
+      <div className="flex flex-col gap-4 justify-between w-full border-b border-[#D8D8D8] pb-4">
+        <div className="text-primary capitalize font-semibold text-xl">
           Contact Information
         </div>
-        <div className="col-span-10 grid grid-cols-3 gap-x-4">
+        <div className="grid grid-cols-3 gap-4 text-sm w-full capitalize">
           {renderEditableField("Email Address", "email", "email")}
           {renderEditableField(
             "Additional Email Address",
@@ -699,25 +717,25 @@ const PolicyDetailsPage: React.FC = () => {
           {renderEditableField("Country", "countryCode")}
           {renderEditableField("Postal Code", "postalCode")}
         </div>
-      </section>
+      </div>
 
       {/* Other insured persons */}
       {editedApplicants.length > 0 &&
         editedApplicants.map((a: any, idx: number) => (
-          <section
+          <div
             key={a.id}
-            className="grid grid-cols-12 gap-x-4 border-b py-4 text-sm"
+            className="flex flex-col gap-4 justify-between w-full border-b border-[#D8D8D8] pb-4"
           >
-            <div className="col-span-2 text-purple-600 uppercase font-semibold">
+            <div className="text-primary capitalize font-semibold text-xl">
               Insured Person {idx + 2}
             </div>
-            <div className="col-span-10 grid grid-cols-3 gap-x-4 text-sm">
+            <div className="grid grid-cols-3 gap-4 text-sm w-full capitalize">
               <div>
-                <div className="font-medium">Policy Number</div>
-                <div>{a.policyNumber}</div>
+                <div className="font-semibold text-base">Policy Number</div>
+                <div className="text-sm text-[#6F6B7D]">{a.policyNumber}</div>
               </div>
               <div>
-                <div className="font-medium">First Name</div>
+                <div className="font-semibold text-base">First Name</div>
                 {isEditMode ? (
                   <input
                     type="text"
@@ -725,14 +743,14 @@ const PolicyDetailsPage: React.FC = () => {
                     onChange={(e) =>
                       handleApplicantChange(idx, "firstName", e.target.value)
                     }
-                    className="w-full p-1 border border-blue-300 rounded"
+                    className="input-primary"
                   />
                 ) : (
-                  <div>{a.firstName}</div>
+                  <div className="text-sm text-[#6F6B7D]">{a.firstName}</div>
                 )}
               </div>
               <div>
-                <div className="font-medium">Last Name</div>
+                <div className="font-semibold text-base">Last Name</div>
                 {isEditMode ? (
                   <input
                     type="text"
@@ -740,14 +758,14 @@ const PolicyDetailsPage: React.FC = () => {
                     onChange={(e) =>
                       handleApplicantChange(idx, "lastName", e.target.value)
                     }
-                    className="w-full p-1 border border-blue-300 rounded"
+                    className="input-primary"
                   />
                 ) : (
-                  <div>{a.lastName}</div>
+                  <div className="text-sm text-[#6F6B7D]">{a.lastName}</div>
                 )}
               </div>
               <div>
-                <div className="font-medium mt-4">Date of Birth</div>
+                <div className="font-semibold mt-4">Date of Birth</div>
                 {isEditMode && p.status === "SOLD" ? (
                   <input
                     type="date"
@@ -755,36 +773,40 @@ const PolicyDetailsPage: React.FC = () => {
                     onChange={(e) =>
                       handleApplicantChange(idx, "dateOfBirth", e.target.value)
                     }
-                    className="w-full p-1 border border-blue-300 rounded"
+                    className="input-primary"
                   />
                 ) : (
-                  <div>{fmtDate(a.dateOfBirth)}</div>
+                  <div className="text-sm text-[#6F6B7D]">
+                    {fmtDate(a.dateOfBirth)}
+                  </div>
                 )}
               </div>
               <div>
-                <div className="font-medium mt-4">Age on Effective Date</div>
-                <div>{calcAge(a.dateOfBirth, p.effectiveDate?.toString())}</div>
+                <div className="font-semibold mt-4">Age on Effective Date</div>
+                <div className="text-sm text-[#6F6B7D]">
+                  {calcAge(a.dateOfBirth, p.effectiveDate?.toString())}
+                </div>
               </div>
               <div>
-                <div className="font-medium mt-4">Gender</div>
+                <div className="font-semibold mt-4">Gender</div>
                 {isEditMode ? (
                   <select
                     value={a.gender || ""}
                     onChange={(e) =>
                       handleApplicantChange(idx, "gender", e.target.value)
                     }
-                    className="w-full p-1 border border-blue-300 rounded"
+                    className="input-primary"
                   >
                     <option value="Male">Male</option>
                     <option value="Female">Female</option>
                     <option value="Other">Other</option>
                   </select>
                 ) : (
-                  <div>{a.gender}</div>
+                  <div className="text-sm text-[#6F6B7D]">{a.gender}</div>
                 )}
               </div>
               <div>
-                <div className="font-medium mt-4">
+                <div className="font-semibold mt-4">
                   Relationship to Primary Applicant
                 </div>
                 {isEditMode ? (
@@ -794,21 +816,23 @@ const PolicyDetailsPage: React.FC = () => {
                     onChange={(e) =>
                       handleApplicantChange(idx, "relation", e.target.value)
                     }
-                    className="w-full p-1 border border-blue-300 rounded"
+                    className="input-primary"
                   />
                 ) : (
-                  <div>{a.relation}</div>
+                  <div className="text-sm text-[#6F6B7D]">{a.relation}</div>
                 )}
               </div>
               <div className="col-span-2 mt-4">
-                <div className="font-medium">
+                <div className="font-semibold text-base">
                   Include Coverage for Stable Pre-Existing Medical Conditions
                 </div>
-                <div>{a.PreExCoverage || "No"}</div>
+                <div className="text-sm text-[#6F6B7D]">
+                  {a.PreExCoverage || "No"}
+                </div>
               </div>
               <div className="mt-4">
-                <div className="font-medium">Premium</div>
-                <div>
+                <div className="font-semibold text-base">Premium</div>
+                <div className="text-sm text-[#6F6B7D]">
                   {a.premium?.toLocaleString("en-CA", {
                     style: "currency",
                     currency: "CAD",
@@ -816,20 +840,20 @@ const PolicyDetailsPage: React.FC = () => {
                 </div>
               </div>
             </div>
-          </section>
+          </div>
         ))}
 
       {/* Coverage Details */}
-      <section className="grid grid-cols-12 gap-x-4 border-b py-4 text-sm">
-        <div className="col-span-2 text-purple-600 uppercase font-semibold">
+      <div className="flex flex-col gap-4 justify-between w-full border-b border-[#D8D8D8] pb-4">
+        <div className="text-primary capitalize font-semibold text-xl">
           Coverage Details
         </div>
-        <div className="col-span-10 grid grid-cols-3 gap-x-4">
+        <div className="grid grid-cols-3 gap-4 text-sm w-full capitalize">
           {renderEditableField("Effective Date", "effectiveDate", "date")}
           {renderEditableField("Expiry Date", "expiryDate", "date")}
           <div>
-            <div className="font-medium">Coverage Length</div>
-            <div>
+            <div className="font-semibold text-base">Coverage Length</div>
+            <div className="text-sm text-[#6F6B7D]">
               {calculateDays(
                 editedPolicy.effectiveDate ||
                   fmtDate(p.effectiveDate?.toString()),
@@ -839,22 +863,22 @@ const PolicyDetailsPage: React.FC = () => {
             </div>
           </div>
           <div>
-            <div className="font-medium mt-4">Policy Type</div>
-            <div>{p.policyType}</div>
+            <div className="font-semibold mt-4">Policy Type</div>
+            <div className="text-sm text-[#6F6B7D]">{p.policyType}</div>
           </div>
           <div>
-            <div className="font-medium mt-4">Country of Origin</div>
-            <div>{p.countryOfOrigin}</div>
+            <div className="font-semibold mt-4">Country of Origin</div>
+            <div className="text-sm text-[#6F6B7D]">{p.countryOfOrigin}</div>
           </div>
           {renderEditableField("Destination Province", "destination")}
           <div>
-            <div className="font-medium mt-4">
+            <div className="font-semibold mt-4">
               Are Applicants Currently in Canada?
             </div>
-            <div>{p.applicantInCanada}</div>
+            <div className="text-sm text-[#6F6B7D]">{p.applicantInCanada}</div>
           </div>
           <div>
-            <div className="font-medium mt-4">
+            <div className="font-semibold mt-4">
               Are Applicants Travelling on a Super Visa?
             </div>
             {isEditMode ? (
@@ -867,40 +891,46 @@ const PolicyDetailsPage: React.FC = () => {
                 onChange={(e) =>
                   handleFieldChange("applicantOnSuperVisa", e.target.value)
                 }
-                className="w-full p-1 border border-blue-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="input-primary"
               >
                 <option value="">Select</option>
                 <option value="yes">Yes</option>
                 <option value="no">No</option>
               </select>
             ) : (
-              <div>{p.applicantOnSuperVisa}</div>
+              <div className="text-sm text-[#6F6B7D]">
+                {p.applicantOnSuperVisa}
+              </div>
             )}
           </div>
           <div>
-            <div className="font-medium mt-4">Coverage</div>
-            <div>{p.coverage}</div>
+            <div className="font-semibold mt-4">Coverage</div>
+            <div className="text-sm text-[#6F6B7D]">{p.coverage}</div>
           </div>
           {renderEditableField("Deductible", "deductible")}
         </div>
-      </section>
+      </div>
 
       {/* Beneficiary Information */}
-      <section className="grid grid-cols-12 gap-x-4 border-b py-4 text-sm">
-        <div className="col-span-2 text-purple-600 uppercase font-semibold">
+      <div className="flex flex-col gap-4 justify-between w-full border-b border-[#D8D8D8] pb-4">
+        <div className="text-primary capitalize font-semibold text-xl">
           Beneficiary Information
         </div>
-        <div className="col-span-10 grid grid-cols-3 gap-x-4">
+        <div className="grid grid-cols-3 gap-4 text-sm w-full capitalize">
           <div>
-            <div className="font-medium">Name</div>
-            <div>{p.beneficiaryName}</div>
+            <div className="font-semibold text-base">Name</div>
+            <div className="text-sm text-[#6F6B7D]">{p.beneficiaryName}</div>
           </div>
           <div>
-            <div className="font-medium">Relationship to Insured</div>
-            <div>{p.beneficiaryRelation}</div>
+            <div className="font-semibold text-base">
+              Relationship to Insured
+            </div>
+            <div className="text-sm text-[#6F6B7D]">
+              {p.beneficiaryRelation}
+            </div>
           </div>
         </div>
-      </section>
+      </div>
 
       {/* Premium / Payment Info */}
       {/* {history?.length > 0 && (
@@ -1031,15 +1061,15 @@ const PolicyDetailsPage: React.FC = () => {
       {/* Premium / Payment Info */}
       {(history?.length > 0 ||
         (paymentSchedule && paymentSchedule.length > 0)) && (
-        <section className="border-b py-4 text-sm space-y-4">
-          <div className="uppercase text-purple-600 font-semibold">
+        <div className="flex flex-col gap-4 justify-between w-full border-b border-[#D8D8D8]">
+          <div className="text-primary capitalize font-semibold text-xl">
             Premium / Payment Info
           </div>
 
           <div className="grid grid-cols-4 gap-x-4">
             <div>
-              <div className="font-medium">Premium</div>
-              <div>
+              <div className="font-semibold text-base">Premium</div>
+              <div className="text-sm text-[#6F6B7D]">
                 {p?.premium.toLocaleString("en-CA", {
                   style: "currency",
                   currency: history[0]?.currency || "CAD",
@@ -1048,22 +1078,28 @@ const PolicyDetailsPage: React.FC = () => {
               </div>
             </div>
             <div>
-              <div className="font-medium">Payment Option</div>
-              <div>{p.paymentOption || "-"}</div>
+              <div className="font-semibold text-base">Payment Option</div>
+              <div className="text-sm text-[#6F6B7D]">
+                {p.paymentOption || "-"}
+              </div>
             </div>
             <div>
-              <div className="font-medium">Credit Card</div>
-              <div>{history[0]?.last4 ? `•••• ${history[0].last4}` : "-"}</div>
+              <div className="font-semibold text-base">Credit Card</div>
+              <div className="text-sm text-[#6F6B7D]">
+                {history[0]?.last4 ? `•••• ${history[0].last4}` : "-"}
+              </div>
             </div>
             <div>
-              <div className="font-medium">Date</div>
-              <div>{history[0]?.date ? fmtDate(history[0].date) : "-"}</div>
+              <div className="font-semibold text-base">Date</div>
+              <div className="text-sm text-[#6F6B7D]">
+                {history[0]?.date ? fmtDate(history[0].date) : "-"}
+              </div>
             </div>
           </div>
 
           {/* Payment Schedule Table */}
           <div className="mt-6">
-            <h3 className="font-semibold text-sm mb-3">Payment Schedule</h3>
+            <h3 className="font-semibold mb-3">Payment Schedule</h3>
             <PaymentScheduleTable
               schedule={paymentSchedule || []}
               loading={scheduleLoading}
@@ -1073,30 +1109,30 @@ const PolicyDetailsPage: React.FC = () => {
               }
             />
           </div>
-        </section>
+        </div>
       )}
 
       {/* Fulfillment */}
-      <section className="border-b py-4 space-y-2 text-sm">
-        <div className="uppercase text-purple-600 font-semibold">
+      <div className="flex flex-col gap-4 justify-between w-full border-b border-[#D8D8D8] pb-4">
+        <div className="text-primary capitalize font-semibold text-xl">
           Fulfillment
         </div>
         {fulError && <p className="text-red-600">{fulError}</p>}
 
         <div className="grid grid-cols-3 gap-x-4">
           <div>
-            <label className="font-medium">To</label>
+            <label className="font-semibold text-base">To</label>
             <input
-              className="w-full p-2 border"
+              className="input-primary"
               value={to}
               onChange={(e) => setTo(e.target.value)}
               disabled={isEditMode}
             />
           </div>
           <div>
-            <label className="font-medium">CC</label>
+            <label className="font-semibold text-base">CC</label>
             <input
-              className="w-full p-2 border"
+              className="input-primary"
               placeholder="Up to 5 emails; separated by ;"
               value={cc}
               onChange={(e) => setCc(e.target.value)}
@@ -1104,9 +1140,9 @@ const PolicyDetailsPage: React.FC = () => {
             />
           </div>
           <div>
-            <label className="font-medium">Agent Email</label>
+            <label className="font-semibold text-base">Agent Email</label>
             <input
-              className="w-full p-2 border"
+              className="input-primary"
               value={p.agentEmail ? p.agentEmail : agentEmail}
               onChange={(e) => setAgentEmail(e.target.value)}
               disabled={isEditMode}
@@ -1119,14 +1155,14 @@ const PolicyDetailsPage: React.FC = () => {
             <button
               onClick={fetchPreview}
               disabled={fulLoading}
-              className="px-4 py-2 border rounded disabled:opacity-50"
+              className="px-4 py-2 hover:bg-gray-50/50 border border-gray-300 hover:border-gray-400 cursor-pointer transition-all delay-100"
             >
               Preview Confirmation
             </button>
             <button
               onClick={() => sendMail(to, cc, agentEmail)}
               disabled={fulLoading}
-              className="px-4 py-2 bg-blue-600 text-white rounded disabled:opacity-50"
+              className="bg-primary text-white py-2 sm:py-2 px-4 font-semibold hover:bg-[#2309A1] transition-all duration-200 cursor-pointer disabled:cursor-default disabled:opacity-70"
             >
               Send Confirmation
             </button>
@@ -1134,37 +1170,48 @@ const PolicyDetailsPage: React.FC = () => {
         )}
 
         {preview && (
-          <div className="mt-4 p-4 border rounded bg-white shadow-lg max-h-96 overflow-y-auto">
-            <h2 className="font-semibold mb-2">{preview.subject}</h2>
-            <div dangerouslySetInnerHTML={{ __html: preview.html }} />
+          <div className="mt-4 p-4 border border-inputBorder bg-white max-h-96 overflow-y-auto">
+            <h2 className="font-semibold mb-2 text-lg">{preview.subject}</h2>
+            <div
+              className="text-text-secondary"
+              dangerouslySetInnerHTML={{ __html: preview.html }}
+            />
           </div>
         )}
-      </section>
+      </div>
 
       {/* Renewal */}
-      <section className="border-b py-4 text-sm">
-        <div className="uppercase text-purple-600 font-semibold">Renewal</div>
+      <div className="flex flex-col gap-4 justify-between w-full border-b border-[#D8D8D8] pb-4">
+        <div className="text-primary capitalize font-semibold text-xl">
+          Renewal
+        </div>
         {!isEditMode && (
           <div className="flex items-center space-x-4">
-            <div>
-              <input type="checkbox" checked readOnly /> Auto Renewal Notice
+            <div className="flex items-center space-x-1">
+              <input
+                type="checkbox"
+                className="w-4 h-4 checked:accent-primary"
+                checked
+                readOnly
+              />{" "}
+              <span>Auto Renewal Notice</span>
             </div>
-            <button className="px-3 py-1 border rounded">
+            <button className="px-4 py-2 hover:bg-gray-50/50 border border-gray-300 hover:border-gray-400 cursor-pointer transition-all delay-100">
               View Renewal Notice
             </button>
-            <button className="px-3 py-1 bg-blue-600 text-white rounded">
+            <button className="bg-primary text-white py-2 sm:py-2 px-4 font-semibold hover:bg-[#2309A1] transition-all duration-200 cursor-pointer disabled:cursor-default disabled:opacity-70">
               Send Renewal Notice
             </button>
-            <button className="px-3 py-1 bg-green-600 text-white rounded">
+            <button className="bg-green-600 text-white py-2 sm:py-2 px-4 font-semibold hover:bg-green-700 transition-all duration-200 cursor-pointer disabled:cursor-default disabled:opacity-70">
               Issue Related Policy
             </button>
           </div>
         )}
-      </section>
+      </div>
 
       {/* History & Notes */}
-      <section className="border-b py-4 text-sm space-y-4">
-        <div className="uppercase text-purple-600 font-semibold">
+      <div className="flex flex-col gap-4 justify-between w-full border-b border-[#D8D8D8] pb-4">
+        <div className="text-primary capitalize font-semibold text-xl">
           Notes History
         </div>
 
@@ -1196,12 +1243,14 @@ const PolicyDetailsPage: React.FC = () => {
 
         {!isEditMode && (
           <div>
-            <label className="font-medium block mb-1">Add a Note</label>
+            <label className="font-semibold text-base block mb-1">
+              Add a Note
+            </label>
             <textarea
               value={newNote}
               onChange={(e) => setNewNote(e.target.value)}
               placeholder="Enter note here"
-              className="w-full p-2 border rounded"
+              className="input-primary"
               rows={3}
             />
             <button
@@ -1211,17 +1260,17 @@ const PolicyDetailsPage: React.FC = () => {
                 setNewNote("");
               }}
               disabled={!newNote.trim()}
-              className="mt-2 px-4 py-2 bg-purple-700 text-white rounded disabled:opacity-50"
+              className="bg-primary text-white py-2 sm:py-2 px-4 font-semibold hover:bg-[#2309A1] transition-all duration-200 cursor-pointer disabled:cursor-default disabled:opacity-70 mt-2"
             >
               Add Note
             </button>
           </div>
         )}
-      </section>
+      </div>
 
       {/* Activity History */}
-      <section className="border-b py-4 text-sm space-y-4">
-        <div className="uppercase text-purple-600 font-semibold">
+      <div className="flex flex-col gap-4 justify-between w-full border-b border-[#D8D8D8] pb-4">
+        <div className="text-primary capitalize font-semibold text-xl">
           Activity History
         </div>
 
@@ -1230,11 +1279,11 @@ const PolicyDetailsPage: React.FC = () => {
           loading={activityLoading}
           error={activityError}
         />
-      </section>
+      </div>
 
       {/* Attachments */}
-      <section className="py-4 text-sm space-y-4">
-        <div className="uppercase text-purple-600 font-semibold">
+      <div className="flex flex-col gap-4 justify-between w-full pb-4">
+        <div className="text-primary capitalize font-semibold text-xl">
           Attachments
         </div>
 
@@ -1271,21 +1320,53 @@ const PolicyDetailsPage: React.FC = () => {
         )}
 
         {!isEditMode && (
-          <div className="flex items-end space-x-4">
-            <div>
-              <label className="font-medium block">File</label>
-              <input
-                type="file"
-                onChange={(e) => setFile(e.target.files?.[0] || null)}
-              />
+          <div className="space-x-4">
+            <div className="flex flex-col">
+              <label
+                htmlFor="fileUpload"
+                className="input-primary flex items-center justify-center gap-2 cursor-pointer border-2 border-dashed max-w-[200px]"
+              >
+                <MdUploadFile size={20} />
+                Choose Files
+                <input
+                  type="file"
+                  id="fileUpload"
+                  className="hidden"
+                  onChange={(e) => setFile(e.target.files?.[0] || null)}
+                  disabled={loading}
+                />
+              </label>
+              {file && (
+                <div className="flex items-center gap-3">
+                  <div className="flex-1 min-w-0 mt-2">
+                    <div className="flex items-center gap-2">
+                      <p
+                        className="font-medium text-gray-800 truncate"
+                        title={file.name}
+                      >
+                        {file.name}
+                      </p>
+                      <button
+                        onClick={() => setFile(null)}
+                        className="text-red-600 cursor-pointer"
+                        aria-label="Delete file"
+                        disabled={loading}
+                      >
+                        <MdClose size={20} />
+                      </button>
+                    </div>
+                    <p className="text-sm text-gray-500">({formatFileSize(file.size)})</p>
+                  </div>
+                </div>
+              )}
             </div>
             <div>
-              <label className="font-medium block">Description</label>
+              <label className="font-medium block mt-2">Description</label>
               <input
                 type="text"
                 value={desc}
                 onChange={(e) => setDesc(e.target.value)}
-                className="p-2 border rounded"
+                className="input-primary max-w-md min-h-20"
               />
             </div>
             <button
@@ -1296,13 +1377,13 @@ const PolicyDetailsPage: React.FC = () => {
                 setDesc("");
               }}
               disabled={!file}
-              className="px-4 py-2 bg-blue-600 text-white rounded disabled:opacity-50"
+              className="bg-primary text-white py-2 sm:py-3 px-4 font-semibold hover:bg-[#2309A1] transition-all duration-200 cursor-pointer disabled:cursor-default disabled:opacity-70 mt-4"
             >
               Add Attachment
             </button>
           </div>
         )}
-      </section>
+      </div>
 
       {/* Modals */}
       <CancellationModal

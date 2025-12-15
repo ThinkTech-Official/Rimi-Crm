@@ -118,7 +118,8 @@ const Summary: React.FC<SummaryProps> = ({ quoteId }) => {
   // TABLE RENDERER
   // ---------------------------
   const renderTable = (rows: [string, React.ReactNode][]) => (
-    <table className="w-full border border-[#DBDADE]">
+   <div className="overflow-auto">
+     <table className="w-full border border-[#DBDADE]">
       <tbody>
         {rows.map(([label, value], idx) => (
           <tr
@@ -135,6 +136,7 @@ const Summary: React.FC<SummaryProps> = ({ quoteId }) => {
         ))}
       </tbody>
     </table>
+   </div>
   );
 
   // ---------------------------

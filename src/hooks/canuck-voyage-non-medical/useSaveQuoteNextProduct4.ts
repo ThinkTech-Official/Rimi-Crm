@@ -30,7 +30,7 @@ export interface Stage1Payload {
   expiryDate: string;
   coverageLength: number;
   destinationCountry: string;
-  tripCancellationDeluxe: boolean;
+  tripCancellationDeluxe: boolean | null;
   agentCode: string;
   product: string;
   quoteNumber?: string;

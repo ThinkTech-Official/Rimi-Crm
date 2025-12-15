@@ -203,7 +203,7 @@ interface TripInformationProps {
   onValidityChange: (isValid: boolean) => void;
   quoteNumber: string | null;
   setTotalPremium: (value: number) => void;
-  handleSaveQuote: () => void;
+  handleSaveQuote: () => Promise<boolean>;
 }
 
 export default function TripInformation({
@@ -382,7 +382,7 @@ export default function TripInformation({
 
   return (
     <div>
-      <div className="max-w-5xl mx-auto mt-4 p-6 bg-[#F9F9F9]">
+      <div className="max-w-5xl mx-auto mt-4 p-3 sm:p-6 bg-[#F9F9F9]">
         <h3 className="text-lg font-bold text-left text-[#1B1B1B] mb-5">
           Trip Information
         </h3>
@@ -451,14 +451,29 @@ export default function TripInformation({
             <Controller
               name="tripCancellationDeluxe"
               control={control}
+              rules={{
+                validate: (value) =>
+                  value === true || value === false || "Please select an option",
+              }}
               render={({ field }) => (
                 <select
-                  className="input-primary appearance-none cursor-pointer"
-                  value={field.value ? "yes" : field.value === false ? "no" : ""}
+                  className={`input-primary appearance-none cursor-pointer ${
+                    errors.tripCancellationDeluxe ? "border-red-500" : ""
+                  }`}
+                  value={
+                    field.value === true
+                      ? "yes"
+                      : field.value === false
+                      ? "no"
+                      : ""
+                  }
                   onChange={(e) => {
                     const val = e.target.value;
-                    field.onChange(val === "yes" ? true : val === "no" ? false : false);
+                    field.onChange(
+                      val === "yes" ? true : val === "no" ? false : null
+                    );
                   }}
+                  onBlur={field.onBlur}
                 >
                   <option value="">Please select...</option>
                   <option value="yes">Yes (+15% premium)</option>
@@ -466,6 +481,11 @@ export default function TripInformation({
                 </select>
               )}
             />
+            {errors.tripCancellationDeluxe && (
+              <p className="text-red-500 text-sm mt-1">
+                {errors.tripCancellationDeluxe.message}
+              </p>
+            )}
 
             <div className="pointer-events-none absolute inset-y-0 right-2 flex items-center text-gray-500">
               <ChevronDownIcon className="h-5 w-5" aria-hidden="true" />
@@ -672,11 +692,13 @@ export default function TripInformation({
               <div className="text-center mt-4">
                 <button
                   onClick={async () => {
-                    await handleSaveQuote();
+                    const success = await handleSaveQuote();
                     // Save snapshot after successful save
-                    const snapshot = JSON.stringify(formValues);
-                    setSavedFormSnapshot(snapshot);
-                    setHasFormChanged(false);
+                    if (success) {
+                      const snapshot = JSON.stringify(formValues);
+                      setSavedFormSnapshot(snapshot);
+                      setHasFormChanged(false);
+                    }
                   }}
                   disabled={saving}
                   className={`text-base hover:underline underline-offset-2 cursor-pointer text-primary mt-2 ${

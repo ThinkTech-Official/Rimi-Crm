@@ -505,7 +505,7 @@ export default function ApplicantInformation({
   };
 
   return (
-    <div className="max-w-5xl mx-auto mt-4 p-6 bg-[#F9F9F9]">
+    <div className="max-w-5xl mx-auto mt-4 p-3 sm:p-6 bg-[#F9F9F9]">
       <h3 className="text-lg font-bold text-left text-[#1B1B1B] mb-5">
         Applicant Information
       </h3>
@@ -787,8 +787,19 @@ export default function ApplicantInformation({
                 className="input-primary"
                 type="text"
                 placeholder="Enter First Name"
-                {...register(`applicants.${idx}.firstName`)}
+                {...register(`applicants.${idx}.firstName`, {
+                  required: "First Name is required",
+                  maxLength: {
+                    value: 64,
+                    message: "First Name cannot exceed 64 characters",
+                  },
+                })}
               />
+              {errors.applicants?.[idx]?.firstName && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.applicants[idx].firstName.message}
+                </p>
+              )}
             </div>
             <div className="flex flex-col">
               <label className="text-sm">Last Name</label>
@@ -796,36 +807,52 @@ export default function ApplicantInformation({
                 className="input-primary"
                 type="text"
                 placeholder="Enter Last Name"
-                {...register(`applicants.${idx}.lastName`)}
+                {...register(`applicants.${idx}.lastName`, {
+                  required: "Last Name is required",
+                  maxLength: {
+                    value: 64,
+                    message: "Last Name cannot exceed 64 characters",
+                  },
+                })}
+              />
+              {errors.applicants?.[idx]?.lastName && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.applicants[idx].lastName.message}
+                </p>
+              )}
+            </div>
+            <div className="flex flex-col">
+              <Controller
+                name={`applicants.${idx}.dob`}
+                control={control}
+                rules={{ required: "Date of Birth is required" }}
+                render={({ field }) => (
+                  <div className="flex flex-col">
+                    <DatePicker
+                      label="Date of Birth"
+                      value={field.value}
+                      onChange={(date: Date) => {
+                        field.onChange(date);
+                      }}
+                      maxDate={new Date()}
+                    />
+                    {errors.applicants?.[idx]?.dob && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.applicants[idx].dob.message}
+                      </p>
+                    )}
+                  </div>
+                )}
               />
             </div>
-            <Controller
-              name={`applicants.${idx}.dob`}
-              control={control}
-              rules={{ required: "Date of Birth is required" }}
-              render={({ field }) => (
-                <DatePicker
-                  label="Date of Birth"
-                  value={field.value}
-                  onChange={(date: Date) => {
-                    field.onChange(date);
-                  }}
-                  maxDate={new Date()}
-                />
-              )}
-            />
-
-            {errors.applicants?.[idx]?.dob && (
-              <p className="text-red-500 text-sm">
-                {errors.applicants[idx].dob.message}
-              </p>
-            )}
             <div className="flex flex-col">
               <label className="text-sm">Gender</label>
               <div className="relative">
                 <select
                   className="input-primary appearance-none cursor-pointer"
-                  {...register(`applicants.${idx}.gender`)}
+                  {...register(`applicants.${idx}.gender`, {
+                    required: "Gender is required",
+                  })}
                 >
                   <option value="">Please select</option>
                   <option value="Female">Female</option>
@@ -837,6 +864,11 @@ export default function ApplicantInformation({
                   <ChevronDownIcon className="h-5 w-5" aria-hidden="true" />
                 </div>
               </div>
+              {errors.applicants?.[idx]?.gender && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.applicants[idx].gender.message}
+                </p>
+              )}
             </div>
             <div className="flex flex-col">
               <label className="text-sm">
@@ -846,8 +878,15 @@ export default function ApplicantInformation({
                 className="input-primary"
                 type="text"
                 placeholder="Relation"
-                {...register(`applicants.${idx}.relationship`)}
+                {...register(`applicants.${idx}.relationship`, {
+                  required: "Relationship is required",
+                })}
               />
+              {errors.applicants?.[idx]?.relationship && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.applicants[idx].relationship.message}
+                </p>
+              )}
             </div>
           </div>
         </React.Fragment>

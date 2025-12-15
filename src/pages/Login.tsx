@@ -85,7 +85,7 @@ const Login = () => {
             ```
           */}
       <div className="flex mt-12 sm:mt-0 sm:h-[calc(100vh-64px)] flex-1  justify-center items-center">
-        <div className="flex flex-1 flex-col  justify-center items-center ">
+        <div className="flex flex-1 flex-col  justify-center items-center m-4">
           <div className="w-full max-w-md bg-white p-8 rounded-lg shadow-md">
             <div className="flex flex-col justify-center items-center">
                 <img

@@ -193,7 +193,7 @@ export default function ApplicantInformation({
   };
 
   return (
-    <div className="max-w-5xl mx-auto mt-4 p-6 bg-[#F9F9F9]">
+    <div className="max-w-5xl mx-auto mt-4 p-3 sm:p-6 bg-[#F9F9F9]">
       <h3 className="text-lg font-bold text-left text-[#1B1B1B] mb-5">
         Applicant Information
       </h3>

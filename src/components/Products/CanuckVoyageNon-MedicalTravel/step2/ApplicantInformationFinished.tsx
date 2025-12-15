@@ -34,7 +34,7 @@ export default function ApplicantInformationFinished({
   };
 
   return (
-    <div className="max-w-5xl mx-auto mt-6 p-6 bg-[#F9F9F9]">
+    <div className="max-w-5xl mx-auto mt-6 p-3 sm:p-6 bg-[#F9F9F9]">
       <h3 className="text-lg font-bold text-left text-[#1B1B1B] mb-5">
         Applicant Information
       </h3>
@@ -45,26 +45,26 @@ export default function ApplicantInformationFinished({
           <label className="text-sm font-semibold text-[#1B1B1B]">
             First Name
           </label>
-          <p className="input-primary">{firstName}</p>
+          <p className="input-primary break-words h-auto">{firstName}</p>
         </div>
 
         <div className="flex flex-col gap-1">
           <label className="text-sm font-semibold text-[#1B1B1B]">
             Last Name
           </label>
-          <p className="input-primary">{lastName}</p>
+          <p className="input-primary break-words h-auto">{lastName}</p>
         </div>
 
         <div className="flex flex-col gap-1">
           <label className="text-sm font-semibold text-[#1B1B1B]">
             Date of Birth
           </label>
-          <p className="input-primary">{fmtDate(dateOfBirth)}</p>
+          <p className="input-primary break-words h-auto">{fmtDate(dateOfBirth)}</p>
         </div>
 
         <div className="flex flex-col gap-1">
           <label className="text-sm font-semibold text-[#1B1B1B]">Gender</label>
-          <p className="input-primary">{gender}</p>
+          <p className="input-primary break-words h-auto">{gender}</p>
         </div>
       </div>
 
@@ -79,28 +79,28 @@ export default function ApplicantInformationFinished({
               <label className="text-sm font-semibold text-[#1B1B1B]">
                 First Name
               </label>
-              <p className="input-primary">{app.firstName}</p>
+              <p className="input-primary break-words h-auto">{app.firstName}</p>
             </div>
 
             <div className="flex flex-col gap-1">
               <label className="text-sm font-semibold text-[#1B1B1B]">
                 Last Name
               </label>
-              <p className="input-primary">{app.lastName}</p>
+              <p className="input-primary break-words h-auto">{app.lastName}</p>
             </div>
 
             <div className="flex flex-col gap-1">
               <label className="text-sm font-semibold text-[#1B1B1B]">
                 Date of Birth
               </label>
-              <p className="input-primary">{fmtDate(app.dob)}</p>
+              <p className="input-primary break-words h-auto">{fmtDate(app.dob)}</p>
             </div>
 
             <div className="flex flex-col gap-1">
               <label className="text-sm font-semibold text-[#1B1B1B]">
                 Gender
               </label>
-              <p className="input-primary">{app.gender}</p>
+              <p className="input-primary break-words h-auto">{app.gender}</p>
             </div>
           </div>
         </div>

@@ -87,9 +87,9 @@ export const PaymentScheduleTable: React.FC<PaymentScheduleTableProps> = ({
 
   return (
     <div className="overflow-x-auto">
-      <table className="w-full table-fixed border-collapse text-xs">
+      <table className="w-full border-collapse text-sm text-nowrap">
         <thead>
-          <tr className="bg-gray-100">
+          <tr className="bg-gray-100 border border-inputBorder">
             <th className="px-3 py-2 text-left w-12">#</th>
             <th className="px-3 py-2 text-left w-24">Method</th>
             <th className="px-3 py-2 text-left w-32">Cardholder Name</th>
@@ -105,7 +105,7 @@ export const PaymentScheduleTable: React.FC<PaymentScheduleTableProps> = ({
             )}
           </tr>
         </thead>
-        <tbody className="divide-y">
+        <tbody className="divide-y border-x border-inputBorder">
           {schedule.map((item, index) => (
             <tr key={item.id} className="hover:bg-gray-50">
               {/* # */}

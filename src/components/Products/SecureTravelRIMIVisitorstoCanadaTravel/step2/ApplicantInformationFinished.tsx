@@ -29,31 +29,31 @@ const ApplicantInformationFinished: React.FC<ApplicantFinishedProps> = ({
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 md:gap-x-16 lg:gap-x-24 gap-y-4 text-text-secondary">
           <div className="flex flex-col">
             <label className="text-sm">Date of Birth</label>
-            <p className="input-primary">
+            <p className="input-primary break-words h-auto">
               {new Date(dateOfBirth).toLocaleDateString()}
             </p>
           </div>
 
           <div className="flex flex-col">
             <label className="text-sm">First Name</label>
-            <p className="input-primary">{firstName}</p>
+            <p className="input-primary break-words h-auto">{firstName}</p>
           </div>
 
           <div className="flex flex-col">
             <label className="text-sm">Last Name</label>
-            <p className="input-primary">{lastName}</p>
+            <p className="input-primary break-words h-auto">{lastName}</p>
           </div>
 
           <div className="flex flex-col">
             <label className="text-sm">Gender</label>
-            <p className="input-primary">{gender}</p>
+            <p className="input-primary break-words h-auto">{gender}</p>
           </div>
 
           <div className="flex flex-col">
             <label className="text-sm">
               Include coverage for stable pre-existing medical conditions
             </label>
-            <p className="input-primary">{preExMedCov}</p>
+            <p className="input-primary break-words h-auto">{preExMedCov}</p>
           </div>
         </div>
       </>
@@ -70,29 +70,33 @@ const ApplicantInformationFinished: React.FC<ApplicantFinishedProps> = ({
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 md:gap-x-16 lg:gap-x-24 gap-y-4 text-text-secondary">
               <div className="flex flex-col">
                 <label className="text-sm">Date of Birth</label>
-                <p className="input-primary">
+                <p className="input-primary break-words h-auto">
                   {new Date(app.dob).toLocaleDateString()}
                 </p>
               </div>
 
               <div className="flex flex-col">
                 <label className="text-sm">First Name</label>
-                <p className="input-primary">{app.firstName}</p>
+                <p className="input-primary break-words h-auto">
+                  {app.firstName}
+                </p>
               </div>
 
               <div className="flex flex-col">
                 <label className="text-sm">Last Name</label>
-                <p className="input-primary">{app.lastName}</p>
+                <p className="input-primary break-words h-auto">
+                  {app.lastName}
+                </p>
               </div>
 
               <div className="flex flex-col">
                 <label className="text-sm">Gender</label>
-                <p className="input-primary">{app.gender}</p>
+                <p className="input-primary break-words h-auto">{app.gender}</p>
               </div>
 
               {/* <div className="flex flex-col">
                 <label className="text-sm">Relationship to Primary Applicant</label>
-                <p className="input-primary">
+                <p className="input-primary break-words h-auto">
                   {app.relation}
                 </p>
               </div> */}
@@ -101,7 +105,9 @@ const ApplicantInformationFinished: React.FC<ApplicantFinishedProps> = ({
                 <label className="text-sm">
                   Include coverage for stable pre-existing medical conditions
                 </label>
-                <p className="input-primary">{app.preMedCoverage}</p>
+                <p className="input-primary break-words h-auto">
+                  {app.preMedCoverage}
+                </p>
               </div>
             </div>
           </>

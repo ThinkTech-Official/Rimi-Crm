@@ -290,6 +290,17 @@ export default function AdminHome() {
     },
   ];
 
+  const pastelColors = [
+    '#EBF5FF',
+    '#F5EBFF',
+    '#FFE8EC',
+    '#E8FFF0',
+    '#FFF8E8',
+    '#E8F0FF',
+    '#E8F9FF',
+    '#FFEFE8',
+  ];
+
   return (
     <div className="w-full flex flex-col gap-4 pb-4">
       {/* Stats Cards */}
@@ -297,12 +308,13 @@ export default function AdminHome() {
         className="grid grid-cols-2 lg:grid-cols-4 gap-4 xl:gap-8 w-full"
         role="stats"
       >
-        {statsCards.map((stat) => (
+        {statsCards.map((stat, index) => (
           <div
             key={stat.label}
             data-testid="stat-card"
-            className="bg-white p-2 sm:p-6 sm:h-24 rounded-lg"
+            className="p-2 sm:p-6 sm:h-24 rounded-lg transition-all duration-200 hover:shadow-md"
             style={{
+              backgroundColor: pastelColors[index],
               boxShadow: "0px 4px 6.7px 0px rgba(0, 0, 0, 0.04)",
               border: "1px solid rgba(235, 235, 235, 1)",
             }}

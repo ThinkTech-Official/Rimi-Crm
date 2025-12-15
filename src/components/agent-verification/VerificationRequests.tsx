@@ -211,9 +211,9 @@ export default function VerificationRequests() {
                     key={agent.id}
                     className="border border-inputBorder rounded-lg p-5 hover:shadow-sm transition-shadow duration-200 bg-white"
                   >
-                    <div className="flex items-start justify-between gap-6">
+                    <div className="flex flex-col md:flex-row items-start justify-between gap-6">
                       {/* Left Section - Agent Info */}
-                      <div className="flex items-start gap-4 flex-1">
+                      <div className="flex items-start flex-col lg:flex-row gap-4 flex-1">
                         <div className="bg-gradient-to-br from-[#2B00B7]/10 to-[#2B00B7]/5 rounded-full p-3 flex-shrink-0">
                           <UserIcon className="h-7 w-7 text-[#2B00B7]" />
                         </div>
@@ -223,7 +223,7 @@ export default function VerificationRequests() {
                             {agent.firstName} {agent.lastName}
                           </h3>
                           
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2">
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-2">
                             <div className="flex items-start gap-1">
                               <span className="text-text-secondary min-w-[90px]">Email:</span>
                               <span className="text-gray-900 font-medium break-all">{agent.email}</span>
@@ -318,7 +318,7 @@ export default function VerificationRequests() {
                             </button>
                           </>
                         ) : (
-                          <div className=" border border-green-400 rounded-sm px-4 py-3 text-right">
+                          <div className="border border-green-400 rounded-sm px-4 py-3 text-right">
                             <div className="flex items-center gap-2 mb-2">
                               <CheckCircleIcon className="h-5 w-5 text-green-600" />
                               <p className="text-text-primary font-semibold text-sm">Verified</p>

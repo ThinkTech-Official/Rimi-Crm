@@ -446,7 +446,7 @@ export default function Documents() {
                       href={`${API_BASE}${item.url}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-gray-700 hover:text-primary hover:underline flex-1"
+                      className="text-gray-700 hover:text-primary hover:underline max-w-[70%] break-words"
                     >
                       {item.filename}
                     </a>

@@ -325,21 +325,6 @@ interface QuoteStage1Response {
   applicants: Applicant[];
 }
 
-interface AddressInfo {
-  addressLine1: string;
-  addressLine2: string;
-  city: string;
-  postalCode: string;
-  country: string;
-  province: string;
-}
-
-interface ContactInfo {
-  email: string;
-  additionalEmail: string;
-  phoneNumber: string;
-}
-
 // const productName = "RIMI Canuck Voyage Travel Medical";
 const productName = "RIMI_CANUCK_VOYAGE_TRAVEL_MEDICAL";
 
@@ -354,9 +339,6 @@ const RIMICanuckVoyageTravelMedical: React.FC = () => {
   ]);
   const [formStep, setFormStep] = useState(1);
 
-  // ========== APPLICANT INFORMATION ==========
-  const [primaryFirstName, setPrimaryFirstName] = useState("");
-
   // ========== QUOTE & PREMIUM ==========
   const [quoteNumber, setQuoteNumber] = useState<string | null>(null);
   const [step1ResponseData, setStep1ResponseData] =
@@ -366,22 +348,6 @@ const RIMICanuckVoyageTravelMedical: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
     const { NotificationComponent, triggerNotification } = useNotification();
-  
-
-  // ========== STAGE 2 INFORMATION ==========
-  const [address, setAddress] = useState<AddressInfo>({
-    addressLine1: "",
-    addressLine2: "",
-    city: "",
-    postalCode: "",
-    country: "",
-    province: "",
-  });
-  const [contactInfo, setContactInfo] = useState<ContactInfo>({
-    email: "",
-    additionalEmail: "",
-    phoneNumber: "",
-  });
 
   const step1Methods = useForm<Step1Payload>({
     mode: 'onTouched',
@@ -562,7 +528,7 @@ const address = addressMethods.getValues().address;
         message: "Please fill all required fields correctly.",
         type: "error",
       });
-      return;
+      return false;
     }
     const formValues = step1Methods.getValues();
     const stage1Payload = {
@@ -580,12 +546,14 @@ const address = addressMethods.getValues().address;
         message: `Quote saved successfully!`,
         type: "success",
       });
+      return true;
     } catch (err: any) {
       console.error("Failed to save quote:", err);
       triggerNotification({
         message: err.message || "Failed to save quote. Please try again.",
         type: "error",
       });
+      return false;
     }
   }
 
@@ -736,7 +704,7 @@ const address = addressMethods.getValues().address;
           />
           <Address methods={addressMethods} />
 
-          <div className="max-w-5xl mx-auto mt-6 p-6 bg-[#F9F9F9]">
+          <div className="max-w-5xl mx-auto mt-6 p-3 sm:p-6 bg-[#F9F9F9]">
             <h3 className="text-lg font-bold text-left text-[#1B1B1B] mb-5">Payment Summary</h3>
             <div className="flex justify-between items-center">
               <span>Total Premium:</span>

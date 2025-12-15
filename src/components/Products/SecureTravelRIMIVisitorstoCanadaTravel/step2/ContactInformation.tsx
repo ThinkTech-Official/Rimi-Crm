@@ -47,7 +47,7 @@ const ContactInformation: FC<ContactInfoProps> = ({
 
         <div className="flex flex-col">
           <label className="text-sm">Email Address</label>
-          <p className="input-primary">{email}</p>
+          <p className="input-primary break-words h-auto">{email}</p>
         </div>
 
         <div className="flex flex-col">
@@ -60,7 +60,7 @@ const ContactInformation: FC<ContactInfoProps> = ({
             Additional Email Address (Optional)
           </label>
           <input
-            className="input-primary"
+            className="input-primary break-words h-auto"
             type="text"
             placeholder="Additional Email Address"
             value={contactInfo.additionalEmail}
@@ -84,7 +84,7 @@ const ContactInformation: FC<ContactInfoProps> = ({
         <div className="flex flex-col">
           <label className="text-sm">Phone Number</label>
           <input
-            className="input-primary"
+            className="input-primary break-words h-auto"
             type="text"
             placeholder="Phone Number"
             value={contactInfo.phoneNumber}

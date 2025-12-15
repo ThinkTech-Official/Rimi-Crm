@@ -101,7 +101,7 @@ export default function QuoteSummary({ step1ResponseData }: QuoteSummaryProps) {
   ];
 
   return (
-    <div className="max-w-5xl mx-auto mt-6 p-6 bg-[#F9F9F9]">
+    <div className="max-w-5xl mx-auto mt-6 p-3 sm:p-6 bg-[#F9F9F9]">
       <h3 className="text-lg font-bold text-left text-[#1B1B1B]">
         Your Quote Summary
       </h3>
@@ -109,7 +109,7 @@ export default function QuoteSummary({ step1ResponseData }: QuoteSummaryProps) {
         Please review the details below before proceeding.
       </p>
 
-      <table className="w-full border border-[#DBDADE]">
+      <table className="w-full border border-[#DBDADE] font-[inter] text-sm sm:text-base">
         <tbody>
           {rows.map(([label, value], index) => (
             <tr

@@ -128,17 +128,17 @@ const Summary: React.FC<SummaryProps> = ({ quoteId }) => {
   // REUSABLE TABLE RENDERER
   // ---------------------------
   const renderTable = (rows: [string, React.ReactNode][]) => (
-    <table className="w-full border border-[#DBDADE]">
+    <table className="min-w-full divide-y divide-gray-200 overflow-hidden custom-scrollbar">
       <tbody>
         {rows.map(([label, value], idx) => (
           <tr
             key={idx}
             className="border border-[#DBDADE] even:bg-[#F5F5F5] odd:bg-white"
           >
-            <td className="p-3 text-left font-semibold text-[#1B1B1B] w-1/2">
+            <td className="p-3 text-left font-semibold text-[#1B1B1B] whitespace-nowrap">
               {label}
             </td>
-            <td className="p-3 text-left text-[#6A6A6A] capitalize">
+            <td className="p-3 text-left text-[#6A6A6A] capitalize whitespace-nowrap">
               {value}
             </td>
           </tr>
@@ -263,24 +263,24 @@ const Summary: React.FC<SummaryProps> = ({ quoteId }) => {
 
       <div className="space-y-10">
         {/* CONTACT INFORMATION */}
-        <section>
+        {/* <div className="w-full overflow-x-auto custom-scrollbar ">
           <h2 className="text-xl font-semibold mb-2 text-[#1B1B1B]">
             Contact Information
           </h2>
           {renderTable(contactInfoRows)}
-        </section>
+        </div> */}
 
         {/* QUOTE SUMMARY */}
-        <section>
+        <div className="w-full overflow-hidden custom-scrollbar ">
           <h2 className="text-xl font-semibold mb-2 text-[#1B1B1B]">
             Quote Summary
           </h2>
           {renderTable(quoteRows)}
-        </section>
+        </div>
 
         {/* ADDITIONAL TRAVELLERS */}
-        {Array.isArray(data.applicants) && data.applicants.length > 0 && (
-          <section>
+        {/* {Array.isArray(data.applicants) && data.applicants.length > 0 && (
+          <div>
             <h2 className="text-xl font-semibold mb-2 text-[#1B1B1B]">
               Additional Travellers
             </h2>
@@ -334,27 +334,27 @@ const Summary: React.FC<SummaryProps> = ({ quoteId }) => {
                 </tbody>
               </table>
             </div>
-          </section>
-        )}
+          </div>
+        )} */}
 
         {/* RESIDENCE ADDRESS */}
-        <section>
+        {/* <div className="w-full overflow-x-auto custom-scrollbar ">
           <h2 className="text-xl font-semibold mb-2 text-[#1B1B1B]">
             Residence Address
           </h2>
           {renderTable(addressRows)}
-        </section>
+        </div> */}
 
         {/* PREMIUM DETAILS */}
-        <section>
+        {/* <div className="w-full overflow-x-auto custom-scrollbar ">
           <h2 className="text-xl font-semibold mb-2 text-[#1B1B1B]">
             Premium Details
           </h2>
           {renderTable(premiumRows)}
-        </section>
+        </div> */}
 
         {/* NEXT STEPS */}
-        <section className="bg-blue-50 border border-blue-200 p-6">
+        <div className="bg-blue-50 border border-blue-200 p-6">
           <h2 className="text-xl font-semibold mb-3 text-[#2B00B7]">
             What Happens Next?
           </h2>
@@ -377,10 +377,10 @@ const Summary: React.FC<SummaryProps> = ({ quoteId }) => {
               future reference.
             </li>
           </ol>
-        </section>
+        </div>
 
         {/* SUPPORT CONTACT */}
-        <section className="bg-gray-50 border border-gray-200 p-6">
+        <div className="bg-gray-50 border border-gray-200 p-6">
           <h2 className="text-xl font-semibold mb-3 text-[#2B00B7]">
             Need Help?
           </h2>
@@ -399,7 +399,7 @@ const Summary: React.FC<SummaryProps> = ({ quoteId }) => {
               <strong>Hours:</strong> Monday - Friday, 9:00 AM - 5:00 PM EST
             </p>
           </div>
-        </section>
+        </div>
       </div>
     </div>
   );
