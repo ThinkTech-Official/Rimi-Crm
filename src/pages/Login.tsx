@@ -8,7 +8,7 @@ import { EyeIcon, EyeSlashIcon } from "@heroicons/react/16/solid";
 import { useNavigate } from "react-router-dom";
 
 import rimilogo from "../assets/rimi_en.png";
-import { LangContext } from "../context/LangContext";
+// import { LangContext } from "../context/LangContext";
 import { useAuth } from "../hooks/useAuth";
 
 interface LoginFormInputs {
@@ -19,7 +19,7 @@ interface LoginFormInputs {
 const Login = () => {
   const navigate = useNavigate();
 
-  const { langauge } = useContext(LangContext);
+  // const { langauge } = useContext(LangContext);
 
   const [show, setShow] = useState(false);
   const [errMsg, setErrMsg] = useState("");
@@ -93,7 +93,7 @@ const Login = () => {
                 />
               </a>
               <h2 className="mt-8 sm:mt-12 text-3xl sm:text-4xl font-bold font-[inter] leading-9  text-[#232323]">
-                {langauge === "En" ? <p>Sign in</p> : <p>Se connecter</p>}
+                <p>Sign in</p>
               </h2>
               <h4 className="mt-3 text-md font-normal font-[inter] text-[#969696]">
                 Please login to continue to your account.
@@ -119,11 +119,7 @@ const Login = () => {
                       htmlFor="email"
                       className="sr-only block text-sm font-medium leading-6 text-[#D9D9D9]"
                     >
-                      {langauge === "En" ? (
-                        <p>Email Address</p>
-                      ) : (
-                        <p>Adresse email</p>
-                      )}
+                      <p>Email Address</p>
                     </label>
 
                     <div className="mt-2">
@@ -155,11 +151,7 @@ const Login = () => {
                       htmlFor="password"
                       className="sr-only block text-sm font-medium leading-6 text-[#D9D9D9]"
                     >
-                      {langauge === "En" ? (
-                        <p>Password</p>
-                      ) : (
-                        <p>Mot de passe</p>
-                      )}
+                     <p>Password</p>
                     </label>
                     <div className="mt-2 relative">
                       <input
@@ -235,7 +227,7 @@ const Login = () => {
                         signInClicked && "disabled bg-indigo-100"
                       }`}
                     >
-                      {langauge === "En" ? <p>Sign in</p> : <p>Se connecter</p>}
+                      <p>Sign in</p>
                     </button>
                     {/* )} */}
                     {/* <button
@@ -251,11 +243,7 @@ const Login = () => {
                 onClick={handleForgotPassword}
                 className="flex w-full mt-1 justify-left text-sm font-semibold font-[inter] leading-6 text-[#4340DA] hover:text-[#2B00B7] cursor-pointer"
               >
-                {langauge === "En" ? (
-                  <p>Forgot Password?</p>
-                ) : (
-                  <p>Mot de passe oublié?</p>
-                )}
+                <p>Forgot Password?</p>
               </button>
 
               {/* <div className="mt-10">

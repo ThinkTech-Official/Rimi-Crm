@@ -668,15 +668,18 @@
 import React, { useContext, useState, FormEvent, ChangeEvent } from "react";
 import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
 import { v4 as uuidv4 } from "uuid";
-import { LangContext } from "../context/LangContext";
+// import { LangContext } from "../context/LangContext";
 import { useAgentCodes } from "../hooks/useAgentCodes";
 import { newUser, useCreateUser } from "../hooks/useCreateUser";
 import { useForm } from "react-hook-form";
 
+import { useLanguage } from "../context/LanguageContext";
+import { Language } from "../translations";
+
 type userType = "ADMIN" | "AGENT" | "READONLY" | "MGA" | "";
 
 const CreateUser: React.FC = () => {
-  const { langauge } = useContext(LangContext);
+  // const { langauge } = useContext(LangContext);
   const [status, setStatus] = useState<"ACTIVE" | "INACTIVE">("ACTIVE");
   const [allowBulkUpload, setAllowBulkUpload] = useState<"YES" | "NO">("NO");
   const [userType, setUserType] = useState<userType>("ADMIN");
@@ -691,6 +694,10 @@ const CreateUser: React.FC = () => {
   // password visibility toggles
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [confirmPasswordVisible, setConfirmPasswordVisible] = useState(false);
+
+
+
+  const { t } = useLanguage();
 
   const {
     checkAvailability,
@@ -812,12 +819,15 @@ const CreateUser: React.FC = () => {
       noValidate
     >
       <h2 className="text-lg font-bold text-left text-[#1B1B1B] mb-2">
-        {langauge === "En" ? "CREATE USER" : "CRÉER UN UTILISATEUR"}
+        {/* {langauge === "En" ? "CREATE USER" : "CRÉER UN UTILISATEUR"} */}
+        {t('createUser')}
       </h2>
       <p className="text-left font-medium text-[#6A6A6A] mb-8">
-        {langauge === "En"
+        {/* {langauge === "En"
           ? "** Changes to User Type will restore User Permissions to default settings **"
           : "** Les modifications apportées au type d'utilisateur restaureront les autorisations aux paramètres par défaut **"}
+           */}
+           {t('userTypeWarning')}
       </p>
 
       <div className="grid grid-col-3 gap-4 text-text-secondary">
@@ -1316,20 +1326,12 @@ const CreateUser: React.FC = () => {
           }
           className="btn-primary"
         >
-          {createLoading
-            ? langauge === "En"
-              ? "CREATING…"
-              : "CRÉATION…"
-            : langauge === "En"
-            ? "CREATE USER"
-            : "CRÉER UN UTILISATEUR"}
+          {createLoading ? t('creating') : t('createUser')}
         </button>
         {createError && <p className="mt-2 text-red-500">{createError}</p>}
         {success && (
           <p className="mt-2 text-green-700">
-            {langauge === "En"
-              ? "User created successfully!"
-              : "Utilisateur créé avec succès !"}
+            {t('userCreatedSuccess')}
           </p>
         )}
       </div>

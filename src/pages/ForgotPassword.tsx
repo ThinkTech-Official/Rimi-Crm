@@ -9,7 +9,7 @@ import {
 } from "@heroicons/react/24/outline";
 import { useNavigate } from "react-router-dom";
 import rimilogo from "../assets/rimi_en.png";
-import { LangContext } from "../context/LangContext";
+// import { LangContext } from "../context/LangContext";
 import { useForgotPassword } from "../hooks/useForgotPassword";
 
 interface ForgotFormInputs {
@@ -25,7 +25,7 @@ interface Toast {
 
 const ForgotPassword: React.FC = () => {
   const navigate = useNavigate();
-  const { langauge } = useContext(LangContext);
+  // const { langauge } = useContext(LangContext);
   const {
     sendResetLink,
     loading,
@@ -88,7 +88,7 @@ const ForgotPassword: React.FC = () => {
                 <img className="h-14 sm:h-20 w-[140px] sm:w-[170px]" src={rimilogo} alt="Rimi" />
               </a>
               <h2 className="mt-8 text-2xl sm:text-3xl font-bold font-[inter] sm:leading-9  text-text-primary">
-                {langauge === "En" ? "Forgot Password" : "Mot de passe oublié"}
+                Forgot Password
               </h2>
             </div>
             <form
@@ -101,7 +101,7 @@ const ForgotPassword: React.FC = () => {
                   htmlFor="email"
                   className="sr-only block text-sm font-medium leading-6 text-[#D9D9D9]"
                 >
-                  {langauge === "En" ? "Email address" : "Adresse email"}
+                  Email address
                 </label>
                 <div className="mt-2">
                   <input
@@ -133,7 +133,7 @@ const ForgotPassword: React.FC = () => {
                   disabled={loading || isSubmitting}
                   className={`btn-primary`}
                 >
-                  {langauge === "En" ? "Send Reset Link" : "Envoyer le lien"}
+                  Send Reset Link
                 </button>
 
                 <button
@@ -141,9 +141,7 @@ const ForgotPassword: React.FC = () => {
                   onClick={() => navigate("/")}
                   className="flex w-full justify-center p-1 mt-1 text-sm font-semibold font-[inter] leading-6 text-[#4340DA] hover:text-[#2B00B7] cursor-pointer"
                 >
-                  {langauge === "En"
-                    ? "Back to Login"
-                    : "Retour à la connexion"}
+                  Back to Login
                 </button>
               </div>
             </form>

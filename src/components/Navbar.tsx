@@ -14,12 +14,15 @@ import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { logout } from "../features/authSlice";
 import { getUserTypeFromToken } from "../utils/getUserType";
-import { useTranslation } from "react-i18next";
+// import { useTranslation } from "react-i18next";
 import { FaUserCircle } from "react-icons/fa";
 import { FaUser } from "react-icons/fa6";
 import { IoIosLogOut } from "react-icons/io";
 import { MdKeyboardArrowRight } from "react-icons/md";
 import { useOnClickOutside } from "../hooks/useOnClickOutside";
+
+import { useLanguage } from "../context/LanguageContext";
+import { Language } from "../translations";
 
 export default function Navbar() {
   const [showSlider, setShowSlider] = useState(false);
@@ -29,14 +32,16 @@ export default function Navbar() {
   const token = useSelector((state: any) => state.auth.token);
   const [isLanguageSelectOpen, setIsLanguageSelectOpen] = useState(false);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
-  const { i18n } = useTranslation();
-  type Language = "en" | "fr";
-  const previousSelectedLanguage = localStorage
-    .getItem("i18nextLng")
-    ?.split("-")[0];
-  const [selectedLanguage, setSelectedLanguage] = useState<Language>(
-    previousSelectedLanguage as Language
-  );
+  // const { i18n } = useTranslation();
+  // type Language = "en" | "fr";
+  // const previousSelectedLanguage = localStorage
+  //   .getItem("i18nextLng")
+  //   ?.split("-")[0];
+  // const [selectedLanguage, setSelectedLanguage] = useState<Language>(
+  //   previousSelectedLanguage as Language
+  // );
+
+   const { language: selectedLanguage, setLanguage, t } = useLanguage();
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -58,17 +63,30 @@ export default function Navbar() {
     setShowSlider(!showSlider);
   };
 
+  // const handleLanguageSelect = (lang: Language) => {
+  //   console.log(lang);
+  //   if (lang === selectedLanguage) {
+  //     setIsLanguageSelectOpen(false);
+  //     return;
+  //   }
+
+  //   i18n.changeLanguage(lang);
+  //   setSelectedLanguage(lang);
+  //   setIsLanguageSelectOpen(false);
+  // };
+
+    // 
   const handleLanguageSelect = (lang: Language) => {
-    console.log(lang);
     if (lang === selectedLanguage) {
       setIsLanguageSelectOpen(false);
       return;
     }
 
-    i18n.changeLanguage(lang);
-    setSelectedLanguage(lang);
+    setLanguage(lang); 
     setIsLanguageSelectOpen(false);
   };
+
+
   const toggleLanguageSelect = () => {
     setIsLanguageSelectOpen(!isLanguageSelectOpen);
     setIsProfileMenuOpen(false);
@@ -179,7 +197,7 @@ export default function Navbar() {
                     ? userName.length > 10
                       ? `${userName.slice(0, 10)}...`
                       : userName
-                    : "Please log in"}
+                    :t('login')}
                 </span>
                 <MdKeyboardArrowRight
                   className={`h-4 w-4 2xl:w-6 2xl:h-6 transform transition ${
@@ -204,7 +222,7 @@ export default function Navbar() {
                         className="w-full text-left px-4 py-2 hover:bg-primary hover:text-white cursor-pointer flex gap-2 items-center"
                       >
                         <IoIosLogOut className="h-4 w-4 2xl:w-5 2xl:h-5" />{" "}
-                        Logout
+                        t('logout') 
                       </button>
                     </li>
                   </ul>
@@ -225,7 +243,7 @@ export default function Navbar() {
           </div>
           <ul className=" flex flex-col gap-4 text-xl justify-center items-center text-[#3a17c5]">
             <li className="mt-5">
-              <Link to="/home">Home</Link>{" "}
+              <Link to="/home">{t('home')}</Link>{" "}
             </li>
             {showSlider ? (
               <div className=" w-[300px] h-screen shadow-2xl">
