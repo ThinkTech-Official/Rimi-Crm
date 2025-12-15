@@ -59,6 +59,9 @@ export interface VerificationRequest {
   validUpto: string | null;
   validUpto2: string | null;
   isImportedAgent: boolean;
+   applicantType?: 'independent' | 'under_mga' | null;
+  mgaType?: 'wfg' | 'other' | null;
+  wfgCode?: string | null;
 }
 
 export interface VerificationRequestsResponse {

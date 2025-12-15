@@ -180,6 +180,11 @@ export interface newUser {
   docFile1?: File | null;
   docFile2?: File | null;
   selectedAgents?: string[]; // Added for MGA users
+
+  // WFG-specific fields
+applicantType?: 'independent' | 'under_mga';
+mgaType?: 'wfg' | 'other';
+wfgCode?: string;
 }
 
 type AvailabilityStatus = 
