@@ -258,6 +258,20 @@ const Login = () => {
                   <p>Mot de passe oublié?</p>
                 )}
               </button>
+              
+              <div className="mt-6 text-center">
+                <p className="text-sm text-gray-600">
+                  {langauge === "En" 
+                    ? "Don't have an account? " 
+                    : "Vous n'avez pas de compte? "}
+                  <button
+                    onClick={() => navigate("/apply")}
+                    className="font-semibold text-[#4340DA] hover:text-[#2B00B7] cursor-pointer"
+                  >
+                    {langauge === "En" ? "Apply" : "Postuler"}
+                  </button>
+                </p>
+              </div>
 
               {/* <div className="mt-10">
                     <div className="relative">

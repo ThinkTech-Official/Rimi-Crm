@@ -1466,17 +1466,13 @@ export default function VerificationRequests() {
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedAgent, setSelectedAgent] = useState<any>(null);
   const [showVerifyModal, setShowVerifyModal] = useState(false);
-  const [validityDate, setValidityDate] = useState("");
-
-  const {
-    data: requests,
-    loading,
-    fetchRequests,
-  } = useGetVerificationRequests();
+  const [validityDate, setValidityDate] = useState('');
+  
+  const { data: requests, loading, fetchRequests } = useGetVerificationRequests();
   const { verifyAgent, loading: verifying } = useVerifyAgent();
 
   useEffect(() => {
-    const status = activeTab === "unverified" ? "PENDING" : "VERIFIED";
+    const status = activeTab === 'unverified' ? 'PENDING' : 'VERIFIED';
     fetchRequests(status, currentPage, 10);
   }, [activeTab, currentPage, fetchRequests]);
 
@@ -1628,29 +1624,6 @@ if (selectedAgent.applicantType === 'under_mga' &&
     if (url) {
       window.open(`${API_BASE}${url}`, '_blank');
     }
-
-    if (agent.applicantType === 'under_mga' && agent.mgaType === 'wfg') {
-      return (
-        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
-          WFG Agent
-        </span>
-      );
-    }
-
-    if (agent.applicantType === 'under_mga' && agent.mgaType === 'other') {
-      return (
-        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
-          Agent under MGA
-        </span>
-      );
-    }
-
-    return null;
-  };
-
-  const hasDocuments = (agent: any) => {
-    return agent.applicantType === 'independent' || 
-           (agent.applicantType === 'under_mga' && agent.mgaType === 'other');
   };
 
   const getApplicantTypeBadge = (agent: any) => {
@@ -1694,45 +1667,43 @@ if (selectedAgent.applicantType === 'under_mga' &&
       
       <div className="bg-white rounded-lg shadow">
         <div className="border-b border-gray-200">
-          <nav className="-mb-px flex gap-2">
+          <nav className="-mb-px flex">
             <button
               onClick={() => {
-                setActiveTab("unverified");
+                setActiveTab('unverified');
                 setCurrentPage(1);
               }}
               className={`${
-                activeTab === "unverified"
-                  ? "border-primary text-primary"
-                  : "border-transparent text-text-secondary hover:text-gray-700 hover:border-gray-300"
-              } whitespace-nowrap py-4 px-3 border-b-2 font-medium text-sm transition-colors cursor-pointer`}
+                activeTab === 'unverified'
+                  ? 'border-[#2B00B7] text-[#2B00B7]'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              } whitespace-nowrap py-4 px-6 border-b-2 font-medium text-sm transition-colors`}
             >
               <div className="flex items-center gap-2">
                 <ClockIcon className="h-5 w-5" />
                 Unverified Requests
-                {!loading && requests &&
-                  activeTab === "unverified" &&
-                  requests.total > 0 && (
-                    <span className="bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded-full text-xs">
-                      {requests.total}
-                    </span>
-                  )}
+                {requests && activeTab === 'unverified' && requests.total > 0 && (
+                  <span className="bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded-full text-xs">
+                    {requests.total}
+                  </span>
+                )}
               </div>
             </button>
             <button
               onClick={() => {
-                setActiveTab("verified");
+                setActiveTab('verified');
                 setCurrentPage(1);
               }}
               className={`${
-                activeTab === "verified"
-                  ? "border-primary text-primary"
-                  : "border-transparent text-text-secondary hover:text-gray-700 hover:border-gray-300"
-              } whitespace-nowrap py-4 px-3 border-b-2 font-medium text-sm transition-colors cursor-pointer`}
+                activeTab === 'verified'
+                  ? 'border-[#2B00B7] text-[#2B00B7]'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              } whitespace-nowrap py-4 px-6 border-b-2 font-medium text-sm transition-colors`}
             >
               <div className="flex items-center gap-2">
                 <CheckCircleIcon className="h-5 w-5" />
                 Verified Agents
-                {!loading && requests && activeTab === "verified" && requests.total > 0 && (
+                {requests && activeTab === 'verified' && requests.total > 0 && (
                   <span className="bg-green-100 text-green-800 px-2 py-0.5 rounded-full text-xs">
                     {requests.total}
                   </span>
@@ -1753,13 +1724,12 @@ if (selectedAgent.applicantType === 'under_mga' &&
                 {requests.data.map((agent) => (
                   <div
                     key={agent.id}
-                    className="border border-inputBorder rounded-lg p-5 hover:shadow-sm transition-shadow duration-200 bg-white"
+                    className="border rounded-lg p-4 hover:bg-gray-50 transition-colors"
                   >
-                    <div className="flex flex-col md:flex-row items-start justify-between gap-6">
-                      {/* Left Section - Agent Info */}
-                      <div className="flex items-start flex-col lg:flex-row gap-4 flex-1">
-                        <div className="bg-gradient-to-br from-[#2B00B7]/10 to-[#2B00B7]/5 rounded-full p-3 flex-shrink-0">
-                          <UserIcon className="h-7 w-7 text-[#2B00B7]" />
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-4">
+                        <div className="bg-gray-100 rounded-full p-3">
+                          <UserIcon className="h-6 w-6 text-gray-600" />
                         </div>
                         <div>
                           <div className="flex items-center gap-2 mb-1">
@@ -1785,14 +1755,12 @@ if (selectedAgent.applicantType === 'under_mga' &&
                               <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
                                 Imported Agent
                               </span>
-                            </div>
-                          )}
+                            )}
+                          </div>
                         </div>
                       </div>
-
-                      {/* Right Section - Actions/Status */}
-                      <div className="flex flex-col items-end gap-3 flex-shrink-0">
-                        {activeTab === "unverified" ? (
+                      <div className="text-right">
+                        {activeTab === 'unverified' ? (
                           <>
                             <p className="text-sm text-gray-500 mb-2">
                               {agent.documentsUploadedAt 
@@ -1836,41 +1804,24 @@ if (selectedAgent.applicantType === 'under_mga' &&
                             
                             <button
                               onClick={() => handleVerifyClick(agent)}
-                              className="px-4 py-2 bg-primary hover:bg-[#2309A1] text-white cursor-pointer"
+                              className="bg-[#2B00B7] text-white px-4 py-2 rounded hover:bg-[#1e007f] text-sm"
                             >
                               Verify Agent
                             </button>
                           </>
                         ) : (
-                          <div className="border border-green-400 rounded-sm px-4 py-3 text-right">
-                            <div className="flex items-center gap-2 mb-2">
-                              <CheckCircleIcon className="h-5 w-5 text-green-600" />
-                              <p className="text-text-primary font-semibold text-sm">Verified</p>
-                            </div>
-                            <div className="space-y-1">
-                              <div>
-                                <p className="text-xs text-text-secondary">Valid until</p>
-                                <p className="text-sm font-medium text-text-primary">
-                                  {agent.verificationValidTill
-                                    ? format(
-                                        new Date(agent.verificationValidTill),
-                                        "MMM dd, yyyy"
-                                      )
-                                    : "N/A"}
-                                </p>
-                              </div>
-                              <div className="pt-1 border-t border-green-200">
-                                <p className="text-xs text-text-secondary">Verified on</p>
-                                <p className="text-sm font-medium text-text-primary">
-                                  {agent.verifiedAt
-                                    ? format(
-                                        new Date(agent.verifiedAt),
-                                        "MMM dd, yyyy"
-                                      )
-                                    : "N/A"}
-                                </p>
-                              </div>
-                            </div>
+                          <div className="text-sm">
+                            <p className="text-green-600 font-medium mb-1">Verified</p>
+                            <p className="text-gray-500">
+                              Valid until: {agent.verificationValidTill 
+                                ? format(new Date(agent.verificationValidTill), 'MMM dd, yyyy')
+                                : 'N/A'}
+                            </p>
+                            <p className="text-gray-500">
+                              Verified on: {agent.verifiedAt 
+                                ? format(new Date(agent.verifiedAt), 'MMM dd, yyyy')
+                                : 'N/A'}
+                            </p>
                           </div>
                         )}
                       </div>
@@ -1904,9 +1855,8 @@ if (selectedAgent.applicantType === 'under_mga' &&
               )}
             </>
           ) : (
-            <div className="text-center py-8 text-text-secondary">
-              No {activeTab === "unverified" ? "pending" : "verified"}{" "}
-              verification requests
+            <div className="text-center py-8 text-gray-500">
+              No {activeTab === 'unverified' ? 'pending' : 'verified'} verification requests
             </div>
           )}
         </div>

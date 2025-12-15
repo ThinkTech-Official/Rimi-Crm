@@ -122,7 +122,7 @@ const router = createBrowserRouter(
   createRoutesFromElements(
     <Route path="/" element={<App />}>
       <Route path="/login" element={<Login />} />
-      <Route path="/open-signup" element={<AgentApplicationOpen />} />
+      <Route path="/apply" element={<AgentApplicationOpen />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
       
       <Route path="/reset-password" element={<ResetPassword />} />

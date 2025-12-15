@@ -12,7 +12,7 @@
 //   const [confirmPasswordVisible, setConfirmPasswordVisible] = useState(false);
 //   const { t } = useTranslation();
 //   const { NotificationComponent, triggerNotification } = useNotification();
-  
+
 //   // Custom hook for public registration
 //   const { submitApplication, loading, error, success } = usePublicAgentRegistration();
 
@@ -31,27 +31,27 @@
 
 //   const onSubmit = async (formData: PublicAgentFormData) => {
 //     const isSuccess = await submitApplication(formData);
-    
+
 //     if (isSuccess) {
 //       // Show success notification
 //       triggerNotification({
 //       type: "success",
-//       message: langauge === "En" 
-//         ? "Application submitted successfully! Admin will review and activate your account." 
+//       message: langauge === "En"
+//         ? "Application submitted successfully! Admin will review and activate your account."
 //         : "Demande soumise avec succès ! L'administrateur examinera et activera votre compte.",
-//       // animation: "slide-down", 
+//       // animation: "slide-down",
 //       duration: 5000,
 //     });
-      
+
 //       // Reset form after successful submission
 //       reset();
 //     } else {
 //       // Show error notification
 //       triggerNotification({
 //         type: "error",
-      
-//         message: (langauge === "En" 
-//           ? "Failed to submit application. Please try again." 
+
+//         message: (langauge === "En"
+//           ? "Failed to submit application. Please try again."
 //           : "Échec de la soumission de la demande. Veuillez réessayer."),
 //         duration: 5000,
 //       }
@@ -179,7 +179,7 @@
 //                 </div>
 
 //                 {/* Email */}
-//                 <div className="flex flex-col col-span-2">
+//                 <div className="flex flex-col ">
 //                   <label className="text-sm font-medium mb-1">
 //                     {t("Email")} <span className="text-red-500">*</span>
 //                   </label>
@@ -205,7 +205,7 @@
 //                 </div>
 
 //                 {/* Company (Optional) */}
-//                 <div className="flex flex-col col-span-2">
+//                 <div className="flex flex-col ">
 //                   <label className="text-sm font-medium mb-1">
 //                     {t("Company")} <span className="text-gray-400 text-xs">(Optional)</span>
 //                   </label>
@@ -218,7 +218,7 @@
 //                 </div>
 
 //                 {/* Password */}
-//                 <div className="flex flex-col col-span-2">
+//                 <div className="flex flex-col ">
 //                   <label className="text-sm font-medium mb-1">
 //                     {t("Password")} <span className="text-red-500">*</span>
 //                   </label>
@@ -254,7 +254,7 @@
 //                 </div>
 
 //                 {/* Confirm Password */}
-//                 <div className="flex flex-col col-span-2">
+//                 <div className="flex flex-col ">
 //                   <label className="text-sm font-medium mb-1">
 //                     {t("Confirm Password")} <span className="text-red-500">*</span>
 //                   </label>
@@ -291,7 +291,7 @@
 //                 </div>
 
 //                 {/* Document Upload Section Header */}
-//                 <div className="col-span-2 mt-4">
+//                 <div className=" mt-4">
 //                   <h3 className="text-lg font-semibold text-gray-900 mb-2">
 //                     {t("Verification Documents")}
 //                   </h3>
@@ -476,15 +476,17 @@
 
 // =====================================
 
-
-
-import React, { useContext, useState, ChangeEvent } from "react";
+import React, { useContext, useState, ChangeEvent, useEffect } from "react";
 import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
 import { LangContext } from "../context/LangContext";
-import { usePublicAgentRegistration, PublicAgentFormData } from "../hooks/usePublicAgentRegistration";
-import { useForm } from "react-hook-form";
+import {
+  usePublicAgentRegistration,
+  PublicAgentFormData,
+} from "../hooks/usePublicAgentRegistration";
+import { useForm, Controller } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import useNotification from "../hooks/useNotification";
+import DatePicker from "../components/DatePicker";
 
 const AgentApplicationOpen: React.FC = () => {
   const { langauge } = useContext(LangContext);
@@ -492,13 +494,16 @@ const AgentApplicationOpen: React.FC = () => {
   const [confirmPasswordVisible, setConfirmPasswordVisible] = useState(false);
   const { t } = useTranslation();
   const { NotificationComponent, triggerNotification } = useNotification();
-  
+
   // State for applicant type selection
-  const [applicantType, setApplicantType] = useState<"" | "independent" | "under_mga">("");
+  const [applicantType, setApplicantType] = useState<
+    "" | "independent" | "under_mga"
+  >("");
   const [mgaType, setMgaType] = useState<"" | "wfg" | "other">("");
-  
+
   // Custom hook for public registration
-  const { submitApplication, loading, error, success } = usePublicAgentRegistration();
+  const { submitApplication, loading, error, success } =
+    usePublicAgentRegistration();
 
   const {
     register,
@@ -506,6 +511,8 @@ const AgentApplicationOpen: React.FC = () => {
     watch,
     setValue,
     reset,
+    control,
+    unregister,
     formState: { errors },
   } = useForm<PublicAgentFormData>();
 
@@ -514,9 +521,22 @@ const AgentApplicationOpen: React.FC = () => {
   const password = watch("password");
 
   // Determine if documents are required based on selection
-  const documentsRequired = applicantType === "independent" || (applicantType === "under_mga" && mgaType === "other");
-  const showCompanyField = applicantType === "independent" || (applicantType === "under_mga" && mgaType === "other");
+  const documentsRequired =
+    applicantType === "independent" ||
+    (applicantType === "under_mga" && mgaType === "other");
+  const showCompanyField =
+    applicantType === "independent" ||
+    (applicantType === "under_mga" && mgaType === "other");
   const showWfgCodeField = applicantType === "under_mga" && mgaType === "wfg";
+  
+  // Register/Unregister Document 1 validation dynamically
+  useEffect(() => {
+    if (documentsRequired) {
+      register("docFile1", { required: t("Document 1 is required") });
+    } else {
+      unregister("docFile1");
+    }
+  }, [documentsRequired, register, unregister, t]);
 
   const onSubmit = async (formData: PublicAgentFormData) => {
     // Add applicant type data to form submission
@@ -527,17 +547,18 @@ const AgentApplicationOpen: React.FC = () => {
     };
 
     const isSuccess = await submitApplication(submissionData as any);
-    
+
     if (isSuccess) {
       // Show success notification
       triggerNotification({
         type: "success",
-        message: langauge === "En" 
-          ? "Application submitted successfully! Admin will review and activate your account." 
-          : "Demande soumise avec succès ! L'administrateur examinera et activera votre compte.",
+        message:
+          langauge === "En"
+            ? "Application submitted successfully! Admin will review and activate your account."
+            : "Demande soumise avec succès ! L'administrateur examinera et activera votre compte.",
         duration: 5000,
       });
-      
+
       // Reset form and selections after successful submission
       reset();
       setApplicantType("");
@@ -546,9 +567,10 @@ const AgentApplicationOpen: React.FC = () => {
       // Show error notification
       triggerNotification({
         type: "error",
-        message: (langauge === "En" 
-          ? "Failed to submit application. Please try again." 
-          : "Échec de la soumission de la demande. Veuillez réessayer."),
+        message:
+          langauge === "En"
+            ? "Failed to submit application. Please try again."
+            : "Échec de la soumission de la demande. Veuillez réessayer.",
         duration: 5000,
       });
     }
@@ -565,14 +587,21 @@ const AgentApplicationOpen: React.FC = () => {
       if (file.size > maxSize) {
         triggerNotification({
           type: "error",
-          message: (langauge === "En"
-            ? `File size must be less than 5MB. Selected file is ${(file.size / (1024 * 1024)).toFixed(2)}MB`
-            : `La taille du fichier doit être inférieure à 5 Mo. Le fichier sélectionné fait ${(file.size / (1024 * 1024)).toFixed(2)} Mo`),
+          message:
+            langauge === "En"
+              ? `File size must be less than 5MB. Selected file is ${(
+                  file.size /
+                  (1024 * 1024)
+                ).toFixed(2)}MB`
+              : `La taille du fichier doit être inférieure à 5 Mo. Le fichier sélectionné fait ${(
+                  file.size /
+                  (1024 * 1024)
+                ).toFixed(2)} Mo`,
           duration: 5000,
         });
         return;
       }
-      setValue(docType, file);
+      setValue(docType, file, { shouldValidate: true });
     }
   };
 
@@ -589,511 +618,558 @@ const AgentApplicationOpen: React.FC = () => {
 
   return (
     <div className="min-h-[calc(100vh-64px)] bg-white flex flex-col">
-      {/* Main Layout */}
-      <div className="flex flex-1 flex-col lg:flex-row w-full">
-        {/* ===== LEFT COLUMN - APPLICATION FORM ===== */}
-        <div className="w-full lg:w-3/5 flex items-center justify-center px-6 py-10 sm:px-10">
-          <div className="w-full max-w-xl">
-            {/* Logo (Mobile) */}
-            <div className="mb-3 lg:hidden flex justify-center">
-              <img
-                src="/rimilogo.png"
-                alt="RIMI Logo"
-                className="h-12 w-24 sm:h-16 sm:w-32"
-              />
-            </div>
+      <div className="w-full flex items-center justify-center px-6 py-10 sm:px-10">
+        <div className="w-full max-w-xl flex flex-col items-center">
+          <img
+            src="/rimi_en.png"
+            alt="RIMI Logo"
+            className="h-12 w-24 sm:h-14 sm:w-32 mb-4"
+          />
 
-            {/* Heading */}
-            <div className="mb-4 sm:mb-8 text-center lg:text-left">
-              <h2 className="text-2xl font-bold text-text-dark">
-                {t("Apply to Become an Agent")}
-              </h2>
-              <p className="text-text-light-2 text-sm sm:text-base">
-                {t("Join as an advisor and start your journey")}
+          {/* Heading */}
+          <div className="mb-4 sm:mb-8 text-center lg:text-left">
+            <h2 className="text-2xl font-bold text-text-dark">
+              {t("Apply to Become an Agent")}
+            </h2>
+            <p className="text-text-light-2 text-sm sm:text-base">
+              {t("Join as an advisor and start your journey")}
+            </p>
+          </div>
+
+          {/* Success Message */}
+          {success && (
+            <div className="mb-6 bg-green-50 border border-green-300 rounded-lg p-4">
+              <h3 className="text-green-800 font-medium mb-2">
+                {langauge === "En"
+                  ? "Application Submitted!"
+                  : "Demande soumise !"}
+              </h3>
+              <p className="text-green-700 text-sm">
+                {langauge === "En"
+                  ? "Your application has been submitted successfully. Admin will review your documents and activate your account. You will receive an email notification once approved."
+                  : "Votre demande a été soumise avec succès. L'administrateur examinera vos documents et activera votre compte. Vous recevrez une notification par e-mail une fois approuvé."}
               </p>
             </div>
+          )}
 
-            {/* Success Message */}
-            {success && (
-              <div className="mb-6 bg-green-50 border border-green-300 rounded-lg p-4">
-                <h3 className="text-green-800 font-medium mb-2">
-                  {langauge === "En" ? "Application Submitted!" : "Demande soumise !"}
-                </h3>
-                <p className="text-green-700 text-sm">
-                  {langauge === "En"
-                    ? "Your application has been submitted successfully. Admin will review your documents and activate your account. You will receive an email notification once approved."
-                    : "Votre demande a été soumise avec succès. L'administrateur examinera vos documents et activera votre compte. Vous recevrez une notification par e-mail une fois approuvé."}
+          {/* Error Message */}
+          {error && (
+            <div className="mb-6 bg-red-50 border border-red-300 rounded-lg p-4">
+              <p className="text-red-700 text-sm">{error}</p>
+            </div>
+          )}
+
+          {/* ===== FORM START ===== */}
+          <form
+            onSubmit={handleSubmit(onSubmit)}
+            className="bg-white space-y-6"
+            noValidate
+          >
+            {/* Applicant Type Selection */}
+            <div className="flex flex-col items-center">
+              <label className="font-medium text-text-primary mb-3 block">
+                {t("Are you Independent or under some MGA?")}{" "}
+                <span className="text-red-500">*</span>
+              </label>
+              <div className="flex gap-4">
+                <label className="flex items-center cursor-pointer">
+                  <input
+                    type="radio"
+                    name="applicantType"
+                    value="independent"
+                    checked={applicantType === "independent"}
+                    onChange={() => handleApplicantTypeChange("independent")}
+                    className="mr-2 h-4 w-4 text-primary focus:ring-primary accent-primary cursor-pointer"
+                  />
+                  <span className="text-sm text-gray-700">
+                    {t("Independent")}
+                  </span>
+                </label>
+                <label className="flex items-center cursor-pointer">
+                  <input
+                    type="radio"
+                    name="applicantType"
+                    value="under_mga"
+                    checked={applicantType === "under_mga"}
+                    onChange={() => handleApplicantTypeChange("under_mga")}
+                    className="mr-2 h-4 w-4 text-primary focus:ring-primary accent-primary cursor-pointer"
+                  />
+                  <span className="text-sm text-gray-700">
+                    {t("Under MGA")}
+                  </span>
+                </label>
+              </div>
+              {!applicantType && (
+                <p className="text-red-500 text-xs mt-2">
+                  {t("Please select your applicant type")}
                 </p>
-              </div>
-            )}
+              )}
+            </div>
 
-            {/* Error Message */}
-            {error && (
-              <div className="mb-6 bg-red-50 border border-red-300 rounded-lg p-4">
-                <p className="text-red-700 text-sm">{error}</p>
-              </div>
-            )}
-
-            {/* ===== FORM START ===== */}
-            <form
-              onSubmit={handleSubmit(onSubmit)}
-              className="bg-white space-y-6"
-              noValidate
-            >
-              {/* Applicant Type Selection */}
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                <label className="text-sm font-medium text-gray-900 mb-3 block">
-                  {t("Are you Independent or under some MGA?")} <span className="text-red-500">*</span>
+            {/* MGA Type Selection (Only shown if "under_mga" is selected) */}
+            {applicantType === "under_mga" && (
+              <div className="flex flex-col items-center">
+                <label className="font-medium text-text-primary mb-3 block">
+                  {t("Select MGA Type")} <span className="text-red-500">*</span>
                 </label>
                 <div className="flex gap-4">
                   <label className="flex items-center cursor-pointer">
                     <input
                       type="radio"
-                      name="applicantType"
-                      value="independent"
-                      checked={applicantType === "independent"}
-                      onChange={() => handleApplicantTypeChange("independent")}
-                      className="mr-2 h-4 w-4 text-primary focus:ring-primary"
+                      name="mgaType"
+                      value="wfg"
+                      checked={mgaType === "wfg"}
+                      onChange={() => setMgaType("wfg")}
+                      className="mr-2 h-4 w-4 text-primary focus:ring-primary accent-primary cursor-pointer"
                     />
-                    <span className="text-sm text-gray-700">{t("Independent")}</span>
+                    <span className="text-sm text-gray-700">{t("WFG")}</span>
                   </label>
                   <label className="flex items-center cursor-pointer">
                     <input
                       type="radio"
-                      name="applicantType"
-                      value="under_mga"
-                      checked={applicantType === "under_mga"}
-                      onChange={() => handleApplicantTypeChange("under_mga")}
-                      className="mr-2 h-4 w-4 text-primary focus:ring-primary"
+                      name="mgaType"
+                      value="other"
+                      checked={mgaType === "other"}
+                      onChange={() => setMgaType("other")}
+                      className="mr-2 h-4 w-4 text-primary focus:ring-primary accent-primary cursor-pointer"
                     />
-                    <span className="text-sm text-gray-700">{t("Under MGA")}</span>
+                    <span className="text-sm text-gray-700">{t("Other")}</span>
                   </label>
                 </div>
-                {!applicantType && (
+                {!mgaType && (
                   <p className="text-red-500 text-xs mt-2">
-                    {t("Please select your applicant type")}
+                    {t("Please select MGA type")}
                   </p>
                 )}
               </div>
+            )}
 
-              {/* MGA Type Selection (Only shown if "under_mga" is selected) */}
-              {applicantType === "under_mga" && (
-                <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
-                  <label className="text-sm font-medium text-gray-900 mb-3 block">
-                    {t("Select MGA Type")} <span className="text-red-500">*</span>
+            {/* Only show form fields after applicant type is selected */}
+            {applicantType && (applicantType === "independent" || mgaType) && (
+              <div className="flex flex-col gap-4 text-text-secondary">
+                {/* First Name */}
+                <div className="flex flex-col">
+                  <label className="text-sm font-medium mb-1">
+                    {t("First Name")} <span className="text-red-500">*</span>
                   </label>
-                  <div className="flex gap-4">
-                    <label className="flex items-center cursor-pointer">
-                      <input
-                        type="radio"
-                        name="mgaType"
-                        value="wfg"
-                        checked={mgaType === "wfg"}
-                        onChange={() => setMgaType("wfg")}
-                        className="mr-2 h-4 w-4 text-primary focus:ring-primary"
-                      />
-                      <span className="text-sm text-gray-700">{t("WFG")}</span>
-                    </label>
-                    <label className="flex items-center cursor-pointer">
-                      <input
-                        type="radio"
-                        name="mgaType"
-                        value="other"
-                        checked={mgaType === "other"}
-                        onChange={() => setMgaType("other")}
-                        className="mr-2 h-4 w-4 text-primary focus:ring-primary"
-                      />
-                      <span className="text-sm text-gray-700">{t("Other")}</span>
-                    </label>
-                  </div>
-                  {!mgaType && (
-                    <p className="text-red-500 text-xs mt-2">
-                      {t("Please select MGA type")}
+                  <input
+                    type="text"
+                    {...register("firstName", {
+                      required: t("First name is required"),
+                    })}
+                    className="input-primary"
+                    placeholder={t("First Name")}
+                  />
+                  {errors.firstName && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.firstName.message}
                     </p>
                   )}
                 </div>
-              )}
 
-              {/* Only show form fields after applicant type is selected */}
-              {applicantType && (applicantType === "independent" || mgaType) && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-text-secondary">
-                  {/* First Name */}
-                  <div className="flex flex-col">
+                {/* Last Name */}
+                <div className="flex flex-col">
+                  <label className="text-sm font-medium mb-1">
+                    {t("Last Name")} <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    {...register("lastName", {
+                      required: t("Last name is required"),
+                    })}
+                    className="input-primary"
+                    placeholder={t("Last Name")}
+                  />
+                  {errors.lastName && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.lastName.message}
+                    </p>
+                  )}
+                </div>
+
+                {/* Email */}
+                <div className="flex flex-col ">
+                  <label className="text-sm font-medium mb-1">
+                    {t("Email")} <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="email"
+                    {...register("email", {
+                      required: t("Email is required"),
+                      pattern: {
+                        value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                        message: t("Invalid email address"),
+                      },
+                    })}
+                    className={`input-primary ${
+                      errors.email ? "border-red-500" : ""
+                    }`}
+                    placeholder={t("Email")}
+                  />
+                  {errors.email && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.email.message}
+                    </p>
+                  )}
+                </div>
+
+                {/* WFG Code Field (Only for WFG) */}
+                {showWfgCodeField && (
+                  <div className="flex flex-col ">
                     <label className="text-sm font-medium mb-1">
-                      {t("First Name")} <span className="text-red-500">*</span>
+                      {t("WFG Code")} <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="text"
-                      {...register("firstName", {
-                        required: t("First name is required"),
+                      {...register("wfgCode", {
+                        required: showWfgCodeField
+                          ? t("WFG Code is required")
+                          : false,
                       })}
                       className="input-primary"
-                      placeholder={t("First Name")}
+                      placeholder={t("Enter your WFG Code")}
                     />
-                    {errors.firstName && (
+                    {errors.wfgCode && (
                       <p className="text-red-500 text-sm mt-1">
-                        {errors.firstName.message}
+                        {errors.wfgCode.message}
                       </p>
                     )}
                   </div>
+                )}
 
-                  {/* Last Name */}
-                  <div className="flex flex-col">
+                {/* Company Field (For Independent or Other MGA) */}
+                {showCompanyField && (
+                  <div className="flex flex-col ">
                     <label className="text-sm font-medium mb-1">
-                      {t("Last Name")} <span className="text-red-500">*</span>
+                      {t("Company")}
+                      {applicantType === "independent" ? (
+                        <span className="text-gray-400 text-xs ml-1">
+                          (Optional)
+                        </span>
+                      ) : (
+                        <span className="text-red-500">*</span>
+                      )}
                     </label>
                     <input
                       type="text"
-                      {...register("lastName", {
-                        required: t("Last name is required"),
+                      {...register("company", {
+                        required:
+                          mgaType === "other"
+                            ? t("Company name is required")
+                            : false,
                       })}
                       className="input-primary"
-                      placeholder={t("Last Name")}
+                      placeholder={t("Company")}
                     />
-                    {errors.lastName && (
+                    {errors.company && (
                       <p className="text-red-500 text-sm mt-1">
-                        {errors.lastName.message}
+                        {errors.company.message}
                       </p>
                     )}
                   </div>
+                )}
 
-                  {/* Email */}
-                  <div className="flex flex-col col-span-2">
-                    <label className="text-sm font-medium mb-1">
-                      {t("Email")} <span className="text-red-500">*</span>
-                    </label>
+                {/* Password */}
+                <div className="flex flex-col ">
+                  <label className="text-sm font-medium mb-1">
+                    {t("Password")} <span className="text-red-500">*</span>
+                  </label>
+                  <div className="relative">
                     <input
-                      type="email"
-                      {...register("email", {
-                        required: t("Email is required"),
-                        pattern: {
-                          value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                          message: t("Invalid email address"),
+                      type={passwordVisible ? "text" : "password"}
+                      {...register("password", {
+                        required: t("Password is required"),
+                        minLength: {
+                          value: 6,
+                          message: t("Minimum length is 6"),
                         },
                       })}
-                      className={`input-primary ${
-                        errors.email ? "border-red-500" : ""
-                      }`}
-                      placeholder={t("Email")}
+                      className="w-full input-primary"
+                      placeholder={t("Create Password")}
                     />
-                    {errors.email && (
-                      <p className="text-red-500 text-sm mt-1">
-                        {errors.email.message}
-                      </p>
-                    )}
+                    <span
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer"
+                      onClick={() => setPasswordVisible(!passwordVisible)}
+                    >
+                      {passwordVisible ? (
+                        <EyeIcon className="h-5 w-5 text-gray-500" />
+                      ) : (
+                        <EyeSlashIcon className="h-5 w-5 text-gray-500" />
+                      )}
+                    </span>
                   </div>
+                  {errors.password && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.password.message}
+                    </p>
+                  )}
+                </div>
 
-                  {/* WFG Code Field (Only for WFG) */}
-                  {showWfgCodeField && (
-                    <div className="flex flex-col col-span-2">
+                {/* Confirm Password */}
+                <div className="flex flex-col ">
+                  <label className="text-sm font-medium mb-1">
+                    {t("Confirm Password")}{" "}
+                    <span className="text-red-500">*</span>
+                  </label>
+                  <div className="relative">
+                    <input
+                      type={confirmPasswordVisible ? "text" : "password"}
+                      {...register("confirmPassword", {
+                        required: t("Please confirm password"),
+                        validate: (value) =>
+                          value === password || t("Passwords do not match"),
+                      })}
+                      className="w-full input-primary"
+                      placeholder={t("Confirm Password")}
+                    />
+                    <span
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer"
+                      onClick={() =>
+                        setConfirmPasswordVisible(!confirmPasswordVisible)
+                      }
+                    >
+                      {confirmPasswordVisible ? (
+                        <EyeIcon className="h-5 w-5 text-gray-500" />
+                      ) : (
+                        <EyeSlashIcon className="h-5 w-5 text-gray-500" />
+                      )}
+                    </span>
+                  </div>
+                  {errors.confirmPassword && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.confirmPassword.message}
+                    </p>
+                  )}
+                </div>
+
+                {/* Document Upload Section (Only if documents are required) */}
+                {documentsRequired && (
+                  <>
+                    {/* Document Upload Section Header */}
+                    <div className=" mt-4">
+                      <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                        {t("Verification Documents")}
+                      </h3>
+                      <p className="text-sm text-gray-600 mb-4">
+                        {t(
+                          "Upload your verification documents (PDF, JPG, PNG - Max 5MB each)"
+                        )}
+                      </p>
+                    </div>
+
+                    {/* Upload Document 1 */}
+                    <div className="flex flex-col">
                       <label className="text-sm font-medium mb-1">
-                        {t("WFG Code")} <span className="text-red-500">*</span>
+                        {t("Upload Document 1")}{" "}
+                        <span className="text-red-500">*</span>
                       </label>
-                      <input
-                        type="text"
-                        {...register("wfgCode", {
-                          required: showWfgCodeField ? t("WFG Code is required") : false,
-                        })}
-                        className="input-primary"
-                        placeholder={t("Enter your WFG Code")}
-                      />
-                      {errors.wfgCode && (
-                        <p className="text-red-500 text-sm mt-1">
-                          {errors.wfgCode.message}
+                      <label className="input-primary cursor-pointer flex items-center justify-between">
+                        <span className="text-gray-500">
+                          {t("Choose File")}
+                        </span>
+                        <span className="text-xs text-gray-400">(Max 5MB)</span>
+                        <input
+                          type="file"
+                          accept=".pdf,.jpg,.jpeg,.png"
+                          onChange={(e) => handleDocsChange(e, "docFile1")}
+                          className="hidden"
+                        />
+                      </label>
+                      {docFile1 && (
+                        <p className="text-sm text-green-600 mt-1">
+                          ✓ {docFile1.name} - {handleFileSize(docFile1)} MB
+                        </p>
+                      )}
+                      {errors.docFile1 && (
+                        <p className="text-xs text-red-500 mt-1">
+                          {errors.docFile1.message}
                         </p>
                       )}
                     </div>
-                  )}
 
-                  {/* Company Field (For Independent or Other MGA) */}
-                  {showCompanyField && (
-                    <div className="flex flex-col col-span-2">
-                      <label className="text-sm font-medium mb-1">
-                        {t("Company")} 
-                        {applicantType === "independent" ? (
-                          <span className="text-gray-400 text-xs ml-1">(Optional)</span>
-                        ) : (
-                          <span className="text-red-500">*</span>
+                    {/* Document 1 Valid Upto */}
+                    <div className="flex flex-col">
+                      <Controller
+                        control={control}
+                        name="validUpto"
+                        rules={{
+                          required: documentsRequired
+                            ? t("Document 1 validity date is required")
+                            : false,
+                        }}
+                        render={({ field }) => (
+                          <DatePicker
+                            label={t("Document 1 Valid Until") + " *"}
+                            value={field.value || ""}
+                            onChange={(date: Date) => {
+                              const year = date.getFullYear();
+                              const month = String(
+                                date.getMonth() + 1
+                              ).padStart(2, "0");
+                              const day = String(date.getDate()).padStart(
+                                2,
+                                "0"
+                              );
+                              field.onChange(`${year}-${month}-${day}`);
+                            }}
+                            minDate={new Date()}
+                          />
                         )}
-                      </label>
-                      <input
-                        type="text"
-                        {...register("company", {
-                          required: mgaType === "other" ? t("Company name is required") : false,
-                        })}
-                        className="input-primary"
-                        placeholder={t("Company")}
                       />
-                      {errors.company && (
+                      {errors.validUpto && (
                         <p className="text-red-500 text-sm mt-1">
-                          {errors.company.message}
+                          {errors.validUpto.message}
                         </p>
                       )}
                     </div>
-                  )}
 
-                  {/* Password */}
-                  <div className="flex flex-col col-span-2">
-                    <label className="text-sm font-medium mb-1">
-                      {t("Password")} <span className="text-red-500">*</span>
-                    </label>
-                    <div className="relative">
-                      <input
-                        type={passwordVisible ? "text" : "password"}
-                        {...register("password", {
-                          required: t("Password is required"),
-                          minLength: {
-                            value: 6,
-                            message: t("Minimum length is 6"),
-                          },
-                        })}
-                        className="w-full input-primary"
-                        placeholder={t("Create Password")}
-                      />
-                      <span
-                        className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer"
-                        onClick={() => setPasswordVisible(!passwordVisible)}
-                      >
-                        {passwordVisible ? (
-                          <EyeIcon className="h-5 w-5 text-gray-500" />
-                        ) : (
-                          <EyeSlashIcon className="h-5 w-5 text-gray-500" />
-                        )}
-                      </span>
+                    {/* Upload Document 2 (Optional) */}
+                    <div className="flex flex-col">
+                      <label className="text-sm font-medium mb-1">
+                        {t("Upload Document 2")}{" "}
+                        <span className="text-gray-400 text-xs">
+                          (Optional)
+                        </span>
+                      </label>
+                      <label className="input-primary cursor-pointer flex items-center justify-between">
+                        <span className="text-gray-500">
+                          {t("Choose File")}
+                        </span>
+                        <span className="text-xs text-gray-400">(Max 5MB)</span>
+                        <input
+                          type="file"
+                          accept=".pdf,.jpg,.jpeg,.png"
+                          onChange={(e) => handleDocsChange(e, "docFile2")}
+                          className="hidden"
+                        />
+                      </label>
+                      {docFile2 && (
+                        <p className="text-sm text-green-600 mt-1">
+                          ✓ {docFile2.name} - {handleFileSize(docFile2)} MB
+                        </p>
+                      )}
                     </div>
-                    {errors.password && (
-                      <p className="text-red-500 text-sm mt-1">
-                        {errors.password.message}
-                      </p>
-                    )}
-                  </div>
 
-                  {/* Confirm Password */}
-                  <div className="flex flex-col col-span-2">
-                    <label className="text-sm font-medium mb-1">
-                      {t("Confirm Password")} <span className="text-red-500">*</span>
-                    </label>
-                    <div className="relative">
-                      <input
-                        type={confirmPasswordVisible ? "text" : "password"}
-                        {...register("confirmPassword", {
-                          required: t("Please confirm password"),
-                          validate: (value) =>
-                            value === password ||
-                            t("Passwords do not match"),
-                        })}
-                        className="w-full input-primary"
-                        placeholder={t("Confirm Password")}
-                      />
-                      <span
-                        className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer"
-                        onClick={() =>
-                          setConfirmPasswordVisible(!confirmPasswordVisible)
-                        }
-                      >
-                        {confirmPasswordVisible ? (
-                          <EyeIcon className="h-5 w-5 text-gray-500" />
-                        ) : (
-                          <EyeSlashIcon className="h-5 w-5 text-gray-500" />
+                    {/* Document 2 Valid Upto (Optional) */}
+                    <div className="flex flex-col">
+                      <Controller
+                        control={control}
+                        name="validUpto2"
+                        render={({ field }) => (
+                          <DatePicker
+                            label={`${t("Document 2 Valid Until")} (Optional)`}
+                            value={field.value || ""}
+                            onChange={(date: Date) => {
+                              const year = date.getFullYear();
+                              const month = String(
+                                date.getMonth() + 1
+                              ).padStart(2, "0");
+                              const day = String(date.getDate()).padStart(
+                                2,
+                                "0"
+                              );
+                              field.onChange(`${year}-${month}-${day}`);
+                            }}
+                            minDate={new Date()}
+                          />
                         )}
-                      </span>
+                      />
                     </div>
-                    {errors.confirmPassword && (
-                      <p className="text-red-500 text-sm mt-1">
-                        {errors.confirmPassword.message}
-                      </p>
-                    )}
-                  </div>
+                  </>
+                )}
+              </div>
+            )}
 
-                  {/* Document Upload Section (Only if documents are required) */}
+            {/* Information Box */}
+            {applicantType && (applicantType === "independent" || mgaType) && (
+              <div className="border border-inputBorder shadow-sm p-4 mt-6">
+                <h4 className="text-sm font-medium text-blue-900 mb-2">
+                  📋 {t("What happens next?")}
+                </h4>
+                <ul className="text-sm text-blue-700 space-y-1 list-disc list-inside">
+                  <li>
+                    {t("Your application will be reviewed by our admin team")}
+                  </li>
                   {documentsRequired && (
-                    <>
-                      {/* Document Upload Section Header */}
-                      <div className="col-span-2 mt-4">
-                        <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                          {t("Verification Documents")}
-                        </h3>
-                        <p className="text-sm text-gray-600 mb-4">
-                          {t("Upload your verification documents (PDF, JPG, PNG - Max 5MB each)")}
-                        </p>
-                      </div>
-
-                      {/* Upload Document 1 */}
-                      <div className="flex flex-col">
-                        <label className="text-sm font-medium mb-1">
-                          {t("Upload Document 1")} <span className="text-red-500">*</span>
-                        </label>
-                        <label className="input-primary cursor-pointer flex items-center justify-between">
-                          <span className="text-gray-500">
-                            {t("Choose File")}
-                          </span>
-                          <span className="text-xs text-gray-400">(Max 5MB)</span>
-                          <input
-                            type="file"
-                            accept=".pdf,.jpg,.jpeg,.png"
-                            onChange={(e) => handleDocsChange(e, "docFile1")}
-                            className="hidden"
-                          />
-                        </label>
-                        {docFile1 && (
-                          <p className="text-sm text-green-600 mt-1">
-                            ✓ {docFile1.name} - {handleFileSize(docFile1)} MB
-                          </p>
-                        )}
-                        {!docFile1 && documentsRequired && (
-                          <p className="text-xs text-red-500 mt-1">
-                            {t("Document 1 is required")}
-                          </p>
-                        )}
-                      </div>
-
-                      {/* Document 1 Valid Upto */}
-                      <div className="flex flex-col">
-                        <label className="text-sm font-medium mb-1">
-                          {t("Document 1 Valid Until")} <span className="text-red-500">*</span>
-                        </label>
-                        <input
-                          type="date"
-                          {...register("validUpto", {
-                            required: documentsRequired ? t("Document 1 validity date is required") : false,
-                          })}
-                          min={new Date().toISOString().split('T')[0]}
-                          className="input-primary"
-                        />
-                        {errors.validUpto && (
-                          <p className="text-red-500 text-sm mt-1">
-                            {errors.validUpto.message}
-                          </p>
-                        )}
-                      </div>
-
-                      {/* Upload Document 2 (Optional) */}
-                      <div className="flex flex-col">
-                        <label className="text-sm font-medium mb-1">
-                          {t("Upload Document 2")} <span className="text-gray-400 text-xs">(Optional)</span>
-                        </label>
-                        <label className="input-primary cursor-pointer flex items-center justify-between">
-                          <span className="text-gray-500">
-                            {t("Choose File")}
-                          </span>
-                          <span className="text-xs text-gray-400">(Max 5MB)</span>
-                          <input
-                            type="file"
-                            accept=".pdf,.jpg,.jpeg,.png"
-                            onChange={(e) => handleDocsChange(e, "docFile2")}
-                            className="hidden"
-                          />
-                        </label>
-                        {docFile2 && (
-                          <p className="text-sm text-green-600 mt-1">
-                            ✓ {docFile2.name} - {handleFileSize(docFile2)} MB
-                          </p>
-                        )}
-                      </div>
-
-                      {/* Document 2 Valid Upto (Optional) */}
-                      <div className="flex flex-col">
-                        <label className="text-sm font-medium mb-1">
-                          {t("Document 2 Valid Until")} <span className="text-gray-400 text-xs">(Optional)</span>
-                        </label>
-                        <input
-                          type="date"
-                          {...register("validUpto2")}
-                          min={new Date().toISOString().split('T')[0]}
-                          className="input-primary"
-                        />
-                      </div>
-                    </>
+                    <li>
+                      {t(
+                        "Admin will verify your documents and assign credentials"
+                      )}
+                    </li>
                   )}
-                </div>
-              )}
-
-              {/* Information Box */}
-              {applicantType && (applicantType === "independent" || mgaType) && (
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-6">
-                  <h4 className="text-sm font-medium text-blue-900 mb-2">
-                    📋 {t("What happens next?")}
-                  </h4>
-                  <ul className="text-sm text-blue-700 space-y-1 list-disc list-inside">
-                    <li>{t("Your application will be reviewed by our admin team")}</li>
-                    {documentsRequired && (
-                      <li>{t("Admin will verify your documents and assign credentials")}</li>
+                  {showWfgCodeField && (
+                    <li>
+                      {t(
+                        "Admin will verify your WFG code and assign credentials"
+                      )}
+                    </li>
+                  )}
+                  <li>
+                    {t("You'll receive an email notification once approved")}
+                  </li>
+                  <li>
+                    {t(
+                      "After approval, you can login and start issuing policies"
                     )}
-                    {showWfgCodeField && (
-                      <li>{t("Admin will verify your WFG code and assign credentials")}</li>
-                    )}
-                    <li>{t("You'll receive an email notification once approved")}</li>
-                    <li>{t("After approval, you can login and start issuing policies")}</li>
-                  </ul>
-                </div>
-              )}
+                  </li>
+                </ul>
+              </div>
+            )}
 
-              {/* Submit Button */}
-              {applicantType && (applicantType === "independent" || mgaType) && (
-                <div className="mt-6 flex flex-col items-center">
-                  <button
-                    type="submit"
-                    disabled={loading || !applicantType || (applicantType === "under_mga" && !mgaType)}
-                    className="btn-primary w-full disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+            {/* Submit Button */}
+            {applicantType && (applicantType === "independent" || mgaType) && (
+              <div className="mt-6 flex flex-col items-center">
+                <button
+                  type="submit"
+                  disabled={
+                    loading ||
+                    !applicantType ||
+                    (applicantType === "under_mga" && !mgaType)
+                  }
+                  className="btn-primary w-full disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+                >
+                  {loading ? (
+                    <>
+                      <svg
+                        className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                      >
+                        <circle
+                          className="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                        ></circle>
+                        <path
+                          className="opacity-75"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                        ></path>
+                      </svg>
+                      {t("Submitting Application...")}
+                    </>
+                  ) : (
+                    t("Submit Application")
+                  )}
+                </button>
+
+                <p className="mt-4 text-sm text-gray-600 text-center">
+                  {t("Already have an account?")}{" "}
+                  <a
+                    href="/login"
+                    className="text-primary hover:underline font-medium"
                   >
-                    {loading ? (
-                      <>
-                        <svg
-                          className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
-                          xmlns="http://www.w3.org/2000/svg"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                        >
-                          <circle
-                            className="opacity-25"
-                            cx="12"
-                            cy="12"
-                            r="10"
-                            stroke="currentColor"
-                            strokeWidth="4"
-                          ></circle>
-                          <path
-                            className="opacity-75"
-                            fill="currentColor"
-                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                          ></path>
-                        </svg>
-                        {t("Submitting Application...")}
-                      </>
-                    ) : (
-                      t("Submit Application")
-                    )}
-                  </button>
-
-                  <p className="mt-4 text-sm text-gray-600 text-center">
-                    {t("Already have an account?")}{" "}
-                    <a href="/login" className="text-primary hover:underline font-medium">
-                      {t("Login here")}
-                    </a>
-                  </p>
-                </div>
-              )}
-            </form>
-            {/* ===== FORM END ===== */}
-          </div>
-        </div>
-
-        {/* ===== RIGHT COLUMN - ILLUSTRATION ===== */}
-        <div className="hidden lg:flex lg:w-2/5 bg-gradient-to-br from-primary via-indigo-700 to-indigo-900 relative overflow-hidden">
-          <img
-            src="/Signup.png"
-            alt=""
-            className="absolute inset-0 object-cover w-full h-full opacity-90"
-          />
-          <div className="relative flex flex-col justify-center items-center text-white text-center px-12">
-            <img src="/RIMI.png" alt="RIMI" className="mb-5 w-36" />
-            <h1 className="text-4xl font-semibold mb-6 leading-tight">
-              {t("Welcome to RIMI Advisor Training and Certification Portal")}
-            </h1>
-            <p className="text-lg opacity-90">
-              {t("Join our network of trusted insurance advisors")}
-            </p>
-          </div>
+                    {t("Login here")}
+                  </a>
+                </p>
+              </div>
+            )}
+          </form>
+          {/* ===== FORM END ===== */}
         </div>
       </div>
 
