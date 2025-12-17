@@ -139,13 +139,6 @@ export function useVerifyAgent() {
       setData(result);
       setSuccess(true);
       
-      // Success message based on whether admin assignments were made
-      if (payload.agentCode || payload.commissionPercent !== undefined) {
-        alert('Agent verified and credentials assigned successfully! Account is now active.');
-      } else {
-        alert('Agent verified successfully!');
-      }
-      
       return result;
     } catch (err: any) {
       setError(err.message);

@@ -924,7 +924,7 @@ const CreateUser: React.FC = () => {
               <button
                 type="button"
                 onClick={generateAgentCode}
-                className="h-10 px-3 bg-gray-200 rounded hover:bg-gray-300 transition cursor-pointer"
+                className="h-10 px-3 bg-gray-200 hover:bg-gray-300 transition cursor-pointer"
               >
                 Generate
               </button>

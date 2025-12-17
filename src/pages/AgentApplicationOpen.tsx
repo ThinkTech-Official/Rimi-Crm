@@ -626,11 +626,11 @@ const AgentApplicationOpen: React.FC = () => {
 
           {/* Success Message */}
           {success && (
-            <div className="mb-6 bg-green-50 border border-green-300 rounded-lg p-4">
-              <h3 className="text-green-800 font-medium mb-2">
+            <div className="mb-6 shadow-md p-4">
+              <h3 className="text-text-primary font-medium mb-2 text-center">
                 Application Submitted!
               </h3>
-              <p className="text-green-700 text-sm">
+              <p className="text-text-secondary text-sm text-center">
                 Your application has been submitted successfully. Admin will
                 review your documents and activate your account. You will
                 receive an email notification once approved.

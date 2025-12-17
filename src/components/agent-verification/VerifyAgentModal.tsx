@@ -1,32 +1,56 @@
-import React from 'react';
-import { XMarkIcon, UserCircleIcon, CalendarIcon } from '@heroicons/react/24/outline';
+import { CalendarIcon, DocumentIcon, ExclamationTriangleIcon, UserCircleIcon, XMarkIcon } from "@heroicons/react/24/outline";
+import { MgaOption } from "../../hooks/agent-verification/useMgaCodes";
+import DatePicker from "../DatePicker";
 
-interface VerifyAgentModalProps {
-  selectedAgent: {
-    firstName: string;
-    lastName: string;
-    email: string;
-    agentCode: string;
-    userType?: string;
-  };
+interface VerificationModalProps {
+  selectedAgent: any;
+  adminAssignments: any;
+  setAdminAssignments: any;
+  agentCodeAvailability: any;
+  handleCheckAgentCode: () => void;
+  mgaSearch: string;
+  setMgaSearch: (value: string) => void;
+  mgas: MgaOption[]; // ✅ CHANGED from string[]
+  mgasLoading: boolean;
+  mgasError: string | null;
   validityDate: string;
+  setValidityDate: (value: string) => void;
   verifying: boolean;
-  onValidityDateChange: (date: string) => void;
-  onVerifySubmit: () => void;
+  handleVerifySubmit: () => void;
   onClose: () => void;
+  openDocument: (url: string | null) => void;
 }
 
-const VerifyAgentModal: React.FC<VerifyAgentModalProps> = ({
+export default function VerificationModal({
   selectedAgent,
+  adminAssignments,
+  setAdminAssignments,
+  agentCodeAvailability,
+  handleCheckAgentCode,
+  mgaSearch,
+  setMgaSearch,
+  mgas,
+  mgasLoading,
+  mgasError,
   validityDate,
+  setValidityDate,
   verifying,
-  onValidityDateChange,
-  onVerifySubmit,
+  handleVerifySubmit,
   onClose,
-}) => {
+  openDocument,
+}: VerificationModalProps) {
+  const needsAssignment = selectedAgent.agentCode?.startsWith('TEMP-') || !selectedAgent.commissionPercent;
+  
+  // Only need MGA assignment for "other" type, NOT for WFG
+  const needsMgaAssignment = 
+    selectedAgent.applicantType === 'under_mga' && 
+    selectedAgent.mgaType === 'other';
+    
+  const isWfgAgent = selectedAgent.applicantType === 'under_mga' && selectedAgent.mgaType === 'wfg';
+
   return (
     <div className='fixed flex h-full w-full inset-0 items-center justify-center z-50 bg-black/30 backdrop-blur-sm'>
-      <div className='bg-white p-6 max-w-xl w-full max-h-[90vh] overflow-hidden flex flex-col shadow-2xl relative mx-4'>
+      <div className='bg-white p-3 sm:p-6 max-w-xl w-full max-h-[90vh] overflow-hidden flex flex-col shadow-2xl relative mx-4'>
         
         {/* Close Button */}
         <button
@@ -39,26 +63,34 @@ const VerifyAgentModal: React.FC<VerifyAgentModalProps> = ({
 
         {/* Header */}
         <div className='mb-6'>
-          <h2 className='text-2xl font-bold text-text-primary'>Verify Agent</h2>
+          <h2 className='text-lg sm:text-2xl font-bold text-text-primary'>Verify Agent</h2>
           <p className='text-sm text-text-secondary mt-1'>
             Review the agent details and set the verification validity period
           </p>
         </div>
 
         {/* Content - Scrollable */}
-        <div className='flex-1 overflow-y-auto space-y-6'>
+        <div className='flex-1 overflow-y-auto space-y-6 pr-2 custom-scrollbar3'>
           
           {/* Agent Details Card */}
-          <div className='bg-greyBg border border-inputBorder rounded-sm p-5'>
+          <div className='shadow-sm border border-inputBorder p-3 sm:p-5'>
             <div className='flex items-start gap-4'>
-              <div className='bg-white rounded-full p-3 shadow-sm'>
+              {/* <div className='bg-white rounded-full p-3 shadow-sm'>
                 <UserCircleIcon className='h-8 w-8 text-[#2B00B7]' />
-              </div>
+              </div> */}
               
               <div className='flex-1'>
-                <h3 className='text-lg font-semibold text-text-primary mb-3 capitalize'>
-                  {selectedAgent.firstName} {selectedAgent.lastName}
-                </h3>
+                <div className="flex items-center gap-2 mb-3">
+                  <span className='text-text-secondary min-w-[90px]'>Name:</span>
+                    <span className='text-text-primary font-medium break-all'>
+                      {selectedAgent.firstName} {selectedAgent.lastName}
+                    </span>
+                    {selectedAgent.applicantType === 'independent' && (
+                        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
+                            Independent
+                        </span>
+                    )}
+                </div>
                 
                 <div className='space-y-2'>
                   <div className='flex items-start gap-2'>
@@ -70,9 +102,14 @@ const VerifyAgentModal: React.FC<VerifyAgentModalProps> = ({
                   
                   <div className='flex items-start gap-2'>
                     <span className='text-text-secondary min-w-[90px]'>Agent Code:</span>
-                    <span className='text-text-primary font-medium font-mono'>
-                      {selectedAgent.agentCode}
-                    </span>
+                    <div className="flex flex-col">
+                        <span className='text-text-primary font-medium font-mono'>
+                        {selectedAgent.agentCode}
+                        </span>
+                        {selectedAgent.agentCode?.startsWith('TEMP-') && (
+                            <span className="text-xs text-yellow-600 font-medium">Temporary Code</span>
+                        )}
+                    </div>
                   </div>
                   
                   <div className='flex items-start gap-2'>
@@ -81,33 +118,233 @@ const VerifyAgentModal: React.FC<VerifyAgentModalProps> = ({
                       {selectedAgent.userType || "AGENT"}
                     </span>
                   </div>
+                  
+                  {selectedAgent.company && (
+                    <div className='flex items-start gap-2'>
+                        <span className='text-text-secondary min-w-[90px]'>Company:</span>
+                        <span className='text-text-primary font-medium'>
+                        {selectedAgent.company}
+                        </span>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
+             {/* Documents inside Details Card for cleaner look */}
+             {(selectedAgent.docLink1 || selectedAgent.docLink2 || selectedAgent.docLink3) && (
+                <div className="mt-4 pt-4">
+                    <p className="text-base font-medium text-text-primary mb-2">Documents:</p>
+                    <div className="flex flex-wrap gap-2">
+                    {selectedAgent.docLink1 && (
+                        <button
+                        onClick={() => openDocument(selectedAgent.docLink1)}
+                        className="flex items-center gap-1.5 text-xs font-medium bg-white border border-inputBorder hover:border-primary px-3 py-1.5 text-[#2B00B7] transition-colors duration-100 cursor-pointer"
+                        >
+                        <DocumentIcon className="h-4 w-4" />
+                        Document 1
+                        </button>
+                    )}
+                    {selectedAgent.docLink2 && (
+                        <button
+                        onClick={() => openDocument(selectedAgent.docLink2)}
+                        className="flex items-center gap-1.5 text-xs font-medium bg-white border border-inputBorder hover:border-primary px-3 py-1.5 text-[#2B00B7] transition-colors duration-100 cursor-pointer"
+                        >
+                        <DocumentIcon className="h-4 w-4" />
+                        Document 2
+                        </button>
+                    )}
+                    {selectedAgent.docLink3 && (
+                        <button
+                        onClick={() => openDocument(selectedAgent.docLink3)}
+                        className="flex items-center gap-1.5 text-xs font-medium bg-white border border-inputBorder hover:border-primary px-3 py-1.5 text-[#2B00B7] transition-colors duration-100 cursor-pointer"
+                        >
+                        <DocumentIcon className="h-4 w-4" />
+                        Document 3
+                        </button>
+                    )}
+                    </div>
+                </div>
+            )}
           </div>
+
+          {/* WFG Warning */}
+          {isWfgAgent && (
+            <div className="bg-purple-50 border border-purple-200 p-3 sm:p-5">
+              <div className="flex items-start gap-3">
+                <ExclamationTriangleIcon className="h-5 w-5 text-purple-600 mt-0.5 flex-shrink-0" />
+                <div>
+                  <p className="text-sm font-medium text-purple-900">
+                    WFG Agent Verification
+                  </p>
+                  <p className="text-sm text-purple-700 mt-1">
+                    <strong>WFG Code:</strong> <span className="font-mono bg-white px-2 py-0.5 rounded border border-purple-100">{selectedAgent.wfgCode}</span>
+                  </p>
+                  <p className="text-xs text-purple-600 mt-2">
+                    Please verify this WFG code with WFG before approving this application.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Admin Assignment Section */}
+          {needsAssignment && (
+            <div className="bg-yellow-50/50 border border-yellow-100 p-3 sm:p-5">
+              <div className="flex flex-col items-start gap-3 mb-4">
+                <ExclamationTriangleIcon className="h-5 w-5 text-yellow-600 mt-0.5" />
+                <div>
+                  <p className="font-medium text-yellow-900">
+                    Admin Assignment Required
+                  </p>
+                  <p className="text-sm text-yellow-700">
+                    This is a public registration. Please assign credentials before verification.
+                  </p>
+                </div>
+              </div>
+              
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-text-primary mb-1">
+                    Agent Code <span className="text-red-500">*</span>
+                  </label>
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value={adminAssignments.agentCode}
+                      onChange={(e) => {
+                        setAdminAssignments({
+                          ...adminAssignments,
+                          agentCode: e.target.value
+                        });
+                      }}
+                      placeholder="Enter unique agent code"
+                      className="w-full bg-white border border-inputBorder px-4 py-2 focus:border-0 focus:outline-none focus:ring-1 focus:ring-primary text-black/80 placeholder:text-black/50 text-[15px] sm:text-base"
+                    />
+                    <button
+                      type="button"
+                      onClick={handleCheckAgentCode}
+                      disabled={!adminAssignments.agentCode || agentCodeAvailability.status === 'checking' || agentCodeAvailability.lastChecked === adminAssignments.agentCode}
+                      className={`px-3 transition ${
+                        agentCodeAvailability.lastChecked === adminAssignments.agentCode && agentCodeAvailability.status === 'available'
+                          ? 'bg-green-700 text-white'
+                          : agentCodeAvailability.lastChecked === adminAssignments.agentCode && agentCodeAvailability.status === "taken"
+                  ? "bg-red-200 hover:bg-red-300"
+                  : "bg-primary hover:bg-indigo-700 text-white disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed"
+                      }`}
+                    >
+                      {agentCodeAvailability.status === 'checking' ? 'Checking...' : 
+                       agentCodeAvailability.lastChecked === adminAssignments.agentCode && agentCodeAvailability.status === 'available' ? 'Available' :
+                       agentCodeAvailability.lastChecked === adminAssignments.agentCode && agentCodeAvailability.status === 'taken' ? 'Taken' : 'Check'}
+                    </button>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-text-primary mb-1">
+                    Commission Percentage <span className="text-red-500">*</span>
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      max="100"
+                      value={adminAssignments.commissionPercent}
+                      onChange={(e) => setAdminAssignments({
+                        ...adminAssignments,
+                        commissionPercent: e.target.value
+                      })}
+                      placeholder="e.g., 15.50"
+                      className="w-full bg-white border border-inputBorder px-4 pr-8 py-2 focus:border-0 focus:outline-none focus:ring-1 focus:ring-primary text-black/80 placeholder:text-black/50 text-[15px] sm:text-base"
+                    />
+                    <span className="absolute right-3 top-2 text-text-secondary">%</span>
+                  </div>
+                </div>
+
+                {/* MGA Assignment Search */}
+                {needsMgaAssignment && (
+                  <div>
+                    <label className="block text-sm font-medium text-text-primary mb-1">
+                      Assign to MGA <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={mgaSearch}
+                      onChange={(e) => setMgaSearch(e.target.value)}
+                      placeholder="Search MGA name or code..."
+                      className="w-full px-3 py-2 border border-inputBorder rounded focus:outline-none focus:ring-1 focus:ring-primary text-sm"
+                    />
+                    
+                    {mgasLoading && <p className="text-xs text-text-secondary mt-1">Loading MGAs...</p>}
+                    {mgasError && <p className="text-xs text-red-500 mt-1">{mgasError}</p>}
+                    
+                    {mgaSearch.length > 0 && (
+                      mgas.length > 0 ? (
+                        <div className="mt-2 max-h-32 overflow-y-auto border border-inputBorder rounded bg-white">
+                          {mgas.map((mga) => (
+                            <label key={mga.id} className="flex items-center px-3 py-2 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-0">
+                              <input
+                                type="radio"
+                                name="mgaSelection"
+                                value={mga.id}  
+                                checked={adminAssignments.mgaId === mga.id}  
+                                onChange={(e) => setAdminAssignments({
+                                  ...adminAssignments,
+                                  mgaId: e.target.value
+                                })}
+                                className="mr-2 text-primary focus:ring-primary"
+                              />
+                              <span className="text-sm text-text-primary">
+                                <span className="font-medium">{mga.agentCode}</span> - {mga.firstName} {mga.lastName} 
+                              </span>
+                            </label>
+                          ))}
+                        </div>
+                      ) : !mgasLoading && (
+                        <p className="text-xs text-text-secondary mt-1">No MGAs found matching "{mgaSearch}"</p>
+                      )
+                    )}
+                    
+                    {adminAssignments.mgaId && (
+                      <div className="mt-2 bg-green-50 border border-green-200 rounded px-2 py-1 text-sm text-green-800">
+                        <strong>Selected MGA:</strong>{' '}
+                        {mgas.find(m => m.id === adminAssignments.mgaId)?.agentCode || adminAssignments.mgaId}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
 
           {/* Validity Date Section */}
           <div>
-            <label className='flex items-center gap-2 text-sm font-semibold text-text-primary mb-2'>
+            <div className='flex items-center gap-2 mb-1'>
               <CalendarIcon className='h-5 w-5 text-[#2B00B7]' />
-              Verification Valid Until
-            </label>
-            <p className='text-xs text-text-secondary mb-3'>
+              <span className='text-sm font-semibold text-text-primary'>
+                Verification Valid Until <span className="text-red-500">*</span>
+              </span>
+            </div>
+            <p className='text-xs text-text-secondary mb-2'>
               Set the date until which this agent's verification will remain valid
             </p>
-            <div className='relative w-full px-1'>
-              <input
-                type='date'
-                value={validityDate}
-                onChange={(e) => onValidityDateChange(e.target.value)}
-                min={new Date().toISOString().split('T')[0]}
-                className='w-full bg-white border border-inputBorder px-4 py-2 sm:py-3 focus:border-0 focus:outline-none focus:ring-1 focus:ring-primary text-black/80 placeholder:text-black/50'
-              />
+            <div className="ml-0.5">
+              <DatePicker
+              label=""
+              value={validityDate}
+              onChange={(date: Date) => {
+                const year = date.getFullYear();
+                const month = String(date.getMonth() + 1).padStart(2, "0");
+                const day = String(date.getDate()).padStart(2, "0");
+                setValidityDate(`${year}-${month}-${day}`);
+              }}
+              minDate={new Date()}
+            />
             </div>
           </div>
 
           {/* Info Box */}
-          <div className='bg-blue-50/50 border border-blue-200 rounded-sm p-4'>
+          <div className='bg-blue-50/50 border border-blue-200 p-3 sm:p-5 mb-2'>
             <p className='text-sm text-blue-800'>
               <span className='font-semibold'>Note:</span> Once verified, the agent will have access to all 
               features until the specified validity date. You can always update this later if needed.
@@ -116,18 +353,18 @@ const VerifyAgentModal: React.FC<VerifyAgentModalProps> = ({
         </div>
 
         {/* Footer Actions */}
-        <div className='flex gap-3 mt-6 pt-4 border-t border-gray-200'>
+        <div className='flex gap-3 mt-6 pt-4'>
           <button
             onClick={onClose}
-            className='flex-1 px-4 py-2.5 border border-inputBorder cursor-pointer hover:border-gray-700 transition-colors delay-100'
+            className='w-full px-4 py-2 hover:bg-gray-50/50 border border-gray-300 hover:border-gray-400 cursor-pointer transition-all delay-100'
             disabled={verifying}
           >
             Cancel
           </button>
           <button
-            onClick={onVerifySubmit}
+            onClick={handleVerifySubmit}
             disabled={verifying || !validityDate}
-            className='flex-1 px-4 py-2.5 bg-[#2B00B7] text-white hover:bg-[#2309A1] font-medium transition-colors disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed'
+            className='w-full btn-primary'
           >
             {verifying ? (
               <span className='flex items-center justify-center gap-2'>
@@ -138,13 +375,11 @@ const VerifyAgentModal: React.FC<VerifyAgentModalProps> = ({
                 Verifying...
               </span>
             ) : (
-              'Verify Agent'
+              'Verify & Activate'
             )}
           </button>
         </div>
       </div>
     </div>
   );
-};
-
-export default VerifyAgentModal;
+}
