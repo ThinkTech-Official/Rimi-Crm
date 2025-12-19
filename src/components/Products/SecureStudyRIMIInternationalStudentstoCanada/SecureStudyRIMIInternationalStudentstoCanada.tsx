@@ -429,7 +429,7 @@ export default function SecureStudyRIMIInternationalStudentstoCanada() {
   };
 
   // Save Quote Handler
-  const handleSaveQuote = async () => {
+  const handleSaveQuote = async (): Promise<boolean> => {
     const isValid = await step1Methods.trigger();
 
     if (!isValid) {
@@ -438,7 +438,7 @@ export default function SecureStudyRIMIInternationalStudentstoCanada() {
         message: "Please fill all required fields correctly.",
         type: "error",
       });
-      return;
+      return false;
     }
 
     // Get values from react-hook-form
@@ -466,12 +466,14 @@ export default function SecureStudyRIMIInternationalStudentstoCanada() {
       });
 
       console.log("Quote saved:", response.quoteNumber);
+      return true;
     } catch (err: any) {
       console.error("Failed to save quote:", err);
       triggerNotification({ 
         message: err.message || "Failed to save quote. Please try again.", 
         type: "error" 
       });
+      return false;
     }
   };
 

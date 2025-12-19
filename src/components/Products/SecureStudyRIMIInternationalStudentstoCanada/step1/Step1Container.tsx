@@ -311,7 +311,7 @@ interface Step1ContainerProps {
   quoteNumber: string | null;
   setQuoteNumber: (value: string | null) => void;
   agentCode: string;
-  onSaveQuote: () => void;
+  onSaveQuote: () => Promise<boolean>;
   savingQuote: boolean;
   isStepOneFilled: boolean;
 }
@@ -410,10 +410,10 @@ export default function Step1Container({
       <CoverageInformation methods={methods} onValidityChange={onValidityChange} />
 
       {/* Quote Display Section */}
-      <div className="w-full mt-5 flex flex-col items-center justify-center gap-3">
         {/* PREMIUM DISPLAY - Shows when confirmed and calculated */}
         {isConfirmed && (
-          <div className="mt-0 sm:mt-8 mb-2y text-center">
+      <div className="w-full mt-5 flex flex-col items-center justify-center gap-3 bg-greyBg p-4">
+          <div className=" mb-2y text-center">
             {calculatingPremium ? (
               <div className="flex flex-col gap-2 items-center">
                 <Spinner className="h-6 w-6" />
@@ -469,19 +469,18 @@ export default function Step1Container({
               )}
             </div> */}
           </div>
-        )}
 
         {/* Quote Number Display and Email Button - Show after quote is saved */}
         {quoteNumber != null && !hasFormChanged ? (
           <div className=" flex flex-col justify-center items-center mb-2 gap-2">
             <p className="mt-2">
-              <span className="text-text-primary font-medium">
-                Quote Saved:{" "}
-              </span>
-              <span className="text-text-secondary">{quoteNumber}</span>
+            <span className="text-text-primary font-medium">
+            Quote Saved:{" "}
+            </span>
+            <span className="text-text-secondary">{quoteNumber}</span>
             </p>
             <p
-              className="text-[#2b00b7] cursor-pointer text-base hover:underline underline-offset-2"
+            className="text-[#2b00b7] cursor-pointer text-base hover:underline underline-offset-2"
               onClick={handleEmailQuote}
             >
               Email Quote
@@ -492,11 +491,13 @@ export default function Step1Container({
             {isStepOneFilled ? (
               <p
                 onClick={async () => {
-                  await onSaveQuote();
-                  // Save snapshot after successful save
-                  const snapshot = JSON.stringify(formValues);
-                  setSavedFormSnapshot(snapshot);
-                  setHasFormChanged(false);
+                  const success = await onSaveQuote();
+                  if (success) {
+                    // Save snapshot after successful save
+                    const snapshot = JSON.stringify(formValues);
+                    setSavedFormSnapshot(snapshot);
+                    setHasFormChanged(false);
+                  }
                 }}
                 className="text-base hover:underline underline-offset-2 cursor-pointer text-[#2b00b7]"
               >
@@ -508,6 +509,7 @@ export default function Step1Container({
           </h3>
         )}
       </div>
+      )}
       {isEmailModalOpen && (
         <EmailQuote
           quoteNumber={quoteNumber}

@@ -737,6 +737,7 @@ export default function ApplicantInformation({
               className="input-primary appearance-none cursor-pointer"
               {...register("applicantNumber", {
                 required: "Please select number of applicants",
+                valueAsNumber: true,
               })}
               onChange={(e) =>
                 handleApplicantNumberChange(Number(e.target.value))
@@ -775,8 +776,15 @@ export default function ApplicantInformation({
                 className="input-primary"
                 type="text"
                 placeholder="Enter First Name"
-                {...register(`applicants.${idx}.firstName`)}
+                {...register(`applicants.${idx}.firstName`, {
+                  required: "First Name is required",
+                })}
               />
+              {errors.applicants?.[idx]?.firstName && (
+                <p className="text-red-500 text-sm">
+                  {errors.applicants[idx].firstName.message}
+                </p>
+              )}
             </div>
             <div className="flex flex-col">
               <label className="text-sm">Last Name</label>
@@ -784,31 +792,40 @@ export default function ApplicantInformation({
                 className="input-primary"
                 type="text"
                 placeholder="Enter Last Name"
-                {...register(`applicants.${idx}.lastName`)}
+                {...register(`applicants.${idx}.lastName`, {
+                  required: "Last Name is required",
+                })}
               />
-            </div>
-            <Controller
-              name={`applicants.${idx}.dob`}
-              control={control}
-              rules={{ required: "Date of Birth is required" }}
-              render={({ field }) => (
-                <DatePicker
-                  label="Date of Birth"
-                  value={field.value}
-                  onChange={(date: Date) => {
-                    field.onChange(date);
-                    handleAdditionalApplicantsDateChange(idx, date);
-                  }}
-                  maxDate={new Date()}
-                />
+              {errors.applicants?.[idx]?.lastName && (
+                <p className="text-red-500 text-sm">
+                  {errors.applicants[idx].lastName.message}
+                </p>
               )}
-            />
-
-            {errors.applicants?.[idx]?.dob && (
-              <p className="text-red-500 text-sm">
-                {errors.applicants[idx].dob.message}
-              </p>
-            )}
+            </div>
+            <div>
+              <Controller
+                            name={`applicants.${idx}.dob`}
+                            control={control}
+                            rules={{ required: "Date of Birth is required" }}
+                            render={({ field }) => (
+                              <DatePicker
+                                label="Date of Birth"
+                                value={field.value}
+                                onChange={(date: Date) => {
+                                  field.onChange(date);
+                                  handleAdditionalApplicantsDateChange(idx, date);
+                                }}
+                                maxDate={new Date()}
+                              />
+                            )}
+                          />
+              
+                          {errors.applicants?.[idx]?.dob && (
+                            <p className="text-red-500 text-sm">
+                              {errors.applicants[idx].dob.message}
+                            </p>
+                          )}
+            </div>
 
             <div className="flex flex-col">
               <label className="text-sm">
@@ -818,15 +835,24 @@ export default function ApplicantInformation({
                 className="input-primary"
                 type="text"
                 placeholder="e.g., Spouse, Child"
-                {...register(`applicants.${idx}.relationship`)}
+                {...register(`applicants.${idx}.relationship`, {
+                  required: "Relationship is required",
+                })}
               />
+              {errors.applicants?.[idx]?.relationship && (
+                <p className="text-red-500 text-sm">
+                  {errors.applicants[idx].relationship.message}
+                </p>
+              )}
             </div>
             <div className="flex flex-col">
               <label className="text-sm">Gender</label>
               <div className="relative">
                 <select
                   className="input-primary appearance-none cursor-pointer"
-                  {...register(`applicants.${idx}.gender`)}
+                  {...register(`applicants.${idx}.gender`, {
+                    required: "Gender is required",
+                  })}
                 >
                   <option value="">Please select</option>
                   <option value="Female">Female</option>
@@ -838,6 +864,11 @@ export default function ApplicantInformation({
                   <ChevronDownIcon className="h-5 w-5" aria-hidden="true" />
                 </div>
               </div>
+              {errors.applicants?.[idx]?.gender && (
+                <p className="text-red-500 text-sm">
+                  {errors.applicants[idx].gender.message}
+                </p>
+              )}
             </div>
           </div>
         </div>
