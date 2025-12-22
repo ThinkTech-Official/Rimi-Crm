@@ -207,7 +207,7 @@ import Step1Container from "./step1/Step1Container";
 import QuoteSummary from "./step2/QuotesSummary";
 import ApplicantInformationFinished from "./step2/ApplicantInformationFinished";
 import ContactInformation from "./step2/ContactInformation";
-import Address, { AddressInfo } from "./step2/Address";
+import Address from "./step2/Address";
 import BeneficiaryInCaseOfDeath from "./step2/BeneficiaryInCaseOfDeath";
 import PaymentInformation from "./step2/PaymentInformation";
 
@@ -222,8 +222,6 @@ import {
 } from "../../../hooks/student-international/useQuoteUpdateProduct2";
 import { FormProvider, useForm } from "react-hook-form";
 import useNotification from "../../../hooks/useNotification";
-
-type YesNo = "" | "yes" | "no";
 
 export interface Applicant {
   index: string;
@@ -255,20 +253,6 @@ interface QuoteStage1ResponseProduct2 {
   applicants: Applicant[];
 }
 
-export interface ContactInfo {
-  additionalEmail: string;
-  phoneNumber: string;
-  legalGuardianName: string;
-}
-
-interface BeneficiaryInfo {
-  beneficiaryName: string;
-  relationshipToInsured: string;
-  address: string;
-  city: string;
-  country: string;
-}
-
 export interface Step1FormData {
   primaryFirstName: string;
   primaryLastName: string;
@@ -286,16 +270,60 @@ export interface Step1FormData {
   coverageLength: string;
 }
 
-// const productName = "Secure Study RIMI International Students to Canada";
+export interface ContactInfo {
+  email: string;
+  additionalEmail: string;
+  phoneNumber: string;
+  legalGuardianName: string;
+}
+
+interface BeneficiaryInfo {
+  beneficiaryName: string;
+  relationshipToInsured: string;
+  address: string;
+  city: string;
+  country: string;
+}
+
+interface AddressInfo {
+  addressLine1: string;
+  addressLine2: string;
+  city: string;
+  postalCode: string;
+  country: string;
+  province: string;
+}
+
 const productName = "SECURE_STUDY_RIMI_INTERNATIONAL_STUDENTS_TO_CANADA";
 
 export default function SecureStudyRIMIInternationalStudentstoCanada() {
   const agentCode = useSelector((state: RootState) => state.auth.agentCode);
 
-  // ==================== HOOK FORM FOR STEP 1 ====================
+  // ==================== PREMIUM STATE ====================
+  const [totalPremium, setTotalPremium] = useState<number>(0);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
+
+  // ==================== QUOTE RESPONSE STATE ====================
+  const [quoteNumber, setQuoteNumber] = useState<string | null>(null);
+  const [step1ResponseData, setStep1ResponseData] =
+    useState<QuoteStage1ResponseProduct2 | null>(null);
+
+  // ==================== WIZARD STATE ====================
+  const [steps, setSteps] = useState([
+    { id: "01", name: "Get Quote", href: "#", status: "current" },
+    { id: "02", name: "Complete Application", href: "#", status: "upcoming" },
+    { id: "03", name: "Summary", href: "#", status: "upcoming" },
+  ]);
+
+  const [formStep, setFormStep] = useState(1);
+  const [isStepOneFilled, setIsStepOneFilled] = useState(false);
+  const { NotificationComponent, triggerNotification } = useNotification();
+
+  // ==================== HOOK FORMS ====================
   const step1Methods = useForm<Step1FormData>({
-    mode: 'onTouched',
-    reValidateMode: 'onChange',
+    mode: "onTouched",
+    reValidateMode: "onChange",
     defaultValues: {
       primaryFirstName: "",
       primaryLastName: "",
@@ -314,85 +342,47 @@ export default function SecureStudyRIMIInternationalStudentstoCanada() {
     },
   });
 
-  const contactInfoMethods = useForm<ContactInfo>({
-    mode: 'onTouched',
-    reValidateMode: 'onChange',
+  const contactInfoMethods = useForm({
+    mode: "onTouched",
+    reValidateMode: "onChange",
     defaultValues: {
-      additionalEmail: "",
-      phoneNumber: "",
-      legalGuardianName: "",
+      contactInfo: {
+        email: step1ResponseData?.email || "",
+        additionalEmail: "",
+        phoneNumber: "",
+        legalGuardianName: "",
+      },
     },
   });
 
-  const beneficiaryInfoMethods = useForm<BeneficiaryInfo>({
-    mode: 'onTouched',
-    reValidateMode: 'onChange',
+  const beneficiaryInfoMethods = useForm({
+    mode: "onTouched",
+    reValidateMode: "onChange",
     defaultValues: {
-      beneficiaryName: "",
-      relationshipToInsured: "",
-      address: "",
-      city: "",
-      country: "",
+      beneficiary: {
+        beneficiaryName: "",
+        relationshipToInsured: "",
+        address: "",
+        city: "",
+        country: "",
+      },
     },
   });
 
-  const addressInfoMethods = useForm<AddressInfo>({
-    mode: 'onTouched',
-    reValidateMode: 'onChange',
+  const addressInfoMethods = useForm({
+    mode: "onTouched",
+    reValidateMode: "onChange",
     defaultValues: {
-      addressLine1: "",
-      addressLine2: "",
-      city: "",
-      postalCode: "",
-      country: "",
-      province: "",
+      address: {
+        addressLine1: "",
+        addressLine2: "",
+        city: "",
+        postalCode: "",
+        country: "",
+        province: "",
+      },
     },
   });
-
-  // ==================== PREMIUM STATE ====================
-  const [totalPremium, setTotalPremium] = useState<number>(0);
-  const [loading, setLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null);
-
-  // ==================== QUOTE RESPONSE STATE ====================
-  const [quoteNumber, setQuoteNumber] = useState<string | null>(null);
-  const [step1ResponseData, setStep1ResponseData] =
-    useState<QuoteStage1ResponseProduct2 | null>(null);
-
-  // ==================== STAGE 2 STATE ====================
-  const [address, setAddress] = useState({
-    addressLine1: "",
-    addressLine2: "",
-    city: "",
-    postalCode: "",
-    country: "",
-    province: "",
-  });
-
-  const [beneficiary, setBeneficiary] = useState<BeneficiaryInfo>({
-    beneficiaryName: "",
-    relationshipToInsured: "",
-    address: "",
-    city: "",
-    country: "",
-  });
-
-  // const [contactInfo, setContactInfo] = useState<ContactInfo>({
-  //   additionalEmail: "",
-  //   phoneNumber: "",
-  //   legalGuardianName: "",
-  // });
-
-  // ==================== WIZARD STATE ====================
-  const [steps, setSteps] = useState([
-    { id: "01", name: "Get Quote", href: "#", status: "current" },
-    { id: "02", name: "Complete Application", href: "#", status: "upcoming" },
-    { id: "03", name: "Summary", href: "#", status: "upcoming" },
-  ]);
-
-  const [formStep, setFormStep] = useState(1);
-  const [isStepOneFilled, setIsStepOneFilled] = useState(false);
-  const { NotificationComponent, triggerNotification } = useNotification();
 
   // ==================== HOOKS ====================
   const { saveQuoteNext, loading: savingStage1 } = useSaveQuoteNextProduct2();
@@ -441,7 +431,6 @@ export default function SecureStudyRIMIInternationalStudentstoCanada() {
       return false;
     }
 
-    // Get values from react-hook-form
     const formValues = step1Methods.getValues();
 
     const payload = {
@@ -449,17 +438,14 @@ export default function SecureStudyRIMIInternationalStudentstoCanada() {
       agentCode: agentCode!,
       product: productName,
       quoteNumber: quoteNumber || null,
-      status: "Inactive", // Save as Inactive (not ready for payment yet)
+      status: "Inactive",
     };
 
     try {
       console.log("Saving Product 2 quote as Inactive...");
       const response = await saveQuoteNext(payload);
-
-      // Update state with the saved quote number
       setQuoteNumber(response.quoteNumber);
 
-      // Show success message
       triggerNotification({
         message: "Quote saved successfully!",
         type: "success",
@@ -469,22 +455,29 @@ export default function SecureStudyRIMIInternationalStudentstoCanada() {
       return true;
     } catch (err: any) {
       console.error("Failed to save quote:", err);
-      triggerNotification({ 
-        message: err.message || "Failed to save quote. Please try again.", 
-        type: "error" 
+      triggerNotification({
+        message: err.message || "Failed to save quote. Please try again.",
+        type: "error",
       });
       return false;
     }
   };
 
-  const handleNext = async (formValues: Step1FormData) => {
+  const handleNext = async () => {
     if (!isStepOneFilled || savingStage1) return;
 
+    const isValid = await step1Methods.trigger();
+    if (!isValid) {
+      console.log("Validation failed", step1Methods.formState.errors);
+      return;
+    }
+
+    const formValues = step1Methods.getValues();
     const stage1Payload = {
       ...formValues,
       agentCode: agentCode!,
       product: productName,
-      quoteNumber: quoteNumber,
+      quoteNumber: quoteNumber || null,
       status: "Active",
     };
 
@@ -520,8 +513,8 @@ export default function SecureStudyRIMIInternationalStudentstoCanada() {
   };
 
   const handleBuyNow = async () => {
-    console.log("========");
     if (!quoteNumber || submittingStage2) return;
+
     const [isValid1, isValid2, isValid3] = await Promise.all([
       addressInfoMethods.trigger(),
       contactInfoMethods.trigger(),
@@ -548,26 +541,34 @@ export default function SecureStudyRIMIInternationalStudentstoCanada() {
     }
 
     if (!isValid1 || !isValid2 || !isValid3) return;
+
+    const address = addressInfoMethods.getValues().address;
+    const contactInfo = contactInfoMethods.getValues().contactInfo;
+    const beneficiary = beneficiaryInfoMethods.getValues().beneficiary;
+
     const payload: Stage2PayloadProduct2 = {
       quoteNumber,
-      address: addressInfoMethods.getValues(),
-      contactInfo: contactInfoMethods.getValues(),
-      beneficiary: beneficiaryInfoMethods.getValues(),
+      address,
+      contactInfo,
+      beneficiary,
     };
+
     try {
       const resp = await completeApplication(payload);
       console.log("Product 2 - Stage 2 response:", resp);
-    } catch (err) {
+    } catch (err: any) {
       console.error("completeApplication failed", err);
+      triggerNotification({
+        message:
+          err.message || "Failed to complete application. Please try again.",
+        type: "error",
+      });
     }
   };
 
   const handlePaymentSuccess = () => {
     handleFormStepChange("forward");
   };
-
-  // Get form values for display
-  const formValues = step1Methods.watch();
 
   return (
     <div className="max-w-5xl xl:w-5xl mx-auto px-2 py-4 sm:p-6">
@@ -588,7 +589,7 @@ export default function SecureStudyRIMIInternationalStudentstoCanada() {
                         aria-hidden="true"
                       />
                     </span>
-                    <span className="ml-4 font-medium text-[#2B00B7]">
+                    <span className="ml-4 text-base font-medium text-[#2B00B7] font-[inter]">
                       {step.name}
                     </span>
                   </span>
@@ -623,29 +624,26 @@ export default function SecureStudyRIMIInternationalStudentstoCanada() {
                 </a>
               )}
 
-              {stepIdx !== steps.length - 1 ? (
-                <>
-                  {/* Arrow separator for lg screens and up */}
-                  <div
-                    className="absolute right-0 top-0 hidden h-full w-5 md:block"
-                    aria-hidden="true"
+              {stepIdx !== steps.length - 1 && (
+                <div
+                  className="absolute right-0 top-0 hidden h-full w-5 md:block"
+                  aria-hidden="true"
+                >
+                  <svg
+                    className="h-full w-full text-inputBorder"
+                    viewBox="0 0 22 80"
+                    fill="none"
+                    preserveAspectRatio="none"
                   >
-                    <svg
-                      className="h-full w-full text-inputBorder"
-                      viewBox="0 0 22 80"
-                      fill="none"
-                      preserveAspectRatio="none"
-                    >
-                      <path
-                        d="M0 -2L20 40L0 82"
-                        vectorEffect="non-scaling-stroke"
-                        stroke="currentcolor"
-                        strokeLinejoin="round"
-                      />
-                    </svg>
-                  </div>
-                </>
-              ) : null}
+                    <path
+                      d="M0 -2L20 40L0 82"
+                      vectorEffect="non-scaling-stroke"
+                      stroke="currentcolor"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </div>
+              )}
             </li>
           ))}
         </ol>
@@ -657,32 +655,27 @@ export default function SecureStudyRIMIInternationalStudentstoCanada() {
           <form onSubmit={step1Methods.handleSubmit(handleNext)}>
             <Step1Container
               methods={step1Methods}
-              totalPremium={totalPremium}
-              setTotalPremium={setTotalPremium}
-              loading={loading}
-              setLoading={setLoading}
-              error={error}
-              setError={setError}
               quoteNumber={quoteNumber}
-              setQuoteNumber={setQuoteNumber}
-              agentCode={agentCode!}
               onSaveQuote={handleSaveQuote}
-              savingQuote={savingStage1}
               onValidityChange={setIsStepOneFilled}
               isStepOneFilled={isStepOneFilled}
+              totalPremium={totalPremium}
+              onPremiumChange={setTotalPremium}
+              onLoadingChange={setLoading}
+              onErrorChange={setError}
             />
 
-            <div className="flex justify-center gap-10 mt-4">
+            {formStep === 1 && (
               <button
-                type="submit"
+                onClick={handleNext}
                 disabled={!isStepOneFilled || savingStage1}
-                className={`w-[200px] mt-6 bg-[#2B00B7] text-white p-3 hover:bg-[#2309A1] transition flex justify-center items-center cursor-pointer duration-200 disabled:cursor-default ${
+                className={`w-[200px] mx-auto mt-6 bg-[#2B00B7] text-white p-3 hover:bg-[#2309A1] transition flex justify-center items-center cursor-pointer duration-200 disabled:cursor-default disabled:bg-indigo-700 ${
                   savingStage1 ? "opacity-50 cursor-wait" : ""
                 }`}
               >
-                Next
+                {savingStage1 ? "Saving…" : "Next"}
               </button>
-            </div>
+            )}
           </form>
         </FormProvider>
       )}
@@ -690,16 +683,12 @@ export default function SecureStudyRIMIInternationalStudentstoCanada() {
       {/* STEP 2: COMPLETE APPLICATION */}
       {steps[1].status === "current" && quoteNumber && (
         <div>
-          <div className="w-full h-2 mt-8 flex items-center justify-center">
-            <h3 className="text-lg sm:text-xl">
-              <span className="text-text-primary font-semibold">
-                Your Quote:
-              </span>{" "}
-              <span className="text-text-secondary">
-                ${step1ResponseData?.quoteAmount}
-              </span>
+          <div className="w-full h-2 mt-8 flex items-center justify-center font-[inter]">
+            <h3 className="text-base sm:text-lg">
+              Your Quote: ${step1ResponseData?.quoteAmount.toFixed(2)} CAD
             </h3>
           </div>
+
           <QuoteSummary step1ResponseData={step1ResponseData} />
           <ApplicantInformationFinished
             dateOfBirth={step1ResponseData?.dateOfBirth ?? ""}
@@ -709,26 +698,24 @@ export default function SecureStudyRIMIInternationalStudentstoCanada() {
             applicants={step1ResponseData?.applicants ?? []}
           />
           <ContactInformation
+            email={step1ResponseData?.email ?? ""}
             methods={contactInfoMethods}
-            email={step1ResponseData?.email}
           />
           <Address methods={addressInfoMethods} />
           <BeneficiaryInCaseOfDeath methods={beneficiaryInfoMethods} />
 
-          {/* Payment Summary - Lump Sum Only */}
-          <div className="mx-auto mb-6 mt-4 bg-greyBg p-4">
-            <h3 className="text-lg font-bold text-left text-[#1B1B1B] mb-2 sm:mb-5">
+          {/* Payment Summary */}
+          <div className="max-w-5xl mx-auto mt-6 p-3 sm:p-6 bg-[#F9F9F9]">
+            <h3 className="text-lg font-bold text-left text-[#1B1B1B] mb-5">
               Payment Summary
             </h3>
             <div className="flex justify-between items-center">
-              <span className="text-text-primary font-medium text-base sm:text-lg">
-                Total Premium:
-              </span>
-              <span className="text-lg sm:text-xl font-bold text-primary">
-                ${totalPremium.toFixed(2)}
+              <span>Total Premium:</span>
+              <span className="text-xl font-bold text-primary">
+                ${totalPremium.toFixed(2)} CAD
               </span>
             </div>
-            <div className="text-sm text-text-secondary mt-1">
+            <div className="text-sm text-gray-600 mt-1">
               One-time payment • No additional fees
             </div>
           </div>
@@ -737,14 +724,11 @@ export default function SecureStudyRIMIInternationalStudentstoCanada() {
             <PaymentInformation
               quoteNumber={quoteNumber}
               description={productName}
-              name={formValues.primaryFirstName}
-              shipping={addressInfoMethods.getValues()}
+              name={step1Methods.getValues().primaryFirstName}
+              shipping={addressInfoMethods.getValues().address}
               amount={totalPremium}
               onPaymentSuccess={handlePaymentSuccess}
               onBuyNow={handleBuyNow}
-              formStep={formStep}
-              handleFormStepChange={handleFormStepChange}
-              handleBuyNow={handleBuyNow}
               submittingStage2={submittingStage2}
             />
           </Elements>
@@ -761,24 +745,11 @@ export default function SecureStudyRIMIInternationalStudentstoCanada() {
         {formStep === 2 && (
           <button
             onClick={() => handleFormStepChange("back")}
-            className="btn-primary"
+            className="w-[200px] mt-6 bg-[#2B00B7] text-white p-3 hover:bg-[#2309A1] transition flex justify-center items-center cursor-pointer duration-200"
           >
             Previous
           </button>
         )}
-
-        {/* {formStep === 1 && (
-          <button
-          type="submit"
-            onClick={handleNext}
-            disabled={!isStepOneFilled || savingStage1}
-            className={`mt-6 bg-[#2B00B7] text-white p-3 hover:bg-[#2309A1] transition flex justify-center items-center cursor-pointer duration-200 ${
-              savingStage1 ? "opacity-50 cursor-wait" : ""
-            }`}
-          >
-            {savingStage1 ? "Saving…" : "Next"}
-          </button>
-        )} */}
       </div>
 
       {NotificationComponent}

@@ -316,17 +316,19 @@ import { StudentsToCanadaCountries } from "../../SecureTravelRIMIVisitorstoCanad
 import { useEffect } from "react";
 import Dropdown from "../../../DropDown";
 
-export interface AddressInfo {
-  addressLine1: string;
-  addressLine2: string;
-  city: string;
-  postalCode: string;
-  country: string;
-  province: string;
+interface AddressData {
+  address: {
+    addressLine1: string;
+    addressLine2: string;
+    city: string;
+    postalCode: string;
+    country: string;
+    province: string;
+  };
 }
 
 interface AddressProps {
-  methods: UseFormReturn<AddressInfo>;
+  methods: UseFormReturn<AddressData>;
 }
 
 export default function Address({ methods }: AddressProps) {
@@ -350,7 +352,7 @@ export default function Address({ methods }: AddressProps) {
             type="text"
             className="input-primary"
             placeholder="Address Line 1"
-            {...register("addressLine1", {
+            {...register("address.addressLine1", {
               required: "Address Line 1 is required",
               maxLength: {
                 value: 100,
@@ -358,9 +360,9 @@ export default function Address({ methods }: AddressProps) {
               },
             })}
           />
-          {errors.addressLine1 && (
+          {errors.address?.addressLine1 && (
             <p className="text-red-500 text-sm mt-1">
-              {errors.addressLine1.message}
+              {errors.address.addressLine1.message}
             </p>
           )}
         </div>
@@ -372,7 +374,7 @@ export default function Address({ methods }: AddressProps) {
             type="text"
             className="input-primary"
             placeholder="Address Line 2"
-            {...register("addressLine2", {
+            {...register("address.addressLine2", {
               required: "Address Line 2 is required",
               maxLength: {
                 value: 100,
@@ -380,9 +382,9 @@ export default function Address({ methods }: AddressProps) {
               },
             })}
           />
-          {errors.addressLine2 && (
+          {errors.address?.addressLine2 && (
             <p className="text-red-500 text-sm mt-1">
-              {errors.addressLine2.message}
+              {errors.address.addressLine2.message}
             </p>
           )}
         </div>
@@ -394,12 +396,12 @@ export default function Address({ methods }: AddressProps) {
             type="text"
             className="input-primary"
             placeholder="City"
-            {...register("city", {
+            {...register("address.city", {
               required: "City is required",
             })}
           />
-          {errors.city && (
-            <p className="text-red-500 text-sm mt-1">{errors.city.message}</p>
+          {errors.address?.city && (
+            <p className="text-red-500 text-sm mt-1">{errors.address.city.message}</p>
           )}
         </div>
 
@@ -410,7 +412,7 @@ export default function Address({ methods }: AddressProps) {
             type="text"
             className="input-primary"
             placeholder="Postal Code"
-            {...register("postalCode", {
+            {...register("address.postalCode", {
               required: "Postal Code is required",
               maxLength: {
                 value: 10,
@@ -423,9 +425,9 @@ export default function Address({ methods }: AddressProps) {
               },
             })}
           />
-          {errors.postalCode && (
+          {errors.address?.postalCode && (
             <p className="text-red-500 text-sm mt-1">
-              {errors.postalCode.message}
+              {errors.address.postalCode.message}
             </p>
           )}
         </div>
@@ -434,7 +436,7 @@ export default function Address({ methods }: AddressProps) {
         <div className="flex flex-col">
           <Controller
             control={control}
-            name="country"
+            name="address.country"
             rules={{ required: "Country is required" }}
             render={({ field }) => (
               <Dropdown
@@ -447,8 +449,8 @@ export default function Address({ methods }: AddressProps) {
               />
             )}
           />
-          {errors.country && (
-            <p className="text-red-500 text-sm">{errors.country.message}</p>
+          {errors.address?.country && (
+            <p className="text-red-500 text-sm">{errors.address.country.message}</p>
           )}
         </div>
 
@@ -459,13 +461,13 @@ export default function Address({ methods }: AddressProps) {
             type="text"
             className="input-primary"
             placeholder="Province/State"
-            {...register("province", {
+            {...register("address.province", {
               required: "Province/State is required",
             })}
           />
-          {errors.province && (
+          {errors.address?.province && (
             <p className="text-red-500 text-sm mt-1">
-              {errors.province.message}
+              {errors.address.province.message}
             </p>
           )}
         </div>

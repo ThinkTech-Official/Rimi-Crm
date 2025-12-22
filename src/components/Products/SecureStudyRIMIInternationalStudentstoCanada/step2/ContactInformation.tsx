@@ -98,11 +98,19 @@
 
 import { InformationCircleIcon } from "@heroicons/react/24/outline";
 import { useState } from "react";
-import { ContactInfo } from "../SecureStudyRIMIInternationalStudentstoCanada";
 import { UseFormReturn } from "react-hook-form";
 
+interface ContactInfoData {
+  contactInfo: {
+    email: string;
+    additionalEmail: string;
+    phoneNumber: string;
+    legalGuardianName: string;
+  };
+}
+
 interface ContactInformationProps {
-  methods: UseFormReturn<ContactInfo>;
+  methods: UseFormReturn<ContactInfoData>;
   email?: string;
 }
 
@@ -143,7 +151,7 @@ export default function ContactInformation({
             className="input-primary break-words h-auto"
             type="text"
             placeholder="Additional Email Address"
-            {...register("additionalEmail")}
+            {...register("contactInfo.additionalEmail")}
           />
         </div>
 
@@ -166,7 +174,7 @@ export default function ContactInformation({
             className="input-primary break-words h-auto"
             type="text"
             placeholder="Phone Number"
-            {...register("phoneNumber", {
+            {...register("contactInfo.phoneNumber", {
               required: "Phone number is required",
               pattern: {
                 value: /^[0-9]*$/,
@@ -185,9 +193,9 @@ export default function ContactInformation({
               e.target.value = e.target.value.replace(/[^0-9]/g, "");
             }}
           />
-          {errors.phoneNumber && (
+          {errors.contactInfo?.phoneNumber && (
         <p className="text-red-500 text-sm mt-1">
-          {errors.phoneNumber.message}
+          {errors.contactInfo.phoneNumber.message}
         </p>
       )}
         </div>
@@ -205,13 +213,13 @@ export default function ContactInformation({
             className="input-primary"
             type="text"
             placeholder="Legal Guardian Name"
-            {...register("legalGuardianName", {
+            {...register("contactInfo.legalGuardianName", {
               required: "Legal guardian name is required",
             })}
           />
-          {errors.legalGuardianName && (
+          {errors.contactInfo?.legalGuardianName && (
             <p className="text-red-500 text-sm">
-              {errors.legalGuardianName.message}
+              {errors.contactInfo.legalGuardianName.message}
             </p>
           )}
         </div>

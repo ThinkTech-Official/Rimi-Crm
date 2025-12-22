@@ -23,9 +23,6 @@ interface PaymentInformationProps {
   amount: number;
   onPaymentSuccess: () => void;
   onBuyNow: () => Promise<void>;
-  formStep: number;
-  handleFormStepChange: (command: string) => void;
-  handleBuyNow: () => Promise<void>;
   submittingStage2: boolean;
 }
 
@@ -35,14 +32,10 @@ const stripeCustomerId = 'cus_85525845666';
 export default function PaymentInformation({
   quoteNumber,
   description,
-  name,
   shipping,
   amount,
   onPaymentSuccess,
   onBuyNow,
-  formStep,
-  handleFormStepChange,
-  handleBuyNow,
   submittingStage2,
 }: PaymentInformationProps) {
   const stripe = useStripe();

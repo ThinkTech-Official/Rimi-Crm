@@ -280,7 +280,7 @@ import { usePremiumCalculationProduct2 } from "../../../../hooks/student-interna
 import { UseFormReturn } from "react-hook-form";
 import { Applicant } from "../SecureStudyRIMIInternationalStudentstoCanada";
 import Spinner from "../../../Spinner";
-import EmailQuote from "../../SecureTravelRIMIVisitorstoCanadaTravel/EmailQuote";
+import EmailQuoteStudent from "./EmailQuoteStudent";
 
 export interface Step1FormData {
   primaryFirstName: string;
@@ -302,36 +302,30 @@ export interface Step1FormData {
 interface Step1ContainerProps {
   methods: UseFormReturn<Step1FormData>;
   onValidityChange: (isValid: boolean) => void;
-  totalPremium: number;
-  setTotalPremium: (value: number) => void;
-  loading: boolean;
-  setLoading: (value: boolean) => void;
-  error: string | null;
-  setError: (value: string | null) => void;
   quoteNumber: string | null;
-  setQuoteNumber: (value: string | null) => void;
-  agentCode: string;
   onSaveQuote: () => Promise<boolean>;
-  savingQuote: boolean;
   isStepOneFilled: boolean;
+  totalPremium: number;
+  onPremiumChange?: (premium: number) => void;
+  onLoadingChange?: (loading: boolean) => void;
+  onErrorChange?: (error: string | null) => void;
 }
 
 export default function Step1Container({
   methods,
   onValidityChange,
-  setTotalPremium,
-  setLoading,
-  setError,
   quoteNumber,
   onSaveQuote,
   isStepOneFilled,
+  totalPremium,
+  onPremiumChange,
+  onLoadingChange,
+  onErrorChange,
 }: Step1ContainerProps) {
-  const [emailingQuote, setEmailingQuote] = useState(false);
-  const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
-
   // Track form changes for re-saving quotes
   const [savedFormSnapshot, setSavedFormSnapshot] = useState<any>(null);
   const [hasFormChanged, setHasFormChanged] = useState(false);
+  const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
 
   // Watch all form values using react-hook-form
   const formValues = methods.watch();
@@ -367,19 +361,18 @@ export default function Step1Container({
     isConfirmed, // Only calculate when confirmed
   });
 
-  // UPDATE PARENT STATE WHEN PREMIUM CHANGES
+  // Notify parent of premium calculation changes
   useEffect(() => {
-    setTotalPremium(calculatedPremium);
-    setLoading(calculatingPremium);
-    setError(premiumError);
-  }, [
-    calculatedPremium,
-    calculatingPremium,
-    premiumError,
-    setTotalPremium,
-    setLoading,
-    setError,
-  ]);
+    if (onPremiumChange) onPremiumChange(calculatedPremium);
+  }, [calculatedPremium, onPremiumChange]);
+
+  useEffect(() => {
+    if (onLoadingChange) onLoadingChange(calculatingPremium);
+  }, [calculatingPremium, onLoadingChange]);
+
+  useEffect(() => {
+    if (onErrorChange) onErrorChange(premiumError);
+  }, [premiumError, onErrorChange]);
 
   // Initialize snapshot when quote number exists (e.g., when returning from step 2)
   useEffect(() => {
@@ -399,10 +392,6 @@ export default function Step1Container({
       setHasFormChanged(currentSnapshot !== savedFormSnapshot);
     }
   }, [savedFormSnapshot, quoteNumber, formValues]);
-
-  const handleEmailQuote = async () => {
-    setIsEmailModalOpen(true);
-  };
 
   return (
     <div className="max-w-5xl mx-auto mt-4 pb-2">
@@ -470,21 +459,22 @@ export default function Step1Container({
             </div> */}
           </div>
 
-        {/* Quote Number Display and Email Button - Show after quote is saved */}
+        {/* Quote Number Display - Show after quote is saved */}
         {quoteNumber != null && !hasFormChanged ? (
-          <div className=" flex flex-col justify-center items-center mb-2 gap-2">
+          <div className="flex flex-col justify-center items-center mb-2 gap-2">
             <p className="mt-2">
-            <span className="text-text-primary font-medium">
-            Quote Saved:{" "}
-            </span>
-            <span className="text-text-secondary">{quoteNumber}</span>
+              <span className="text-text-primary font-medium">
+                Quote Saved:{" "}
+              </span>
+              <span className="text-text-secondary">{quoteNumber}</span>
             </p>
-            <p
-            className="text-[#2b00b7] cursor-pointer text-base hover:underline underline-offset-2"
-              onClick={handleEmailQuote}
+            <button
+              type="button"
+              className="text-[#2b00b7] cursor-pointer text-base hover:underline underline-offset-2 mt-2"
+              onClick={() => setIsEmailModalOpen(true)}
             >
               Email Quote
-            </p>
+            </button>
           </div>
         ) : (
           <h3 className="  text-center mt-2 cursor-pointer text-[#2b00b7]">
@@ -511,9 +501,9 @@ export default function Step1Container({
       </div>
       )}
       {isEmailModalOpen && (
-        <EmailQuote
+        <EmailQuoteStudent
           quoteNumber={quoteNumber}
-          totalPremium={calculatedPremium}
+          totalPremium={totalPremium}
           setIsEmailModalOpen={setIsEmailModalOpen}
         />
       )}

@@ -330,16 +330,18 @@ import { useState } from "react";
 import { UseFormReturn } from "react-hook-form";
 import { StudentsToCanadaCountries } from "../../SecureTravelRIMIVisitorstoCanadaTravel/step1/Constants";
 
-interface BeneficiaryInfo {
-  beneficiaryName: string;
-  relationshipToInsured: string;
-  address: string;
-  city: string;
-  country: string;
+interface BeneficiaryData {
+  beneficiary: {
+    beneficiaryName: string;
+    relationshipToInsured: string;
+    address: string;
+    city: string;
+    country: string;
+  };
 }
 
 interface BeneficiaryInCaseOfDeathProps {
-  methods: UseFormReturn<BeneficiaryInfo>;
+  methods: UseFormReturn<BeneficiaryData>;
 }
 
 export default function BeneficiaryInCaseOfDeath({
@@ -366,13 +368,13 @@ export default function BeneficiaryInCaseOfDeath({
             className="input-primary"
             type="text"
             placeholder="Beneficiary Name"
-            {...register("beneficiaryName",{
+            {...register("beneficiary.beneficiaryName",{
               required: "Beneficiary Name is required",
             })}
           />
-          {errors.beneficiaryName && (
+          {errors.beneficiary?.beneficiaryName && (
             <p className="text-red-500 text-sm mt-1">
-              {errors.beneficiaryName.message}
+              {errors.beneficiary.beneficiaryName.message}
             </p>
           )}
         </div>
@@ -392,13 +394,13 @@ export default function BeneficiaryInCaseOfDeath({
             className="input-primary"
             type="text"
             placeholder="e.g., Spouse, Parent, Sibling"
-            {...register("relationshipToInsured",{
+            {...register("beneficiary.relationshipToInsured",{
               required: "Relationship to Insured is required",
             })}
           />
-           {errors.relationshipToInsured && (
+           {errors.beneficiary?.relationshipToInsured && (
             <p className="text-red-500 text-sm mt-1">
-              {errors.relationshipToInsured.message}
+              {errors.beneficiary.relationshipToInsured.message}
             </p>
           )}
         </div>
@@ -421,7 +423,7 @@ export default function BeneficiaryInCaseOfDeath({
             className="input-primary"
             type="text"
             placeholder="Address"
-            {...register("address",{
+            {...register("beneficiary.address",{
               required: "Address is required",
               maxLength:{
                 value: 100,
@@ -429,9 +431,9 @@ export default function BeneficiaryInCaseOfDeath({
               }
             })}
           />
-           {errors.address && (
+           {errors.beneficiary?.address && (
             <p className="text-red-500 text-sm mt-1">
-              {errors.address.message}
+              {errors.beneficiary.address.message}
             </p>
           )}
         </div>
@@ -443,7 +445,7 @@ export default function BeneficiaryInCaseOfDeath({
             className="input-primary"
             type="text"
             placeholder="City"
-            {...register("city",{
+            {...register("beneficiary.city",{
               required: "City is required",
               maxLength:{
                 value: 100,
@@ -451,9 +453,9 @@ export default function BeneficiaryInCaseOfDeath({
               }
             })}
           />
-           {errors.city && (
+           {errors.beneficiary?.city && (
             <p className="text-red-500 text-sm mt-1">
-              {errors.city.message}
+              {errors.beneficiary.city.message}
             </p>
           )}
         </div>
@@ -464,7 +466,7 @@ export default function BeneficiaryInCaseOfDeath({
           <div className="relative">
             <select
               className="input-primary appearance-none cursor-pointer"
-              {...register("country",{
+              {...register("beneficiary.country",{
                 required: "Country is required",
               })}
             >
@@ -479,9 +481,9 @@ export default function BeneficiaryInCaseOfDeath({
               <ChevronDownIcon className="h-5 w-5" />
             </div>
           </div>
-           {errors.country && (
+           {errors.beneficiary?.country && (
             <p className="text-red-500 text-sm mt-1">
-              {errors.country.message}
+              {errors.beneficiary.country.message}
             </p>
           )}
         </div>
