@@ -22,6 +22,7 @@ import ValidationErrorModal from "../components/ValidationErrorModal";
 import { usePaymentSchedule } from "../hooks/usePaymentSchedule";
 import { PaymentScheduleTable } from "../components/policy/PaymentScheduleTable";
 import { UpdateCardModal } from "../components/UpdateCardModal";
+import { PolicySplitModal } from "../components/policy/PolicySplitModal";
 
 const fmtDate = (iso?: string) =>
   iso ? new Date(iso).toLocaleDateString("en-CA") : "-";
@@ -65,6 +66,8 @@ const PolicyDetailsPage: React.FC = () => {
     addNote,
   } = usePolicyNotes(id!);
   const [newNote, setNewNote] = React.useState("");
+
+  const [showSplitModal, setShowSplitModal] = useState(false);
 
   const {
     items: attachments,
@@ -146,6 +149,12 @@ const PolicyDetailsPage: React.FC = () => {
   useEffect(() => {
     if (p) console.log("Loaded policy:", p);
   }, [p]);
+
+  useEffect(() => {
+  if (p?.applicants) {
+    setEditedApplicants([...p.applicants]);
+  }
+}, [p]);
 
   if (loading) return <p className="text-center py-10">Loading…</p>;
   if (error) return <p className="text-red-600 text-center py-10">{error}</p>;
@@ -510,6 +519,38 @@ const PolicyDetailsPage: React.FC = () => {
           {!isEditMode ? (
             <>
               {/* Update Card  */}
+              {/* {canUpdateCard && !isEditMode && (
+                <button
+                  onClick={() => {
+                    if (
+                      window.confirm(
+                        "Are you sure you want to update the payment method for this policy? All future recurring payments will use the new card."
+                      )
+                    ) {
+                      setShowUpdateCardModal(true);
+                    }
+                  }}
+                  className="px-3 py-1 bg-purple-600 text-white rounded hover:bg-purple-700"
+                >
+                  Update Card
+                </button>
+              )}
+
+              {/* Split Policy Button */}
+              {p.product === "SECURE_TRAVEL_RIMI_VISITORS_TO_CANADA_TRAVEL" &&
+                p.status &&
+                ["ACTIVE", "SOLD"].includes(p.status) &&
+                1 + (p.applicants?.length || 0) >= 2 &&
+                !isEditMode && (
+                  <button
+                    onClick={() => setShowSplitModal(true)}
+                    className="px-3 py-1 bg-indigo-600 text-white rounded hover:bg-indigo-700"
+                  >
+                    Split Policy
+                  </button>
+                )}
+
+              {/* Update Card  */}
               {canUpdateCard && !isEditMode && (
                 <button
                   onClick={() => {
@@ -534,6 +575,14 @@ const PolicyDetailsPage: React.FC = () => {
               >
                 Reload
               </button>
+
+              {/* Reload  */}
+              {/* <button
+                onClick={() => window.location.reload()}
+                className="px-3 py-1 border rounded"
+              >
+                Reload
+              </button>  */}
               {canModify && (
                 <button
                   onClick={handleModifyClick}
@@ -1358,6 +1407,43 @@ const PolicyDetailsPage: React.FC = () => {
           window.location.reload();
         }}
       />
+
+      {/* Policy Split Modal */}
+      {showSplitModal && (
+        <PolicySplitModal
+          isOpen={showSplitModal}
+          onClose={() => setShowSplitModal(false)}
+          policyId={id!}
+          policyNumber={p.policyNumber!}
+          primaryApplicant={{
+            id: "primary",
+            firstName: p.firstName || '',
+            lastName: p.lastName || '',
+            dateOfBirth: p.dateOfBirth?.toString() || "",
+            effectiveDate: p.effectiveDate?.toString() || "",
+            expiryDate: p.expiryDate?.toString() || "",
+            preMedCoverage: p.PreExCoverage,
+          }}
+          additionalApplicants={
+            p.applicants?.map((a) => ({
+              id: a.id,
+              firstName: a.firstName,
+              lastName: a.lastName,
+              dateOfBirth: a.dateOfBirth?.toString() || "",
+              effectiveDate: p.effectiveDate?.toString() || "", // Assuming same as policy
+              expiryDate: p.expiryDate?.toString() || "", // This might need adjustment if applicants have different dates
+              relation: a.relation,
+              preMedCoverage: a.PreExCoverage,
+            })) || []
+          }
+          totalPremium={p.premium || 0}
+          paymentOption={p.paymentOption as "lump-sum" | "monthly"}
+          onSuccess={() => {
+            // Refresh policy data after successful split
+            window.location.reload();
+          }}
+        />
+      )}
     </div>
   );
 };

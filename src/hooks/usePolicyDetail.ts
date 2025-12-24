@@ -64,6 +64,8 @@ export interface PolicyDetail {
   dateIssued: string;
   countryCode: string;
 
+  product?: string;
+
   beneficiaryName?: string;
   beneficiaryRelation?: string;
 
