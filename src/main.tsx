@@ -55,6 +55,7 @@ import MGAAgentDetails from "./pages/MgaAgentDetails.tsx";
 import AgentApplicationOpen from "./pages/AgentApplicationOpen.tsx";
 import ResetPassword from "./components/ResetPassword.tsx";
 import RenewalSecureTravelVisitorsToCanada from "./pages/renewals/RenewalSecureTravelVisitorsToCanada/RenewalSecureTravelVisitorsToCanada.tsx";
+import RenewalSecureStudyInternationalStudents from "./pages/renewals/RenewalSecureStudyInternationalStudents/RenewalSecureStudyInternationalStudents.tsx";
 
 // Create ONE client (module-level singleton)
 const queryClient = new QueryClient({
@@ -177,7 +178,26 @@ const router = createBrowserRouter(
           path="/renewals/secure-travel-visitors-to-canada"
           element={<RenewalSecureTravelVisitorsToCanada />}
         />
+
+
+          <Route 
+  path="/renewals/secure-study-international-students-to-canada" 
+  element={<RenewalSecureStudyInternationalStudents />} 
+/>
+{/* <Route 
+  path="/renewals/canuck-voyage-travel-medical" 
+  element={<RenewalCanuckVoyageTravelMedical />} 
+/> */}
+{/* <Route 
+  path="/renewals/canuck-voyage-non-medical-travel" 
+  element={<RenewalCanuckVoyageNonMedical />} 
+/> */}
+
+
+
       </Route>
+
+      
 
       {/* Routes outside of dashboard layout */}
       <Route path="/test-dash" element={<TestUi />} />
