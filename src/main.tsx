@@ -56,6 +56,8 @@ import AgentApplicationOpen from "./pages/AgentApplicationOpen.tsx";
 import ResetPassword from "./components/ResetPassword.tsx";
 import RenewalSecureTravelVisitorsToCanada from "./pages/renewals/RenewalSecureTravelVisitorsToCanada/RenewalSecureTravelVisitorsToCanada.tsx";
 import RenewalSecureStudyInternationalStudents from "./pages/renewals/RenewalSecureStudyInternationalStudents/RenewalSecureStudyInternationalStudents.tsx";
+import RenewalCanuckVoyageTravelMedical from "./pages/renewals/RenewalCanuckVoyageTravelMedical/RenewalCanuckVoyageTravelMedical.tsx";
+import RenewalCanuckVoyageNonMedical from "./pages/renewals/RenewalCanuckVoyageNonMedical/RenewalCanuckVoyageNonMedical.tsx";
 
 // Create ONE client (module-level singleton)
 const queryClient = new QueryClient({
@@ -179,25 +181,19 @@ const router = createBrowserRouter(
           element={<RenewalSecureTravelVisitorsToCanada />}
         />
 
-
-          <Route 
-  path="/renewals/secure-study-international-students-to-canada" 
-  element={<RenewalSecureStudyInternationalStudents />} 
-/>
-{/* <Route 
-  path="/renewals/canuck-voyage-travel-medical" 
-  element={<RenewalCanuckVoyageTravelMedical />} 
-/> */}
-{/* <Route 
-  path="/renewals/canuck-voyage-non-medical-travel" 
-  element={<RenewalCanuckVoyageNonMedical />} 
-/> */}
-
-
-
+        <Route
+          path="/renewals/secure-study-international-students-to-canada"
+          element={<RenewalSecureStudyInternationalStudents />}
+        />
+        <Route
+          path="/renewals/canuck-voyage-travel-medical"
+          element={<RenewalCanuckVoyageTravelMedical />}
+        />
+        <Route
+          path="/renewals/canuck-voyage-non-medical-travel"
+          element={<RenewalCanuckVoyageNonMedical />}
+        />
       </Route>
-
-      
 
       {/* Routes outside of dashboard layout */}
       <Route path="/test-dash" element={<TestUi />} />

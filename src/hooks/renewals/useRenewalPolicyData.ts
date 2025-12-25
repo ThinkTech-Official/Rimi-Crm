@@ -49,6 +49,7 @@ interface PolicyData {
   legalGuardianName?: string;
   
   // Product 3 specific (Canuck Voyage Medical)
+  destinationCountry?: string; 
   applicantTravelThroughUs?: string;
   usTravelDays?: number;
   numberOfDaysPerTrip?: number;
