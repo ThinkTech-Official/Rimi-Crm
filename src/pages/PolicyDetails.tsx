@@ -456,6 +456,34 @@ const PolicyDetailsPage: React.FC = () => {
     }
   };
 
+
+  // RENEWALLLL
+
+const handleIssueRelatedPolicy = () => {
+  const productRoutes: Record<string, string> = {
+    'SECURE_TRAVEL_RIMI_VISITORS_TO_CANADA_TRAVEL': 
+      'secure-travel-visitors-to-canada',
+    'SECURE_STUDY_RIMI_INTERNATIONAL_STUDENTS_TO_CANADA': 
+      'secure-study-international-students-to-canada',
+    'RIMI_CANUCK_VOYAGE_TRAVEL_MEDICAL': 
+      'canuck-voyage-travel-medical',
+    'RIMI_CANUCK_VOYAGE_NON_MEDICAL_TRAVEL': 
+      'canuck-voyage-non-medical-travel',
+  };
+
+  const slug = p.product ? productRoutes[p.product] : undefined;
+  
+  if (!slug) {
+    alert(`Renewal not available for this policy`);
+    return;
+  }
+
+  navigate(`/renewals/${slug}?policyId=${id}`);
+};
+
+
+  //
+
   // RENDER HELPERS
 
   const renderEditableField = (
@@ -1204,7 +1232,7 @@ const PolicyDetailsPage: React.FC = () => {
             <button className="px-3 py-1 bg-blue-600 text-white rounded">
               Send Renewal Notice
             </button>
-            <button className="px-3 py-1 bg-green-600 text-white rounded">
+            <button onClick={handleIssueRelatedPolicy} className="px-3 py-1 bg-green-600 text-white rounded">
               Issue Related Policy
             </button>
           </div>
