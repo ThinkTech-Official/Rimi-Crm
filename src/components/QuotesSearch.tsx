@@ -620,10 +620,9 @@ const QuotesSearch: React.FC = () => {
               <tr>
                 {[
                   "Quote Number",
-                  "First Name",
-                  "Last Name",
+                  "Name",
                   "Status",
-                  "Date of Birth",
+                  // "Date of Birth",
                   "Quote Date",
                   "Product Name",
                   "Actions",
@@ -677,24 +676,14 @@ const QuotesSearch: React.FC = () => {
                     </td>
 
                     <td
-                      className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
+                      className="px-2 sm:px-6 py-2 sm:py-4 max-w-[250px] break-words"
                       style={{
                         borderWidth: "0px 1px 1px 0px",
                         borderStyle: "solid",
                         borderColor: "#AAA9A9",
                       }}
                     >
-                      {u.firstName}
-                    </td>
-                    <td
-                      className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
-                      style={{
-                        borderWidth: "0px 1px 1px 0px",
-                        borderStyle: "solid",
-                        borderColor: "#AAA9A9",
-                      }}
-                    >
-                      {u.lastName}
+                      {u.firstName + " " + u.lastName}
                     </td>
                     <td
                       className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
@@ -706,7 +695,7 @@ const QuotesSearch: React.FC = () => {
                     >
                       {u.status}
                     </td>
-                    <td
+                    {/* <td
                       className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
                       style={{
                         borderWidth: "0px 1px 1px 0px",
@@ -720,7 +709,7 @@ const QuotesSearch: React.FC = () => {
                             { year: "numeric", month: "short", day: "numeric" }
                           )
                         : "-"}
-                    </td>
+                    </td> */}
                     <td
                       className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
                       style={{
@@ -737,14 +726,14 @@ const QuotesSearch: React.FC = () => {
                         : "-"}
                     </td>
                     <td
-                      className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
+                      className="px-2 sm:px-6 py-2 sm:py-4 capitalize max-w-[300px] break-words"
                       style={{
                         borderWidth: "0px 1px 1px 0px",
                         borderStyle: "solid",
                         borderColor: "#AAA9A9",
                       }}
                     >
-                      {u.product}
+                      {u.product.split("_").join(" ").toLowerCase()}
                     </td>
                     <td
                       className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"

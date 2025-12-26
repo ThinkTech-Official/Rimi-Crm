@@ -327,9 +327,8 @@ const PoliciesSearch: React.FC = () => {
                   // "ID",
                   "Policy No.",
                   "Status",
-                  "First Name",
-                  "Last Name",
-                  "DOB",
+                  "Name",
+                  // "DOB",
                   "Eff. Date",
                   "Exp. Date",
                   "Product",
@@ -337,7 +336,7 @@ const PoliciesSearch: React.FC = () => {
                 ].map((h) => (
                   <th
                     key={h}
-                    className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium text-nowrap"
+                    className="px-2 sm:px-3 py-1 sm:py-3 text-left font-medium text-nowrap"
                   >
                     {h}
                   </th>
@@ -371,7 +370,7 @@ const PoliciesSearch: React.FC = () => {
                   <tr key={p.id} className="text-[#808080] text-sm 2xl:text-base">
                     {/* <td className="px-4 py-2">{p.id}</td> */}
                     <td
-                      className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
+                      className="px-2 sm:px-3 py-2 sm:py-3 whitespace-nowrap"
                       style={{
                         borderWidth: "0px 1px 1px 0px",
                         borderStyle: "solid",
@@ -381,7 +380,7 @@ const PoliciesSearch: React.FC = () => {
                       {p.policyNumber}
                     </td>
                     <td
-                      className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
+                      className="px-2 sm:px-3 py-2 sm:py-3 whitespace-nowrap"
                       style={{
                         borderWidth: "0px 1px 1px 0px",
                         borderStyle: "solid",
@@ -390,24 +389,24 @@ const PoliciesSearch: React.FC = () => {
                     >
                       {p.status}
                     </td>
-                    {/* <td className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
+                    {/* <td className="px-2 sm:px-3 py-2 sm:py-3 whitespace-nowrap"
                     style={{
                       borderWidth: "0px 1px 1px 0px",
                       borderStyle: "solid",
                       borderColor: "#AAA9A9",
                     }}>{p.policyType}</td> */}
                     <td
-                      className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
+                      className="px-2 sm:px-3 py-2 sm:py-3 max-w-[250px] break-words"
                       style={{
                         borderWidth: "0px 1px 1px 0px",
                         borderStyle: "solid",
                         borderColor: "#AAA9A9",
                       }}
                     >
-                      {p.firstName}
+                      {p.firstName + " " + p.lastName}
                     </td>
-                    <td
-                      className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
+                    {/* <td
+                      className="px-2 sm:px-3 py-2 sm:py-3 whitespace-nowrap"
                       style={{
                         borderWidth: "0px 1px 1px 0px",
                         borderStyle: "solid",
@@ -415,9 +414,9 @@ const PoliciesSearch: React.FC = () => {
                       }}
                     >
                       {p.lastName}
-                    </td>
-                    <td
-                      className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
+                    </td> */}
+                    {/* <td
+                      className="px-2 sm:px-3 py-2 sm:py-3 whitespace-nowrap"
                       style={{
                         borderWidth: "0px 1px 1px 0px",
                         borderStyle: "solid",
@@ -425,9 +424,9 @@ const PoliciesSearch: React.FC = () => {
                       }}
                     >
                       {p.dateOfBirth?.split("T")[0]}
-                    </td>
+                    </td> */}
                     <td
-                      className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
+                      className="px-2 sm:px-3 py-2 sm:py-3 whitespace-nowrap"
                       style={{
                         borderWidth: "0px 1px 1px 0px",
                         borderStyle: "solid",
@@ -437,7 +436,7 @@ const PoliciesSearch: React.FC = () => {
                       {p.effectiveDate?.split("T")[0]}
                     </td>
                     <td
-                      className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
+                      className="px-2 sm:px-3 py-2 sm:py-3 whitespace-nowrap"
                       style={{
                         borderWidth: "0px 1px 1px 0px",
                         borderStyle: "solid",
@@ -447,18 +446,18 @@ const PoliciesSearch: React.FC = () => {
                       {p.expiryDate?.split("T")[0]}
                     </td>
                     <td
-                      className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
+                      className="px-2 sm:px-3 py-2 sm:py-3 capitalize max-w-[250px] break-words"
                       style={{
                         borderWidth: "0px 1px 1px 0px",
                         borderStyle: "solid",
                         borderColor: "#AAA9A9",
                       }}
                     >
-                      {p.product}
+                      {p.product?.split("_").join(" ").toLowerCase()}
                     </td>
 
                     <td
-                      className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
+                      className="px-2 sm:px-3 py-2 sm:py-3 whitespace-nowrap"
                       style={{
                         borderWidth: "0px 1px 1px 0px",
                         borderStyle: "solid",

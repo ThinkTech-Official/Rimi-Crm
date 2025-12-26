@@ -168,8 +168,7 @@ const Users: React.FC = () => {
               <tr>
                 {[
                   "Agent Code",
-                  "First Name",
-                  "Last Name",
+                  "Name",
                   "Email",
                   "Company",
                   "User Type",
@@ -234,9 +233,9 @@ const Users: React.FC = () => {
                         borderColor: "#AAA9A9",
                       }}
                     >
-                      {u.firstName}
+                      {u.firstName + " " + u.lastName}
                     </td>
-                    <td
+                    {/* <td
                       className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
                       style={{
                         borderWidth: "0px 1px 1px 0px",
@@ -245,7 +244,7 @@ const Users: React.FC = () => {
                       }}
                     >
                       {u.lastName}
-                    </td>
+                    </td> */}
                     <td
                       className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
                       style={{
