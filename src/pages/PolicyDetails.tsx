@@ -22,6 +22,7 @@ import ValidationErrorModal from "../components/ValidationErrorModal";
 import { usePaymentSchedule } from "../hooks/usePaymentSchedule";
 import { PaymentScheduleTable } from "../components/policy/PaymentScheduleTable";
 import { UpdateCardModal } from "../components/UpdateCardModal";
+import { PolicySplitModal } from "../components/policy/PolicySplitModal";
 import { MdClose, MdUploadFile } from "react-icons/md";
 
 const fmtDate = (iso?: string) =>
@@ -74,6 +75,8 @@ const PolicyDetailsPage: React.FC = () => {
     addNote,
   } = usePolicyNotes(id!);
   const [newNote, setNewNote] = React.useState("");
+
+  const [showSplitModal, setShowSplitModal] = useState(false);
 
   const {
     items: attachments,
@@ -155,6 +158,12 @@ const PolicyDetailsPage: React.FC = () => {
   useEffect(() => {
     if (p) console.log("Loaded policy:", p);
   }, [p]);
+
+  useEffect(() => {
+  if (p?.applicants) {
+    setEditedApplicants([...p.applicants]);
+  }
+}, [p]);
 
   if (loading) return <p className="text-center py-10">Loading…</p>;
   if (error) return <p className="text-red-600 text-center py-10">{error}</p>;
@@ -456,6 +465,34 @@ const PolicyDetailsPage: React.FC = () => {
     }
   };
 
+
+  // RENEWALLLL
+
+const handleIssueRelatedPolicy = () => {
+  const productRoutes: Record<string, string> = {
+    'SECURE_TRAVEL_RIMI_VISITORS_TO_CANADA_TRAVEL': 
+      'secure-travel-visitors-to-canada',
+    'SECURE_STUDY_RIMI_INTERNATIONAL_STUDENTS_TO_CANADA': 
+      'secure-study-international-students-to-canada',
+    'RIMI_CANUCK_VOYAGE_TRAVEL_MEDICAL': 
+      'canuck-voyage-travel-medical',
+    'RIMI_CANUCK_VOYAGE_NON_MEDICAL_TRAVEL': 
+      'canuck-voyage-non-medical-travel',
+  };
+
+  const slug = p.product ? productRoutes[p.product] : undefined;
+  
+  if (!slug) {
+    alert(`Renewal not available for this policy`);
+    return;
+  }
+
+  navigate(`/renewals/${slug}?policyId=${id}`);
+};
+
+
+  //
+
   // RENDER HELPERS
 
   const renderEditableField = (
@@ -518,6 +555,38 @@ const PolicyDetailsPage: React.FC = () => {
         <div className="space-x-2">
           {!isEditMode ? (
             <>
+              {/* Update Card  */}
+              {/* {canUpdateCard && !isEditMode && (
+                <button
+                  onClick={() => {
+                    if (
+                      window.confirm(
+                        "Are you sure you want to update the payment method for this policy? All future recurring payments will use the new card."
+                      )
+                    ) {
+                      setShowUpdateCardModal(true);
+                    }
+                  }}
+                  className="px-3 py-1 bg-purple-600 text-white rounded hover:bg-purple-700"
+                >
+                  Update Card
+                </button>
+              )}
+
+              {/* Split Policy Button */}
+              {p.product === "SECURE_TRAVEL_RIMI_VISITORS_TO_CANADA_TRAVEL" &&
+                p.status &&
+                ["ACTIVE", "SOLD"].includes(p.status) &&
+                1 + (p.applicants?.length || 0) >= 2 &&
+                !isEditMode && (
+                  <button
+                    onClick={() => setShowSplitModal(true)}
+                    className="px-3 py-1 bg-indigo-600 text-white rounded hover:bg-indigo-700"
+                  >
+                    Split Policy
+                  </button>
+                )}
+
               {/* Update Card  */}
               {canUpdateCard && !isEditMode && (
                 <button
@@ -1202,7 +1271,7 @@ const PolicyDetailsPage: React.FC = () => {
             <button className="bg-primary text-white py-2 sm:py-2 px-4 font-semibold hover:bg-[#2309A1] transition-all duration-200 cursor-pointer disabled:cursor-default disabled:opacity-70">
               Send Renewal Notice
             </button>
-            <button className="bg-green-600 text-white py-2 sm:py-2 px-4 font-semibold hover:bg-green-700 transition-all duration-200 cursor-pointer disabled:cursor-default disabled:opacity-70">
+            <button onClick={handleIssueRelatedPolicy} className="px-3 py-1 bg-green-600 text-white rounded">
               Issue Related Policy
             </button>
           </div>
@@ -1439,6 +1508,43 @@ const PolicyDetailsPage: React.FC = () => {
           window.location.reload();
         }}
       />
+
+      {/* Policy Split Modal */}
+      {showSplitModal && (
+        <PolicySplitModal
+          isOpen={showSplitModal}
+          onClose={() => setShowSplitModal(false)}
+          policyId={id!}
+          policyNumber={p.policyNumber!}
+          primaryApplicant={{
+            id: "primary",
+            firstName: p.firstName || '',
+            lastName: p.lastName || '',
+            dateOfBirth: p.dateOfBirth?.toString() || "",
+            effectiveDate: p.effectiveDate?.toString() || "",
+            expiryDate: p.expiryDate?.toString() || "",
+            preMedCoverage: p.PreExCoverage,
+          }}
+          additionalApplicants={
+            p.applicants?.map((a) => ({
+              id: a.id,
+              firstName: a.firstName,
+              lastName: a.lastName,
+              dateOfBirth: a.dateOfBirth?.toString() || "",
+              effectiveDate: p.effectiveDate?.toString() || "", // Assuming same as policy
+              expiryDate: p.expiryDate?.toString() || "", // This might need adjustment if applicants have different dates
+              relation: a.relation,
+              preMedCoverage: a.PreExCoverage,
+            })) || []
+          }
+          totalPremium={p.premium || 0}
+          paymentOption={p.paymentOption as "lump-sum" | "monthly"}
+          onSuccess={() => {
+            // Refresh policy data after successful split
+            window.location.reload();
+          }}
+        />
+      )}
     </div>
   );
 };
