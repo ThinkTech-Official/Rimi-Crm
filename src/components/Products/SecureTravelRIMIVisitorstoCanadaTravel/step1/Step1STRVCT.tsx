@@ -20,6 +20,7 @@ import { getUserTypeFromToken } from "../../../../utils/getUserType";
 
 import { useSelector } from "react-redux";
 import type { RootState } from "../../../../app/store";
+import { useEmailQuote } from "../../../../hooks/apply/useEmailQuote";
 
 type SuperVisaOption = "" | "yes" | "no";
 type SuperVisaYears = "" | "1" | "2";
@@ -153,6 +154,9 @@ const Step1STRVCT = ({
   savingStage1,
 }: any) => {
   const agentCode = useSelector((state: RootState) => state.auth.agentCode);
+
+  const { sendQuoteEmail, loading: emailLoading, success: emailSuccess } = useEmailQuote();
+
 
   //===================== Applicant Information Functions and States =================================
 
@@ -570,6 +574,28 @@ const Step1STRVCT = ({
   };
 
   //================================================================================
+
+
+  // EMAIL QUOTE 
+
+  const handleEmailQuote = async () => {
+  if (!quoteNumber) {
+    alert('Please save your quote first');
+    return;
+  }
+
+  try {
+    await sendQuoteEmail(quoteNumber);
+    alert(`Quote email sent successfully to ${primaryEmail}`);
+  } catch (err) {
+    alert('Failed to send email. Please try again.');
+  }
+};
+
+
+
+  //
+
 
   return (
     <>
@@ -1581,7 +1607,14 @@ const Step1STRVCT = ({
             {quoteNumber != null ? (
               <div className=" flex flex-col justify-center items-center mb-2">
                 <p className="mt-2">Quote saved: {quoteNumber}</p>
-                <p className="text-[#2b00b7] cursor-pointer">Email Quote</p>
+                {/* <p className="text-[#2b00b7] cursor-pointer">Email Quote</p> */}
+                 <button 
+      onClick={handleEmailQuote}
+      disabled={emailLoading}
+      className={`text-[#2b00b7] cursor-pointer hover:underline ${emailLoading ? 'opacity-50' : ''}`}
+    >
+      {emailLoading ? 'Sending...' : emailSuccess ? '✓ Email Sent' : 'Email Quote'}
+    </button>
               </div>
             ) : (
               <h3 className=" text-center mt-2 cursor-pointer text-[#2b00b7]">
