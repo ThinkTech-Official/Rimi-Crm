@@ -113,6 +113,7 @@ export interface PublicAgentFormData {
   lastName: string;
   email: string;
   password: string;
+  phoneNumber: string;
   confirmPassword: string;
   company?: string;
   docFile1?: File;

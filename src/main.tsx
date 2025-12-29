@@ -58,6 +58,10 @@ import RenewalSecureTravelVisitorsToCanada from "./pages/renewals/RenewalSecureT
 import RenewalSecureStudyInternationalStudents from "./pages/renewals/RenewalSecureStudyInternationalStudents/RenewalSecureStudyInternationalStudents.tsx";
 import RenewalCanuckVoyageTravelMedical from "./pages/renewals/RenewalCanuckVoyageTravelMedical/RenewalCanuckVoyageTravelMedical.tsx";
 import RenewalCanuckVoyageNonMedical from "./pages/renewals/RenewalCanuckVoyageNonMedical/RenewalCanuckVoyageNonMedical.tsx";
+import ApplySecureTravelVisitorsToCanada from "./pages/apply/ApplySecureTravelVisitorsToCanada/ApplySecureTravelVisitorsToCanada.tsx";
+import ApplySecureStudyInternationalStudents from "./pages/apply/ApplySecureStudyInternationalStudents/ApplySecureStudyInternationalStudents.tsx";
+import ApplyCanuckVoyageTravelMedical from "./pages/apply/ApplyCanuckVoyageTravelMedical/ApplyCanuckVoyageTravelMedical.tsx";
+import ApplyCanuckVoyageNonMedical from "./pages/apply/ApplyCanuckVoyageNonMedical/ApplyCanuckVoyageNonMedical.tsx";
 
 // Create ONE client (module-level singleton)
 const queryClient = new QueryClient({
@@ -196,10 +200,10 @@ const router = createBrowserRouter(
 
 
         {/* Apply  */}
-     {/* <Route path="/apply/secure-travel-visitors-to-canada" element={<ApplySecureTravelVisitorsToCanada />} />
+     <Route path="/apply/secure-travel-visitors-to-canada" element={<ApplySecureTravelVisitorsToCanada />} />
 <Route path="/apply/secure-study-international-students-to-canada" element={<ApplySecureStudyInternationalStudents />} />
 <Route path="/apply/canuck-voyage-travel-medical" element={<ApplyCanuckVoyageTravelMedical />} />
-<Route path="/apply/canuck-voyage-non-medical-travel" element={<ApplyCanuckVoyageNonMedical />} /> */}
+<Route path="/apply/canuck-voyage-non-medical-travel" element={<ApplyCanuckVoyageNonMedical />} />
 
       </Route>
 
