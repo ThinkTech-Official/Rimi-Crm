@@ -23,6 +23,9 @@ import { usePaymentSchedule } from "../hooks/usePaymentSchedule";
 import { PaymentScheduleTable } from "../components/policy/PaymentScheduleTable";
 import { UpdateCardModal } from "../components/UpdateCardModal";
 import { PolicySplitModal } from "../components/policy/PolicySplitModal";
+import { useRenewalNotice } from "../hooks/renewals/useRenewalNotice";
+import RenewalNoticeModal from "../components/renewals/RenewalNoticeModal";
+import SuccessModal from "../components/renewals/SuccessModal";
 
 const fmtDate = (iso?: string) =>
   iso ? new Date(iso).toLocaleDateString("en-CA") : "-";
@@ -140,6 +143,19 @@ const PolicyDetailsPage: React.FC = () => {
     message: "",
   });
 
+
+  const [showRenewalModal, setShowRenewalModal] = useState(false);
+const [showSuccessModal, setShowSuccessModal] = useState(false);
+const [successMessage, setSuccessMessage] = useState("");
+
+
+// Add the renewal notice hook
+const {
+  sendRenewalNotice,
+  loading: renewalLoading,
+  error: renewalError,
+} = useRenewalNotice();
+
   useEffect(() => {
     if (!p) return;
     setTo(p.email || "");
@@ -174,6 +190,34 @@ const PolicyDetailsPage: React.FC = () => {
     p.paymentOption === "monthly-installments" &&
     p.status !== "CANCELLED" &&
     p.stripeSubscriptionScheduleId;
+
+
+    // REnewal Handlers
+    
+    const handleViewRenewalNotice = () => {
+  setShowRenewalModal(true);
+};
+
+const handleSendRenewalNotice = async () => {
+  if (!id) return;
+
+  const confirmMessage = `Are you sure you want to send a renewal notice to ${p.email}?`;
+  if (!window.confirm(confirmMessage)) {
+    return;
+  }
+
+  const result = await sendRenewalNotice(id);
+
+  if (result && result.success) {
+    setSuccessMessage(result.message);
+    setShowSuccessModal(true);
+  } else if (renewalError) {
+    alert(`Error: ${renewalError}`);
+  }
+};
+
+
+    //
 
   // MODIFY POLICY HANDLERS
 
@@ -1219,7 +1263,7 @@ const handleIssueRelatedPolicy = () => {
       </section>
 
       {/* Renewal */}
-      <section className="border-b py-4 text-sm">
+      {/* <section className="border-b py-4 text-sm">
         <div className="uppercase text-purple-600 font-semibold">Renewal</div>
         {!isEditMode && (
           <div className="flex items-center space-x-4">
@@ -1237,7 +1281,37 @@ const handleIssueRelatedPolicy = () => {
             </button>
           </div>
         )}
-      </section>
+      </section> */}
+
+      <section className="border-b py-4 text-sm">
+  <div className="uppercase text-purple-600 font-semibold">Renewal</div>
+  {!isEditMode && (
+    <div className="flex items-center space-x-4">
+      <div>
+        <input type="checkbox" checked readOnly /> Auto Renewal Notice
+      </div>
+      <button 
+        onClick={handleViewRenewalNotice}
+        className="px-3 py-1 border rounded hover:bg-gray-50 transition-colors"
+      >
+        View Renewal Notice
+      </button>
+      <button 
+        onClick={handleSendRenewalNotice}
+        disabled={renewalLoading}
+        className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+      >
+        {renewalLoading ? 'Sending...' : 'Send Renewal Notice'}
+      </button>
+      <button 
+        onClick={handleIssueRelatedPolicy} 
+        className="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700 transition-colors"
+      >
+        Issue Related Policy
+      </button>
+    </div>
+  )}
+</section>
 
       {/* History & Notes */}
       <section className="border-b py-4 text-sm space-y-4">
@@ -1472,6 +1546,24 @@ const handleIssueRelatedPolicy = () => {
           }}
         />
       )}
+
+
+      {/* Renewal Notice Modal */}
+
+      <RenewalNoticeModal
+  isOpen={showRenewalModal}
+  onClose={() => setShowRenewalModal(false)}
+  policy={p}
+/>
+
+
+{/* Success Modal */}
+<SuccessModal
+  isOpen={showSuccessModal}
+  onClose={() => setShowSuccessModal(false)}
+  message={successMessage}
+/>
+
     </div>
   );
 };
