@@ -1528,97 +1528,183 @@ export default function VerificationRequests() {
     }
   };
 
-  const handleVerifySubmit = async () => {
-    if (!selectedAgent || !validityDate) return;
+//   const handleVerifySubmit = async () => {
+//     if (!selectedAgent || !validityDate) return;
 
-    const needsAssignment = selectedAgent.agentCode?.startsWith('TEMP-') || !selectedAgent.commissionPercent;
+//     const needsAssignment = selectedAgent.agentCode?.startsWith('TEMP-') || !selectedAgent.commissionPercent;
     
-    if (needsAssignment) {
-      if (!adminAssignments.agentCode || !adminAssignments.agentCode.trim()) {
-        alert('Please provide an Agent Code');
-        return;
-      }
+//     if (needsAssignment) {
+//       if (!adminAssignments.agentCode || !adminAssignments.agentCode.trim()) {
+//         alert('Please provide an Agent Code');
+//         return;
+//       }
 
-      if (agentCodeAvailability.lastChecked !== adminAssignments.agentCode || 
-          agentCodeAvailability.status !== 'available') {
-        alert('Please check agent code availability first');
-        return;
-      }
+//       if (agentCodeAvailability.lastChecked !== adminAssignments.agentCode || 
+//           agentCodeAvailability.status !== 'available') {
+//         alert('Please check agent code availability first');
+//         return;
+//       }
 
-      if (!adminAssignments.commissionPercent || parseFloat(adminAssignments.commissionPercent) <= 0) {
-        alert('Please provide a valid Commission Percentage');
-        return;
-      }
+//       if (!adminAssignments.commissionPercent || parseFloat(adminAssignments.commissionPercent) <= 0) {
+//         alert('Please provide a valid Commission Percentage');
+//         return;
+//       }
 
-      // if (selectedAgent.applicantType === 'under_mga' && !adminAssignments.mgaId) {
-      //   alert('Please select an MGA for this agent');
-      //   return;
-      // }
+//       // if (selectedAgent.applicantType === 'under_mga' && !adminAssignments.mgaId) {
+//       //   alert('Please select an MGA for this agent');
+//       //   return;
+//       // }
 
-      if (selectedAgent.applicantType === 'under_mga' && 
-    selectedAgent.mgaType === 'other' && 
-    !adminAssignments.mgaId) {
-  alert('Please select an MGA for this agent');
-  return;
-}
+//       if (selectedAgent.applicantType === 'under_mga' && 
+//     selectedAgent.mgaType === 'other' && 
+//     !adminAssignments.mgaId) {
+//   alert('Please select an MGA for this agent');
+//   return;
+// }
       
-    }
+//     }
 
-    const payload: any = {
-      agentId: selectedAgent.id,
-      verificationValidTill: validityDate,
-    };
+//     const payload: any = {
+//       agentId: selectedAgent.id,
+//       verificationValidTill: validityDate,
+//     };
 
-    if (needsAssignment) {
-      payload.agentCode = adminAssignments.agentCode.trim();
-      payload.userType = adminAssignments.userType;
-      payload.commissionPercent = parseFloat(adminAssignments.commissionPercent);
+//     if (needsAssignment) {
+//       payload.agentCode = adminAssignments.agentCode.trim();
+//       payload.userType = adminAssignments.userType;
+//       payload.commissionPercent = parseFloat(adminAssignments.commissionPercent);
       
-      // if (selectedAgent.applicantType === 'under_mga' && adminAssignments.mgaId) {
-      //   payload.mgaId = adminAssignments.mgaId; //This is now the UUID
+//       // if (selectedAgent.applicantType === 'under_mga' && adminAssignments.mgaId) {
+//       //   payload.mgaId = adminAssignments.mgaId; //This is now the UUID
         
-      //   // ADD DEBUG LOGGING
-      //   console.log('═══════════════════════════════════');
-      //   console.log('Sending MGA Assignment');
-      //   console.log('mgaId:', payload.mgaId);
-      //   console.log('mgaId type:', typeof payload.mgaId);
-      //   console.log('Is UUID format:', /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(payload.mgaId));
-      //   console.log('═══════════════════════════════════');
-      // }
+//       //   // ADD DEBUG LOGGING
+//       //   console.log('═══════════════════════════════════');
+//       //   console.log('Sending MGA Assignment');
+//       //   console.log('mgaId:', payload.mgaId);
+//       //   console.log('mgaId type:', typeof payload.mgaId);
+//       //   console.log('Is UUID format:', /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(payload.mgaId));
+//       //   console.log('═══════════════════════════════════');
+//       // }
 
-      //Only include mgaId for "other" type, NOT for WFG
-if (selectedAgent.applicantType === 'under_mga' && 
-    selectedAgent.mgaType === 'other' && 
-    adminAssignments.mgaId) {
-  payload.mgaId = adminAssignments.mgaId;
+//       //Only include mgaId for "other" type, NOT for WFG
+// if (selectedAgent.applicantType === 'under_mga' && 
+//     selectedAgent.mgaType === 'other' && 
+//     adminAssignments.mgaId) {
+//   payload.mgaId = adminAssignments.mgaId;
   
-  console.log('═══════════════════════════════════');
-  console.log(' Sending MGA Assignment');
-  console.log('mgaId:', payload.mgaId);
-  console.log('═══════════════════════════════════');
-}
+//   console.log('═══════════════════════════════════');
+//   console.log(' Sending MGA Assignment');
+//   console.log('mgaId:', payload.mgaId);
+//   console.log('═══════════════════════════════════');
+// }
       
-      if (adminAssignments.userType === 'MGA' && adminAssignments.mgaOverridePercent) {
-        payload.mgaOverridePercent = parseFloat(adminAssignments.mgaOverridePercent);
-      }
+//       if (adminAssignments.userType === 'MGA' && adminAssignments.mgaOverridePercent) {
+//         payload.mgaOverridePercent = parseFloat(adminAssignments.mgaOverridePercent);
+//       }
+//     }
+
+//     const result = await verifyAgent(payload);
+//     if (result) {
+//       setShowVerifyModal(false);
+//       setSelectedAgent(null);
+//       setAdminAssignments({
+//         agentCode: '',
+//         userType: 'AGENT',
+//         commissionPercent: '',
+//         mgaOverridePercent: '',
+//         mgaId: '',
+//       });
+//       setAgentCodeAvailability({ status: 'idle', lastChecked: '' });
+//       setMgaSearch('');
+//       fetchRequests(activeTab === 'unverified' ? 'PENDING' : 'VERIFIED', currentPage, 10);
+//     }
+//   };
+
+
+
+const handleVerifySubmit = async () => {
+  if (!selectedAgent || !validityDate) return;
+
+  const needsAssignment = selectedAgent.agentCode?.startsWith('TEMP-') || !selectedAgent.commissionPercent;
+  const isWfgAgent = selectedAgent.applicantType === 'wfg';
+  
+  if (needsAssignment) {
+    if (!adminAssignments.agentCode || !adminAssignments.agentCode.trim()) {
+      alert('Please provide an Agent Code');
+      return;
     }
 
-    const result = await verifyAgent(payload);
-    if (result) {
-      setShowVerifyModal(false);
-      setSelectedAgent(null);
-      setAdminAssignments({
-        agentCode: '',
-        userType: 'AGENT',
-        commissionPercent: '',
-        mgaOverridePercent: '',
-        mgaId: '',
-      });
-      setAgentCodeAvailability({ status: 'idle', lastChecked: '' });
-      setMgaSearch('');
-      fetchRequests(activeTab === 'unverified' ? 'PENDING' : 'VERIFIED', currentPage, 10);
+    if (agentCodeAvailability.lastChecked !== adminAssignments.agentCode || 
+        agentCodeAvailability.status !== 'available') {
+      alert('Please check agent code availability first');
+      return;
     }
+
+    //  Skip commission validation for WFG agents
+    if (!isWfgAgent && (!adminAssignments.commissionPercent || parseFloat(adminAssignments.commissionPercent) <= 0)) {
+      alert('Please provide a valid Commission Percentage');
+      return;
+    }
+
+    // Only require MGA assignment for "under_mga" with "other" type
+    if (selectedAgent.applicantType === 'under_mga' && 
+        selectedAgent.mgaType === 'other' && 
+        !adminAssignments.mgaId) {
+      alert('Please select an MGA for this agent');
+      return;
+    }
+  }
+
+  const payload: any = {
+    agentId: selectedAgent.id,
+    verificationValidTill: validityDate,
   };
+
+  if (needsAssignment) {
+    payload.agentCode = adminAssignments.agentCode.trim();
+    payload.userType = adminAssignments.userType;
+    
+    // Set commission to 0 for WFG agents, otherwise use admin input
+    if (isWfgAgent) {
+      payload.commissionPercent = 0;
+    } else {
+      payload.commissionPercent = parseFloat(adminAssignments.commissionPercent);
+    }
+    
+    // Only include mgaId for "other" type, NOT for WFG
+    if (selectedAgent.applicantType === 'under_mga' && 
+        selectedAgent.mgaType === 'other' && 
+        adminAssignments.mgaId) {
+      payload.mgaId = adminAssignments.mgaId;
+      
+      console.log('═══════════════════════════════════');
+      console.log('Sending MGA Assignment');
+      console.log('mgaId:', payload.mgaId);
+      console.log('═══════════════════════════════════');
+    }
+    
+    if (adminAssignments.userType === 'MGA' && adminAssignments.mgaOverridePercent) {
+      payload.mgaOverridePercent = parseFloat(adminAssignments.mgaOverridePercent);
+    }
+  }
+
+  const result = await verifyAgent(payload);
+  if (result) {
+    setShowVerifyModal(false);
+    setSelectedAgent(null);
+    setAdminAssignments({
+      agentCode: '',
+      userType: 'AGENT',
+      commissionPercent: '',
+      mgaOverridePercent: '',
+      mgaId: '',
+    });
+    setAgentCodeAvailability({ status: 'idle', lastChecked: '' });
+    setMgaSearch('');
+    fetchRequests(activeTab === 'unverified' ? 'PENDING' : 'VERIFIED', currentPage, 10);
+  }
+};
+
 
   const openDocument = (url: string | null) => {
     if (url) {
@@ -1626,35 +1712,77 @@ if (selectedAgent.applicantType === 'under_mga' &&
     }
   };
 
+  // const getApplicantTypeBadge = (agent: any) => {
+  //   if (!agent.applicantType) return null;
+
+  //   if (agent.applicantType === 'independent') {
+  //     return (
+  //       <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+  //         Independent Agent
+  //       </span>
+  //     );
+  //   }
+
+  //   if (agent.applicantType === 'under_mga' && agent.mgaType === 'wfg') {
+  //     return (
+  //       <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+  //         WFG Agent
+  //       </span>
+  //     );
+  //   }
+
+  //   if (agent.applicantType === 'under_mga' && agent.mgaType === 'other') {
+  //     return (
+  //       <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
+  //         Agent under MGA
+  //       </span>
+  //     );
+  //   }
+
+  //   return null;
+  // };
+
+
   const getApplicantTypeBadge = (agent: any) => {
-    if (!agent.applicantType) return null;
+  if (!agent.applicantType) return null;
 
-    if (agent.applicantType === 'independent') {
-      return (
-        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-          Independent Agent
-        </span>
-      );
-    }
+  if (agent.applicantType === 'independent') {
+    return (
+      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+        Independent Agent
+      </span>
+    );
+  }
 
-    if (agent.applicantType === 'under_mga' && agent.mgaType === 'wfg') {
-      return (
-        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
-          WFG Agent
-        </span>
-      );
-    }
+  // Support new structure first
+  if (agent.applicantType === 'wfg') {
+    return (
+      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+        WFG Agent
+      </span>
+    );
+  }
 
-    if (agent.applicantType === 'under_mga' && agent.mgaType === 'other') {
-      return (
-        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
-          Agent under MGA
-        </span>
-      );
-    }
+  // Support old structure for backward compatibility
+  if (agent.applicantType === 'under_mga' && agent.mgaType === 'wfg') {
+    return (
+      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+        WFG Agent (Legacy)
+      </span>
+    );
+  }
 
-    return null;
-  };
+  if (agent.applicantType === 'under_mga' && agent.mgaType === 'other') {
+    return (
+      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
+        Agent under MGA
+      </span>
+    );
+  }
+
+  return null;
+};
+
 
   const hasDocuments = (agent: any) => {
     return agent.applicantType === 'independent' || 
@@ -1943,7 +2071,8 @@ function VerificationModal({
 const needsMgaAssignment = 
   selectedAgent.applicantType === 'under_mga' && 
   selectedAgent.mgaType === 'other';
-  const isWfgAgent = selectedAgent.applicantType === 'under_mga' && selectedAgent.mgaType === 'wfg';
+  // const isWfgAgent = selectedAgent.applicantType === 'under_mga' && selectedAgent.mgaType === 'wfg';
+  const isWfgAgent = selectedAgent.applicantType === 'wfg';
   const hasDocuments = selectedAgent.applicantType === 'independent' || 
                       (selectedAgent.applicantType === 'under_mga' && selectedAgent.mgaType === 'other');
 
@@ -2076,6 +2205,10 @@ const needsMgaAssignment =
                   </p>
                 </div>
 
+                {/* Commiison Percentage  */}
+
+                {!isWfgAgent && (
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Commission Percentage <span className="text-red-500">*</span>
@@ -2100,6 +2233,8 @@ const needsMgaAssignment =
                     Agent's commission on each policy
                   </p>
                 </div>
+
+                )}
 
                 {/* MGA Assignment Section */}
                 {needsMgaAssignment && (
