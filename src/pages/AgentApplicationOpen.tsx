@@ -1829,6 +1829,8 @@ const AgentApplicationOpen: React.FC = () => {
 
   const handleFileSize = (file: File) => (file.size / (1024 * 1024)).toFixed(2);
 
+  
+
   return (
     <div className="min-h-[calc(100vh-64px)] bg-white flex flex-col">
       {/* Main Layout */}

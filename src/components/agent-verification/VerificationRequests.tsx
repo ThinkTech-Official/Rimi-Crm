@@ -1439,6 +1439,20 @@ import { API_BASE } from '../../utils/urls';
 import { useMgaCodes, MgaOption } from '../../hooks/agent-verification/useMgaCodes'; 
 
 
+
+
+const getDocumentLabel = (docType: string | null): string => {
+  const labels: Record<string, string> = {
+    'insurance_license': 'Insurance License',
+    'eo_insurance': 'E&O Insurance',
+    'bank_details': 'Bank Details',
+    'agency_agreement': 'Agency Agreement',
+  };
+  return docType && labels[docType] ? labels[docType] : 'Document';
+};
+
+
+
 export default function VerificationRequests() {
   const [adminAssignments, setAdminAssignments] = useState<{
     agentCode: string;
@@ -1743,6 +1757,8 @@ const handleVerifySubmit = async () => {
   // };
 
 
+
+
   const getApplicantTypeBadge = (agent: any) => {
   if (!agent.applicantType) return null;
 
@@ -1784,10 +1800,20 @@ const handleVerifySubmit = async () => {
 };
 
 
+  // const hasDocuments = (agent: any) => {
+  //   return agent.applicantType === 'independent' || 
+  //          (agent.applicantType === 'under_mga' && agent.mgaType === 'other');
+  // };
+
   const hasDocuments = (agent: any) => {
-    return agent.applicantType === 'independent' || 
-           (agent.applicantType === 'under_mga' && agent.mgaType === 'other');
-  };
+  // only independent agents have documents
+  if (agent.applicantType === 'independent') return true;
+  
+  // Old structure fOr backward compatibility
+  if (agent.applicantType === 'under_mga' && agent.mgaType === 'other') return true;
+  
+  return false;
+};
 
   return (
     <div className="px-8 py-6">
@@ -1898,7 +1924,7 @@ const handleVerifySubmit = async () => {
                                 : 'Not uploaded'}
                             </p>
                             
-                            {hasDocuments(agent) && (
+                            {/* {hasDocuments(agent) && (
                               <div className="flex justify-end space-x-2 mb-3">
                                 {agent.docLink1 && (
                                   <button
@@ -1928,7 +1954,53 @@ const handleVerifySubmit = async () => {
                                   </button>
                                 )}
                               </div>
-                            )}
+                            )} */}
+
+                            {hasDocuments(agent) && (
+  <div className="flex justify-end space-x-2 mb-3">
+    {agent.docLink1 && (
+      <button
+        onClick={() => openDocument(agent.docLink1)}
+        className="text-[#2B00B7] hover:text-[#1e007f] flex items-center gap-1 text-xs"
+        title={getDocumentLabel(agent.docType1)}
+      >
+        <DocumentIcon className="h-5 w-5" />
+        <span className="hidden sm:inline">{getDocumentLabel(agent.docType1)}</span>
+      </button>
+    )}
+    {agent.docLink2 && (
+      <button
+        onClick={() => openDocument(agent.docLink2)}
+        className="text-[#2B00B7] hover:text-[#1e007f] flex items-center gap-1 text-xs"
+        title={getDocumentLabel(agent.docType2)}
+      >
+        <DocumentIcon className="h-5 w-5" />
+        <span className="hidden sm:inline">{getDocumentLabel(agent.docType2)}</span>
+      </button>
+    )}
+    {agent.docLink3 && (
+      <button
+        onClick={() => openDocument(agent.docLink3)}
+        className="text-[#2B00B7] hover:text-[#1e007f] flex items-center gap-1 text-xs"
+        title={getDocumentLabel(agent.docType3)}
+      >
+        <DocumentIcon className="h-5 w-5" />
+        <span className="hidden sm:inline">{getDocumentLabel(agent.docType3)}</span>
+      </button>
+    )}
+    {/* 4th document */}
+    {agent.docLink4 && (
+      <button
+        onClick={() => openDocument(agent.docLink4)}
+        className="text-[#2B00B7] hover:text-[#1e007f] flex items-center gap-1 text-xs"
+        title={getDocumentLabel(agent.docType4)}
+      >
+        <DocumentIcon className="h-5 w-5" />
+        <span className="hidden sm:inline">{getDocumentLabel(agent.docType4)}</span>
+      </button>
+    )}
+  </div>
+)}
                             
                             <button
                               onClick={() => handleVerifyClick(agent)}
@@ -2073,8 +2145,10 @@ const needsMgaAssignment =
   selectedAgent.mgaType === 'other';
   // const isWfgAgent = selectedAgent.applicantType === 'under_mga' && selectedAgent.mgaType === 'wfg';
   const isWfgAgent = selectedAgent.applicantType === 'wfg';
+  // const hasDocuments = selectedAgent.applicantType === 'independent' || 
+  //                     (selectedAgent.applicantType === 'under_mga' && selectedAgent.mgaType === 'other');
   const hasDocuments = selectedAgent.applicantType === 'independent' || 
-                      (selectedAgent.applicantType === 'under_mga' && selectedAgent.mgaType === 'other');
+                    (selectedAgent.applicantType === 'under_mga' && selectedAgent.mgaType === 'other');
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
@@ -2314,7 +2388,7 @@ const needsMgaAssignment =
             </p>
           </div>
 
-          {hasDocuments && (selectedAgent.docLink1 || selectedAgent.docLink2 || selectedAgent.docLink3) && (
+          {/* {hasDocuments && (selectedAgent.docLink1 || selectedAgent.docLink2 || selectedAgent.docLink3) && (
             <div className="bg-gray-50 p-3 rounded-lg">
               <p className="text-sm font-medium text-gray-700 mb-2">Documents:</p>
               <div className="flex flex-wrap gap-2">
@@ -2347,7 +2421,52 @@ const needsMgaAssignment =
                 )}
               </div>
             </div>
-          )}
+          )} */}
+
+          {hasDocuments && (selectedAgent.docLink1 || selectedAgent.docLink2 || selectedAgent.docLink3 || selectedAgent.docLink4) && (
+  <div className="bg-gray-50 p-3 rounded-lg">
+    <p className="text-sm font-medium text-gray-700 mb-2">Documents:</p>
+    <div className="flex flex-wrap gap-2">
+      {selectedAgent.docLink1 && (
+        <button
+          onClick={() => openDocument(selectedAgent.docLink1)}
+          className="flex items-center gap-1 text-xs bg-white border border-gray-300 rounded px-2 py-1 hover:bg-gray-100"
+        >
+          <DocumentIcon className="h-4 w-4" />
+          {getDocumentLabel(selectedAgent.docType1)}
+        </button>
+      )}
+      {selectedAgent.docLink2 && (
+        <button
+          onClick={() => openDocument(selectedAgent.docLink2)}
+          className="flex items-center gap-1 text-xs bg-white border border-gray-300 rounded px-2 py-1 hover:bg-gray-100"
+        >
+          <DocumentIcon className="h-4 w-4" />
+          {getDocumentLabel(selectedAgent.docType2)}
+        </button>
+      )}
+      {selectedAgent.docLink3 && (
+        <button
+          onClick={() => openDocument(selectedAgent.docLink3)}
+          className="flex items-center gap-1 text-xs bg-white border border-gray-300 rounded px-2 py-1 hover:bg-gray-100"
+        >
+          <DocumentIcon className="h-4 w-4" />
+          {getDocumentLabel(selectedAgent.docType3)}
+        </button>
+      )}
+      {/* NEW: Add 4th document */}
+      {selectedAgent.docLink4 && (
+        <button
+          onClick={() => openDocument(selectedAgent.docLink4)}
+          className="flex items-center gap-1 text-xs bg-white border border-gray-300 rounded px-2 py-1 hover:bg-gray-100"
+        >
+          <DocumentIcon className="h-4 w-4" />
+          {getDocumentLabel(selectedAgent.docType4)}
+        </button>
+      )}
+    </div>
+  </div>
+)}
 
           <div className="flex space-x-3 mt-6 pt-4 border-t">
             <button
