@@ -573,20 +573,6 @@ const handleIssueRelatedPolicy = () => {
                 </button>
               )}
 
-              {/* Split Policy Button */}
-              {p.product === "SECURE_TRAVEL_RIMI_VISITORS_TO_CANADA_TRAVEL" &&
-                p.status &&
-                ["ACTIVE", "SOLD"].includes(p.status) &&
-                1 + (p.applicants?.length || 0) >= 2 &&
-                !isEditMode && (
-                  <button
-                    onClick={() => setShowSplitModal(true)}
-                    className="px-3 py-1 bg-indigo-600 text-white rounded hover:bg-indigo-700"
-                  >
-                    Split Policy
-                  </button>
-                )}
-
               {/* Update Card  */}
               {canUpdateCard && !isEditMode && (
                 <button
@@ -621,6 +607,19 @@ const handleIssueRelatedPolicy = () => {
                   Cancel Policy
                 </button>
               )}
+               {/* Split Policy Button */}
+              {p.product === "SECURE_TRAVEL_RIMI_VISITORS_TO_CANADA_TRAVEL" &&
+                p.status &&
+                ["ACTIVE", "SOLD"].includes(p.status) &&
+                1 + (p.applicants?.length || 0) >= 2 &&
+                !isEditMode && (
+                  <button
+                    onClick={() => setShowSplitModal(true)}
+                    className="bg-primary text-white py-2 sm:py-2 px-4 font-semibold hover:bg-[#2309A1] transition-all duration-200 cursor-pointer disabled:cursor-default disabled:opacity-70"
+                  >
+                    Split Policy
+                  </button>
+                )}
               {canModify && (
                 <button
                   onClick={handleModifyClick}

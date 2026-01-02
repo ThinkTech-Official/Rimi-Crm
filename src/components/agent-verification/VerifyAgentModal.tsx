@@ -340,6 +340,36 @@ export default function VerificationModal({
               }}
               minDate={new Date()}
             />
+            <div className="flex gap-2 mt-2">
+              <button
+                type="button"
+                onClick={() => {
+                  const baseDate = new Date();
+                  baseDate.setFullYear(baseDate.getFullYear() + 1);
+                  const year = baseDate.getFullYear();
+                  const month = String(baseDate.getMonth() + 1).padStart(2, "0");
+                  const day = String(baseDate.getDate()).padStart(2, "0");
+                  setValidityDate(`${year}-${month}-${day}`);
+                }}
+                className="px-3 py-1 text-xs font-medium bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100 transition-colors cursor-pointer"
+              >
+                + 1 Year
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  const baseDate = new Date();
+                  baseDate.setFullYear(baseDate.getFullYear() + 5);
+                  const year = baseDate.getFullYear();
+                  const month = String(baseDate.getMonth() + 1).padStart(2, "0");
+                  const day = String(baseDate.getDate()).padStart(2, "0");
+                  setValidityDate(`${year}-${month}-${day}`);
+                }}
+                className="px-3 py-1 text-xs font-medium bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100 transition-colors cursor-pointer"
+              >
+               + 5 Years
+              </button>
+            </div>
             </div>
           </div>
 

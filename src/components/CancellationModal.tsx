@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { usePolicyCancellation, RefundPreview } from '../hooks/admin-dashboard/usePolicyCancellation';
+import { MdClose } from 'react-icons/md';
 
 interface PaymentRecord {
   id: string;
@@ -93,18 +94,20 @@ export default function CancellationModal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg shadow-xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50">
+      <div className="bg-white shadow-xl max-w-3xl w-full max-h-[90vh] overflow-y-auto custom-scrollbar3">
         {/* Header */}
-        <div className="sticky top-0 bg-white border-b px-6 py-4 flex justify-between items-center">
-          <h2 className="text-xl font-semibold" style={{ color: '#2309a1' }}>
-            Cancel Policy {policyNumber}
+        <div className="sticky top-0 bg-white border-b border-inputBorder px-6 py-4 flex justify-between items-center z-10">
+          <h2 className="text-xl font-semibold text-text-black">
+            Cancel Policy - <span className='text-primary'>
+              {policyNumber}
+            </span>
           </h2>
           <button
             onClick={onClose}
-            className="text-gray-500 hover:text-gray-700 text-2xl leading-none"
+            className="text-gray-500 hover:text-gray-700 text-2xl leading-none cursor-pointer"
           >
-            ×
+            <MdClose/>
           </button>
         </div>
 
@@ -120,40 +123,40 @@ export default function CancellationModal({
             <>
               {/* Transaction Records Table */}
               <div className="space-y-2">
-                <h3 className="font-semibold text-sm" style={{ color: '#2309a1' }}>
+                <h3 className="font-semibold text-sm text-primary">
                   Transaction Record
                 </h3>
-                <div className="border rounded overflow-x-auto">
-                  <table className="w-full text-xs">
-                    <thead className="bg-gray-100">
+                <div className="overflow-x-auto custom-scrollbar2">
+                  <table className="min-w-full divide-y divide-gray-200">
+                    <thead className="bg-primary text-white text-sm text-nowrap capitalize">
                       <tr>
-                        <th className="px-3 py-2 text-left">#</th>
-                        <th className="px-3 py-2 text-left">Payment Method</th>
-                        <th className="px-3 py-2 text-left">Cardholder Name</th>
-                        <th className="px-3 py-2 text-left">Brand</th>
-                        <th className="px-3 py-2 text-left">Card Number Last 4</th>
-                        <th className="px-3 py-2 text-right">Charged Amount</th>
-                        <th className="px-3 py-2 text-right">Transaction Fee</th>
-                        <th className="px-3 py-2 text-left">Status</th>
-                        <th className="px-3 py-2 text-left">Date</th>
+                        <th className="px-3 py-2 text-left font-medium">#</th>
+                        <th className="px-3 py-2 text-left font-medium">Payment Method</th>
+                        <th className="px-3 py-2 text-left font-medium">Cardholder Name</th>
+                        <th className="px-3 py-2 text-left font-medium">Brand</th>
+                        <th className="px-3 py-2 text-left font-medium">Card Number Last 4</th>
+                        <th className="px-3 py-2 text-right font-medium">Charged Amount</th>
+                        <th className="px-3 py-2 text-right font-medium">Transaction Fee</th>
+                        <th className="px-3 py-2 text-left font-medium">Status</th>
+                        <th className="px-3 py-2 text-left font-medium">Date</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y">
+                    <tbody className="bg-white text-nowrap" style={{ border: "1px solid #AAA9A9" }}>
                       {paymentHistory.map((payment, idx) => (
-                        <tr key={payment.id}>
-                          <td className="px-3 py-2">{idx + 1}</td>
-                          <td className="px-3 py-2">{payment.method}</td>
-                          <td className="px-3 py-2">{payment.cardholderName}</td>
-                          <td className="px-3 py-2 capitalize">{payment.brand}</td>
-                          <td className="px-3 py-2">{payment.last4}</td>
-                          <td className="px-3 py-2 text-right">
+                        <tr key={payment.id} className="text-[#808080] text-sm">
+                          <td className="px-3 py-2" style={{ borderWidth: "0px 1px 1px 0px", borderStyle: "solid", borderColor: "#AAA9A9" }}>{idx + 1}</td>
+                          <td className="px-3 py-2" style={{ borderWidth: "0px 1px 1px 0px", borderStyle: "solid", borderColor: "#AAA9A9" }}>{payment.method}</td>
+                          <td className="px-3 py-2" style={{ borderWidth: "0px 1px 1px 0px", borderStyle: "solid", borderColor: "#AAA9A9" }}>{payment.cardholderName}</td>
+                          <td className="px-3 py-2 capitalize" style={{ borderWidth: "0px 1px 1px 0px", borderStyle: "solid", borderColor: "#AAA9A9" }}>{payment.brand}</td>
+                          <td className="px-3 py-2" style={{ borderWidth: "0px 1px 1px 0px", borderStyle: "solid", borderColor: "#AAA9A9" }}>{payment.last4}</td>
+                          <td className="px-3 py-2 text-right" style={{ borderWidth: "0px 1px 1px 0px", borderStyle: "solid", borderColor: "#AAA9A9" }}>
                             {payment.amount.toLocaleString('en-CA', {
                               style: 'currency',
                               currency: payment.currency,
                               currencyDisplay: 'code'
                             })}
                           </td>
-                          <td className="px-3 py-2 text-right">
+                          <td className="px-3 py-2 text-right" style={{ borderWidth: "0px 1px 1px 0px", borderStyle: "solid", borderColor: "#AAA9A9" }}>
                             {payment.fee != null
                               ? payment.fee.toLocaleString('en-CA', {
                                   style: 'currency',
@@ -164,10 +167,10 @@ export default function CancellationModal({
                           </td>
                           <td className={`px-3 py-2 capitalize ${
                             payment.status === 'succeeded' ? 'text-green-600' : ''
-                          }`}>
+                          }`} style={{ borderWidth: "0px 1px 1px 0px", borderStyle: "solid", borderColor: "#AAA9A9" }}>
                             {payment.status}
                           </td>
-                          <td className="px-3 py-2">
+                          <td className="px-3 py-2" style={{ borderWidth: "0px 1px 1px 0px", borderStyle: "solid", borderColor: "#AAA9A9" }}>
                             {new Date(payment.date).toLocaleDateString('en-CA')}
                           </td>
                         </tr>
@@ -180,11 +183,11 @@ export default function CancellationModal({
               {/* Cancellation Options */}
               <div className="space-y-4">
                 <div>
-                  <label className="block font-medium mb-2">Cancellation Type</label>
+                  <label className="block font-medium mb-2 text-text-secondary">Cancellation Type</label>
                   <select
                     value={cancellationType}
                     onChange={(e) => setCancellationType(e.target.value as any)}
-                    className="w-full p-2 border rounded"
+                    className="input-primary"
                   >
                     <option value="visitors">Visitors Insurance</option>
                     <option value="visa-refusal">Visa Refusal (No Fee)</option>
@@ -196,19 +199,19 @@ export default function CancellationModal({
 
                 {cancellationType === 'other' && (
                   <div>
-                    <label className="block font-medium mb-2">Specify Other Type</label>
+                    <label className="block font-medium mb-2 text-text-secondary">Specify Other Type</label>
                     <input
                       type="text"
                       value={otherTypeText}
                       onChange={(e) => setOtherTypeText(e.target.value)}
-                      className="w-full p-2 border rounded"
+                      className="input-primary"
                       placeholder="Enter cancellation type..."
                     />
                   </div>
                 )}
 
                 <div>
-                  <label className="block font-medium mb-2">
+                  <label className="block font-medium mb-2 text-text-secondary">
                     Cancellation Fee (CAD)
                     {cancellationType === 'visa-refusal' && (
                       <span className="text-sm text-gray-500 ml-2">(No fee for visa refusal)</span>
@@ -224,7 +227,7 @@ export default function CancellationModal({
                     type="number"
                     value={cancellationFee}
                     onChange={(e) => setCancellationFee(Number(e.target.value))}
-                    className="w-full p-2 border rounded"
+                    className="input-primary"
                     min="0"
                     step="10"
                     disabled={cancellationType === 'visa-refusal'}
@@ -233,8 +236,8 @@ export default function CancellationModal({
                 </div>
 
                 {/* Quick Refund Calculation */}
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                  <div className="grid grid-cols-2 gap-4 text-sm">
+                <div className="bg-blue-50/50 border border-blue-200 p-4">
+                  <div className="flex justify-between gap-4 text-sm">
                     <div>
                       <div className="text-gray-600">Total Amount Paid</div>
                       <div className="font-semibold text-lg">
@@ -248,14 +251,14 @@ export default function CancellationModal({
                       </div>
                     </div>
                   </div>
-                  <div className="border-t border-blue-300 mt-3 pt-3">
+                  <div className="border-t border-blue-300 mt-1 pt-3">
                     <div className="flex justify-between items-center">
                       <span className="font-medium">Estimated Refundable Amount</span>
-                      <span className="text-2xl font-bold text-green-600">
+                      <span className="text-xl font-bold text-green-600">
                         CAD ${simpleRefund.refundable.toFixed(2)}
                       </span>
                     </div>
-                    <p className="text-xs text-gray-600 mt-2">
+                    <p className="text-xs max-w-sm text-gray-600 mt-2">
                       {paymentHistory.length > 1 
                         ? '⚠️ This is an estimate. For monthly payments, the actual refund breakdown may differ. Click "PREVIEW REFUND" for detailed calculation.'
                         : 'This is a quick estimate for lump sum payment. Click "PREVIEW REFUND" for official calculation.'}
@@ -264,23 +267,23 @@ export default function CancellationModal({
                 </div>
 
                 <div>
-                  <label className="block font-medium mb-2">Notes (Optional)</label>
+                  <label className="block font-medium mb-2 text-text-secondary">Notes (Optional)</label>
                   <textarea
                     value={notes}
                     onChange={(e) => setNotes(e.target.value)}
-                    className="w-full p-2 border rounded"
+                    className="input-primary"
                     rows={3}
                     placeholder="Enter cancellation notes..."
                   />
                 </div>
 
                 <div>
-                  <label className="block font-medium mb-2">Processed By (Optional)</label>
+                  <label className="block font-medium mb-2 text-text-secondary">Processed By (Optional)</label>
                   <input
                     type="text"
                     value={processedBy}
                     onChange={(e) => setProcessedBy(e.target.value)}
-                    className="w-full p-2 border rounded"
+                    className="input-primary"
                     placeholder="Your name or ID"
                   />
                 </div>
@@ -289,12 +292,12 @@ export default function CancellationModal({
               {/* Preview Results */}
               {loading ? (
                 <div className="text-center py-8">
-                  <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2" style={{ borderColor: '#2309a1' }}></div>
+                  <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
                   <p className="mt-2 text-gray-600">Calculating refund...</p>
                 </div>
               ) : preview ? (
-                <div className="bg-gray-50 rounded-lg p-6 space-y-4">
-                  <h3 className="font-semibold text-lg" style={{ color: '#2309a1' }}>Refund Preview</h3>
+                <div className="bg-gray-50 p-6 space-y-4">
+                  <h3 className="font-semibold text-lg text-primary">Refund Preview</h3>
                   
                   <div className="grid grid-cols-2 gap-4 text-sm">
                     <div>
@@ -318,7 +321,7 @@ export default function CancellationModal({
                   <div className="border-t pt-4">
                     <div className="flex justify-between items-center">
                       <span className="text-lg font-semibold">Total Refundable</span>
-                      <span className="text-2xl font-bold text-green-600">
+                      <span className="text-xl font-bold text-green-600">
                         CAD ${preview.totalRefundable.toFixed(2)}
                       </span>
                     </div>
@@ -328,28 +331,28 @@ export default function CancellationModal({
                   {preview.refundBreakdown.length > 0 && (
                     <div className="mt-4">
                       <h4 className="font-medium mb-2">Refund Breakdown</h4>
-                      <table className="w-full text-xs">
-                        <thead className="bg-gray-100">
+                      <table className="min-w-full divide-y divide-gray-200">
+                        <thead className="bg-primary text-white text-base capitalize">
                           <tr>
-                            <th className="px-2 py-1 text-left">Charge ID</th>
-                            <th className="px-2 py-1 text-right">Original</th>
-                            <th className="px-2 py-1 text-right">Refund</th>
-                            <th className="px-2 py-1 text-left">Date</th>
+                            <th className="px-2 py-1 text-left font-medium">Charge ID</th>
+                            <th className="px-2 py-1 text-right font-medium">Original</th>
+                            <th className="px-2 py-1 text-right font-medium">Refund</th>
+                            <th className="px-2 py-1 text-left font-medium">Date</th>
                           </tr>
                         </thead>
-                        <tbody className="divide-y">
+                        <tbody className="bg-white" style={{ border: "1px solid #AAA9A9" }}>
                           {preview.refundBreakdown.map((item: any, idx: any) => (
-                            <tr key={idx}>
-                              <td className="px-2 py-1 font-mono text-xs">
+                            <tr key={idx} className="text-[#808080] text-sm">
+                              <td className="px-2 py-1 font-mono text-xs" style={{ borderWidth: "0px 1px 1px 0px", borderStyle: "solid", borderColor: "#AAA9A9" }}>
                                 {item.chargeId.slice(-8)}
                               </td>
-                              <td className="px-2 py-1 text-right">
+                              <td className="px-2 py-1 text-right" style={{ borderWidth: "0px 1px 1px 0px", borderStyle: "solid", borderColor: "#AAA9A9" }}>
                                 ${item.amount.toFixed(2)}
                               </td>
-                              <td className="px-2 py-1 text-right font-medium text-green-600">
+                              <td className="px-2 py-1 text-right font-medium text-green-600" style={{ borderWidth: "0px 1px 1px 0px", borderStyle: "solid", borderColor: "#AAA9A9" }}>
                                 ${item.willRefund.toFixed(2)}
                               </td>
-                              <td className="px-2 py-1">
+                              <td className="px-2 py-1" style={{ borderWidth: "0px 1px 1px 0px", borderStyle: "solid", borderColor: "#AAA9A9" }}>
                                 {new Date(item.date).toLocaleDateString('en-CA')}
                               </td>
                             </tr>
@@ -365,15 +368,14 @@ export default function CancellationModal({
               <div className="flex justify-end space-x-3 pt-4 border-t">
                 <button
                   onClick={onClose}
-                  className="px-4 py-2 border rounded hover:bg-gray-50"
+                  className="py-2 px-4 border border-inputBorder hover:border-gray-400 cursor-pointer transition delay-100"
                 >
                   NO, GO BACK
                 </button>
                 <button
                   onClick={() => setStep('confirm')}
                   disabled={!preview || loading}
-                  className="px-4 py-2 text-white rounded disabled:opacity-50"
-                  style={{ backgroundColor: '#2309a1' }}
+                  className="btn-primary"
                 >
                   PREVIEW REFUND
                 </button>
@@ -383,7 +385,7 @@ export default function CancellationModal({
 
           {step === 'confirm' && (
             <>
-              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+              <div className="bg-yellow-50 border border-yellow-200 p-4">
                 <div className="flex items-start">
                   <div className="text-yellow-600 text-xl mr-3">⚠️</div>
                   <div>
@@ -404,27 +406,27 @@ export default function CancellationModal({
               </div>
 
               {preview && (
-                <div className="bg-gray-50 rounded-lg p-4">
+                <div className="bg-greyBg p-4">
                   <div className="flex justify-between items-center">
                     <span className="font-medium">Total to be refunded:</span>
-                    <span className="text-2xl font-bold text-green-600">
+                    <span className="text-xl font-bold text-green-600">
                       CAD ${preview.totalRefundable.toFixed(2)}
                     </span>
                   </div>
                 </div>
               )}
 
-              <div className="flex justify-end space-x-3 pt-4 border-t">
+              <div className="flex justify-end space-x-3 pt-2">
                 <button
                   onClick={() => setStep('preview')}
-                  className="px-4 py-2 border rounded hover:bg-gray-50"
+                  className="py-2 px-4 border border-inputBorder hover:border-gray-400 cursor-pointer transition delay-100"
                 >
                   Back
                 </button>
                 <button
                   onClick={handleCancel}
                   disabled={loading}
-                  className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 disabled:opacity-50"
+                  className="bg-red-600 text-white py-2 sm:py-3 px-5 font-semibold hover:bg-red-700 transition-all duration-200 cursor-pointer disabled:cursor-default disabled:opacity-70 flex gap-1 items-center text-nowrap w-fit"
                 >
                   {loading ? 'Processing...' : 'CONFIRM CANCELLATION'}
                 </button>

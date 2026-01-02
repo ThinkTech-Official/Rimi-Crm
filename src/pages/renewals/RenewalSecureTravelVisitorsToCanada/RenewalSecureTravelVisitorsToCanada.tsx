@@ -32,6 +32,7 @@ interface Applicant {
   relationship: string;
   preMedCoverage: boolean;
   gender: string;
+  healthQuestionnaire: { questions: any[] };
 }
 
 interface QuoteStage1Response {
@@ -310,6 +311,7 @@ useEffect(() => {
         relationship: a.relation || "",
         preMedCoverage: a.PreExCoverage === "Yes",
         gender: a.gender,
+        healthQuestionnaire: { questions: [] },
       }))
     );
   }

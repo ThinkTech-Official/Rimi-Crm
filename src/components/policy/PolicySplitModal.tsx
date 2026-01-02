@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { usePolicySplit } from '../../hooks/admin-dashboard/usePolicySplit';
+import { MdClose } from 'react-icons/md';
 
 
 interface Applicant {
@@ -216,26 +217,22 @@ export const PolicySplitModal: React.FC<PolicySplitModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto">
-      {/* Backdrop */}
-      <div className="fixed inset-0 bg-black bg-opacity-50" onClick={onClose} />
-
+    <div className="fixed inset-0 flex justify-center items-center z-50 bg-black/30" onClick={onClose}>
       {/* Modal */}
-      <div className="flex min-h-screen items-center justify-center p-4">
-        <div className="relative bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+        <div className="bg-white shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto custom-scrollbar3" onClick={(e) => e.stopPropagation()}>
           {/* Header */}
-          <div className="sticky top-0 bg-white border-b px-6 py-4 flex items-center justify-between">
+          <div className="sticky top-0 bg-white border-b border-inputBorder px-6 py-4 flex items-center justify-between z-10">
             <div>
-              <h2 className="text-2xl font-bold text-gray-900">Split Policy</h2>
-              <p className="text-sm text-gray-600 mt-1">
+              <h2 className="text-2xl font-bold text-primary">Split Policy</h2>
+              <p className="text-sm text-text-secondary mt-1">
                 Policy: {policyNumber} | Step {currentStep === 'select' ? '1' : currentStep === 'preview' ? '2' : '3'} of 3
               </p>
             </div>
             <button
               onClick={onClose}
-              className="text-gray-400 hover:text-gray-600 text-2xl font-bold"
+              className="text-gray-500 hover:text-gray-700 text-2xl leading-none cursor-pointer"
             >
-              ×
+              <MdClose />
             </button>
           </div>
 
@@ -259,38 +256,38 @@ export const PolicySplitModal: React.FC<PolicySplitModalProps> = ({
               <div>
                 {/* Split Mode Selection */}
                 <div className="mb-6">
-                  <label className="block text-sm font-medium text-gray-700 mb-3">
+                  <label className="block text-sm font-medium text-text-secondary mb-3">
                     How would you like to split this policy?
                   </label>
                   <div className="space-y-3">
-                    <label className="flex items-start p-4 border-2 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                    <label className="flex items-start p-4 border border-inputBorder cursor-pointer hover:bg-gray-50 transition-colors">
                       <input
                         type="radio"
                         name="splitMode"
                         value="individual"
                         checked={splitMode === 'individual'}
                         onChange={(e) => setSplitMode(e.target.value as 'individual')}
-                        className="mt-1 h-4 w-4 text-blue-600"
+                        className="mt-1 h-4 w-4 text-blue-600 accent-primary"
                       />
                       <div className="ml-3">
-                        <span className="font-medium text-gray-900">Split into individual policies</span>
+                        <span className="font-medium text-text-primary">Split into individual policies</span>
                         <p className="text-sm text-gray-600 mt-1">
                           Each insured person will have their own separate policy
                         </p>
                       </div>
                     </label>
 
-                    <label className="flex items-start p-4 border-2 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                    <label className="flex items-start p-4 border border-inputBorder cursor-pointer hover:bg-gray-50 transition-colors">
                       <input
                         type="radio"
                         name="splitMode"
                         value="grouped"
                         checked={splitMode === 'grouped'}
                         onChange={(e) => setSplitMode(e.target.value as 'grouped')}
-                        className="mt-1 h-4 w-4 text-blue-600"
+                        className="mt-1 h-4 w-4 text-blue-600 accent-primary"
                       />
                       <div className="ml-3">
-                        <span className="font-medium text-gray-900">Group selected applicants</span>
+                        <span className="font-medium text-text-primary">Group selected applicants</span>
                         <p className="text-sm text-gray-600 mt-1">
                           Keep selected applicants together on one policy, separate others
                         </p>
@@ -315,10 +312,10 @@ export const PolicySplitModal: React.FC<PolicySplitModalProps> = ({
                       return (
                         <div
                           key={applicant.id}
-                          className={`border-2 rounded-lg p-4 transition-all ${
+                          className={`border p-4 transition-all ${
                             splitMode === 'grouped' && isSelected
-                              ? 'border-blue-500 bg-blue-50'
-                              : 'border-gray-200 hover:border-gray-300'
+                              ? 'border-primary bg-blue-50/50'
+                              : 'border-inputBorder hover:border-gray-400'
                           }`}
                         >
                           <div className="flex items-start">
@@ -328,7 +325,7 @@ export const PolicySplitModal: React.FC<PolicySplitModalProps> = ({
                                 type="checkbox"
                                 checked={isSelected}
                                 onChange={() => toggleApplicant(applicant.id)}
-                                className="mt-1 h-5 w-5 text-blue-600 rounded"
+                                className="mt-1 h-5 w-5 text-blue-600 rounded accent-primary cursor-pointer"
                               />
                             )}
 
@@ -345,30 +342,30 @@ export const PolicySplitModal: React.FC<PolicySplitModalProps> = ({
                                 )}
                               </div>
 
-                              <div className="mt-2 grid grid-cols-2 gap-4 text-sm">
+                              <div className="mt-2 grid grid-cols-2 gap-2 text-sm">
                                 <div>
-                                  <span className="text-gray-600">DOB:</span>
-                                  <span className="ml-2 text-gray-900">{formatDate(applicant.dateOfBirth)}</span>
+                                  <span className="text-text-secondary">DOB:</span>
+                                  <span className="ml-2 text-text-primary">{formatDate(applicant.dateOfBirth)}</span>
                                 </div>
                                 <div>
-                                  <span className="text-gray-600">Relation:</span>
-                                  <span className="ml-2 text-gray-900">
+                                  <span className="text-text-secondary">Relation:</span>
+                                  <span className="ml-2 text-text-primary">
                                     {applicant.relation || 'Primary'}
                                   </span>
                                 </div>
                                 <div>
-                                  <span className="text-gray-600">Coverage:</span>
-                                  <span className="ml-2 text-gray-900">
+                                  <span className="text-text-secondary">Coverage:</span>
+                                  <span className="ml-2 text-text-primary">
                                     {formatDate(applicant.effectiveDate)} - {formatDate(applicant.expiryDate)}
                                   </span>
                                 </div>
                                 <div>
-                                  <span className="text-gray-600">Days:</span>
-                                  <span className="ml-2 text-gray-900 font-medium">{days} days</span>
+                                  <span className="text-text-secondary">Days:</span>
+                                  <span className="ml-2 text-text-primary font-medium">{days} days</span>
                                 </div>
                                 <div>
-                                  <span className="text-gray-600">Pre-Med:</span>
-                                  <span className="ml-2 text-gray-900">
+                                  <span className="text-text-secondary">Pre-Med:</span>
+                                  <span className="ml-2 text-text-primary">
                                     {applicant.preMedCoverage === 'yes' ? 'Yes' : 'No'}
                                   </span>
                                 </div>
@@ -396,14 +393,14 @@ export const PolicySplitModal: React.FC<PolicySplitModalProps> = ({
                 <div className="mt-6 flex justify-end gap-3">
                   <button
                     onClick={onClose}
-                    className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+                    className="py-2 px-4 border border-inputBorder hover:border-gray-400 cursor-pointer transition delay-100"
                   >
                     Cancel
                   </button>
                   <button
                     onClick={handlePreview}
                     disabled={loading}
-                    className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 transition-colors"
+                    className="btn-primary"
                   >
                     {loading ? 'Loading...' : 'Preview Split'}
                   </button>
@@ -437,7 +434,7 @@ export const PolicySplitModal: React.FC<PolicySplitModalProps> = ({
                 </div>
 
                 {/* New Split Policies */}
-                <h3 className="font-semibold text-gray-900 mb-4">New Policies After Split:</h3>
+                <h3 className="font-semibold text-text-primary mb-4">New Policies After Split:</h3>
                 <div className="space-y-4">
                   {preview.splitPolicies.map((policy, idx) => (
                     <div key={idx} className="border-2 border-green-200 bg-green-50 rounded-lg p-4">
@@ -537,13 +534,13 @@ export const PolicySplitModal: React.FC<PolicySplitModalProps> = ({
                 <div className="mt-6 flex justify-end gap-3">
                   <button
                     onClick={() => setCurrentStep('select')}
-                    className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+                    className="py-2 px-4 border border-inputBorder hover:border-gray-400 cursor-pointer transition delay-100"
                   >
                     ← Back
                   </button>
                   <button
                     onClick={() => setCurrentStep('confirm')}
-                    className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                    className="btn-primary"
                   >
                     Continue to Confirm
                   </button>
@@ -563,7 +560,7 @@ export const PolicySplitModal: React.FC<PolicySplitModalProps> = ({
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-text-secondary mb-2">
                     Admin Notes (Required) <span className="text-red-600">*</span>
                   </label>
                   <textarea
@@ -571,7 +568,7 @@ export const PolicySplitModal: React.FC<PolicySplitModalProps> = ({
                     onChange={(e) => setAdminNotes(e.target.value)}
                     placeholder="e.g., Person B returning home early due to family emergency"
                     rows={4}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="input-primary"
                   />
                   <p className="mt-1 text-sm text-gray-600">
                     Explain the reason for splitting this policy. This will be logged in the policy activity.
@@ -588,21 +585,21 @@ export const PolicySplitModal: React.FC<PolicySplitModalProps> = ({
                     )}
                     <li>All documents and notes will be cloned to new policies</li>
                     <li>Email notifications will be sent to all insured persons and the agent</li>
-                    <li>Refunds (if any) will be processed to the original payment method</li>
+                    <li className="text-text-secondary">Refunds (if any) will be processed to the original payment method</li>
                   </ol>
                 </div>
 
                 <div className="mt-6 flex justify-end gap-3">
                   <button
                     onClick={() => setCurrentStep('preview')}
-                    className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+                    className="py-2 px-4 border border-inputBorder hover:border-gray-400 cursor-pointer transition delay-100"
                   >
                     ← Back
                   </button>
                   <button
                     onClick={handleConfirmSplit}
                     disabled={loading || !adminNotes.trim()}
-                    className="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:bg-gray-400 transition-colors font-semibold"
+                    className="bg-red-600 text-white py-2 sm:py-3 px-5 font-semibold hover:bg-red-700 transition-all duration-200 cursor-pointer disabled:cursor-default disabled:opacity-70 flex gap-1 items-center text-nowrap w-fit"
                   >
                     {loading ? 'Processing...' : 'Confirm Split Policy'}
                   </button>
@@ -610,7 +607,6 @@ export const PolicySplitModal: React.FC<PolicySplitModalProps> = ({
               </div>
             )}
           </div>
-        </div>
       </div>
     </div>
   );
