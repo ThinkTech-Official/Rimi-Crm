@@ -21,6 +21,7 @@ import { getUserTypeFromToken } from "../../../../utils/getUserType";
 import { useSelector } from "react-redux";
 import type { RootState } from "../../../../app/store";
 import { useEmailQuote } from "../../../../hooks/apply/useEmailQuote";
+import AgeQuestionaire from "./AgeQuestionaire";
 
 type SuperVisaOption = "" | "yes" | "no";
 type SuperVisaYears = "" | "1" | "2";
@@ -93,6 +94,24 @@ type Props = {
   onValidityChange: (valid: boolean) => void;
 };
 
+
+
+//use today as fallback
+const calculateAge = (dob: string, effectiveDate: string): number | null => {
+  if (!dob) return null;
+  
+  // Use effective date if available, otherwise use today
+  const targetDate = effectiveDate ? new Date(effectiveDate) : new Date();
+  const birthDate = new Date(dob);
+  
+  let age = targetDate.getFullYear() - birthDate.getFullYear();
+  const monthDiff = targetDate.getMonth() - birthDate.getMonth();
+  if (monthDiff < 0 || (monthDiff === 0 && targetDate.getDate() < birthDate.getDate())) {
+    age--;
+  }
+  return age;
+};
+
 const Step1STRVCT = ({
   onValidityChange,
   primaryFirstName,
@@ -139,6 +158,10 @@ const Step1STRVCT = ({
   setQuoteNumber,
   primaryApplicantGender,
   setPrimaryApplicantGender,
+
+  primaryQuestionnaire,
+  setPrimaryQuestionnaire,
+
   totalPremium,
   setTotalPremium,
   schedule,
@@ -154,6 +177,8 @@ const Step1STRVCT = ({
   savingStage1,
 }: any) => {
   const agentCode = useSelector((state: RootState) => state.auth.agentCode);
+
+  const [isAgeQuestionnaireOpen, setIsAgeQuestionnaireOpen] = useState(false);
 
   const { sendQuoteEmail, loading: emailLoading, success: emailSuccess } = useEmailQuote();
 
@@ -188,6 +213,43 @@ const Step1STRVCT = ({
 
   // Array containing the secondary applicant data
   // const [applicants, setApplicants] = useState<Applicant[]>([])
+
+
+
+  // Medical Questionnaire State
+
+  
+
+
+//
+
+// Questionnaire Helpers
+
+
+const primaryAge = calculateAge(primaryDateOfBirth, effectiveDate);
+const applicantAges = applicants.map((app: any) => calculateAge(app.dob, effectiveDate));
+
+// Check who needs questionnaire
+const primaryNeedsQuestionnaire = primaryAge !== null && primaryAge >= 70 && primaryAge <= 84 && coverageForPreMedCon;
+const applicantsNeedingQuestionnaire = applicants.filter((app: any, idx: number) => {
+  const age = applicantAges[idx];
+  return age !== null && age >= 70 && age <= 84 && app.preMedCoverage;
+});
+
+const anyNeedsQuestionnaire = primaryNeedsQuestionnaire || applicantsNeedingQuestionnaire.length > 0;
+
+// Check questionnaire completion
+const primaryQuestionnaireComplete = !primaryNeedsQuestionnaire || primaryQuestionnaire !== null;
+const applicantsQuestionnaireComplete = applicants.every((app: any, idx: number) => {
+  const age = applicantAges[idx];
+  const needsIt = age !== null && age >= 70 && age <= 84 && app.preMedCoverage;
+  return !needsIt || app.healthQuestionnaire !== undefined;
+});
+
+const allQuestionnairesComplete = primaryQuestionnaireComplete && applicantsQuestionnaireComplete;
+
+
+
 
   // Effects to resize the array if applicant changes the number after entering the applicant
   useEffect(() => {
@@ -442,7 +504,7 @@ const Step1STRVCT = ({
     coverageOption,
     deductible,
     primaryDateOfBirth,
-  ].every((v) => v !== "");
+  ].every((v) => v !== "") && allQuestionnairesComplete;
 
   // console.log(CanClculatePremium)
 
@@ -672,6 +734,18 @@ const Step1STRVCT = ({
               </div>
             </div>
           </div>
+
+          {/* 85 + Warning for primary applicant  */}
+
+          
+{primaryAge !== null && primaryAge > 84 && coverageForPreMedCon && (
+  <div className="col-span-2 bg-red-50 border border-red-200 rounded p-3 text-sm text-red-800">
+    Age Must be under 85 years on effective date, to be eligible for medical coverage 
+    for stable pre-existing conditions
+  </div>
+)}
+
+          {/* // */}
 
           {/* END Primary Applicant  */}
 
@@ -940,6 +1014,15 @@ const Step1STRVCT = ({
                   </div>
                 </div>
               )}
+
+              {/* 85+ warning for each applicant */}
+{applicantAges[idx] !== null && applicantAges[idx]! > 84 && app.preMedCoverage && (
+  <div className="col-span-2 bg-red-50 border border-red-200 rounded p-3 text-sm text-red-800">
+    Applicant {idx + 1}: Age Must be under 85 years on effective date, to be eligible 
+    for medical coverage for stable pre-existing conditions
+  </div>
+)}
+
             </React.Fragment>
           ))}
 
@@ -949,6 +1032,23 @@ const Step1STRVCT = ({
           {/* {coverageForPreMedCon && <div></div>} */}
 
           {/* // */}
+
+          {/* Open Medical Questionnaire Section */}
+{anyNeedsQuestionnaire && (
+  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-6">
+    <p className="text-sm text-blue-900 mb-3">
+      A Medical Declaration must be completed if you are between 70 and 84 years of age 
+      as of the effective date of coverage and are applying to purchase coverage for stable 
+      pre-existing conditions that have been stable in the 180 days prior to your effective date
+    </p>
+    <button
+      onClick={() => setIsAgeQuestionnaireOpen(true)}
+      className="bg-primary text-white px-6 py-2 rounded hover:bg-[#2309A1] transition"
+    >
+      Open Medical Questionnaire
+    </button>
+  </div>
+)}
 
           <div className="w-full">
             <div className="mt-6 flex items-center justify-center gap-1">
@@ -1687,6 +1787,34 @@ const Step1STRVCT = ({
       {/* </div> */}
 
       {/*  */}
+
+
+{isAgeQuestionnaireOpen && (
+  <AgeQuestionaire
+    applicantsToShow={[
+      ...(primaryNeedsQuestionnaire
+        ? [{ 
+            firstName: primaryFirstName, 
+            lastName: primaryLastName, 
+            index: -1 
+          }]
+        : []),
+      ...applicantsNeedingQuestionnaire.map((app: any, originalIdx: number) => ({
+        firstName: app.firstName,
+        lastName: app.lastName,
+        index: applicants.findIndex((a: any) => a === app),
+      })),
+    ]}
+    setPrimaryQuestionaire={setPrimaryQuestionnaire}
+    setIsAgeQuetionaireOpen={setIsAgeQuestionnaireOpen}
+    setApplicants={setApplicants}
+    applicants={applicants}
+  />
+)}
+
+
+
+
     </>
   );
 };

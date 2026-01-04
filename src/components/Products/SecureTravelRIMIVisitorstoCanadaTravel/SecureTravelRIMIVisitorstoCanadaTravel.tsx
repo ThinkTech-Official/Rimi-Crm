@@ -29,6 +29,13 @@ interface Applicant {
   relationship: string;
   preMedCoverage: boolean;
   gender: string;
+
+   healthQuestionnaire?: {
+    questions: Array<{
+      question: string;
+      answer: string;
+    }>;
+  };
 }
 
 interface QuoteStage1Response {
@@ -79,6 +86,14 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
   const [isConfirmed, setIsConfirmed] = useState(false);
 
   const [primaryApplicantGender, setPrimaryApplicantGender] = useState("");
+
+  // Primary applicant questionnaire state
+  const [primaryQuestionnaire, setPrimaryQuestionnaire] = useState<{
+    questions: Array<{
+      question: string;
+      answer: string;
+    }>;
+  } | null>(null);
 
   ////////////////////////
 
@@ -387,6 +402,10 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
     product: "SECURE_TRAVEL_RIMI_VISITORS_TO_CANADA_TRAVEL",
     quoteNumber: quoteNumber,
     status: "Inactive",
+
+    primaryQuestionnaire: primaryQuestionnaire,
+
+    
   };
 
   const handlePaymentSuccess = () => {
@@ -533,6 +552,9 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
             setQuoteNumber={setQuoteNumber}
             primaryApplicantGender={primaryApplicantGender}
             setPrimaryApplicantGender={setPrimaryApplicantGender}
+
+            primaryQuestionnaire={primaryQuestionnaire}
+            setPrimaryQuestionnaire={setPrimaryQuestionnaire}
             //
             totalPremium={totalPremium}
             schedule={schedule}
