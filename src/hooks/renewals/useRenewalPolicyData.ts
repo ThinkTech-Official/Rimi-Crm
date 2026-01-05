@@ -106,10 +106,10 @@ export function useRenewalPolicyData(policyId: string | null) {
           withCredentials: true,
         });
         
-        console.log('✅ Policy data loaded:', response.data);
+        console.log('Policy data loaded:', response.data);
         setData(response.data);
       } catch (err: any) {
-        console.error('❌ Failed to fetch policy data:', err);
+        console.error('Failed to fetch policy data:', err);
         setError(err.response?.data?.message || 'Failed to load policy data');
       } finally {
         setLoading(false);

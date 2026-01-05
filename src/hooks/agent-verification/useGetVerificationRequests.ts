@@ -42,6 +42,7 @@ export interface VerificationRequest {
   firstName: string;
   lastName: string;
   email: string;
+  phoneNumber: string | null; 
   agentCode: string;
   company: string | null;
   userType: string; // 'AGENT' | 'MGA'
@@ -56,10 +57,18 @@ export interface VerificationRequest {
   docLink1: string | null;
   docLink2: string | null;
   docLink3: string | null;
+  docLink4: string | null; 
+
+//  Document type tracking:
+docType1: string | null;  // 'insurance_license'
+docType2: string | null;  // 'eo_insurance'
+docType3: string | null;  // 'bank_details'
+docType4: string | null;  // 'agency_agreement'
   validUpto: string | null;
   validUpto2: string | null;
   isImportedAgent: boolean;
-   applicantType?: 'independent' | 'under_mga' | null;
+  //  applicantType?: 'independent' | 'under_mga' | null;
+  applicantType?: 'independent' | 'under_mga' | 'wfg' | null;
   mgaType?: 'wfg' | 'other' | null;
   wfgCode?: string | null;
 }
@@ -115,6 +124,7 @@ export function useGetVerificationRequests() {
       const result = await response.json();
       console.log('Verification requests fetched successfully:', result);
       setData(result);
+      console.log('from use get verification request',result)
       return result;
     } catch (err: any) {
       setError(err.message);

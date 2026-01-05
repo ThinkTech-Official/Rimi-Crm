@@ -11,7 +11,7 @@ import { usePolicyNotes } from "../hooks/usePolicyNotes";
 import { usePolicyAttachments } from "../hooks/usePolicyAttachments";
 import { useFulfillment } from "../hooks/useFulfillment";
 import { usePolicyFeeRefund } from "../hooks/usePolicyFeeRefund";
-import { useModifyPolicy, ModifyPolicyData } from "../hooks/useModifyPolicy";
+import { useModifyPolicy, ModifyPolicyData, RefundData } from "../hooks/useModifyPolicy";
 import { API_BASE } from "../utils/urls";
 import CancellationModal from "../components/CancellationModal";
 import { usePolicyActivity } from "../hooks/usePolicyActivity";
@@ -23,6 +23,9 @@ import { usePaymentSchedule } from "../hooks/usePaymentSchedule";
 import { PaymentScheduleTable } from "../components/policy/PaymentScheduleTable";
 import { UpdateCardModal } from "../components/UpdateCardModal";
 import { PolicySplitModal } from "../components/policy/PolicySplitModal";
+import { useRenewalNotice } from "../hooks/renewals/useRenewalNotice";
+import RenewalNoticeModal from "../components/renewals/RenewalNoticeModal";
+import SuccessModal from "../components/renewals/SuccessModal";
 import { MdClose, MdUploadFile } from "react-icons/md";
 
 const fmtDate = (iso?: string) =>
@@ -138,7 +141,7 @@ const PolicyDetailsPage: React.FC = () => {
   } = useModifyPolicy();
 
   const [showRefundModal, setShowRefundModal] = useState(false);
-  const [refundData, setRefundData] = useState<any>(null);
+  const [refundData, setRefundData] = useState<Partial<RefundData> | null>(null);
 
   const [showPremiumModal, setShowPremiumModal] = useState(false);
   const [premiumData, setPremiumData] = useState<any>(null);
@@ -149,15 +152,25 @@ const PolicyDetailsPage: React.FC = () => {
     message: "",
   });
 
+
+  const [showRenewalModal, setShowRenewalModal] = useState(false);
+const [showSuccessModal, setShowSuccessModal] = useState(false);
+const [successMessage, setSuccessMessage] = useState("");
+
+
+// Add the renewal notice hook
+const {
+  sendRenewalNotice,
+  loading: renewalLoading,
+  error: renewalError,
+} = useRenewalNotice();
+
   useEffect(() => {
     if (!p) return;
     setTo(p.email || "");
     setAgentEmail(`${p.agentCode}@example.com`);
   }, [id, p?.email, p?.agentCode]);
 
-  useEffect(() => {
-    if (p) console.log("Loaded policy:", p);
-  }, [p]);
 
   useEffect(() => {
   if (p?.applicants) {
@@ -169,7 +182,6 @@ const PolicyDetailsPage: React.FC = () => {
   if (error) return <p className="text-red-600 text-center py-10">{error}</p>;
   if (!p) return <p className="text-center py-10">No policy found.</p>;
 
-  console.log(p);
 
   const history = p.paymentHistory ?? [];
 
@@ -183,6 +195,34 @@ const PolicyDetailsPage: React.FC = () => {
     p.paymentOption === "monthly-installments" &&
     p.status !== "CANCELLED" &&
     p.stripeSubscriptionScheduleId;
+
+
+    // REnewal Handlers
+    
+    const handleViewRenewalNotice = () => {
+  setShowRenewalModal(true);
+};
+
+const handleSendRenewalNotice = async () => {
+  if (!id) return;
+
+  const confirmMessage = `Are you sure you want to send a renewal notice to ${p.email}?`;
+  if (!window.confirm(confirmMessage)) {
+    return;
+  }
+
+  const result = await sendRenewalNotice(id);
+
+  if (result && result.success) {
+    setSuccessMessage(result.message);
+    setShowSuccessModal(true);
+  } else if (renewalError) {
+    alert(`Error: ${renewalError}`);
+  }
+};
+
+
+    //
 
   // MODIFY POLICY HANDLERS
 
@@ -349,7 +389,7 @@ const PolicyDetailsPage: React.FC = () => {
     await performSave();
   };
 
-  const performSave = async (refund?: any) => {
+  const performSave = async (refund?: RefundData) => {
     const modifyData: ModifyPolicyData = {
       language: editedPolicy.language || p.language || "",
       firstName: editedPolicy.firstName || p.firstName || "",
@@ -409,11 +449,13 @@ const PolicyDetailsPage: React.FC = () => {
     transactionFee: number,
     netRefund: number
   ) => {
-    const refundPayload = {
-      originalExpiryDate: refundData.originalExpiryDate,
-      newExpiryDate: refundData.newExpiryDate,
-      daysToRefund: refundData.daysToRefund,
-      maxRefundable: refundData.maxRefundable,
+    if (!refundData) return;
+
+    const refundPayload: RefundData = {
+      originalExpiryDate: refundData.originalExpiryDate!,
+      newExpiryDate: refundData.newExpiryDate!,
+      daysToRefund: refundData.daysToRefund!,
+      maxRefundable: refundData.maxRefundable!,
       transactionFee: transactionFee,
       netRefundAmount: netRefund,
     };
@@ -422,23 +464,14 @@ const PolicyDetailsPage: React.FC = () => {
     await performSave(refundPayload);
   };
 
-  const handleCancelPolicy = (id: any, policyNumber: any) => {
-    console.log("policy id is", id);
-    console.log("policy number is", policyNumber);
+  const handleCancelPolicy = () => {
     setShowCancelModal(true);
   };
 
   const handleRefund = async (
     paymentHistoryId: string,
-    amount: number,
-    paymentType: string
+    amount: number
   ) => {
-    console.log("Refund for policy fee pressed", {
-      paymentHistoryId,
-      amount,
-      paymentType,
-      timestamp: new Date().toISOString(),
-    });
 
     if (!id) {
       alert("Policy ID not found");
@@ -556,24 +589,6 @@ const handleIssueRelatedPolicy = () => {
           {!isEditMode ? (
             <>
               {/* Update Card  */}
-              {/* {canUpdateCard && !isEditMode && (
-                <button
-                  onClick={() => {
-                    if (
-                      window.confirm(
-                        "Are you sure you want to update the payment method for this policy? All future recurring payments will use the new card."
-                      )
-                    ) {
-                      setShowUpdateCardModal(true);
-                    }
-                  }}
-                  className="px-3 py-1 bg-purple-600 text-white rounded hover:bg-purple-700"
-                >
-                  Update Card
-                </button>
-              )}
-
-              {/* Update Card  */}
               {canUpdateCard && !isEditMode && (
                 <button
                   onClick={() => {
@@ -601,7 +616,7 @@ const handleIssueRelatedPolicy = () => {
 
               {canCancel && (
                 <button
-                  onClick={() => handleCancelPolicy(id, p.policyNumber)}
+                  onClick={() => handleCancelPolicy()}
                   className="px-4 py-2 hover:bg-gray-50/50 border border-gray-300 hover:border-gray-400 cursor-pointer transition-all delay-100"
                 >
                   Cancel Policy
@@ -789,7 +804,7 @@ const handleIssueRelatedPolicy = () => {
 
       {/* Other insured persons */}
       {editedApplicants.length > 0 &&
-        editedApplicants.map((a: any, idx: number) => (
+        editedApplicants.map((a: PolicyApplicant, idx: number) => (
           <div
             key={a.id}
             className="flex flex-col gap-4 justify-between w-full border-b border-[#D8D8D8] pb-4"
@@ -901,7 +916,7 @@ const handleIssueRelatedPolicy = () => {
               <div className="mt-4">
                 <div className="font-semibold text-base">Premium</div>
                 <div className="text-sm text-[#6F6B7D]">
-                  {a.premium?.toLocaleString("en-CA", {
+                  {Number(a.premium || 0).toLocaleString("en-CA", {
                     style: "currency",
                     currency: "CAD",
                   })}
@@ -1264,10 +1279,10 @@ const handleIssueRelatedPolicy = () => {
               />{" "}
               <span>Auto Renewal Notice</span>
             </div>
-            <button className="px-4 py-2 hover:bg-gray-50/50 border border-gray-300 hover:border-gray-400 cursor-pointer transition-all delay-100">
+            <button onClick={handleViewRenewalNotice} className="px-4 py-2 hover:bg-gray-50/50 border border-gray-300 hover:border-gray-400 cursor-pointer transition-all delay-100">
               View Renewal Notice
             </button>
-            <button className="bg-primary text-white py-2 sm:py-2 px-4 font-semibold hover:bg-[#2309A1] transition-all duration-200 cursor-pointer disabled:cursor-default disabled:opacity-70">
+            <button onClick={handleSendRenewalNotice} className="bg-primary text-white py-2 sm:py-2 px-4 font-semibold hover:bg-[#2309A1] transition-all duration-200 cursor-pointer disabled:cursor-default disabled:opacity-70">
               Send Renewal Notice
             </button>
             <button onClick={handleIssueRelatedPolicy} className="px-3 py-1 bg-green-600 text-white rounded">
@@ -1544,6 +1559,30 @@ const handleIssueRelatedPolicy = () => {
           }}
         />
       )}
+
+
+      {/* Renewal Notice Modal */}
+
+  <RenewalNoticeModal
+    isOpen={showRenewalModal}
+    onClose={() => setShowRenewalModal(false)}
+    policy={{
+      ...p,
+      applicants: p.applicants?.map(a => ({
+        ...a,
+        premium: a.premium ? Number(a.premium) : undefined
+      }))
+    }}
+  />
+
+
+{/* Success Modal */}
+<SuccessModal
+  isOpen={showSuccessModal}
+  onClose={() => setShowSuccessModal(false)}
+  message={successMessage}
+/>
+
     </div>
   );
 };

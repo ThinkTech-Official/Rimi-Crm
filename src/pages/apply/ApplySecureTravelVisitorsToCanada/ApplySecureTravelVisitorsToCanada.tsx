@@ -1,22 +1,24 @@
 import { CheckIcon } from "@heroicons/react/24/outline";
-import { useState } from "react";
-import ApplicantInformation from "./step1/ApplicantInformation";
-import CoverageInformation from "./step1/CoverageInformation";
-import YourQuoteSummary from "./step2/YourQuoteSummary";
-import ApplicantInformationFinished from "./step2/ApplicantInformationFinished";
-import ContactInformation from "./step2/ContactInformation";
-import Address from "./step2/Address";
-import BeneficiaryInCaseOfDeath from "./step2/BeneficiaryInCaseOfDeath";
-import PaymentInformation from "./step2/PaymentInformation";
-import Step1STRVCT from "./step1/Step1STRVCT";
+import { useEffect, useState } from "react";
+
 import { useSelector } from "react-redux";
 import { RootState } from "../../../app/store";
 import { useSaveQuoteNext } from "../../../hooks/useSaveQuoteNext";
 import { useQuoteUpdate, Stage2Payload } from "../../../hooks/useQuoteUpdate";
 import { Elements } from "@stripe/react-stripe-js";
 import { stripePromise } from "../../../utils/stripe";
-import Summary from "./step3/Summary";
-import useNotification from "../../../hooks/useNotification";
+import Step1STRVCT from "../../../components/Products/SecureTravelRIMIVisitorstoCanadaTravel/step1/Step1STRVCT";
+import YourQuoteSummary from "../../../components/Products/SecureTravelRIMIVisitorstoCanadaTravel/step2/YourQuoteSummary";
+import ApplicantInformationFinished from "../../../components/Products/SecureTravelRIMIVisitorstoCanadaTravel/step2/ApplicantInformationFinished";
+import ContactInformation from "../../../components/Products/SecureTravelRIMIVisitorstoCanadaTravel/step2/ContactInformation";
+import Address from "../../../components/Products/SecureTravelRIMIVisitorstoCanadaTravel/step2/Address";
+import BeneficiaryInCaseOfDeath from "../../../components/Products/SecureTravelRIMIVisitorstoCanadaTravel/step2/BeneficiaryInCaseOfDeath";
+import PaymentInformation from "../../../components/Products/SecureTravelRIMIVisitorstoCanadaTravel/step2/PaymentInformation";
+import Summary from "../../../components/Products/SecureTravelRIMIVisitorstoCanadaTravel/step3/Summary";
+import { useEmailQuote } from "../../../hooks/apply/useEmailQuote";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { useQuoteByNumber } from "../../../hooks/apply/useQuoteByNumber";
+
 
 type SuperVisaOption = "" | "yes" | "no";
 type SuperVisaYears = "" | "1" | "2";
@@ -30,15 +32,6 @@ interface Applicant {
   relationship: string;
   preMedCoverage: boolean;
   gender: string;
-
-  email?: string;
-
-   healthQuestionnaire?: {
-    questions: Array<{
-      question: string;
-      answer: string;
-    }>;
-  };
 }
 
 interface QuoteStage1Response {
@@ -76,6 +69,22 @@ interface BeneficiaryInfo {
 const productName = "SECURE_TRAVEL_RIMI_VISITORS_TO_CANADA_TRAVEL";
 
 export default function SecureTravelRIMIVisitorstoCanadaTravel() {
+
+
+    const [searchParams] = useSearchParams();
+const navigate = useNavigate();
+
+
+// Get quote number from URL
+const quoteNumberFromUrl = searchParams.get('quote');
+
+// Fetch quote data
+const { quoteData, loading: loadingQuote, error: quoteError } = useQuoteByNumber(quoteNumberFromUrl);
+
+
+
+
+
   const agentCode = useSelector((state: RootState) => state.auth.agentCode);
 
   const [primaryFirstName, setPrimaryFirstName] = useState("");
@@ -83,20 +92,12 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
   const [primaryDateOfBirth, setPrimaryDateOfBirth] = useState("");
   const [primaryEmail, setprimaryEmail] = useState("");
   const [applicantNumber, setApplicantNumber] = useState(0);
-  const [primaryQuestionaire, setPrimaryQuestionaire] = useState([]);
+
   const [coverageForPreMedCon, setCoverageForPreMedCon] = useState(false);
 
   const [isConfirmed, setIsConfirmed] = useState(false);
 
   const [primaryApplicantGender, setPrimaryApplicantGender] = useState("");
-
-  // Primary applicant questionnaire state
-  const [primaryQuestionnaire, setPrimaryQuestionnaire] = useState<{
-    questions: Array<{
-      question: string;
-      answer: string;
-    }>;
-  } | null>(null);
 
   ////////////////////////
 
@@ -122,7 +123,6 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
 
   const [coverageOption, setCoverageOption] = useState<string>("");
   const [applicants, setApplicants] = useState<Applicant[]>([]);
-  const {triggerNotification, NotificationComponent} = useNotification();
 
   //////////////////////////
 
@@ -256,7 +256,7 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
   const [steps, setSteps] = useState([
     { id: "01", name: "Get Quote", href: "#", status: "current" },
     { id: "02", name: "Complete Application", href: "#", status: "upcoming" },
-    { id: "03", name: "Summary", href: "#", status: "upcoming" },
+    { id: "03", name: "Confirmation", href: "#", status: "upcoming" },
   ]);
 
   const [formStep, setFormStep] = useState(1);
@@ -272,6 +272,77 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
 
   // const { completeApplication, loading: submittingStage2, error: submitError } = useQuoteUpdate()
 
+//
+
+
+
+  // AUTO-FILL FORM FROM QUOTE DATA
+useEffect(() => {
+  if (quoteData) {
+    console.log('🔄 Auto-filling form with quote data:', quoteData);
+    
+    // Set quote number
+    setQuoteNumber(quoteData.quoteNumber);
+    
+    // Applicant Information
+    setPrimaryFirstName(quoteData.primaryFirstName || "");
+    setPrimaryLastName(quoteData.primaryLastName || "");
+    setPrimaryDateOfBirth(quoteData.primaryDateOfBirth?.split('T')[0] || "");
+    setprimaryEmail(quoteData.primaryEmail || "");
+    setPrimaryApplicantGender(quoteData.primaryApplicantGender || "");
+    setApplicantNumber(quoteData.applicantNumber || 0);
+    
+    // Coverage Information
+    setCountryOfOrigin(quoteData.countryOfOrigin || "");
+    setInCanada(quoteData.inCanada ? "yes" : "no");
+    setSuperVisa(quoteData.superVisa as SuperVisaOption || "");
+    setSuperVisaYears(quoteData.superVisaYears as SuperVisaYears || "");
+    setDestinationProvince(quoteData.destinationProvince || "");
+    setEffectiveDate(quoteData.effectiveDate?.split('T')[0] || "");
+    setExpiryDate(quoteData.expiryDate?.split('T')[0] || "");
+    setCoverageLength(String(quoteData.coverageLength || ""));
+    setPolicyType(quoteData.policyType || "");
+    setCoverageOption(String(quoteData.coverageOption || ""));
+    setDeductible(quoteData.deductible || 0);
+    setPaymentOption(quoteData.paymentOption as any || "lump-sum");
+    setCoverageForPreMedCon(quoteData.coverageForPreMedCon || false);
+    
+    // Applicants
+    if (quoteData.applicants && quoteData.applicants.length > 0) {
+      setApplicants(quoteData.applicants.map(app => ({
+        index: app.index,
+        firstName: app.firstName,
+        lastName: app.lastName,
+        dob: app.dob.split('T')[0],
+        relationship: app.relationship,
+        preMedCoverage: app.preMedCoverage,
+        gender: app.gender,
+      })));
+    }
+    
+    // Premium
+    setTotalPremium(quoteData.premium || 0);
+    
+    // Set confirmed to true (they've already saved the quote)
+    setIsConfirmed(true);
+    
+    console.log('Form auto-filled successfully');
+  }
+}, [quoteData]);
+
+// Check if no quote number provided
+useEffect(() => {
+  if (!quoteNumberFromUrl) {
+    alert('No quote number provided. Redirecting to products page...');
+    navigate('/products');
+  }
+}, [quoteNumberFromUrl, navigate]);
+
+
+
+//
+
+
   const { saveQuoteNext, loading: savingStage1 } = useSaveQuoteNext();
 
   const {
@@ -282,6 +353,8 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
   } = useQuoteUpdate();
 
   //----------------------------
+
+
 
   const handleFormStepChange = (stepCommand: string) => {
     setFormStep((prevStep) => {
@@ -406,26 +479,78 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
     product: "SECURE_TRAVEL_RIMI_VISITORS_TO_CANADA_TRAVEL",
     quoteNumber: quoteNumber,
     status: "Inactive",
-
-    primaryQuestionnaire: primaryQuestionnaire,
-
-    
   };
 
   const handlePaymentSuccess = () => {
-    // triggerNotification({ message: 'Payment successfull', type: 'success' });
-    handleFormStepChange('forward')
-  }
-
+    alert("payment successfull");
+    handleFormStepChange("forward");
+  };
 
   // const handlePaymentSuccess = () => {
   //   alert('payment successfull')
   //   handleFormStepChange('forward')
   // }
 
+
+
+
+  // Show loading state
+if (loadingQuote) {
   return (
     <div className="max-w-5xl mx-auto px-2 py-4 sm:p-6">
-      {NotificationComponent}
+      <div className="flex items-center justify-center h-64">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#2B00B7] mx-auto mb-4"></div>
+          <p className="text-lg text-gray-600">Loading your quote...</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Show error state
+if (quoteError) {
+  return (
+    <div className="max-w-5xl mx-auto px-2 py-4 sm:p-6">
+      <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
+        <h3 className="text-lg font-semibold text-red-800 mb-2">Error Loading Quote</h3>
+        <p className="text-red-600 mb-4">{quoteError}</p>
+        <button
+          onClick={() => navigate('/products')}
+          className="bg-[#2B00B7] text-white px-6 py-2 rounded hover:bg-[#2309A1]"
+        >
+          Go to Products
+        </button>
+      </div>
+    </div>
+  );
+}
+
+
+
+  return (
+    <div className="max-w-5xl mx-auto px-2 py-4 sm:p-6">
+
+
+
+ <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+      <div className="flex items-center">
+        <div className="flex-shrink-0">
+          <svg className="h-5 w-5 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+            <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+          </svg>
+        </div>
+        <div className="ml-3">
+          <p className="text-sm text-blue-700">
+            <strong>Quote #{quoteNumber}</strong> - Your quote details have been pre-filled. Review and proceed to payment.
+          </p>
+        </div>
+      </div>
+    </div>
+
+
+
+
       <nav aria-label="Progress">
         <ol
           role="list"
@@ -522,8 +647,6 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
             setPrimaryDateOfBirth={setPrimaryDateOfBirth}
             primaryEmail={primaryEmail}
             setprimaryEmail={setprimaryEmail}
-            primaryQuestionaire={primaryQuestionaire}
-            setPrimaryQuestionaire={setPrimaryQuestionaire}
             applicantNumber={applicantNumber}
             setApplicantNumber={setApplicantNumber}
             superVisa={superVisa}
@@ -560,9 +683,6 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
             setQuoteNumber={setQuoteNumber}
             primaryApplicantGender={primaryApplicantGender}
             setPrimaryApplicantGender={setPrimaryApplicantGender}
-
-            primaryQuestionnaire={primaryQuestionnaire}
-            setPrimaryQuestionnaire={setPrimaryQuestionnaire}
             //
             totalPremium={totalPremium}
             schedule={schedule}
@@ -587,9 +707,9 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
 
       {steps[1].status === "current" && quoteNumber && (
         <div>
-          <div className="w-full h-2 mt-8 flex items-center justify-center mb-5">
-            <h3 className="text-xl">
-              <span className="text-text-primary font-semibold">Your Quote:</span> <span className="text-text-secondary">${step1ResponseData?.quoteAmount}</span>
+          <div className="w-full h-2 mt-8 flex items-center justify-center">
+            <h3 className="text-lg">
+              Your Quote: ${step1ResponseData?.quoteAmount}
             </h3>
           </div>
           <YourQuoteSummary step1ResponseData={step1ResponseData} />
@@ -620,54 +740,54 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
           {/* visual payment summary */}
 
           {paymentOption === "monthly-installments" && schedule.length > 0 && (
-            <div className="mx-auto mb-6 mt-4 bg-greyBg p-4">
-              <h3 className="text-lg font-bold text-left text-[#1B1B1B] mb-5">
+            <div className="max-w-md mx-auto mb-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
+              <h3 className="font-semibold text-lg mb-3">
                 Payment Plan Summary
               </h3>
 
               {/* Today's Payment */}
-              <div className="bg-white p-3 border border-inputBorder mb-3">
+              <div className="bg-white rounded p-3 border border-blue-300 mb-3">
                 <div className="flex justify-between items-center">
-                  <span className="font-medium text-text-primary text-lg">Due Today:</span>
-                  <span className="text-xl font-bold text-primary">
+                  <span className="font-medium">Due Today:</span>
+                  <span className="text-xl font-bold text-blue-600">
                     ${firstPaymentAmount.toFixed(2)}
                   </span>
                 </div>
-                <div className="text-sm mt-1 text-text-secondary">
+                <div className="text-sm text-gray-600 mt-1">
                   Includes: $120 policy fee + $
                   {(firstPaymentAmount - 120).toFixed(2)} (first 2 months)
                 </div>
               </div>
 
               {/* Future Payments */}
-              <div className="space-y-2 p-4 bg-white border border-inputBorder">
-                <div className="flex justify-between">
-                  <span className="text-text-primary font-medium">Monthly Payment:</span>
+              <div className="space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span>Monthly Payment:</span>
                   <span className="font-semibold">
                     ${monthlyAmount?.toFixed(2)}
                   </span>
                 </div>
-                <div className="flex justify-between text-sm text-text-secondary">
+                <div className="flex justify-between text-sm">
                   <span>Remaining Payments:</span>
                   <span>{remainingInstallments} months</span>
                 </div>
-                <div className="flex justify-between text-sm pt-2 border-t border-inputBorder text-text-secondary">
+                <div className="flex justify-between text-sm pt-2 border-t">
                   <span>Total Premium:</span>
                   <span className="font-semibold">
                     ${totalPremium.toFixed(2)}
                   </span>
                 </div>
-                <div className="flex justify-between text-sm text-text-secondary">
+                <div className="flex justify-between text-sm">
                   <span>Policy Fee (one-time):</span>
                   <span className="font-semibold">$120.00</span>
                 </div>
-                <div className="flex justify-between text-text-primary font-bold text-base pt-2 border-t border-inputBorder">
+                <div className="flex justify-between font-bold text-base pt-2 border-t">
                   <span>Grand Total:</span>
                   <span>${(totalPremium + 120).toFixed(2)}</span>
                 </div>
               </div>
 
-              <div className="text-xs text-text-secondary mt-3">
+              <div className="text-xs text-gray-500 mt-3 pt-3 border-t">
                 Your card will be charged ${firstPaymentAmount.toFixed(2)}{" "}
                 today, then ${monthlyAmount?.toFixed(2)}/month for{" "}
                 {remainingInstallments} months
@@ -676,16 +796,16 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
           )}
 
           {paymentOption === "lump-sum" && (
-            <div className="mx-auto mb-6 mt-4 bg-greyBg p-4">
-              <h3 className="text-lg font-bold text-left text-[#1B1B1B] mb-5">Payment Summary</h3>
+            <div className="max-w-md mx-auto mb-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
+              <h3 className="font-semibold text-lg mb-2">Payment Summary</h3>
               <div className="flex justify-between items-center">
-                <span className="text-text-primary font-medium text-lg">Total Premium:</span>
-                <span className="text-xl font-bold text-primary">
+                <span>Total Premium:</span>
+                <span className="text-xl font-bold text-blue-600">
                   ${totalPremium.toFixed(2)}
                 </span>
               </div>
-              <div className="text-sm text-text-secondary mt-2">
-                 One-time payment • No additional fees
+              <div className="text-sm text-gray-600 mt-2">
+                One-time payment and No additional fees
               </div>
             </div>
           )}
@@ -740,7 +860,7 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
         </div>
       )}
 
-        {steps[2].status === "current" && (
+      {steps[2].status === "current" && (
         // <div>
         //   <h3 className="text-xl font-bold text-left text-[#1B1B1B] mt-5 mb-6">
         //     Step 3: Confirmation
@@ -784,7 +904,7 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
         {formStep === 2 && (
           <button
             onClick={() => handleFormStepChange("back")}
-            className=" btn-primary"
+            className=" btn-outline"
           >
             Previous
           </button>
@@ -820,25 +940,10 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
           </button>
         )} */}
       </div>
+
       {/*  */}
     </div>
   );
 }
 
-{
-  /* {formStep < 3 ? (
-          <button
-            onClick={handleNext}
-            disabled={!isStepOneFilled || saving}
-            className={`px-6 py-2 ${
-              saving
-                ? "bg-gray-300 text-gray-600 cursor-wait"
-                : "bg-indigo-600 text-white hover:bg-indigo-700"
-            }`}
-          >
-            {saving ? "Saving…" : "Next"}
-          </button>
-        ) : (
-          <button onClick={handleSubmit}>Submit</button>
-        )} */
-}
+
