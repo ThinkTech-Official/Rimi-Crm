@@ -59,6 +59,7 @@ interface Applicant {
   relationship: string;
   preMedCoverage: boolean;
   gender: string;
+  email?: string;
 }
 
 interface CoverageInfo {
@@ -264,6 +265,7 @@ const allQuestionnairesComplete = primaryQuestionnaireComplete && applicantsQues
             relationship: "",
             preMedCoverage: false,
             gender: "",
+            email: "",
           }
       )
     );
@@ -898,6 +900,19 @@ const allQuestionnairesComplete = primaryQuestionnaireComplete && applicantsQues
                     }
                   />
                 </div>
+
+                      {/* Email Field */}
+      <div className="flex flex-col">
+        <label className="text-sm">Email</label>
+        <input
+          className="input-primary"
+          type="email"
+          placeholder="Enter Email"
+          value={app.email || ""}
+          onChange={(e) => updateApplicant(idx, "email", e.target.value)}
+        />
+      </div>
+
                 <div className="flex flex-col">
                   <label className="text-sm">Gender</label>
                   <div className="relative">

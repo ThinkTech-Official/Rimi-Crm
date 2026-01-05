@@ -30,6 +30,8 @@ interface Applicant {
   preMedCoverage: boolean;
   gender: string;
 
+  email?: string;
+
    healthQuestionnaire?: {
     questions: Array<{
       question: string;
