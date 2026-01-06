@@ -334,31 +334,22 @@ const applicantsToShow = useMemo(() => {
   // Questionnaire and Modal states handled via consolidated logic
 
 
-  const getAge = (dob: string) => {
-    if (!dob) return 0;
-    const diff = Date.now() - new Date(dob).getTime();
-    return Math.floor(diff / (1000 * 60 * 60 * 24 * 365.25));
-  };
+
 
   const handlePrimaryDOBChange = (e: Date) => {
     setPrimaryDateOfBirth(e);
-    const age = getAge(e.toISOString());
-    if (age >= 70 && age <= 84) {
-      setIsAgeQuestionnaireOpen(true);
-    } else {
-      setPrimaryQuestionaire({});
-    }
+    setPrimaryQuestionaire({});
   };
-  const handleAdditionalApplicantsDateChange = (idx: number,e: Date) => {
-    updateApplicant(idx, "dob", e)
-    const age = getAge(e.toISOString());
-    if (age >= 70 && age <= 84) {
-      setIsAgeQuestionnaireOpen(true);
-    } else {
-      const updatedApplicants = [...applicants];
-      updatedApplicants[idx].healthQuestionnaire = { questions: [] };
-      setApplicants(updatedApplicants);
-    }
+  const handleAdditionalApplicantsDateChange = (idx: number, e: Date) => {
+    setApplicants((prev: any) => {
+      const copy = [...prev];
+      copy[idx] = { 
+        ...copy[idx], 
+        dob: e,
+        healthQuestionnaire: { questions: [] } 
+      };
+      return copy;
+    });
   };
   //
   // const [coverageOption, setCoverageOption] = useState<string>("");
@@ -851,9 +842,13 @@ const applicantsToShow = useMemo(() => {
               <div className="relative">
                 <select
                   className="input-primary appearance-none cursor-pointer"
-                  onChange={(e) =>
-                    setCoverageForPreMedCon(e.target.value === "yes")
-                  }
+                  onChange={(e) => {
+                    const isYes = e.target.value === "yes";
+                    setCoverageForPreMedCon(isYes);
+                    if (isYes && primaryAge !== null && primaryAge >= 70 && primaryAge <= 84) {
+                      setIsAgeQuestionnaireOpen(true);
+                    }
+                  }}
                 >
                   <option value="">Select an option</option>
                   <option value="yes">Yes</option>
@@ -980,17 +975,7 @@ const applicantsToShow = useMemo(() => {
                   maxDate={new Date()}
                 />
 
-                <div className="flex flex-col">
-                  <label className="text-sm">Date of Birth</label>
-                  <input
-                    className="input-primary"
-                    type="date"
-                    value={app.dob}
-                    onChange={(e) =>
-                      updateApplicant(idx, "dob", e.target.value)
-                    }
-                  />
-                </div>
+
 
                       {/* Email Field */}
       <div className="flex flex-col">
@@ -1053,13 +1038,18 @@ const applicantsToShow = useMemo(() => {
                     <select
                       className="input-primary appearance-none cursor-pointer"
                       value={app.preMedCoverage ? "yes" : "no"}
-                      onChange={(e) =>
-                        updateApplicant(
-                          idx,
-                          "preMedCoverage",
-                          e.target.value === "yes"
-                        )
-                      }
+                       onChange={(e) => {
+                         const isYes = e.target.value === "yes";
+                         updateApplicant(
+                           idx,
+                           "preMedCoverage",
+                           isYes
+                         );
+                         const age = applicantAges[idx];
+                         if (isYes && age !== null && age >= 70 && age <= 84) {
+                           setIsAgeQuestionnaireOpen(true);
+                         }
+                       }}
                     >
                       <option value="">Select an option</option>
                       <option value="yes">Yes</option>
