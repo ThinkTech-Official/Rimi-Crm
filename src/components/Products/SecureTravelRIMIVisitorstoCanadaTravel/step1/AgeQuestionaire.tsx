@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { XMarkIcon } from "@heroicons/react/24/outline";
 
 const questions = [
   {
@@ -134,23 +135,39 @@ const AgeQuestionaire = ({
     setResponses({});
   }, [applicantsToShow]);
 
+  // Lock body scroll when modal is open
+  useEffect(() => {
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = "auto";
+    };
+  }, []);
+
   const closeModal = () => setIsAgeQuestionnaireOpen(false);
 
   return (
     <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50 p-4">
-      <div className="bg-white max-w-6xl w-full flex flex-col max-h-[90%] overflow-auto custom-scrollbar3 p-6 shadow-lg">
-        <div className="border-b border-inputBorder pb-3">
-          <h1 className="text-2xl font-semibold text-gray-900">
-            MEDICAL DECLARATION
-          </h1>
-          <p className="text-sm text-gray-500 mt-2">
-            This Medical Declaration must be completed if you are between 70 and
-            84 years of age as of the effective date of coverage and are
-            applying to purchase coverage for pre-existing medical conditions
-            that have been stable in the 180 days prior to your effective date.
-            Coverage for any pre-existing medical conditions is not available if
-            you are over 84 years of age.
-          </p>
+      <div className="bg-white max-w-5xl w-full flex flex-col max-h-[90%] overflow-auto custom-scrollbar3 p-6 shadow-lg">
+        <div className="flex justify-between items-start border-b border-inputBorder pb-3">
+          <div>
+            <h1 className="text-2xl font-semibold text-gray-900">
+              MEDICAL DECLARATION
+            </h1>
+            <p className="text-sm text-gray-500 mt-2">
+              This Medical Declaration must be completed if you are between 70 and
+              84 years of age as of the effective date of coverage and are
+              applying to purchase coverage for pre-existing medical conditions
+              that have been stable in the 180 days prior to your effective date.
+              Coverage for any pre-existing medical conditions is not available if
+              you are over 84 years of age.
+            </p>
+          </div>
+          <button 
+            onClick={closeModal} 
+            className="text-gray-500 hover:text-gray-700 cursor-pointer p-1"
+          >
+            <XMarkIcon className="h-6 w-6" />
+          </button>
         </div>
 
         {/* Questions with multiple applicant columns */}
@@ -207,7 +224,7 @@ const AgeQuestionaire = ({
         </div>
 
         {/* Footer notice */}
-        <div className="mt-6 text-sm text-gray-600 bg-gray-50 p-4 rounded">
+        <div className="mt-6 text-sm text-text-secondary bg-gray-50 p-4">
           <p className="mb-2 font-semibold">
             If you answered Yes to any of the questions you are not eligible to
             purchase coverage for pre-existing medical conditions.
@@ -226,11 +243,11 @@ const AgeQuestionaire = ({
         <div className="flex justify-end gap-4 mt-6">
           <button
             onClick={closeModal}
-            className="px-6 py-2 border border-inputBorder hover:border-gray-700 transition"
+            className="px-6 py-2 border border-inputBorder hover:border-gray-700 transition cursor-pointer"
           >
             Cancel
           </button>
-          <button onClick={handleSubmit} className="px-6 py-2 btn-primary">
+          <button onClick={handleSubmit} className="px-6 py-2 btn-primary cursor-pointer">
             Save
           </button>
         </div>

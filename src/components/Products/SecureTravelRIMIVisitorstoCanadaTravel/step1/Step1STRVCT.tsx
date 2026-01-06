@@ -1131,7 +1131,7 @@ const applicantsToShow = useMemo(() => {
 
           {/* Open Medical Questionnaire Section */}
 {anyNeedsQuestionnaire && (
-  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-6">
+  <div className="bg-blue-50 border border-blue-200 p-4 mt-6">
     <p className="text-sm text-blue-900 mb-3">
       A Medical Declaration must be completed if you are between 70 and 84 years of age 
       as of the effective date of coverage and are applying to purchase coverage for stable 
@@ -1139,7 +1139,7 @@ const applicantsToShow = useMemo(() => {
     </p>
     <button
       onClick={() => setIsAgeQuestionnaireOpen(true)}
-      className="bg-primary text-white px-6 py-2 rounded hover:bg-[#2309A1] transition"
+      className="bg-primary text-white py-2 px-4 font-semibold hover:bg-[#2309A1] transition-all duration-200 cursor-pointer disabled:cursor-default disabled:opacity-70"
     >
       Open Medical Questionnaire
     </button>
@@ -1230,7 +1230,7 @@ const applicantsToShow = useMemo(() => {
             Coverage Information
           </h3>
 
-          <div className="grid grid-cols-2 gap-x-36 gap-y-4 text-text-secondary">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 md:gap-x-16 lg:gap-x-24 gap-y-4 text-text-secondary">
             {/* Country of Origin */}
             <Dropdown
               label="Country of Origin"
@@ -1295,7 +1295,7 @@ const applicantsToShow = useMemo(() => {
 
           <>
             {/* SuperVisa + DestinationProvince */}
-            <div className="grid grid-cols-2 gap-x-36 gap-y-4 text-text-secondary mt-10">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 md:gap-x-16 lg:gap-x-24 gap-y-4 text-text-secondary mt-4">
               <Dropdown
                 label="Are applicants travelling to Canada on a Super Visa?"
                 info={() => setShowInfoSuperVisa((prev) => !prev)}
@@ -1334,7 +1334,7 @@ const applicantsToShow = useMemo(() => {
 
             {/*  Optional Duration if Super Visa = yes  */}
             {superVisa === "yes" && (
-              <div className="grid grid-cols-2 gap-x-36 gap-y-4 text-text-secondary mt-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 md:gap-x-16 lg:gap-x-24 gap-y-4 text-text-secondary mt-4">
                 <Dropdown
                   label="Super Visa Duration"
                   options={[
@@ -1349,7 +1349,7 @@ const applicantsToShow = useMemo(() => {
             )}
 
             {/*  Next Rows: Dates & Coverage  */}
-            <div className="grid grid-cols-2 gap-x-36 gap-y-4 text-text-secondary mt-10">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 md:gap-x-16 lg:gap-x-24 gap-y-4 text-text-secondary mt-4">
               <DatePicker
                 label="Effective Date"
                 value={effectiveDate}
@@ -1365,7 +1365,7 @@ const applicantsToShow = useMemo(() => {
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-x-36 gap-y-4 text-text-secondary mt-10">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 md:gap-x-16 lg:gap-x-24 gap-y-4 text-text-secondary mt-4">
               <TextInput
                 label="Coverage Length (days)"
                 type="number"
@@ -1399,7 +1399,7 @@ const applicantsToShow = useMemo(() => {
             />
           )}
 
-          <div className="grid grid-cols-2 gap-x-36 gap-y-4 text-text-secondary mt-10">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 md:gap-x-16 lg:gap-x-24 gap-y-4 text-text-secondary mt-4">
             {/* Coverage Options */}
             <Dropdown
               label="Coverage Options"
@@ -1446,7 +1446,7 @@ const applicantsToShow = useMemo(() => {
           )}
           {/*  */}
 
-          <div className="grid grid-cols-2 gap-x-36 gap-y-4 text-text-secondary mt-10">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 md:gap-x-16 lg:gap-x-24 gap-y-4 text-text-secondary mt-4">
             {showPaymentOption && (
               <Dropdown
                 label="Payment Option"
