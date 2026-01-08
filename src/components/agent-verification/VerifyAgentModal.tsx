@@ -272,7 +272,7 @@ export default function VerificationModal({
                       value={mgaSearch}
                       onChange={(e) => setMgaSearch(e.target.value)}
                       placeholder="Search MGA name or code..."
-                      className="w-full px-3 py-2 border border-inputBorder rounded focus:outline-none focus:ring-1 focus:ring-primary text-sm"
+                      className="input-primary"
                     />
                     
                     {mgasLoading && <p className="text-xs text-text-secondary mt-1">Loading MGAs...</p>}
@@ -280,7 +280,7 @@ export default function VerificationModal({
                     
                     {mgaSearch.length > 0 && (
                       mgas.length > 0 ? (
-                        <div className="mt-2 max-h-32 overflow-y-auto border border-inputBorder rounded bg-white">
+                        <div className="mt-2 max-h-32 overflow-y-auto border border-inputBorder bg-white">
                           {mgas.map((mga) => (
                             <label key={mga.id} className="flex items-center px-3 py-2 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-0">
                               <input
@@ -306,7 +306,7 @@ export default function VerificationModal({
                     )}
                     
                     {adminAssignments.mgaId && (
-                      <div className="mt-2 bg-green-50 border border-green-200 rounded px-2 py-1 text-sm text-green-800">
+                      <div className="mt-2 bg-green-50 border border-green-200 px-2 py-1 text-sm text-green-800">
                         <strong>Selected MGA:</strong>{' '}
                         {mgas.find(m => m.id === adminAssignments.mgaId)?.agentCode || adminAssignments.mgaId}
                       </div>
@@ -340,6 +340,7 @@ export default function VerificationModal({
               }}
               minDate={new Date()}
             />
+            </div>
             <div className="flex gap-2 mt-2">
               <button
                 type="button"
@@ -369,7 +370,6 @@ export default function VerificationModal({
               >
                + 5 Years
               </button>
-            </div>
             </div>
           </div>
 

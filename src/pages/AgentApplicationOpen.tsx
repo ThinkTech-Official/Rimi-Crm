@@ -1726,20 +1726,22 @@ import { usePublicAgentRegistration, PublicAgentFormData } from "../hooks/usePub
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import useNotification from "../hooks/useNotification";
-import DatePicker from "../components/DatePicker";
+import { useLanguage } from "../context/LanguageContext";
+import { Language } from "../translations";
 
 const AgentApplicationOpen: React.FC = () => {
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [confirmPasswordVisible, setConfirmPasswordVisible] = useState(false);
-
+  
   const { NotificationComponent, triggerNotification } = useNotification();
-
+  
   // State for applicant type selection
   const [applicantType, setApplicantType] = useState<"" | "independent" | "under_mga" | "wfg">("");
   
   // Custom hook for public registration
-  const { submitApplication, loading, error, success } =
-    usePublicAgentRegistration();
+  const { submitApplication, loading, error, success } = usePublicAgentRegistration();
+
+  const { t } = useLanguage();
 
   const {
     register,
@@ -1747,8 +1749,6 @@ const AgentApplicationOpen: React.FC = () => {
     watch,
     setValue,
     reset,
-    control,
-    unregister,
     formState: { errors },
   } = useForm<PublicAgentFormData>();
 
@@ -1785,16 +1785,15 @@ const AgentApplicationOpen: React.FC = () => {
     };
 
     const isSuccess = await submitApplication(submissionData as any);
-
+    
     if (isSuccess) {
       // Show success notification
       triggerNotification({
         type: "success",
-        message:
-          "Application submitted successfully! Admin will review and activate your account.",
+        message: "Application submitted successfully! Admin will review and activate your account.",
         duration: 5000,
       });
-
+      
       // Reset form and selections after successful submission
       reset();
       setApplicantType("");
@@ -1824,7 +1823,7 @@ const AgentApplicationOpen: React.FC = () => {
         });
         return;
       }
-      setValue(docType, file, { shouldValidate: true });
+      setValue(docType, file);
     }
   };
 
@@ -1852,17 +1851,17 @@ const AgentApplicationOpen: React.FC = () => {
             </p>
           </div>
 
-            {/* Success Message */}
-            {success && (
-              <div className="mb-6 bg-green-50 border border-green-300 rounded-lg p-4">
-                <h3 className="text-green-800 font-medium mb-2">
-                  Application Submitted!
-                </h3>
-                <p className="text-green-700 text-sm">
-                  Your application has been submitted successfully. Admin will review your {documentsRequired ? 'documents' : 'information'} and activate your account. You will receive an email notification once approved.
-                </p>
-              </div>
-            )}
+          {/* Success Message */}
+          {success && (
+            <div className="mb-6 shadow-md p-4">
+              <h3 className="text-text-primary font-medium mb-2 text-center">
+                Application Submitted!
+              </h3>
+              <p className="text-text-secondary text-sm text-center">
+                Your application has been submitted successfully. Admin will review your {documentsRequired ? 'documents' : 'information'} and activate your account. You will receive an email notification once approved.
+              </p>
+            </div>
+          )}
 
           {/* Error Message */}
           {error && (
@@ -1871,62 +1870,62 @@ const AgentApplicationOpen: React.FC = () => {
             </div>
           )}
 
-            {/* ===== FORM START ===== */}
-            <form
-              onSubmit={handleSubmit(onSubmit)}
-              className="bg-white space-y-6"
-              noValidate
-            >
-              {/* Applicant Type Selection */}
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                <label className="text-sm font-medium text-gray-900 mb-3 block">
-                  Select Your Agent Type <span className="text-red-500">*</span>
+          {/* ===== FORM START ===== */}
+          <form
+            onSubmit={handleSubmit(onSubmit)}
+            className="bg-white space-y-6"
+            noValidate
+          >
+            {/* Applicant Type Selection */}
+            <div className="flex flex-col items-center">
+              <label className="font-medium text-text-primary mb-3 block">
+                Select Your Agent Type <span className="text-red-500">*</span>
+              </label>
+              <div className="flex flex-col gap-3">
+                <label className="flex items-center cursor-pointer">
+                  <input
+                    type="radio"
+                    name="applicantType"
+                    value="independent"
+                    checked={applicantType === "independent"}
+                    onChange={() => setApplicantType("independent")}
+                    className="mr-2 h-4 w-4 text-primary focus:ring-primary accent-primary cursor-pointer"
+                  />
+                  <span className="text-sm text-gray-700">Independent Agent</span>
                 </label>
-                <div className="flex flex-col gap-3">
-                  <label className="flex items-center cursor-pointer">
-                    <input
-                      type="radio"
-                      name="applicantType"
-                      value="independent"
-                      checked={applicantType === "independent"}
-                      onChange={() => setApplicantType("independent")}
-                      className="mr-2 h-4 w-4 text-primary focus:ring-primary"
-                    />
-                    <span className="text-sm text-gray-700">Independent Agent</span>
-                  </label>
-                  <label className="flex items-center cursor-pointer">
-                    <input
-                      type="radio"
-                      name="applicantType"
-                      value="under_mga"
-                      checked={applicantType === "under_mga"}
-                      onChange={() => setApplicantType("under_mga")}
-                      className="mr-2 h-4 w-4 text-primary focus:ring-primary"
-                    />
-                    <span className="text-sm text-gray-700">Agent under MGA</span>
-                  </label>
-                  <label className="flex items-center cursor-pointer">
-                    <input
-                      type="radio"
-                      name="applicantType"
-                      value="wfg"
-                      checked={applicantType === "wfg"}
-                      onChange={() => setApplicantType("wfg")}
-                      className="mr-2 h-4 w-4 text-primary focus:ring-primary"
-                    />
-                    <span className="text-sm text-gray-700">WFG Agent</span>
-                  </label>
-                </div>
-                {!applicantType && (
-                  <p className="text-red-500 text-xs mt-2">
-                    Please select your agent type
-                  </p>
-                )}
+                <label className="flex items-center cursor-pointer">
+                  <input
+                    type="radio"
+                    name="applicantType"
+                    value="under_mga"
+                    checked={applicantType === "under_mga"}
+                    onChange={() => setApplicantType("under_mga")}
+                    className="mr-2 h-4 w-4 text-primary focus:ring-primary accent-primary cursor-pointer"
+                  />
+                  <span className="text-sm text-gray-700">Agent under MGA</span>
+                </label>
+                <label className="flex items-center cursor-pointer">
+                  <input
+                    type="radio"
+                    name="applicantType"
+                    value="wfg"
+                    checked={applicantType === "wfg"}
+                    onChange={() => setApplicantType("wfg")}
+                    className="mr-2 h-4 w-4 text-primary focus:ring-primary accent-primary cursor-pointer"
+                  />
+                  <span className="text-sm text-gray-700">WFG Agent</span>
+                </label>
               </div>
+              {!applicantType && (
+                <p className="text-red-500 text-xs mt-2">
+                  Please select your agent type
+                </p>
+              )}
+            </div>
 
-              {/* Only show form fields after applicant type is selected */}
-              {applicantType && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-text-secondary">
+            {/* Only show form fields after applicant type is selected */}
+            {applicantType && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-text-secondary">
                   {/* First Name */}
                   <div className="flex flex-col">
                     <label className="text-sm font-medium mb-1">
@@ -1947,28 +1946,28 @@ const AgentApplicationOpen: React.FC = () => {
                     )}
                   </div>
 
-                {/* Last Name */}
-                <div className="flex flex-col">
-                  <label className="text-sm font-medium mb-1">
-                    Last Name <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    {...register("lastName", {
-                      required: "Last name is required",
-                    })}
-                    className="input-primary"
-                    placeholder="Last Name"
-                  />
-                  {errors.lastName && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {errors.lastName.message}
-                    </p>
-                  )}
-                </div>
+                  {/* Last Name */}
+                  <div className="flex flex-col">
+                    <label className="text-sm font-medium mb-1">
+                      Last Name <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      {...register("lastName", {
+                        required: "Last name is required",
+                      })}
+                      className="input-primary"
+                      placeholder="Last Name"
+                    />
+                    {errors.lastName && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.lastName.message}
+                      </p>
+                    )}
+                  </div>
 
                   {/* Email */}
-                  <div className="flex flex-col col-span-2">
+                  <div className="flex flex-col">
                     <label className="text-sm font-medium mb-1">
                       Email <span className="text-red-500">*</span>
                     </label>
@@ -1995,7 +1994,7 @@ const AgentApplicationOpen: React.FC = () => {
 
                   {/* Phone Number Field (For Independent and Under MGA) */}
                   {showPhoneField && (
-                    <div className="flex flex-col col-span-2">
+                    <div className="flex flex-col">
                       <label className="text-sm font-medium mb-1">
                         Phone Number <span className="text-red-500">*</span>
                       </label>
@@ -2019,29 +2018,27 @@ const AgentApplicationOpen: React.FC = () => {
                     </div>
                   )}
 
-                {/* WFG Code Field (Only for WFG) */}
-                {showWfgCodeField && (
-                  <div className="flex flex-col ">
-                    <label className="text-sm font-medium mb-1">
-                      WFG Code <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      {...register("wfgCode", {
-                        required: showWfgCodeField
-                          ? "WFG Code is required"
-                          : false,
-                      })}
-                      className="input-primary"
-                      placeholder="Enter your WFG Code"
-                    />
-                    {errors.wfgCode && (
-                      <p className="text-red-500 text-sm mt-1">
-                        {errors.wfgCode.message}
-                      </p>
-                    )}
-                  </div>
-                )}
+                  {/* WFG Code Field (Only for WFG) */}
+                  {showWfgCodeField && (
+                    <div className="flex flex-col">
+                      <label className="text-sm font-medium mb-1">
+                        WFG Code <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        {...register("wfgCode", {
+                          required: showWfgCodeField ? "WFG Code is required" : false,
+                        })}
+                        className="input-primary"
+                        placeholder="Enter your WFG Code"
+                      />
+                      {errors.wfgCode && (
+                        <p className="text-red-500 text-sm mt-1">
+                          {errors.wfgCode.message}
+                        </p>
+                      )}
+                    </div>
+                  )}
 
                   {/* Company Field (For Independent or Under MGA) */}
                   {showCompanyField && (
@@ -2070,44 +2067,44 @@ const AgentApplicationOpen: React.FC = () => {
                     </div>
                   )}
 
-                {/* Password */}
-                <div className="flex flex-col ">
-                  <label className="text-sm font-medium mb-1">
-                    Password <span className="text-red-500">*</span>
-                  </label>
-                  <div className="relative">
-                    <input
-                      type={passwordVisible ? "text" : "password"}
-                      {...register("password", {
-                        required: "Password is required",
-                        minLength: {
-                          value: 6,
-                          message: "Minimum length is 6",
-                        },
-                      })}
-                      className="w-full input-primary"
-                      placeholder="Create Password"
-                    />
-                    <span
-                      className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer"
-                      onClick={() => setPasswordVisible(!passwordVisible)}
-                    >
-                      {passwordVisible ? (
-                        <EyeIcon className="h-5 w-5 text-gray-500" />
-                      ) : (
-                        <EyeSlashIcon className="h-5 w-5 text-gray-500" />
-                      )}
-                    </span>
+                  {/* Password */}
+                  <div className="flex flex-col">
+                    <label className="text-sm font-medium mb-1">
+                      Password <span className="text-red-500">*</span>
+                    </label>
+                    <div className="relative">
+                      <input
+                        type={passwordVisible ? "text" : "password"}
+                        {...register("password", {
+                          required: "Password is required",
+                          minLength: {
+                            value: 6,
+                            message: "Minimum length is 6",
+                          },
+                        })}
+                        className="w-full input-primary"
+                        placeholder="Create Password"
+                      />
+                      <span
+                        className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer"
+                        onClick={() => setPasswordVisible(!passwordVisible)}
+                      >
+                        {passwordVisible ? (
+                          <EyeIcon className="h-5 w-5 text-gray-500" />
+                        ) : (
+                          <EyeSlashIcon className="h-5 w-5 text-gray-500" />
+                        )}
+                      </span>
+                    </div>
+                    {errors.password && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.password.message}
+                      </p>
+                    )}
                   </div>
-                  {errors.password && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {errors.password.message}
-                    </p>
-                  )}
-                </div>
 
                   {/* Confirm Password */}
-                  <div className="flex flex-col col-span-2">
+                  <div className="flex flex-col">
                     <label className="text-sm font-medium mb-1">
                       Confirm Password <span className="text-red-500">*</span>
                     </label>
@@ -2146,7 +2143,7 @@ const AgentApplicationOpen: React.FC = () => {
                   {/* Document Upload Section (Only for Independent Agents) */}
                   {documentsRequired && (
                     <>
-                      {/* Document Upload Section Header */}
+                      {/* Document Upload Section */}
                       <div className="col-span-2 mt-4">
                         <h3 className="text-lg font-semibold text-gray-900 mb-2">
                           Required Documents
@@ -2248,7 +2245,7 @@ const AgentApplicationOpen: React.FC = () => {
                         <label className="text-sm font-medium mb-1">
                           4. Signed RIMI Agency Agreement <span className="text-red-500">*</span>
                         </label>
-                        <div className="mb-2 bg-blue-50 border border-blue-200 rounded-lg p-3">
+                        <div className="mb-2 bg-blue-50 border border-blue-200 p-3 w-full">
                           <p className="text-sm text-blue-800 mb-2">
                             Please download the agreement template, sign it, and upload the completed document.
                           </p>
@@ -2293,7 +2290,7 @@ const AgentApplicationOpen: React.FC = () => {
 
               {/* Information Box */}
               {applicantType && (
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-6">
+                <div className="border border-inputBorder shadow-sm p-4 mt-6">
                   <h4 className="text-sm font-medium text-blue-900 mb-2">
                      What happens next?
                   </h4>
@@ -2364,27 +2361,9 @@ const AgentApplicationOpen: React.FC = () => {
           </div>
         </div>
 
-        {/* ===== RIGHT COLUMN - ILLUSTRATION ===== */}
-        <div className="hidden lg:flex lg:w-2/5 bg-gradient-to-br from-primary via-indigo-700 to-indigo-900 relative overflow-hidden">
-          <img
-            src="/Signup.png"
-            alt=""
-            className="absolute inset-0 object-cover w-full h-full opacity-90"
-          />
-          <div className="relative flex flex-col justify-center items-center text-white text-center px-12">
-            <img src="/RIMI.png" alt="RIMI" className="mb-5 w-36" />
-            <h1 className="text-4xl font-semibold mb-6 leading-tight">
-              Welcome to RIMI Advisor Training and Certification Portal
-            </h1>
-            <p className="text-lg opacity-90">
-              Join our network of trusted insurance advisors
-            </p>
-          </div>
-        </div>
         {NotificationComponent}
       </div>
+    );
+  };
 
-  );
-};
-
-export default AgentApplicationOpen;
+  export default AgentApplicationOpen;
