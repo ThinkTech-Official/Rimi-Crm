@@ -67,6 +67,7 @@ interface ApplicantInfo {
 
 interface Props {
   applicantsToShow: ApplicantInfo[]; 
+  primaryQuestionnaire: any;
   setPrimaryQuestionaire: (val: any) => void;
   setIsAgeQuestionnaireOpen: (val: boolean) => void;
   setApplicants: (val: any) => void;
@@ -75,6 +76,7 @@ interface Props {
 
 const AgeQuestionaire = ({
   applicantsToShow,
+  primaryQuestionnaire,
   setPrimaryQuestionaire,
   setIsAgeQuestionnaireOpen,
   setApplicants,
@@ -132,8 +134,32 @@ const AgeQuestionaire = ({
   };
 
   useEffect(() => {
-    setResponses({});
-  }, [applicantsToShow]);
+    const initialResponses: { [appIdx: number]: { [qIdx: number]: string } } = {};
+    
+    applicantsToShow.forEach((applicant, appIdx) => {
+      let existingQuestions: any[] = [];
+      
+      if (applicant.index === -1 || applicant.index === undefined) {
+        existingQuestions = primaryQuestionnaire?.questions || [];
+      } else {
+        const app = applicants[applicant.index];
+        existingQuestions = app?.healthQuestionnaire?.questions || [];
+      }
+
+      if (existingQuestions.length > 0) {
+        const appResponses: { [qIdx: number]: string } = {};
+        questions.forEach((q, qIdx) => {
+          const match = existingQuestions.find(eq => eq.question === q.question);
+          if (match) {
+            appResponses[qIdx] = match.answer;
+          }
+        });
+        initialResponses[appIdx] = appResponses;
+      }
+    });
+
+    setResponses(initialResponses);
+  }, [applicantsToShow, primaryQuestionnaire, applicants]);
 
   // Lock body scroll when modal is open
   useEffect(() => {
@@ -171,7 +197,7 @@ const AgeQuestionaire = ({
         </div>
 
         {/* Questions with multiple applicant columns */}
-        <div className="mt-6 overflow-auto custom-scrollbar3">
+        <div className="mt-6 overflow-auto custom-scrollbar-x custom-scrollbar-y min-h-[400px]">
           <table className="w-full">
             <thead>
               <tr>
@@ -189,7 +215,7 @@ const AgeQuestionaire = ({
             <tbody>
               {questions.map((q, qIdx) => (
                 <tr key={qIdx} className="border-b border-gray-200">
-                  <td className="py-4 pr-4 text-sm align-top">
+                  <td className="py-4 pr-4 text-sm align-top min-w-md">
                     {qIdx + 1}. {q.question}
                   </td>
                   {applicantsToShow.map((applicant, appIdx) => (

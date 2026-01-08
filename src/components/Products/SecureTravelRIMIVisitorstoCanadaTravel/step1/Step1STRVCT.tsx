@@ -845,9 +845,6 @@ const applicantsToShow = useMemo(() => {
                   onChange={(e) => {
                     const isYes = e.target.value === "yes";
                     setCoverageForPreMedCon(isYes);
-                    if (isYes && primaryAge !== null && primaryAge >= 70 && primaryAge <= 84) {
-                      setIsAgeQuestionnaireOpen(true);
-                    }
                   }}
                 >
                   <option value="">Select an option</option>
@@ -1045,10 +1042,6 @@ const applicantsToShow = useMemo(() => {
                            "preMedCoverage",
                            isYes
                          );
-                         const age = applicantAges[idx];
-                         if (isYes && age !== null && age >= 70 && age <= 84) {
-                           setIsAgeQuestionnaireOpen(true);
-                         }
                        }}
                     >
                       <option value="">Select an option</option>
@@ -1555,17 +1548,29 @@ const applicantsToShow = useMemo(() => {
             )}
           </div>
         )}
-        {
-          isAgeQuestionnaireOpen && (
-          <AgeQuestionaire
-            applicantsToShow={applicantsToShow}
-            setPrimaryQuestionaire={setPrimaryQuestionaire}
-            setIsAgeQuestionnaireOpen={setIsAgeQuestionnaireOpen}
-            setApplicants={setApplicants}
-            applicants={applicants}
-          />
-          )
-        }
+       {isAgeQuestionnaireOpen && (
+  <AgeQuestionaire
+    applicantsToShow={[
+      ...(primaryNeedsQuestionnaire
+        ? [{ 
+            firstName: primaryFirstName, 
+            lastName: primaryLastName, 
+            index: -1 
+          }]
+        : []),
+      ...applicantsNeedingQuestionnaire.map((app: any, originalIdx: number) => ({
+        firstName: app.firstName,
+        lastName: app.lastName,
+        index: applicants.findIndex((a: any) => a === app),
+      })),
+    ]}
+    primaryQuestionnaire={primaryQuestionnaire}
+    setPrimaryQuestionaire={setPrimaryQuestionnaire}
+    setIsAgeQuestionnaireOpen={setIsAgeQuestionnaireOpen}
+    setApplicants={setApplicants}
+    applicants={applicants}
+  />
+)}
         {showConfirmEligibility && (
           <ConfirmEligibilityModal
             confirmEligibility={showConfirmEligibility}

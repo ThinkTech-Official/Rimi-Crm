@@ -65,6 +65,32 @@
     border-radius: 4px;
   }
 
+  .custom-scrollbar-x::-webkit-scrollbar {
+    height: 6px;
+  }
+
+  .custom-scrollbar-x::-webkit-scrollbar-thumb {
+    background-color: #2b00b7;
+    border-radius: 4px;
+  }
+  .custom-scrollbar-x::-webkit-scrollbar-track {
+    background-color: #7367f029;
+    border-radius: 2px;
+  }
+
+  .custom-scrollbar-y::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .custom-scrollbar-y::-webkit-scrollbar-thumb {
+    background-color: #2b00b7;
+    border-radius: 4px;
+  }
+  .custom-scrollbar-y::-webkit-scrollbar-track {
+    background-color: #7367f029;
+    border-radius: 2px;
+  }
+
   .form-container{
     @apply max-w-5xl mx-auto mt-4 p-3 sm:p-6 bg-[#F9F9F9];
   }

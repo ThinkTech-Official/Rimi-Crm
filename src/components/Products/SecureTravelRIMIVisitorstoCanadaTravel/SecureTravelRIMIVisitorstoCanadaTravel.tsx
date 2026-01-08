@@ -83,7 +83,6 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
   const [primaryDateOfBirth, setPrimaryDateOfBirth] = useState("");
   const [primaryEmail, setprimaryEmail] = useState("");
   const [applicantNumber, setApplicantNumber] = useState(0);
-  const [primaryQuestionaire, setPrimaryQuestionaire] = useState([]);
   const [coverageForPreMedCon, setCoverageForPreMedCon] = useState(false);
 
   const [isConfirmed, setIsConfirmed] = useState(false);
@@ -522,8 +521,6 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
             setPrimaryDateOfBirth={setPrimaryDateOfBirth}
             primaryEmail={primaryEmail}
             setprimaryEmail={setprimaryEmail}
-            primaryQuestionaire={primaryQuestionaire}
-            setPrimaryQuestionaire={setPrimaryQuestionaire}
             applicantNumber={applicantNumber}
             setApplicantNumber={setApplicantNumber}
             superVisa={superVisa}
