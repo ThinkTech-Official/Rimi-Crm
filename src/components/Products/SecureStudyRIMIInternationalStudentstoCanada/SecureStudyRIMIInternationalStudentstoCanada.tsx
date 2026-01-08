@@ -191,10 +191,7 @@
 // //   );
 // // }
 
-
-
 // // ==========================================================
-
 
 // import { CheckIcon } from "@heroicons/react/24/outline";
 // import { useState } from "react";
@@ -221,7 +218,6 @@
 // import { useSaveQuoteNextProduct2 } from "../../../hooks/student-international/useSaveQuoteNextProduct2";
 // import { useQuoteUpdateProduct2, Stage2PayloadProduct2 } from "../../../hooks/student-international/useQuoteUpdateProduct2";
 // import { useCreateQuoteProduct2 } from "../../../hooks/student-international/useCreateQuoteProduct2";
-
 
 // type YesNo = "" | "yes" | "no";
 
@@ -342,7 +338,6 @@
 //     error: submitError,
 //   } = useQuoteUpdateProduct2();
 
-
 //   const { createQuote, loading: savingQuote } = useCreateQuoteProduct2();
 
 //   // ==================== HANDLERS ====================
@@ -400,13 +395,13 @@
 //   try {
 //     console.log("Saving Product 2 quote as Inactive...");
 //     const response = await createQuote(payload);
-    
+
 //     // Update state with the saved quote number
 //     setQuoteNumber(response.quote);
-    
+
 //     // Show success message
 //     alert(`Quote saved successfully!\n\nQuote Number: ${response.quote}\n\nYou can continue later or proceed to the next step.`);
-    
+
 //     console.log("Quote saved:", response.quote);
 //   } catch (err: any) {
 //     console.error("Failed to save quote:", err);
@@ -743,9 +738,6 @@ export interface Applicant {
   dob: string;
   relationship: string;
   gender: string;
-  healthQuestionnaire?: {
-    questions: any[];
-  };
 }
 
 interface QuoteStage1ResponseProduct2 {

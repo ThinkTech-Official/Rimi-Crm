@@ -462,7 +462,6 @@ import {
 } from "../SecureStudyRIMIInternationalStudentstoCanada";
 import ConfirmEligibilityModal from "../../SecureTravelRIMIVisitorstoCanadaTravel/step1/ConfirmEligibility";
 import DatePicker from "../../../DatePicker";
-import AgeQuestionaire from "../../../AgeQuotionaire";
 
 interface ApplicantInformationProps {
   methods: UseFormReturn<Step1FormData>;
@@ -484,10 +483,6 @@ export default function ApplicantInformation({
   const { applicantNumber, applicants, isConfirmed } = formValues;
   const [showInfo, setShowInfo] = useState(false);
   const [showConfirmEligibility, setShowConfirmEligibility] = useState(false);
-  const [isAgeQuetionaireOpen, setIsAgeQuetionaireOpen] = useState(false);
-  const [, setPrimaryQuestionaire] = useState<any>({});
-  const [isPrimary, setIsPrimary] = useState(false);
-  const [currentIdx, setCurrentIdx] = useState(0);
 
   // Resize applicants array when number changes
   useEffect(() => {
@@ -502,9 +497,6 @@ export default function ApplicantInformation({
           dob: "",
           relationship: "",
           gender: "",
-          healthQuestionnaire: {
-            questions: [],
-          },
         }
     );
     setValue("applicants", newApplicants);
@@ -513,7 +505,10 @@ export default function ApplicantInformation({
   const handleCheckboxChange = () => {
     if (isConfirmed) {
       // If already checked, uncheck it
-      return setValue("isConfirmed", false, { shouldValidate: true, shouldDirty: true });
+      return setValue("isConfirmed", false, {
+        shouldValidate: true,
+        shouldDirty: true,
+      });
     }
     // If unchecked, open modal to confirm
     if (!isConfirmed) {
@@ -524,8 +519,6 @@ export default function ApplicantInformation({
       setShowInfo(true);
     }
   };
-
-
 
   const handleApplicantNumberChange = (num: number) => {
     setValue("applicantNumber", num);
@@ -548,14 +541,6 @@ export default function ApplicantInformation({
     setValue("applicants", newApplicants);
   };
 
-
-
-  const getAge = (dob: string) => {
-    if (!dob) return 0;
-    const diff = Date.now() - new Date(dob).getTime();
-    return Math.floor(diff / (1000 * 60 * 60 * 24 * 365.25));
-  };
-
   const setApplicants = (value: Applicant[]) => {
     setValue("applicants", value);
   };
@@ -570,32 +555,12 @@ export default function ApplicantInformation({
 
   const handlePrimaryDOBChange = (e: Date) => {
     setPrimaryDateOfBirth(e);
-    const age = getAge(e.toISOString());
-    if (age >= 80) {
-      setIsPrimary(true);
-      setIsAgeQuetionaireOpen(true);
-    } else {
-      setPrimaryQuestionaire({});
-    }
   };
   const handleAdditionalApplicantsDateChange = (idx: number, e: Date) => {
     // Update the date field
     const currentApplicants = applicants || [];
     const updated = [...currentApplicants];
     updated[idx] = { ...updated[idx], dob: e.toISOString() };
-
-    const age = getAge(e.toISOString());
-    if (age >= 80) {
-      setCurrentIdx(idx);
-      setIsPrimary(false);
-      setIsAgeQuetionaireOpen(true);
-    } else {
-      // Clear health questionnaire
-      updated[idx] = {
-        ...updated[idx],
-        healthQuestionnaire: { questions: [] },
-      };
-    }
 
     setValue("applicants", updated);
   };
@@ -804,27 +769,27 @@ export default function ApplicantInformation({
             </div>
             <div>
               <Controller
-                            name={`applicants.${idx}.dob`}
-                            control={control}
-                            rules={{ required: "Date of Birth is required" }}
-                            render={({ field }) => (
-                              <DatePicker
-                                label="Date of Birth"
-                                value={field.value}
-                                onChange={(date: Date) => {
-                                  field.onChange(date);
-                                  handleAdditionalApplicantsDateChange(idx, date);
-                                }}
-                                maxDate={new Date()}
-                              />
-                            )}
-                          />
-              
-                          {errors.applicants?.[idx]?.dob && (
-                            <p className="text-red-500 text-sm">
-                              {errors.applicants[idx].dob.message}
-                            </p>
-                          )}
+                name={`applicants.${idx}.dob`}
+                control={control}
+                rules={{ required: "Date of Birth is required" }}
+                render={({ field }) => (
+                  <DatePicker
+                    label="Date of Birth"
+                    value={field.value}
+                    onChange={(date: Date) => {
+                      field.onChange(date);
+                      handleAdditionalApplicantsDateChange(idx, date);
+                    }}
+                    maxDate={new Date()}
+                  />
+                )}
+              />
+
+              {errors.applicants?.[idx]?.dob && (
+                <p className="text-red-500 text-sm">
+                  {errors.applicants[idx].dob.message}
+                </p>
+              )}
             </div>
 
             <div className="flex flex-col">
@@ -886,7 +851,8 @@ export default function ApplicantInformation({
             type="checkbox"
             className="accent-primary cursor-pointer"
             {...register("isConfirmed", {
-              required: "You must confirm that all applicants are eligible for this insurance",
+              required:
+                "You must confirm that all applicants are eligible for this insurance",
             })}
             checked={isConfirmed || false}
             onChange={handleCheckboxChange}
@@ -955,17 +921,6 @@ export default function ApplicantInformation({
           confirmEligibility={showConfirmEligibility}
           setShowConfirmEligibility={setShowConfirmEligibility}
           setIsConfirmed={setIsConfirmed}
-        />
-      )}
-      {isAgeQuetionaireOpen && (
-        <AgeQuestionaire
-          setPrimaryQuestionaire={setPrimaryQuestionaire}
-          setIsAgeQuetionaireOpen={setIsAgeQuetionaireOpen}
-          isPrimary={isPrimary}
-          applicants={applicants}
-          setIsPrimary={setIsPrimary}
-          currentIdx={currentIdx}
-          setApplicants={setApplicants}
         />
       )}
     </div>
