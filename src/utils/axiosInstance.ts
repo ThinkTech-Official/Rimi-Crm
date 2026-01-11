@@ -5,13 +5,14 @@ import { API_BASE } from "./urls";
 
 export const axiosInstance = axios.create({
   baseURL: API_BASE,
+  withCredentials: true,
 });
 
 // Automatically attach token from cookies
-axiosInstance.interceptors.request.use((config) => {
-  const token = Cookies.get("token");
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
-});
+// axiosInstance.interceptors.request.use((config) => {
+//   const token = Cookies.get("token");
+//   if (token) {
+//     config.headers.Authorization = `Bearer ${token}`;
+//   }
+//   return config;
+// });

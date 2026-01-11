@@ -1024,7 +1024,11 @@ const handleIssueRelatedPolicy = () => {
       </section>
 
       {/* Premium / Payment Info */}
-      {/* {history?.length > 0 && (
+    
+
+      {/* Premium / Payment Info */}
+      {/* {(history?.length > 0 ||
+        (paymentSchedule && paymentSchedule.length > 0)) && (
         <section className="border-b py-4 text-sm space-y-4">
           <div className="uppercase text-purple-600 font-semibold">
             Premium / Payment Info
@@ -1036,7 +1040,7 @@ const handleIssueRelatedPolicy = () => {
               <div>
                 {p?.premium.toLocaleString("en-CA", {
                   style: "currency",
-                  currency: history[0].currency,
+                  currency: history[0]?.currency || "CAD",
                   currencyDisplay: "code",
                 })}
               </div>
@@ -1047,33 +1051,120 @@ const handleIssueRelatedPolicy = () => {
             </div>
             <div>
               <div className="font-medium">Credit Card</div>
-              <div>{history[0].last4 ? `•••• ${history[0].last4}` : "-"}</div>
+              <div>{history[0]?.last4 ? `•••• ${history[0].last4}` : "-"}</div>
             </div>
             <div>
               <div className="font-medium">Date</div>
-              <div>{fmtDate(history[0].date)}</div>
+              <div>{history[0]?.date ? fmtDate(history[0].date) : "-"}</div>
             </div>
           </div>
 
-          <table className="w-full table-fixed border-collapse text-xs mt-4">
-            <thead>
-              <tr className="bg-gray-100">
-                <th className="px-3 py-2 text-left">#</th>
-                <th className="px-3 py-2 text-left">Method</th>
-                <th className="px-3 py-2 text-left">Name</th>
-                <th className="px-3 py-2 text-left">Brand</th>
-                <th className="px-3 py-2 text-left">Last 4</th>
-                <th className="px-3 py-2 text-right">Amount</th>
-                <th className="px-3 py-2 text-right">Fee</th>
-                <th className="px-3 py-2 text-left">Status</th>
-                <th className="px-3 py-2 text-left">Date</th>
-                <th className="px-3 py-2 text-left">Payment Type</th>
-                <th className="px-3 py-2 text-center w-20">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y">
-              {history.map((h, i) => (
-                <tr key={h.id} className="hover:bg-gray-50">
+          
+          <div className="mt-6">
+            <h3 className="font-semibold text-sm mb-3">Payment Schedule</h3>
+            <PaymentScheduleTable
+              schedule={paymentSchedule || []}
+              loading={scheduleLoading}
+              error={scheduleError}
+              onProcessRefund={
+                p.status === "CANCELLED" ? handleRefund : undefined
+              }
+            />
+          </div>
+        </section>
+      )} */}
+
+
+
+{/* Premium / Payment Info */}
+{(history?.length > 0 || (paymentSchedule && paymentSchedule.length > 0)) && (
+  <section className="border-b py-4 text-sm space-y-4">
+    <div className="uppercase text-purple-600 font-semibold">
+      Premium / Payment Info
+    </div>
+
+    <div className="grid grid-cols-4 gap-x-4">
+      <div>
+        <div className="font-medium">Premium</div>
+        <div>
+          {p?.premium.toLocaleString("en-CA", {
+            style: "currency",
+            currency: history[0]?.currency || "CAD",
+            currencyDisplay: "code",
+          })}
+        </div>
+      </div>
+      <div>
+        <div className="font-medium">Payment Option</div>
+        <div>{p.paymentOption || "-"}</div>
+      </div>
+      <div>
+        <div className="font-medium">Credit Card</div>
+        <div>{history[0]?.last4 ? `•••• ${history[0].last4}` : "-"}</div>
+      </div>
+      <div>
+        <div className="font-medium">Date</div>
+        <div>{history[0]?.date ? fmtDate(history[0].date) : "-"}</div>
+      </div>
+    </div>
+
+    {/* ✅ ADD THIS: Parent Policy Link for Split Policies */}
+    {p.parentPolicyId && (
+      <div className="bg-blue-50 border-l-4 border-blue-400 p-3 rounded">
+        <div className="flex items-center">
+          <svg className="w-5 h-5 text-blue-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
+            <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+          </svg>
+          <div>
+            <p className="text-sm text-blue-700 font-medium">
+              Split Policy - Payments Covered by Parent Policy
+            </p>
+            <button
+              onClick={() => navigate(`/policy-detail/${p.parentPolicyId}`)}
+              className="text-xs text-blue-600 hover:text-blue-800 underline mt-1"
+            >
+              View Original Policy Payment →
+            </button>
+          </div>
+        </div>
+      </div>
+    )}
+
+    {/* Payment History Table */}
+    {history.length > 0 && (
+      <div className="mt-4">
+        <h3 className="font-semibold text-sm mb-3">Payment History</h3>
+        <table className="w-full table-fixed border-collapse text-xs">
+          <thead>
+            <tr className="bg-gray-100">
+              <th className="px-3 py-2 text-left">#</th>
+              <th className="px-3 py-2 text-left">Method</th>
+              <th className="px-3 py-2 text-left">Name</th>
+              <th className="px-3 py-2 text-left">Brand</th>
+              <th className="px-3 py-2 text-left">Last 4</th>
+              <th className="px-3 py-2 text-right">Amount</th>
+              <th className="px-3 py-2 text-right">Fee</th>
+              <th className="px-3 py-2 text-left">Status</th>
+              <th className="px-3 py-2 text-left">Date</th>
+              <th className="px-3 py-2 text-left">Payment Type</th>
+              <th className="px-3 py-2 text-center w-20">Actions</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y">
+            {history.map((h, i) => {
+              // ✅ Check if this is a reference payment
+              const isReference = [
+                'split-policy-covered',
+                'split-initial-covered',
+                'split-monthly-covered',
+                'policy-fee-reference'
+              ].includes(h.paymentType || '');
+
+              return (
+                <tr 
+                  key={h.id} 
+                  className={`hover:bg-gray-50 ${isReference ? 'bg-blue-50' : ''}`}
+                >
                   <td className="px-3 py-2 text-left">{i + 1}</td>
                   <td className="px-3 py-2 text-left">{h.method}</td>
                   <td className="px-3 py-2 text-left">{h.cardholderName}</td>
@@ -1107,7 +1198,19 @@ const handleIssueRelatedPolicy = () => {
                     {h.status}
                   </td>
                   <td className="px-3 py-2 text-left">{fmtDate(h.date)}</td>
-                  <td className="px-3 py-2 text-left">{h.paymentType || 'N/A'}</td>
+                  <td className="px-3 py-2 text-left">
+                    <div className="flex items-center gap-1">
+                      {/* ✅ Show indicator for reference payments */}
+                      {isReference && (
+                        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
+                          ℹ️ Reference
+                        </span>
+                      )}
+                      <span className={isReference ? 'text-xs text-gray-600' : ''}>
+                        {h.paymentType || 'N/A'}
+                      </span>
+                    </div>
+                  </td>
                   <td className="px-3 py-2 text-center">
                     {h.paymentType === 'policy-issue-fee' && 
                      h.status === 'succeeded' && 
@@ -1143,59 +1246,31 @@ const handleIssueRelatedPolicy = () => {
                     )}
                   </td>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </section>
-      )} */}
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    )}
 
-      {/* Premium / Payment Info */}
-      {(history?.length > 0 ||
-        (paymentSchedule && paymentSchedule.length > 0)) && (
-        <section className="border-b py-4 text-sm space-y-4">
-          <div className="uppercase text-purple-600 font-semibold">
-            Premium / Payment Info
-          </div>
+    {/* Payment Schedule Table */}
+    {p.paymentOption === 'monthly-installments' && 
+ paymentSchedule && 
+ paymentSchedule.length > 0 && (
+      <div className="mt-6">
+        <h3 className="font-semibold text-sm mb-3">Payment Schedule</h3>
+        <PaymentScheduleTable
+          schedule={paymentSchedule || []}
+          loading={scheduleLoading}
+          error={scheduleError}
+          onProcessRefund={p.status === "CANCELLED" ? handleRefund : undefined}
+        />
+      </div>
+    )}
+  </section>
+)}
 
-          <div className="grid grid-cols-4 gap-x-4">
-            <div>
-              <div className="font-medium">Premium</div>
-              <div>
-                {p?.premium.toLocaleString("en-CA", {
-                  style: "currency",
-                  currency: history[0]?.currency || "CAD",
-                  currencyDisplay: "code",
-                })}
-              </div>
-            </div>
-            <div>
-              <div className="font-medium">Payment Option</div>
-              <div>{p.paymentOption || "-"}</div>
-            </div>
-            <div>
-              <div className="font-medium">Credit Card</div>
-              <div>{history[0]?.last4 ? `•••• ${history[0].last4}` : "-"}</div>
-            </div>
-            <div>
-              <div className="font-medium">Date</div>
-              <div>{history[0]?.date ? fmtDate(history[0].date) : "-"}</div>
-            </div>
-          </div>
 
-          {/* Payment Schedule Table */}
-          <div className="mt-6">
-            <h3 className="font-semibold text-sm mb-3">Payment Schedule</h3>
-            <PaymentScheduleTable
-              schedule={paymentSchedule || []}
-              loading={scheduleLoading}
-              error={scheduleError}
-              onProcessRefund={
-                p.status === "CANCELLED" ? handleRefund : undefined
-              }
-            />
-          </div>
-        </section>
-      )}
 
       {/* Fulfillment */}
       <section className="border-b py-4 space-y-2 text-sm">

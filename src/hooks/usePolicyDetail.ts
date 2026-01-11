@@ -80,6 +80,13 @@ export interface PolicyDetail {
 
   stripeSubscriptionScheduleId: any;
 
+
+    // SPLIT POLICY 
+  parentPolicyId?: string | null;  // Required for banner to show
+  splitAt?: string | null;         
+  splitBy?: string | null;       
+  splitNotes?: string | null;      
+  splitOriginalPremium?: number | null;  
 }
 
 
