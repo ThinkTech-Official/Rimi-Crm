@@ -1,222 +1,6 @@
-// import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-// import axios from "axios";
-// import Cookies from "js-cookie";
-// import { jwtDecode } from "jwt-decode";
-// import { API_BASE } from "../utils/urls";
-
-// interface DecodedToken {
-//   sub: string;
-//   userType: string;
-//   fullName: string;
-//   agentCode: string;
-//   iat: number;
-//   exp: number;
-// }
-
-// interface AuthState {
-//   token: string | null;
-//   userType: string | null;
-//   agentCode: string | null;
-//   fullName: string | null;
-//   loading: boolean;
-//   error: string | null;
-// }
-
-// const initialState: AuthState = {
-//   token: null,
-//   userType: null,
-//   agentCode: null,
-//   fullName: null,
-//   loading: false,
-//   error: null,
-// };
-
-// export const loginUser = createAsyncThunk(
-//   "auth/loginUser",
-//   async (
-//     credentials: { email: string; password: string },
-//     { rejectWithValue }
-//   ) => {
-//     try {
-//       const response = await axios.post(
-//         `${API_BASE}/auth/login`,
-//         credentials
-//       );
-//       const token = response.data.access_token;
-
-//       Cookies.set("token", token);
-
-//       const decoded: DecodedToken = jwtDecode(token);
-
-//       return {
-//         token,
-//         userType: decoded.userType,
-//         fullName: decoded.fullName,
-//         agentCode: decoded.agentCode,
-//       };
-//     } catch (err: any) {
-//       return rejectWithValue(err.response?.data?.message || "Login failed");
-//     }
-//   }
-// );
-
-// const authSlice = createSlice({
-//   name: "auth",
-//   initialState,
-//   reducers: {
-//     logout: (state) => {
-//       state.token = null;
-//       state.userType = null;
-//       state.fullName = null;
-//       state.agentCode = null;
-//       Cookies.remove("token");
-//     },
-//   },
-//   extraReducers: (builder) => {
-//     builder
-//       .addCase(loginUser.pending, (state) => {
-//         state.loading = true;
-//         state.error = null;
-//       })
-//       .addCase(loginUser.fulfilled, (state, action) => {
-//         state.loading = false;
-//         state.token = action.payload.token;
-//         state.userType = action.payload.userType;
-//         state.fullName = action.payload.fullName;
-//         state.agentCode = action.payload.agentCode;
-//       })
-//       .addCase(loginUser.rejected, (state, action) => {
-//         state.loading = false;
-//         state.error = action.payload as string;
-//       });
-//   },
-// });
-
-// export const { logout } = authSlice.actions;
-// export default authSlice.reducer;
 
 
 
-// ================================
-
-
-
-
-
-// // src/features/authSlice.ts
-// import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-// import axios from "axios";
-// import Cookies from "js-cookie";
-// import { jwtDecode } from "jwt-decode";
-// import { API_BASE } from "../utils/urls";
-
-// interface DecodedToken {
-//   sub: string;
-//   userType: string;
-//   fullName: string;
-//   agentCode: string;
-//   iat: number;
-//   exp: number;
-// }
-
-// interface AuthState {
-//   token: string | null;
-//   userType: string | null;
-//   agentCode: string | null;
-//   fullName: string | null;
-//   loading: boolean;
-//   error: string | null;
-// }
-
-// const initialState: AuthState = {
-//   token: null,
-//   userType: null,
-//   agentCode: null,
-//   fullName: null,
-//   loading: false,
-//   error: null,
-// };
-
-// export const loginUser = createAsyncThunk(
-//   "auth/loginUser",
-//   async (
-//     credentials: { email: string; password: string },
-//     { rejectWithValue }
-//   ) => {
-//     try {
-//       const response = await axios.post(
-//         `${API_BASE}/auth/login`,
-//         credentials,
-//         {
-//           withCredentials: true, // ✅ CRITICAL: Send/receive cookies
-//         }
-//       );
-//       const token = response.data.access_token;
-
-//       // ❌ REMOVE THIS - Let backend set the cookie
-//       // Cookies.set("token", token);
-
-//       const decoded: DecodedToken = jwtDecode(token);
-
-//       return {
-//         token,
-//         userType: decoded.userType,
-//         fullName: decoded.fullName,
-//         agentCode: decoded.agentCode,
-//       };
-//     } catch (err: any) {
-//       return rejectWithValue(err.response?.data?.message || "Login failed");
-//     }
-//   }
-// );
-
-// const authSlice = createSlice({
-//   name: "auth",
-//   initialState,
-//   reducers: {
-//     logout: (state) => {
-//       state.token = null;
-//       state.userType = null;
-//       state.fullName = null;
-//       state.agentCode = null;
-      
-//       // ✅ KEEP THIS - Clear cookie on logout
-//       Cookies.remove("token");
-      
-//       // 🔥 OPTIONAL: Call backend logout endpoint to clear cookie properly
-//       // axios.post(`${API_BASE}/auth/logout`, {}, { withCredentials: true });
-//     },
-//   },
-//   extraReducers: (builder) => {
-//     builder
-//       .addCase(loginUser.pending, (state) => {
-//         state.loading = true;
-//         state.error = null;
-//       })
-//       .addCase(loginUser.fulfilled, (state, action) => {
-//         state.loading = false;
-//         state.token = action.payload.token;
-//         state.userType = action.payload.userType;
-//         state.fullName = action.payload.fullName;
-//         state.agentCode = action.payload.agentCode;
-//       })
-//       .addCase(loginUser.rejected, (state, action) => {
-//         state.loading = false;
-//         state.error = action.payload as string;
-//       });
-//   },
-// });
-
-// export const { logout } = authSlice.actions;
-// export default authSlice.reducer;
-
-
-// ==================================
-
-
-
-
-// src/features/authSlice.ts
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 import Cookies from "js-cookie";
@@ -239,13 +23,61 @@ interface AuthState {
   fullName: string | null;
   loading: boolean;
   error: string | null;
+  initialized: boolean;
 }
 
+
+const initializeAuthState = (): Omit<AuthState, 'loading' | 'error'> => {
+  const token = Cookies.get("token");
+  
+  if (!token) {
+    return {
+      token: null,
+      userType: null,
+      agentCode: null,
+      fullName: null,
+      initialized: true,
+    };
+  }
+
+  try {
+    const decoded: DecodedToken = jwtDecode(token);
+    
+  
+    const now = Date.now() / 1000;
+    if (decoded.exp < now) {
+      Cookies.remove("token");
+      return {
+        token: null,
+        userType: null,
+        agentCode: null,
+        fullName: null,
+        initialized: true,
+      };
+    }
+
+    return {
+      token,
+      userType: decoded.userType,
+      fullName: decoded.fullName,
+      agentCode: decoded.agentCode,
+      initialized: true,
+    };
+  } catch (error) {
+    console.error("Failed to decode token:", error);
+    Cookies.remove("token");
+    return {
+      token: null,
+      userType: null,
+      agentCode: null,
+      fullName: null,
+      initialized: true,
+    };
+  }
+};
+
 const initialState: AuthState = {
-  token: null,
-  userType: null,
-  agentCode: null,
-  fullName: null,
+  ...initializeAuthState(),
   loading: false,
   error: null,
 };
@@ -261,13 +93,10 @@ export const loginUser = createAsyncThunk(
         `${API_BASE}/auth/login`,
         credentials,
         {
-          withCredentials: true, // ✅ CRITICAL: Send/receive cookies
+          withCredentials: true,
         }
       );
       const token = response.data.access_token;
-
-      // ❌ REMOVED - Let backend set the cookie
-      // Cookies.set("token", token);
 
       const decoded: DecodedToken = jwtDecode(token);
 
@@ -293,10 +122,8 @@ const authSlice = createSlice({
       state.fullName = null;
       state.agentCode = null;
       
-      // ✅ Clear cookie on logout
       Cookies.remove("token");
       
-      // ✅ Call backend logout endpoint to clear cookie properly
       axios.post(`${API_BASE}/auth/logout`, {}, { withCredentials: true })
         .catch(err => console.error('Logout error:', err));
     },
@@ -313,6 +140,7 @@ const authSlice = createSlice({
         state.userType = action.payload.userType;
         state.fullName = action.payload.fullName;
         state.agentCode = action.payload.agentCode;
+        state.initialized = true;
       })
       .addCase(loginUser.rejected, (state, action) => {
         state.loading = false;
