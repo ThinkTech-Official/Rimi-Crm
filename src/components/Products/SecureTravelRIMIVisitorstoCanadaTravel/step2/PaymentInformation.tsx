@@ -33,7 +33,6 @@ interface Props {
    stripeProductId?: string ;
    handleFormStepChange: (stepCommand: string) => void;
    formStep: number;
-   handleBuyNow: any;
    submittingStage2: boolean;
 
 }
@@ -45,7 +44,6 @@ const stripeCustomerId = 'cus_85525845666'
 export default function PaymentInformation({
   handleFormStepChange,
   formStep,
-  handleBuyNow,
   submittingStage2,
   onBuyNow,
   amount,

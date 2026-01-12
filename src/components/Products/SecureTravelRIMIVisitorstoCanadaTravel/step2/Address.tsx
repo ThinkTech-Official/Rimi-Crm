@@ -1,30 +1,29 @@
-import { ChevronDownIcon } from "@heroicons/react/24/outline";
-import React, { FC, ChangeEvent } from "react";
+import { FC } from "react";
 import Dropdown from "../../../DropDown";
 import { Countries } from "../step1/Constants";
+import { UseFormReturn } from "react-hook-form";
 
-interface Address {
-  addressLine1: string;
-  addressLine2: string;
-  city: string;
-  postalCode: string;
-  country: string;
-  province: string;
+// Define the shape of the form data for this section
+export interface AddressData {
+  address: {
+    addressLine1: string;
+    addressLine2: string;
+    city: string;
+    postalCode: string;
+    country: string;
+    province: string;
+  };
 }
 
 interface AddressProps {
-  address: Address;
-  setAddress: React.Dispatch<React.SetStateAction<Address>>;
+  methods: UseFormReturn<any>; // Using any or the specific type
 }
 
-const Address: FC<AddressProps> = ({ address, setAddress }) => {
-  const onChange =
-    (field: keyof Address) => (e: ChangeEvent<HTMLInputElement>) => {
-      setAddress((prev) => ({
-        ...prev,
-        [field]: e.target.value,
-      }));
-    };
+const Address: FC<AddressProps> = ({ methods }) => {
+  const {
+    register,
+    formState: { errors },
+  } = methods;
 
   return (
     <div className="max-w-5xl mx-auto mt-4 p-6 bg-[#F9F9F9]">
@@ -39,9 +38,15 @@ const Address: FC<AddressProps> = ({ address, setAddress }) => {
             type="text"
             className="input-primary"
             placeholder="Address Line 1"
-            value={address.addressLine1}
-            onChange={onChange("addressLine1")}
+            {...register("address.addressLine1", {
+              required: "Address Line 1 is required",
+            })}
           />
+          {(errors.address as any)?.addressLine1 && (
+            <p className="text-red-500 text-sm mt-1">
+              {(errors.address as any).addressLine1.message}
+            </p>
+          )}
         </div>
 
         <div className="flex flex-col">
@@ -50,8 +55,7 @@ const Address: FC<AddressProps> = ({ address, setAddress }) => {
             type="text"
             className="input-primary"
             placeholder="Address Line 2"
-            value={address.addressLine2}
-            onChange={onChange("addressLine2")}
+            {...register("address.addressLine2")}
           />
         </div>
 
@@ -61,9 +65,13 @@ const Address: FC<AddressProps> = ({ address, setAddress }) => {
             type="text"
             className="input-primary"
             placeholder="city"
-            value={address.city}
-            onChange={onChange("city")}
+            {...register("address.city", { required: "City is required" })}
           />
+          {(errors.address as any)?.city && (
+            <p className="text-red-500 text-sm mt-1">
+              {(errors.address as any).city.message}
+            </p>
+          )}
         </div>
 
         <div className="flex flex-col">
@@ -72,18 +80,28 @@ const Address: FC<AddressProps> = ({ address, setAddress }) => {
             type="text"
             className="input-primary"
             placeholder="Postal Code"
-            value={address.postalCode}
-            onChange={onChange("postalCode")}
+            {...register("address.postalCode", {
+              required: "Postal Code is required",
+            })}
           />
+          {(errors.address as any)?.postalCode && (
+            <p className="text-red-500 text-sm mt-1">
+              {(errors.address as any).postalCode.message}
+            </p>
+          )}
         </div>
-        <Dropdown
-          label="Country"
-          onChange={(e) =>
-            setAddress((prev) => ({ ...prev, country: e.target.value }))
-          }
-          options={Countries}
-          value={address.country}
-        />
+        <div className="flex flex-col">
+          <Dropdown
+            label="Country"
+            options={Countries}
+            {...register("address.country", { required: "Country is required" })}
+          />
+          {(errors.address as any)?.country && (
+            <p className="text-red-500 text-sm mt-1">
+              {(errors.address as any).country.message}
+            </p>
+          )}
+        </div>
 
         <div className="flex flex-col">
           <label className="text-sm">Province/State</label>
@@ -91,9 +109,15 @@ const Address: FC<AddressProps> = ({ address, setAddress }) => {
             type="text"
             className="input-primary"
             placeholder="Province/State"
-            value={address.province}
-            onChange={onChange("province")}
+            {...register("address.province", {
+              required: "Province is required",
+            })}
           />
+          {(errors.address as any)?.province && (
+            <p className="text-red-500 text-sm mt-1">
+              {(errors.address as any).province.message}
+            </p>
+          )}
         </div>
       </div>
     </div>

@@ -1,31 +1,26 @@
 import { InformationCircleIcon } from "@heroicons/react/24/outline";
-import { ChangeEvent, FC, useState } from "react";
+import { FC, useState } from "react";
+import { UseFormReturn } from "react-hook-form";
 
-interface ContactInfo {
-  additionalEmail: string;
-  phoneNumber: string;
+// Define the shape of the form data for this section
+interface ContactInfoData {
+  contactInfo: {
+    additionalEmail: string;
+    phoneNumber: string;
+  };
 }
 
 interface ContactInfoProps {
-  contactInfo: ContactInfo;
-  setContactInfo: React.Dispatch<React.SetStateAction<ContactInfo>>;
+  methods: UseFormReturn<any>; // Using any to avoid strict type coupling, or could define a composite type
   email?: string;
 }
 
-const ContactInformation: FC<ContactInfoProps> = ({
-  contactInfo,
-  setContactInfo,
-  email,
-}) => {
+const ContactInformation: FC<ContactInfoProps> = ({ methods, email }) => {
+  const {
+    register,
+    formState: { errors },
+  } = methods;
   const [displayInfoAddEmail, setDisplayInfoAddEmail] = useState(false);
-
-  const onChange =
-    (field: keyof ContactInfo) => (e: ChangeEvent<HTMLInputElement>) => {
-      setContactInfo((prev) => ({
-        ...prev,
-        [field]: e.target.value,
-      }));
-    };
 
   return (
     <div className="max-w-5xl mx-auto mt-4 p-6 bg-[#F9F9F9]">
@@ -34,17 +29,6 @@ const ContactInformation: FC<ContactInfoProps> = ({
       </h3>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 md:gap-x-16 lg:gap-x-24 gap-y-4 text-text-secondary">
-        {/* <div className="flex flex-col">
-          <label className="text-sm">Email Address</label>
-          <input
-            className="p-2 border border-[#DBDADE] placeholder-[#00000080] bg-white font-[inter]"
-            type="text"
-            placeholder="Email Address"
-            value={contactInfo.emailAddress}
-            
-          />
-        </div> */}
-
         <div className="flex flex-col">
           <label className="text-sm">Email Address</label>
           <p className="input-primary break-words h-auto">{email}</p>
@@ -63,8 +47,7 @@ const ContactInformation: FC<ContactInfoProps> = ({
             className="input-primary break-words h-auto"
             type="text"
             placeholder="Additional Email Address"
-            value={contactInfo.additionalEmail}
-            onChange={onChange("additionalEmail")}
+            {...register("contactInfo.additionalEmail")}
           />
         </div>
 
@@ -87,9 +70,15 @@ const ContactInformation: FC<ContactInfoProps> = ({
             className="input-primary break-words h-auto"
             type="text"
             placeholder="Phone Number"
-            value={contactInfo.phoneNumber}
-            onChange={onChange("phoneNumber")}
+            {...register("contactInfo.phoneNumber", {
+              required: "Phone Number is required",
+            })}
           />
+          {(errors.contactInfo as any)?.phoneNumber && (
+            <p className="text-red-500 text-sm mt-1">
+              {(errors.contactInfo as any).phoneNumber.message}
+            </p>
+          )}
         </div>
       </div>
     </div>

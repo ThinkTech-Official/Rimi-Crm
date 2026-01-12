@@ -1,26 +1,28 @@
-import { useRef, useState, useEffect, ChangeEvent } from "react";
+import { useRef, useState, useEffect, ChangeEvent, forwardRef, ComponentProps } from "react";
 import Calendar from "react-calendar";
 import { AiOutlineCalendar } from "react-icons/ai";
 import "react-calendar/dist/Calendar.css";
 import { useOnClickOutside } from "../hooks/useOnClickOutside";
 
-interface DatePickerProps {
+interface DatePickerProps extends Omit<ComponentProps<"input">, "value" | "onChange"> {
   label: string;
-  value: string;
+  value: string | Date;
   onChange: (value: any) => void;
   maxDate?: Date;
   minDate?: Date;
   isDisabled?: boolean;
 }
 
-export default function DatePicker({
+const DatePicker = forwardRef<HTMLInputElement, DatePickerProps>(({
   label,
   value,
   onChange,
   maxDate,
   minDate,
   isDisabled = false,
-}: DatePickerProps) {
+  className,
+  ...props
+}, ref) => {
   const [showCalendar, setShowCalendar] = useState(false);
   const dateValue = value ? new Date(value) : null;
   
@@ -41,12 +43,9 @@ export default function DatePicker({
     }
   }, [value]);
 
-  const dateRef = useRef<HTMLDivElement>(null);
-  useOnClickOutside(dateRef as React.RefObject<HTMLElement>, () => {
+  const dateWrapperRef = useRef<HTMLDivElement>(null);
+  useOnClickOutside(dateWrapperRef as React.RefObject<HTMLElement>, () => {
     setShowCalendar(false);
-    // On blur/click outside, revert to prop value if invalid? 
-    // For now, we leave text as is, user can correct it.
-    // Or we could reset: if (dateValue) setInputValue(formatDate(dateValue)); else setInputValue("");
   });
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -114,7 +113,6 @@ export default function DatePicker({
 
       const newDate = new Date(year, month - 1, day);
 
-      // Check validity (avoid Date object rollover like Feb 30 -> March 2)
       if (
         newDate.getFullYear() === year &&
         newDate.getMonth() === month - 1 &&
@@ -129,13 +127,15 @@ export default function DatePicker({
   };
 
   return (
-    <div className="flex flex-col relative w-full" ref={dateRef}>
-      <label className="text-sm">{label}</label>
+    <div className="flex flex-col relative w-full" ref={dateWrapperRef}>
+      <label className="text-sm text-text-secondary">{label}</label>
 
       <div className="relative">
         <input
+          {...props}
+          ref={ref}
           disabled={isDisabled}
-          className="input-primary cursor-pointer pr-10"
+          className={`input-primary cursor-pointer pr-10 ${className || ''}`}
           placeholder="dd-mm-yyyy"
           value={inputValue}
           onChange={handleInputChange}
@@ -164,4 +164,8 @@ export default function DatePicker({
       )}
     </div>
   );
-}
+});
+
+DatePicker.displayName = "DatePicker";
+
+export default DatePicker;

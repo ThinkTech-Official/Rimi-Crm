@@ -1,5 +1,5 @@
+import React, { forwardRef, SelectHTMLAttributes } from "react";
 import { ChevronDownIcon, InformationCircleIcon } from "@heroicons/react/24/outline";
-import { SelectHTMLAttributes } from "react";
 
 interface Option {
   value: string;
@@ -12,13 +12,13 @@ interface DropdownProps extends SelectHTMLAttributes<HTMLSelectElement> {
   options: Option[];
 }
 
-const Dropdown: React.FC<DropdownProps> = ({
+const Dropdown = forwardRef<HTMLSelectElement, DropdownProps>(({
   label,
   info,
   options,
   className = "",
   ...selectProps
-}) => (
+}, ref) => (
   <div className="flex flex-col">
     <label className="flex items-center text-text-secondary text-sm">
       {info && (
@@ -31,6 +31,7 @@ const Dropdown: React.FC<DropdownProps> = ({
     </label>
     <div className="relative">
       <select
+        ref={ref}
         {...selectProps}
         className={`input-primary appearance-none cursor-pointer ${className}`}
       >
@@ -45,6 +46,8 @@ const Dropdown: React.FC<DropdownProps> = ({
       </div>
     </div>
   </div>
-);
+));
+
+Dropdown.displayName = "Dropdown";
 
 export default Dropdown;

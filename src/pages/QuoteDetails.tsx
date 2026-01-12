@@ -1,14 +1,65 @@
 import React from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import {
   useQuoteDetail,
-  QuoteDetail,
   QuoteApplicant,
 } from "../hooks/useQuoteDetail";
 
+const DetailItem: React.FC<{ label: string; value: string | number | null | undefined; className?: string }> = ({ label, value, className = "" }) => {
+  if (value === null || value === undefined || value === "" || value === "-") return null;
+  return (
+    <div className={className}>
+      <div className="font-semibold text-base">{label}</div>
+      <div className="text-sm text-[#6F6B7D]">{value}</div>
+    </div>
+  );
+};
+
+const HealthQuestionnaireSection: React.FC<{
+  questionnaire?: { questions: Array<{ question: string; answer: string }> };
+}> = ({ questionnaire }) => {
+  if (
+    !questionnaire ||
+    !questionnaire.questions ||
+    questionnaire.questions.length === 0
+  )
+    return null;
+
+  return (
+    <div className="mt-6 bg-gray-50/50 p-5 border border-gray-100 max-h-[300px] overflow-y-auto custom-scrollbar-y">
+      <h4 className="text-sm font-bold text-primary uppercase tracking-wider mb-4 border-b border-gray-200 pb-2">
+        Medical Declaration
+      </h4>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-3">
+        {questionnaire.questions.map((q, idx) => (
+          <div
+            key={idx}
+            className="flex justify-between items-start gap-4 py-2 border-b border-gray-100 last:border-0 border-dotted"
+          >
+            <span className="text-[13px] text-gray-600 leading-snug">
+              <span className="font-semibold text-gray-400 mr-2">
+                {idx + 1}.
+              </span>
+              {q.question}
+            </span>
+            <span
+              className={`text-[11px] font-bold px-2.5 py-1 rounded-full uppercase tracking-tighter shrink-0 ${
+                q.answer.toLowerCase() === "yes"
+                  ? "bg-red-50 text-red-600 border border-red-100"
+                  : "bg-green-50 text-green-600 border border-green-100"
+              }`}
+            >
+              {q.answer}
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
 export const QuoteDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
-  const navigate = useNavigate();
   const { data: quote, loading, error } = useQuoteDetail(id || null);
 
   if (loading) return <p className="text-center py-10">Loading…</p>;
@@ -56,65 +107,26 @@ export const QuoteDetailPage: React.FC = () => {
         </h3>
       </div>
       <div className="max-w-5xl p-6 space-y-8 ml-4 md:ml-10 lg:ml-28">
-        {/* Top Buttons */}
-        <div className="flex justify-between">
-          {/* <button
-          onClick={() => navigate(-1)}
-          className="px-4 py-2 bg-purple-700 text-white rounded hover:bg-purple-800"
-        >
-          &larr; RETURN TO SEARCH RESULTS
-        </button> */}
-          {/* <button
-          onClick={() => console.log('Cancel policy', quote.id)}
-          className="px-4 py-2 border border-gray-300 rounded hover:bg-gray-100"
-        >
-          Cancel Policy
-        </button> */}
-        </div>
-
         {/* QUOTE INFORMATION */}
         <div className="flex flex-col gap-4 justify-between w-full border-b border-[#D8D8D8] pb-4">
           <div className="text-primary capitalize font-semibold text-xl">
             Quote Information
           </div>
-          <div className="grid grid-cols-3 gap-4 text-sm capitalize w-full">
-            <div>
-              <div className="font-semibold text-base">Quote Number</div>
-              <div className="text-sm text-[#6F6B7D]">
-                {quote.quoteNumber || quote.id}
-              </div>
-            </div>
-            <div>
-              <div className="font-semibold text-base">Quote Date</div>
-              <div className="text-sm text-[#6F6B7D]">
-                {fmtDate(quote.dateIssued)}
-              </div>
-            </div>
-            <div>
-              <div className="font-semibold text-base">Quote Expiry Date</div>
-              <div className="text-sm text-[#6F6B7D]">
-                {fmtDatePlusOneMonth(quote.dateIssued)}
-              </div>
-            </div>
-
-            <div>
-              <div className="font-semibold text-base">Quote Status</div>
-              <div className="text-sm text-[#6F6B7D]">
-                {quote.status || "-"}
-              </div>
-            </div>
-            <div>
-              <div className="font-semibold text-base">Agent Code</div>
-              <div className="text-sm text-[#6F6B7D]">{quote.agentCode}</div>
-            </div>
-            <div>
-              <div className="font-semibold text-base">Quoted Premium</div>
-              <div className="text-sm text-[#6F6B7D]">
-                {quote.premium != null
-                  ? `$${quote.premium.toFixed(2)} CAD`
-                  : "-"}
-              </div>
-            </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 text-sm capitalize w-full">
+            <DetailItem label="Quote Number" value={quote.quoteNumber || quote.id} />
+            <DetailItem label="Quote Date" value={fmtDate(quote.dateIssued)} />
+            <DetailItem label="Quote Expiry Date" value={fmtDatePlusOneMonth(quote.dateIssued)} />
+            <DetailItem label="Quote Status" value={quote.status} />
+            <DetailItem label="Policy Number" value={quote.policyNumber} />
+            <DetailItem label="Agent Code" value={quote.agentCode} />
+            <DetailItem
+              label="Quoted Premium"
+              value={quote.premium != null ? `$${quote.premium.toFixed(2)} CAD` : null}
+            />
+            <DetailItem
+              label="Paid Premium"
+              value={quote.paidPremium != null ? `$${quote.paidPremium.toFixed(2)} CAD` : null}
+            />
           </div>
           <div className="text-xs italic text-gray-500 mt-2 text-center w-full">
             Note: Rates are subject to change and will be calculated at the time
@@ -127,31 +139,32 @@ export const QuoteDetailPage: React.FC = () => {
           <div className="text-primary capitalize font-semibold text-xl">
             Main Applicant
           </div>
-          <div className="grid grid-cols-3 gap-4 text-sm w-full capitalize">
-            <div>
-              <div className="font-semibold text-base">First Name</div>
-              <div className="text-sm text-[#6F6B7D]">{quote.firstName}</div>
-            </div>
-            <div>
-              <div className="font-semibold text-base">Last Name</div>
-              <div className="text-sm text-[#6F6B7D]">{quote.lastName}</div>
-            </div>
-            <div>
-              <div className="font-semibold text-base">Date of Birth</div>
-              <div className="text-sm text-[#6F6B7D]">{fmtDate(quote.dateOfBirth)}</div>
-            </div>
-
-            <div>
-              <div className="font-semibold text-base">Email</div>
-              <div className="text-sm text-[#6F6B7D]">{quote.email || "-"}</div>
-            </div>
-            <div>
-              <div className="font-semibold text-base">
-                Province of Residence
-              </div>
-              <div className="text-sm text-[#6F6B7D]">{quote.province || "-"}</div>
-            </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 text-sm w-full capitalize">
+            <DetailItem label="First Name" value={quote.firstName} />
+            <DetailItem label="Last Name" value={quote.lastName} />
+            <DetailItem label="Date of Birth" value={fmtDate(quote.dateOfBirth)} />
+            <DetailItem label="Gender" value={quote.gender} />
+            <DetailItem label="Email" value={quote.email} />
+            <DetailItem label="Phone Number" value={quote.phoneNumber} />
+            <DetailItem label="Province" value={quote.province} />
+            <DetailItem label="City" value={quote.city} />
+            <DetailItem label="Street" value={quote.street} />
+            <DetailItem label="Country" value={quote.countryCode || quote.country} />
+            <DetailItem label="Postal Code" value={quote.postalCode} />
+            <DetailItem label="Student ID" value={quote.studentId} />
+            <DetailItem label="School Name" value={quote.schoolName} />
+            <DetailItem label="Additional Email" value={quote.additionalEmail} />
+            <DetailItem label="Legal Guardian" value={quote.legalGuardianName} />
+            <DetailItem label="Beneficiary Name" value={quote.beneficiaryName} />
+            <DetailItem label="Beneficiary Relation" value={quote.relationshipToInsured} />
+            <DetailItem 
+              label="Pre-existing Medical Coverage" 
+              value={quote.coverageForPreMedCon || quote.preExMedCov} 
+            />
           </div>
+
+          {/* Main Applicant Questionnaire */}
+          <HealthQuestionnaireSection questionnaire={quote.healthQuestionnaire} />
         </div>
 
         {/* ADDITIONAL APPLICANTS */}
@@ -164,91 +177,66 @@ export const QuoteDetailPage: React.FC = () => {
               <div className="text-primary capitalize font-semibold text-xl">
                 Applicant {app.index + 2}
               </div>
-              <div className="grid grid-cols-3 gap-4 text-sm w-full capitalize">
-                <div>
-                  <div className="font-semibold text-base">First Name</div>
-                  <div className="text-sm text-[#6F6B7D]">{app.firstName}</div>
-                </div>
-                <div>
-                  <div className="font-semibold text-base">Last Name</div>
-                  <div className="text-sm text-[#6F6B7D]">{app.lastName}</div>
-                </div>
-                <div>
-                  <div className="font-semibold text-base">Date of Birth</div>
-                  <div className="text-sm text-[#6F6B7D]">{fmtDate(app.dateOfBirth)}</div>
-                </div>
-
-                <div className="col-span-2 mt-4">
-                  <div className="font-semibold text-base">Email</div>
-                  <div className="text-sm text-[#6F6B7D]">{app.email || "-"}</div>
-                </div>
-                <div className="mt-4">
-                  <div className="font-semibold text-base">
-                    Province of Residence
-                  </div>
-                  <div className="text-sm text-[#6F6B7D]">{app.province || "-"}</div>
-                </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 text-sm w-full capitalize">
+                <DetailItem label="First Name" value={app.firstName} />
+                <DetailItem label="Last Name" value={app.lastName} />
+                <DetailItem label="Date of Birth" value={fmtDate(app.dateOfBirth)} />
+                <DetailItem label="Relationship" value={app.relation} />
+                <DetailItem label="Gender" value={app.gender} />
+                <DetailItem label="Email" value={app.email} />
+                <DetailItem label="Phone Number" value={app.phoneNumber} />
+                <DetailItem label="Province" value={app.province} />
+                <DetailItem label="City" value={app.city} />
+                <DetailItem label="Street" value={app.street} />
+                <DetailItem label="Country" value={app.country} />
+                <DetailItem label="Postal Code" value={app.postalCode} />
+                <DetailItem label="Additional Email" value={app.additionalEmail} />
+                <DetailItem label="Legal Guardian" value={app.legalGuardianName} />
+                <DetailItem label="Beneficiary Name" value={app.beneficiaryName} />
+                <DetailItem label="Beneficiary Relation" value={app.relationshipToInsured} />
+                <DetailItem 
+                  label="Pre-existing Medical Coverage" 
+                  value={app.PreExCoverage} 
+                />
               </div>
+
+              {/* Additional Applicant Questionnaire */}
+              <HealthQuestionnaireSection questionnaire={app.healthQuestionnaire} />
             </div>
           ))}
 
-        {/* COVERAGE DETAILS */}
+        {/* COVERAGE / TRIP DETAILS */}
         <div className="flex flex-col gap-4 justify-between w-full border-b border-[#D8D8D8] pb-4">
           <div className="text-primary capitalize font-semibold text-xl">
-            Coverage Details
+            {quote.product?.includes("NON_MEDICAL") ? "Trip Information" : "Coverage Details"}
           </div>
-          <div className="grid grid-cols-3 gap-4 text-sm w-full capitalize">
-            <div>
-              <div className="font-semibold text-base">Effective Date</div>
-              <div className="text-sm text-[#6F6B7D]">{fmtDate(quote.effectiveDate)}</div>
-            </div>
-            <div>
-              <div className="font-semibold text-base">Expiry Date</div>
-              <div className="text-sm text-[#6F6B7D]">{fmtDate(quote.expiryDate)}</div>
-            </div>
-            <div>
-              <div className="font-semibold text-base">Coverage Length</div>
-              <div className="text-sm text-[#6F6B7D]">{quote.covLen || "-"}</div>
-            </div>
-
-            <div>
-              <div className="font-semibold mt-4">Policy Type</div>
-              <div className="text-sm text-[#6F6B7D]">{quote.policyType || "-"}</div>
-            </div>
-
-            <div>
-              <div className="font-semibold mt-4">Country of Origin</div>
-              <div className="text-sm text-[#6F6B7D]">{quote.countryOfOrigin || "-"}</div>
-            </div>
-
-            <div>
-              <div className="font-semibold mt-4">Destination Province</div>
-              <div className="text-sm text-[#6F6B7D]">{quote.destination || "-"}</div>
-            </div>
-
-            <div>
-              <div className="font-semibold mt-4">
-                Are Applicants Currently In Canada
-              </div>
-              <div className="text-sm text-[#6F6B7D]">{quote.applicantInCanada || "No"}</div>
-            </div>
-
-            <div>
-              <div className="font-semibold mt-4">
-                Are Applicants Travelling To Canada On A Super Visa
-              </div>
-              <div className="text-sm text-[#6F6B7D]">{quote.applicantOnSuperVisa || "-"}</div>
-            </div>
-
-            <div>
-              <div className="font-semibold mt-4">Coverage</div>
-              <div className="text-sm text-[#6F6B7D]">{quote.coverageOption || "-"}</div>
-            </div>
-
-            <div>
-              <div className="font-semibold mt-4">Deductible</div>
-              <div className="text-sm text-[#6F6B7D]">{quote.deductible || "-"}</div>
-            </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 text-sm w-full capitalize">
+            <DetailItem label="Effective Date" value={fmtDate(quote.effectiveDate || quote.covEffDate)} />
+            <DetailItem label="Expiry Date" value={fmtDate(quote.expiryDate || quote.covExpDate)} />
+            <DetailItem label="Coverage Length" value={quote.covLen || quote.coverageLength} />
+            <DetailItem label="Policy Type" value={quote.policyType} />
+            <DetailItem label="Plan" value={quote.plan} />
+            <DetailItem label="Country of Origin" value={quote.countryOfOrigin} />
+            <DetailItem label="Destination Province" value={quote.destinationProvince || quote.destination || quote.destProv} />
+            <DetailItem label="Destination Country" value={quote.destinationCountry} />
+            <DetailItem label="Are Applicants Currently In Canada" value={quote.applicantInCanada || quote.inCanada} />
+            <DetailItem
+              label="Are Applicants Travelling To Canada On A Super Visa"
+              value={quote.applicantOnSuperVisa || quote.superVisa}
+            />
+            <DetailItem label="Super Visa Years" value={quote.superVisaYears} />
+            <DetailItem 
+              label="Are Applicants Traveling Through The US" 
+              value={quote.applicantTravelThroughUs || quote.travelingThroughUS} 
+            />
+            <DetailItem label="US Travel Days" value={quote.usTravelDays} />
+            <DetailItem label="Days Per Trip" value={quote.numberOfDaysPerTrip} />
+            <DetailItem label="Coverage" value={quote.coverageOption || quote.coverage || quote.coverageLimit} />
+            <DetailItem label="Deductible" value={quote.deductible} />
+            <DetailItem label="Trip Cost" value={quote.tripCost != null ? `$${quote.tripCost.toFixed(2)} CAD` : null} />
+            <DetailItem label="Date Booked" value={fmtDate(quote.dateBooked)} />
+            <DetailItem label="Trip Cancellation Deluxe" value={quote.tripCancellationDeluxe ? "Yes" : "No"} />
+            <DetailItem label="Payment Option" value={quote.paymentOption} />
           </div>
         </div>
       </div>

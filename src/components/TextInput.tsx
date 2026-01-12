@@ -1,15 +1,15 @@
-import { InputHTMLAttributes } from "react";
+import React, { forwardRef, InputHTMLAttributes } from "react";
 
 interface TextInputProps extends InputHTMLAttributes<HTMLInputElement> {
   label: string;
   info?: () => void;
 }
-const TextInput: React.FC<TextInputProps> = ({
+const TextInput = forwardRef<HTMLInputElement, TextInputProps>(({
   label,
   info,
   className = "",
   ...inputProps
-}) => (
+}, ref) => (
   <div className="flex flex-col">
     <label className="text-text-secondary">{label}</label>
     {info && (
@@ -22,10 +22,13 @@ const TextInput: React.FC<TextInputProps> = ({
       </button>
     )}
     <input
+      ref={ref}
       {...inputProps}
-      className={`input-primary`}
+      className={`input-primary ${className}`}
     />
   </div>
-);
+));
+
+TextInput.displayName = "TextInput";
 
 export default TextInput;
