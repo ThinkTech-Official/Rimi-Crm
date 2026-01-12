@@ -362,18 +362,22 @@ const QuotesSearch: React.FC = () => {
     {
       en: "RIMI Canuck Voyage Travel Medical",
       fr: "RIMI Canuck Voyage Travel Medical",
+      value: "RIMI_CANUCK_VOYAGE_TRAVEL_MEDICAL",
     },
     {
       en: "RIMI Canuck Voyage Non-Medical Travel",
       fr: "RIMI Assurance voyage non médicale Travel",
+      value: "RIMI_CANUCK_VOYAGE_NON_MEDICAL_TRAVEL",
     },
     {
       en: "Secure Study RIMI International Students to Canada",
       fr: "Secure Study RIMI International Students to Canada",
+      value: "SECURE_STUDY_RIMI_INTERNATIONAL_STUDENTS_TO_CANADA",
     },
     {
       en: "Secure Travel RIMI Visitors to Canada Travel",
       fr: "Secure Travel RIMI Visitors to Canada Travel",
+      value: "SECURE_TRAVEL_RIMI_VISITORS_TO_CANADA_TRAVEL",
     },
   ];
 
@@ -574,12 +578,12 @@ const QuotesSearch: React.FC = () => {
             All
           </label>
           {products.map((p) => (
-            <label key={p.en} className="block text-[#1B1B1B]">
+            <label key={p.value} className="block text-[#1B1B1B]">
               <input
                 type="checkbox"
                 className="mr-2 text-[#1B1B1B] accent-primary cursor-pointer"
-                checked={selectedProducts?.includes(p.en)}
-                onChange={() => handleProductChange(p.en)}
+                checked={selectedProducts?.includes(p.value)}
+                onChange={() => handleProductChange(p.value)}
               />
               {langauge === "En" ? p.en : p.fr}
             </label>

@@ -11,10 +11,22 @@ import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
 import { RenderPageNumbers } from "./RenderPageNumbers";
 
 const allProducts = [
-  "RIMI Canuck Voyage Travel Medical",
-  "RIMI Canuck Voyage Non-Medical Travel",
-  "Secure Study RIMI International Students to Canada",
-  "Secure Travel RIMI Visitors to Canada Travel",
+  {
+    label: "RIMI Canuck Voyage Travel Medical",
+    value: "RIMI_CANUCK_VOYAGE_TRAVEL_MEDICAL",
+  },
+  {
+    label: "RIMI Canuck Voyage Non-Medical Travel",
+    value: "RIMI_CANUCK_VOYAGE_NON_MEDICAL_TRAVEL",
+  },
+  {
+    label: "Secure Study RIMI International Students to Canada",
+    value: "SECURE_STUDY_RIMI_INTERNATIONAL_STUDENTS_TO_CANADA",
+  },
+  {
+    label: "Secure Travel RIMI Visitors to Canada Travel",
+    value: "SECURE_TRAVEL_RIMI_VISITORS_TO_CANADA_TRAVEL",
+  },
 ];
 
 const status = ["All", "Active", "Sold", "Cancelled", "Expired"];
@@ -290,14 +302,14 @@ const PoliciesSearch: React.FC = () => {
               All
             </label>
             {allProducts.map((p) => (
-              <label key={p} className="block">
+              <label key={p.value} className="block">
                 <input
                   type="checkbox"
-                  checked={selectedProducts?.includes(p)}
-                  onChange={() => handleProductChange(p)}
+                  checked={selectedProducts?.includes(p.value)}
+                  onChange={() => handleProductChange(p.value)}
                   className="mr-2 accent-primary cursor-pointer"
                 />{" "}
-                {p}
+                {p.label}
               </label>
             ))}
           </div>
