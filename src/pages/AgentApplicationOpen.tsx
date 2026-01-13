@@ -1916,6 +1916,21 @@ const AgentApplicationOpen: React.FC = () => {
                   <span className="text-sm text-gray-700">WFG Agent</span>
                 </label>
               </div>
+
+              {/* MGA Contracting Link */}
+              <div className="mt-4 pt-4 border-t border-gray-100 w-full text-center">
+                <p className="text-sm text-gray-600 mb-2">Are you looking to register as an MGA?</p>
+                <a 
+                  href="/apply-mga" 
+                  className="text-primary font-bold hover:underline flex items-center justify-center gap-1"
+                >
+                  Apply as MGA
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                  </svg>
+                </a>
+              </div>
+
               {!applicantType && (
                 <p className="text-red-500 text-xs mt-2">
                   Please select your agent type

@@ -259,6 +259,13 @@ const Login = () => {
                   >
                     {t("apply")}
                   </button>
+                  {" | "}
+                  <button
+                    onClick={() => navigate("/apply-mga")}
+                    className="font-semibold text-[#4340DA] hover:text-[#2B00B7] cursor-pointer"
+                  >
+                    Apply as MGA
+                  </button>
                 </p>
               </div>
 

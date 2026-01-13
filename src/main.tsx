@@ -62,6 +62,7 @@ import ApplySecureTravelVisitorsToCanada from "./pages/apply/ApplySecureTravelVi
 import ApplySecureStudyInternationalStudents from "./pages/apply/ApplySecureStudyInternationalStudents/ApplySecureStudyInternationalStudents.tsx";
 import ApplyCanuckVoyageTravelMedical from "./pages/apply/ApplyCanuckVoyageTravelMedical/ApplyCanuckVoyageTravelMedical.tsx";
 import ApplyCanuckVoyageNonMedical from "./pages/apply/ApplyCanuckVoyageNonMedical/ApplyCanuckVoyageNonMedical.tsx";
+import MGAContracting from "./pages/MGAContracting.tsx";
 
 // Create ONE client (module-level singleton)
 const queryClient = new QueryClient({
@@ -122,6 +123,7 @@ const router = createBrowserRouter(
     <Route path="/" element={<App />}>
       <Route path="/login" element={<Login />} />
       <Route path="/apply" element={<AgentApplicationOpen />} />
+      <Route path="/apply-mga" element={<MGAContracting />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
 
       <Route path="/reset-password" element={<ResetPassword />} />
