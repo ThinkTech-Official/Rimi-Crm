@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import useNotification from "../hooks/useNotification";
 import {
   usePolicyDetail,
   PolicyDetail,
@@ -11,7 +12,11 @@ import { usePolicyNotes } from "../hooks/usePolicyNotes";
 import { usePolicyAttachments } from "../hooks/usePolicyAttachments";
 import { useFulfillment } from "../hooks/useFulfillment";
 import { usePolicyFeeRefund } from "../hooks/usePolicyFeeRefund";
-import { useModifyPolicy, ModifyPolicyData, RefundData } from "../hooks/useModifyPolicy";
+import {
+  useModifyPolicy,
+  ModifyPolicyData,
+  RefundData,
+} from "../hooks/useModifyPolicy";
 import { API_BASE } from "../utils/urls";
 import CancellationModal from "../components/CancellationModal";
 import { usePolicyActivity } from "../hooks/usePolicyActivity";
@@ -26,6 +31,8 @@ import { PolicySplitModal } from "../components/policy/PolicySplitModal";
 import { useRenewalNotice } from "../hooks/renewals/useRenewalNotice";
 import RenewalNoticeModal from "../components/renewals/RenewalNoticeModal";
 import SuccessModal from "../components/renewals/SuccessModal";
+import SendRenewalConfirmationModal from "../components/renewals/SendRenewalConfirmationModal";
+import UpdatePaymentMethodConfirmationModal from "../components/policy/UpdatePaymentMethodConfirmationModal";
 import { MdClose, MdUploadFile } from "react-icons/md";
 
 const fmtDate = (iso?: string) =>
@@ -41,11 +48,11 @@ const calcAge = (dob?: string, ref?: string) => {
 };
 
 const formatFileSize = (bytes: number): string => {
-  if (bytes === 0) return '0 Bytes';
+  if (bytes === 0) return "0 Bytes";
   const k = 1024;
-  const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+  const sizes = ["Bytes", "KB", "MB", "GB"];
   const i = Math.floor(Math.log(bytes) / Math.log(k));
-  return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + ' ' + sizes[i];
+  return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + " " + sizes[i];
 };
 
 function getCoverageLength(
@@ -66,6 +73,7 @@ function getCoverageLength(
 }
 
 const PolicyDetailsPage: React.FC = () => {
+  const { triggerNotification, NotificationComponent } = useNotification();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
 
@@ -141,7 +149,9 @@ const PolicyDetailsPage: React.FC = () => {
   } = useModifyPolicy();
 
   const [showRefundModal, setShowRefundModal] = useState(false);
-  const [refundData, setRefundData] = useState<Partial<RefundData> | null>(null);
+  const [refundData, setRefundData] = useState<Partial<RefundData> | null>(
+    null
+  );
 
   const [showPremiumModal, setShowPremiumModal] = useState(false);
   const [premiumData, setPremiumData] = useState<any>(null);
@@ -152,18 +162,20 @@ const PolicyDetailsPage: React.FC = () => {
     message: "",
   });
 
-
   const [showRenewalModal, setShowRenewalModal] = useState(false);
-const [showSuccessModal, setShowSuccessModal] = useState(false);
-const [successMessage, setSuccessMessage] = useState("");
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [showSendConfirmationModal, setShowSendConfirmationModal] =
+    useState(false);
+  const [showUpdateCardConfirmModal, setShowUpdateCardConfirmModal] =
+    useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
 
-
-// Add the renewal notice hook
-const {
-  sendRenewalNotice,
-  loading: renewalLoading,
-  error: renewalError,
-} = useRenewalNotice();
+  // Add the renewal notice hook
+  const {
+    sendRenewalNotice,
+    loading: renewalLoading,
+    error: renewalError,
+  } = useRenewalNotice();
 
   useEffect(() => {
     if (!p) return;
@@ -171,17 +183,15 @@ const {
     setAgentEmail(`${p.agentCode}@example.com`);
   }, [id, p?.email, p?.agentCode]);
 
-
   useEffect(() => {
-  if (p?.applicants) {
-    setEditedApplicants([...p.applicants]);
-  }
-}, [p]);
+    if (p?.applicants) {
+      setEditedApplicants([...p.applicants]);
+    }
+  }, [p]);
 
   if (loading) return <p className="text-center py-10">Loading…</p>;
   if (error) return <p className="text-red-600 text-center py-10">{error}</p>;
   if (!p) return <p className="text-center py-10">No policy found.</p>;
-
 
   const history = p.paymentHistory ?? [];
 
@@ -196,33 +206,32 @@ const {
     p.status !== "CANCELLED" &&
     p.stripeSubscriptionScheduleId;
 
+  // REnewal Handlers
 
-    // REnewal Handlers
-    
-    const handleViewRenewalNotice = () => {
-  setShowRenewalModal(true);
-};
+  const handleViewRenewalNotice = () => {
+    setShowRenewalModal(true);
+  };
 
-const handleSendRenewalNotice = async () => {
-  if (!id) return;
+  const handleSendRenewalNotice = async () => {
+    setShowSendConfirmationModal(true);
+  };
 
-  const confirmMessage = `Are you sure you want to send a renewal notice to ${p.email}?`;
-  if (!window.confirm(confirmMessage)) {
-    return;
-  }
+  const confirmSendRenewalNotice = async () => {
+    if (!id) return;
 
-  const result = await sendRenewalNotice(id);
+    const result = await sendRenewalNotice(id);
 
-  if (result && result.success) {
-    setSuccessMessage(result.message);
-    setShowSuccessModal(true);
-  } else if (renewalError) {
-    alert(`Error: ${renewalError}`);
-  }
-};
+    if (result && result.success) {
+      setSuccessMessage(result.message);
+      setShowSendConfirmationModal(false);
+      setShowSuccessModal(true);
+    } else if (renewalError) {
+      triggerNotification({ message: `Error: ${renewalError}`, type: "error" });
+      setShowSendConfirmationModal(false);
+    }
+  };
 
-
-    //
+  //
 
   // MODIFY POLICY HANDLERS
 
@@ -438,10 +447,12 @@ const handleSendRenewalNotice = async () => {
     const result = await modifyPolicy(id!, modifyData);
 
     if (result && result.success) {
-      alert(result.message);
-      window.location.reload();
+      triggerNotification({ message: result.message, type: "success" });
+      setTimeout(() => {
+        window.location.reload();
+      }, 2000);
     } else if (modifyError) {
-      alert(`Error: ${modifyError}`);
+      triggerNotification({ message: `Error: ${modifyError}`, type: "error" });
     }
   };
 
@@ -468,13 +479,9 @@ const handleSendRenewalNotice = async () => {
     setShowCancelModal(true);
   };
 
-  const handleRefund = async (
-    paymentHistoryId: string,
-    amount: number
-  ) => {
-
+  const handleRefund = async (paymentHistoryId: string, amount: number) => {
     if (!id) {
-      alert("Policy ID not found");
+      triggerNotification({ message: "Policy ID not found", type: "warning" });
       return;
     }
 
@@ -491,38 +498,42 @@ const handleSendRenewalNotice = async () => {
     );
 
     if (result) {
-      alert(`Success: ${result.message}`);
-      window.location.reload();
+      triggerNotification({
+        message: `Success: ${result.message}`,
+        type: "success",
+      });
+      setTimeout(() => {
+        window.location.reload();
+      }, 2000);
     } else if (refundError) {
-      alert(`Error: ${refundError}`);
+      triggerNotification({ message: `Error: ${refundError}`, type: "error" });
     }
   };
 
-
   // RENEWALLLL
 
-const handleIssueRelatedPolicy = () => {
-  const productRoutes: Record<string, string> = {
-    'SECURE_TRAVEL_RIMI_VISITORS_TO_CANADA_TRAVEL': 
-      'secure-travel-visitors-to-canada',
-    'SECURE_STUDY_RIMI_INTERNATIONAL_STUDENTS_TO_CANADA': 
-      'secure-study-international-students-to-canada',
-    'RIMI_CANUCK_VOYAGE_TRAVEL_MEDICAL': 
-      'canuck-voyage-travel-medical',
-    'RIMI_CANUCK_VOYAGE_NON_MEDICAL_TRAVEL': 
-      'canuck-voyage-non-medical-travel',
+  const handleIssueRelatedPolicy = () => {
+    const productRoutes: Record<string, string> = {
+      SECURE_TRAVEL_RIMI_VISITORS_TO_CANADA_TRAVEL:
+        "secure-travel-visitors-to-canada",
+      SECURE_STUDY_RIMI_INTERNATIONAL_STUDENTS_TO_CANADA:
+        "secure-study-international-students-to-canada",
+      RIMI_CANUCK_VOYAGE_TRAVEL_MEDICAL: "canuck-voyage-travel-medical",
+      RIMI_CANUCK_VOYAGE_NON_MEDICAL_TRAVEL: "canuck-voyage-non-medical-travel",
+    };
+
+    const slug = p.product ? productRoutes[p.product] : undefined;
+
+    if (!slug) {
+      triggerNotification({
+        message: "Renewal not available for this policy",
+        type: "warning",
+      });
+      return;
+    }
+
+    navigate(`/renewals/${slug}?policyId=${id}`);
   };
-
-  const slug = p.product ? productRoutes[p.product] : undefined;
-  
-  if (!slug) {
-    alert(`Renewal not available for this policy`);
-    return;
-  }
-
-  navigate(`/renewals/${slug}?policyId=${id}`);
-};
-
 
   //
 
@@ -588,24 +599,6 @@ const handleIssueRelatedPolicy = () => {
         <div className="space-x-2">
           {!isEditMode ? (
             <>
-              {/* Update Card  */}
-              {canUpdateCard && !isEditMode && (
-                <button
-                  onClick={() => {
-                    if (
-                      window.confirm(
-                        "Are you sure you want to update the payment method for this policy? All future recurring payments will use the new card."
-                      )
-                    ) {
-                      setShowUpdateCardModal(true);
-                    }
-                  }}
-                  className="px-3 py-1 bg-purple-600 text-white rounded hover:bg-purple-700"
-                >
-                  Update Card
-                </button>
-              )}
-
               {/* Reload  */}
               <button
                 onClick={() => window.location.reload()}
@@ -622,7 +615,7 @@ const handleIssueRelatedPolicy = () => {
                   Cancel Policy
                 </button>
               )}
-               {/* Split Policy Button */}
+              {/* Split Policy Button */}
               {p.product === "SECURE_TRAVEL_RIMI_VISITORS_TO_CANADA_TRAVEL" &&
                 p.status &&
                 ["ACTIVE", "SOLD"].includes(p.status) &&
@@ -635,6 +628,15 @@ const handleIssueRelatedPolicy = () => {
                     Split Policy
                   </button>
                 )}
+              {/* Update Card  */}
+              {canUpdateCard && !isEditMode && (
+                <button
+                  onClick={() => setShowUpdateCardConfirmModal(true)}
+                  className="bg-primary text-white py-2 sm:py-2 px-4 font-semibold hover:bg-[#2309A1] transition-all duration-200 cursor-pointer disabled:cursor-default disabled:opacity-70"
+                >
+                  Update Card
+                </button>
+              )}
               {canModify && (
                 <button
                   onClick={handleModifyClick}
@@ -1279,13 +1281,22 @@ const handleIssueRelatedPolicy = () => {
               />{" "}
               <span>Auto Renewal Notice</span>
             </div>
-            <button onClick={handleViewRenewalNotice} className="px-4 py-2 hover:bg-gray-50/50 border border-gray-300 hover:border-gray-400 cursor-pointer transition-all delay-100">
+            <button
+              onClick={handleViewRenewalNotice}
+              className="px-4 py-2 hover:bg-gray-50/50 border border-gray-300 hover:border-gray-400 cursor-pointer transition-all delay-100"
+            >
               View Renewal Notice
             </button>
-            <button onClick={handleSendRenewalNotice} className="bg-primary text-white py-2 sm:py-2 px-4 font-semibold hover:bg-[#2309A1] transition-all duration-200 cursor-pointer disabled:cursor-default disabled:opacity-70">
+            <button
+              onClick={handleSendRenewalNotice}
+              className="bg-primary text-white py-2 sm:py-2 px-4 font-semibold hover:bg-[#2309A1] transition-all duration-200 cursor-pointer disabled:cursor-default disabled:opacity-70"
+            >
               Send Renewal Notice
             </button>
-            <button onClick={handleIssueRelatedPolicy} className="px-3 py-1 bg-green-600 text-white rounded">
+            <button
+              onClick={handleIssueRelatedPolicy}
+              className="px-3 py-2 bg-green-600 text-white cursor-pointer hover:bg-green-700 transition-all duration-200"
+            >
               Issue Related Policy
             </button>
           </div>
@@ -1293,8 +1304,8 @@ const handleIssueRelatedPolicy = () => {
       </div>
 
       {/* History & Notes */}
-      <div className="flex flex-col gap-4 justify-between w-full border-b border-[#D8D8D8] pb-4">
-        <div className="text-primary capitalize font-semibold text-xl">
+      <div className="flex flex-col gap-4 justify-between w-full pb-4">
+        <div className="flex items-center gap-2 text-primary capitalize font-semibold text-xl">
           Notes History
         </div>
 
@@ -1308,7 +1319,7 @@ const handleIssueRelatedPolicy = () => {
               <li className="text-gray-500">No notes yet.</li>
             )}
             {notes.map((n) => (
-              <li key={n.id} className="p-2 bg-gray-50 rounded">
+              <li key={n.id} className="p-2 bg-greyBg">
                 <div className="text-xs text-gray-500">
                   {new Date(n.createdAt).toLocaleString("en-CA", {
                     year: "numeric",
@@ -1352,8 +1363,8 @@ const handleIssueRelatedPolicy = () => {
       </div>
 
       {/* Activity History */}
-      <div className="flex flex-col gap-4 justify-between w-full border-b border-[#D8D8D8] pb-4">
-        <div className="text-primary capitalize font-semibold text-xl">
+      <div className="flex flex-col gap-4 justify-between w-full pb-4">
+        <div className="flex items-center gap-2 text-primary capitalize font-semibold text-xl">
           Activity History
         </div>
 
@@ -1438,7 +1449,9 @@ const handleIssueRelatedPolicy = () => {
                         <MdClose size={20} />
                       </button>
                     </div>
-                    <p className="text-sm text-gray-500">({formatFileSize(file.size)})</p>
+                    <p className="text-sm text-gray-500">
+                      ({formatFileSize(file.size)})
+                    </p>
                   </div>
                 </div>
               )}
@@ -1475,8 +1488,14 @@ const handleIssueRelatedPolicy = () => {
         policyId={id!}
         policyNumber={p.policyNumber!}
         paymentHistory={p.paymentHistory || []}
-        onSuccess={() => {
-          window.location.reload();
+        onSuccess={(message) => {
+          triggerNotification({
+            message,
+            type: "success",
+          });
+          setTimeout(() => {
+            window.location.reload();
+          }, 2000);
         }}
       />
 
@@ -1519,7 +1538,13 @@ const handleIssueRelatedPolicy = () => {
         policyId={id!}
         policyNumber={p.policyNumber!}
         onSuccess={() => {
-          window.location.reload();
+          triggerNotification({
+            message: "Payment method updated successfully",
+            type: "success",
+          });
+          setTimeout(() => {
+            window.location.reload();
+          }, 2000);
         }}
       />
 
@@ -1532,8 +1557,8 @@ const handleIssueRelatedPolicy = () => {
           policyNumber={p.policyNumber!}
           primaryApplicant={{
             id: "primary",
-            firstName: p.firstName || '',
-            lastName: p.lastName || '',
+            firstName: p.firstName || "",
+            lastName: p.lastName || "",
             dateOfBirth: p.dateOfBirth?.toString() || "",
             effectiveDate: p.effectiveDate?.toString() || "",
             expiryDate: p.expiryDate?.toString() || "",
@@ -1560,29 +1585,43 @@ const handleIssueRelatedPolicy = () => {
         />
       )}
 
-
       {/* Renewal Notice Modal */}
 
-  <RenewalNoticeModal
-    isOpen={showRenewalModal}
-    onClose={() => setShowRenewalModal(false)}
-    policy={{
-      ...p,
-      applicants: p.applicants?.map(a => ({
-        ...a,
-        premium: a.premium ? Number(a.premium) : undefined
-      }))
-    }}
-  />
+      <RenewalNoticeModal
+        isOpen={showRenewalModal}
+        onClose={() => setShowRenewalModal(false)}
+        policy={{
+          ...p,
+          applicants: p.applicants?.map((a) => ({
+            ...a,
+            premium: a.premium ? Number(a.premium) : undefined,
+          })),
+        }}
+      />
 
-
-{/* Success Modal */}
-<SuccessModal
-  isOpen={showSuccessModal}
-  onClose={() => setShowSuccessModal(false)}
-  message={successMessage}
-/>
-
+      {/* Success Modal */}
+      <SuccessModal
+        isOpen={showSuccessModal}
+        onClose={() => setShowSuccessModal(false)}
+        message={successMessage}
+      />
+      {NotificationComponent}
+      {/* Send Renewal Notice Confirmation Modal */}
+      <SendRenewalConfirmationModal
+        isOpen={showSendConfirmationModal}
+        onClose={() => setShowSendConfirmationModal(false)}
+        onConfirm={confirmSendRenewalNotice}
+        email={p.email || ""}
+        loading={renewalLoading}
+      />
+      <UpdatePaymentMethodConfirmationModal
+        isOpen={showUpdateCardConfirmModal}
+        onClose={() => setShowUpdateCardConfirmModal(false)}
+        onConfirm={() => {
+          setShowUpdateCardConfirmModal(false);
+          setShowUpdateCardModal(true);
+        }}
+      />
     </div>
   );
 };

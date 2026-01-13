@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import { MdClose, MdPrint } from 'react-icons/md';
 
 interface PolicyApplicant {
   id: string;
@@ -40,6 +41,18 @@ const RenewalNoticeModal: React.FC<RenewalNoticeModalProps> = ({
   onClose,
   policy,
 }) => {
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'auto';
+    }
+
+    return () => {
+      document.body.style.overflow = 'auto';
+    };
+  }, [isOpen]);
+
   if (!isOpen) return null;
 
   const formatDate = (date?: Date | string) => {
@@ -49,7 +62,11 @@ const RenewalNoticeModal: React.FC<RenewalNoticeModalProps> = ({
   };
 
   const formatCurrency = (amount: number) => {
-    return `$${amount.toFixed(2)} CAD`;
+    return amount.toLocaleString('en-CA', {
+      style: 'currency',
+      currency: 'CAD',
+      currencyDisplay: 'code'
+    });
   };
 
   const calculateCoverageLength = () => {
@@ -71,208 +88,154 @@ const RenewalNoticeModal: React.FC<RenewalNoticeModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 overflow-y-auto p-4">
-      <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full my-8">
+    <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50 p-4 h-full">
+      <div className="bg-white shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto custom-scrollbar3">
         {/* Header */}
-        <div className="flex justify-between items-center p-6 border-b">
-          <h2 className="text-xl font-semibold text-gray-900">
-            View Renewal Notice
-          </h2>
+        <div className="sticky top-0 bg-white border-b border-inputBorder px-3 sm:px-6 py-4 flex justify-between items-center z-10">
+          <div>
+            <h2 className="text-xl font-semibold text-text-black">
+              View Renewal Notice
+            </h2>
+            <p className="text-sm text-text-secondary mt-1">
+              Policy: <span className="text-primary font-medium">{policy.policyNumber}</span>
+            </p>
+          </div>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 transition-colors"
+            className="text-gray-500 hover:text-gray-700 text-2xl leading-none cursor-pointer"
           >
-            <svg
-              className="w-6 h-6"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M6 18L18 6M6 6l12 12"
-              />
-            </svg>
+            <MdClose />
           </button>
         </div>
 
         {/* Content */}
-        <div className="p-6 max-h-[70vh] overflow-y-auto">
+        <div className="p-3 sm:p-6 space-y-8">
           {/* Print Button */}
-          <div className="flex justify-end mb-4">
+          <div className="flex justify-end">
             <button
               onClick={handlePrint}
-              className="flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition-colors"
+              className="flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors cursor-pointer text-sm font-medium"
             >
-              <svg
-                className="w-4 h-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"
-                />
-              </svg>
+              <MdPrint className="text-xl" />
               View Printable Version
             </button>
           </div>
 
-          {/* Logo and Header */}
-          <div className="mb-6">
-            <div className="flex items-center mb-4">
+          {/* Logo and Summary Card */}
+          <div className="bg-gray-50 border border-gray-200 p-3 sm:p-6">
+            <div className="flex justify-between items-start mb-6">
               <div className="text-2xl font-bold">
                 <span className="text-blue-800">Secure</span>
                 <span className="text-red-600">Travel</span>
               </div>
+              <div className="text-right">
+                <div className="text-xs text-gray-500 uppercase font-semibold">Policy Number(s)</div>
+                <div className="text-sm font-medium text-gray-900">{allPolicyNumbers}</div>
+              </div>
             </div>
 
-            <div className="text-right text-gray-600 mb-4">
-              Policy Number(s):
-              <br />
-              {allPolicyNumbers}
-            </div>
-
-            <h1 className="text-2xl font-bold text-blue-800 mb-6">
+            <h1 className="text-2xl font-bold text-primary mb-6">
               Insurance Expiry Notice
             </h1>
-          </div>
 
-          {/* Letter Content */}
-          <div className="mb-6 space-y-4">
-            <p>Dear {policy.lastName || 'Valued Customer'},</p>
-
-            <p>Thank you for your confidence in RIMI Insurance Solutions Inc.</p>
-
-            <p>
-              According to our records, your travel insurance policy is scheduled to
-              expire shortly. If you have already received a new policy to continue
-              your coverage, please disregard this notice.
-            </p>
-
-            <p>
-              If you wish to continue your coverage, please contact your agent or
-              click{' '}
-              <a href="#" className="text-blue-600 underline">
-                here
-              </a>
-              . Please note the new policy issuance is subject to the policy
-              eligibility criteria.
-            </p>
+            <div className="space-y-4 text-gray-700">
+              <p>Dear {policy.lastName || 'Valued Customer'},</p>
+              <p>Thank you for your confidence in RIMI Insurance Solutions Inc.</p>
+              <p>
+                According to our records, your travel insurance policy is scheduled to
+                expire shortly. If you have already received a new policy to continue
+                your coverage, please disregard this notice.
+              </p>
+              <p>
+                If you wish to continue your coverage, please contact your agent or
+                click <a href="#" className="text-primary font-medium underline">here</a>.
+                Please note the new policy issuance is subject to the policy eligibility criteria.
+              </p>
+            </div>
           </div>
 
           {/* Primary Insured Person */}
-          <div className="mb-6">
-            <h2 className="text-lg font-bold text-blue-800 mb-4">
+          <section>
+            <h3 className="text-lg font-bold text-primary mb-4 border-b pb-2">
               Primary Insured Person
-            </h2>
-            <div className="space-y-2 text-sm">
-              <InfoRow label="Policy Number" value={policy.policyNumber || 'N/A'} />
-              <InfoRow label="First Name" value={policy.firstName || 'N/A'} />
-              <InfoRow label="Last Name" value={policy.lastName || 'N/A'} />
-              <InfoRow
-                label="Date of Birth"
-                value={formatDate(policy.dateOfBirth)}
-              />
-              <InfoRow label="Gender" value={policy.gender || 'Not specified'} />
-              <InfoRow
-                label="Include coverage for stable pre-existing medical conditions"
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <InfoField label="Policy Number" value={policy.policyNumber} />
+              <InfoField label="First Name" value={policy.firstName} />
+              <InfoField label="Last Name" value={policy.lastName} />
+              <InfoField label="Date of Birth" value={formatDate(policy.dateOfBirth)} />
+              <InfoField label="Gender" value={policy.gender} />
+              <InfoField
+                label="Pre-Ex Coverage"
                 value={policy.PreExCoverage || 'No'}
+                className="col-span-1 md:col-span-2 lg:col-span-2"
               />
-              <InfoRow label="Premium" value={formatCurrency(policy.premium || 0)} />
+              <InfoField
+                label="Premium"
+                value={formatCurrency(policy.premium || 0)}
+                valueClassName="text-green-600 font-bold"
+              />
             </div>
-          </div>
+          </section>
 
           {/* Additional Insured Persons */}
           {policy.applicants && policy.applicants.length > 0 && (
-            <>
+            <div className="space-y-8">
               {policy.applicants.map((applicant, index) => (
-                <div key={applicant.id} className="mb-6">
-                  <h2 className="text-lg font-bold text-blue-800 mb-4">
+                <section key={applicant.id}>
+                  <h3 className="text-lg font-bold text-primary mb-4 border-b pb-2">
                     Insured Person {index + 2}
-                  </h2>
-                  <div className="space-y-2 text-sm">
-                    <InfoRow
-                      label="Policy Number"
-                      value={applicant.policyNumber || 'N/A'}
-                    />
-                    <InfoRow label="First Name" value={applicant.firstName || 'N/A'} />
-                    <InfoRow label="Last Name" value={applicant.lastName || 'N/A'} />
-                    <InfoRow
-                      label="Date of Birth"
-                      value={formatDate(applicant.dateOfBirth)}
-                    />
-                    <InfoRow label="Gender" value={applicant.gender || 'Not specified'} />
-                    <InfoRow
-                      label="Relationship to Primary Insured Person"
-                      value={applicant.relation || '-'}
-                    />
-                    <InfoRow
-                      label="Include coverage for stable pre-existing medical conditions"
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <InfoField label="Policy Number" value={applicant.policyNumber} />
+                    <InfoField label="First Name" value={applicant.firstName} />
+                    <InfoField label="Last Name" value={applicant.lastName} />
+                    <InfoField label="Date of Birth" value={formatDate(applicant.dateOfBirth)} />
+                    <InfoField label="Gender" value={applicant.gender} />
+                    <InfoField label="Relation" value={applicant.relation} />
+                    <InfoField
+                      label="Pre-Ex Coverage"
                       value={applicant.PreExCoverage || 'No'}
+                      className="col-span-1 md:col-span-2"
                     />
-                    <InfoRow
+                    <InfoField
                       label="Premium"
                       value={formatCurrency(applicant.premium || 0)}
+                      valueClassName="text-green-600 font-bold"
                     />
                   </div>
-                </div>
+                </section>
               ))}
-            </>
+            </div>
           )}
 
-          {/* Coverage */}
-          <div className="mb-6">
-            <h2 className="text-lg font-bold text-blue-800 mb-4">Coverage</h2>
-            <div className="space-y-2 text-sm">
-              <InfoRow label="Plan Name" value="Visitors to Canada" />
-              <InfoRow
-                label="Policy Type"
-                value={policy.policyType || 'Standard'}
+          {/* Coverage Details */}
+          <section className="bg-blue-50/50 border border-blue-100 p-3 sm:p-6">
+            <h3 className="text-lg font-bold text-primary mb-4">Coverage Details</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-y-6 gap-x-8">
+              <InfoField label="Plan Name" value="Visitors to Canada" />
+              <InfoField label="Policy Type" value={policy.policyType || 'Standard'} />
+              <InfoField label="Coverage Amount" value={policy.coverage} />
+              <InfoField label="Deductible" value={policy.deductible} />
+              <InfoField label="Country of Origin" value={policy.countryOfOrigin} />
+              <InfoField label="Super Visa?" value={policy.applicantOnSuperVisa} />
+              <InfoField label="Destination" value={policy.destination} />
+              <InfoField label="Effective Date" value={formatDate(policy.effectiveDate)} />
+              <InfoField label="Expiry Date" value={formatDate(policy.expiryDate)} />
+              <InfoField
+                label="Coverage Length"
+                value={calculateCoverageLength()}
+                valueClassName="font-bold text-primary"
               />
-              <InfoRow
-                label="Amount of Coverage for Each Person"
-                value={policy.coverage || '$25,000.00 CAD'}
-              />
-              <InfoRow
-                label="Deductible"
-                value={policy.deductible || '$0.00 CAD'}
-              />
-              <InfoRow
-                label="Country of Origin"
-                value={policy.countryOfOrigin || '-'}
-              />
-              <InfoRow
-                label="Are applicants travelling to Canada on a Super Visa?"
-                value={policy.applicantOnSuperVisa || 'No'}
-              />
-              <InfoRow
-                label="Destination Province"
-                value={policy.destination || 'ON'}
-              />
-              <InfoRow
-                label="Effective Date"
-                value={formatDate(policy.effectiveDate)}
-              />
-              <InfoRow
-                label="Expiry Date"
-                value={formatDate(policy.expiryDate)}
-              />
-              <InfoRow label="Coverage Length" value={calculateCoverageLength()} />
             </div>
-          </div>
+          </section>
         </div>
 
         {/* Footer */}
-        <div className="flex justify-end p-6 border-t">
+        <div className="sticky bottom-0 bg-white border-t border-inputBorder p-3 sm:p-6 flex justify-end z-10">
           <button
             onClick={onClose}
-            className="px-6 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition-colors"
+            className="px-6 py-2 border border-inputBorder hover:border-gray-400 font-semibold transition-all cursor-pointer"
           >
             CLOSE
           </button>
@@ -282,14 +245,20 @@ const RenewalNoticeModal: React.FC<RenewalNoticeModalProps> = ({
   );
 };
 
-// Helper component for info rows
-const InfoRow: React.FC<{ label: string; value: string }> = ({
-  label,
-  value,
-}) => (
-  <div className="flex">
-    <span className="font-semibold text-gray-700 min-w-[300px]">{label}</span>
-    <span className="text-gray-900">{value}</span>
+// Helper component for structured info fields
+const InfoField: React.FC<{
+  label: string;
+  value?: string | number;
+  className?: string;
+  valueClassName?: string;
+}> = ({ label, value, className = '', valueClassName = '' }) => (
+  <div className={className}>
+    <div className="text-xs text-gray-500 uppercase font-semibold tracking-wider mb-1">
+      {label}
+    </div>
+    <div className={`text-sm text-gray-900 ${valueClassName}`}>
+      {value || '-'}
+    </div>
   </div>
 );
 

@@ -17,11 +17,11 @@ interface PaymentRecord {
 
 interface CancellationModalProps {
   isOpen: boolean;
-  onClose: () => void;
   policyId: string;
   policyNumber: string;
   paymentHistory: PaymentRecord[];
-  onSuccess: () => void;
+  onSuccess: (message: string) => void;
+  onClose: () => void;
 }
 
 export default function CancellationModal({
@@ -85,8 +85,7 @@ export default function CancellationModal({
     });
 
     if (result) {
-      alert(result.message);
-      onSuccess();
+      onSuccess(result.message);
       onClose();
     }
   };
@@ -94,7 +93,7 @@ export default function CancellationModal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50">
+    <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50 h-full">
       <div className="bg-white shadow-xl max-w-3xl w-full max-h-[90vh] overflow-y-auto custom-scrollbar3">
         {/* Header */}
         <div className="sticky top-0 bg-white border-b border-inputBorder px-6 py-4 flex justify-between items-center z-10">

@@ -1,5 +1,15 @@
-import React from 'react';
-import { ActivityType, PolicyActivity } from '../hooks/usePolicyActivity';
+import React from "react";
+import { ActivityType, PolicyActivity } from "../hooks/usePolicyActivity";
+import {
+  MdNoteAdd,
+  MdAttachFile,
+  MdEdit,
+  MdCancel,
+  MdRefresh,
+  MdEmail,
+  MdInfo,
+  MdPerson,
+} from "react-icons/md";
 
 interface ActivityTimelineProps {
   activities: PolicyActivity[];
@@ -13,99 +23,52 @@ export const PolicyActivityTimeline: React.FC<ActivityTimelineProps> = ({
   error,
 }) => {
   /**
-   * Get icon for activity type
+   * Get icon and color for activity type
    */
-  const getActivityIcon = (type: ActivityType) => {
+  const getActivityStyle = (type: ActivityType) => {
     switch (type) {
-      case 'note_added':
-        return (
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
-              d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-          </svg>
-        );
-      case 'attachment_added':
-        return (
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
-              d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
-          </svg>
-        );
-    //   case 'policy_created':
-    //     return (
-    //       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    //         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
-    //           d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-    //       </svg>
-    //     );
-      case 'policy_modified':
-        return (
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
-              d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-          </svg>
-        );
-      case 'policy_cancelled':
-        return (
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
-              d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-        );
-      case 'refund_processed':
-        return (
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
-              d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
-          </svg>
-        );
-    //   case 'payment_received':
-    //     return (
-    //       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    //         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
-    //           d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
-    //       </svg>
-    //     );
-      case 'email_sent':
-        return (
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
-              d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-          </svg>
-        );
+      case "note_added":
+        return {
+          icon: <MdNoteAdd className="text-xl" />,
+          color: "bg-blue-100 text-blue-600 border-blue-200",
+          dotColor: "bg-blue-500",
+        };
+      case "attachment_added":
+        return {
+          icon: <MdAttachFile className="text-xl" />,
+          color: "bg-purple-100 text-purple-600 border-purple-200",
+          dotColor: "bg-purple-500",
+        };
+      case "policy_modified":
+        return {
+          icon: <MdEdit className="text-xl" />,
+          color: "bg-amber-100 text-amber-600 border-amber-200",
+          dotColor: "bg-amber-500",
+        };
+      case "policy_cancelled":
+        return {
+          icon: <MdCancel className="text-xl" />,
+          color: "bg-red-100 text-red-600 border-red-200",
+          dotColor: "bg-red-500",
+        };
+      case "refund_processed":
+        return {
+          icon: <MdRefresh className="text-xl text-orange-600" />,
+          color: "bg-orange-100 text-orange-600 border-orange-200",
+          dotColor: "bg-orange-500",
+        };
+      case "email_sent":
+        return {
+          icon: <MdEmail className="text-xl" />,
+          color: "bg-indigo-100 text-indigo-600 border-indigo-200",
+          dotColor: "bg-indigo-500",
+        };
       default:
-        return (
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
-              d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-        );
-    }
-  };
-
-  /**
-   * Get color for activity type
-   */
-  const getActivityColor = (type: ActivityType) => {
-    switch (type) {
-      case 'note_added':
-        return 'bg-blue-100 text-blue-600 border-blue-200';
-      case 'attachment_added':
-        return 'bg-purple-100 text-purple-600 border-purple-200';
-    //   case 'policy_created':
-    //     return 'bg-green-100 text-green-600 border-green-200';
-      case 'policy_modified':
-        return 'bg-yellow-100 text-yellow-600 border-yellow-200';
-      case 'policy_cancelled':
-        return 'bg-red-100 text-red-600 border-red-200';
-      case 'refund_processed':
-        return 'bg-orange-100 text-orange-600 border-orange-200';
-    //   case 'payment_received':
-    //     return 'bg-emerald-100 text-emerald-600 border-emerald-200';
-      case 'email_sent':
-        return 'bg-indigo-100 text-indigo-600 border-indigo-200';
-      default:
-        return 'bg-gray-100 text-gray-600 border-gray-200';
+        return {
+          icon: <MdInfo className="text-xl" />,
+          color: "bg-gray-100 text-gray-600 border-gray-200",
+          dotColor: "bg-gray-400",
+        };
     }
   };
 
@@ -113,9 +76,10 @@ export const PolicyActivityTimeline: React.FC<ActivityTimelineProps> = ({
    * Format activity type for display
    */
   const formatActivityType = (type: ActivityType) => {
-    return type.split('_').map(word => 
-      word.charAt(0).toUpperCase() + word.slice(1)
-    ).join(' ');
+    return type
+      .split("_")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ");
   };
 
   /**
@@ -123,101 +87,124 @@ export const PolicyActivityTimeline: React.FC<ActivityTimelineProps> = ({
    */
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleString('en-CA', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
+    return date.toLocaleString("en-CA", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
     });
   };
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center py-8">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
+      <div className="flex flex-col items-center justify-center py-12 gap-3">
+        <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+        <p className="text-sm font-medium text-text-secondary">
+          Loading history...
+        </p>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="bg-red-50 border border-red-200 rounded p-4 text-red-600">
-        {error}
+      <div className="bg-red-50 border border-red-200 p-6 flex flex-col items-center text-center">
+        <MdCancel className="text-4xl text-red-500 mb-2" />
+        <h4 className="font-semibold text-red-900 mb-1">
+          Error Loading History
+        </h4>
+        <p className="text-sm text-red-700">{error}</p>
       </div>
     );
   }
 
   if (activities.length === 0) {
     return (
-      <div className="text-center py-8 text-gray-500">
-        No activity history yet.
+      <div className="text-center py-12 bg-gray-50/50 border border-dashed border-gray-300">
+        <MdInfo className="text-4xl text-gray-300 mx-auto mb-2" />
+        <p className="text-gray-500 font-medium">
+          No activity history recorded for this policy.
+        </p>
       </div>
     );
   }
 
   return (
-    <div className="space-y-4">
-      {/* Timeline */}
-      <div className="relative">
-        {/* Vertical line */}
-        <div className="absolute left-6 top-0 bottom-0 w-0.5 bg-gray-200"></div>
+    <div className="relative pl-8 space-y-8 before:absolute before:left-[11px] before:top-2 before:bottom-2 before:w-[2px] before:bg-gray-100">
+      {activities.map((activity) => {
+        const style = getActivityStyle(activity.activityType);
+        return (
+          <div key={activity.id} className="relative group">
+            {/* Timeline Connector Dot */}
+            <div
+              className={`absolute -left-[30px] top-1.5 w-5 h-5 rounded-full border-4 border-white ${style.dotColor} z-10 shadow-sm transition-transform group-hover:scale-110`}
+            />
 
-        {/* Activity items */}
-        <div className="space-y-6">
-          {activities.map((activity, index) => (
-            <div key={activity.id} className="relative flex items-start space-x-4">
-              {/* Icon */}
-              <div className={`flex-shrink-0 w-12 h-12 rounded-full border-2 flex items-center justify-center z-10 bg-white ${getActivityColor(activity.activityType)}`}>
-                {getActivityIcon(activity.activityType)}
+            <div className="bg-white border border-gray-100 shadow-sm overflow-hidden transition-all hover:shadow-md hover:border-gray-200">
+              {/* Header Bar */}
+              <div className="px-4 py-3 bg-gray-50/50 border-b border-gray-100 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div
+                    className={`w-8 h-8 rounded-lg border flex items-center justify-center ${style.color}`}
+                  >
+                    {style.icon}
+                  </div>
+                  <h4 className="font-bold text-gray-900">
+                    {formatActivityType(activity.activityType)}
+                  </h4>
+                </div>
+                <time className="text-xs font-medium text-gray-400">
+                  {formatDate(activity.createdAt)}
+                </time>
               </div>
 
-              {/* Content */}
-              <div className="flex-1 bg-white border rounded-lg p-4 shadow-sm">
-                {/* Header */}
-                <div className="flex items-start justify-between mb-2">
-                  <div>
-                    <h4 className="font-semibold text-gray-900">
-                      {formatActivityType(activity.activityType)}
-                    </h4>
-                    <p className="text-sm text-gray-600 mt-1">
-                      {activity.description}
-                    </p>
-                  </div>
-                  <span className="text-xs text-gray-500 whitespace-nowrap ml-4">
-                    {formatDate(activity.createdAt)}
-                  </span>
-                </div>
+              {/* Body */}
+              <div className="p-4 space-y-4">
+                <p className="text-sm text-gray-700 leading-relaxed">
+                  {activity.description}
+                </p>
 
-                {/* Metadata */}
-                {activity.metadata && Object.keys(activity.metadata).length > 0 && (
-                  <div className="mt-3 pt-3 border-t border-gray-100">
-                    <div className="grid grid-cols-2 gap-2 text-xs">
+                {/* Metadata Grid */}
+                {activity.metadata &&
+                  Object.keys(activity.metadata).length > 0 && (
+                    <div className="bg-gray-50/50 rounded-lg p-3 border border-gray-100 grid grid-cols-1 sm:grid-cols-2 gap-4">
                       {Object.entries(activity.metadata).map(([key, value]) => (
-                        <div key={key} className="flex items-center space-x-2">
-                          <span className="font-medium text-gray-500">
-                            {key.charAt(0).toUpperCase() + key.slice(1)}:
+                        <div key={key} className="space-y-1">
+                          <span className="text-[10px] uppercase font-bold text-gray-400 tracking-wider">
+                            {key.replace(/([A-Z])/g, " $1").trim()}
                           </span>
-                          <span className="text-gray-700">
-                            {typeof value === 'object' ? JSON.stringify(value) : String(value)}
-                          </span>
+                          <div className="text-sm text-gray-800 font-medium break-all">
+                            {typeof value === "object" ? (
+                              <pre className="text-xs bg-white p-2 rounded border border-gray-200 overflow-x-auto">
+                                {JSON.stringify(value, null, 2)}
+                              </pre>
+                            ) : (
+                              String(value)
+                            )}
+                          </div>
                         </div>
                       ))}
                     </div>
-                  </div>
-                )}
+                  )}
 
-                {/* Performed by */}
-                <div className="mt-3 pt-3 border-t border-gray-100 text-xs text-gray-500">
-                  Performed by: <span className="font-medium text-gray-700">
-                    {activity.performedByName || activity.performedBy}
+                {/* Performed By Footer */}
+                <div className="flex items-center gap-2 pt-3 border-t border-gray-50">
+                  <div className="w-5 h-5 rounded-full bg-primary/10 text-primary flex items-center justify-center">
+                    <MdPerson className="text-xs" />
+                  </div>
+                  <span className="text-xs text-gray-500 font-medium">
+                    Performed by:{" "}
+                    <span className="text-gray-900 font-bold">
+                      {activity.performedByName || activity.performedBy}
+                    </span>
                   </span>
                 </div>
               </div>
             </div>
-          ))}
-        </div>
-      </div>
+          </div>
+        );
+      })}
     </div>
   );
 };

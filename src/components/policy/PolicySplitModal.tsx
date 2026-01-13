@@ -217,7 +217,7 @@ export const PolicySplitModal: React.FC<PolicySplitModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 flex justify-center items-center z-50 bg-black/30" onClick={onClose}>
+    <div className="fixed inset-0 flex justify-center items-center z-50 bg-black/30 h-full" onClick={onClose}>
       {/* Modal */}
         <div className="bg-white shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto custom-scrollbar3" onClick={(e) => e.stopPropagation()}>
           {/* Header */}
