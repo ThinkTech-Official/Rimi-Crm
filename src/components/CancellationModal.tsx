@@ -465,8 +465,8 @@ interface CancellationModalProps {
   policyId: string;
   policyNumber: string;
   paymentHistory: PaymentRecord[];
-  effectiveDate: string; // ✅ NEW: Add this prop
-  paymentOption: string; // ✅ NEW: Add this prop
+  effectiveDate: string; 
+  paymentOption: string; 
   onSuccess: () => void;
 }
 
@@ -476,8 +476,8 @@ export default function CancellationModal({
   policyId,
   policyNumber,
   paymentHistory,
-  effectiveDate, // ✅ NEW
-  paymentOption, // ✅ NEW
+  effectiveDate, 
+  paymentOption, 
   onSuccess
 }: CancellationModalProps) {
   const [step, setStep] = useState<'preview' | 'confirm'>('preview');
@@ -495,7 +495,7 @@ export default function CancellationModal({
     cancelPolicy,
   } = usePolicyCancellation(policyId);
 
-  // ✅ NEW: Check if policy has started
+  
   const policyHasStarted = new Date() >= new Date(effectiveDate);
   const isMonthly = paymentOption === 'monthly-installments';
   const noRefundsWillBeIssued = isMonthly && policyHasStarted;
@@ -593,7 +593,7 @@ export default function CancellationModal({
 
           {step === 'preview' && (
             <>
-              {/* ✅ NEW: Policy Status Alert */}
+              
               {noRefundsWillBeIssued ? (
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                   <div className="flex items-start">
@@ -712,7 +712,7 @@ export default function CancellationModal({
                   </div>
                 )}
 
-                {/* ✅ UPDATED: Conditionally show cancellation fee */}
+                
                 {!noRefundsWillBeIssued && (
                   <div>
                     <label className="block font-medium mb-2">
@@ -740,7 +740,7 @@ export default function CancellationModal({
                   </div>
                 )}
 
-                {/* ✅ UPDATED: Quick Refund Calculation */}
+                
                 {/* {!noRefundsWillBeIssued && (
                   <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                     <div className="grid grid-cols-2 gap-4 text-sm">
@@ -766,7 +766,7 @@ export default function CancellationModal({
                       </div>
                       <p className="text-xs text-gray-600 mt-2">
                         {paymentHistory.length > 1 
-                          ? '⚠️ This is an estimate. For monthly payments, the actual refund breakdown may differ. Click "PREVIEW REFUND" for detailed calculation.'
+                          ? ' This is an estimate. For monthly payments, the actual refund breakdown may differ. Click "PREVIEW REFUND" for detailed calculation.'
                           : 'This is a quick estimate for lump sum payment. Click "PREVIEW REFUND" for official calculation.'}
                       </p>
                     </div>
