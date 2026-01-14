@@ -741,7 +741,7 @@ export default function CancellationModal({
                 )}
 
                 {/* ✅ UPDATED: Quick Refund Calculation */}
-                {!noRefundsWillBeIssued && (
+                {/* {!noRefundsWillBeIssued && (
                   <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                     <div className="grid grid-cols-2 gap-4 text-sm">
                       <div>
@@ -771,7 +771,7 @@ export default function CancellationModal({
                       </p>
                     </div>
                   </div>
-                )}
+                )} */}
 
                 <div>
                   <label className="block font-medium mb-2">Notes (Optional)</label>
