@@ -1018,7 +1018,7 @@ const PolicyDetailsPage: React.FC = () => {
       </div>
 
       {/* Premium / Payment Info */}
-      {/* {history?.length > 0 && (
+      {(history?.length > 0 || (paymentSchedule && paymentSchedule.length > 0)) && (
         <section className="border-b py-4 text-sm space-y-4">
           <div className="uppercase text-purple-600 font-semibold">
             Premium / Payment Info
@@ -1030,7 +1030,7 @@ const PolicyDetailsPage: React.FC = () => {
               <div>
                 {p?.premium.toLocaleString("en-CA", {
                   style: "currency",
-                  currency: history[0].currency,
+                  currency: history[0]?.currency || "CAD",
                   currencyDisplay: "code",
                 })}
               </div>
@@ -1041,160 +1041,162 @@ const PolicyDetailsPage: React.FC = () => {
             </div>
             <div>
               <div className="font-medium">Credit Card</div>
-              <div>{history[0].last4 ? `•••• ${history[0].last4}` : "-"}</div>
+              <div>{history[0]?.last4 ? `•••• ${history[0].last4}` : "-"}</div>
             </div>
             <div>
               <div className="font-medium">Date</div>
-              <div>{fmtDate(history[0].date)}</div>
+              <div>{history[0]?.date ? fmtDate(history[0].date) : "-"}</div>
             </div>
           </div>
 
-          <table className="w-full table-fixed border-collapse text-xs mt-4">
-            <thead>
-              <tr className="bg-gray-100">
-                <th className="px-3 py-2 text-left">#</th>
-                <th className="px-3 py-2 text-left">Method</th>
-                <th className="px-3 py-2 text-left">Name</th>
-                <th className="px-3 py-2 text-left">Brand</th>
-                <th className="px-3 py-2 text-left">Last 4</th>
-                <th className="px-3 py-2 text-right">Amount</th>
-                <th className="px-3 py-2 text-right">Fee</th>
-                <th className="px-3 py-2 text-left">Status</th>
-                <th className="px-3 py-2 text-left">Date</th>
-                <th className="px-3 py-2 text-left">Payment Type</th>
-                <th className="px-3 py-2 text-center w-20">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y">
-              {history.map((h, i) => (
-                <tr key={h.id} className="hover:bg-gray-50">
-                  <td className="px-3 py-2 text-left">{i + 1}</td>
-                  <td className="px-3 py-2 text-left">{h.method}</td>
-                  <td className="px-3 py-2 text-left">{h.cardholderName}</td>
-                  <td className="px-3 py-2 text-left">{h.brand}</td>
-                  <td className="px-3 py-2 text-left">{h.last4}</td>
-                  <td className="px-3 py-2 text-right">
-                    {h.amount.toLocaleString("en-CA", {
-                      style: "currency",
-                      currency: h.currency,
-                      currencyDisplay: "code",
-                    })}
-                  </td>
-                  <td className="px-3 py-2 text-right">
-                    {h.fee != null
-                      ? h.fee.toLocaleString("en-CA", {
-                          style: "currency",
-                          currency: h.currency,
-                          currencyDisplay: "code",
-                        })
-                      : "N/A"}
-                  </td>
-                  <td
-                    className={`px-3 py-2 text-left ${
-                      h.status === "succeeded"
-                        ? "text-green-600"
-                        : h.status === "refunded"
-                        ? "text-orange-600"
-                        : ""
-                    }`}
+          {/* Parent Policy Link for Split Policies */}
+          {p.parentPolicyId && (
+            <div className="bg-blue-50 border-l-4 border-blue-400 p-3 rounded">
+              <div className="flex items-center">
+                <svg className="w-5 h-5 text-blue-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                </svg>
+                <div>
+                  <p className="text-sm text-blue-700 font-medium">
+                    Split Policy - Payments Covered by Parent Policy
+                  </p>
+                  <button
+                    onClick={() => navigate(`/policy-detail/${p.parentPolicyId}`)}
+                    className="text-xs text-blue-600 hover:text-blue-800 underline mt-1"
                   >
-                    {h.status}
-                  </td>
-                  <td className="px-3 py-2 text-left">{fmtDate(h.date)}</td>
-                  <td className="px-3 py-2 text-left">{h.paymentType || 'N/A'}</td>
-                  <td className="px-3 py-2 text-center">
-                    {h.paymentType === 'policy-issue-fee' && 
-                     h.status === 'succeeded' && 
-                     p.status === 'CANCELLED' && (
-                      <button
-                        onClick={() => handleRefund(h.id, h.amount, h.paymentType)}
-                        disabled={refundLoading}
-                        className={`inline-flex items-center justify-center w-8 h-8 ${
-                          refundLoading 
-                            ? 'bg-gray-400 cursor-not-allowed' 
-                            : 'bg-red-600 hover:bg-red-700'
-                        } text-white rounded transition-colors duration-150`}
-                        title={refundLoading ? "Processing..." : "Refund policy fee"}
+                    View Original Policy Payment →
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Payment History Table */}
+          {history.length > 0 && (
+            <div className="mt-4">
+              <h3 className="font-semibold text-sm mb-3 text-gray-700 border-b pb-1">Payment History</h3>
+              <table className="w-full table-fixed border-collapse text-xs">
+                <thead>
+                  <tr className="bg-gray-100 italic">
+                    <th className="px-3 py-2 text-left">#</th>
+                    <th className="px-3 py-2 text-left">Method</th>
+                    <th className="px-3 py-2 text-left">Brand</th>
+                    <th className="px-3 py-2 text-left">Last 4</th>
+                    <th className="px-3 py-2 text-right">Amount</th>
+                    <th className="px-3 py-2 text-right">Fee</th>
+                    <th className="px-3 py-2 text-left">Status</th>
+                    <th className="px-3 py-2 text-left">Date</th>
+                    <th className="px-3 py-2 text-left">Payment Type</th>
+                    <th className="px-3 py-2 text-center w-20">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y">
+                  {history.map((h, i) => {
+                    const isReference = [
+                      'split-policy-covered',
+                      'split-initial-covered',
+                      'split-monthly-covered',
+                      'policy-fee-reference'
+                    ].includes(h.paymentType || '');
+
+                    return (
+                      <tr 
+                        key={h.id} 
+                        className={`hover:bg-gray-50 ${isReference ? 'bg-blue-50/50' : ''}`}
                       >
-                        {refundLoading ? (
-                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                        ) : (
-                          <svg 
-                            className="w-4 h-4" 
-                            fill="none" 
-                            stroke="currentColor" 
-                            viewBox="0 0 24 24"
-                          >
-                            <path 
-                              strokeLinecap="round" 
-                              strokeLinejoin="round" 
-                              strokeWidth={2} 
-                              d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" 
-                            />
-                          </svg>
-                        )}
-                      </button>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </section>
-      )} */}
-
-      {/* Premium / Payment Info */}
-      {(history?.length > 0 ||
-        (paymentSchedule && paymentSchedule.length > 0)) && (
-        <div className="flex flex-col gap-4 justify-between w-full border-b border-[#D8D8D8]">
-          <div className="text-primary capitalize font-semibold text-xl">
-            Premium / Payment Info
-          </div>
-
-          <div className="grid grid-cols-4 gap-x-4">
-            <div>
-              <div className="font-semibold text-base">Premium</div>
-              <div className="text-sm text-[#6F6B7D]">
-                {p?.premium.toLocaleString("en-CA", {
-                  style: "currency",
-                  currency: history[0]?.currency || "CAD",
-                  currencyDisplay: "code",
-                })}
-              </div>
+                        <td className="px-3 py-2 text-left">{i + 1}</td>
+                        <td className="px-3 py-2 text-left">{h.method}</td>
+                        <td className="px-3 py-2 text-left">{h.brand}</td>
+                        <td className="px-3 py-2 text-left">{h.last4}</td>
+                        <td className="px-3 py-2 text-right">
+                          {h.amount.toLocaleString("en-CA", {
+                            style: "currency",
+                            currency: h.currency,
+                            currencyDisplay: "code",
+                          })}
+                        </td>
+                        <td className="px-3 py-2 text-right">
+                          {h.fee != null
+                            ? h.fee.toLocaleString("en-CA", {
+                                style: "currency",
+                                currency: h.currency,
+                                currencyDisplay: "code",
+                              })
+                            : "-"}
+                        </td>
+                        <td
+                          className={`px-3 py-2 text-left font-medium ${
+                            h.status === "succeeded"
+                              ? "text-green-600"
+                              : h.status === "refunded"
+                              ? "text-orange-600"
+                              : h.status === "failed"
+                              ? "text-red-600"
+                              : ""
+                          }`}
+                        >
+                          {h.status}
+                        </td>
+                        <td className="px-3 py-2 text-left">{fmtDate(h.date)}</td>
+                        <td className="px-3 py-2 text-left">
+                          <div className="flex items-center gap-1">
+                            {isReference && (
+                              <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-blue-100 text-blue-800">
+                                REFERENCE
+                              </span>
+                            )}
+                            <span className={isReference ? 'text-[11px] text-gray-500' : ''}>
+                              {h.paymentType || 'N/A'}
+                            </span>
+                          </div>
+                        </td>
+                        <td className="px-3 py-2 text-center">
+                          {h.paymentType === 'policy-issue-fee' && 
+                          h.status === 'succeeded' && 
+                          p.status === 'CANCELLED' && (
+                            <button
+                              onClick={() => handleRefund(h.id, h.amount, h.paymentType)}
+                              disabled={refundLoading}
+                              className={`inline-flex items-center justify-center w-7 h-7 ${
+                                refundLoading 
+                                  ? 'bg-gray-300 cursor-not-allowed text-gray-500' 
+                                  : 'bg-red-50 text-red-600 hover:bg-red-600 hover:text-white'
+                              } rounded border border-red-200 transition-all duration-150`}
+                              title={refundLoading ? "Processing..." : "Refund policy fee"}
+                            >
+                              {refundLoading ? (
+                                <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-current"></div>
+                              ) : (
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
+                                </svg>
+                              )}
+                            </button>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
             </div>
-            <div>
-              <div className="font-semibold text-base">Payment Option</div>
-              <div className="text-sm text-[#6F6B7D]">
-                {p.paymentOption || "-"}
-              </div>
-            </div>
-            <div>
-              <div className="font-semibold text-base">Credit Card</div>
-              <div className="text-sm text-[#6F6B7D]">
-                {history[0]?.last4 ? `•••• ${history[0].last4}` : "-"}
-              </div>
-            </div>
-            <div>
-              <div className="font-semibold text-base">Date</div>
-              <div className="text-sm text-[#6F6B7D]">
-                {history[0]?.date ? fmtDate(history[0].date) : "-"}
-              </div>
-            </div>
-          </div>
+          )}
 
           {/* Payment Schedule Table */}
-          <div className="mt-6">
-            <h3 className="font-semibold mb-3">Payment Schedule</h3>
-            <PaymentScheduleTable
-              schedule={paymentSchedule || []}
-              loading={scheduleLoading}
-              error={scheduleError}
-              onProcessRefund={
-                p.status === "CANCELLED" ? handleRefund : undefined
-              }
-            />
-          </div>
-        </div>
+          {paymentSchedule && paymentSchedule.length > 0 && (
+            <div className="mt-6 border-t pt-4">
+              <h3 className="font-semibold text-sm mb-3 text-gray-700">Payment Schedule</h3>
+              <PaymentScheduleTable
+                schedule={paymentSchedule || []}
+                loading={scheduleLoading}
+                error={scheduleError}
+                onProcessRefund={
+                  p.status === "CANCELLED" ? handleRefund : undefined
+                }
+              />
+            </div>
+          )}
+        </section>
       )}
 
       {/* Fulfillment */}

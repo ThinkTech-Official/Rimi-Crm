@@ -471,7 +471,7 @@ export const PolicySplitModal: React.FC<PolicySplitModalProps> = ({
                           <p className="font-medium text-gray-900 text-lg">
                             ${policy.premium.total.toFixed(2)}
                           </p>
-                          {policy.payment.type === 'monthly' && (
+                          {policy.payment.type === 'monthly-installments' && (
                             <p className="text-gray-600">
                               ${policy.premium.monthly.toFixed(2)}/month × {policy.payment.remainingPayments} months
                             </p>

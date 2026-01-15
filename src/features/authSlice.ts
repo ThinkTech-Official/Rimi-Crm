@@ -1,3 +1,6 @@
+
+
+
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 import Cookies from "js-cookie";
@@ -20,13 +23,61 @@ interface AuthState {
   fullName: string | null;
   loading: boolean;
   error: string | null;
+  initialized: boolean;
 }
 
+
+const initializeAuthState = (): Omit<AuthState, 'loading' | 'error'> => {
+  const token = Cookies.get("token");
+  
+  if (!token) {
+    return {
+      token: null,
+      userType: null,
+      agentCode: null,
+      fullName: null,
+      initialized: true,
+    };
+  }
+
+  try {
+    const decoded: DecodedToken = jwtDecode(token);
+    
+  
+    const now = Date.now() / 1000;
+    if (decoded.exp < now) {
+      Cookies.remove("token");
+      return {
+        token: null,
+        userType: null,
+        agentCode: null,
+        fullName: null,
+        initialized: true,
+      };
+    }
+
+    return {
+      token,
+      userType: decoded.userType,
+      fullName: decoded.fullName,
+      agentCode: decoded.agentCode,
+      initialized: true,
+    };
+  } catch (error) {
+    console.error("Failed to decode token:", error);
+    Cookies.remove("token");
+    return {
+      token: null,
+      userType: null,
+      agentCode: null,
+      fullName: null,
+      initialized: true,
+    };
+  }
+};
+
 const initialState: AuthState = {
-  token: null,
-  userType: null,
-  agentCode: null,
-  fullName: null,
+  ...initializeAuthState(),
   loading: false,
   error: null,
 };
@@ -40,11 +91,12 @@ export const loginUser = createAsyncThunk(
     try {
       const response = await axios.post(
         `${API_BASE}/auth/login`,
-        credentials
+        credentials,
+        {
+          withCredentials: true,
+        }
       );
       const token = response.data.access_token;
-
-      Cookies.set("token", token);
 
       const decoded: DecodedToken = jwtDecode(token);
 
@@ -69,7 +121,11 @@ const authSlice = createSlice({
       state.userType = null;
       state.fullName = null;
       state.agentCode = null;
+      
       Cookies.remove("token");
+      
+      axios.post(`${API_BASE}/auth/logout`, {}, { withCredentials: true })
+        .catch(err => console.error('Logout error:', err));
     },
   },
   extraReducers: (builder) => {
@@ -84,6 +140,7 @@ const authSlice = createSlice({
         state.userType = action.payload.userType;
         state.fullName = action.payload.fullName;
         state.agentCode = action.payload.agentCode;
+        state.initialized = true;
       })
       .addCase(loginUser.rejected, (state, action) => {
         state.loading = false;
