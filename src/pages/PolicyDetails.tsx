@@ -594,6 +594,22 @@ const PolicyDetailsPage: React.FC = () => {
 
   return (
     <div className="max-w-5xl mx-auto p-6 space-y-8 bg-white">
+      <div className="flex w-full justify-center gap-6">
+          <img src="/rimi_en.png" alt="rimi_logo" className="w-[100px]" />
+          <img
+            src="/securetravel_en.png"
+            alt="securetravel"
+            className="w-[130px]"
+          />
+        </div>
+      
+      {/* Policy Name */}
+      <div className="flex w-full justify-center">
+        <h1 className="text-2xl font-semibold text-primary">
+          {p.product?.replace(/_/g, ' ') || 'Policy Details'}
+        </h1>
+      </div>
+
       {/* Header & Buttons */}
       <div className="flex justify-end items-center">
         <div className="space-x-2">
@@ -696,7 +712,7 @@ const PolicyDetailsPage: React.FC = () => {
 
       {/* Policy Information */}
       <div className="flex flex-col gap-4 justify-between w-full border-b border-[#D8D8D8] pb-4">
-        <div className="text-primary capitalize font-semibold text-xl">
+        <div className="text-primary uppercase font-semibold text-xl">
           Policy Information
         </div>
         <div className="grid grid-cols-3 gap-4 text-sm capitalize w-full">
@@ -738,7 +754,7 @@ const PolicyDetailsPage: React.FC = () => {
 
       {/* Primary Insured */}
       <div className="flex flex-col gap-4 justify-between w-full border-b border-[#D8D8D8] pb-4">
-        <div className="text-primary capitalize font-semibold text-xl">
+        <div className="text-primary uppercase font-semibold text-xl">
           Primary Insured Person
         </div>
         <div className="grid grid-cols-3 gap-4 text-sm w-full capitalize">
@@ -780,7 +796,7 @@ const PolicyDetailsPage: React.FC = () => {
 
       {/* Contact Information */}
       <div className="flex flex-col gap-4 justify-between w-full border-b border-[#D8D8D8] pb-4">
-        <div className="text-primary capitalize font-semibold text-xl">
+        <div className="text-primary uppercase font-semibold text-xl">
           Contact Information
         </div>
         <div className="grid grid-cols-3 gap-4 text-sm w-full capitalize">
@@ -811,7 +827,7 @@ const PolicyDetailsPage: React.FC = () => {
             key={a.id}
             className="flex flex-col gap-4 justify-between w-full border-b border-[#D8D8D8] pb-4"
           >
-            <div className="text-primary capitalize font-semibold text-xl">
+            <div className="text-primary uppercase font-semibold text-xl">
               Insured Person {idx + 2}
             </div>
             <div className="grid grid-cols-3 gap-4 text-sm w-full capitalize">
@@ -930,7 +946,7 @@ const PolicyDetailsPage: React.FC = () => {
 
       {/* Coverage Details */}
       <div className="flex flex-col gap-4 justify-between w-full border-b border-[#D8D8D8] pb-4">
-        <div className="text-primary capitalize font-semibold text-xl">
+        <div className="text-primary uppercase font-semibold text-xl">
           Coverage Details
         </div>
         <div className="grid grid-cols-3 gap-4 text-sm w-full capitalize">
@@ -998,7 +1014,7 @@ const PolicyDetailsPage: React.FC = () => {
 
       {/* Beneficiary Information */}
       <div className="flex flex-col gap-4 justify-between w-full border-b border-[#D8D8D8] pb-4">
-        <div className="text-primary capitalize font-semibold text-xl">
+        <div className="text-primary uppercase font-semibold text-xl">
           Beneficiary Information
         </div>
         <div className="grid grid-cols-3 gap-4 text-sm w-full capitalize">
@@ -1018,9 +1034,10 @@ const PolicyDetailsPage: React.FC = () => {
       </div>
 
       {/* Premium / Payment Info */}
-      {(history?.length > 0 || (paymentSchedule && paymentSchedule.length > 0)) && (
-        <section className="border-b py-4 text-sm space-y-4">
-          <div className="uppercase text-purple-600 font-semibold">
+      {(history?.length > 0 ||
+        (paymentSchedule && paymentSchedule.length > 0)) && (
+        <section className="border-b py-4 space-y-4">
+          <div className="uppercase text-primary font-semibold text-lg">
             Premium / Payment Info
           </div>
 
@@ -1049,19 +1066,29 @@ const PolicyDetailsPage: React.FC = () => {
             </div>
           </div>
 
-          {/* Parent Policy Link for Split Policies */}
+          {/* ✅ ADD THIS: Parent Policy Link for Split Policies */}
           {p.parentPolicyId && (
             <div className="bg-blue-50 border-l-4 border-blue-400 p-3 rounded">
               <div className="flex items-center">
-                <svg className="w-5 h-5 text-blue-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                <svg
+                  className="w-5 h-5 text-blue-600 mr-2"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                    clipRule="evenodd"
+                  />
                 </svg>
                 <div>
                   <p className="text-sm text-blue-700 font-medium">
                     Split Policy - Payments Covered by Parent Policy
                   </p>
                   <button
-                    onClick={() => navigate(`/policy-detail/${p.parentPolicyId}`)}
+                    onClick={() =>
+                      navigate(`/policy-detail/${p.parentPolicyId}`)
+                    }
                     className="text-xs text-blue-600 hover:text-blue-800 underline mt-1"
                   >
                     View Original Policy Payment →
@@ -1074,134 +1101,240 @@ const PolicyDetailsPage: React.FC = () => {
           {/* Payment History Table */}
           {history.length > 0 && (
             <div className="mt-4">
-              <h3 className="font-semibold text-sm mb-3 text-gray-700 border-b pb-1">Payment History</h3>
-              <table className="w-full table-fixed border-collapse text-xs">
-                <thead>
-                  <tr className="bg-gray-100 italic">
-                    <th className="px-3 py-2 text-left">#</th>
-                    <th className="px-3 py-2 text-left">Method</th>
-                    <th className="px-3 py-2 text-left">Brand</th>
-                    <th className="px-3 py-2 text-left">Last 4</th>
-                    <th className="px-3 py-2 text-right">Amount</th>
-                    <th className="px-3 py-2 text-right">Fee</th>
-                    <th className="px-3 py-2 text-left">Status</th>
-                    <th className="px-3 py-2 text-left">Date</th>
-                    <th className="px-3 py-2 text-left">Payment Type</th>
-                    <th className="px-3 py-2 text-center w-20">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y">
-                  {history.map((h, i) => {
-                    const isReference = [
-                      'split-policy-covered',
-                      'split-initial-covered',
-                      'split-monthly-covered',
-                      'policy-fee-reference'
-                    ].includes(h.paymentType || '');
+              <h3 className="font-semibold text-sm mb-3">Payment History</h3>
+              <div className="overflow-x-auto custom-scrollbar-x">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-primary text-white text-sm 2xl:text-base capitalize">
+                    <tr>
+                      <th className="px-2 sm:px-3 py-1 sm:py-3 text-left font-medium text-nowrap">
+                        #
+                      </th>
+                      <th className="px-2 sm:px-3 py-1 sm:py-3 text-left font-medium text-nowrap">
+                        Method
+                      </th>
+                      <th className="px-2 sm:px-3 py-1 sm:py-3 text-left font-medium text-nowrap">
+                        Name
+                      </th>
+                      <th className="px-2 sm:px-3 py-1 sm:py-3 text-left font-medium text-nowrap">
+                        Brand
+                      </th>
+                      <th className="px-2 sm:px-3 py-1 sm:py-3 text-left font-medium text-nowrap">
+                        Last 4
+                      </th>
+                      <th className="px-2 sm:px-3 py-1 sm:py-3 text-right font-medium text-nowrap">
+                        Amount
+                      </th>
+                      <th className="px-2 sm:px-3 py-1 sm:py-3 text-right font-medium text-nowrap">
+                        Fee
+                      </th>
+                      <th className="px-2 sm:px-3 py-1 sm:py-3 text-left font-medium text-nowrap">
+                        Status
+                      </th>
+                      <th className="px-2 sm:px-3 py-1 sm:py-3 text-left font-medium text-nowrap">
+                        Date
+                      </th>
+                      <th className="px-2 sm:px-3 py-1 sm:py-3 text-left font-medium text-nowrap">
+                        Payment Type
+                      </th>
+                      <th className="px-2 sm:px-3 py-1 sm:py-3 text-center font-medium text-nowrap">
+                        Actions
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody
+                    className="bg-white text-[#808080] text-sm 2xl:text-base"
+                    style={{ border: "1px solid #AAA9A9" }}
+                  >
+                    {history.map((h, i) => {
+                      // ✅ Check if this is a reference payment
+                      const isReference = [
+                        "split-policy-covered",
+                        "split-initial-covered",
+                        "split-monthly-covered",
+                        "policy-fee-reference",
+                      ].includes(h.paymentType || "");
 
-                    return (
-                      <tr 
-                        key={h.id} 
-                        className={`hover:bg-gray-50 ${isReference ? 'bg-blue-50/50' : ''}`}
-                      >
-                        <td className="px-3 py-2 text-left">{i + 1}</td>
-                        <td className="px-3 py-2 text-left">{h.method}</td>
-                        <td className="px-3 py-2 text-left">{h.brand}</td>
-                        <td className="px-3 py-2 text-left">{h.last4}</td>
-                        <td className="px-3 py-2 text-right">
-                          {h.amount.toLocaleString("en-CA", {
-                            style: "currency",
-                            currency: h.currency,
-                            currencyDisplay: "code",
-                          })}
-                        </td>
-                        <td className="px-3 py-2 text-right">
-                          {h.fee != null
-                            ? h.fee.toLocaleString("en-CA", {
-                                style: "currency",
-                                currency: h.currency,
-                                currencyDisplay: "code",
-                              })
-                            : "-"}
-                        </td>
-                        <td
-                          className={`px-3 py-2 text-left font-medium ${
-                            h.status === "succeeded"
-                              ? "text-green-600"
-                              : h.status === "refunded"
-                              ? "text-orange-600"
-                              : h.status === "failed"
-                              ? "text-red-600"
-                              : ""
+                      const cellStyle = {
+                        borderWidth: "0px 1px 1px 0px",
+                        borderStyle: "solid" as const,
+                        borderColor: "#AAA9A9",
+                      };
+
+                      return (
+                        <tr
+                          key={h.id}
+                          className={`hover:bg-gray-50 ${
+                            isReference ? "bg-blue-50" : ""
                           }`}
                         >
-                          {h.status}
-                        </td>
-                        <td className="px-3 py-2 text-left">{fmtDate(h.date)}</td>
-                        <td className="px-3 py-2 text-left">
-                          <div className="flex items-center gap-1">
-                            {isReference && (
-                              <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-blue-100 text-blue-800">
-                                REFERENCE
-                              </span>
-                            )}
-                            <span className={isReference ? 'text-[11px] text-gray-500' : ''}>
-                              {h.paymentType || 'N/A'}
-                            </span>
-                          </div>
-                        </td>
-                        <td className="px-3 py-2 text-center">
-                          {h.paymentType === 'policy-issue-fee' && 
-                          h.status === 'succeeded' && 
-                          p.status === 'CANCELLED' && (
-                            <button
-                              onClick={() => handleRefund(h.id, h.amount, h.paymentType)}
-                              disabled={refundLoading}
-                              className={`inline-flex items-center justify-center w-7 h-7 ${
-                                refundLoading 
-                                  ? 'bg-gray-300 cursor-not-allowed text-gray-500' 
-                                  : 'bg-red-50 text-red-600 hover:bg-red-600 hover:text-white'
-                              } rounded border border-red-200 transition-all duration-150`}
-                              title={refundLoading ? "Processing..." : "Refund policy fee"}
+                          <td
+                            className="px-2 sm:px-3 py-2 sm:py-4 whitespace-nowrap"
+                            style={cellStyle}
+                          >
+                            {i + 1}
+                          </td>
+                          <td
+                            className="px-2 sm:px-3 py-2 sm:py-4 whitespace-nowrap"
+                            style={cellStyle}
+                          >
+                            {h.method}
+                          </td>
+                          <td
+                            className="px-2 sm:px-3 py-2 sm:py-4 whitespace-nowrap"
+                            style={cellStyle}
+                          >
+                            {h.cardholderName}
+                          </td>
+                          <td
+                            className="px-2 sm:px-3 py-2 sm:py-4 whitespace-nowrap capitalize"
+                            style={cellStyle}
+                          >
+                            {h.brand}
+                          </td>
+                          <td
+                            className="px-2 sm:px-3 py-2 sm:py-4 whitespace-nowrap"
+                            style={cellStyle}
+                          >
+                            {h.last4}
+                          </td>
+                          <td
+                            className="px-2 sm:px-3 py-2 sm:py-4 whitespace-nowrap text-right font-medium"
+                            style={cellStyle}
+                          >
+                            {h.amount.toLocaleString("en-CA", {
+                              style: "currency",
+                              currency: h.currency,
+                              currencyDisplay: "code",
+                            })}
+                          </td>
+                          <td
+                            className="px-2 sm:px-3 py-2 sm:py-4 whitespace-nowrap text-right"
+                            style={cellStyle}
+                          >
+                            {h.fee != null
+                              ? h.fee.toLocaleString("en-CA", {
+                                  style: "currency",
+                                  currency: h.currency,
+                                  currencyDisplay: "code",
+                                })
+                              : "N/A"}
+                          </td>
+                          <td
+                            className="px-2 sm:px-3 py-2 sm:py-4 whitespace-nowrap"
+                            style={cellStyle}
+                          >
+                            <span
+                              className={`${
+                                h.status === "succeeded"
+                                  ? "text-green-600"
+                                  : h.status === "refunded"
+                                  ? "text-orange-600"
+                                  : ""
+                              }`}
                             >
-                              {refundLoading ? (
-                                <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-current"></div>
-                              ) : (
-                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
-                                </svg>
+                              {h.status}
+                            </span>
+                          </td>
+                          <td
+                            className="px-2 sm:px-3 py-2 sm:py-4 whitespace-nowrap"
+                            style={cellStyle}
+                          >
+                            {fmtDate(h.date)}
+                          </td>
+                          <td
+                            className="px-2 sm:px-3 py-2 sm:py-4 whitespace-nowrap"
+                            style={cellStyle}
+                          >
+                            <div className="flex items-center gap-1">
+                              {/* ✅ Show indicator for reference payments */}
+                              {isReference && (
+                                <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
+                                  ℹ️ Reference
+                                </span>
                               )}
-                            </button>
-                          )}
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
+                              <span
+                                className={
+                                  isReference ? "text-xs text-gray-600" : ""
+                                }
+                              >
+                                {h.paymentType || "N/A"}
+                              </span>
+                            </div>
+                          </td>
+                          <td
+                            className="px-2 sm:px-3 py-2 sm:py-4 whitespace-nowrap text-center"
+                            style={cellStyle}
+                          >
+                            {h.paymentType === "policy-issue-fee" &&
+                              h.status === "succeeded" &&
+                              p.status === "CANCELLED" && (
+                                <button
+                                  onClick={() =>
+                                    handleRefund(h.id, h.amount, h.paymentType)
+                                  }
+                                  disabled={refundLoading}
+                                  className={`inline-flex items-center justify-center w-7 h-7 ${
+                                    refundLoading
+                                      ? "bg-gray-400 cursor-not-allowed"
+                                      : "bg-red-50 text-red-600 hover:bg-red-600 hover:text-white"
+                                  } rounded border border-red-200 transition-all duration-150`}
+                                  title={
+                                    refundLoading
+                                      ? "Processing..."
+                                      : "Refund policy fee"
+                                  }
+                                >
+                                  {refundLoading ? (
+                                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                                  ) : (
+                                    <svg
+                                      className="w-4 h-4"
+                                      fill="none"
+                                      stroke="currentColor"
+                                      viewBox="0 0 24 24"
+                                    >
+                                      <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth={2}
+                                        d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"
+                                      />
+                                    </svg>
+                                  )}
+                                </button>
+                              )}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
             </div>
           )}
 
           {/* Payment Schedule Table */}
-          {paymentSchedule && paymentSchedule.length > 0 && (
-            <div className="mt-6 border-t pt-4">
-              <h3 className="font-semibold text-sm mb-3 text-gray-700">Payment Schedule</h3>
-              <PaymentScheduleTable
-                schedule={paymentSchedule || []}
-                loading={scheduleLoading}
-                error={scheduleError}
-                onProcessRefund={
-                  p.status === "CANCELLED" ? handleRefund : undefined
-                }
-              />
-            </div>
-          )}
+          {p.paymentOption === "monthly-installments" &&
+            paymentSchedule &&
+            paymentSchedule.length > 0 && (
+              <div className="mt-6">
+                <h3 className="font-semibold text-sm mb-3">Payment Schedule</h3>
+                <PaymentScheduleTable
+                  schedule={paymentSchedule || []}
+                  loading={scheduleLoading}
+                  error={scheduleError}
+                  onProcessRefund={
+                    p.status === "CANCELLED" ? handleRefund : undefined
+                  }
+                />
+              </div>
+            )}
         </section>
       )}
 
       {/* Fulfillment */}
       <div className="flex flex-col gap-4 justify-between w-full border-b border-[#D8D8D8] pb-4">
-        <div className="text-primary capitalize font-semibold text-xl">
+        <div className="text-primary uppercase font-semibold text-xl">
           Fulfillment
         </div>
         {fulError && <p className="text-red-600">{fulError}</p>}
@@ -1269,7 +1402,7 @@ const PolicyDetailsPage: React.FC = () => {
 
       {/* Renewal */}
       <div className="flex flex-col gap-4 justify-between w-full border-b border-[#D8D8D8] pb-4">
-        <div className="text-primary capitalize font-semibold text-xl">
+        <div className="text-primary uppercase font-semibold text-xl">
           Renewal
         </div>
         {!isEditMode && (
@@ -1307,7 +1440,7 @@ const PolicyDetailsPage: React.FC = () => {
 
       {/* History & Notes */}
       <div className="flex flex-col gap-4 justify-between w-full pb-4">
-        <div className="flex items-center gap-2 text-primary capitalize font-semibold text-xl">
+        <div className="flex items-center gap-2 text-primary uppercase font-semibold text-xl">
           Notes History
         </div>
 
@@ -1366,7 +1499,7 @@ const PolicyDetailsPage: React.FC = () => {
 
       {/* Activity History */}
       <div className="flex flex-col gap-4 justify-between w-full pb-4">
-        <div className="flex items-center gap-2 text-primary capitalize font-semibold text-xl">
+        <div className="flex items-center gap-2 text-primary uppercase font-semibold text-xl">
           Activity History
         </div>
 
@@ -1379,7 +1512,7 @@ const PolicyDetailsPage: React.FC = () => {
 
       {/* Attachments */}
       <div className="flex flex-col gap-4 justify-between w-full pb-4">
-        <div className="text-primary capitalize font-semibold text-xl">
+        <div className="text-primary uppercase font-semibold text-xl">
           Attachments
         </div>
 
