@@ -411,6 +411,7 @@ export default function Profile() {
     updatedAt: "",
     mgaId: null,
     agentCodes: [],
+    phoneNumber:"",
   });
 
   // Local state for files to upload
@@ -795,7 +796,18 @@ export default function Profile() {
             />
           </div>
           <div className="flex flex-col gap-1">
-            <label htmlFor="email" className="text-sm">
+            <label htmlFor="phoneNumber" className="text-sm">
+              Contact No.
+            </label>
+            <input
+              value={formData.phoneNumber!}
+              disabled
+              type="text"
+              className="input-primary2 bg-gray-100"
+            />
+          </div>
+          <div className="flex flex-col gap-1">
+            <label htmlFor="agentCode" className="text-sm">
               Agent Code
             </label>
             <input

@@ -168,23 +168,83 @@ export const PolicyActivityTimeline: React.FC<ActivityTimelineProps> = ({
                 {/* Metadata Grid */}
                 {activity.metadata &&
                   Object.keys(activity.metadata).length > 0 && (
-                    <div className="bg-gray-50/50 rounded-lg p-3 border border-gray-100 grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      {Object.entries(activity.metadata).map(([key, value]) => (
-                        <div key={key} className="space-y-1">
-                          <span className="text-[10px] uppercase font-bold text-gray-400 tracking-wider">
-                            {key.replace(/([A-Z])/g, " $1").trim()}
-                          </span>
-                          <div className="text-sm text-gray-800 font-medium break-all">
-                            {typeof value === "object" ? (
-                              <pre className="text-xs bg-white p-2 rounded border border-gray-200 overflow-x-auto">
-                                {JSON.stringify(value, null, 2)}
-                              </pre>
-                            ) : (
-                              String(value)
-                            )}
+                    <div className="bg-gray-50/50 rounded-lg p-3 border border-gray-100 space-y-3">
+                      {Object.entries(activity.metadata).map(([key, value]) => {
+                        // Special handling for changedFields
+                        if (key === "changedFields" && typeof value === "object" && value !== null) {
+                          return (
+                            <div key={key} className="space-y-2">
+                              <span className="text-[10px] uppercase font-bold text-gray-400 tracking-wider">
+                                Changed Fields
+                              </span>
+                              <div className="bg-white rounded border border-gray-200 overflow-hidden">
+                                <table className="w-full text-sm">
+                                  <thead className="bg-gray-50 border-b border-gray-200">
+                                    <tr>
+                                      <th className="px-3 py-2 text-left text-xs font-semibold text-gray-600">Field</th>
+                                      <th className="px-3 py-2 text-left text-xs font-semibold text-gray-600">Old Value</th>
+                                      <th className="px-3 py-2 text-left text-xs font-semibold text-gray-600">New Value</th>
+                                    </tr>
+                                  </thead>
+                                  <tbody className="divide-y divide-gray-100">
+                                    {Object.entries(value as Record<string, any>).map(([fieldName, fieldValue]) => {
+                                      const oldValue = fieldValue?.old;
+                                      const newValue = fieldValue?.new;
+                                      
+                                      // Format date values
+                                      const formatValue = (val: any) => {
+                                        if (val === null || val === undefined) return "—";
+                                        if (val === "") return "(empty)";
+                                        // Check if it's a date string
+                                        if (typeof val === "string" && val.match(/^\d{4}-\d{2}-\d{2}T/)) {
+                                          return new Date(val).toLocaleDateString("en-CA", {
+                                            year: "numeric",
+                                            month: "short",
+                                            day: "numeric",
+                                          });
+                                        }
+                                        return String(val);
+                                      };
+
+                                      return (
+                                        <tr key={fieldName} className="hover:bg-gray-50">
+                                          <td className="px-3 py-2 font-medium text-gray-700 capitalize">
+                                            {fieldName.replace(/([A-Z])/g, " $1").trim()}
+                                          </td>
+                                          <td className="px-3 py-2 text-gray-600">
+                                            {formatValue(oldValue)}
+                                          </td>
+                                          <td className="px-3 py-2 text-gray-900 font-medium">
+                                            {formatValue(newValue)}
+                                          </td>
+                                        </tr>
+                                      );
+                                    })}
+                                  </tbody>
+                                </table>
+                              </div>
+                            </div>
+                          );
+                        }
+
+                        // Regular metadata display
+                        return (
+                          <div key={key} className="space-y-1">
+                            <span className="text-[10px] uppercase font-bold text-gray-400 tracking-wider">
+                              {key.replace(/([A-Z])/g, " $1").trim()}
+                            </span>
+                            <div className="text-sm text-gray-800 font-medium break-all">
+                              {typeof value === "object" ? (
+                                <pre className="text-xs bg-white p-2 rounded border border-gray-200 overflow-x-auto">
+                                  {JSON.stringify(value, null, 2)}
+                                </pre>
+                              ) : (
+                                String(value)
+                              )}
+                            </div>
                           </div>
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   )}
 

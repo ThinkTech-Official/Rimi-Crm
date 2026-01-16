@@ -46,6 +46,7 @@ export interface ProfileData {
   agentCodes?: string[];
   allowBulkUpload?: boolean;
   commissionPercent?: number | null;
+  phoneNumber?: string | null;
   
   // ADD THESE NEW FIELDS FOR VERIFICATION
   verificationStatus?: string | null;          // 'DRAFT', 'PENDING', 'VERIFIED', 'REJECTED', 'EXPIRED'
@@ -66,6 +67,7 @@ export interface ProfileForm {
   company: string;
   userType: string;
   status: string;
+  phoneNumber?: string | null;
   
   // ✅ Change these from 'string' to 'string | null'
   docLink1?: string | null;  // was: string | undefined

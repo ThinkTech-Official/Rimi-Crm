@@ -311,7 +311,7 @@
 // ================================================
 
 import { ChevronDownIcon } from "@heroicons/react/24/outline";
-import { Controller, UseFormReturn } from "react-hook-form";
+import { Controller, UseFormReturn, FieldErrors } from "react-hook-form";
 import { StudentsToCanadaCountries } from "../../SecureTravelRIMIVisitorstoCanadaTravel/step1/Constants";
 import { useEffect } from "react";
 import Dropdown from "../../../DropDown";
@@ -328,15 +328,16 @@ interface AddressData {
 }
 
 interface AddressProps {
-  methods: UseFormReturn<AddressData>;
+  methods: UseFormReturn<any>;
 }
 
 export default function Address({ methods }: AddressProps) {
   const {
     register,
     control,
-    formState: { errors },
+    formState,
   } = methods;
+  const errors = formState.errors as FieldErrors<AddressData>;
 
   return (
     <div className="max-w-5xl mx-auto mt-4 p-3 sm:p-6 bg-[#F9F9F9]">

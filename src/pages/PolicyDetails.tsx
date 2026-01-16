@@ -1146,7 +1146,6 @@ const PolicyDetailsPage: React.FC = () => {
                     style={{ border: "1px solid #AAA9A9" }}
                   >
                     {history.map((h, i) => {
-                      // ✅ Check if this is a reference payment
                       const isReference = [
                         "split-policy-covered",
                         "split-initial-covered",
@@ -1163,7 +1162,7 @@ const PolicyDetailsPage: React.FC = () => {
                       return (
                         <tr
                           key={h.id}
-                          className={`hover:bg-gray-50 ${
+                          className={`hover:bg-white ${
                             isReference ? "bg-blue-50" : ""
                           }`}
                         >

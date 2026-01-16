@@ -17,6 +17,8 @@ import Address from "../../../components/Products/SecureTravelRIMIVisitorstoCana
 import BeneficiaryInCaseOfDeath from "../../../components/Products/SecureTravelRIMIVisitorstoCanadaTravel/step2/BeneficiaryInCaseOfDeath";
 import PaymentInformation from "../../../components/Products/SecureTravelRIMIVisitorstoCanadaTravel/step2/PaymentInformation";
 import Summary from "../../../components/Products/SecureTravelRIMIVisitorstoCanadaTravel/step3/Summary";
+import { FormProvider, useForm } from "react-hook-form";
+import { Step1Payload } from "../../../components/Products/SecureTravelRIMIVisitorstoCanadaTravel/SecureTravelRIMIVisitorstoCanadaTravel";
 
 import { useRenewalPolicyData } from "../../../hooks/renewals/useRenewalPolicyData";
 
@@ -32,7 +34,15 @@ interface Applicant {
   relationship: string;
   preMedCoverage: boolean;
   gender: string;
-  healthQuestionnaire: { questions: any[] };
+
+  email?: string;
+
+  healthQuestionnaire?: {
+    questions: Array<{
+      question: string;
+      answer: string;
+    }>;
+  };
 }
 
 interface QuoteStage1Response {
@@ -66,76 +76,82 @@ interface BeneficiaryInfo {
   relationshipToInsured: string;
 }
 
+// Stage 2 Form Interface
+interface Stage2FormValues {
+  address: {
+    addressLine1: string;
+    addressLine2: string;
+    city: string;
+    postalCode: string;
+    country: string;
+    province: string;
+  };
+  contactInfo: {
+    additionalEmail: string;
+    phoneNumber: string;
+  };
+  beneficiary: {
+    beneficiaryName: string;
+    relationshipToInsured: string;
+  };
+}
+
 // const productName = "Secure Travel RIMI Visitors to Canada Travel";
 const productName = "SECURE_TRAVEL_RIMI_VISITORS_TO_CANADA_TRAVEL";
 
 export default function SecureTravelRIMIVisitorstoCanadaTravel() {
-
-
-    const navigate = useNavigate();
+  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
   const policyId = searchParams.get('policyId');
 
   const agentCode = useSelector((state: RootState) => state.auth.agentCode);
 
+  // Initialize form with react-hook-form
+  const step1Methods = useForm<Step1Payload>({
+    mode: "onTouched",
+    reValidateMode: "onChange",
+    defaultValues: {
+      primaryFirstName: "",
+      primaryLastName: "",
+      primaryDateOfBirth: "",
+      primaryEmail: "",
+      primaryApplicantGender: "",
+      applicantNumber: 0,
+      coverageForPreMedCon: false,
+      applicants: [],
+      countryOfOrigin: "",
+      inCanada: "",
+      superVisa: "",
+      superVisaYears: "",
+      destinationProvince: "",
+      effectiveDate: "",
+      expiryDate: "",
+      coverageLength: "",
+      policyType: "",
+      coverageOption: "",
+      deductible: 0,
+      paymentOption: "lump-sum",
+      primaryQuestionnaire: null,
+      isConfirmed: false,
+    },
+  });
+
   const { data: policyData, loading: loadingPolicy, error: policyError } = 
     useRenewalPolicyData(policyId);
 
-  const [primaryFirstName, setPrimaryFirstName] = useState("");
-  const [primaryLastName, setPrimaryLastName] = useState("");
-  const [primaryDateOfBirth, setPrimaryDateOfBirth] = useState("");
-  const [primaryEmail, setprimaryEmail] = useState("");
-  const [applicantNumber, setApplicantNumber] = useState(0);
-
-  const [coverageForPreMedCon, setCoverageForPreMedCon] = useState(false);
-
-  const [isConfirmed, setIsConfirmed] = useState(false);
-
-  const [primaryApplicantGender, setPrimaryApplicantGender] = useState("");
-
-  ////////////////////////
-
-  const [superVisa, setSuperVisa] = useState<SuperVisaOption>("");
-  const [superVisaYears, setSuperVisaYears] = useState<SuperVisaYears>("");
-  const [destinationProvince, setDestinationProvince] = useState<string>("");
-  const [effectiveDate, setEffectiveDate] = useState<string>("");
-  const [expiryDate, setExpiryDate] = useState<string>("");
-  const [coverageLength, setCoverageLength] = useState<string>("");
-
-  const [inCanada, setInCanada] = useState<YesNo>("");
-
-  const [paymentOption, setPaymentOption] = useState<
-    "lump-sum" | "monthly-installments"
-  >("lump-sum");
-  // const [showPaymentOption, setShowPaymentOption] = useState(false)
-
-  const [policyType, setPolicyType] = useState<string>("");
-
-  const [deductible, setDeductible] = useState<number>(0);
-
-  const [countryOfOrigin, setCountryOfOrigin] = useState<string>("");
-
-  const [coverageOption, setCoverageOption] = useState<string>("");
-  const [applicants, setApplicants] = useState<Applicant[]>([]);
-
-  //////////////////////////
-
-  /////////////////////////////
-
+  // Keep only necessary state for step 2 and visual calculations
   const [quoteNumber, setQuoteNumber] = useState<string | null>(null);
-
-  // const [step1ResponseData, setStep1ResponseData] = useState<QuoteStage1Response | null>(null);
-
   const [step1ResponseData, setStep1ResponseData] =
     useState<QuoteStage1Response | null>(null);
-
-  /////////////////////////////////
 
   const [totalPremium, setTotalPremium] = useState<number>(0);
   const [schedule, setSchedule] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Watch payment option from form for calculations
+  const paymentOption = step1Methods.watch("paymentOption");
 
   let monthlyAmount: number | undefined = undefined;
   let remainingInstallments: number | undefined = undefined;
@@ -203,44 +219,27 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
 
   ///--------------------------------------- Stage 2 -------------------------------------
 
-  // const [addressLine1,setAddressLine1] = useState<string>('')
-  // const [addressLine2, setAddressLine2] = useState<string>('')
-
-  // const [city,setCity] = useState<string>('')
-  // const [postalCode, setPostalCode] = useState<string>('')
-  // const [country,setCountry] = useState<string>('')
-
-  const [address, setAddress] = useState({
-    addressLine1: "",
-    addressLine2: "",
-    city: "",
-    postalCode: "",
-    country: "",
-    province: "",
-  });
-
-  {
-    /* const shipping = {
-  name: 'Jane Doe',
-  address: {
-    line1: '123 Main St',
-    line2: 'Apt. 4B',    // optional
-    city: 'Mumbai',
-    state: 'MH',
-    postal_code: '400001',
-    country: 'IN',
-  },
-}; */
-  }
-
-  const [beneficiary, setBeneficiary] = useState<BeneficiaryInfo>({
-    beneficiaryName: "",
-    relationshipToInsured: "",
-  });
-
-  const [contactInfo, setContactInfo] = useState<ContactInfo>({
-    additionalEmail: "",
-    phoneNumber: "",
+  // Initialize form for Step 2 (Address, Contact, Beneficiary)
+  const step2Methods = useForm<Stage2FormValues>({
+    mode: "onTouched",
+    defaultValues: {
+      address: {
+        addressLine1: "",
+        addressLine2: "",
+        city: "",
+        postalCode: "",
+        country: "",
+        province: "",
+      },
+      contactInfo: {
+        additionalEmail: "",
+        phoneNumber: "",
+      },
+      beneficiary: {
+        beneficiaryName: "",
+        relationshipToInsured: "",
+      },
+    },
   });
 
   // const [benifitiaryName, setBenifitaryName] = useState<string>('')
@@ -280,29 +279,30 @@ useEffect(() => {
 
   console.log('📋 Pre-filling renewal form with policy data:', policyData);
 
-  // Primary applicant
-  setPrimaryFirstName(policyData.firstName || "");
-  setPrimaryLastName(policyData.lastName || "");
-  setPrimaryDateOfBirth(policyData.dateOfBirth || "");
-  setprimaryEmail(policyData.email || "");
-  setPrimaryApplicantGender(policyData.gender || "");
+  // Pre-fill form using setValue
+  step1Methods.setValue("primaryFirstName", policyData.firstName || "");
+  step1Methods.setValue("primaryLastName", policyData.lastName || "");
+  step1Methods.setValue("primaryDateOfBirth", policyData.dateOfBirth || "");
+  step1Methods.setValue("primaryEmail", policyData.email || "");
+  step1Methods.setValue("primaryApplicantGender", policyData.gender || "");
   
   // Coverage details
-  setCountryOfOrigin(policyData.countryOfOrigin || "");
-  setInCanada((policyData.applicantInCanada as YesNo) || "");
-  setSuperVisa((policyData.applicantOnSuperVisa as SuperVisaOption) || "");
-  setDestinationProvince(policyData.destination || policyData.destProv || "");
-  setDeductible(policyData.deductible || 0);
-  setCoverageForPreMedCon(policyData.PreExCoverage === "Yes");
-  setPolicyType(policyData.policyType || "");
-  setCoverageOption(policyData.coverage || "");
+  step1Methods.setValue("countryOfOrigin", policyData.countryOfOrigin || "");
+  step1Methods.setValue("inCanada", (policyData.applicantInCanada as YesNo) || "");
+  step1Methods.setValue("superVisa", (policyData.applicantOnSuperVisa as SuperVisaOption) || "");
+  step1Methods.setValue("destinationProvince", policyData.destination || policyData.destProv || "");
+  step1Methods.setValue("deductible", policyData.deductible || 0);
+  step1Methods.setValue("coverageForPreMedCon", policyData.PreExCoverage === "Yes");
+  step1Methods.setValue("policyType", policyData.policyType || "");
+  step1Methods.setValue("coverageOption", policyData.coverage || "");
   
   // DO NOT pre-fill dates - user must select new coverage period
   
   // Additional applicants
   if (policyData.applicants && policyData.applicants.length > 0) {
-    setApplicantNumber(policyData.applicants.length);
-    setApplicants(
+    step1Methods.setValue("applicantNumber", policyData.applicants.length);
+    step1Methods.setValue(
+      "applicants",
       policyData.applicants.map((a, idx) => ({
         index: String(idx + 1),
         firstName: a.firstName,
@@ -311,13 +311,15 @@ useEffect(() => {
         relationship: a.relation || "",
         preMedCoverage: a.PreExCoverage === "Yes",
         gender: a.gender,
+        email: a.email || "",
         healthQuestionnaire: { questions: [] },
       }))
     );
   }
 
   // Address
-  setAddress({
+  // Address
+  step2Methods.setValue("address", {
     addressLine1: policyData.street || "",
     addressLine2: policyData.street2 || "",
     city: policyData.city || "",
@@ -327,18 +329,18 @@ useEffect(() => {
   });
 
   // Contact
-  setContactInfo({
+  step2Methods.setValue("contactInfo", {
     additionalEmail: policyData.additionalEmail || "",
     phoneNumber: policyData.phoneNumber || "",
   });
 
   // Beneficiary
-  setBeneficiary({
+  step2Methods.setValue("beneficiary", {
     beneficiaryName: policyData.beneficiaryName || "",
     relationshipToInsured: policyData.beneficiaryRelation || "",
   });
 
-}, [policyData]);
+}, [policyData, step1Methods, step2Methods]);
 
 
 
@@ -401,6 +403,29 @@ useEffect(() => {
   const handleNext = async () => {
     if (!isStepOneFilled || savingStage1) return;
 
+    // Get values from form
+    const formValues = step1Methods.getValues();
+    const stage1Payload = {
+      ...formValues,
+      agentCode: agentCode!,
+      product: "SECURE_TRAVEL_RIMI_VISITORS_TO_CANADA_TRAVEL",
+      quoteNumber: quoteNumber,
+      status: "Inactive",
+      // Ensure dates are strings
+      primaryDateOfBirth:
+        formValues.primaryDateOfBirth instanceof Date
+          ? formValues.primaryDateOfBirth.toISOString()
+          : formValues.primaryDateOfBirth,
+      effectiveDate:
+        formValues.effectiveDate instanceof Date
+          ? formValues.effectiveDate.toISOString()
+          : formValues.effectiveDate,
+      expiryDate:
+        formValues.expiryDate instanceof Date
+          ? formValues.expiryDate.toISOString()
+          : formValues.expiryDate,
+    };
+
     try {
       const response = await saveQuoteNext(stage1Payload);
       setQuoteNumber(response.quoteNumber);
@@ -435,11 +460,18 @@ useEffect(() => {
   // Step‐2 “Buy Now”
   const handleBuyNow = async () => {
     if (!quoteNumber || submittingStage2) return;
+    
+    // Trigger validation
+    const isValid = await step2Methods.trigger();
+    if (!isValid) return;
+
+    const values = step2Methods.getValues();
+
     const payload: Stage2Payload = {
       quoteNumber,
-      address,
-      contactInfo,
-      beneficiary,
+      address: values.address,
+      contactInfo: values.contactInfo,
+      beneficiary: values.beneficiary,
     };
     try {
       const resp = await completeApplication(payload);
@@ -450,45 +482,10 @@ useEffect(() => {
     }
   };
 
-  const stage1Payload = {
-    primaryFirstName,
-    primaryLastName,
-    primaryDateOfBirth,
-    primaryEmail,
-    primaryApplicantGender,
-    coverageForPreMedCon,
-    applicantNumber,
-    applicants,
-    countryOfOrigin,
-    inCanada,
-    superVisa,
-    superVisaYears,
-    destinationProvince,
-    effectiveDate,
-    expiryDate,
-    coverageLength,
-    policyType,
-    coverageOption,
-    deductible,
-    paymentOption,
-    agentCode: agentCode!,
-    // product: "Secure Travel RIMI Visitors to Canada Travel",
-    product: "SECURE_TRAVEL_RIMI_VISITORS_TO_CANADA_TRAVEL",
-    quoteNumber: quoteNumber,
-    status: "Inactive",
-  };
-
   const handlePaymentSuccess = () => {
     alert("payment successfull");
     handleFormStepChange("forward");
   };
-
-  // const handlePaymentSuccess = () => {
-  //   alert('payment successfull')
-  //   handleFormStepChange('forward')
-  // }
-
-
 
   // 
 if (loadingPolicy) {
@@ -678,76 +675,26 @@ if (!policyData) {
 
       {steps[0].status === "current" && (
         <div>
-          {/* <ApplicantInformation />
-          <CoverageInformation />
-          <div className="w-full h-2 mt-5 flex items-center justify-center">
-            <h3 className="text-lg">Your Quote: $0.00</h3>
-          </div> */}
-          <Step1STRVCT
-            onValidityChange={setIsStepOneFilled}
-            primaryFirstName={primaryFirstName}
-            setPrimaryFirstName={setPrimaryFirstName}
-            primaryLastName={primaryLastName}
-            setPrimaryLastName={setPrimaryLastName}
-            primaryDateOfBirth={primaryDateOfBirth}
-            setPrimaryDateOfBirth={setPrimaryDateOfBirth}
-            primaryEmail={primaryEmail}
-            setprimaryEmail={setprimaryEmail}
-            applicantNumber={applicantNumber}
-            setApplicantNumber={setApplicantNumber}
-            superVisa={superVisa}
-            setSuperVisa={setSuperVisa}
-            superVisaYears={superVisaYears}
-            setSuperVisaYears={setSuperVisaYears}
-            destinationProvince={destinationProvince}
-            setDestinationProvince={setDestinationProvince}
-            effectiveDate={effectiveDate}
-            setEffectiveDate={setEffectiveDate}
-            expiryDate={expiryDate}
-            setExpiryDate={setExpiryDate}
-            coverageLength={coverageLength}
-            setCoverageLength={setCoverageLength}
-            inCanada={inCanada}
-            setInCanada={setInCanada}
-            paymentOption={paymentOption}
-            setPaymentOption={setPaymentOption}
-            policyType={policyType}
-            setPolicyType={setPolicyType}
-            deductible={deductible}
-            setDeductible={setDeductible}
-            countryOfOrigin={countryOfOrigin}
-            setCountryOfOrigin={setCountryOfOrigin}
-            coverageOption={coverageOption}
-            setCoverageOption={setCoverageOption}
-            applicants={applicants}
-            setApplicants={setApplicants}
-            coverageForPreMedCon={coverageForPreMedCon}
-            setCoverageForPreMedCon={setCoverageForPreMedCon}
-            isConfirmed={isConfirmed}
-            setIsConfirmed={setIsConfirmed}
-            quoteNumber={quoteNumber}
-            setQuoteNumber={setQuoteNumber}
-            primaryApplicantGender={primaryApplicantGender}
-            setPrimaryApplicantGender={setPrimaryApplicantGender}
-            //
-            totalPremium={totalPremium}
-            schedule={schedule}
-            loading={loading}
-            error={error}
-            setTotalPremium={setTotalPremium}
-            setSchedule={setSchedule}
-            setLoading={setLoading}
-            setError={setError}
-            //
-
-            formStep={formStep}
-            handleFormStepChange={handleFormStepChange}
-            handleNext={handleNext}
-            isStepOneFilled={isStepOneFilled}
-            savingStage1={savingStage1}
-
-            //
-          />
+          <FormProvider {...step1Methods}>
+            <Step1STRVCT
+              onValidityChange={setIsStepOneFilled}
+              quoteNumber={quoteNumber}
+              setQuoteNumber={setQuoteNumber}
+              totalPremium={totalPremium}
+              schedule={schedule}
+              loading={loading}
+              error={error}
+              setTotalPremium={setTotalPremium}
+              setSchedule={setSchedule}
+              setLoading={setLoading}
+              setError={setError}
+              formStep={formStep}
+              handleFormStepChange={handleFormStepChange}
+              handleNext={handleNext}
+              isStepOneFilled={isStepOneFilled}
+              savingStage1={savingStage1}
+            />
+          </FormProvider>
         </div>
       )}
 
@@ -769,15 +716,13 @@ if (!policyData) {
           />
           {/* contactInfo,setContactInfo */}
           <ContactInformation
-            contactInfo={contactInfo}
-            setContactInfo={setContactInfo}
+            methods={step2Methods}
             email={step1ResponseData?.email}
           />
-          <Address address={address} setAddress={setAddress} />
+          <Address methods={step2Methods} />
           {/* beneficiary, setBeneficiary */}
           <BeneficiaryInCaseOfDeath
-            beneficiaryInfo={beneficiary}
-            setBeneficiaryInfo={setBeneficiary}
+            methods={step2Methods}
           />
 
           {/* Payment Stripe   */}
@@ -860,8 +805,8 @@ if (!policyData) {
             <PaymentInformation
               quoteNumber={quoteNumber}
               description={productName}
-              name={primaryFirstName}
-              shipping={address}
+              name={step1ResponseData ? `${step1ResponseData.firstName} ${step1ResponseData.lastName}` : ""}
+              shipping={step2Methods.watch('address')}
               paymentOption={paymentOption}
               // amount={totalPremium}
               amount={firstPaymentAmount}
@@ -892,12 +837,12 @@ if (!policyData) {
                   : undefined
               }
               //
-              formStep={formStep}
-              handleFormStepChange={handleFormStepChange}
+              formStep={2}
+              handleFormStepChange={() => {}}
               // handleNext={handleNext}
               // isStepOneFilled={isStepOneFilled}
               // savingStage1={savingStage1}
-              handleBuyNow={handleBuyNow}
+              // handleBuyNow={handleBuyNow} // Invalid prop
               submittingStage2={submittingStage2}
             />
           </Elements>

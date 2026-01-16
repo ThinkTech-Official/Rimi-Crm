@@ -327,7 +327,7 @@ import {
   InformationCircleIcon,
 } from "@heroicons/react/24/outline";
 import { useState } from "react";
-import { UseFormReturn } from "react-hook-form";
+import { UseFormReturn, FieldErrors } from "react-hook-form";
 import { StudentsToCanadaCountries } from "../../SecureTravelRIMIVisitorstoCanadaTravel/step1/Constants";
 
 interface BeneficiaryData {
@@ -341,13 +341,14 @@ interface BeneficiaryData {
 }
 
 interface BeneficiaryInCaseOfDeathProps {
-  methods: UseFormReturn<BeneficiaryData>;
+  methods: UseFormReturn<any>;
 }
 
 export default function BeneficiaryInCaseOfDeath({
   methods,
 }: BeneficiaryInCaseOfDeathProps) {
-  const { register, formState:{ errors } } = methods;
+  const { register, formState } = methods;
+  const errors = formState.errors as FieldErrors<BeneficiaryData>;
 
   const [
     displayInfoRelationShipToInsured,

@@ -2,6 +2,7 @@
 
 import { CheckIcon } from "@heroicons/react/24/outline";
 import React, { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../app/store";
 import { useSaveQuoteNextProduct4 } from "../../../hooks/canuck-voyage-non-medical/useSaveQuoteNextProduct4";
@@ -70,6 +71,22 @@ interface ContactInfo {
   phoneNumber: string;
 }
 
+interface Stage2FormValues {
+  address: {
+    addressLine1: string;
+    addressLine2: string;
+    city: string;
+    postalCode: string;
+    country: string;
+    province: string;
+  };
+  contactInfo: {
+    email: string;
+    additionalEmail: string;
+    phoneNumber: string;
+  };
+}
+
 // const productName = "RIMI Canuck Voyage Non-Medical Travel";
 const productName = "RIMI_CANUCK_VOYAGE_NON_MEDICAL_TRAVEL";
 
@@ -128,18 +145,23 @@ const RIMICanuckVoyageNonMedicalTravel: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
 
   // ========== STAGE 2 INFORMATION ==========
-  const [address, setAddress] = useState<AddressInfo>({
-    addressLine1: "",
-    addressLine2: "",
-    city: "",
-    postalCode: "",
-    country: "",
-    province: "",
-  });
-  const [contactInfo, setContactInfo] = useState<ContactInfo>({
-    email: "",
-    additionalEmail: "",
-    phoneNumber: "",
+  const step2Methods = useForm<Stage2FormValues>({
+    mode: "onTouched",
+    defaultValues: {
+      address: {
+        addressLine1: "",
+        addressLine2: "",
+        city: "",
+        postalCode: "",
+        country: "",
+        province: "",
+      },
+      contactInfo: {
+        email: "",
+        additionalEmail: "",
+        phoneNumber: "",
+      },
+    },
   });
 
   // ========== VALIDATION ==========
@@ -203,7 +225,7 @@ useEffect(() => {
   }
 
   // Address
-  setAddress({
+  step2Methods.setValue("address", {
     addressLine1: policyData.street || "",
     addressLine2: policyData.street2 || "",
     city: policyData.city || "",
@@ -213,13 +235,13 @@ useEffect(() => {
   });
 
   // Contact
-  setContactInfo({
+  step2Methods.setValue("contactInfo", {
     email: policyData.email || "",
     additionalEmail: policyData.additionalEmail || "",
     phoneNumber: policyData.phoneNumber || "",
   });
 
-}, [policyData]);
+}, [policyData, step2Methods]);
 
 
 
@@ -295,10 +317,15 @@ useEffect(() => {
   const handleBuyNow = async () => {
     if (!quoteNumber || submittingStage2) return;
 
+    const isValid = await step2Methods.trigger();
+    if (!isValid) return;
+
+    const values = step2Methods.getValues();
+
     const payload: Stage2Payload = {
       quoteNumber,
-      address,
-      contactInfo,
+      address: values.address,
+      contactInfo: values.contactInfo,
     };
 
     try {
@@ -585,11 +612,10 @@ if (!policyData) {
             applicants={step1ResponseData?.applicants ?? []}
           />
           <ContactInformation
-            contactInfo={contactInfo}
-            setContactInfo={setContactInfo}
+            methods={step2Methods}
             email={step1ResponseData?.email}
           />
-          <Address address={address} setAddress={setAddress} />
+          <Address methods={step2Methods} />
 
           <div className="max-w-md mx-auto mb-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
             <h3 className="font-semibold text-lg mb-2">Payment Summary</h3>
@@ -609,7 +635,7 @@ if (!policyData) {
               quoteNumber={quoteNumber}
               description={productName}
               name={primaryFirstName}
-              shipping={address}
+              shipping={step2Methods.watch('address')}
               amount={totalPremium}
               onPaymentSuccess={handlePaymentSuccess}
               onBuyNow={handleBuyNow}

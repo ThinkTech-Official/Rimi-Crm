@@ -9,6 +9,7 @@ interface Product {
   name: string;
   nameFr: string;
   description: string; // Added description
+  img: string;
   slug: string; // Added slug for routing
 }
 
@@ -19,6 +20,7 @@ const productList: Product[] = [
     name: "RIMI Canuck Voyage Travel Medical",
     nameFr: "RIMI Canuck Voyage Travel Medical",
     description: "A Comprehensive Guide to Your Insurance Coverage",
+    img:"/RIMI_Travel_Med.jpg",
     slug: "canuck-voyage-travel-medical",
   },
   {
@@ -26,6 +28,7 @@ const productList: Product[] = [
     name: "RIMI Canuck Voyage Non-Medical Travel",
     nameFr: "RIMI Assurance voyage non médicale Travel",
     description: "A Comprehensive Guide to Your Insurance Coverage",
+    img:"/RIMI_Travel_Non_Med.png",
     slug: "canuck-voyage-non-medical-travel",
   },
   {
@@ -33,6 +36,7 @@ const productList: Product[] = [
     name: "Secure Travel RIMI Visitors to Canada Travel",
     nameFr: "Secure Travel RIMI Visitors to Canada Travel",
     description: "A Comprehensive Guide to Your Insurance Coverage",
+    img:"/RIMI_Visitors_to_Canada.png",
     slug: "secure-travel-visitors-to-canada",
   },
   {
@@ -40,6 +44,7 @@ const productList: Product[] = [
     name: "Secure Study RIMI International Students to Canada",
     nameFr: "Secure Study RIMI International Students to Canada",
     description: "A Comprehensive Guide to Your Insurance Coverage",
+    img:"/RIMI_Int_Students.png",
     slug: "secure-study-international-students-to-canada",
   },
 ];
@@ -70,7 +75,9 @@ const Products: React.FC = () => {
             className="bg-white border border-gray-200 shadow-sm flex flex-col h-full hover:shadow-md transition-shadow duration-200"
           >
             {/* Placeholder Image Header */}
-            <div className="bg-gray-200 h-48 w-full flex-shrink-0"></div>
+            <div className="bg-gray-200 h-48 w-full flex-shrink-0">
+              <img src={product.img} alt={product.name}/>
+            </div>
 
             {/* Card Content */}
             <div className="p-5 flex flex-col flex-1">
