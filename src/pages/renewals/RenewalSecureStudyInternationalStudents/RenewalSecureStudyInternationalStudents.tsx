@@ -1,32 +1,58 @@
 import { CheckIcon } from "@heroicons/react/24/outline";
 import { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../app/store";
 import { Elements } from "@stripe/react-stripe-js";
 import { stripePromise } from "../../../utils/stripe";
 
+
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useRenewalPolicyData } from "../../../hooks/renewals/useRenewalPolicyData";
 
+
+
+import BeneficiaryInCaseOfDeath from "../../../components/Products/SecureStudyRIMIInternationalStudentstoCanada/step2/BeneficiaryInCaseOfDeath";
+import PaymentInformation from "../../../components/Products/SecureStudyRIMIInternationalStudentstoCanada/step2/PaymentInformation";
+import Summary from "../../../components/Products/SecureStudyRIMIInternationalStudentstoCanada/step3/Summary";
+import { FormProvider, useForm } from "react-hook-form";
+
 // Hooks
 import { useSaveQuoteNextProduct2 } from "../../../hooks/student-international/useSaveQuoteNextProduct2";
-import {
-  useQuoteUpdateProduct2,
-  Stage2PayloadProduct2,
-} from "../../../hooks/student-international/useQuoteUpdateProduct2";
+import { useQuoteUpdateProduct2, Stage2PayloadProduct2 } from "../../../hooks/student-international/useQuoteUpdateProduct2";
 import { useCreateQuoteProduct2 } from "../../../hooks/student-international/useCreateQuoteProduct2";
-import Step1Container, {
-  Step1FormData,
-} from "../../../components/Products/SecureStudyRIMIInternationalStudentstoCanada/step1/Step1Container";
+import Step1Container, { Step1FormData } from "../../../components/Products/SecureStudyRIMIInternationalStudentstoCanada/step1/Step1Container";
 import QuoteSummary from "../../../components/Products/SecureStudyRIMIInternationalStudentstoCanada/step2/QuotesSummary";
 import ApplicantInformationFinished from "../../../components/Products/SecureStudyRIMIInternationalStudentstoCanada/step2/ApplicantInformationFinished";
 import ContactInformation from "../../../components/Products/SecureStudyRIMIInternationalStudentstoCanada/step2/ContactInformation";
 import Address from "../../../components/Products/SecureStudyRIMIInternationalStudentstoCanada/step2/Address";
 
-import BeneficiaryInCaseOfDeath from "../../../components/Products/SecureStudyRIMIInternationalStudentstoCanada/step2/BeneficiaryInCaseOfDeath";
-import PaymentInformation from "../../../components/Products/SecureStudyRIMIInternationalStudentstoCanada/step2/PaymentInformation";
-import Summary from "../../../components/Products/SecureStudyRIMIInternationalStudentstoCanada/step3/Summary";
+
+export interface Stage2FormValues {
+  address: {
+    addressLine1: string;
+    addressLine2: string;
+    city: string;
+    postalCode: string;
+    country: string;
+    province: string;
+  };
+  contactInfo: {
+    email: string;
+    additionalEmail: string;
+    phoneNumber: string;
+    legalGuardianName: string;
+  };
+
+  beneficiary: {
+    beneficiaryName: string;
+    relationshipToInsured: string;
+    address: string;
+    city: string;
+    country: string;
+  };
+}
+
+
 
 type YesNo = "" | "yes" | "no";
 
@@ -63,30 +89,6 @@ interface ContactInfo {
   legalGuardianName: string;
 }
 
-// Stage 2 Form Interface
-interface Stage2FormValues {
-  address: {
-    addressLine1: string;
-    addressLine2: string;
-    city: string;
-    postalCode: string;
-    country: string;
-    province: string;
-  };
-  contactInfo: {
-    additionalEmail: string;
-    phoneNumber: string;
-    legalGuardianName: string;
-  };
-  beneficiary: {
-    beneficiaryName: string;
-    relationshipToInsured: string;
-    address: string;
-    city: string;
-    country: string;
-  };
-}
-
 interface BeneficiaryInfo {
   beneficiaryName: string;
   relationshipToInsured: string;
@@ -99,25 +101,25 @@ interface BeneficiaryInfo {
 const productName = "SECURE_STUDY_RIMI_INTERNATIONAL_STUDENTS_TO_CANADA";
 
 export default function SecureStudyRIMIInternationalStudentstoCanada() {
-  const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
+
+    const navigate = useNavigate();
+  const [searchParams] = useSearchParams(); 
 
   const agentCode = useSelector((state: RootState) => state.auth.agentCode);
 
-  // Get policyId from URL
-  const policyId = searchParams.get("policyId");
 
+
+   // Get policyId from URL
+  const policyId = searchParams.get('policyId');
+  
   // Fetch original policy data
-  const {
-    data: policyData,
-    loading: loadingPolicy,
-    error: policyError,
-  } = useRenewalPolicyData(policyId);
+  const { data: policyData, loading: loadingPolicy, error: policyError } = 
+    useRenewalPolicyData(policyId);
 
-  // ==================== APPLICANT INFORMATION STATE ====================
-  // ==================== STEP 1 FORM STATE ====================
+
+  // ==================== REACT HOOK FORM ====================
   const step1Methods = useForm<Step1FormData>({
-    mode: "onTouched",
+    mode: "onChange",
     defaultValues: {
       primaryFirstName: "",
       primaryLastName: "",
@@ -136,20 +138,8 @@ export default function SecureStudyRIMIInternationalStudentstoCanada() {
     },
   });
 
-  // ==================== PREMIUM STATE ====================
-  const [totalPremium, setTotalPremium] = useState<number>(0);
-  const [loading, setLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null);
-
-  // ==================== QUOTE RESPONSE STATE ====================
-  const [quoteNumber, setQuoteNumber] = useState<string | null>(null);
-  const [step1ResponseData, setStep1ResponseData] =
-    useState<QuoteStage1ResponseProduct2 | null>(null);
-
-  // ==================== STAGE 2 STATE ====================
-  // Initialize form for Step 2 (Address, Contact, Beneficiary)
   const step2Methods = useForm<Stage2FormValues>({
-    mode: "onTouched",
+    mode: "onChange",
     defaultValues: {
       address: {
         addressLine1: "",
@@ -160,10 +150,13 @@ export default function SecureStudyRIMIInternationalStudentstoCanada() {
         province: "",
       },
       contactInfo: {
+        email: "",
         additionalEmail: "",
         phoneNumber: "",
         legalGuardianName: "",
       },
+
+
       beneficiary: {
         beneficiaryName: "",
         relationshipToInsured: "",
@@ -173,6 +166,44 @@ export default function SecureStudyRIMIInternationalStudentstoCanada() {
       },
     },
   });
+
+  // Watch values for local logic
+  const watchedStep1 = step1Methods.watch();
+  const {
+    primaryFirstName,
+    primaryLastName,
+    primaryDateOfBirth,
+    primaryEmail,
+    primaryApplicantGender,
+    applicantNumber,
+    applicants,
+    isConfirmed: _isConfirmed,
+    policyType,
+    countryOfOrigin,
+    destinationProvince,
+    effectiveDate,
+    expiryDate,
+    coverageLength,
+  } = watchedStep1;
+
+
+
+
+  const watchedStep2 = step2Methods.watch();
+  const { address, contactInfo, beneficiary } = watchedStep2;
+
+  // ==================== PREMIUM STATE ====================
+  const [totalPremium, setTotalPremium] = useState<number>(0);
+  const [, setLoading] = useState<boolean>(false);
+  const [, setError] = useState<string | null>(null);
+
+
+  // ==================== QUOTE RESPONSE STATE ====================
+  const [quoteNumber, setQuoteNumber] = useState<string | null>(null);
+  const [step1ResponseData, setStep1ResponseData] =
+    useState<QuoteStage1ResponseProduct2 | null>(null);
+
+
 
   // ==================== WIZARD STATE ====================
   const [steps, setSteps] = useState([
@@ -189,86 +220,79 @@ export default function SecureStudyRIMIInternationalStudentstoCanada() {
   const {
     completeApplication,
     loading: submittingStage2,
-    error: submitError,
   } = useQuoteUpdateProduct2();
 
-  const { createQuote, loading: savingQuote } = useCreateQuoteProduct2();
+
+  const { createQuote } = useCreateQuoteProduct2();
+
+
 
   // Check for missing policy ID
-  useEffect(() => {
-    if (!policyId) {
-      alert("No policy ID provided. Redirecting to policies page.");
-      navigate("/policies");
-    }
-  }, [policyId, navigate]);
+useEffect(() => {
+  if (!policyId) {
+    alert('No policy ID provided. Redirecting to policies page.');
+    navigate('/policies');
+  }
+}, [policyId, navigate]);
 
-  // Pre-fill data from policy (Product 2 specific)
-  useEffect(() => {
-    if (!policyData) return;
+// Pre-fill data from policy (Product 2 specific)
+useEffect(() => {
+  if (!policyData) return;
 
-    console.log(
-      "📋 Pre-filling Product 2 renewal form with policy data:",
-      policyData
-    );
+  console.log('📋 Pre-filling Product 2 renewal form with policy data:', policyData);
 
-    // Primary applicant
-    step1Methods.setValue("primaryFirstName", policyData.firstName || "");
-    step1Methods.setValue("primaryLastName", policyData.lastName || "");
-    step1Methods.setValue("primaryDateOfBirth", policyData.dateOfBirth || "");
-    step1Methods.setValue("primaryEmail", policyData.email || "");
-    step1Methods.setValue("primaryApplicantGender", policyData.gender || "");
+  // Step 1 data
+  step1Methods.reset({
+    primaryFirstName: policyData.firstName || "",
+    primaryLastName: policyData.lastName || "",
+    primaryDateOfBirth: policyData.dateOfBirth || "",
+    primaryEmail: policyData.email || "",
+    primaryApplicantGender: policyData.gender || "",
+    countryOfOrigin: policyData.countryOfOrigin || "",
+    destinationProvince: policyData.destination || policyData.destProv || "",
+    policyType: policyData.policyType || "",
+    applicantNumber: policyData.applicants?.length || 0,
+    applicants: policyData.applicants ? policyData.applicants.map((a, idx) => ({
+      index: String(idx + 1),
+      firstName: a.firstName,
+      lastName: a.lastName,
+      dob: a.dateOfBirth,
+      relationship: a.relation || "",
+      gender: a.gender,
+    })) : [],
+    isConfirmed: false,
+    effectiveDate: "",
+    expiryDate: "",
+    coverageLength: "",
+  });
 
-    // Coverage details
-    step1Methods.setValue("countryOfOrigin", policyData.countryOfOrigin || "");
-    step1Methods.setValue(
-      "destinationProvince",
-      policyData.destination || policyData.destProv || ""
-    );
-    step1Methods.setValue("policyType", policyData.policyType || "");
-
-    // Additional applicants
-    if (policyData.applicants && policyData.applicants.length > 0) {
-      step1Methods.setValue("applicantNumber", policyData.applicants.length);
-      step1Methods.setValue(
-        "applicants",
-        policyData.applicants.map((a, idx) => ({
-          index: String(idx + 1),
-          firstName: a.firstName,
-          lastName: a.lastName,
-          dob: a.dateOfBirth,
-          relationship: a.relation || "",
-          gender: a.gender,
-        }))
-      );
-    }
-
-    // Address
-    // Address
-    step2Methods.setValue("address", {
+  // Step 2 data
+  step2Methods.reset({
+    address: {
       addressLine1: policyData.street || "",
       addressLine2: policyData.street2 || "",
       city: policyData.city || "",
       postalCode: policyData.postalCode || "",
       country: policyData.countryCode || "",
       province: policyData.province || "",
-    });
-
-    // Contact (Product 2 has legalGuardianName)
-    step2Methods.setValue("contactInfo", {
+    },
+    contactInfo: {
       additionalEmail: policyData.additionalEmail || "",
       phoneNumber: policyData.phoneNumber || "",
       legalGuardianName: policyData.legalGuardianName || "",
-    });
-
-    // Beneficiary
-    step2Methods.setValue("beneficiary", {
+    },
+    beneficiary: {
       beneficiaryName: policyData.beneficiaryName || "",
       relationshipToInsured: policyData.beneficiaryRelation || "",
       address: "", // Not stored in policy, leave empty
-      city: "", // Not stored in policy, leave empty
+      city: "",    // Not stored in policy, leave empty
       country: "", // Not stored in policy, leave empty
-    });
-  }, [policyData, step2Methods, step1Methods]);
+    },
+  });
+
+}, [policyData, step1Methods, step2Methods]);
+
+
 
   // ==================== HANDLERS ====================
   const handleFormStepChange = (stepCommand: string) => {
@@ -296,87 +320,56 @@ export default function SecureStudyRIMIInternationalStudentstoCanada() {
     });
   };
 
-  //
-  const handleSaveQuote = async (): Promise<boolean> => {
-    if (!isStepOneFilled) {
-      alert("Please fill all required fields and confirm eligibility");
-      return false;
-    }
+  // 
+const handleSaveQuote = async () => {
+  if (!isStepOneFilled) {
+    alert("Please fill all required fields and confirm eligibility");
+    return false;
+  }
 
-    const {
-      primaryFirstName,
-      primaryLastName,
-      primaryDateOfBirth,
-      primaryEmail,
-      primaryApplicantGender,
-      applicantNumber,
-      applicants,
-      countryOfOrigin,
-      policyType,
-      destinationProvince,
-      effectiveDate,
-      expiryDate,
-      coverageLength,
-    } = step1Methods.getValues();
-
-    const payload = {
-      primaryFirstName,
-      primaryLastName,
-      primaryDateOfBirth,
-      primaryEmail,
-      primaryApplicantGender,
-      applicantNumber,
-      applicants,
-      countryOfOrigin,
-      policyType,
-      destinationProvince,
-      effectiveDate,
-      expiryDate,
-      coverageLength,
-      agentCode: agentCode!,
-      product: productName,
-      status: "Inactive", // Save as Inactive (not ready for payment yet)
-    };
-
-    try {
-      console.log("Saving Product 2 quote as Inactive...");
-      const response = await createQuote(payload);
-
-      // Update state with the saved quote number
-      setQuoteNumber(response.quote);
-
-      // Show success message
-      alert(
-        `Quote saved successfully!\n\nQuote Number: ${response.quote}\n\nYou can continue later or proceed to the next step.`
-      );
-
-      console.log("Quote saved:", response.quote);
-      return true;
-    } catch (err: any) {
-      console.error("Failed to save quote:", err);
-      alert(`Failed to save quote: ${err.message || "Please try again"}`);
-      return false;
-    }
+  const payload = {
+    primaryFirstName,
+    primaryLastName,
+    primaryDateOfBirth,
+    primaryEmail,
+    primaryApplicantGender,
+    applicantNumber,
+    applicants,
+    countryOfOrigin,
+    policyType,
+    destinationProvince,
+    effectiveDate,
+    expiryDate,
+    coverageLength,
+    agentCode: agentCode!,
+    product: productName,
+    status: "Inactive", // Save as Inactive (not ready for payment yet)
   };
+
+  try {
+    console.log("Saving Product 2 quote as Inactive...");
+    const response = await createQuote(payload);
+
+    // Update state with the saved quote number
+    setQuoteNumber(response.quote);
+
+    // Show success message
+    alert(
+      `Quote saved successfully!\n\nQuote Number: ${response.quote}\n\nYou can continue later or proceed to the next step.`
+    );
+
+    console.log("Quote saved:", response.quote);
+    return true;
+  } catch (err: any) {
+    console.error("Failed to save quote:", err);
+    alert(`Failed to save quote: ${err.message || "Please try again"}`);
+    return false;
+  }
+};
+
 
   const handleNext = async () => {
     if (!isStepOneFilled || savingStage1) return;
-
-    const {
-      primaryFirstName,
-      primaryLastName,
-      primaryDateOfBirth,
-      primaryEmail,
-      primaryApplicantGender,
-      applicantNumber,
-      applicants,
-      countryOfOrigin,
-      policyType,
-      destinationProvince,
-      effectiveDate,
-      expiryDate,
-      coverageLength,
-    } = step1Methods.getValues();
 
     const stage1Payload = {
       primaryFirstName,
@@ -425,28 +418,19 @@ export default function SecureStudyRIMIInternationalStudentstoCanada() {
     }
   };
 
-  const handleBuyNow = async (): Promise<boolean> => {
-    if (!quoteNumber || submittingStage2) return false;
-
-    // Trigger validation
-    const isValid = await step2Methods.trigger();
-    if (!isValid) return false;
-
-    const values = step2Methods.getValues();
-
+  const handleBuyNow = async () => {
+    if (!quoteNumber || submittingStage2) return;
     const payload: Stage2PayloadProduct2 = {
       quoteNumber,
-      address: values.address,
-      contactInfo: values.contactInfo,
-      beneficiary: values.beneficiary,
+      address,
+      contactInfo,
+      beneficiary,
     };
     try {
       const resp = await completeApplication(payload);
       console.log("Product 2 - Stage 2 response:", resp);
-      return true;
     } catch (err) {
       console.error("completeApplication failed", err);
-      return false;
     }
   };
 
@@ -455,99 +439,96 @@ export default function SecureStudyRIMIInternationalStudentstoCanada() {
     handleFormStepChange("forward");
   };
 
-  //
-  if (loadingPolicy) {
-    return (
-      <div className="flex justify-center items-center min-h-[400px]">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading policy data...</p>
-        </div>
-      </div>
-    );
-  }
 
-  if (policyError) {
-    return (
-      <div className="max-w-2xl mx-auto p-6">
-        <div className="bg-red-50 border border-red-200 rounded-lg p-6">
-          <h3 className="text-lg font-semibold text-red-900">
-            Error Loading Policy
-          </h3>
-          <p className="text-red-700 mt-2">{policyError}</p>
-          <button
-            onClick={() => navigate(`/policies/${policyId}`)}
-            className="mt-4 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
-          >
-            Return to Policy
-          </button>
-        </div>
+  // 
+if (loadingPolicy) {
+  return (
+    <div className="flex justify-center items-center min-h-[400px]">
+      <div className="text-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto"></div>
+        <p className="mt-4 text-gray-600">Loading policy data...</p>
       </div>
-    );
-  }
+    </div>
+  );
+}
 
-  if (!policyData) {
-    return (
-      <div className="max-w-2xl mx-auto p-6">
-        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6">
-          <h3 className="text-lg font-semibold text-yellow-900">
-            No Policy Data
-          </h3>
-          <p className="text-yellow-700 mt-2">
-            Could not load policy information.
-          </p>
-          <button
-            onClick={() => navigate("/policies")}
-            className="mt-4 px-4 py-2 bg-yellow-600 text-white rounded hover:bg-yellow-700"
-          >
-            Back to Policies
-          </button>
-        </div>
+if (policyError) {
+  return (
+    <div className="max-w-2xl mx-auto p-6">
+      <div className="bg-red-50 border border-red-200 rounded-lg p-6">
+        <h3 className="text-lg font-semibold text-red-900">Error Loading Policy</h3>
+        <p className="text-red-700 mt-2">{policyError}</p>
+        <button
+          onClick={() => navigate(`/policies/${policyId}`)}
+          className="mt-4 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+        >
+          Return to Policy
+        </button>
       </div>
-    );
-  }
+    </div>
+  );
+}
 
-  //
+if (!policyData) {
+  return (
+    <div className="max-w-2xl mx-auto p-6">
+      <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6">
+        <h3 className="text-lg font-semibold text-yellow-900">No Policy Data</h3>
+        <p className="text-yellow-700 mt-2">Could not load policy information.</p>
+        <button
+          onClick={() => navigate("/policies")}
+          className="mt-4 px-4 py-2 bg-yellow-600 text-white rounded hover:bg-yellow-700"
+        >
+          Back to Policies
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// 
 
   return (
     <div className="max-w-5xl mx-auto px-2 py-4 sm:p-6">
-      {/* Breadcrumb */}
-      <div className="flex gap-1 mb-4">
-        <span
-          className="underline underline-offset-2 cursor-pointer text-sm text-primary font-medium"
-          onClick={() => navigate("/policies")}
-        >
-          Policies
-        </span>
-        &gt;
-        <span
-          className="underline underline-offset-2 cursor-pointer text-sm text-primary font-medium"
-          onClick={() => navigate(`/policies/${policyId}`)}
-        >
-          {policyId?.substring(0, 8)}...
-        </span>
-        &gt;
-        <span className="text-sm text-primary font-medium">Renewal</span>
-      </div>
 
-      {/* ✅ Info Banner */}
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-        <h3 className="font-semibold text-blue-900 flex items-center gap-2">
-          <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-            <path
-              fillRule="evenodd"
-              d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
-              clipRule="evenodd"
-            />
-          </svg>
-          Creating Renewal Policy
-        </h3>
-        <p className="text-sm text-blue-700 mt-1">
-          Review the pre-filled information from the original policy. You can
-          update any fields as needed. Premium will be recalculated based on
-          current rates and coverage dates.
-        </p>
-      </div>
+
+
+ {/* Breadcrumb */}
+    <div className="flex gap-1 mb-4">
+      <span
+        className="underline underline-offset-2 cursor-pointer text-sm text-primary font-medium"
+        onClick={() => navigate("/policies")}
+      >
+        Policies
+      </span>
+      &gt;
+      <span
+        className="underline underline-offset-2 cursor-pointer text-sm text-primary font-medium"
+        onClick={() => navigate(`/policies/${policyId}`)}
+      >
+        {policyId?.substring(0, 8)}...
+      </span>
+      &gt;
+      <span className="text-sm text-primary font-medium">
+        Renewal
+      </span>
+    </div>
+
+    {/* ✅ Info Banner */}
+    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+      <h3 className="font-semibold text-blue-900 flex items-center gap-2">
+        <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+          <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+        </svg>
+        Creating Renewal Policy
+      </h3>
+      <p className="text-sm text-blue-700 mt-1">
+        Review the pre-filled information from the original policy. You can update any fields as needed. 
+        Premium will be recalculated based on current rates and coverage dates.
+      </p>
+    </div>
+
+
 
       {/* PROGRESS NAVIGATION */}
       <nav aria-label="Progress">
@@ -626,40 +607,33 @@ export default function SecureStudyRIMIInternationalStudentstoCanada() {
         </ol>
       </nav>
 
-      {/* Original Policy Reference */}
-      <div className="bg-amber-50 border-l-4 border-amber-400 p-4 mt-6">
-        <div className="flex">
-          <div className="flex-shrink-0">
-            <svg
-              className="h-5 w-5 text-amber-400"
-              viewBox="0 0 20 20"
-              fill="currentColor"
-            >
-              <path
-                fillRule="evenodd"
-                d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
-                clipRule="evenodd"
-              />
-            </svg>
-          </div>
-          <div className="ml-3">
-            <p className="text-sm text-amber-700">
-              <strong className="font-semibold">Renewing Policy:</strong>{" "}
-              {policyData.policyNumber}
-              <br />
-              <span className="text-xs">
-                Original Coverage:{" "}
-                {new Date(policyData.effectiveDate).toLocaleDateString()} to{" "}
-                {new Date(policyData.expiryDate).toLocaleDateString()}
-              </span>
-            </p>
-          </div>
+
+
+
+              {/* Original Policy Reference */}
+    <div className="bg-amber-50 border-l-4 border-amber-400 p-4 mt-6">
+      <div className="flex">
+        <div className="flex-shrink-0">
+          <svg className="h-5 w-5 text-amber-400" viewBox="0 0 20 20" fill="currentColor">
+            <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+          </svg>
+        </div>
+        <div className="ml-3">
+          <p className="text-sm text-amber-700">
+            <strong className="font-semibold">Renewing Policy:</strong> {policyData.policyNumber}
+            <br />
+            <span className="text-xs">
+              Original Coverage: {new Date(policyData.effectiveDate).toLocaleDateString()} to {new Date(policyData.expiryDate).toLocaleDateString()}
+            </span>
+          </p>
         </div>
       </div>
+    </div>
+
 
       {/* STEP 1: GET QUOTE */}
       {steps[0].status === "current" && (
-        <div>
+        <FormProvider {...step1Methods}>
           <Step1Container
             methods={step1Methods}
             onValidityChange={setIsStepOneFilled}
@@ -669,14 +643,14 @@ export default function SecureStudyRIMIInternationalStudentstoCanada() {
             totalPremium={totalPremium}
             onPremiumChange={setTotalPremium}
             onLoadingChange={setLoading}
-            onErrorChange={(err) => setError(err ?? null)}
+            onErrorChange={setError}
           />
-        </div>
+        </FormProvider>
       )}
 
       {/* STEP 2: COMPLETE APPLICATION */}
       {steps[1].status === "current" && quoteNumber && (
-        <div>
+        <FormProvider {...step2Methods}>
           <div className="w-full h-2 mt-8 flex items-center justify-center">
             <h3 className="text-lg">
               Your Quote: ${step1ResponseData?.quoteAmount}
@@ -691,11 +665,14 @@ export default function SecureStudyRIMIInternationalStudentstoCanada() {
             applicants={step1ResponseData?.applicants ?? []}
           />
           <ContactInformation
-            methods={step2Methods}
+            methods={step2Methods as any}
             email={step1ResponseData?.email}
           />
-          <Address methods={step2Methods} />
-          <BeneficiaryInCaseOfDeath methods={step2Methods} />
+          <Address methods={step2Methods as any} />
+          <BeneficiaryInCaseOfDeath
+            methods={step2Methods as any}
+          />
+
 
           {/* Payment Summary - Lump Sum Only */}
           <div className="max-w-md mx-auto mb-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
@@ -715,16 +692,17 @@ export default function SecureStudyRIMIInternationalStudentstoCanada() {
             <PaymentInformation
               quoteNumber={quoteNumber}
               description={productName}
-              name={step1Methods.watch("primaryFirstName")}
-              shipping={step2Methods.watch("address")}
+              name={primaryFirstName}
+              shipping={address}
               amount={totalPremium}
               onPaymentSuccess={handlePaymentSuccess}
               onBuyNow={handleBuyNow}
               submittingStage2={submittingStage2}
             />
           </Elements>
-        </div>
+        </FormProvider>
       )}
+
 
       {/* STEP 3: CONFIRMATION */}
       {steps[2].status === "current" && (

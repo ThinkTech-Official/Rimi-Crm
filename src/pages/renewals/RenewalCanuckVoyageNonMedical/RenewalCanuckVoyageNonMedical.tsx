@@ -1,14 +1,16 @@
-
-
 import { CheckIcon } from "@heroicons/react/24/outline";
 import React, { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, FormProvider } from "react-hook-form";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../app/store";
 import { useSaveQuoteNextProduct4 } from "../../../hooks/canuck-voyage-non-medical/useSaveQuoteNextProduct4";
 import { useQuoteUpdateProduct4, Stage2Payload } from "../../../hooks/canuck-voyage-non-medical/useQuoteUpdateProduct4";
+import { useCreateQuoteProduct4 } from "../../../hooks/canuck-voyage-non-medical/useCreateQuoteProduct4";
 import { Elements } from "@stripe/react-stripe-js";
 import { stripePromise } from "../../../utils/stripe";
+
+
+
 import ApplicantInformation from "../../../components/Products/CanuckVoyageNon-MedicalTravel/step1/ApplicantInformation";
 import TripInformation from "../../../components/Products/CanuckVoyageNon-MedicalTravel/step1/TripInformation";
 import QuoteSummary from "../../../components/Products/CanuckVoyageNon-MedicalTravel/step2/QuoteSummary";
@@ -18,7 +20,6 @@ import ContactInformation from "../../../components/Products/CanuckVoyageNon-Med
 import Address from "../../../components/Products/CanuckVoyageNon-MedicalTravel/step2/Address";
 import PaymentInformation from "../../../components/Products/CanuckVoyageNon-MedicalTravel/step2/PaymentInformation";
 import Summary from "../../../components/Products/CanuckVoyageNon-MedicalTravel/step3/Summary";
-
 
 // Add these to existing imports
 import { useNavigate, useSearchParams } from "react-router-dom";
@@ -72,40 +73,49 @@ interface ContactInfo {
 }
 
 interface Stage2FormValues {
-  address: {
-    addressLine1: string;
-    addressLine2: string;
-    city: string;
-    postalCode: string;
-    country: string;
-    province: string;
-  };
-  contactInfo: {
-    email: string;
-    additionalEmail: string;
-    phoneNumber: string;
-  };
+  address: AddressInfo;
+  contactInfo: ContactInfo;
 }
+
+export interface Step1PayloadProduct4 {
+  primaryFirstName: string;
+  primaryLastName: string;
+  primaryDateOfBirth: string;
+  primaryEmail: string;
+  primaryApplicantGender: string;
+  countryOfOrigin: string;
+  provinceStateResidence: string;
+  applicantNumber: number;
+  applicants: Applicant[];
+  tripCost: number;
+  dateBooked: string;
+  effectiveDate: string;
+  expiryDate: string;
+  coverageLength: string;
+  destinationCountry: string;
+  tripCancellationDeluxe: boolean;
+  isConfirmed: boolean;
+}
+
 
 // const productName = "RIMI Canuck Voyage Non-Medical Travel";
 const productName = "RIMI_CANUCK_VOYAGE_NON_MEDICAL_TRAVEL";
 
 const RIMICanuckVoyageNonMedicalTravel: React.FC = () => {
-
-
-    const navigate = useNavigate();
+  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
   const agentCode = useSelector((state: RootState) => state.auth.agentCode);
 
-   // Get policyId from URL
-  const policyId = searchParams.get('policyId');
-  
+  // Get policyId from URL
+  const policyId = searchParams.get("policyId");
+
   // Fetch original policy data
-  const { data: policyData, loading: loadingPolicy, error: policyError } = 
-    useRenewalPolicyData(policyId);
-
-
+  const {
+    data: policyData,
+    loading: loadingPolicy,
+    error: policyError,
+  } = useRenewalPolicyData(policyId);
 
   // ========== STEP MANAGEMENT ==========
   const [steps, setSteps] = useState([
@@ -115,36 +125,30 @@ const RIMICanuckVoyageNonMedicalTravel: React.FC = () => {
   ]);
   const [formStep, setFormStep] = useState(1);
 
-  // ========== APPLICANT INFORMATION ==========
-  const [primaryFirstName, setPrimaryFirstName] = useState("");
-  const [primaryLastName, setPrimaryLastName] = useState("");
-  const [primaryDateOfBirth, setPrimaryDateOfBirth] = useState("");
-  const [primaryEmail, setPrimaryEmail] = useState("");
-  const [primaryApplicantGender, setPrimaryApplicantGender] = useState("");
-  const [countryOfOrigin, setCountryOfOrigin] = useState("");
-  const [provinceStateResidence, setProvinceStateResidence] = useState("");
-  const [applicantNumber, setApplicantNumber] = useState(0);
-  const [applicants, setApplicants] = useState<Applicant[]>([]);
-  const [isConfirmed, setIsConfirmed] = useState(false);
+  // ==================== REACT HOOK FORM ====================
+  const step1Methods = useForm<Step1PayloadProduct4>({
+    mode: "onChange",
+    defaultValues: {
+      primaryFirstName: "",
+      primaryLastName: "",
+      primaryDateOfBirth: "",
+      primaryEmail: "",
+      primaryApplicantGender: "",
+      countryOfOrigin: "",
+      provinceStateResidence: "",
+      applicantNumber: 0,
+      applicants: [],
+      tripCost: 0,
+      dateBooked: "",
+      effectiveDate: "",
+      expiryDate: "",
+      coverageLength: "",
+      destinationCountry: "Canada",
+      tripCancellationDeluxe: false,
+      isConfirmed: false,
+    },
+  });
 
-  // ========== TRIP INFORMATION ==========
-  const [tripCost, setTripCost] = useState<number>(0);
-  const [dateBooked, setDateBooked] = useState<string>("");
-  const [effectiveDate, setEffectiveDate] = useState<string>("");
-  const [expiryDate, setExpiryDate] = useState<string>("");
-  const [coverageLength, setCoverageLength] = useState<string>("");
-  const [destinationCountry] = useState<string>("Canada"); // Fixed for Product 4
-  const [tripCancellationDeluxe, setTripCancellationDeluxe] = useState<boolean>(false);
-
-  // ========== QUOTE & PREMIUM ==========
-  const [quoteNumber, setQuoteNumber] = useState<string | null>(null);
-  const [step1ResponseData, setStep1ResponseData] = useState<QuoteStage1Response | null>(null);
-  const [totalPremium, setTotalPremium] = useState<number>(0);
-  const [premiumBreakdown, setPremiumBreakdown] = useState<any>(null);
-  const [loading, setLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null);
-
-  // ========== STAGE 2 INFORMATION ==========
   const step2Methods = useForm<Stage2FormValues>({
     mode: "onTouched",
     defaultValues: {
@@ -164,6 +168,41 @@ const RIMICanuckVoyageNonMedicalTravel: React.FC = () => {
     },
   });
 
+  // Watch values for local logic
+  const watchedStep1 = step1Methods.watch();
+  const {
+    primaryFirstName,
+    primaryLastName,
+    primaryDateOfBirth,
+    primaryEmail,
+    primaryApplicantGender,
+    countryOfOrigin,
+    provinceStateResidence,
+    applicantNumber,
+    applicants,
+    tripCost,
+    dateBooked,
+    effectiveDate,
+    expiryDate,
+    coverageLength,
+    destinationCountry,
+    tripCancellationDeluxe,
+  } = watchedStep1;
+
+  const watchedStep2 = step2Methods.watch();
+  const { address } = watchedStep2;
+
+
+  // ========== QUOTE & PREMIUM ==========
+  const [quoteNumber, setQuoteNumber] = useState<string | null>(null);
+  const [step1ResponseData, setStep1ResponseData] =
+    useState<QuoteStage1Response | null>(null);
+  const [totalPremium, setTotalPremium] = useState<number>(0);
+  const [premiumBreakdown, setPremiumBreakdown] = useState<any>(null);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
+
+
   // ========== VALIDATION ==========
   const [isStepOneFilled, setIsStepOneFilled] = useState(false);
 
@@ -172,82 +211,125 @@ const RIMICanuckVoyageNonMedicalTravel: React.FC = () => {
   const {
     completeApplication,
     loading: submittingStage2,
-    error: submitError,
   } = useQuoteUpdateProduct4();
 
+  const { saveQuote: createQuote } = useCreateQuoteProduct4();
+
+
+  const handleSaveQuote = async (): Promise<boolean> => {
+    const payload = {
+      primaryFirstName,
+      primaryLastName,
+      primaryDateOfBirth,
+      primaryEmail,
+      primaryApplicantGender,
+      countryOfOrigin,
+      provinceStateResidence,
+      applicantNumber,
+      applicants,
+      tripCost,
+      dateBooked,
+      effectiveDate,
+      expiryDate,
+      coverageLength: Number(coverageLength),
+      destinationCountry,
+      tripCancellationDeluxe,
+      agentCode: agentCode!,
+      product: productName,
+      quoteNumber: quoteNumber || undefined,
+      status: "Inactive",
+    };
+
+    try {
+      console.log("Saving Product 4 quote as Inactive...");
+      const response = await createQuote(payload);
+
+      // Update state with the saved quote number
+      setQuoteNumber(response.quote);
+
+      // Show success message
+      alert(
+        `Quote saved successfully!\n\nQuote Number: ${response.quote}\n\nYou can continue later or proceed to the next step.`
+      );
+
+      console.log("Quote saved:", response.quote);
+      return true;
+    } catch (err: any) {
+      console.error("Failed to save quote:", err);
+      alert(`Failed to save quote: ${err.message || "Please try again"}`);
+      return false;
+    }
+  };
 
 
   //
 
   // Check for missing policy ID
-useEffect(() => {
-  if (!policyId) {
-    alert('No policy ID provided. Redirecting to policies page.');
-    navigate('/policies');
-  }
-}, [policyId, navigate]);
+  useEffect(() => {
+    if (!policyId) {
+      alert("No policy ID provided. Redirecting to policies page.");
+      navigate("/policies");
+    }
+  }, [policyId, navigate]);
 
-// Pre-fill data from policy (Product 4 specific)
-useEffect(() => {
-  if (!policyData) return;
+  // Pre-fill data from policy (Product 4 specific)
+  useEffect(() => {
+    if (!policyData) return;
 
-  console.log('📋 Pre-filling Product 4 renewal form with policy data:', policyData);
+    console.log(
+      "📋 Pre-filling Product 4 renewal form with policy data:",
+      policyData
+    );
 
-  // Primary applicant
-  setPrimaryFirstName(policyData.firstName || "");
-  setPrimaryLastName(policyData.lastName || "");
-  setPrimaryDateOfBirth(policyData.dateOfBirth || "");
-  setPrimaryEmail(policyData.email || "");
-  setPrimaryApplicantGender(policyData.gender || "");
-  
-  // Product 4 specific fields
-  setCountryOfOrigin(policyData.countryOfOrigin || "");
-  setProvinceStateResidence(policyData.provinceStateResidence || "");
-  setTripCost(policyData.tripCost || 0);
-  setDateBooked(policyData.dateBooked || "");
-  setTripCancellationDeluxe(policyData.tripCancellationDeluxe || false);
-  
-  
-  
-  // Additional applicants
-  if (policyData.applicants && policyData.applicants.length > 0) {
-    setApplicantNumber(policyData.applicants.length);
-    setApplicants(
-      policyData.applicants.map((a, idx) => ({
+    // Reset Step 1
+    step1Methods.reset({
+      primaryFirstName: policyData.firstName || "",
+      primaryLastName: policyData.lastName || "",
+      primaryDateOfBirth: policyData.dateOfBirth || "",
+      primaryEmail: policyData.email || "",
+      primaryApplicantGender: policyData.gender || "",
+      countryOfOrigin: policyData.countryOfOrigin || "",
+      provinceStateResidence: policyData.provinceStateResidence || "",
+      tripCost: policyData.tripCost || 0,
+      dateBooked: policyData.dateBooked || "",
+      tripCancellationDeluxe: policyData.tripCancellationDeluxe || false,
+      applicantNumber: policyData.applicants?.length || 0,
+      applicants: policyData.applicants ? policyData.applicants.map((a, idx) => ({
         index: String(idx + 1),
         firstName: a.firstName,
         lastName: a.lastName,
         dob: a.dateOfBirth,
         relationship: a.relation || "",
         gender: a.gender,
-      }))
-    );
-  }
+      })) : [],
+      isConfirmed: false,
+      effectiveDate: "",
+      expiryDate: "",
+      coverageLength: "",
+      destinationCountry: "Canada",
+    });
 
-  // Address
-  step2Methods.setValue("address", {
-    addressLine1: policyData.street || "",
-    addressLine2: policyData.street2 || "",
-    city: policyData.city || "",
-    postalCode: policyData.postalCode || "",
-    country: policyData.countryCode || "",
-    province: policyData.province || "",
-  });
+    // Reset Step 2
+    step2Methods.reset({
+      address: {
+        addressLine1: policyData.street || "",
+        addressLine2: policyData.street2 || "",
+        city: policyData.city || "",
+        postalCode: policyData.postalCode || "",
+        country: policyData.countryCode || "",
+        province: policyData.province || "",
+      },
+      contactInfo: {
+        email: policyData.email || "",
+        additionalEmail: policyData.additionalEmail || "",
+        phoneNumber: policyData.phoneNumber || "",
+      },
+    });
 
-  // Contact
-  step2Methods.setValue("contactInfo", {
-    email: policyData.email || "",
-    additionalEmail: policyData.additionalEmail || "",
-    phoneNumber: policyData.phoneNumber || "",
-  });
-
-}, [policyData, step2Methods]);
-
+  }, [policyData, step1Methods, step2Methods]);
 
 
   //
-
-
 
   // ========== STEP NAVIGATION ==========
   const handleFormStepChange = (stepCommand: string) => {
@@ -342,93 +424,96 @@ useEffect(() => {
     handleFormStepChange("forward");
   };
 
-
-
   if (loadingPolicy) {
-  return (
-    <div className="flex justify-center items-center min-h-[400px]">
-      <div className="text-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto"></div>
-        <p className="mt-4 text-gray-600">Loading policy data...</p>
+    return (
+      <div className="flex justify-center items-center min-h-[400px]">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading policy data...</p>
+        </div>
       </div>
-    </div>
-  );
-}
+    );
+  }
 
-if (policyError) {
-  return (
-    <div className="max-w-2xl mx-auto p-6">
-      <div className="bg-red-50 border border-red-200 rounded-lg p-6">
-        <h3 className="text-lg font-semibold text-red-900">Error Loading Policy</h3>
-        <p className="text-red-700 mt-2">{policyError}</p>
-        <button
-          onClick={() => navigate(`/policies/${policyId}`)}
-          className="mt-4 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
-        >
-          Return to Policy
-        </button>
+  if (policyError) {
+    return (
+      <div className="max-w-2xl mx-auto p-6">
+        <div className="bg-red-50 border border-red-200 rounded-lg p-6">
+          <h3 className="text-lg font-semibold text-red-900">
+            Error Loading Policy
+          </h3>
+          <p className="text-red-700 mt-2">{policyError}</p>
+          <button
+            onClick={() => navigate(`/policies/${policyId}`)}
+            className="mt-4 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+          >
+            Return to Policy
+          </button>
+        </div>
       </div>
-    </div>
-  );
-}
+    );
+  }
 
-if (!policyData) {
-  return (
-    <div className="max-w-2xl mx-auto p-6">
-      <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6">
-        <h3 className="text-lg font-semibold text-yellow-900">No Policy Data</h3>
-        <p className="text-yellow-700 mt-2">Could not load policy information.</p>
-        <button
-          onClick={() => navigate("/policies")}
-          className="mt-4 px-4 py-2 bg-yellow-600 text-white rounded hover:bg-yellow-700"
-        >
-          Back to Policies
-        </button>
+  if (!policyData) {
+    return (
+      <div className="max-w-2xl mx-auto p-6">
+        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6">
+          <h3 className="text-lg font-semibold text-yellow-900">
+            No Policy Data
+          </h3>
+          <p className="text-yellow-700 mt-2">
+            Could not load policy information.
+          </p>
+          <button
+            onClick={() => navigate("/policies")}
+            className="mt-4 px-4 py-2 bg-yellow-600 text-white rounded hover:bg-yellow-700"
+          >
+            Back to Policies
+          </button>
+        </div>
       </div>
-    </div>
-  );
-}
-
+    );
+  }
 
   return (
     <div className="max-w-5xl mx-auto px-2 py-4 sm:p-6">
+      {/* Breadcrumb */}
+      <div className="flex gap-1 mb-4">
+        <span
+          className="underline underline-offset-2 cursor-pointer text-sm text-primary font-medium"
+          onClick={() => navigate("/policies")}
+        >
+          Policies
+        </span>
+        &gt;
+        <span
+          className="underline underline-offset-2 cursor-pointer text-sm text-primary font-medium"
+          onClick={() => navigate(`/policies/${policyId}`)}
+        >
+          {policyId?.substring(0, 8)}...
+        </span>
+        &gt;
+        <span className="text-sm text-primary font-medium">Renewal</span>
+      </div>
 
-
-       {/* Breadcrumb */}
-    <div className="flex gap-1 mb-4">
-      <span
-        className="underline underline-offset-2 cursor-pointer text-sm text-primary font-medium"
-        onClick={() => navigate("/policies")}
-      >
-        Policies
-      </span>
-      &gt;
-      <span
-        className="underline underline-offset-2 cursor-pointer text-sm text-primary font-medium"
-        onClick={() => navigate(`/policies/${policyId}`)}
-      >
-        {policyId?.substring(0, 8)}...
-      </span>
-      &gt;
-      <span className="text-sm text-primary font-medium">
-        Renewal
-      </span>
-    </div>
-
-    {/* Info Banner */}
-    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-      <h3 className="font-semibold text-blue-900 flex items-center gap-2">
-        <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-          <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-        </svg>
-        Creating Renewal Policy
-      </h3>
-      <p className="text-sm text-blue-700 mt-1">
-        Review the pre-filled information from the original policy. You can update any fields as needed. 
-        Premium will be recalculated based on current rates and coverage dates.
-      </p>
-    </div>
-
+      {/* Info Banner */}
+      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+        <h3 className="font-semibold text-blue-900 flex items-center gap-2">
+          <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+            <path
+              fillRule="evenodd"
+              d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+              clipRule="evenodd"
+            />
+          </svg>
+          Creating Renewal Policy
+        </h3>
+        <p className="text-sm text-blue-700 mt-1">
+          Review the pre-filled information from the original policy. You can
+          update any fields as needed. Premium will be recalculated based on
+          current rates and coverage dates.
+        </p>
+      </div>
 
       {/* ========== PROGRESS STEPPER ========== */}
       <nav aria-label="Progress">
@@ -507,96 +592,69 @@ if (!policyData) {
         </ol>
       </nav>
 
+      {/* Original Policy Reference */}
 
-{/* Original Policy Reference */}
-
-           <div className="bg-amber-50 border-l-4 border-amber-400 p-4 mt-6">
-      <div className="flex">
-        <div className="flex-shrink-0">
-          <svg className="h-5 w-5 text-amber-400" viewBox="0 0 20 20" fill="currentColor">
-            <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-          </svg>
-        </div>
-        <div className="ml-3">
-          <p className="text-sm text-amber-700">
-            <strong className="font-semibold">Renewing Policy:</strong> {policyData.policyNumber}
-            <br />
-            <span className="text-xs">
-              Original Coverage: {new Date(policyData.effectiveDate).toLocaleDateString()} to {new Date(policyData.expiryDate).toLocaleDateString()}
-            </span>
-          </p>
+      <div className="bg-amber-50 border-l-4 border-amber-400 p-4 mt-6">
+        <div className="flex">
+          <div className="flex-shrink-0">
+            <svg
+              className="h-5 w-5 text-amber-400"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+            >
+              <path
+                fillRule="evenodd"
+                d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                clipRule="evenodd"
+              />
+            </svg>
+          </div>
+          <div className="ml-3">
+            <p className="text-sm text-amber-700">
+              <strong className="font-semibold">Renewing Policy:</strong>{" "}
+              {policyData.policyNumber}
+              <br />
+              <span className="text-xs">
+                Original Coverage:{" "}
+                {new Date(policyData.effectiveDate).toLocaleDateString()} to{" "}
+                {new Date(policyData.expiryDate).toLocaleDateString()}
+              </span>
+            </p>
+          </div>
         </div>
       </div>
-    </div>
-
-
 
       {/* ========== STEP 1: GET QUOTE ========== */}
       {steps[0].status === "current" && (
-        <div>
-          <ApplicantInformation
-            primaryFirstName={primaryFirstName}
-            setPrimaryFirstName={setPrimaryFirstName}
-            primaryLastName={primaryLastName}
-            setPrimaryLastName={setPrimaryLastName}
-            primaryDateOfBirth={primaryDateOfBirth}
-            setPrimaryDateOfBirth={setPrimaryDateOfBirth}
-            primaryEmail={primaryEmail}
-            setPrimaryEmail={setPrimaryEmail}
-            primaryApplicantGender={primaryApplicantGender}
-            setPrimaryApplicantGender={setPrimaryApplicantGender}
-            countryOfOrigin={countryOfOrigin}
-            setCountryOfOrigin={setCountryOfOrigin}
-            provinceStateResidence={provinceStateResidence}
-            setProvinceStateResidence={setProvinceStateResidence}
-            applicantNumber={applicantNumber}
-            setApplicantNumber={setApplicantNumber}
-            applicants={applicants}
-            setApplicants={setApplicants}
-            isConfirmed={isConfirmed}
-            setIsConfirmed={setIsConfirmed}
-          />
+        <FormProvider {...step1Methods}>
+          <ApplicantInformation methods={step1Methods as any} />
 
           <TripInformation
-            tripCost={tripCost}
-            setTripCost={setTripCost}
-            dateBooked={dateBooked}
-            setDateBooked={setDateBooked}
-            effectiveDate={effectiveDate}
-            setEffectiveDate={setEffectiveDate}
-            expiryDate={expiryDate}
-            setExpiryDate={setExpiryDate}
-            coverageLength={coverageLength}
-            setCoverageLength={setCoverageLength}
-            tripCancellationDeluxe={tripCancellationDeluxe}
-            setTripCancellationDeluxe={setTripCancellationDeluxe}
-            primaryDateOfBirth={primaryDateOfBirth}
-            applicants={applicants}
-            totalPremium={totalPremium}
-            setTotalPremium={setTotalPremium}
+            methods={step1Methods as any}
             premiumBreakdown={premiumBreakdown}
             setPremiumBreakdown={setPremiumBreakdown}
-            loading={loading}
             setLoading={setLoading}
             error={error}
             setError={setError}
             onValidityChange={setIsStepOneFilled}
             quoteNumber={quoteNumber}
-            setQuoteNumber={setQuoteNumber}
-            agentCode={agentCode!}
+            setTotalPremium={setTotalPremium}
+            handleSaveQuote={handleSaveQuote}
           />
 
           <div className="w-full h-2 mt-5 flex items-center justify-center font-[inter]">
             <h3 className="text-base sm:text-lg">
-              {loading ? "Calculating..." : `Your Quote: $${totalPremium.toFixed(2)} CAD`}
+              {loading
+                ? "Calculating..."
+                : `Your Quote: $${totalPremium.toFixed(2)} CAD`}
             </h3>
           </div>
-        </div>
+        </FormProvider>
       )}
 
       {/* ========== STEP 2: COMPLETE APPLICATION ========== */}
       {steps[1].status === "current" && quoteNumber && (
-        <div>
+        <FormProvider {...step2Methods}>
           <div className="w-full h-2 mt-8 flex items-center justify-center font-[inter]">
             <h3 className="text-base sm:text-lg">
               Your Quote: ${step1ResponseData?.quoteAmount.toFixed(2)} CAD
@@ -612,10 +670,10 @@ if (!policyData) {
             applicants={step1ResponseData?.applicants ?? []}
           />
           <ContactInformation
-            methods={step2Methods}
-            email={step1ResponseData?.email}
+            methods={step2Methods as any}
+            email={step1ResponseData?.email ?? ""}
           />
-          <Address methods={step2Methods} />
+          <Address methods={step2Methods as any} />
 
           <div className="max-w-md mx-auto mb-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
             <h3 className="font-semibold text-lg mb-2">Payment Summary</h3>
@@ -635,15 +693,16 @@ if (!policyData) {
               quoteNumber={quoteNumber}
               description={productName}
               name={primaryFirstName}
-              shipping={step2Methods.watch('address')}
+              shipping={address}
               amount={totalPremium}
               onPaymentSuccess={handlePaymentSuccess}
               onBuyNow={handleBuyNow}
               submittingStage2={submittingStage2}
             />
           </Elements>
-        </div>
+        </FormProvider>
       )}
+
 
       {/* ========== STEP 3: CONFIRMATION ========== */}
       {steps[2].status === "current" && (

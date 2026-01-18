@@ -34,15 +34,7 @@ interface Applicant {
   relationship: string;
   preMedCoverage: boolean;
   gender: string;
-
-  email?: string;
-
-  healthQuestionnaire?: {
-    questions: Array<{
-      question: string;
-      answer: string;
-    }>;
-  };
+  healthQuestionnaire?: { questions: any[] };
 }
 
 interface QuoteStage1Response {
@@ -76,38 +68,23 @@ interface BeneficiaryInfo {
   relationshipToInsured: string;
 }
 
-// Stage 2 Form Interface
-interface Stage2FormValues {
-  address: {
-    addressLine1: string;
-    addressLine2: string;
-    city: string;
-    postalCode: string;
-    country: string;
-    province: string;
-  };
-  contactInfo: {
-    additionalEmail: string;
-    phoneNumber: string;
-  };
-  beneficiary: {
-    beneficiaryName: string;
-    relationshipToInsured: string;
-  };
-}
-
 // const productName = "Secure Travel RIMI Visitors to Canada Travel";
 const productName = "SECURE_TRAVEL_RIMI_VISITORS_TO_CANADA_TRAVEL";
 
 export default function SecureTravelRIMIVisitorstoCanadaTravel() {
-  const navigate = useNavigate();
+
+
+    const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
   const policyId = searchParams.get('policyId');
 
   const agentCode = useSelector((state: RootState) => state.auth.agentCode);
 
-  // Initialize form with react-hook-form
+  const { data: policyData, loading: loadingPolicy, error: policyError } = 
+    useRenewalPolicyData(policyId);
+
+ // Replace individual useState with react-hook-form
   const step1Methods = useForm<Step1Payload>({
     mode: "onTouched",
     reValidateMode: "onChange",
@@ -137,21 +114,63 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
     },
   });
 
-  const { data: policyData, loading: loadingPolicy, error: policyError } = 
-    useRenewalPolicyData(policyId);
+  const contactInfoMethods = useForm({
+    mode: "onTouched",
+    reValidateMode: "onChange",
+    defaultValues: {
+      contactInfo: {
+        additionalEmail: "",
+        phoneNumber: "",
+      },
+    },
+  });
 
-  // Keep only necessary state for step 2 and visual calculations
+  const addressMethods = useForm({
+    mode: "onTouched",
+    reValidateMode: "onChange",
+    defaultValues: {
+      address: {
+        addressLine1: "",
+        addressLine2: "",
+        city: "",
+        postalCode: "",
+        country: "",
+        province: "",
+      },
+    },
+  });
+
+  const beneficiaryMethods = useForm({
+    mode: "onTouched",
+    reValidateMode: "onChange",
+    defaultValues: {
+      beneficiary: {
+        beneficiaryName: "",
+        relationshipToInsured: "",
+      },
+    },
+  });
+
+  // Helper to watch payment option for calculations
+  const watchedPaymentOption = step1Methods.watch("paymentOption");
+
+  //////////////////////////
+
+  /////////////////////////////
+
   const [quoteNumber, setQuoteNumber] = useState<string | null>(null);
+
+  // const [step1ResponseData, setStep1ResponseData] = useState<QuoteStage1Response | null>(null);
+
   const [step1ResponseData, setStep1ResponseData] =
     useState<QuoteStage1Response | null>(null);
+
+  /////////////////////////////////
 
   const [totalPremium, setTotalPremium] = useState<number>(0);
   const [schedule, setSchedule] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-
-  // Watch payment option from form for calculations
-  const paymentOption = step1Methods.watch("paymentOption");
 
   let monthlyAmount: number | undefined = undefined;
   let remainingInstallments: number | undefined = undefined;
@@ -161,13 +180,13 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
   const stripeProductId = "prod_SRGSLGPsB7SQxy";
 
   console.log("\n PAYMENT CALCULATION");
-  console.log("Payment Option:", paymentOption);
+  console.log("Payment Option:", watchedPaymentOption);
   console.log("Total Premium:", totalPremium);
   console.log("Schedule:", schedule);
 
   // If the user picked monthly‐installments and the backend schedule array is in the
   // form [ {…Policy Issue Fee…}, {…Total Initial Payment…}, { label: "Monthly Installment of", amount: ###, count: N}, … ]
-  if (paymentOption === "monthly-installments" && schedule.length >= 3) {
+  if (watchedPaymentOption === "monthly-installments" && schedule.length >= 3) {
     // schedule[2] is guaranteed (by your backend) to be
     // { label: "Monthly Installment of", amount: X, count: Y }
     console.log("\n📅 Processing monthly installments...");
@@ -201,7 +220,7 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
       console.error("Could not find schedule items!");
       console.log("Available schedule:", schedule);
     }
-  } else if (paymentOption === "lump-sum") {
+  } else if (watchedPaymentOption === "lump-sum") {
     console.log("\n Processing lump-sum payment...");
     firstPaymentAmount = totalPremium;
     console.log("Charging full premium:", firstPaymentAmount);
@@ -209,7 +228,7 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
 
   console.log("\n FINAL AMOUNTS TO CHARGE:");
   console.log("First Payment:", firstPaymentAmount);
-  if (paymentOption === "monthly-installments") {
+  if (watchedPaymentOption === "monthly-installments") {
     console.log(
       "Then:",
       remainingInstallments,
@@ -219,28 +238,7 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
 
   ///--------------------------------------- Stage 2 -------------------------------------
 
-  // Initialize form for Step 2 (Address, Contact, Beneficiary)
-  const step2Methods = useForm<Stage2FormValues>({
-    mode: "onTouched",
-    defaultValues: {
-      address: {
-        addressLine1: "",
-        addressLine2: "",
-        city: "",
-        postalCode: "",
-        country: "",
-        province: "",
-      },
-      contactInfo: {
-        additionalEmail: "",
-        phoneNumber: "",
-      },
-      beneficiary: {
-        beneficiaryName: "",
-        relationshipToInsured: "",
-      },
-    },
-  });
+
 
   // const [benifitiaryName, setBenifitaryName] = useState<string>('')
   // const [relationshipToInsured, setRelationshipToInsured] = useState<string>('')
@@ -273,74 +271,75 @@ useEffect(() => {
   }
 }, [policyId, navigate]);
 
-// ADD - Pre-fill data from policy
 useEffect(() => {
-  if (!policyData) return;
+    if (!policyData) return;
 
-  console.log('📋 Pre-filling renewal form with policy data:', policyData);
+    console.log('📋 Pre-filling renewal form with policy data:', policyData);
 
-  // Pre-fill form using setValue
-  step1Methods.setValue("primaryFirstName", policyData.firstName || "");
-  step1Methods.setValue("primaryLastName", policyData.lastName || "");
-  step1Methods.setValue("primaryDateOfBirth", policyData.dateOfBirth || "");
-  step1Methods.setValue("primaryEmail", policyData.email || "");
-  step1Methods.setValue("primaryApplicantGender", policyData.gender || "");
-  
-  // Coverage details
-  step1Methods.setValue("countryOfOrigin", policyData.countryOfOrigin || "");
-  step1Methods.setValue("inCanada", (policyData.applicantInCanada as YesNo) || "");
-  step1Methods.setValue("superVisa", (policyData.applicantOnSuperVisa as SuperVisaOption) || "");
-  step1Methods.setValue("destinationProvince", policyData.destination || policyData.destProv || "");
-  step1Methods.setValue("deductible", policyData.deductible || 0);
-  step1Methods.setValue("coverageForPreMedCon", policyData.PreExCoverage === "Yes");
-  step1Methods.setValue("policyType", policyData.policyType || "");
-  step1Methods.setValue("coverageOption", policyData.coverage || "");
-  
-  // DO NOT pre-fill dates - user must select new coverage period
-  
-  // Additional applicants
-  if (policyData.applicants && policyData.applicants.length > 0) {
-    step1Methods.setValue("applicantNumber", policyData.applicants.length);
-    step1Methods.setValue(
-      "applicants",
-      policyData.applicants.map((a, idx) => ({
-        index: String(idx + 1),
-        firstName: a.firstName,
-        lastName: a.lastName,
-        dob: a.dateOfBirth,
-        relationship: a.relation || "",
-        preMedCoverage: a.PreExCoverage === "Yes",
-        gender: a.gender,
-        email: a.email || "",
-        healthQuestionnaire: { questions: [] },
-      }))
-    );
-  }
+    // Step 1 Form Data
+    step1Methods.reset({
+      primaryFirstName: policyData.firstName || "",
+      primaryLastName: policyData.lastName || "",
+      primaryDateOfBirth: policyData.dateOfBirth || "",
+      primaryEmail: policyData.email || "",
+      primaryApplicantGender: policyData.gender || "",
+      applicantNumber: policyData.applicants ? policyData.applicants.length : 0,
+      coverageForPreMedCon: policyData.PreExCoverage === "Yes",
+      applicants: policyData.applicants
+        ? policyData.applicants.map((a, idx) => ({
+            index: String(idx + 1),
+            firstName: a.firstName,
+            lastName: a.lastName,
+            dob: a.dateOfBirth,
+            relationship: a.relation || "",
+            preMedCoverage: a.PreExCoverage === "Yes",
+            gender: a.gender,
+            healthQuestionnaire: { questions: [] },
+          }))
+        : [],
+      countryOfOrigin: policyData.countryOfOrigin || "",
+      inCanada: (policyData.applicantInCanada as YesNo) || "",
+      superVisa: (policyData.applicantOnSuperVisa as SuperVisaOption) || "",
+      destinationProvince: policyData.destination || policyData.destProv || "",
+      effectiveDate: "", // User must select new dates
+      expiryDate: "", 
+      coverageLength: "",
+      policyType: policyData.policyType || "",
+      coverageOption: policyData.coverage || "",
+      deductible: policyData.deductible || 0,
+      paymentOption: "lump-sum",
+      superVisaYears: "", // User re-selects if super visa
+      primaryQuestionnaire: null,
+      isConfirmed: false
+    });
 
-  // Address
-  // Address
-  step2Methods.setValue("address", {
-    addressLine1: policyData.street || "",
-    addressLine2: policyData.street2 || "",
-    city: policyData.city || "",
-    postalCode: policyData.postalCode || "",
-    country: policyData.countryCode || "",
-    province: policyData.province || "",
-  });
+    // Step 2 Form Data
+    addressMethods.reset({
+      address: {
+        addressLine1: policyData.street || "",
+        addressLine2: policyData.street2 || "",
+        city: policyData.city || "",
+        postalCode: policyData.postalCode || "",
+        country: policyData.countryCode || "",
+        province: policyData.province || "",
+      }
+    });
 
-  // Contact
-  step2Methods.setValue("contactInfo", {
-    additionalEmail: policyData.additionalEmail || "",
-    phoneNumber: policyData.phoneNumber || "",
-  });
+    contactInfoMethods.reset({
+      contactInfo: {
+        additionalEmail: policyData.additionalEmail || "",
+        phoneNumber: policyData.phoneNumber || "",
+      }
+    });
 
-  // Beneficiary
-  step2Methods.setValue("beneficiary", {
-    beneficiaryName: policyData.beneficiaryName || "",
-    relationshipToInsured: policyData.beneficiaryRelation || "",
-  });
+    beneficiaryMethods.reset({
+      beneficiary: {
+        beneficiaryName: policyData.beneficiaryName || "",
+        relationshipToInsured: policyData.beneficiaryRelation || "",
+      }
+    });
 
-}, [policyData, step1Methods, step2Methods]);
+  }, [policyData, step1Methods, addressMethods, contactInfoMethods, beneficiaryMethods]);
 
 
 
@@ -401,32 +400,34 @@ useEffect(() => {
 
   // your new handler which first saves, then advances the wizard
   const handleNext = async () => {
-    if (!isStepOneFilled || savingStage1) return;
+    // Validate form
+    const isValid = await step1Methods.trigger();
+    if (!isValid) return;
 
-    // Get values from form
-    const formValues = step1Methods.getValues();
-    const stage1Payload = {
-      ...formValues,
-      agentCode: agentCode!,
-      product: "SECURE_TRAVEL_RIMI_VISITORS_TO_CANADA_TRAVEL",
-      quoteNumber: quoteNumber,
-      status: "Inactive",
-      // Ensure dates are strings
-      primaryDateOfBirth:
-        formValues.primaryDateOfBirth instanceof Date
-          ? formValues.primaryDateOfBirth.toISOString()
-          : formValues.primaryDateOfBirth,
-      effectiveDate:
-        formValues.effectiveDate instanceof Date
-          ? formValues.effectiveDate.toISOString()
-          : formValues.effectiveDate,
-      expiryDate:
-        formValues.expiryDate instanceof Date
-          ? formValues.expiryDate.toISOString()
-          : formValues.expiryDate,
-    };
+    if (savingStage1) return;
 
     try {
+      const formValues = step1Methods.getValues();
+      const stage1Payload = {
+        ...formValues,
+        agentCode: agentCode!,
+        product: productName,
+        quoteNumber: quoteNumber,
+        status: "Inactive",
+        primaryDateOfBirth:
+          formValues.primaryDateOfBirth instanceof Date
+            ? formValues.primaryDateOfBirth.toISOString()
+            : formValues.primaryDateOfBirth,
+        effectiveDate:
+          formValues.effectiveDate instanceof Date
+            ? formValues.effectiveDate.toISOString()
+            : formValues.effectiveDate,
+        expiryDate:
+          formValues.expiryDate instanceof Date
+            ? formValues.expiryDate.toISOString()
+            : formValues.expiryDate,
+      };
+
       const response = await saveQuoteNext(stage1Payload);
       setQuoteNumber(response.quoteNumber);
       setStep1ResponseData({
@@ -461,17 +462,20 @@ useEffect(() => {
   const handleBuyNow = async () => {
     if (!quoteNumber || submittingStage2) return;
     
-    // Trigger validation
-    const isValid = await step2Methods.trigger();
-    if (!isValid) return;
+    const validContact = await contactInfoMethods.trigger();
+    const validAddress = await addressMethods.trigger();
+    const validBeneficiary = await beneficiaryMethods.trigger();
 
-    const values = step2Methods.getValues();
+    if (!validContact || !validAddress || !validBeneficiary) return;
 
+    const address = addressMethods.getValues().address;
+    const contactInfo = contactInfoMethods.getValues().contactInfo;
+    const beneficiary = beneficiaryMethods.getValues().beneficiary;
     const payload: Stage2Payload = {
       quoteNumber,
-      address: values.address,
-      contactInfo: values.contactInfo,
-      beneficiary: values.beneficiary,
+      address,
+      contactInfo,
+      beneficiary,
     };
     try {
       const resp = await completeApplication(payload);
@@ -482,10 +486,19 @@ useEffect(() => {
     }
   };
 
+
+
   const handlePaymentSuccess = () => {
     alert("payment successfull");
     handleFormStepChange("forward");
   };
+
+  // const handlePaymentSuccess = () => {
+  //   alert('payment successfull')
+  //   handleFormStepChange('forward')
+  // }
+
+
 
   // 
 if (loadingPolicy) {
@@ -675,11 +688,18 @@ if (!policyData) {
 
       {steps[0].status === "current" && (
         <div>
+          {/* <ApplicantInformation />
+          <CoverageInformation />
+          <div className="w-full h-2 mt-5 flex items-center justify-center">
+            <h3 className="text-lg">Your Quote: $0.00</h3>
+          </div> */}
           <FormProvider {...step1Methods}>
             <Step1STRVCT
               onValidityChange={setIsStepOneFilled}
               quoteNumber={quoteNumber}
               setQuoteNumber={setQuoteNumber}
+              
+              // Passing down state for premiums calculation visualization
               totalPremium={totalPremium}
               schedule={schedule}
               loading={loading}
@@ -688,6 +708,7 @@ if (!policyData) {
               setSchedule={setSchedule}
               setLoading={setLoading}
               setError={setError}
+
               formStep={formStep}
               handleFormStepChange={handleFormStepChange}
               handleNext={handleNext}
@@ -716,21 +737,50 @@ if (!policyData) {
           />
           {/* contactInfo,setContactInfo */}
           <ContactInformation
-            methods={step2Methods}
+            methods={contactInfoMethods}
             email={step1ResponseData?.email}
           />
-          <Address methods={step2Methods} />
+          <Address methods={addressMethods} />
           {/* beneficiary, setBeneficiary */}
           <BeneficiaryInCaseOfDeath
-            methods={step2Methods}
+            methods={beneficiaryMethods}
           />
 
           {/* Payment Stripe   */}
-          {/* <PaymentInformation /> */}
+          <Elements stripe={stripePromise}>
+            <PaymentInformation
+              quoteNumber={quoteNumber}
+              description={productName}
+              name={step1Methods.getValues("primaryFirstName")}
+              shipping={addressMethods.getValues().address}
+              paymentOption={watchedPaymentOption}
+              amount={firstPaymentAmount}
+              onPaymentSuccess={() => handlePaymentSuccess()}
+              onBuyNow={handleBuyNow}
+              monthlyAmount={
+                watchedPaymentOption === "monthly-installments"
+                  ? monthlyAmount
+                  : undefined
+              }
+              remainingInstallments={
+                watchedPaymentOption === "monthly-installments"
+                    ? remainingInstallments
+                    : undefined
+              }
+              stripeProductId={
+                watchedPaymentOption === "monthly-installments"
+                  ? stripeProductId
+                  : undefined
+              }
+              formStep={formStep}
+              handleFormStepChange={handleFormStepChange}
+              submittingStage2={submittingStage2}
+            />
+          </Elements>
 
           {/* visual payment summary */}
 
-          {paymentOption === "monthly-installments" && schedule.length > 0 && (
+          {watchedPaymentOption === "monthly-installments" && schedule.length > 0 && (
             <div className="max-w-md mx-auto mb-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
               <h3 className="font-semibold text-lg mb-3">
                 Payment Plan Summary
@@ -786,7 +836,7 @@ if (!policyData) {
             </div>
           )}
 
-          {paymentOption === "lump-sum" && (
+          {watchedPaymentOption === "lump-sum" && (
             <div className="max-w-md mx-auto mb-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
               <h3 className="font-semibold text-lg mb-2">Payment Summary</h3>
               <div className="flex justify-between items-center">
@@ -801,51 +851,7 @@ if (!policyData) {
             </div>
           )}
 
-          <Elements stripe={stripePromise}>
-            <PaymentInformation
-              quoteNumber={quoteNumber}
-              description={productName}
-              name={step1ResponseData ? `${step1ResponseData.firstName} ${step1ResponseData.lastName}` : ""}
-              shipping={step2Methods.watch('address')}
-              paymentOption={paymentOption}
-              // amount={totalPremium}
-              amount={firstPaymentAmount}
-              // onPaymentSuccess={() => handleFormStepChange('forward')}
-              // handlePaymentSuccess
-              onPaymentSuccess={() => handlePaymentSuccess()}
-              onBuyNow={handleBuyNow}
-              // { ...(paymentOption === "monthly-installments" && {
-              //       monthlyAmount,
-              //       remainingInstallments,
-              //       stripeProductId,
-              //     })
-              //   }
 
-              monthlyAmount={
-                paymentOption === "monthly-installments"
-                  ? monthlyAmount
-                  : undefined
-              }
-              remainingInstallments={
-                paymentOption === "monthly-installments"
-                  ? remainingInstallments
-                  : undefined
-              }
-              stripeProductId={
-                paymentOption === "monthly-installments"
-                  ? stripeProductId
-                  : undefined
-              }
-              //
-              formStep={2}
-              handleFormStepChange={() => {}}
-              // handleNext={handleNext}
-              // isStepOneFilled={isStepOneFilled}
-              // savingStage1={savingStage1}
-              // handleBuyNow={handleBuyNow} // Invalid prop
-              submittingStage2={submittingStage2}
-            />
-          </Elements>
 
           {/*  */}
         </div>

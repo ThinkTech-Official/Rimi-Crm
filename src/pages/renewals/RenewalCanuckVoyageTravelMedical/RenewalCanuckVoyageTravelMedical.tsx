@@ -2,13 +2,16 @@
 
 import { CheckIcon } from "@heroicons/react/24/outline";
 import React, { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../app/store";
 import { useSaveQuoteNextProduct3 } from "../../../hooks/canuck-voyage/useSaveQuoteNextProduct3";
 import { useQuoteUpdateProduct3, Stage2Payload } from "../../../hooks/canuck-voyage/useQuoteUpdateProduct3";
+import { useCreateQuoteProduct3 } from "../../../hooks/canuck-voyage/useCreateQuoteProduct3";
 import { Elements } from "@stripe/react-stripe-js";
+
 import { stripePromise } from "../../../utils/stripe";
+import { useForm, FormProvider } from "react-hook-form";
+
 
 
 import { useNavigate, useSearchParams } from "react-router-dom";
@@ -52,25 +55,51 @@ interface QuoteStage1Response {
   applicants: Applicant[];
 }
 
-
-
-
-
-interface Stage2FormValues {
-  address: {
-    addressLine1: string;
-    addressLine2: string;
-    city: string;
-    postalCode: string;
-    country: string;
-    province: string;
-  };
-  contactInfo: {
-    email: string;
-    additionalEmail: string;
-    phoneNumber: string;
-  };
+interface AddressInfo {
+  addressLine1: string;
+  addressLine2: string;
+  city: string;
+  postalCode: string;
+  country: string;
+  province: string;
 }
+
+interface ContactInfo {
+  email: string;
+  additionalEmail: string;
+  phoneNumber: string;
+}
+
+export interface Step1Payload {
+  primaryFirstName: string;
+  primaryLastName: string;
+  primaryDateOfBirth: string;
+  primaryEmail: string;
+  primaryApplicantGender: string;
+  provinceOfResidence: string;
+  applicantNumber: number;
+  applicants: Applicant[];
+  policyType: string;
+  effectiveDate: string;
+  expiryDate: string;
+  coverageLength: number;
+  destinationCountry: string;
+  travelingThroughUS: string;
+  usTravelDays?: number;
+  numberOfDaysPerTrip?: number;
+  deductible: number;
+  agentCode: string;
+  product: string;
+  quoteNumber?: string;
+  status: string;
+  isConfirmed: boolean;
+}
+
+export interface Stage2FormValues {
+  address: AddressInfo;
+  contactInfo: ContactInfo;
+}
+
 
 // const productName = "RIMI Canuck Voyage Travel Medical";
 const productName = "RIMI_CANUCK_VOYAGE_TRAVEL_MEDICAL";
@@ -97,40 +126,33 @@ const RIMICanuckVoyageTravelMedical: React.FC = () => {
   ]);
   const [formStep, setFormStep] = useState(1);
 
-  // ========== APPLICANT INFORMATION ==========
-  const [primaryFirstName, setPrimaryFirstName] = useState("");
-  const [primaryLastName, setPrimaryLastName] = useState("");
-  const [primaryDateOfBirth, setPrimaryDateOfBirth] = useState("");
-  const [primaryEmail, setPrimaryEmail] = useState("");
-  const [primaryApplicantGender, setPrimaryApplicantGender] = useState("");
-  const [provinceOfResidence, setProvinceOfResidence] = useState("");
-  const [applicantNumber, setApplicantNumber] = useState(0);
-  const [applicants, setApplicants] = useState<Applicant[]>([]);
-  const [isConfirmed, setIsConfirmed] = useState(false);
-
-  // ========== COVERAGE INFORMATION ==========
-  const [policyType, setPolicyType] = useState<string>("");
-  const [effectiveDate, setEffectiveDate] = useState<string>("");
-  const [expiryDate, setExpiryDate] = useState<string>("");
-  const [coverageLength, setCoverageLength] = useState<string>("");
-  const [destinationCountry, setDestinationCountry] = useState<string>("");
-  const [travelingThroughUS, setTravelingThroughUS] = useState<string>("");
-  const [usTravelDays, setUsTravelDays] = useState<number>(0);
-  const [numberOfDaysPerTrip, setNumberOfDaysPerTrip] = useState<number | undefined>(undefined);
-  const [deductible, setDeductible] = useState<number>(0);
-
-  // ========== QUOTE & PREMIUM ==========
-  const [quoteNumber, setQuoteNumber] = useState<string | null>(null);
-  const [step1ResponseData, setStep1ResponseData] = useState<QuoteStage1Response | null>(null);
-  const [totalPremium, setTotalPremium] = useState<number>(0);
-  const [premiumBreakdown, setPremiumBreakdown] = useState<any>(null);
-  const [loading, setLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null);
-
-  // ========== STAGE 2 INFORMATION ==========
+  // ==================== REACT HOOK FORM ====================
+  const step1Methods = useForm<Step1Payload>({
+    mode: "onChange",
+    defaultValues: {
+      primaryFirstName: "",
+      primaryLastName: "",
+      primaryDateOfBirth: "",
+      primaryEmail: "",
+      primaryApplicantGender: "",
+      provinceOfResidence: "",
+      applicantNumber: 0,
+      applicants: [],
+      isConfirmed: false,
+      policyType: "",
+      effectiveDate: "",
+      expiryDate: "",
+      coverageLength: 0,
+      destinationCountry: "",
+      travelingThroughUS: "",
+      usTravelDays: 0,
+      numberOfDaysPerTrip: undefined,
+      deductible: 0,
+    },
+  });
 
   const step2Methods = useForm<Stage2FormValues>({
-    mode: "onTouched",
+    mode: "onChange",
     defaultValues: {
       address: {
         addressLine1: "",
@@ -148,16 +170,108 @@ const RIMICanuckVoyageTravelMedical: React.FC = () => {
     },
   });
 
+  // Watch values for local logic
+  const watchedStep1 = step1Methods.watch();
+  const {
+    primaryFirstName,
+    primaryLastName,
+    primaryDateOfBirth,
+    primaryEmail,
+    primaryApplicantGender,
+    provinceOfResidence,
+    applicantNumber,
+    applicants,
+    isConfirmed,
+    policyType,
+
+
+    effectiveDate,
+    expiryDate,
+    coverageLength,
+    destinationCountry,
+    travelingThroughUS,
+    usTravelDays,
+    numberOfDaysPerTrip,
+    deductible,
+  } = watchedStep1;
+
+  const watchedStep2 = step2Methods.watch();
+  const { address, contactInfo } = watchedStep2;
+
+  // ========== PREMIUM STATE ==========
+  const [totalPremium, setTotalPremium] = useState<number>(0);
+  const [premiumBreakdown, setPremiumBreakdown] = useState<any>(null);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
+
+
+
+  // ========== QUOTE RESPONSE STATE ==========
+  const [quoteNumber, setQuoteNumber] = useState<string | null>(null);
+  const [step1ResponseData, setStep1ResponseData] =
+    useState<QuoteStage1Response | null>(null);
+
   // ========== VALIDATION ==========
   const [isStepOneFilled, setIsStepOneFilled] = useState(false);
+
 
   // ========== HOOKS ==========
   const { saveQuoteNext, loading: savingStage1 } = useSaveQuoteNextProduct3();
   const {
     completeApplication,
     loading: submittingStage2,
-    error: submitError,
   } = useQuoteUpdateProduct3();
+
+
+  const { saveQuote: createQuote } = useCreateQuoteProduct3();
+
+
+  const handleSaveQuote = async (): Promise<boolean> => {
+    const payload = {
+      primaryFirstName,
+      primaryLastName,
+      primaryDateOfBirth,
+      primaryEmail,
+      primaryApplicantGender,
+      provinceOfResidence,
+      applicantNumber,
+      applicants,
+      policyType,
+      effectiveDate,
+      expiryDate,
+      coverageLength: Number(coverageLength),
+      destinationCountry,
+      travelingThroughUS,
+      usTravelDays: (usTravelDays ?? 0) > 0 ? usTravelDays : undefined,
+      numberOfDaysPerTrip,
+      deductible,
+      agentCode: agentCode!,
+      product: productName,
+      quoteNumber: quoteNumber || undefined,
+      status: "Inactive",
+    };
+
+    try {
+      console.log("Saving Product 3 quote as Inactive...");
+      const response = await createQuote(payload);
+
+      // Update state with the saved quote number
+      setQuoteNumber(response.quote);
+
+      // Show success message
+      alert(
+        `Quote saved successfully!\n\nQuote Number: ${response.quote}\n\nYou can continue later or proceed to the next step.`
+      );
+
+      console.log("Quote saved:", response.quote);
+      return true;
+    } catch (err: any) {
+      console.error("Failed to save quote:", err);
+      alert(`Failed to save quote: ${err.message || "Please try again"}`);
+      return false;
+    }
+  };
+
 
 
 
@@ -179,58 +293,54 @@ useEffect(() => {
 
   console.log('📋 Pre-filling Product 3 renewal form with policy data:', policyData);
 
-  // Primary applicant
-  setPrimaryFirstName(policyData.firstName || "");
-  setPrimaryLastName(policyData.lastName || "");
-  setPrimaryDateOfBirth(policyData.dateOfBirth || "");
-  setPrimaryEmail(policyData.email || "");
-  setPrimaryApplicantGender(policyData.gender || "");
-  
-  // Product 3 specific fields
-  setProvinceOfResidence(policyData.province || "");
-  setPolicyType(policyData.policyType || "");
-  setDestinationCountry(policyData.destinationCountry || "");
-  setTravelingThroughUS(policyData.applicantTravelThroughUs || "");
-  setUsTravelDays(policyData.usTravelDays || 0);
-  setNumberOfDaysPerTrip(policyData.numberOfDaysPerTrip || undefined);
-  setDeductible(policyData.deductible || 0);
-  
-  // 
-  
-  // Additional applicants
-  if (policyData.applicants && policyData.applicants.length > 0) {
-    setApplicantNumber(policyData.applicants.length);
-    setApplicants(
-      policyData.applicants.map((a, idx) => ({
-        index: String(idx + 1),
-        firstName: a.firstName,
-        lastName: a.lastName,
-        dob: a.dateOfBirth,
-        relationship: a.relation || "",
-        gender: a.gender,
-      }))
-    );
-  }
-
-  // Address
-  // Address
-  step2Methods.setValue("address", {
-    addressLine1: policyData.street || "",
-    addressLine2: policyData.street2 || "",
-    city: policyData.city || "",
-    postalCode: policyData.postalCode || "",
-    country: policyData.countryCode || "",
-    province: policyData.province || "",
+  // Step 1 data
+  step1Methods.reset({
+    primaryFirstName: policyData.firstName || "",
+    primaryLastName: policyData.lastName || "",
+    primaryDateOfBirth: policyData.dateOfBirth || "",
+    primaryEmail: policyData.email || "",
+    primaryApplicantGender: policyData.gender || "",
+    provinceOfResidence: policyData.province || "",
+    policyType: policyData.policyType || "",
+    destinationCountry: policyData.destinationCountry || "",
+    travelingThroughUS: policyData.applicantTravelThroughUs || "",
+    usTravelDays: policyData.usTravelDays || 0,
+    numberOfDaysPerTrip: policyData.numberOfDaysPerTrip || undefined,
+    deductible: policyData.deductible || 0,
+    applicantNumber: policyData.applicants?.length || 0,
+    applicants: policyData.applicants ? policyData.applicants.map((a, idx) => ({
+      index: String(idx + 1),
+      firstName: a.firstName,
+      lastName: a.lastName,
+      dob: a.dateOfBirth,
+      relationship: a.relation || "",
+      gender: a.gender,
+    })) : [],
+    isConfirmed: false,
+    effectiveDate: "",
+    expiryDate: "",
+    coverageLength: 0,
   });
 
-  // Contact
-  step2Methods.setValue("contactInfo", {
-    email: policyData.email || "",
-    additionalEmail: policyData.additionalEmail || "",
-    phoneNumber: policyData.phoneNumber || "",
+  // Step 2 data
+  step2Methods.reset({
+    address: {
+      addressLine1: policyData.street || "",
+      addressLine2: policyData.street2 || "",
+      city: policyData.city || "",
+      postalCode: policyData.postalCode || "",
+      country: policyData.countryCode || "",
+      province: policyData.province || "",
+    },
+    contactInfo: {
+      email: policyData.email || "",
+      additionalEmail: policyData.additionalEmail || "",
+      phoneNumber: policyData.phoneNumber || "",
+    },
   });
 
-}, [policyData, step2Methods]);
+}, [policyData, step1Methods, step2Methods]);
+
 
 
 //
@@ -284,7 +394,7 @@ useEffect(() => {
         coverageLength: Number(coverageLength),
         destinationCountry,
         travelingThroughUS,
-        usTravelDays: usTravelDays > 0 ? usTravelDays : undefined,
+        usTravelDays: (usTravelDays ?? 0) > 0 ? usTravelDays : undefined,
         numberOfDaysPerTrip,
         deductible,
         agentCode: agentCode!,
@@ -292,6 +402,7 @@ useEffect(() => {
         quoteNumber: quoteNumber || undefined,
         status: "Inactive",
       };
+
 
       const response = await saveQuoteNext(stage1Payload);
       setQuoteNumber(response.quoteNumber);
@@ -307,15 +418,10 @@ useEffect(() => {
   const handleBuyNow = async () => {
     if (!quoteNumber || submittingStage2) return;
 
-    const isValid = await step2Methods.trigger();
-    if (!isValid) return;
-
-    const values = step2Methods.getValues();
-
     const payload: Stage2Payload = {
       quoteNumber,
-      address: values.address,
-      contactInfo: values.contactInfo,
+      address,
+      contactInfo,
     };
 
     try {
@@ -534,49 +640,11 @@ if (!policyData) {
 
       {/* ========== STEP 1: GET QUOTE ========== */}
       {steps[0].status === "current" && (
-        <div>
-          <ApplicantInformation
-            primaryFirstName={primaryFirstName}
-            setPrimaryFirstName={setPrimaryFirstName}
-            primaryLastName={primaryLastName}
-            setPrimaryLastName={setPrimaryLastName}
-            primaryDateOfBirth={primaryDateOfBirth}
-            setPrimaryDateOfBirth={setPrimaryDateOfBirth}
-            primaryEmail={primaryEmail}
-            setPrimaryEmail={setPrimaryEmail}
-            primaryApplicantGender={primaryApplicantGender}
-            setPrimaryApplicantGender={setPrimaryApplicantGender}
-            provinceOfResidence={provinceOfResidence}
-            setProvinceOfResidence={setProvinceOfResidence}
-            applicantNumber={applicantNumber}
-            setApplicantNumber={setApplicantNumber}
-            applicants={applicants}
-            setApplicants={setApplicants}
-            isConfirmed={isConfirmed}
-            setIsConfirmed={setIsConfirmed}
-          />
+        <FormProvider {...step1Methods}>
+          <ApplicantInformation methods={step1Methods} />
 
           <CoverageInformation
-            policyType={policyType}
-            setPolicyType={setPolicyType}
-            effectiveDate={effectiveDate}
-            setEffectiveDate={setEffectiveDate}
-            expiryDate={expiryDate}
-            setExpiryDate={setExpiryDate}
-            coverageLength={coverageLength}
-            setCoverageLength={setCoverageLength}
-            destinationCountry={destinationCountry}
-            setDestinationCountry={setDestinationCountry}
-            travelingThroughUS={travelingThroughUS}
-            setTravelingThroughUS={setTravelingThroughUS}
-            usTravelDays={usTravelDays}
-            setUsTravelDays={setUsTravelDays}
-            numberOfDaysPerTrip={numberOfDaysPerTrip}
-            setNumberOfDaysPerTrip={setNumberOfDaysPerTrip}
-            deductible={deductible}
-            setDeductible={setDeductible}
-            primaryDateOfBirth={primaryDateOfBirth}
-            applicants={applicants}
+            methods={step1Methods}
             totalPremium={totalPremium}
             setTotalPremium={setTotalPremium}
             premiumBreakdown={premiumBreakdown}
@@ -587,8 +655,8 @@ if (!policyData) {
             setError={setError}
             onValidityChange={setIsStepOneFilled}
             quoteNumber={quoteNumber}
-            setQuoteNumber={setQuoteNumber}
             agentCode={agentCode!}
+            handleSaveQuote={handleSaveQuote}
           />
 
           <div className="w-full h-2 mt-5 flex items-center justify-center font-[inter]">
@@ -596,12 +664,12 @@ if (!policyData) {
               {loading ? "Calculating..." : `Your Quote: $${totalPremium.toFixed(2)} CAD`}
             </h3>
           </div>
-        </div>
+        </FormProvider>
       )}
 
       {/* ========== STEP 2: COMPLETE APPLICATION ========== */}
       {steps[1].status === "current" && quoteNumber && (
-        <div>
+        <FormProvider {...step2Methods}>
           <div className="w-full h-2 mt-8 flex items-center justify-center font-[inter]">
             <h3 className="text-base sm:text-lg">
               Your Quote: ${step1ResponseData?.quoteAmount.toFixed(2)} CAD
@@ -617,10 +685,11 @@ if (!policyData) {
             applicants={step1ResponseData?.applicants ?? []}
           />
           <ContactInformation
-            methods={step2Methods}
+            methods={step2Methods as any}
             email={step1ResponseData?.email}
           />
-          <Address methods={step2Methods} />
+          <Address methods={step2Methods as any} />
+
 
           <div className="max-w-md mx-auto mb-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
             <h3 className="font-semibold text-lg mb-2">Payment Summary</h3>
@@ -640,17 +709,16 @@ if (!policyData) {
               quoteNumber={quoteNumber}
               description={productName}
               name={primaryFirstName}
-              shipping={step2Methods.watch('address')}
+              shipping={address}
               amount={totalPremium}
               onPaymentSuccess={handlePaymentSuccess}
               onBuyNow={handleBuyNow}
               submittingStage2={submittingStage2}
-              formStep={formStep}
-              handleFormStepChange={handleFormStepChange}
             />
           </Elements>
-        </div>
+        </FormProvider>
       )}
+
 
       {/* ========== STEP 3: CONFIRMATION ========== */}
       {steps[2].status === "current" && (

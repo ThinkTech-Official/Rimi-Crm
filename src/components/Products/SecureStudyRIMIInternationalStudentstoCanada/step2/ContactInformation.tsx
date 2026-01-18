@@ -102,6 +102,7 @@ import { UseFormReturn } from "react-hook-form";
 
 interface ContactInfoData {
   contactInfo: {
+    email: string;
     additionalEmail: string;
     phoneNumber: string;
     legalGuardianName: string;
@@ -109,7 +110,7 @@ interface ContactInfoData {
 }
 
 interface ContactInformationProps {
-  methods: UseFormReturn<any>;
+  methods: UseFormReturn<ContactInfoData>;
   email?: string;
 }
 
