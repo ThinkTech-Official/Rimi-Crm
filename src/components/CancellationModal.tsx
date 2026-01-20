@@ -235,7 +235,7 @@ export default function CancellationModal({
                 </div>
 
                 {/* Quick Refund Calculation */}
-                <div className="bg-blue-50/50 border border-blue-200 p-4">
+                {/* <div className="bg-blue-50/50 border border-blue-200 p-4">
                   <div className="flex justify-between gap-4 text-sm">
                     <div>
                       <div className="text-gray-600">Total Amount Paid</div>
@@ -263,7 +263,7 @@ export default function CancellationModal({
                         : 'This is a quick estimate for lump sum payment. Click "PREVIEW REFUND" for official calculation.'}
                     </p>
                   </div>
-                </div>
+                </div> */}
 
                 <div>
                   <label className="block font-medium mb-2 text-text-secondary">Notes (Optional)</label>

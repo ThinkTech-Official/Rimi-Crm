@@ -1036,7 +1036,7 @@ const PolicyDetailsPage: React.FC = () => {
       {/* Premium / Payment Info */}
       {(history?.length > 0 ||
         (paymentSchedule && paymentSchedule.length > 0)) && (
-        <section className="border-b py-4 space-y-4">
+        <section className="border-b border-inputBorder py-4 space-y-4">
           <div className="uppercase text-primary font-semibold text-lg">
             Premium / Payment Info
           </div>
@@ -1124,9 +1124,9 @@ const PolicyDetailsPage: React.FC = () => {
                       <th className="px-2 sm:px-3 py-1 sm:py-3 text-right font-medium text-nowrap">
                         Amount
                       </th>
-                      <th className="px-2 sm:px-3 py-1 sm:py-3 text-right font-medium text-nowrap">
+                      {/* <th className="px-2 sm:px-3 py-1 sm:py-3 text-right font-medium text-nowrap">
                         Fee
-                      </th>
+                      </th> */}
                       <th className="px-2 sm:px-3 py-1 sm:py-3 text-left font-medium text-nowrap">
                         Status
                       </th>
@@ -1206,7 +1206,7 @@ const PolicyDetailsPage: React.FC = () => {
                               currencyDisplay: "code",
                             })}
                           </td>
-                          <td
+                          {/* <td
                             className="px-2 sm:px-3 py-2 sm:py-4 whitespace-nowrap text-right"
                             style={cellStyle}
                           >
@@ -1217,7 +1217,7 @@ const PolicyDetailsPage: React.FC = () => {
                                   currencyDisplay: "code",
                                 })
                               : "N/A"}
-                          </td>
+                          </td> */}
                           <td
                             className="px-2 sm:px-3 py-2 sm:py-4 whitespace-nowrap"
                             style={cellStyle}
