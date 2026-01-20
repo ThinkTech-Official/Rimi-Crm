@@ -1,85 +1,123 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { MdEmail, MdDescription, MdArrowBack } from "react-icons/md";
+import {
+  MdEmail,
+  MdDescription,
+  MdOutlineMail,
+  MdOutlineMailOutline,
+} from "react-icons/md";
+import { useLanguage } from "../context/LanguageContext";
 
 const MGAContracting: React.FC = () => {
   const navigate = useNavigate();
+  const { t } = useLanguage();
 
   const requirements = [
-    "Valid Insurance License",
-    "Errors and Omissions Insurance Confirmation",
-    "Void Cheque/ Bank Details",
-    "Signed RIMI AGA Agreement",
+    { title: "Valid Insurance License" },
+    { title: "Errors and Omissions Insurance Confirmation" },
+    { title: "Void Cheque / Bank Details" },
+    { title: "Signed RIMI AGA Agreement" },
   ];
 
   return (
-    <div className="min-h-[calc(100vh-64px)] bg-white flex flex-col items-center justify-center px-6 py-10">
-      <div className="w-full max-w-xl bg-white shadow-lg border border-gray-100 p-6 sm:p-10 relative">
-        {/* Back Button */}
-        <button
-          onClick={() => navigate(-1)}
-          className="absolute top-4 left-4 text-gray-500 hover:text-primary transition-colors flex items-center gap-1 text-xs font-medium cursor-pointer"
-        >
-          <MdArrowBack size={18} />
-          Back
-        </button>
-
-        <div className="flex flex-col items-center">
-          <img
-            src="/rimi_en.png"
-            alt="RIMI Logo"
-            className="h-12 w-auto mb-6"
-          />
-
-          <h1 className="text-2xl font-bold text-gray-900 text-center mb-5">
-            MGA Contracting Registration
+    <div className="h-[calc(100vh-3.5rem)] bg-white flex overflow-hidden">
+      {/* ===== LEFT COLUMN - SIDEBAR ===== */}
+      <div className="hidden lg:flex w-[40%] bg-[#E8EEFB] flex-col p-12 relative overflow-hidden">
+        <div className="relative z-10 mt-12 font-[inter]">
+          <h1 className="text-4xl font-bold text-[#1B1B1B] mb-4">
+            Lorem Ipsum
           </h1>
+          <p className="text-[#4A4A4A] max-w-sm leading-relaxed">
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+            eiusmod tempor incididunt ut labore et dolore magna aliqua.
+          </p>
+        </div>
 
-          <div className="bg-blue-50 border-l-4 border-primary p-5 mb-6 w-full">
-            <div className="flex items-start gap-3">
-              <MdEmail className="text-primary text-xl mt-0.5 shrink-0" />
-              <div>
-                <p className="text-gray-800 font-medium mb-0.5 text-sm">
-                  For new MGA contracting registrations, please contact:
-                </p>
-                <a
-                //   href="mailto:agentcontracting@rimiconsulting.com"
-                  className="text-lg font-bold text-primary hover:underline"
-                >
-                  agentcontracting@rimiconsulting.com
-                </a>
+        {/* Umbrella Image */}
+        <div className="absolute bottom-0 left-0 w-full flex justify-center">
+          <img
+            src="/Umbrella.png"
+            alt="Umbrella"
+            className="w-[80%] h-auto object-contain transform translate-y-12"
+          />
+        </div>
+      </div>
+
+      {/* ===== RIGHT COLUMN - CONTENT AREA ===== */}
+      <div className="flex-1 flex flex-col h-full overflow-y-auto">
+        {/* Top Nav Buttons */}
+        <div className="p-6 flex justify-end gap-3">
+          <button
+            onClick={() => navigate("/apply")}
+            className="px-6 py-2 border border-[#2B00B7] text-[#2B00B7] font-medium text-sm transition-colors cursor-pointer"
+          >
+            Apply as agent
+          </button>
+          <button
+            onClick={() => navigate("/login")}
+            className="btn-primary w-[150px] py-2 font-medium text-sm cursor-pointer"
+          >
+            Sign in
+          </button>
+        </div>
+
+        <div className="w-full flex-1 flex flex-col items-center px-6 py-4 sm:py-10 sm:px-16">
+          <div className="w-full max-w-2xl flex flex-col items-center lg:items-start">
+            <img
+              src="/rimi_en.png"
+              alt="RIMI Logo"
+              className="h-12 w-24 md:h-16 md:w-36 mb-4 md:mb-10"
+            />
+
+            <h1 className="text-2xl md:text-3xl font-bold text-[#1B1B1B] mb-8 text-center lg:text-left">
+              MGA Contracting Registration
+            </h1>
+
+            {/* Email Info Box */}
+            <div className="bg-[#EFF6FF] p-4 mb-6 w-full flex flex-col gap-1">
+              <p className="text-[#232323]">
+                For new MGA contracting registrations, please contact:
+              </p>
+              <a
+                href="mailto:agentcontracting@rimiconsulting.com"
+                className="text-[#2B00B7] text-lg flex items-center gap-2 hover:underline"
+              >
+                <MdOutlineMailOutline size={20} />
+                agentcontracting@rimiconsulting.com
+              </a>
+            </div>
+
+            {/* Requirements Section */}
+            <div className="w-full">
+              <h2 className="text-lg font-bold text-[#1B1B1B] mb-2">
+                Required Information
+              </h2>
+              <p className="text-text-secondary mb-6">
+                Please include the following documents in your email:
+              </p>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {requirements.map((req, index) => (
+                  <div
+                    key={index}
+                    className="flex items-center gap-4 p-6 bg-[#F9FAFB] border border-[#E5E7EB] rounded-md shadow-sm h-20"
+                  >
+                    <span className="flex items-center justify-center w-8 h-8 bg-white border border-[#E5E7EB] rounded-full text-[#1B1B1B] font-bold shrink-0">
+                      {index + 1}
+                    </span>
+                    <span className="text-text-primary">{req.title}</span>
+                  </div>
+                ))}
               </div>
             </div>
-          </div>
 
-          <div className="w-full">
-            <h2 className="text-lg font-semibold text-gray-800 mb-3 flex items-center gap-2 border-b border-gray-100 pb-2">
-              <MdDescription className="text-primary" />
-              Required Information
-            </h2>
-            <p className="text-sm text-gray-600 mb-4">
-              Please include the following documents in your email:
-            </p>
-            <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {requirements.map((req, index) => (
-                <li
-                  key={index}
-                  className="flex items-center gap-3 p-3 bg-gray-50 border border-gray-100 rounded-lg text-gray-700 font-medium shadow-sm text-sm"
-                >
-                  <span className="flex items-center justify-center w-6 h-6 bg-white rounded-full border border-gray-200 text-primary font-bold text-xs shrink-0">
-                    {index + 1}
-                  </span>
-                  {req}
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div className="mt-8 text-center border-t border-gray-100 pt-6 w-full">
-            <p className="text-xs text-gray-500 leading-relaxed">
-              Our contracting team will review your information and get back to
-              you within 2-3 business days.
-            </p>
+            {/* Footer Note */}
+            <div className="mt-6 pt-4 border-t border-[#F3F4F6] w-full text-center">
+              <p className="text-sm text-[#9CA3AF] leading-relaxed">
+                Our contracting team will review your information and get back
+                to you within 2-3 business days.
+              </p>
+            </div>
           </div>
         </div>
       </div>
