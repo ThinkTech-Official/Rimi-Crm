@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { getUserTypeFromToken } from "../utils/getUserType";
 import { useNavigate } from "react-router-dom";
@@ -68,20 +68,20 @@ const Products: React.FC = () => {
   return (
     <div className="mx-auto px-4 sm:px-4 max-w-7xl">
       <h1 className="text-lg font-bold mb-4 text-text-primary">Products</h1>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
         {productList.map((product) => (
           <div
             key={product.id}
             className="bg-white border border-gray-200 shadow-sm flex flex-col h-full hover:shadow-md transition-shadow duration-200"
           >
             {/* Placeholder Image Header */}
-            <div className="bg-gray-200 h-48 w-full flex-shrink-0">
+            <div className="bg-gray-200 w-full flex-shrink-0">
               <img src={product.img} alt={product.name}/>
             </div>
 
             {/* Card Content */}
             <div className="p-5 flex flex-col flex-1">
-              <h3 className="text-gray-900 font-bold text-base mb-2 min-h-[48px]">
+              <h3 className="text-gray-900 font-bold text-base mb-2">
                 {product.name}
               </h3>
 
@@ -89,10 +89,10 @@ const Products: React.FC = () => {
                 {product.description}
               </p>
 
-              <div className="mt-auto space-y-3">
+              <div className={`mt-auto ${product.id === "secure-study-international-students-to-canada" ? "flex flex-wrap lg:flex-nowrap gap-3" : ""}`}>
                 <button
                   onClick={() => handleApplicationClick(product.slug)}
-                  className="btn-primary flex items-center gap-2 w-full justify-center"
+                  className="btn-primary flex items-center gap-2 w-full justify-center text-nowrap"
                 >
                   <PencilSquareIcon className="h-5 w-5" aria-hidden="true" />
                   Application Form
@@ -104,7 +104,7 @@ const Products: React.FC = () => {
                   userType === "ADMIN" && (
                     <button
                       onClick={() => handleApplicationClick("bulk-upload")}
-                      className="px-2 py-2 border border-[#bbbbbb] hover:border-[#777777] flex gap-2 cursor-pointer items-center text-text-secondary hover:text-text-primary transition-all duration-200 text-nowrap w-full justify-center"
+                      className="py-2 sm:py-3 px-4 border border-[#bbbbbb] hover:border-[#777777] flex gap-2 cursor-pointer items-center text-text-secondary hover:text-text-primary transition-all duration-200 text-nowrap w-full justify-center h-fit"
                     >
                       <ArrowUpTrayIcon className="h-5 w-5" aria-hidden="true" />{" "}
                       Bulk upload
