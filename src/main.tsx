@@ -164,11 +164,11 @@ const router = createBrowserRouter(
         <Route path="search-users" element={<Users />} />
         <Route path="create-user" element={<CreateUser />} />
         <Route path="documents" element={<Documents />} />
-        <Route path="trip-calculator" element={<TripCalculator />} />
+        <Route path="trip-calculator" element={<TripCalculator />} /> 
         <Route path="profile" element={<Profile />} />
         <Route path="userdetail/:id" element={<UserDetails />} />
-        <Route path="user-upload" element={<UserUpload />} />
-        <Route path="quote-upload" element={<QuoteUploader />} />
+        <Route path="migrations/users" element={<UserUpload />} />
+        <Route path="migrations/quotes" element={<QuoteUploader />} />
         <Route path="quote-detail/:id" element={<QuoteDetailPage />} />
         <Route
           path="admin/agent-details/:agentCode"
@@ -178,7 +178,7 @@ const router = createBrowserRouter(
           path="mga/agent-details/:agentCode"
           element={<MGAAgentDetails />}
         />
-        <Route path="policy-upload" element={<PolicyUploader />} />
+        <Route path="migrations/policies" element={<PolicyUploader />} />
         <Route path="policy-detail/:id" element={<PolicyDetails />} />
         <Route path="sales-data-upload" element={<ImportSalesUpload />} />
 

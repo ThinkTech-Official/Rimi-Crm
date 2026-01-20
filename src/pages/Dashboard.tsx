@@ -440,7 +440,9 @@ import {
   ChevronLeftIcon,
   HomeIcon,
   ShieldCheckIcon,
+  ArrowPathIcon,
 } from "@heroicons/react/24/outline";
+import { Disclosure } from "@headlessui/react";
 import { LangContext } from "../context/LangContext";
 import { getUserTypeFromToken } from "../utils/getUserType";
 import { HiOutlineDocumentCurrencyDollar } from "react-icons/hi2";
@@ -494,6 +496,21 @@ const navigation = [
     slug: "policy-search",
     allowedRoles: ["ADMIN", "AGENT", "MGA"],
     url: "/search-policies",
+  },
+  {
+    name: "Migrations",
+    nameFr: "Migrations",
+    href: "#",
+    icon: ArrowPathIcon,
+    current: false,
+    slug: "migrations",
+    allowedRoles: ["ADMIN"],
+    url: "#",
+    children: [
+      { name: "User Migration", url: "/migrations/users", slug: "user-migration" },
+      { name: "Quote Migration", url: "/migrations/quotes", slug: "quote-migration" },
+      { name: "Policy Migration", url: "/migrations/policies", slug: "policy-migration" },
+    ]
   },
   {
     name: "Verification Requests",
@@ -711,40 +728,91 @@ export default function Dashboard() {
                         <li>
                           <ul role="list" className="space-y-1">
                             {filteredNavigation.map((item) => (
-                              <li
-                                onClick={() => handleLinkClick(item)}
-                                key={item.name}
-                                className={`group cursor-pointer hover:text-primary relative
-                                  ${
-                                    item.slug === selectedComponent
-                                      ? "bg-gray-50 text-[#2B00B7] font-semibold"
-                                      : "text-[#4B465C] hover:text-[#2B00B7] hover:bg-gray-50"
-                                  }
-                                  flex gap-x-3 rounded-md p-2 text-md leading-6`}
-                              >
-                                <item.icon
-                                  className={`
+                              !item.children ? (
+                                <li
+                                  onClick={() => handleLinkClick(item)}
+                                  key={item.name}
+                                  className={`group cursor-pointer hover:text-primary relative
                                     ${
                                       item.slug === selectedComponent
-                                        ? "text-[#2B00B7]"
-                                        : "text-gray-400 group-hover:text-[#2B00B7] transition-all duration-200"
+                                        ? "bg-gray-50 text-[#2B00B7] font-semibold"
+                                        : "text-[#4B465C] hover:text-[#2B00B7] hover:bg-gray-50"
                                     }
-                                    h-6 w-6 shrink-0
-                                  `}
-                                  aria-hidden="true"
-                                />
-                                <span className="capitalize transition-all duration-200">
-                                  {t(item.name)}
-                                </span>
-                                {/* Notification badge for verification requests */}
-                                {item.slug === 'verification-requests' && 
-                                 userType === 'ADMIN' && 
-                                 pendingCount > 0 && (
-                                  <span className="absolute right-2 top-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                                    {pendingCount > 9 ? '9+' : pendingCount}
+                                    flex gap-x-3 rounded-md p-2 text-md leading-6`}
+                                >
+                                  <item.icon
+                                    className={`
+                                      ${
+                                        item.slug === selectedComponent
+                                          ? "text-[#2B00B7]"
+                                          : "text-gray-400 group-hover:text-[#2B00B7] transition-all duration-200"
+                                      }
+                                      h-6 w-6 shrink-0
+                                    `}
+                                    aria-hidden="true"
+                                  />
+                                  <span className="capitalize transition-all duration-200">
+                                    {t(item.name)}
                                   </span>
-                                )}
-                              </li>
+                                  {/* Notification badge for verification requests */}
+                                  {item.slug === 'verification-requests' && 
+                                   userType === 'ADMIN' && 
+                                   pendingCount > 0 && (
+                                    <span className="absolute right-2 top-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                                      {pendingCount > 9 ? '9+' : pendingCount}
+                                    </span>
+                                  )}
+                                </li>
+                              ) : (
+                                <Disclosure as="div" key={item.name} className="space-y-1">
+                                  {({ open }) => (
+                                    <>
+                                      <Disclosure.Button
+                                        className={`group w-full flex items-center gap-x-3 rounded-md p-2 text-md leading-6 hover:bg-gray-50 hover:text-primary cursor-pointer
+                                          ${
+                                            open
+                                              ? "bg-gray-50 text-[#2B00B7] font-semibold"
+                                              : "text-[#4B465C]"
+                                          }`}
+                                      >
+                                        <item.icon
+                                          className={`h-6 w-6 shrink-0 ${
+                                            open ? "text-[#2B00B7]" : "text-gray-400 group-hover:text-[#2B00B7]"
+                                          }`}
+                                          aria-hidden="true"
+                                        />
+                                        <span className="flex-1 text-left capitalize transition-all duration-200">
+                                          {t(item.name)}
+                                        </span>
+                                        <ChevronRightIcon
+                                          className={`h-5 w-5 shrink-0 text-gray-400 transition-transform duration-200 ${
+                                            open ? "rotate-90 text-[#2B00B7]" : ""
+                                          }`}
+                                          aria-hidden="true"
+                                        />
+                                      </Disclosure.Button>
+                                      <Disclosure.Panel className="mt-1 px-2">
+                                        <ul className="space-y-1">
+                                          {item.children.map((subItem) => (
+                                            <li
+                                              key={subItem.name}
+                                              onClick={() => handleLinkClick(subItem)}
+                                              className={`group flex gap-x-3 rounded-md p-2 pl-11 text-sm leading-6 cursor-pointer hover:bg-gray-50 hover:text-[#2B00B7]
+                                                ${
+                                                  subItem.slug === selectedComponent
+                                                    ? "bg-gray-50 text-[#2B00B7] font-semibold"
+                                                    : "text-[#4B465C]"
+                                                }`}
+                                            >
+                                              {subItem.name}
+                                            </li>
+                                          ))}
+                                        </ul>
+                                      </Disclosure.Panel>
+                                    </>
+                                  )}
+                                </Disclosure>
+                              )
                             ))}
                           </ul>
                         </li>
@@ -792,49 +860,107 @@ export default function Dashboard() {
                 <li>
                   <ul role="list" className="space-y-1">
                     {filteredNavigation.map((item) => (
-                      <li
-                        onClick={() => handleLinkClick(item)}
-                        key={item.name}
-                        className={`group cursor-pointer hover:text-primary relative
-                          ${
-                            item.slug === selectedComponent
-                              ? "bg-gray-50 text-[#2B00B7] font-semibold"
-                              : "text-[#4B465C] hover:text-[#2B00B7] hover:bg-gray-50"
-                          }
-                          flex gap-x-3 rounded-md p-2 text-md leading-6`}
-                      >
-                        <item.icon
-                          className={`
+                      !item.children ? (
+                        <li
+                          onClick={() => handleLinkClick(item)}
+                          key={item.name}
+                          className={`group cursor-pointer hover:text-primary relative
                             ${
                               item.slug === selectedComponent
-                                ? "text-[#2B00B7]"
-                                : "text-gray-400 group-hover:text-[#2B00B7] transition-all duration-200"
+                                ? "bg-gray-50 text-[#2B00B7] font-semibold"
+                                : "text-[#4B465C] hover:text-[#2B00B7] hover:bg-gray-50"
                             }
-                            h-6 w-6 shrink-0
-                          `}
-                          aria-hidden="true"
-                        />
-                        {isSidebarCollapsed && (
-                          <span className="capitalize transition-all duration-200">
-                            {t(item.name)}
-                          </span>
-                        )}
-                        {!isSidebarCollapsed && (
-                          <span className="absolute left-full ml-1 z-50 bg-[#393939] text-white text-xs px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap pointer-events-none">
-                            {item.name}
-                          </span>
-                        )}
-                        {/* Notification badge for verification requests */}
-                        {item.slug === 'verification-requests' && 
-                         userType === 'ADMIN' && 
-                         pendingCount > 0 && (
-                          <span className={`absolute ${
-                            isSidebarCollapsed ? 'right-2 top-2.5' : 'left-5 top-0'
-                          } bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center`}>
-                            {pendingCount > 9 ? '9+' : pendingCount}
-                          </span>
-                        )}
-                      </li>
+                            flex gap-x-3 rounded-md p-2 text-md leading-6`}
+                        >
+                          <item.icon
+                            className={`
+                              ${
+                                item.slug === selectedComponent
+                                  ? "text-[#2B00B7]"
+                                  : "text-gray-400 group-hover:text-[#2B00B7] transition-all duration-200"
+                              }
+                              h-6 w-6 shrink-0
+                            `}
+                            aria-hidden="true"
+                          />
+                          {isSidebarCollapsed && (
+                            <span className="capitalize transition-all duration-200">
+                              {t(item.name)}
+                            </span>
+                          )}
+                          {!isSidebarCollapsed && (
+                            <span className="absolute left-full ml-1 z-50 bg-[#393939] text-white text-xs px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap pointer-events-none">
+                              {item.name}
+                            </span>
+                          )}
+                          {/* Notification badge for verification requests */}
+                          {item.slug === 'verification-requests' && 
+                           userType === 'ADMIN' && 
+                           pendingCount > 0 && (
+                            <span className={`absolute ${
+                              isSidebarCollapsed ? 'right-2 top-2.5' : 'left-5 top-0'
+                            } bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center`}>
+                              {pendingCount > 9 ? '9+' : pendingCount}
+                            </span>
+                          )}
+                        </li>
+                      ) : (
+                        <Disclosure as="div" key={item.name} className="space-y-1">
+                          {({ open }) => (
+                            <>
+                                <Disclosure.Button
+                                  onClick={() => !isSidebarCollapsed && setSidebarCollapsed(true)}
+                                  className={`group w-full flex items-center gap-x-3 rounded-md p-2 text-md leading-6 hover:bg-gray-50 hover:text-primary cursor-pointer
+                                    ${
+                                      open
+                                        ? "bg-gray-50 text-[#2B00B7] font-semibold"
+                                        : "text-[#4B465C]"
+                                    }`}
+                                >
+                                <item.icon
+                                  className={`h-6 w-6 shrink-0 ${
+                                    open ? "text-[#2B00B7]" : "text-gray-400 group-hover:text-[#2B00B7]"
+                                  }`}
+                                  aria-hidden="true"
+                                />
+                                {isSidebarCollapsed && (
+                                  <>
+                                    <span className="flex-1 text-left capitalize transition-all duration-200">
+                                      {t(item.name)}
+                                    </span>
+                                    <ChevronRightIcon
+                                      className={`h-5 w-5 shrink-0 text-text-secondary transition-transform duration-200 ${
+                                        open ? "rotate-90 text-[#2B00B7]" : ""
+                                      }`}
+                                      aria-hidden="true"
+                                    />
+                                  </>
+                                )}
+                              </Disclosure.Button>
+                              {isSidebarCollapsed && (
+                                <Disclosure.Panel className="mt-1 px-2">
+                                  <ul className="space-y-1">
+                                    {item.children.map((subItem) => (
+                                      <li
+                                        key={subItem.name}
+                                        onClick={() => handleLinkClick(subItem)}
+                                        className={`group flex gap-x-3 rounded-md p-2 pl-11 leading-6 cursor-pointer hover:bg-gray-50 hover:text-[#2B00B7]
+                                          ${
+                                            subItem.slug === selectedComponent
+                                              ? "bg-gray-50 text-[#2B00B7] font-semibold"
+                                              : "text-[#4B465C]"
+                                          }`}
+                                      >
+                                        {subItem.name}
+                                      </li>
+                                    ))}
+                                  </ul>
+                                </Disclosure.Panel>
+                              )}
+                            </>
+                          )}
+                        </Disclosure>
+                      )
                     ))}
                   </ul>
                 </li>
