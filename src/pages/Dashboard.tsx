@@ -498,21 +498,6 @@ const navigation = [
     url: "/search-policies",
   },
   {
-    name: "Migrations",
-    nameFr: "Migrations",
-    href: "#",
-    icon: ArrowPathIcon,
-    current: false,
-    slug: "migrations",
-    allowedRoles: ["ADMIN"],
-    url: "#",
-    children: [
-      { name: "User Migration", url: "/migrations/users", slug: "user-migration" },
-      { name: "Quote Migration", url: "/migrations/quotes", slug: "quote-migration" },
-      { name: "Policy Migration", url: "/migrations/policies", slug: "policy-migration" },
-    ]
-  },
-  {
     name: "Verification Requests",
     nameFr: "Demandes de vérification",
     href: "#",
@@ -572,6 +557,21 @@ const navigation = [
     allowedRoles: ["ADMIN"],
     url: "/trip-calculator",
   },
+  {
+    name: "Migrations",
+    nameFr: "Migrations",
+    href: "#",
+    icon: ArrowPathIcon,
+    current: false,
+    slug: "migrations",
+    allowedRoles: ["ADMIN"],
+    url: "#",
+    children: [
+      { name: "User Migration", url: "/migrations/users", slug: "user-migration" },
+      { name: "Quote Migration", url: "/migrations/quotes", slug: "quote-migration" },
+      { name: "Policy Migration", url: "/migrations/policies", slug: "policy-migration" },
+    ]
+  }
 ];
 
 function classNames(...classes: any) {
