@@ -20,8 +20,10 @@ interface CancellationModalProps {
   policyId: string;
   policyNumber: string;
   paymentHistory: PaymentRecord[];
-  onSuccess: (message: string) => void;
   onClose: () => void;
+  effectiveDate: string; 
+  paymentOption: string; 
+  onSuccess: (message: string) => void;
 }
 
 export default function CancellationModal({
@@ -30,6 +32,8 @@ export default function CancellationModal({
   policyId,
   policyNumber,
   paymentHistory,
+  effectiveDate, 
+  paymentOption, 
   onSuccess
 }: CancellationModalProps) {
   const [step, setStep] = useState<'preview' | 'confirm'>('preview');
@@ -47,8 +51,20 @@ export default function CancellationModal({
     cancelPolicy,
   } = usePolicyCancellation(policyId);
 
-  // Calculate simple refund estimate for lump sum
+  
+  const policyHasStarted = new Date() >= new Date(effectiveDate);
+  const isMonthly = paymentOption === 'monthly-installments';
+  const noRefundsWillBeIssued = isMonthly && policyHasStarted;
+
   const calculateSimpleRefund = () => {
+    // If policy has started and is monthly, no refunds
+    if (noRefundsWillBeIssued) {
+      return { 
+        totalPaid: paymentHistory.reduce((sum, p) => sum + p.amount, 0), 
+        refundable: 0 
+      };
+    }
+  
     const totalPaid = paymentHistory.reduce((sum, p) => sum + p.amount, 0);
     const refundable = totalPaid - cancellationFee;
     return {
@@ -74,7 +90,7 @@ export default function CancellationModal({
       const feeToUse = cancellationType === 'visa-refusal' ? 0 : cancellationFee;
       fetchRefundPreview(cancellationType, feeToUse);
     }
-  }, [isOpen, cancellationType, cancellationFee]);
+  }, [isOpen, cancellationType, cancellationFee, step]);
 
   const handleCancel = async () => {
     const result = await cancelPolicy({
@@ -120,6 +136,36 @@ export default function CancellationModal({
 
           {step === 'preview' && (
             <>
+              
+              {noRefundsWillBeIssued ? (
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                  <div className="flex items-start">
+                    <div className="text-blue-600 text-xl mr-3">ℹ️</div>
+                    <div>
+                      <h3 className="font-semibold text-blue-800 mb-2">
+                        Policy Already Started - No Refunds
+                      </h3>
+                      <p className="text-sm text-blue-700 mb-2">
+                        This policy has already started (Effective: {new Date(effectiveDate).toLocaleDateString('en-CA')}). 
+                        Cancelling will:
+                      </p>
+                      <ul className="list-disc list-inside text-sm text-blue-700 space-y-1">
+                        <li>Stop all future monthly charges immediately</li>
+                        <li>Keep your coverage through the last paid period</li>
+                        <li><strong>No refunds will be issued</strong> (premium already earned)</li>
+                        <li>Cancel the Stripe subscription</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="bg-yellow-50 border border-yellow-200 p-4">
+                  <p className="text-sm text-yellow-800">
+                    <strong>Note:</strong> Refunds will be processed according to the breakdown below.
+                  </p>
+                </div>
+              )}
+
               {/* Transaction Records Table */}
               <div className="space-y-2">
                 <h3 className="font-semibold text-sm text-primary">
@@ -208,9 +254,9 @@ export default function CancellationModal({
                     />
                   </div>
                 )}
-
+              {!noRefundsWillBeIssued && (
                 <div>
-                  <label className="block font-medium mb-2 text-text-secondary">
+                  <label className="block font-medium mb-2">
                     Cancellation Fee (CAD)
                     {cancellationType === 'visa-refusal' && (
                       <span className="text-sm text-gray-500 ml-2">(No fee for visa refusal)</span>
@@ -233,10 +279,10 @@ export default function CancellationModal({
                     readOnly={cancellationType === 'visa-refusal'}
                   />
                 </div>
-
+              )}
                 {/* Quick Refund Calculation */}
-                {/* <div className="bg-blue-50/50 border border-blue-200 p-4">
-                  <div className="flex justify-between gap-4 text-sm">
+                {/* <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                  <div className="grid grid-cols-2 gap-4 text-sm">
                     <div>
                       <div className="text-gray-600">Total Amount Paid</div>
                       <div className="font-semibold text-lg">
@@ -250,14 +296,14 @@ export default function CancellationModal({
                       </div>
                     </div>
                   </div>
-                  <div className="border-t border-blue-300 mt-1 pt-3">
+                  <div className="border-t border-blue-300 mt-3 pt-3">
                     <div className="flex justify-between items-center">
                       <span className="font-medium">Estimated Refundable Amount</span>
-                      <span className="text-xl font-bold text-green-600">
+                      <span className="text-2xl font-bold text-green-600">
                         CAD ${simpleRefund.refundable.toFixed(2)}
                       </span>
                     </div>
-                    <p className="text-xs max-w-sm text-gray-600 mt-2">
+                    <p className="text-xs text-gray-600 mt-2">
                       {paymentHistory.length > 1 
                         ? '⚠️ This is an estimate. For monthly payments, the actual refund breakdown may differ. Click "PREVIEW REFUND" for detailed calculation.'
                         : 'This is a quick estimate for lump sum payment. Click "PREVIEW REFUND" for official calculation.'}
@@ -295,8 +341,8 @@ export default function CancellationModal({
                   <p className="mt-2 text-gray-600">Calculating refund...</p>
                 </div>
               ) : preview ? (
-                <div className="bg-gray-50 p-6 space-y-4">
-                  <h3 className="font-semibold text-lg text-primary">Refund Preview</h3>
+                <div className="bg-gray-50 rounded-lg p-6 space-y-4">
+                  <h3 className="font-semibold text-lg" style={{ color: '#2309a1' }}>Refund Preview</h3>
                   
                   <div className="grid grid-cols-2 gap-4 text-sm">
                     <div>
@@ -317,54 +363,61 @@ export default function CancellationModal({
                     </div>
                   </div>
 
-                  <div className="border-t pt-4">
+                  <div className="border-t border-inputBorder pt-4">
                     <div className="flex justify-between items-center">
                       <span className="text-lg font-semibold">Total Refundable</span>
-                      <span className="text-xl font-bold text-green-600">
+                      <span className="text-2xl font-bold text-green-600">
                         CAD ${preview.totalRefundable.toFixed(2)}
                       </span>
                     </div>
+                    {noRefundsWillBeIssued && (
+                      <p className="text-sm text-gray-600 mt-2">
+                        No refunds will be issued. Subscription will be cancelled.
+                      </p>
+                    )}
                   </div>
 
                   {/* Breakdown Table */}
                   {preview.refundBreakdown.length > 0 && (
                     <div className="mt-4">
                       <h4 className="font-medium mb-2">Refund Breakdown</h4>
-                      <table className="min-w-full divide-y divide-gray-200">
-                        <thead className="bg-primary text-white text-base capitalize">
-                          <tr>
-                            <th className="px-2 py-1 text-left font-medium">Charge ID</th>
-                            <th className="px-2 py-1 text-right font-medium">Original</th>
-                            <th className="px-2 py-1 text-right font-medium">Refund</th>
-                            <th className="px-2 py-1 text-left font-medium">Date</th>
-                          </tr>
-                        </thead>
-                        <tbody className="bg-white" style={{ border: "1px solid #AAA9A9" }}>
-                          {preview.refundBreakdown.map((item: any, idx: any) => (
-                            <tr key={idx} className="text-[#808080] text-sm">
-                              <td className="px-2 py-1 font-mono text-xs" style={{ borderWidth: "0px 1px 1px 0px", borderStyle: "solid", borderColor: "#AAA9A9" }}>
-                                {item.chargeId.slice(-8)}
-                              </td>
-                              <td className="px-2 py-1 text-right" style={{ borderWidth: "0px 1px 1px 0px", borderStyle: "solid", borderColor: "#AAA9A9" }}>
-                                ${item.amount.toFixed(2)}
-                              </td>
-                              <td className="px-2 py-1 text-right font-medium text-green-600" style={{ borderWidth: "0px 1px 1px 0px", borderStyle: "solid", borderColor: "#AAA9A9" }}>
-                                ${item.willRefund.toFixed(2)}
-                              </td>
-                              <td className="px-2 py-1" style={{ borderWidth: "0px 1px 1px 0px", borderStyle: "solid", borderColor: "#AAA9A9" }}>
-                                {new Date(item.date).toLocaleDateString('en-CA')}
-                              </td>
+                      <div className="overflow-x-auto">
+                        <table className="w-full text-xs">
+                          <thead className="bg-gray-100">
+                            <tr>
+                              <th className="px-2 py-1 text-left font-medium">Charge ID</th>
+                              <th className="px-2 py-1 text-right font-medium">Original</th>
+                              <th className="px-2 py-1 text-right font-medium">Refund</th>
+                              <th className="px-2 py-1 text-left font-medium">Date</th>
                             </tr>
-                          ))}
-                        </tbody>
-                      </table>
+                          </thead>
+                          <tbody className="bg-white" style={{ border: "1px solid #AAA9A9" }}>
+                            {preview.refundBreakdown.map((item: any, idx: any) => (
+                              <tr key={idx} className="text-[#808080] text-sm">
+                                <td className="px-2 py-1 font-mono text-xs" style={{ borderWidth: "0px 1px 1px 0px", borderStyle: "solid", borderColor: "#AAA9A9" }}>
+                                  {item.chargeId.slice(-8)}
+                                </td>
+                                <td className="px-2 py-1 text-right" style={{ borderWidth: "0px 1px 1px 0px", borderStyle: "solid", borderColor: "#AAA9A9" }}>
+                                  ${item.amount.toFixed(2)}
+                                </td>
+                                <td className="px-2 py-1 text-right font-medium text-green-600">
+                                  ${item.willRefund.toFixed(2)}
+                                </td>
+                                <td className="px-2 py-1" style={{ borderWidth: "0px 1px 1px 0px", borderStyle: "solid", borderColor: "#AAA9A9" }}>
+                                  {new Date(item.date).toLocaleDateString('en-CA')}
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
                     </div>
                   )}
                 </div>
               ) : null}
 
               {/* Action Buttons */}
-              <div className="flex justify-end space-x-3 pt-4 border-t">
+              <div className="flex justify-end space-x-3 pt-4 border-t border-inputBorder">
                 <button
                   onClick={onClose}
                   className="py-2 px-4 border border-inputBorder hover:border-gray-400 cursor-pointer transition delay-100"
@@ -376,7 +429,7 @@ export default function CancellationModal({
                   disabled={!preview || loading}
                   className="btn-primary"
                 >
-                  PREVIEW REFUND
+                  {noRefundsWillBeIssued ? 'PROCEED TO CANCEL' : 'PREVIEW REFUND'}
                 </button>
               </div>
             </>
@@ -396,9 +449,12 @@ export default function CancellationModal({
                     </p>
                     <ul className="list-disc list-inside text-sm text-yellow-700 mt-2 space-y-1">
                       <li>Policy status will be set to CANCELLED</li>
-                      <li>Refunds will be processed to the original payment method</li>
+                      {!noRefundsWillBeIssued && <li>Refunds will be processed to the original payment method</li>}
                       <li>Subscription will be cancelled (if applicable)</li>
                       <li>Pending commissions will be reversed</li>
+                      {noRefundsWillBeIssued && (
+                        <li className="font-semibold">No refunds will be issued (policy already started)</li>
+                      )}
                     </ul>
                   </div>
                 </div>
@@ -407,11 +463,16 @@ export default function CancellationModal({
               {preview && (
                 <div className="bg-greyBg p-4">
                   <div className="flex justify-between items-center">
-                    <span className="font-medium">Total to be refunded:</span>
-                    <span className="text-xl font-bold text-green-600">
+                    <span className="font-medium">{noRefundsWillBeIssued ? 'Total refund:' : 'Total to be refunded:'}</span>
+                    <span className="text-2xl font-bold text-green-600">
                       CAD ${preview.totalRefundable.toFixed(2)}
                     </span>
                   </div>
+                  {noRefundsWillBeIssued && (
+                    <p className="text-sm text-gray-600 mt-2">
+                      Future charges will be stopped. Coverage continues through last paid period.
+                    </p>
+                  )}
                 </div>
               )}
 

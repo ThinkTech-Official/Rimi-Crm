@@ -1622,6 +1622,8 @@ const PolicyDetailsPage: React.FC = () => {
         policyId={id!}
         policyNumber={p.policyNumber!}
         paymentHistory={p.paymentHistory || []}
+        effectiveDate={p.effectiveDate?.toString() || ""}
+        paymentOption={p.paymentOption || ""}
         onSuccess={(message) => {
           triggerNotification({
             message,
