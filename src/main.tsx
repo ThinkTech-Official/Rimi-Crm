@@ -126,6 +126,12 @@ const router = createBrowserRouter(
 
       <Route path="/reset-password" element={<ResetPassword />} />
 
+      {/* PUBLIC APPLICATION ROUTES accessible without login */}
+      <Route path="/apply/secure-travel-visitors-to-canada" element={<ApplySecureTravelVisitorsToCanada />} />
+      <Route path="/apply/secure-study-international-students-to-canada" element={<ApplySecureStudyInternationalStudents />} />
+      <Route path="/apply/canuck-voyage-travel-medical" element={<ApplyCanuckVoyageTravelMedical />} />
+      <Route path="/apply/canuck-voyage-non-medical-travel" element={<ApplyCanuckVoyageNonMedical />} />
+
       {/* Dashboard as parent route with nested children */}
       <Route
         path="/"
@@ -200,10 +206,10 @@ const router = createBrowserRouter(
 
 
         {/* Apply  */}
-     <Route path="/apply/secure-travel-visitors-to-canada" element={<ApplySecureTravelVisitorsToCanada />} />
+     {/* <Route path="/apply/secure-travel-visitors-to-canada" element={<ApplySecureTravelVisitorsToCanada />} />
 <Route path="/apply/secure-study-international-students-to-canada" element={<ApplySecureStudyInternationalStudents />} />
 <Route path="/apply/canuck-voyage-travel-medical" element={<ApplyCanuckVoyageTravelMedical />} />
-<Route path="/apply/canuck-voyage-non-medical-travel" element={<ApplyCanuckVoyageNonMedical />} />
+<Route path="/apply/canuck-voyage-non-medical-travel" element={<ApplyCanuckVoyageNonMedical />} /> */}
 
       </Route>
 

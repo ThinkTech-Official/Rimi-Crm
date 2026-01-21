@@ -63,6 +63,7 @@ export function useSearchPolicies(defaultLimit: number = 10) {
       const res = await fetch(`${baseUrl}/policies/search`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include', 
         body: JSON.stringify(payload),
       });
       if (!res.ok) {
