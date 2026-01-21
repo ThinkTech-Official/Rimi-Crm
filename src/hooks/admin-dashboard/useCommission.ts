@@ -1,4 +1,4 @@
-// src/hooks/useCommission.ts
+
 
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
@@ -77,7 +77,7 @@ export const useBulkUpdateCommissionStatus = () => {
   return useMutation({
     mutationFn: async ({ commissionIds, newStatus, note }: BulkUpdateStatusParams) => {
       const { data } = await axiosInstance.put(
-        '${API_BASE}/admin/commissions/bulk/status',
+        `${API_BASE}/admin/commissions/bulk/status`,
         {
           commissionIds,
           status: newStatus,
@@ -130,7 +130,7 @@ export const useMarkCommissionsAsPaid = () => {
       paymentReference 
     }: MarkAsPaidParams) => {
       const { data } = await axiosInstance.put(
-        '${API_BASE}/admin/commissions/bulk/mark-paid',
+        `${API_BASE}/admin/commissions/bulk/mark-paid`,
         {
           commissionIds,
           performedBy: getPerformedBy(),
