@@ -309,7 +309,6 @@
 // =====================================
 
 
-// AdminAgentDetails.tsx
 
 import { useState } from "react";
 import { FaUser, FaEdit, FaBan, FaCheckCircle, FaArrowUp, FaArrowDown, FaUndo, FaCoins, FaCheck, FaTimes, FaSpinner } from "react-icons/fa";
