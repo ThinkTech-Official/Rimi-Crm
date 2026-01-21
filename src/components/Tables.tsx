@@ -19,8 +19,9 @@ export function PoliciesTable({
       <h2 className="text-lg font-bold text-text-primary">
         All Policies issued by agent
       </h2>
-      <table className="min-w-full divide-y divide-gray-200">
-        <thead className="bg-primary text-white text-base 2xl:text-xl capitalize">
+      <div className="overflow-auto custom-scrollbar-x">
+        <table className="min-w-full divide-y divide-gray-200">
+        <thead className="bg-primary text-white text-base 2xl:text-xl capitalize text-nowrap">
           <tr>
             <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium">
               Policy no.
@@ -137,6 +138,7 @@ export function PoliciesTable({
           )}
         </tbody>
       </table>
+      </div>
     </div>
   );
 }

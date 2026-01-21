@@ -339,7 +339,7 @@ export default function AgentHome() {
     <>
       <div className="w-full flex flex-col gap-4">
         {/* Stats Cards */}
-        <div
+        {/* <div
           className="grid grid-cols-2 lg:grid-cols-3 gap-4 xl:gap-8 w-full"
           role="stats"
         >
@@ -361,10 +361,10 @@ export default function AgentHome() {
               </div>
             </div>
           ))}
-        </div>
+        </div> */}
 
         {/* Chart Section with Filter Toggle */}
-        <div className="mt-6">
+        <div className="mt-6 hidden">
           <div className="flex justify-between items-center mb-4">
             <div>
               <h2 className="text-lg font-bold text-text-primary">
