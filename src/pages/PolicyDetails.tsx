@@ -1098,6 +1098,23 @@ const PolicyDetailsPage: React.FC = () => {
             </div>
           )}
 
+          {/* Payment Schedule Table */}
+          {p.paymentOption === "monthly-installments" &&
+            paymentSchedule &&
+            paymentSchedule.length > 0 && (
+              <div className="mt-6">
+                <h3 className="font-semibold text-sm mb-3">Payment Schedule</h3>
+                <PaymentScheduleTable
+                  schedule={paymentSchedule || []}
+                  loading={scheduleLoading}
+                  error={scheduleError}
+                  onProcessRefund={
+                    p.status === "CANCELLED" ? handleRefund : undefined
+                  }
+                />
+              </div>
+            )}
+
           {/* Payment History Table */}
           {history.length > 0 && (
             <div className="mt-4">
@@ -1311,23 +1328,6 @@ const PolicyDetailsPage: React.FC = () => {
               </div>
             </div>
           )}
-
-          {/* Payment Schedule Table */}
-          {p.paymentOption === "monthly-installments" &&
-            paymentSchedule &&
-            paymentSchedule.length > 0 && (
-              <div className="mt-6">
-                <h3 className="font-semibold text-sm mb-3">Payment Schedule</h3>
-                <PaymentScheduleTable
-                  schedule={paymentSchedule || []}
-                  loading={scheduleLoading}
-                  error={scheduleError}
-                  onProcessRefund={
-                    p.status === "CANCELLED" ? handleRefund : undefined
-                  }
-                />
-              </div>
-            )}
         </section>
       )}
 
@@ -1453,8 +1453,9 @@ const PolicyDetailsPage: React.FC = () => {
               <li className="text-gray-500">No notes yet.</li>
             )}
             {notes.map((n) => (
-              <li key={n.id} className="p-2 bg-greyBg">
-                <div className="text-xs text-gray-500">
+              <li key={n.id} className="px-2 py-4 bg-[#F9FAFB]">
+                  <div>{n.content}</div>
+                <div className="text-xs text-gray-500 mt-1">
                   {new Date(n.createdAt).toLocaleString("en-CA", {
                     year: "numeric",
                     month: "2-digit",
@@ -1463,7 +1464,6 @@ const PolicyDetailsPage: React.FC = () => {
                     minute: "2-digit",
                   })}
                 </div>
-                <div>{n.content}</div>
               </li>
             ))}
           </ul>

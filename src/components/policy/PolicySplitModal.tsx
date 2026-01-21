@@ -412,7 +412,7 @@ export const PolicySplitModal: React.FC<PolicySplitModalProps> = ({
             {currentStep === 'preview' && preview && (
               <div>
                 {/* Original Policy Summary */}
-                <div className="mb-6 p-4 bg-gray-50 border border-gray-200 rounded-lg">
+                <div className="mb-6 p-4 bg-gray-50/30 border border-inputBorder">
                   <h3 className="font-semibold text-gray-900 mb-2">Original Policy</h3>
                   <div className="grid grid-cols-3 gap-4 text-sm">
                     <div>
@@ -437,12 +437,12 @@ export const PolicySplitModal: React.FC<PolicySplitModalProps> = ({
                 <h3 className="font-semibold text-text-primary mb-4">New Policies After Split:</h3>
                 <div className="space-y-4">
                   {preview.splitPolicies.map((policy, idx) => (
-                    <div key={idx} className="border-2 border-green-200 bg-green-50 rounded-lg p-4">
+                    <div key={idx} className="border border-green-200 bg-green-50/30 p-4">
                       <div className="flex items-center justify-between mb-3">
                         <h4 className="font-semibold text-green-900">
                           Policy {String.fromCharCode(65 + idx)}: {policy.newPolicyNumber}
                         </h4>
-                        <span className="px-3 py-1 bg-green-600 text-white text-sm font-medium rounded">
+                        <span className="px-3 py-1 bg-green-600 text-white text-sm font-medium">
                           ACTIVE
                         </span>
                       </div>
@@ -500,7 +500,7 @@ export const PolicySplitModal: React.FC<PolicySplitModalProps> = ({
                 </div>
 
                 {/* Financial Summary */}
-                <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                <div className="mt-6 p-4 bg-blue-50/30 border border-blue-200">
                   <h3 className="font-semibold text-blue-900 mb-3">Financial Summary</h3>
                   <div className="space-y-2 text-sm">
                     <div className="flex justify-between">
@@ -536,7 +536,7 @@ export const PolicySplitModal: React.FC<PolicySplitModalProps> = ({
                     onClick={() => setCurrentStep('select')}
                     className="py-2 px-4 border border-inputBorder hover:border-gray-400 cursor-pointer transition delay-100"
                   >
-                    ← Back
+                    Back
                   </button>
                   <button
                     onClick={() => setCurrentStep('confirm')}
@@ -551,7 +551,7 @@ export const PolicySplitModal: React.FC<PolicySplitModalProps> = ({
             {/* STEP 3: CONFIRM */}
             {currentStep === 'confirm' && (
               <div>
-                <div className="mb-6 p-4 bg-red-50 border-2 border-red-200 rounded-lg">
+                <div className="mb-6 p-4 bg-red-50/30 border border-red-200">
                   <p className="font-semibold text-red-900 mb-2">⚠️ Important: This action cannot be easily undone</p>
                   <p className="text-red-800 text-sm">
                     After confirmation, the original policy will be PAUSED and new policies will be created. 
@@ -575,7 +575,7 @@ export const PolicySplitModal: React.FC<PolicySplitModalProps> = ({
                   </p>
                 </div>
 
-                <div className="mt-6 p-4 bg-gray-50 border border-gray-200 rounded-lg">
+                <div className="mt-6 p-4 bg-gray-50/30 border border-inputBorder">
                   <h4 className="font-semibold text-gray-900 mb-2">What happens next:</h4>
                   <ol className="list-decimal list-inside text-sm text-gray-700 space-y-1">
                     <li>Original policy {policyNumber} will be set to PAUSED status</li>
@@ -594,12 +594,12 @@ export const PolicySplitModal: React.FC<PolicySplitModalProps> = ({
                     onClick={() => setCurrentStep('preview')}
                     className="py-2 px-4 border border-inputBorder hover:border-gray-400 cursor-pointer transition delay-100"
                   >
-                    ← Back
+                    Back
                   </button>
                   <button
                     onClick={handleConfirmSplit}
                     disabled={loading || !adminNotes.trim()}
-                    className="bg-red-600 text-white py-2 sm:py-3 px-5 font-semibold hover:bg-red-700 transition-all duration-200 cursor-pointer disabled:cursor-default disabled:opacity-70 flex gap-1 items-center text-nowrap w-fit"
+                    className="bg-red-600 text-white py-2 sm:py-3 px-5 font-semibold hover:bg-red-700 transition-all duration-200 cursor-pointer disabled:cursor-default disabled:opacity-70 flex gap-1 items-center text-nowrap w-fit cursor-pointer"
                   >
                     {loading ? 'Processing...' : 'Confirm Split Policy'}
                   </button>

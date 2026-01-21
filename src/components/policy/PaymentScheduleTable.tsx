@@ -102,7 +102,7 @@ export const PaymentScheduleTable: React.FC<PaymentScheduleTableProps> = ({
             <th className="px-2 sm:px-3 py-1 sm:py-3 text-left font-medium text-nowrap">Brand</th>
             <th className="px-2 sm:px-3 py-1 sm:py-3 text-left font-medium text-nowrap">Last 4</th>
             <th className="px-2 sm:px-3 py-1 sm:py-3 text-right font-medium text-nowrap">Charged Amount</th>
-            <th className="px-2 sm:px-3 py-1 sm:py-3 text-right font-medium text-nowrap">Transaction Fee</th>
+            {/* <th className="px-2 sm:px-3 py-1 sm:py-3 text-right font-medium text-nowrap">Transaction Fee</th> */}
             <th className="px-2 sm:px-3 py-1 sm:py-3 text-left font-medium text-nowrap">Type</th>
             <th className="px-2 sm:px-3 py-1 sm:py-3 text-left font-medium text-nowrap">Status</th>
             <th className="px-2 sm:px-3 py-1 sm:py-3 text-left font-medium text-nowrap">Date</th>
@@ -147,12 +147,12 @@ export const PaymentScheduleTable: React.FC<PaymentScheduleTableProps> = ({
               </td>
 
               {/* Transaction Fee */}
-              <td className="px-2 sm:px-3 py-2 sm:py-4 whitespace-nowrap text-right" style={cellStyle}>
+              {/* <td className="px-2 sm:px-3 py-2 sm:py-4 whitespace-nowrap text-right" style={cellStyle}>
                 {item.paymentHistory?.fee !== null &&
                 item.paymentHistory?.fee !== undefined
                   ? formatCurrency(item.paymentHistory.fee, item.currency)
                   : "N/A"}
-              </td>
+              </td> */}
 
               {/* Type */}
               <td className="px-2 sm:px-3 py-2 sm:py-4 whitespace-nowrap" style={cellStyle}>

@@ -1047,7 +1047,7 @@ const Step1STRVCT = ({
                 Confirm that all applicants are eligible for this insurance
               </span>
             </div>
-            {errors.isConfirmed && (
+            {errors.isConfirmed && isConfirmed === false && (
               <p className="text-red-500 text-sm mt-1 text-center">
                 {errors.isConfirmed.message}
               </p>

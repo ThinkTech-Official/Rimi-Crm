@@ -33,6 +33,7 @@ interface RenewalNoticeModalProps {
     effectiveDate?: Date | string;
     expiryDate?: Date | string;
     applicants?: PolicyApplicant[];
+    product?: string;
   };
 }
 
@@ -134,8 +135,8 @@ const RenewalNoticeModal: React.FC<RenewalNoticeModalProps> = ({
               </div>
             </div>
 
-            <h1 className="text-2xl font-bold text-primary mb-6">
-              Insurance Expiry Notice
+            <h1 className="text-[22px] font-bold text-primary mb-6">
+              {policy.product?.split("_").join(" ")}
             </h1>
 
             <div className="space-y-4 text-gray-700">

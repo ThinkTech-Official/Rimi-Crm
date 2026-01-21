@@ -112,7 +112,7 @@ const UpdateCardForm: React.FC<{
       </div>
 
       {(formError || error) && (
-        <div className="p-3 bg-red-50 border border-red-100 rounded-lg flex items-start gap-2">
+        <div className="p-3 bg-red-50 border border-red-100 flex items-center gap-2">
           <MdErrorOutline className="text-red-500 text-lg shrink-0 mt-0.5" />
           <p className="text-xs text-red-700">{formError || error}</p>
         </div>
