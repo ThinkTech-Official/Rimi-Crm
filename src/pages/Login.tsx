@@ -57,7 +57,6 @@ const Login = () => {
       {/* ===== LEFT COLUMN - SIDEBAR ===== */}
       <div className="hidden lg:flex w-[50%] bg-[#E8EEFB] flex-col p-12 relative overflow-hidden">
         <div className="relative z-10 mt-12 font-[inter]">
-          <h1 className="text-4xl font-bold text-[#1B1B1B] mb-4">Rimi Insurance</h1>
           <h1 className="text-4xl font-bold text-[#1B1B1B] mb-2">
             Rimi Insurance
           </h1>

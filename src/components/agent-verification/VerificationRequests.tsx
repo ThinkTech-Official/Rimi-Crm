@@ -489,7 +489,7 @@ const handleVerifySubmit = async () => {
                         className="border border-inputBorder rounded-lg p-4 sm:p-5 hover:shadow-sm transition-shadow duration-200 bg-white"
                       >
                         {/* Mobile Layout - Stacked */}
-                        <div className="flex flex-col gap-4 md:hidden">
+                        <div className="flex flex-col gap-4 lg:hidden">
                           {/* Top Section - Agent Info */}
                           <div className="flex items-start gap-3">
                             <div className="bg-gradient-to-br from-[#2B00B7]/10 to-[#2B00B7]/5 rounded-full p-2.5 flex-shrink-0">
@@ -562,34 +562,47 @@ const handleVerifySubmit = async () => {
                               </div>
 
                               {hasDocuments(agent) && (
-                                <div className="flex items-center gap-2">
-                                  <span className="text-text-secondary text-sm">Documents:</span>
-                                  <div className="flex gap-1">
+                                <div className="flex flex-col gap-2">
+                                  <span className="text-text-secondary text-sm font-medium">Documents:</span>
+                                  <div className="flex flex-wrap gap-2">
                                     {agent.docLink1 && (
                                       <button
                                         onClick={() => openDocument(agent.docLink1)}
-                                        className="p-1.5 text-[#2B00B7] hover:bg-[#2B00B7]/10 rounded transition-colors cursor-pointer"
-                                        title="View Document 1"
+                                        className="inline-flex items-center gap-1 text-[#2B00B7] hover:text-[#2309A1] transition-colors cursor-pointer text-sm font-medium"
+                                        title="Insurance License"
                                       >
-                                        <DocumentIcon className="h-5 w-5" />
+                                        <DocumentIcon className="h-4 w-4" />
+                                        <span>Insurance License</span>
                                       </button>
                                     )}
                                     {agent.docLink2 && (
                                       <button
                                         onClick={() => openDocument(agent.docLink2)}
-                                        className="p-1.5 text-[#2B00B7] hover:bg-[#2B00B7]/10 rounded transition-colors cursor-pointer"
-                                        title="View Document 2"
+                                        className="inline-flex items-center gap-1 text-[#2B00B7] hover:text-[#2309A1] transition-colors cursor-pointer text-sm font-medium"
+                                        title="E&O Insurance"
                                       >
-                                        <DocumentIcon className="h-5 w-5" />
+                                        <DocumentIcon className="h-4 w-4" />
+                                        <span>E&O Insurance</span>
                                       </button>
                                     )}
                                     {agent.docLink3 && (
                                       <button
                                         onClick={() => openDocument(agent.docLink3)}
-                                        className="p-1.5 text-[#2B00B7] hover:bg-[#2B00B7]/10 rounded transition-colors cursor-pointer"
-                                        title="View Document 3"
+                                        className="inline-flex items-center gap-1 text-[#2B00B7] hover:text-[#2309A1] transition-colors cursor-pointer text-sm font-medium"
+                                        title="Bank Details"
                                       >
-                                        <DocumentIcon className="h-5 w-5" />
+                                        <DocumentIcon className="h-4 w-4" />
+                                        <span>Bank Details</span>
+                                      </button>
+                                    )}
+                                    {agent.docLink4 && (
+                                      <button
+                                        onClick={() => openDocument(agent.docLink4)}
+                                        className="inline-flex items-center gap-1 text-[#2B00B7] hover:text-[#2309A1] transition-colors cursor-pointer text-sm font-medium"
+                                        title="Agency Agreement"
+                                      >
+                                        <DocumentIcon className="h-4 w-4" />
+                                        <span>Agency Agreement</span>
                                       </button>
                                     )}
                                   </div>
@@ -607,7 +620,7 @@ const handleVerifySubmit = async () => {
                         </div>
 
                         {/* Desktop/Tablet Layout - Side by Side */}
-                        <div className="hidden md:flex md:flex-row items-start justify-between gap-6">
+                        <div className="hidden lg:flex lg:flex-row items-start justify-between gap-6">
                           {/* Left Section - Agent Info */}
                           <div className="flex items-start gap-4 flex-1">
                             <div className="bg-gradient-to-br from-[#2B00B7]/10 to-[#2B00B7]/5 rounded-full p-3 flex-shrink-0">
@@ -622,7 +635,7 @@ const handleVerifySubmit = async () => {
                                 {getApplicantTypeBadge(agent)}
                               </div>
                               
-                              <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-8 gap-y-2">
+                              <div className="grid grid-cols-1 gap-x-8 gap-y-1">
                                 <div className="flex items-start gap-1">
                                   <span className="text-text-secondary min-w-[90px]">Email:</span>
                                   <span className="text-gray-900 font-medium break-all">{agent.email}</span>
@@ -678,40 +691,53 @@ const handleVerifySubmit = async () => {
                               </p>
                             </div>
 
-                            {hasDocuments(agent) && (
-                              <div className="flex items-center gap-2">
-                                <span className="text-text-secondary">Documents:</span>
-                                <div className="flex gap-1">
-                                  {agent.docLink1 && (
-                                    <button
-                                      onClick={() => openDocument(agent.docLink1)}
-                                      className="p-1.5 text-[#2B00B7] hover:bg-[#2B00B7]/10 rounded transition-colors cursor-pointer"
-                                      title="View Document 1"
-                                    >
-                                      <DocumentIcon className="h-5 w-5" />
-                                    </button>
-                                  )}
-                                  {agent.docLink2 && (
-                                    <button
-                                      onClick={() => openDocument(agent.docLink2)}
-                                      className="p-1.5 text-[#2B00B7] hover:bg-[#2B00B7]/10 rounded transition-colors cursor-pointer"
-                                      title="View Document 2"
-                                    >
-                                      <DocumentIcon className="h-5 w-5" />
-                                    </button>
-                                  )}
-                                  {agent.docLink3 && (
-                                    <button
-                                      onClick={() => openDocument(agent.docLink3)}
-                                      className="p-1.5 text-[#2B00B7] hover:bg-[#2B00B7]/10 rounded transition-colors cursor-pointer"
-                                      title="View Document 3"
-                                    >
-                                      <DocumentIcon className="h-5 w-5" />
-                                    </button>
-                                  )}
-                                </div>
-                              </div>
-                            )}
+                             {hasDocuments(agent) && (
+                               <div className="flex flex-col items-end gap-2">
+                                 <span className="text-text-secondary text-sm font-medium">Documents:</span>
+                                 <div className="flex flex-wrap justify-end gap-2">
+                                   {agent.docLink1 && (
+                                     <button
+                                       onClick={() => openDocument(agent.docLink1)}
+                                       className="inline-flex items-center gap-1 text-[#2B00B7] hover:text-[#2309A1] transition-colors cursor-pointer text-sm font-medium"
+                                       title="Insurance License"
+                                     >
+                                       <DocumentIcon className="h-4 w-4" />
+                                       <span>Insurance License</span>
+                                     </button>
+                                   )}
+                                   {agent.docLink2 && (
+                                     <button
+                                       onClick={() => openDocument(agent.docLink2)}
+                                       className="inline-flex items-center gap-1 text-[#2B00B7] hover:text-[#2309A1] transition-colors cursor-pointer text-sm font-medium"
+                                       title="E&O Insurance"
+                                     >
+                                       <DocumentIcon className="h-4 w-4" />
+                                       <span>E&O Insurance</span>
+                                     </button>
+                                   )}
+                                   {agent.docLink3 && (
+                                     <button
+                                       onClick={() => openDocument(agent.docLink3)}
+                                       className="inline-flex items-center gap-1 text-[#2B00B7] hover:text-[#2309A1] transition-colors cursor-pointer text-sm font-medium"
+                                       title="Bank Details"
+                                     >
+                                       <DocumentIcon className="h-4 w-4" />
+                                       <span>Bank Details</span>
+                                     </button>
+                                   )}
+                                   {agent.docLink4 && (
+                                     <button
+                                       onClick={() => openDocument(agent.docLink4)}
+                                       className="inline-flex items-center gap-1 text-[#2B00B7] hover:text-[#2309A1] transition-colors cursor-pointer text-sm font-medium"
+                                       title="Agency Agreement"
+                                     >
+                                       <DocumentIcon className="h-4 w-4" />
+                                       <span>Agency Agreement</span>
+                                     </button>
+                                   )}
+                                 </div>
+                               </div>
+                             )}
                             
                             <button
                               onClick={() => handleVerifyClick(agent)}
