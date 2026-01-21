@@ -311,16 +311,11 @@
 
 
 import { useState } from "react";
-import { FaUser, FaEdit, FaBan, FaCheckCircle, FaArrowUp, FaArrowDown, FaUndo, FaCoins, FaCheck, FaTimes, FaSpinner } from "react-icons/fa";
+import { FaUser, FaEdit, FaBan, FaCheckCircle, FaCoins, FaSpinner, FaUndo, FaArrowUp, FaArrowDown, FaCheck } from "react-icons/fa";
 import { useParams } from "react-router-dom";
 import { useAgentDetails } from "../hooks/admin-dashboard";
-// import { 
-//   useUpdateCommissionStatus, 
-//   useBulkUpdateCommissionStatus, 
-//   useMarkCommissionsAsPaid 
-// } from 
-import { PoliciesTable, QuotesTable } from "../components/Tables";
-import { useUpdateCommissionStatus,useBulkUpdateCommissionStatus,useMarkCommissionsAsPaid } from "../hooks/admin-dashboard/useCommission";
+import { PoliciesTable, QuotesTable, CommissionsTable } from "../components/Tables";
+import { useUpdateCommissionStatus, useBulkUpdateCommissionStatus, useMarkCommissionsAsPaid } from "../hooks/admin-dashboard/useCommission";
 
 const AdminAgentDetails = () => {
   const [pPage, setPPage] = useState(1);
@@ -426,16 +421,6 @@ const AdminAgentDetails = () => {
   const selectedCommissionsTotal = commissions
     .filter((c: any) => selectedCommissionIds.includes(c.id))
     .reduce((sum: number, c: any) => sum + c.commissionAmount, 0);
-
-  // Get next valid status for a commission
-  const getNextStatus = (currentStatus: string, isUnderMGA: boolean): string | null => {
-    const transitions: Record<string, string> = {
-      'pending': 'approved',
-      'verified': 'approved',
-      'approved': isUnderMGA ? 'paid_to_mga' : 'paid',
-    };
-    return transitions[currentStatus] || null;
-  };
 
   // ✅ Handle bulk actions with callbacks to clear selections
   const handleBulkApprove = () => {
@@ -555,34 +540,34 @@ const AdminAgentDetails = () => {
           </div>
         </div>
 
-        <div className="flex gap-2">
+        {/* <div className="flex gap-2">
           <button
-            className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-            onClick={() => {/* TODO: Edit agent */}}
+            className="btn-primary flex items-center gap-2"
+            onClick={() => {}}
           >
             <FaEdit /> Edit
           </button>
           
           {agentData.status === 'ACTIVE' ? (
             <button
-              className="flex items-center gap-2 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
-              onClick={() => {/* TODO: Suspend agent */}}
+              className="flex items-center gap-2 px-4 py-2 bg-red-500 text-white hover:bg-red-600 cursor-pointer transition-all duration-200"
+              onClick={() => {}}
             >
               <FaBan /> Suspend
             </button>
           ) : (
             <button
-              className="flex items-center gap-2 px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
-              onClick={() => {/* TODO: Activate agent */}}
+              className="px-3 py-2 bg-green-600 text-white cursor-pointer hover:bg-green-700 transition-all duration-200 flex items-center gap-2"
+              onClick={() => {}}
             >
               <FaCheckCircle /> Activate
             </button>
           )}
-        </div>
+        </div> */}
       </div>
 
       {/*  Commission Flow Summary */}
-      <div className="mb-6 bg-gradient-to-br from-blue-50 to-purple-50 p-6 rounded-lg border border-blue-200">
+      <div className="mb-6 bg-gradient-to-br from-blue-50 to-purple-50 p-6 rounded-lg border border-blue-200 hidden">
         <div className="flex items-center gap-2 mb-4">
           <FaCoins className="text-2xl text-blue-600" />
           <h3 className="text-xl font-bold text-text-primary">
@@ -679,7 +664,7 @@ const AdminAgentDetails = () => {
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+      {/* <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
         <div className="bg-gray-50 p-4 rounded-lg border">
           <div className="text-text-primary text-sm font-semibold mb-1">Total Quotes</div>
           <div className="text-2xl font-bold text-blue-600">
@@ -715,13 +700,16 @@ const AdminAgentDetails = () => {
             {agentData.status}
           </div>
         </div>
-      </div>
+      </div> */}
 
       {/*  Commission Status Breakdown */}
       {Object.keys(statusGroups).length > 0 && (
-        <div className="mb-6 bg-white p-4 rounded-lg border">
-          <h3 className="text-lg font-semibold mb-3">Commission Status Breakdown</h3>
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+        <div className="mb-6 bg-white p-6 rounded-md border border-inputBorder">
+          <h3 className="text-xl font-bold text-primary mb-5 flex items-center gap-2">
+            <FaCoins className="text-primary/70" />
+            Commission Status Breakdown
+          </h3>
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-5">
             {Object.entries(statusGroups)
               .sort(([a], [b]) => {
                 const order = ['pending', 'verified', 'approved', 'paid', 'paid_to_mga', 'paid_to_agent', 'reversed', 'partially_reversed'];
@@ -729,32 +717,39 @@ const AdminAgentDetails = () => {
               })
               .map(([status, data]: [string, any]) => {
                 const isNegative = ['reversed', 'partially_reversed'].includes(status);
-                const colorClass = isNegative 
-                  ? 'border-red-200 bg-red-50'
-                  : status === 'paid' || status === 'paid_to_agent'
-                  ? 'border-green-200 bg-green-50'
-                  : status === 'pending'
-                  ? 'border-yellow-200 bg-yellow-50'
-                  : 'border-blue-200 bg-blue-50';
+                const colorMap: Record<string, string> = {
+                  'paid': 'bg-green-500',
+                  'paid_to_agent': 'bg-green-500',
+                  'pending': 'bg-yellow-500',
+                  'approved': 'bg-purple-500',
+                  'verified': 'bg-blue-500',
+                  'paid_to_mga': 'bg-orange-500',
+                  'reversed': 'bg-red-500',
+                  'partially_reversed': 'bg-red-400'
+                };
+                
+                const bgColor = colorMap[status] || 'bg-gray-500';
                 
                 return (
-                  <div key={status} className={`p-3 rounded border-2 ${colorClass}`}>
-                    <div className="text-sm text-text-primary capitalize mb-1">
-                      {status.replace(/_/g, ' ')}
-                      {isNegative && <FaUndo className="inline ml-1 text-red-500" />}
-                    </div>
-                    <div className={`text-xl font-bold ${
-                      isNegative ? 'text-red-700' : 
-                      status === 'paid' || status === 'paid_to_agent' ? 'text-green-700' :
-                      status === 'pending' ? 'text-yellow-700' : 'text-blue-700'
-                    }`}>
-                      {isNegative && '-'}${Math.abs(data.total).toLocaleString('en-US', { 
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2 
-                      })}
-                    </div>
-                    <div className="text-xs text-text-secondary mt-1">
-                      {data.count} commission{data.count !== 1 ? 's' : ''}
+                  <div key={status} className="relative group overflow-hidden bg-white rounded-xl border border-inputBorder hover:shadow-md transition-all duration-200">
+                    <div className={`h-1 w-full ${bgColor}`}></div>
+                    <div className="p-4">
+                      <div className="text-xs font-bold text-[#808080] uppercase tracking-wider mb-1 flex items-center justify-between">
+                        {status.replace(/_/g, ' ')}
+                        {isNegative && <FaUndo className="text-red-500 text-[10px]" />}
+                      </div>
+                      <div className={`text-xl font-bold truncate ${
+                        isNegative ? 'text-red-600' : 'text-text-primary'
+                      }`}>
+                        {isNegative && '-'}${Math.abs(data.total).toLocaleString('en-US', { 
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2 
+                        })}
+                      </div>
+                      <div className="text-[14px] font-medium text-[#AAA9A9] mt-2 flex items-center gap-1">
+                        <span className="w-1.5 h-1.5 rounded-full bg-gray-300"></span>
+                        {data.count} transaction{data.count !== 1 ? 's' : ''}
+                      </div>
                     </div>
                   </div>
                 );
@@ -766,7 +761,7 @@ const AdminAgentDetails = () => {
       {/* Tabs */}
       <div className="relative mt-6">
         <div className="px-2 sm:px-4 sm:py-3 absolute -top-2 right-0">
-          <label className="inline-flex items-center mr-4 text-[#4B465C] opacity-80">
+          <label className="inline-flex items-center mr-4 text-text-secondary">
             <input
               type="radio"
               name="filter"
@@ -776,7 +771,7 @@ const AdminAgentDetails = () => {
             />
             <span className="ml-2 capitalize">Policies ({recentPolicies.length})</span>
           </label>
-          <label className="inline-flex items-center text-[#4B465C] opacity-80">
+          <label className="inline-flex items-center text-text-secondary">
             <input
               type="radio"
               name="filter"
@@ -786,7 +781,7 @@ const AdminAgentDetails = () => {
             />
             <span className="ml-2 capitalize">Quotes ({recentQuotes.length})</span>
           </label>
-          <label className="inline-flex items-center ml-4 text-[#4B465C] opacity-80">
+          <label className="inline-flex items-center ml-4 text-text-secondary">
             <input
               type="radio"
               name="filter"
@@ -830,14 +825,14 @@ const AdminAgentDetails = () => {
               
               {/* ✅ Bulk Actions */}
               {selectedCommissionIds.length > 0 && (
-                <div className="flex gap-2 items-center bg-blue-50 px-4 py-2 rounded-lg border border-blue-200">
+                <div className="flex gap-2 items-center bg-violet-50 px-4 py-2 mt-5 border border-violet-200">
                   <span className="text-sm font-semibold">
                     {selectedCommissionIds.length} selected (${selectedCommissionsTotal.toFixed(2)})
                   </span>
                   <button
                     onClick={handleBulkApprove}
                     disabled={bulkUpdateStatus.isPending}
-                    className="px-3 py-1 bg-green-500 text-white text-sm rounded hover:bg-green-600 disabled:opacity-50 flex items-center gap-1"
+                    className="px-3 py-1 bg-green-500 text-white text-sm hover:bg-green-600 disabled:opacity-50 flex items-center gap-1 cursor-pointer transition-all duration-200"
                   >
                     {bulkUpdateStatus.isPending ? (
                       <FaSpinner className="animate-spin" />
@@ -849,7 +844,7 @@ const AdminAgentDetails = () => {
                   <button
                     onClick={handleMarkAsPaid}
                     disabled={markAsPaid.isPending}
-                    className="px-3 py-1 bg-purple-500 text-white text-sm rounded hover:bg-purple-600 disabled:opacity-50 flex items-center gap-1"
+                    className="px-3 py-1 bg-purple-500 text-white text-sm hover:bg-purple-600 disabled:opacity-50 flex items-center gap-1 cursor-pointer transition-all duration-200"
                   >
                     {markAsPaid.isPending ? (
                       <FaSpinner className="animate-spin" />
@@ -860,7 +855,7 @@ const AdminAgentDetails = () => {
                   </button>
                   <button
                     onClick={() => setSelectedCommissionIds([])}
-                    className="px-3 py-1 bg-gray-500 text-white text-sm rounded hover:bg-gray-600"
+                    className="px-3 py-1 bg-gray-500 text-white text-sm hover:bg-gray-600 cursor-pointer transition-all duration-200"
                   >
                     Clear
                   </button>
@@ -868,189 +863,16 @@ const AdminAgentDetails = () => {
               )}
             </div>
             
-            <div className="bg-white rounded-lg border overflow-hidden">
-              <table className="min-w-full">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-4 py-3">
-                      <input
-                        type="checkbox"
-                        checked={
-                          selectedCommissionIds.length > 0 && 
-                          selectedCommissionIds.length === commissions.filter((c: any) => 
-                            !['reversed', 'partially_reversed', 'paid', 'paid_to_agent'].includes(c.status)
-                          ).length
-                        }
-                        onChange={handleSelectAllCommissions}
-                        className="cursor-pointer"
-                      />
-                    </th>
-                    <th className="px-4 py-3 text-left text-sm font-semibold">Date</th>
-                    <th className="px-4 py-3 text-left text-sm font-semibold">Policy #</th>
-                    <th className="px-4 py-3 text-left text-sm font-semibold">Type</th>
-                    <th className="px-4 py-3 text-left text-sm font-semibold">Payment</th>
-                    <th className="px-4 py-3 text-right text-sm font-semibold">
-                      Total Commission
-                    </th>
-                    {isUnderMGA && (
-                      <>
-                        <th className="px-4 py-3 text-right text-sm font-semibold">MGA Share</th>
-                        <th className="px-4 py-3 text-right text-sm font-semibold">Agent Share</th>
-                      </>
-                    )}
-                    {!isUnderMGA && (
-                      <th className="px-4 py-3 text-right text-sm font-semibold">Commission</th>
-                    )}
-                    <th className="px-4 py-3 text-left text-sm font-semibold">Status</th>
-                    <th className="px-4 py-3 text-center text-sm font-semibold">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y">
-                  {commissions.length === 0 ? (
-                    <tr>
-                      <td colSpan={isUnderMGA ? 11 : 10} className="px-4 py-8 text-center text-gray-500">
-                        No commissions found
-                      </td>
-                    </tr>
-                  ) : (
-                    commissions.map((commission: any) => {
-                      const isReversal = ['reversed', 'partially_reversed'].includes(commission.status) || 
-                                        commission.reversalOf;
-                      const isPartialReversal = commission.status === 'partially_reversed';
-                      const canBeActedUpon = !['reversed', 'partially_reversed', 'paid', 'paid_to_agent'].includes(commission.status);
-                      const nextStatus = getNextStatus(commission.status, isUnderMGA);
-                      
-                      return (
-                        <tr 
-                          key={commission.id} 
-                          className={`hover:bg-gray-50 ${isReversal ? 'bg-red-50' : ''}`}
-                        >
-                          <td className="px-4 py-3">
-                            {canBeActedUpon && (
-                              <input
-                                type="checkbox"
-                                checked={selectedCommissionIds.includes(commission.id)}
-                                onChange={() => handleSelectCommission(commission.id)}
-                                className="cursor-pointer"
-                              />
-                            )}
-                          </td>
-                          
-                          <td className="px-4 py-3 text-sm">
-                            {new Date(commission.createdAt).toLocaleDateString()}
-                          </td>
-                          <td className="px-4 py-3 text-sm font-medium">
-                            {commission.policy?.policyNumber || 'N/A'}
-                            {isReversal && (
-                              <FaUndo className="inline ml-1 text-red-500 text-xs" />
-                            )}
-                          </td>
-                          <td className="px-4 py-3 text-sm">
-                            <span className="text-xs px-2 py-1 bg-gray-100 rounded">
-                              {commission.paymentHistory?.paymentType?.replace(/-/g, ' ') || 'N/A'}
-                            </span>
-                          </td>
-                          <td className="px-4 py-3 text-sm">
-                            ${commission.paymentHistory?.amount?.toLocaleString() || '0'}
-                          </td>
-                          <td className="px-4 py-3 text-sm text-right font-semibold">
-                            <span className={isReversal ? 'text-red-600' : 'text-green-600'}>
-                              {isReversal && '-'}
-                              ${Math.abs(commission.commissionAmount).toLocaleString('en-US', {
-                                minimumFractionDigits: 2,
-                                maximumFractionDigits: 2
-                              })}
-                            </span>
-                          </td>
-                          {isUnderMGA && (
-                            <>
-                              <td className="px-4 py-3 text-sm text-right">
-                                <span className={isReversal ? 'text-red-600' : ''}>
-                                  {isReversal && '-'}
-                                  ${Math.abs(commission.mgaShare || 0).toLocaleString('en-US', {
-                                    minimumFractionDigits: 2,
-                                    maximumFractionDigits: 2
-                                  })}
-                                </span>
-                              </td>
-                              <td className="px-4 py-3 text-sm text-right font-semibold">
-                                <span className={isReversal ? 'text-red-600' : 'text-green-600'}>
-                                  {isReversal && '-'}
-                                  ${Math.abs(commission.agentShare || 0).toLocaleString('en-US', {
-                                    minimumFractionDigits: 2,
-                                    maximumFractionDigits: 2
-                                  })}
-                                </span>
-                              </td>
-                            </>
-                          )}
-                          {!isUnderMGA && (
-                            <td className="px-4 py-3 text-sm text-right font-semibold">
-                              <span className={isReversal ? 'text-red-600' : 'text-green-600'}>
-                                {isReversal && '-'}
-                                ${Math.abs(commission.commissionAmount).toLocaleString('en-US', {
-                                  minimumFractionDigits: 2,
-                                  maximumFractionDigits: 2
-                                })}
-                              </span>
-                            </td>
-                          )}
-                          <td className="px-4 py-3 text-sm">
-                            <span className={`px-2 py-1 rounded text-xs font-semibold ${
-                              commission.status === 'paid' || commission.status === 'paid_to_agent'
-                                ? 'bg-green-100 text-green-800'
-                                : commission.status === 'verified'
-                                ? 'bg-blue-100 text-blue-800'
-                                : commission.status === 'approved'
-                                ? 'bg-purple-100 text-purple-800'
-                                : commission.status === 'paid_to_mga'
-                                ? 'bg-yellow-100 text-yellow-800'
-                                : commission.status === 'reversed' || commission.status === 'partially_reversed'
-                                ? 'bg-red-100 text-red-800'
-                                : 'bg-gray-100 text-gray-800'
-                            }`}>
-                              {commission.status.replace(/_/g, ' ').toUpperCase()}
-                            </span>
-                          </td>
-                          
-                          <td className="px-4 py-3 text-sm">
-                            <div className="flex gap-1 justify-center">
-                              {nextStatus && (
-                                <button
-                                  onClick={() => handleUpdateStatus(commission.id, nextStatus)}
-                                  disabled={updateCommissionStatus.isPending}
-                                  className={`px-2 py-1 text-xs rounded text-white flex items-center gap-1 ${
-                                    nextStatus === 'approved' ? 'bg-green-500 hover:bg-green-600' :
-                                    nextStatus === 'paid' || nextStatus === 'paid_to_mga' ? 'bg-purple-500 hover:bg-purple-600' :
-                                    'bg-blue-500 hover:bg-blue-600'
-                                  } disabled:opacity-50`}
-                                  title={`Change to ${nextStatus}`}
-                                >
-                                  {updateCommissionStatus.isPending ? (
-                                    <FaSpinner className="animate-spin text-xs" />
-                                  ) : (
-                                    <FaCheck className="text-xs" />
-                                  )}
-                                  {nextStatus === 'approved' && 'Approve'}
-                                  {nextStatus === 'paid' && 'Pay'}
-                                  {nextStatus === 'paid_to_mga' && 'Pay MGA'}
-                                </button>
-                              )}
-                              
-                              {isPartialReversal && commission.proRataMetadata && (
-                                <span className="text-xs text-gray-600" title={`${commission.proRataMetadata.daysUsed}/${commission.proRataMetadata.totalDays} days used`}>
-                                  ℹ️
-                                </span>
-                              )}
-                            </div>
-                          </td>
-                        </tr>
-                      );
-                    })
-                  )}
-                </tbody>
-              </table>
-            </div>
+            <CommissionsTable
+              data={commissions}
+              loading={isLoading}
+              isUnderMGA={isUnderMGA}
+              selectedIds={selectedCommissionIds}
+              onSelect={handleSelectCommission}
+              onSelectAll={handleSelectAllCommissions}
+              onUpdateStatus={handleUpdateStatus}
+              isPending={updateCommissionStatus.isPending}
+            />
           </div>
         )}
       </div>

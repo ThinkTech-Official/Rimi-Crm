@@ -24,12 +24,11 @@ const MGAContracting: React.FC = () => {
       {/* ===== LEFT COLUMN - SIDEBAR ===== */}
       <div className="hidden lg:flex w-[40%] bg-[#E8EEFB] flex-col p-12 relative overflow-hidden">
         <div className="relative z-10 mt-12 font-[inter]">
-          <h1 className="text-4xl font-bold text-[#1B1B1B] mb-4">
-            Lorem Ipsum
+          <h1 className="text-4xl font-bold text-[#1B1B1B] mb-2">
+            Rimi Insurance
           </h1>
-          <p className="text-[#4A4A4A] max-w-sm leading-relaxed">
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-            eiusmod tempor incididunt ut labore et dolore magna aliqua.
+          <p className="text-[#4A4A4A] max-w-sm capitalize text-base">
+           welcome to RIMI  travel insurance portal
           </p>
         </div>
 
@@ -109,14 +108,6 @@ const MGAContracting: React.FC = () => {
                   </div>
                 ))}
               </div>
-            </div>
-
-            {/* Footer Note */}
-            <div className="mt-6 pt-4 border-t border-[#F3F4F6] w-full text-center">
-              <p className="text-sm text-[#9CA3AF] leading-relaxed">
-                Our contracting team will review your information and get back
-                to you within 2-3 business days.
-              </p>
             </div>
           </div>
         </div>

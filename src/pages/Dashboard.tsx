@@ -987,12 +987,12 @@ export default function Dashboard() {
           </div>
 
           {/* Header with Verification Indicator */}
-          <div className="hidden md:flex items-center justify-between px-2 sm:px-4 md:px-8 py-4">
-            <div className="flex items-center space-x-4">
+          <div className="hidden md:flex items-center justify-end px-2 sm:px-4 md:px-8 py-4">
+            {/* <div className="flex items-center space-x-4">
               <h1 className="text-lg font-semibold text-gray-900">
                 Welcome, {userName || 'User'}
               </h1>
-            </div>
+            </div> */}
             <div className="flex items-center space-x-4">
               {/* Verification Status Indicator */}
               <VerificationIndicator />

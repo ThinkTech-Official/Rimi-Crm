@@ -121,12 +121,11 @@ const AgentApplicationOpen: React.FC = () => {
       {/* ===== LEFT COLUMN - SIDEBAR (New Layout) ===== */}
       <div className="hidden lg:flex w-[40%] bg-[#E8EEFB] flex-col p-12 relative overflow-hidden">
         <div className="relative z-10 mt-10 font-[inter]">
-          <h1 className="text-4xl font-bold text-[#1B1B1B] mb-4">
-            Lorem Ipsum
+          <h1 className="text-4xl font-bold text-[#1B1B1B] mb-2">
+            Rimi Insurance
           </h1>
-          <p className="text-[#4A4A4A] max-w-sm">
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-            eiusmod tempor incididunt ut labore et dolore magna aliqua.
+          <p className="text-[#4A4A4A] max-w-sm capitalize text-base">
+           welcome to RIMI  travel insurance portal
           </p>
         </div>
 
