@@ -126,7 +126,7 @@ const PolicySalesChart = ({ data, loading, error, filter = "policies" }: PolicyS
 
   // Transform data for Recharts Pie
   const chartData = data.map((item) => ({
-    name: item.policyType,
+    name: item.policyType.split("_").join(" "),
     value: item.count,
   }));
 

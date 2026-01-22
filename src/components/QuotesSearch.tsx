@@ -730,7 +730,7 @@ const QuotesSearch: React.FC = () => {
                         : "-"}
                     </td>
                     <td
-                      className="px-2 sm:px-6 py-2 sm:py-4 capitalize max-w-[300px] break-words"
+                      className="px-2 sm:px-6 py-2 sm:py-4 capitalize max-w-[300px] text-nowrap"
                       style={{
                         borderWidth: "0px 1px 1px 0px",
                         borderStyle: "solid",

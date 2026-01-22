@@ -140,6 +140,7 @@ const DatePicker = forwardRef<HTMLInputElement, DatePickerProps>(({
           value={inputValue}
           onChange={handleInputChange}
           onClick={() => setShowCalendar(!showCalendar)}
+          autoComplete="off"
         />
         <AiOutlineCalendar
           className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 cursor-pointer"

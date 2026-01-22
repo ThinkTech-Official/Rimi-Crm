@@ -100,7 +100,7 @@ export const QuoteDetailPage: React.FC = () => {
           />
         </div>
         <h1 className=" text-2xl text-primary font-semibold mt-10">
-          {quote?.product?.toUpperCase()}
+          {quote?.product?.toUpperCase().replace(/_/g, ' ')}
         </h1>
         <h3 className=" text-xl text-text-primary font-semibold">
           Quote Details
