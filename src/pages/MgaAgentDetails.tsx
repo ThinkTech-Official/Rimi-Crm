@@ -5,11 +5,13 @@ import {
   useMgaAgentDetails, 
   useMgaAgentPolicies, 
   useMgaAgentQuotes,
-  useMgaAgentStatusUpdate 
+  useMgaAgentStatusUpdate,
+  useMgaAgentCommissions  
 } from "../hooks/mga-dashboard";
 import { PoliciesTable, QuotesTable } from "../components/Tables";
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
 import Spinner from "../components/Spinner";
+import { CommissionsTable } from "../components/CommissionsTable";
 
 const MGAAgentDetails = () => {
   const navigate = useNavigate();
@@ -20,6 +22,8 @@ const MGAAgentDetails = () => {
   const [policiesPage, setPoliciesPage] = useState(1);
   const [quotesPage, setQuotesPage] = useState(1);
   const limit = 10;
+
+    const [commissionsPage, setCommissionsPage] = useState(1);
 
   // Fetch agent details using existing hook
   const { data: agentData, loading: detailsLoading, error: detailsError } = useMgaAgentDetails(agentCode || "");
@@ -41,6 +45,15 @@ const MGAAgentDetails = () => {
   // Status update hook
   const { updateAgentStatus, loading: statusLoading } = useMgaAgentStatusUpdate();
   const [statusSuccess, setStatusSuccess] = useState(false);
+
+
+  const { data: commissionsData, loading: commissionsLoading } = useMgaAgentCommissions(
+  agentCode || "",
+  commissionsPage,
+  limit
+);
+
+
 
   const toggleTableFilter = (option: string) => setFilter(option);
 
@@ -178,7 +191,7 @@ const MGAAgentDetails = () => {
         </div>
 
         {/* MGA-specific: Status toggle action */}
-        <div className="flex gap-2">
+        {/* <div className="flex gap-2">
           {agentData.status === 'ACTIVE' ? (
             <button
               className="flex items-center gap-2 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 disabled:opacity-50 transition-colors"
@@ -196,7 +209,7 @@ const MGAAgentDetails = () => {
               <FaCheckCircle /> {statusLoading ? 'Updating...' : 'Activate Agent'}
             </button>
           )}
-        </div>
+        </div> */}
       </div>
 
       {/* Success message */}
@@ -207,7 +220,7 @@ const MGAAgentDetails = () => {
       )}
 
       {/* Stats Grid - MGA Perspective */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+      {/* <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
         <div className="bg-white p-6 rounded-lg border shadow-sm">
           <div className="text-text-secondary text-sm font-medium mb-2">Total Quotes</div>
           <div className="text-3xl font-bold text-blue-600">
@@ -235,7 +248,7 @@ const MGAAgentDetails = () => {
             ${agentData.currentMonthCommissions?.toLocaleString() || 0}
           </div>
         </div>
-      </div>
+      </div> */}
 
       {/* Tabs */}
       <div className="relative mt-8">
@@ -260,6 +273,16 @@ const MGAAgentDetails = () => {
           >
             Quotes ({quotesData?.total || 0})
           </button>
+          <button
+  onClick={() => toggleTableFilter("Commissions")}
+  className={`pb-3 px-1 font-medium text-sm transition-colors relative ${
+    filter === "Commissions"
+      ? "text-primary border-b-2 border-primary"
+      : "text-gray-500 hover:text-gray-700"
+  }`}
+>
+  Commissions ({commissionsData?.total || 0})
+</button>
         </div>
       </div>
 
@@ -386,6 +409,101 @@ const MGAAgentDetails = () => {
             )}
           </div>
         )}
+
+
+
+        {filter === "Commissions" && (
+  <div>
+    {commissionsLoading ? (
+      <div className="flex justify-center items-center py-20">
+        <Spinner className="w-8 h-8" />
+      </div>
+    ) : (
+      <>
+        {/* Summary Stats */}
+        {/* {commissionsData?.summary && (
+          <div className="mb-6 grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+              <div className="text-sm text-blue-600 font-medium">Total Commissions</div>
+              <div className="text-2xl font-bold text-blue-900">
+                {commissionsData.summary.totalCommissions}
+              </div>
+            </div>
+            <div className="bg-purple-50 p-4 rounded-lg border border-purple-200">
+              <div className="text-sm text-purple-600 font-medium">Total Amount</div>
+              <div className="text-2xl font-bold text-purple-900">
+                ${commissionsData.summary.totalAmount.toFixed(2)}
+              </div>
+            </div>
+            <div className="bg-green-50 p-4 rounded-lg border border-green-200">
+              <div className="text-sm text-green-600 font-medium">Agent Share</div>
+              <div className="text-2xl font-bold text-green-900">
+                ${commissionsData.summary.totalAgentShare.toFixed(2)}
+              </div>
+            </div>
+            <div className="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
+              <div className="text-sm text-yellow-600 font-medium">MGA Share</div>
+              <div className="text-2xl font-bold text-yellow-900">
+                ${commissionsData.summary.totalMgaShare.toFixed(2)}
+              </div>
+            </div>
+          </div>
+        )} */}
+
+        <CommissionsTable
+          data={commissionsData?.items || []}
+          loading={false}
+          error={null}
+        />
+
+        {/* Pagination */}
+        {commissionsData && commissionsData.totalPages > 1 && (
+          <div className="flex items-center justify-center p-4 space-x-2">
+            <button
+              disabled={commissionsPage === 1}
+              onClick={() => setCommissionsPage(commissionsPage - 1)}
+              className={`px-2 py-[10px] rounded ${
+                commissionsPage === 1 
+                  ? "bg-[#F5F5F5] text-[#CCCCCC] cursor-not-allowed" 
+                  : "bg-[#CCCCCC] text-[#6F6B7D] cursor-pointer hover:bg-[#BBBBBB]"
+              }`}
+            >
+              <ChevronLeftIcon className="h-5 w-5" />
+            </button>
+            
+            {generatePageNumbers(commissionsPage, commissionsData.totalPages).map((pageNum) => (
+              <button
+                key={pageNum}
+                onClick={() => setCommissionsPage(pageNum)}
+                className={`px-3 py-2 cursor-pointer rounded ${
+                  commissionsPage === pageNum
+                    ? "bg-primary text-white"
+                    : "bg-[#F1F0F2] text-[#808080] hover:bg-[#E1E0E2]"
+                }`}
+              >
+                {pageNum}
+              </button>
+            ))}
+            
+            <button
+              disabled={commissionsPage === commissionsData.totalPages}
+              onClick={() => setCommissionsPage(commissionsPage + 1)}
+              className={`px-2 py-[10px] rounded ${
+                commissionsPage === commissionsData.totalPages
+                  ? "bg-[#F5F5F5] text-[#CCCCCC] cursor-not-allowed"
+                  : "bg-[#CCCCCC] text-[#6F6B7D] cursor-pointer hover:bg-[#BBBBBB]"
+              }`}
+            >
+              <ChevronRightIcon className="h-5 w-5" />
+            </button>
+          </div>
+        )}
+      </>
+    )}
+  </div>
+)}
+
+
       </div>
     </div>
   );
