@@ -1691,16 +1691,25 @@ const handleVerifySubmit = async () => {
     }
     
     // Only include mgaId for "other" type, NOT for WFG
-    if (selectedAgent.applicantType === 'under_mga' && 
-        selectedAgent.mgaType === 'other' && 
-        adminAssignments.mgaId) {
-      payload.mgaId = adminAssignments.mgaId;
+    // if (selectedAgent.applicantType === 'under_mga' && 
+    //     selectedAgent.mgaType === 'other' && 
+    //     adminAssignments.mgaId) {
+    //   payload.mgaId = adminAssignments.mgaId;
       
-      console.log('═══════════════════════════════════');
-      console.log('Sending MGA Assignment');
-      console.log('mgaId:', payload.mgaId);
-      console.log('═══════════════════════════════════');
-    }
+    //   console.log('═══════════════════════════════════');
+    //   console.log('Sending MGA Assignment');
+    //   console.log('mgaId:', payload.mgaId);
+    //   console.log('═══════════════════════════════════');
+    // }
+
+    if (selectedAgent.applicantType === 'under_mga' && adminAssignments.mgaId) {
+  payload.mgaId = adminAssignments.mgaId;
+  
+  console.log('═══════════════════════════════════');
+  console.log('Sending MGA Assignment');
+  console.log('mgaId:', payload.mgaId);
+  console.log('═══════════════════════════════════');
+}
     
     if (adminAssignments.userType === 'MGA' && adminAssignments.mgaOverridePercent) {
       payload.mgaOverridePercent = parseFloat(adminAssignments.mgaOverridePercent);
