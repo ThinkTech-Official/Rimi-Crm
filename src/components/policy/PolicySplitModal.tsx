@@ -471,11 +471,11 @@ export const PolicySplitModal: React.FC<PolicySplitModalProps> = ({
                           <p className="font-medium text-gray-900 text-lg">
                             ${policy.premium.total.toFixed(2)}
                           </p>
-                          {policy.payment.type === 'monthly-installments' && (
+                          {/* {policy.payment.type === 'monthly-installments' && (
                             <p className="text-gray-600">
                               ${policy.premium.monthly.toFixed(2)}/month × {policy.payment.remainingPayments} months
                             </p>
-                          )}
+                          )} */}
                         </div>
                         {policy.premium.policyFeeAllocation > 0 && (
                           <div className="col-span-2">
@@ -500,7 +500,7 @@ export const PolicySplitModal: React.FC<PolicySplitModalProps> = ({
                 </div>
 
                 {/* Financial Summary */}
-                <div className="mt-6 p-4 bg-blue-50/30 border border-blue-200">
+                {/* <div className="mt-6 p-4 bg-blue-50/30 border border-blue-200">
                   <h3 className="font-semibold text-blue-900 mb-3">Financial Summary</h3>
                   <div className="space-y-2 text-sm">
                     <div className="flex justify-between">
@@ -516,7 +516,7 @@ export const PolicySplitModal: React.FC<PolicySplitModalProps> = ({
                       <span className="text-green-700">${preview.financial.totalRefund.toFixed(2)}</span>
                     </div>
                   </div>
-                </div>
+                </div> */}
 
                 {/* Warnings */}
                 {preview.warnings && preview.warnings.length > 0 && (

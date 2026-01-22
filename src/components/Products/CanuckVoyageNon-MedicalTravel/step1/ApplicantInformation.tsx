@@ -435,6 +435,7 @@ import { Controller, UseFormReturn } from "react-hook-form";
 import { Step1Payload } from "../RIMICanuckVoyageNon-MedicalTravel";
 import DatePicker from "../../../DatePicker";
 import ConfirmEligibilityModal from "../../SecureTravelRIMIVisitorstoCanadaTravel/step1/ConfirmEligibility";
+import { NonMedTravelCountries } from "../../SecureTravelRIMIVisitorstoCanadaTravel/step1/Constants";
 
 interface Applicant {
   index: string;
@@ -648,57 +649,11 @@ export default function ApplicantInformation({
                 required: "Country of Origin is required",
               })}
             >
-              <option value="">Please select...</option>
-              <option value="AF">Afghanistan</option>
-              <option value="AL">Albania</option>
-              <option value="DZ">Algeria</option>
-              <option value="AR">Argentina</option>
-              <option value="AU">Australia</option>
-              <option value="AT">Austria</option>
-              <option value="BD">Bangladesh</option>
-              <option value="BE">Belgium</option>
-              <option value="BR">Brazil</option>
-              <option value="CA">Canada</option>
-              <option value="CN">China</option>
-              <option value="CO">Colombia</option>
-              <option value="CU">Cuba</option>
-              <option value="DK">Denmark</option>
-              <option value="EG">Egypt</option>
-              <option value="FI">Finland</option>
-              <option value="FR">France</option>
-              <option value="DE">Germany</option>
-              <option value="GR">Greece</option>
-              <option value="HK">Hong Kong</option>
-              <option value="IN">India</option>
-              <option value="ID">Indonesia</option>
-              <option value="IE">Ireland</option>
-              <option value="IL">Israel</option>
-              <option value="IT">Italy</option>
-              <option value="JP">Japan</option>
-              <option value="MX">Mexico</option>
-              <option value="NL">Netherlands</option>
-              <option value="NZ">New Zealand</option>
-              <option value="NO">Norway</option>
-              <option value="PK">Pakistan</option>
-              <option value="PH">Philippines</option>
-              <option value="PL">Poland</option>
-              <option value="PT">Portugal</option>
-              <option value="RU">Russia</option>
-              <option value="SA">Saudi Arabia</option>
-              <option value="SG">Singapore</option>
-              <option value="ZA">South Africa</option>
-              <option value="KR">South Korea</option>
-              <option value="ES">Spain</option>
-              <option value="SE">Sweden</option>
-              <option value="CH">Switzerland</option>
-              <option value="TW">Taiwan</option>
-              <option value="TH">Thailand</option>
-              <option value="TR">Turkey</option>
-              <option value="UA">Ukraine</option>
-              <option value="AE">United Arab Emirates</option>
-              <option value="GB">United Kingdom</option>
-              <option value="US">United States</option>
-              <option value="VN">Vietnam</option>
+             {NonMedTravelCountries.map((country) => (
+              <option key={country.value} value={country.value}>
+                {country.label}
+              </option>
+            ))}
             </select>
             <div className="pointer-events-none absolute inset-y-0 right-2 flex items-center text-gray-500">
               <ChevronDownIcon className="h-5 w-5" aria-hidden="true" />
