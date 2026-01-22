@@ -1782,6 +1782,7 @@ const AgentApplicationOpen: React.FC = () => {
     const submissionData = {
       ...formData,
       applicantType,
+      ...(applicantType === 'under_mga' && { mgaType: 'other' }),
     };
 
     const isSuccess = await submitApplication(submissionData as any);

@@ -1661,12 +1661,17 @@ const handleVerifySubmit = async () => {
     }
 
     // Only require MGA assignment for "under_mga" with "other" type
-    if (selectedAgent.applicantType === 'under_mga' && 
-        selectedAgent.mgaType === 'other' && 
-        !adminAssignments.mgaId) {
-      alert('Please select an MGA for this agent');
-      return;
-    }
+    // if (selectedAgent.applicantType === 'under_mga' && 
+    //     selectedAgent.mgaType === 'other' && 
+    //     !adminAssignments.mgaId) {
+    //   alert('Please select an MGA for this agent');
+    //   return;
+    // }
+
+    if (selectedAgent.applicantType === 'under_mga' && !adminAssignments.mgaId) {
+  alert('Please select an MGA for this agent');
+  return;
+}
   }
 
   const payload: any = {
@@ -2140,9 +2145,13 @@ function VerificationModal({
   // const needsMgaAssignment = selectedAgent.applicantType === 'under_mga';
 
   // Only need MGA assignment for "other" type, NOT for WFG
+// const needsMgaAssignment = 
+//   selectedAgent.applicantType === 'under_mga' && 
+//   selectedAgent.mgaType === 'other';
+
 const needsMgaAssignment = 
   selectedAgent.applicantType === 'under_mga' && 
-  selectedAgent.mgaType === 'other';
+  (selectedAgent.mgaType === 'other' || selectedAgent.mgaType === null);
   // const isWfgAgent = selectedAgent.applicantType === 'under_mga' && selectedAgent.mgaType === 'wfg';
   const isWfgAgent = selectedAgent.applicantType === 'wfg';
   // const hasDocuments = selectedAgent.applicantType === 'independent' || 
