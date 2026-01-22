@@ -247,9 +247,7 @@ const handleVerifySubmit = async () => {
     }
 
     // Only require MGA assignment for "under_mga" with "other" type
-    if (selectedAgent.applicantType === 'under_mga' && 
-        selectedAgent.mgaType === 'other' && 
-        !adminAssignments.mgaId) {
+   if (selectedAgent.applicantType === 'under_mga' && !adminAssignments.mgaId){
       triggerNotification({
         type: 'error',
         message: 'Please select an MGA for this agent',

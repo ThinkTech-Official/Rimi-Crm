@@ -44,7 +44,7 @@ export default function VerificationModal({
   // Only need MGA assignment for "other" type, NOT for WFG
   const needsMgaAssignment = 
     selectedAgent.applicantType === 'under_mga' && 
-    selectedAgent.mgaType === 'other';
+    (selectedAgent.mgaType === 'other' || selectedAgent.mgaType === null);
     
   const isWfgAgent = selectedAgent.applicantType === 'wfg';
 
