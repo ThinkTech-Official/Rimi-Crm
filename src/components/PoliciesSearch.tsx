@@ -408,7 +408,7 @@ const PoliciesSearch: React.FC = () => {
                       borderColor: "#AAA9A9",
                     }}>{p.policyType}</td> */}
                     <td
-                      className="px-2 sm:px-3 py-2 sm:py-3 max-w-[250px] break-words"
+                      className="px-2 sm:px-3 py-2 sm:py-3 min-w-[250px] break-words"
                       style={{
                         borderWidth: "0px 1px 1px 0px",
                         borderStyle: "solid",
@@ -458,7 +458,7 @@ const PoliciesSearch: React.FC = () => {
                       {p.expiryDate?.split("T")[0]}
                     </td>
                     <td
-                      className="px-2 sm:px-3 py-2 sm:py-3 capitalize max-w-[250px] break-words"
+                      className="px-2 sm:px-3 py-2 sm:py-3 capitalize min-w-[250px] break-words"
                       style={{
                         borderWidth: "0px 1px 1px 0px",
                         borderStyle: "solid",

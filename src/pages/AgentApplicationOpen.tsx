@@ -158,7 +158,7 @@ const AgentApplicationOpen: React.FC = () => {
           </button>
         </div>
 
-        <div className="w-full flex flex-col items-center px-6 py-10 md:px-16">
+        <div className="w-full flex flex-col items-center px-6 py-4 md:py-10 md:px-16">
           <div className="w-full max-w-2xl flex flex-col items-center lg:items-start">
             <img
               src="/rimi_en.png"
@@ -245,8 +245,9 @@ const AgentApplicationOpen: React.FC = () => {
                 {/* Only show form fields after applicant type is selected */}
                 {applicantType && (
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-text-secondary">
+                    
                     {/* First Name */}
-                    <div className="flex flex-col">
+                    <div className="flex flex-col col-span-2 sm:col-span-1">
                       <label className="text-sm font-medium mb-1">
                         First Name <span className="text-red-500">*</span>
                       </label>
@@ -268,7 +269,7 @@ const AgentApplicationOpen: React.FC = () => {
                     </div>
 
                     {/* Last Name */}
-                    <div className="flex flex-col">
+                    <div className="flex flex-col col-span-2 sm:col-span-1">
                       <label className="text-sm font-medium mb-1">
                         Last Name <span className="text-red-500">*</span>
                       </label>
@@ -348,7 +349,7 @@ const AgentApplicationOpen: React.FC = () => {
 
                     {/* WFG Code Field (Only for WFG) */}
                     {showWfgCodeField && (
-                      <div className="flex flex-col col-span-2">
+                      <div className="flex flex-col col-span-2 sm:col-span-1">
                         <label className="text-sm font-medium mb-1">
                           WFG Code <span className="text-red-500">*</span>
                         </label>

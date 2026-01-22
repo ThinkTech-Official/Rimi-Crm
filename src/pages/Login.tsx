@@ -78,7 +78,7 @@ const Login = () => {
       {/* ===== RIGHT COLUMN - CONTENT AREA ===== */}
       <div className="flex-1 flex flex-col h-full overflow-y-auto">
         {/* Top Nav Buttons */}
-        <div className="p-6 flex justify-end gap-3 sticky top-0 bg-white/80 backdrop-blur-sm z-20">
+        <div className="p-6 flex justify-end gap-3">
           <button 
             onClick={() => navigate("/apply-mga")}
             className="px-6 py-2 border border-[#2B00B7] text-[#2B00B7] font-medium text-sm transition-colors cursor-pointer"

@@ -103,7 +103,7 @@ const ForgotPassword: React.FC = () => {
                 disabled={loading || isSubmitting}
                 className={`btn-primary`}
               >
-                {langauge === "En" ? "Send Reset Link" : "Envoyer le lien"}
+                Send Reset Link
               </button>
 
               <button
@@ -111,7 +111,7 @@ const ForgotPassword: React.FC = () => {
                 onClick={() => navigate("/")}
                 className="flex w-full justify-center p-1 text-sm font-[inter] leading-6 text-primary hover:underline cursor-pointer"
               >
-                {langauge === "En" ? "Back to Login" : "Retour à la connexion"}
+                Back to Login
               </button>
             </div>
           </form>
