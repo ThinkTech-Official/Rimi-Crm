@@ -46,7 +46,7 @@ export default function VerificationModal({
     selectedAgent.applicantType === 'under_mga' && 
     selectedAgent.mgaType === 'other';
     
-  const isWfgAgent = selectedAgent.applicantType === 'under_mga' && selectedAgent.mgaType === 'wfg';
+  const isWfgAgent = selectedAgent.applicantType === 'wfg';
 
   return (
     <div className='fixed flex h-full w-full inset-0 items-center justify-center z-50 bg-black/30 backdrop-blur-sm'>
@@ -107,11 +107,16 @@ export default function VerificationModal({
                         {selectedAgent.agentCode}
                         </span>
                         {selectedAgent.agentCode?.startsWith('TEMP-') && (
-                            <span className="text-xs text-yellow-600 font-medium">Temporary Code</span>
+                            <span className="text-xs text-yellow-600 font-medium">Temporary</span>
                         )}
                     </div>
                   </div>
-                  
+                 <div className="flex items-start gap-2">
+                   <p className="text-text-secondary min-w-[90px]">
+                    Status:
+              </p>
+                 <span className="font-medium text-text-primary">{selectedAgent.status}</span>
+                 </div>
                   <div className='flex items-start gap-2'>
                     <span className='text-text-secondary min-w-[90px]'>User Type:</span>
                     <span className='text-text-primary font-medium'>
@@ -175,6 +180,26 @@ export default function VerificationModal({
                 </div>
             )}
           </div>
+
+           {selectedAgent.applicantType && (
+                <div className="mt-2">
+                  {selectedAgent.applicantType === 'independent' && (
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                      Independent Agent
+                    </span>
+                  )}
+                  {selectedAgent.applicantType === 'under_mga' && selectedAgent.mgaType === 'wfg' && (
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                      WFG Agent
+                    </span>
+                  )}
+                  {selectedAgent.applicantType === 'under_mga' && selectedAgent.mgaType === 'other' && (
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
+                      Agent under MGA
+                    </span>
+                  )}
+                </div>
+              )}
 
           {/* WFG Warning */}
           {isWfgAgent && (
@@ -248,7 +273,8 @@ export default function VerificationModal({
                   </div>
                 </div>
 
-                <div>
+                {!isWfgAgent && (
+                  <div>
                   <label className="block text-sm font-medium text-text-primary mb-1">
                     Commission Percentage <span className="text-red-500">*</span>
                   </label>
@@ -269,6 +295,7 @@ export default function VerificationModal({
                     <span className="absolute right-3 top-2 text-text-secondary">%</span>
                   </div>
                 </div>
+                )}
 
                 {/* MGA Assignment Search */}
                 {needsMgaAssignment && (

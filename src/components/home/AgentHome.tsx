@@ -364,7 +364,7 @@ export default function AgentHome() {
         </div> */}
 
         {/* Chart Section with Filter Toggle */}
-        <div className="mt-6 hidden">
+        <div className="mt-6">
           <div className="flex justify-between items-center mb-4">
             <div>
               <h2 className="text-lg font-bold text-text-primary">
