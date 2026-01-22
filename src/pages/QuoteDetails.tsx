@@ -15,7 +15,7 @@ const DetailItem: React.FC<{ label: string; value: string | number | null | unde
   );
 };
 
-const HealthQuestionnaireSection: React.FC<{
+export const HealthQuestionnaireSection: React.FC<{
   questionnaire?: { questions: Array<{ question: string; answer: string }> };
 }> = ({ questionnaire }) => {
   if (

@@ -458,7 +458,7 @@ const PoliciesSearch: React.FC = () => {
                       {p.expiryDate?.split("T")[0]}
                     </td>
                     <td
-                      className="px-2 sm:px-3 py-2 sm:py-3 capitalize min-w-[250px] break-words"
+                      className="px-2 sm:px-3 py-2 sm:py-3 capitalize min-w-[250px] text-nowrap"
                       style={{
                         borderWidth: "0px 1px 1px 0px",
                         borderStyle: "solid",

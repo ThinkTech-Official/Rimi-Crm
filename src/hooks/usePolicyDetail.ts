@@ -15,6 +15,12 @@ export interface PolicyApplicant {
   premium?: string;
   PreExCoverage?: string;
   relation?: string;
+  healthQuestionnaire?: {
+    questions: Array<{
+      question: string;
+      answer: string;
+    }>;
+  };
 }
 
 export interface PolicyDetail {
@@ -73,6 +79,13 @@ export interface PolicyDetail {
   paymentOption?: string;
   creditCardLast4?: string;
   paymentHistory?: any[];
+
+  healthQuestionnaire?: {
+    questions: Array<{
+      question: string;
+      answer: string;
+    }>;
+  };
 
 
   createdAt?: string;

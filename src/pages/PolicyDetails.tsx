@@ -34,6 +34,7 @@ import SuccessModal from "../components/renewals/SuccessModal";
 import SendRenewalConfirmationModal from "../components/renewals/SendRenewalConfirmationModal";
 import UpdatePaymentMethodConfirmationModal from "../components/policy/UpdatePaymentMethodConfirmationModal";
 import { MdClose, MdUploadFile } from "react-icons/md";
+import { HealthQuestionnaireSection } from "./QuoteDetails";
 
 const fmtDate = (iso?: string) =>
   iso ? new Date(iso).toLocaleDateString("en-CA") : "-";
@@ -793,6 +794,9 @@ const PolicyDetailsPage: React.FC = () => {
           </div>
         </div>
       </div>
+      {p.healthQuestionnaire && (
+        <HealthQuestionnaireSection questionnaire={p.healthQuestionnaire} />
+      )}
 
       {/* Contact Information */}
       <div className="flex flex-col gap-4 justify-between w-full border-b border-[#D8D8D8] pb-4">
@@ -941,6 +945,9 @@ const PolicyDetailsPage: React.FC = () => {
                 </div>
               </div>
             </div>
+            {a.healthQuestionnaire && (
+              <HealthQuestionnaireSection questionnaire={a.healthQuestionnaire} />
+            )}
           </div>
         ))}
 
