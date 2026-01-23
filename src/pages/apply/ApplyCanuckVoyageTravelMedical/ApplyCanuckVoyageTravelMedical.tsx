@@ -22,6 +22,7 @@ import Summary from "../../../components/Products/CanuckVoyageComponenets/step3/
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useQuoteByNumber } from "../../../hooks/apply/useQuoteByNumber";
 import { FormProvider, useForm } from "react-hook-form";
+import useNotification from "../../../hooks/useNotification";
 
 export interface Applicant {
   index: string;
@@ -130,6 +131,8 @@ const RIMICanuckVoyageTravelMedical: React.FC = () => {
       },
     },
   });
+
+  const { triggerNotification, NotificationComponent } = useNotification();
 
   // Watch values for local logic
   const watchedStep1 = step1Methods.watch();
@@ -304,11 +307,11 @@ useEffect(() => {
       console.log("Saving Product 3 quote as Inactive...");
       const response = await saveQuote(payload);
       setQuoteNumber(response.quote);
-      alert(`Quote saved successfully!\n\nQuote Number: ${response.quote}`);
+      triggerNotification({ type: "success", message: `Quote saved successfully!\n\nQuote Number: ${response.quote}` });
       return true;
     } catch (err: any) {
       console.error("Failed to save quote:", err);
-      alert(`Failed to save quote: ${err.message || "Please try again"}`);
+      triggerNotification({ type: "error", message: `Failed to save quote: ${err.message || "Please try again"}` });
       return false;
     }
   };
@@ -334,7 +337,7 @@ useEffect(() => {
 
   // ========== PAYMENT SUCCESS ==========
   const handlePaymentSuccess = () => {
-    alert("Payment successful!");
+    triggerNotification({ type: "success", message: "Payment successful!" });
     handleFormStepChange("forward");
   };
 
@@ -585,6 +588,7 @@ if (quoteError) {
           </button>
         )}
       </div>
+      {NotificationComponent}
     </div>
   );
 };

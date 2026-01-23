@@ -19,6 +19,7 @@ import PaymentInformation from "../../../components/Products/SecureTravelRIMIVis
 import Summary from "../../../components/Products/SecureTravelRIMIVisitorstoCanadaTravel/step3/Summary";
 import { FormProvider, useForm } from "react-hook-form";
 import { Step1Payload } from "../../../components/Products/SecureTravelRIMIVisitorstoCanadaTravel/SecureTravelRIMIVisitorstoCanadaTravel";
+import useNotification from "../../../hooks/useNotification";
 
 import { useRenewalPolicyData } from "../../../hooks/renewals/useRenewalPolicyData";
 
@@ -72,19 +73,20 @@ interface BeneficiaryInfo {
 const productName = "SECURE_TRAVEL_RIMI_VISITORS_TO_CANADA_TRAVEL";
 
 export default function SecureTravelRIMIVisitorstoCanadaTravel() {
-
-
-    const navigate = useNavigate();
+  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
-  const policyId = searchParams.get('policyId');
+  const policyId = searchParams.get("policyId");
 
   const agentCode = useSelector((state: RootState) => state.auth.agentCode);
 
-  const { data: policyData, loading: loadingPolicy, error: policyError } = 
-    useRenewalPolicyData(policyId);
+  const {
+    data: policyData,
+    loading: loadingPolicy,
+    error: policyError,
+  } = useRenewalPolicyData(policyId);
 
- // Replace individual useState with react-hook-form
+  // Replace individual useState with react-hook-form
   const step1Methods = useForm<Step1Payload>({
     mode: "onTouched",
     reValidateMode: "onChange",
@@ -171,6 +173,7 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
   const [schedule, setSchedule] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const { triggerNotification, NotificationComponent } = useNotification();
 
   let monthlyAmount: number | undefined = undefined;
   let remainingInstallments: number | undefined = undefined;
@@ -195,12 +198,12 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
 
     // Find the monthly installment item
     const monthlyItem = schedule.find(
-      (item) => item.label === "Monthly Installment"
+      (item) => item.label === "Monthly Installment",
     );
 
     // Find the first payment item
     const firstPaymentItem = schedule.find(
-      (item) => item.label === "First Payment (2 months + fee)"
+      (item) => item.label === "First Payment (2 months + fee)",
     );
 
     if (monthlyItem && firstPaymentItem) {
@@ -214,7 +217,7 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
       console.log(
         "   Breakdown:",
         firstPaymentAmount,
-        "= $120 fee + $" + (firstPaymentAmount - 120) + " (2 months)"
+        "= $120 fee + $" + (firstPaymentAmount - 120) + " (2 months)",
       );
     } else {
       console.error("Could not find schedule items!");
@@ -232,49 +235,45 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
     console.log(
       "Then:",
       remainingInstallments,
-      "x $" + monthlyAmount + "/month"
+      "x $" + monthlyAmount + "/month",
     );
   }
 
   ///--------------------------------------- Stage 2 -------------------------------------
-
-
 
   // const [benifitiaryName, setBenifitaryName] = useState<string>('')
   // const [relationshipToInsured, setRelationshipToInsured] = useState<string>('')
 
   //-----------------------------------------------------------------------------------------
 
-//   const [steps, setSteps] = useState([
-//     { id: "01", name: "Get Quote", href: "#", status: "current" },
-//     { id: "02", name: "Complete Application", href: "#", status: "upcoming" },
-//     { id: "03", name: "Confirmation", href: "#", status: "upcoming" },
-//   ]);
+  //   const [steps, setSteps] = useState([
+  //     { id: "01", name: "Get Quote", href: "#", status: "current" },
+  //     { id: "02", name: "Complete Application", href: "#", status: "upcoming" },
+  //     { id: "03", name: "Confirmation", href: "#", status: "upcoming" },
+  //   ]);
 
-const [steps, setSteps] = useState([
-  { id: "01", name: "Review & Update", href: "#", status: "current" }, 
-  { id: "02", name: "Complete Application", href: "#", status: "upcoming" },
-  { id: "03", name: "Confirmation", href: "#", status: "upcoming" },
-]);
+  const [steps, setSteps] = useState([
+    { id: "01", name: "Review & Update", href: "#", status: "current" },
+    { id: "02", name: "Complete Application", href: "#", status: "upcoming" },
+    { id: "03", name: "Confirmation", href: "#", status: "upcoming" },
+  ]);
 
   const [formStep, setFormStep] = useState(1);
 
   const [isStepOneFilled, setIsStepOneFilled] = useState(false);
 
-
-
   // ADD - Check for missing policy ID
-useEffect(() => {
-  if (!policyId) {
-    alert('No policy ID provided. Redirecting to policies page.');
-    navigate('/policies');
-  }
-}, [policyId, navigate]);
+  useEffect(() => {
+    if (!policyId) {
+      alert("No policy ID provided. Redirecting to policies page.");
+      navigate("/policies");
+    }
+  }, [policyId, navigate]);
 
-useEffect(() => {
+  useEffect(() => {
     if (!policyData) return;
 
-    console.log('📋 Pre-filling renewal form with policy data:', policyData);
+    console.log("📋 Pre-filling renewal form with policy data:", policyData);
 
     // Step 1 Form Data
     step1Methods.reset({
@@ -302,7 +301,7 @@ useEffect(() => {
       superVisa: (policyData.applicantOnSuperVisa as SuperVisaOption) || "",
       destinationProvince: policyData.destination || policyData.destProv || "",
       effectiveDate: "", // User must select new dates
-      expiryDate: "", 
+      expiryDate: "",
       coverageLength: "",
       policyType: policyData.policyType || "",
       coverageOption: policyData.coverage || "",
@@ -310,7 +309,7 @@ useEffect(() => {
       paymentOption: "lump-sum",
       superVisaYears: "", // User re-selects if super visa
       primaryQuestionnaire: null,
-      isConfirmed: false
+      isConfirmed: false,
     });
 
     // Step 2 Form Data
@@ -322,26 +321,29 @@ useEffect(() => {
         postalCode: policyData.postalCode || "",
         country: policyData.countryCode || "",
         province: policyData.province || "",
-      }
+      },
     });
 
     contactInfoMethods.reset({
       contactInfo: {
         additionalEmail: policyData.additionalEmail || "",
         phoneNumber: policyData.phoneNumber || "",
-      }
+      },
     });
 
     beneficiaryMethods.reset({
       beneficiary: {
         beneficiaryName: policyData.beneficiaryName || "",
         relationshipToInsured: policyData.beneficiaryRelation || "",
-      }
+      },
     });
-
-  }, [policyData, step1Methods, addressMethods, contactInfoMethods, beneficiaryMethods]);
-
-
+  }, [
+    policyData,
+    step1Methods,
+    addressMethods,
+    contactInfoMethods,
+    beneficiaryMethods,
+  ]);
 
   const { saveQuoteNext, loading: savingStage1 } = useSaveQuoteNext();
 
@@ -370,8 +372,8 @@ useEffect(() => {
           step.id === newStep.toString().padStart(2, "0")
             ? "current"
             : step.id < newStep.toString().padStart(2, "0")
-            ? "complete"
-            : "upcoming",
+              ? "complete"
+              : "upcoming",
       }));
 
       setSteps(updatedSteps);
@@ -461,7 +463,7 @@ useEffect(() => {
   // Step‐2 “Buy Now”
   const handleBuyNow = async () => {
     if (!quoteNumber || submittingStage2) return;
-    
+
     const validContact = await contactInfoMethods.trigger();
     const validAddress = await addressMethods.trigger();
     const validBeneficiary = await beneficiaryMethods.trigger();
@@ -486,10 +488,8 @@ useEffect(() => {
     }
   };
 
-
-
   const handlePaymentSuccess = () => {
-    alert("payment successfull");
+    triggerNotification({ type: "success", message: "payment successfull" });
     handleFormStepChange("forward");
   };
 
@@ -498,94 +498,97 @@ useEffect(() => {
   //   handleFormStepChange('forward')
   // }
 
-
-
-  // 
-if (loadingPolicy) {
-  return (
-    <div className="flex justify-center items-center min-h-[400px]">
-      <div className="text-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto"></div>
-        <p className="mt-4 text-gray-600">Loading policy data...</p>
+  //
+  if (loadingPolicy) {
+    return (
+      <div className="flex justify-center items-center min-h-[400px]">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading policy data...</p>
+        </div>
       </div>
-    </div>
-  );
-}
+    );
+  }
 
-if (policyError) {
-  return (
-    <div className="max-w-2xl mx-auto p-6">
-      <div className="bg-red-50 border border-red-200 rounded-lg p-6">
-        <h3 className="text-lg font-semibold text-red-900">Error Loading Policy</h3>
-        <p className="text-red-700 mt-2">{policyError}</p>
-        <button
-          onClick={() => navigate(`/policies/${policyId}`)}
-          className="mt-4 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
-        >
-          Return to Policy
-        </button>
+  if (policyError) {
+    return (
+      <div className="max-w-2xl mx-auto p-6">
+        <div className="bg-red-50 border border-red-200 rounded-lg p-6">
+          <h3 className="text-lg font-semibold text-red-900">
+            Error Loading Policy
+          </h3>
+          <p className="text-red-700 mt-2">{policyError}</p>
+          <button
+            onClick={() => navigate(`/policies/${policyId}`)}
+            className="mt-4 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+          >
+            Return to Policy
+          </button>
+        </div>
       </div>
-    </div>
-  );
-}
+    );
+  }
 
-if (!policyData) {
-  return (
-    <div className="max-w-2xl mx-auto p-6">
-      <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6">
-        <h3 className="text-lg font-semibold text-yellow-900">No Policy Data</h3>
-        <p className="text-yellow-700 mt-2">Could not load policy information.</p>
-        <button
-          onClick={() => navigate("/policies")}
-          className="mt-4 px-4 py-2 bg-yellow-600 text-white rounded hover:bg-yellow-700"
-        >
-          Back to Policies
-        </button>
+  if (!policyData) {
+    return (
+      <div className="max-w-2xl mx-auto p-6">
+        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6">
+          <h3 className="text-lg font-semibold text-yellow-900">
+            No Policy Data
+          </h3>
+          <p className="text-yellow-700 mt-2">
+            Could not load policy information.
+          </p>
+          <button
+            onClick={() => navigate("/policies")}
+            className="mt-4 px-4 py-2 bg-yellow-600 text-white rounded hover:bg-yellow-700"
+          >
+            Back to Policies
+          </button>
+        </div>
       </div>
-    </div>
-  );
-}
-
-
-
+    );
+  }
 
   return (
     <div className="max-w-5xl mx-auto px-2 py-4 sm:p-6">
+      {/* Breadcrumb */}
+      <div className="flex gap-1 mb-4">
+        <span
+          className="underline underline-offset-2 cursor-pointer text-sm text-primary font-medium"
+          onClick={() => navigate("/policies")}
+        >
+          Policies
+        </span>
+        &gt;
+        <span
+          className="underline underline-offset-2 cursor-pointer text-sm text-primary font-medium"
+          onClick={() => navigate(`/policies/${policyId}`)}
+        >
+          {policyId?.substring(0, 8)}...
+        </span>
+        &gt;
+        <span className="text-sm text-primary font-medium">Renewal</span>
+      </div>
 
-     {/* Breadcrumb */}
-    <div className="flex gap-1 mb-4">
-      <span
-        className="underline underline-offset-2 cursor-pointer text-sm text-primary font-medium"
-        onClick={() => navigate("/policies")}
-      >
-        Policies
-      </span>
-      &gt;
-      <span
-        className="underline underline-offset-2 cursor-pointer text-sm text-primary font-medium"
-        onClick={() => navigate(`/policies/${policyId}`)}
-      >
-        {policyId?.substring(0, 8)}...
-      </span>
-      &gt;
-      <span className="text-sm text-primary font-medium">
-        Renewal
-      </span>
-    </div>
-
-    {/* ✅ Info Banner */}
-    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-      <h3 className="font-semibold text-blue-900 flex items-center gap-2">
-        <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-          <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-        </svg>
-        Creating Renewal Policy
-      </h3>
-      <p className="text-sm text-blue-700 mt-1">
-        Review the pre-filled information from the original policy. You can update any fields as needed. 
-        Premium will be recalculated based on current rates and coverage dates.
-      </p>
-    </div>
+      {/* ✅ Info Banner */}
+      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+        <h3 className="font-semibold text-blue-900 flex items-center gap-2">
+          <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+            <path
+              fillRule="evenodd"
+              d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+              clipRule="evenodd"
+            />
+          </svg>
+          Creating Renewal Policy
+        </h3>
+        <p className="text-sm text-blue-700 mt-1">
+          Review the pre-filled information from the original policy. You can
+          update any fields as needed. Premium will be recalculated based on
+          current rates and coverage dates.
+        </p>
+      </div>
 
       <nav aria-label="Progress">
         <ol
@@ -666,25 +669,36 @@ if (!policyData) {
         </ol>
       </nav>
 
-          {/* Original Policy Reference */}
-    <div className="bg-amber-50 border-l-4 border-amber-400 p-4 mt-6">
-      <div className="flex">
-        <div className="flex-shrink-0">
-          <svg className="h-5 w-5 text-amber-400" viewBox="0 0 20 20" fill="currentColor">
-            <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-          </svg>
-        </div>
-        <div className="ml-3">
-          <p className="text-sm text-amber-700">
-            <strong className="font-semibold">Renewing Policy:</strong> {policyData.policyNumber}
-            <br />
-            <span className="text-xs">
-              Original Coverage: {new Date(policyData.effectiveDate).toLocaleDateString()} to {new Date(policyData.expiryDate).toLocaleDateString()}
-            </span>
-          </p>
+      {/* Original Policy Reference */}
+      <div className="bg-amber-50 border-l-4 border-amber-400 p-4 mt-6">
+        <div className="flex">
+          <div className="flex-shrink-0">
+            <svg
+              className="h-5 w-5 text-amber-400"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+            >
+              <path
+                fillRule="evenodd"
+                d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                clipRule="evenodd"
+              />
+            </svg>
+          </div>
+          <div className="ml-3">
+            <p className="text-sm text-amber-700">
+              <strong className="font-semibold">Renewing Policy:</strong>{" "}
+              {policyData.policyNumber}
+              <br />
+              <span className="text-xs">
+                Original Coverage:{" "}
+                {new Date(policyData.effectiveDate).toLocaleDateString()} to{" "}
+                {new Date(policyData.expiryDate).toLocaleDateString()}
+              </span>
+            </p>
+          </div>
         </div>
       </div>
-    </div>
 
       {steps[0].status === "current" && (
         <div>
@@ -698,7 +712,6 @@ if (!policyData) {
               onValidityChange={setIsStepOneFilled}
               quoteNumber={quoteNumber}
               setQuoteNumber={setQuoteNumber}
-              
               // Passing down state for premiums calculation visualization
               totalPremium={totalPremium}
               schedule={schedule}
@@ -708,7 +721,6 @@ if (!policyData) {
               setSchedule={setSchedule}
               setLoading={setLoading}
               setError={setError}
-
               formStep={formStep}
               handleFormStepChange={handleFormStepChange}
               handleNext={handleNext}
@@ -742,9 +754,7 @@ if (!policyData) {
           />
           <Address methods={addressMethods} />
           {/* beneficiary, setBeneficiary */}
-          <BeneficiaryInCaseOfDeath
-            methods={beneficiaryMethods}
-          />
+          <BeneficiaryInCaseOfDeath methods={beneficiaryMethods} />
 
           {/* Payment Stripe   */}
           <Elements stripe={stripePromise}>
@@ -764,8 +774,8 @@ if (!policyData) {
               }
               remainingInstallments={
                 watchedPaymentOption === "monthly-installments"
-                    ? remainingInstallments
-                    : undefined
+                  ? remainingInstallments
+                  : undefined
               }
               stripeProductId={
                 watchedPaymentOption === "monthly-installments"
@@ -858,8 +868,6 @@ if (!policyData) {
             </div>
           )}
 
-
-
           {/*  */}
         </div>
       )}
@@ -945,9 +953,7 @@ if (!policyData) {
         )} */}
       </div>
 
-      {/*  */}
+      {NotificationComponent}
     </div>
   );
 }
-
-

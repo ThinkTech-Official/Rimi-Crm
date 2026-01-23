@@ -17,6 +17,7 @@ import Summary from "../../../components/Products/SecureTravelRIMIVisitorstoCana
 import { useEmailQuote } from "../../../hooks/apply/useEmailQuote";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useQuoteByNumber } from "../../../hooks/apply/useQuoteByNumber";
+import useNotification from "../../../hooks/useNotification";
 import { FormProvider, useForm } from "react-hook-form";
 import { Step1Payload } from "../../../components/Products/SecureTravelRIMIVisitorstoCanadaTravel/SecureTravelRIMIVisitorstoCanadaTravel";
 import { usePremiumCalculate } from "../../../hooks/usePremiumCalculate";
@@ -295,6 +296,7 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
   const [schedule, setSchedule] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const { triggerNotification, NotificationComponent } = useNotification();
 
   // Sync hook values
   useEffect(() => {
@@ -446,10 +448,10 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
   // Check if no quote number provided
   useEffect(() => {
     if (!quoteNumberFromUrl) {
-      alert("No quote number provided. Redirecting to products page...");
+      triggerNotification({ type: "error", message: "No quote number provided. Redirecting to products page..." });
       navigate("/products");
     }
-  }, [quoteNumberFromUrl, navigate]);
+  }, [quoteNumberFromUrl, navigate, triggerNotification]);
 
   const { saveQuoteNext, loading: savingStage1 } = useSaveQuoteNext();
 
@@ -581,7 +583,7 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
   };
 
   const handlePaymentSuccess = () => {
-    alert("payment successfull");
+    triggerNotification({ type: "success", message: "payment successfull" });
     handleFormStepChange("forward");
   };
 
@@ -919,6 +921,7 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
           </button>
         )}
       </div>
+      {NotificationComponent}
     </div>
   );
 }

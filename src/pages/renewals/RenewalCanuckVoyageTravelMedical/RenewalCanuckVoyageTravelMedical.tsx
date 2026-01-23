@@ -11,6 +11,7 @@ import { Elements } from "@stripe/react-stripe-js";
 
 import { stripePromise } from "../../../utils/stripe";
 import { useForm, FormProvider } from "react-hook-form";
+import useNotification from "../../../hooks/useNotification";
 
 
 
@@ -203,6 +204,7 @@ const RIMICanuckVoyageTravelMedical: React.FC = () => {
   const [premiumBreakdown, setPremiumBreakdown] = useState<any>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const { triggerNotification, NotificationComponent } = useNotification();
 
 
 
@@ -259,15 +261,13 @@ const RIMICanuckVoyageTravelMedical: React.FC = () => {
       setQuoteNumber(response.quote);
 
       // Show success message
-      alert(
-        `Quote saved successfully!\n\nQuote Number: ${response.quote}\n\nYou can continue later or proceed to the next step.`
-      );
+      triggerNotification({ type: "success", message: `Quote saved successfully!\n\nQuote Number: ${response.quote}\n\nYou can continue later or proceed to the next step.` });
 
       console.log("Quote saved:", response.quote);
       return true;
     } catch (err: any) {
       console.error("Failed to save quote:", err);
-      alert(`Failed to save quote: ${err.message || "Please try again"}`);
+      triggerNotification({ type: "error", message: `Failed to save quote: ${err.message || "Please try again"}` });
       return false;
     }
   };
@@ -282,10 +282,10 @@ const RIMICanuckVoyageTravelMedical: React.FC = () => {
 // Check for missing policy ID
 useEffect(() => {
   if (!policyId) {
-    alert('No policy ID provided. Redirecting to policies page.');
+    triggerNotification({ type: "error", message: 'No policy ID provided. Redirecting to policies page.' });
     navigate('/policies');
   }
-}, [policyId, navigate]);
+}, [policyId, navigate, triggerNotification]);
 
 // Pre-fill data from policy (Product 3 specific)
 useEffect(() => {
@@ -434,7 +434,7 @@ useEffect(() => {
 
   // ========== PAYMENT SUCCESS ==========
   const handlePaymentSuccess = () => {
-    alert("Payment successful!");
+    triggerNotification({ type: "success", message: "Payment successful!" });
     handleFormStepChange("forward");
   };
 
@@ -748,6 +748,7 @@ if (!policyData) {
           </button>
         )}
       </div>
+      {NotificationComponent}
     </div>
   );
 };

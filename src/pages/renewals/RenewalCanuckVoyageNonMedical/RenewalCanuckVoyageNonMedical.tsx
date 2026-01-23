@@ -1,6 +1,7 @@
 import { CheckIcon } from "@heroicons/react/24/outline";
 import React, { useEffect, useState } from "react";
 import { useForm, FormProvider } from "react-hook-form";
+import useNotification from "../../../hooks/useNotification";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../app/store";
 import { useSaveQuoteNextProduct4 } from "../../../hooks/canuck-voyage-non-medical/useSaveQuoteNextProduct4";
@@ -201,6 +202,7 @@ const RIMICanuckVoyageNonMedicalTravel: React.FC = () => {
   const [premiumBreakdown, setPremiumBreakdown] = useState<any>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const { triggerNotification, NotificationComponent } = useNotification();
 
 
   // ========== VALIDATION ==========
@@ -248,15 +250,13 @@ const RIMICanuckVoyageNonMedicalTravel: React.FC = () => {
       setQuoteNumber(response.quote);
 
       // Show success message
-      alert(
-        `Quote saved successfully!\n\nQuote Number: ${response.quote}\n\nYou can continue later or proceed to the next step.`
-      );
+      triggerNotification({ type: "success", message: `Quote saved successfully!\n\nQuote Number: ${response.quote}\n\nYou can continue later or proceed to the next step.` });
 
       console.log("Quote saved:", response.quote);
       return true;
     } catch (err: any) {
       console.error("Failed to save quote:", err);
-      alert(`Failed to save quote: ${err.message || "Please try again"}`);
+      triggerNotification({ type: "error", message: `Failed to save quote: ${err.message || "Please try again"}` });
       return false;
     }
   };
@@ -267,10 +267,10 @@ const RIMICanuckVoyageNonMedicalTravel: React.FC = () => {
   // Check for missing policy ID
   useEffect(() => {
     if (!policyId) {
-      alert("No policy ID provided. Redirecting to policies page.");
+      triggerNotification({ type: "error", message: "No policy ID provided. Redirecting to policies page." });
       navigate("/policies");
     }
-  }, [policyId, navigate]);
+  }, [policyId, navigate, triggerNotification]);
 
   // Pre-fill data from policy (Product 4 specific)
   useEffect(() => {
@@ -420,7 +420,7 @@ const RIMICanuckVoyageNonMedicalTravel: React.FC = () => {
 
   // ========== PAYMENT SUCCESS ==========
   const handlePaymentSuccess = () => {
-    alert("Payment successful!");
+    triggerNotification({ type: "success", message: "Payment successful!" });
     handleFormStepChange("forward");
   };
 
@@ -732,6 +732,7 @@ const RIMICanuckVoyageNonMedicalTravel: React.FC = () => {
           </button>
         )}
       </div>
+      {NotificationComponent}
     </div>
   );
 };

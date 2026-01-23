@@ -23,6 +23,7 @@ import PaymentInformation from "../../../components/Products/SecureStudyRIMIInte
 import Summary from "../../../components/Products/SecureStudyRIMIInternationalStudentstoCanada/step3/Summary";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useQuoteByNumber } from "../../../hooks/apply/useQuoteByNumber";
+import useNotification from "../../../hooks/useNotification";
 
 export interface Stage2FormValues {
   address: {
@@ -150,6 +151,7 @@ export default function SecureStudyRIMIInternationalStudentstoCanada() {
 
   // ==================== PREMIUM STATE ====================
   const [totalPremium, setTotalPremium] = useState<number>(0);
+  const { triggerNotification, NotificationComponent } = useNotification();
 
   // ==================== QUOTE RESPONSE STATE ====================
   const [quoteNumber, setQuoteNumber] = useState<string | null>(null);
@@ -225,10 +227,10 @@ export default function SecureStudyRIMIInternationalStudentstoCanada() {
 // Check if no quote number provided
 useEffect(() => {
   if (!quoteNumberFromUrl) {
-    alert('No quote number provided. Redirecting to products page...');
+    triggerNotification({ type: "error", message: 'No quote number provided. Redirecting to products page...' });
     navigate('/products');
   }
-}, [quoteNumberFromUrl, navigate]);
+}, [quoteNumberFromUrl, navigate, triggerNotification]);
 
   // ==================== HANDLERS ====================
   const handleFormStepChange = (stepCommand: string) => {
@@ -259,7 +261,7 @@ useEffect(() => {
   //  ADD THIS NEW HANDLER
 const handleSaveQuote = async (): Promise<boolean> => {
   if (!isStepOneFilled) {
-    alert("Please fill all required fields and confirm eligibility");
+    triggerNotification({ type: "warning", message: "Please fill all required fields and confirm eligibility" });
     return false;
   }
 
@@ -278,13 +280,13 @@ const handleSaveQuote = async (): Promise<boolean> => {
     setQuoteNumber(response.quote);
     
     // Show success message
-    alert(`Quote saved successfully!\n\nQuote Number: ${response.quote}\n\nYou can continue later or proceed to the next step.`);
+    triggerNotification({ type: "success", message: `Quote saved successfully!\n\nQuote Number: ${response.quote}\n\nYou can continue later or proceed to the next step.` });
     
     console.log("Quote saved:", response.quote);
     return true;
   } catch (err: any) {
     console.error("Failed to save quote:", err);
-    alert(`Failed to save quote: ${err.message || "Please try again"}`);
+    triggerNotification({ type: "error", message: `Failed to save quote: ${err.message || "Please try again"}` });
     return false;
   }
 };
@@ -347,7 +349,7 @@ const handleSaveQuote = async (): Promise<boolean> => {
   };
 
   const handlePaymentSuccess = () => {
-    alert("Payment successful");
+    triggerNotification({ type: "success", message: "Payment successful" });
     handleFormStepChange("forward");
   };
 
@@ -590,6 +592,7 @@ if (quoteError) {
           </button>
         )}
       </div>
+      {NotificationComponent}
     </div>
   );
 }

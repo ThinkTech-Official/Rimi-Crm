@@ -1,11 +1,12 @@
-
-
 import { CheckIcon } from "@heroicons/react/24/outline";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../app/store";
 import { useSaveQuoteNextProduct4 } from "../../../hooks/canuck-voyage-non-medical/useSaveQuoteNextProduct4";
-import { useQuoteUpdateProduct4, Stage2Payload } from "../../../hooks/canuck-voyage-non-medical/useQuoteUpdateProduct4";
+import {
+  useQuoteUpdateProduct4,
+  Stage2Payload,
+} from "../../../hooks/canuck-voyage-non-medical/useQuoteUpdateProduct4";
 import { Elements } from "@stripe/react-stripe-js";
 import { stripePromise } from "../../../utils/stripe";
 import ApplicantInformation from "../../../components/Products/CanuckVoyageNon-MedicalTravel/step1/ApplicantInformation";
@@ -21,7 +22,7 @@ import { useQuoteByNumber } from "../../../hooks/apply/useQuoteByNumber";
 import { FormProvider, useForm } from "react-hook-form";
 import { Stage1Payload } from "../../../hooks/canuck-voyage-non-medical/useSaveQuoteNextProduct4";
 import { useCreateQuoteProduct4 } from "../../../hooks/canuck-voyage-non-medical/useCreateQuoteProduct4";
-
+import useNotification from "../../../hooks/useNotification";
 
 interface Applicant {
   index: string;
@@ -83,18 +84,18 @@ export interface Stage2FormValues {
 const productName = "RIMI_CANUCK_VOYAGE_NON_MEDICAL_TRAVEL";
 
 const RIMICanuckVoyageNonMedicalTravel: React.FC = () => {
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
 
+  // Get quote number from URL
+  const quoteNumberFromUrl = searchParams.get("quote");
 
-
-    const [searchParams] = useSearchParams();
-const navigate = useNavigate();
-
-// Get quote number from URL
-const quoteNumberFromUrl = searchParams.get('quote');
-
-// Fetch quote data
-const { quoteData, loading: loadingQuote, error: quoteError } = useQuoteByNumber(quoteNumberFromUrl);
-
+  // Fetch quote data
+  const {
+    quoteData,
+    loading: loadingQuote,
+    error: quoteError,
+  } = useQuoteByNumber(quoteNumberFromUrl);
 
   const agentCode = useSelector((state: RootState) => state.auth.agentCode);
 
@@ -146,9 +147,7 @@ const { quoteData, loading: loadingQuote, error: quoteError } = useQuoteByNumber
 
   // Watch values for local logic
   const watchedStep1 = step1Methods.watch();
-  const {
-    primaryFirstName,
-  } = watchedStep1;
+  const { primaryFirstName } = watchedStep1;
 
   const watchedStep2 = step2Methods.watch();
   const { address } = watchedStep2;
@@ -163,11 +162,13 @@ const { quoteData, loading: loadingQuote, error: quoteError } = useQuoteByNumber
 
   // ========== QUOTE & PREMIUM ==========
   const [quoteNumber, setQuoteNumber] = useState<string | null>(null);
-  const [step1ResponseData, setStep1ResponseData] = useState<QuoteStage1Response | null>(null);
+  const [step1ResponseData, setStep1ResponseData] =
+    useState<QuoteStage1Response | null>(null);
   const [totalPremium, setTotalPremium] = useState<number>(0);
   const [premiumBreakdown, setPremiumBreakdown] = useState<any>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const { triggerNotification, NotificationComponent } = useNotification();
 
   // ========== VALIDATION ==========
   const [isStepOneFilled, setIsStepOneFilled] = useState(false);
@@ -180,44 +181,40 @@ const { quoteData, loading: loadingQuote, error: quoteError } = useQuoteByNumber
     error: submitError,
   } = useQuoteUpdateProduct4();
 
-
-
   //
-
-
-
-
 
   // AUTO-FILL FORM FROM QUOTE DATA
   useEffect(() => {
     if (quoteData) {
-      console.log('🔄 Auto-filling Product 4 form with quote data:', quoteData);
-      
+      console.log("🔄 Auto-filling Product 4 form with quote data:", quoteData);
+
       setQuoteNumber(quoteData.quoteNumber);
 
       // Reset step 1 methods
       step1Methods.reset({
         primaryFirstName: quoteData.primaryFirstName || "",
         primaryLastName: quoteData.primaryLastName || "",
-        primaryDateOfBirth: quoteData.primaryDateOfBirth?.split('T')[0] || "",
+        primaryDateOfBirth: quoteData.primaryDateOfBirth?.split("T")[0] || "",
         primaryEmail: quoteData.primaryEmail || "",
         primaryApplicantGender: quoteData.primaryApplicantGender || "",
         countryOfOrigin: quoteData.countryOfOrigin || "",
         provinceStateResidence: quoteData.provinceStateResidence || "",
         applicantNumber: quoteData.applicantNumber || 0,
-        applicants: quoteData.applicants ? quoteData.applicants.map(app => ({
-          index: app.index,
-          firstName: app.firstName,
-          lastName: app.lastName,
-          dob: app.dob.split('T')[0],
-          relationship: app.relationship,
-          gender: app.gender,
-        })) : [],
+        applicants: quoteData.applicants
+          ? quoteData.applicants.map((app) => ({
+              index: app.index,
+              firstName: app.firstName,
+              lastName: app.lastName,
+              dob: app.dob.split("T")[0],
+              relationship: app.relationship,
+              gender: app.gender,
+            }))
+          : [],
         isConfirmed: true,
         tripCost: quoteData.tripCost || 0,
-        dateBooked: quoteData.dateBooked?.split('T')[0] || "",
-        effectiveDate: quoteData.effectiveDate?.split('T')[0] || "",
-        expiryDate: quoteData.expiryDate?.split('T')[0] || "",
+        dateBooked: quoteData.dateBooked?.split("T")[0] || "",
+        effectiveDate: quoteData.effectiveDate?.split("T")[0] || "",
+        expiryDate: quoteData.expiryDate?.split("T")[0] || "",
         coverageLength: Number(quoteData.coverageLength || 0),
         destinationCountry: "Canada",
         tripCancellationDeluxe: quoteData.tripCancellationDeluxe || false,
@@ -242,30 +239,21 @@ const { quoteData, loading: loadingQuote, error: quoteError } = useQuoteByNumber
           phoneNumber: "",
         },
       });
-      
+
       setTotalPremium(quoteData.premium || 0);
-      console.log('Product 4 form auto-filled successfully');
+      console.log("Product 4 form auto-filled successfully");
     }
   }, [quoteData, step1Methods, step2Methods, agentCode]);
 
-// Check if no quote number provided
-useEffect(() => {
-  if (!quoteNumberFromUrl) {
-    alert('No quote number provided. Redirecting to products page...');
-    navigate('/products');
-  }
-}, [quoteNumberFromUrl, navigate]);
-
-
-
-
-
-
+  // Check if no quote number provided
+  useEffect(() => {
+    if (!quoteNumberFromUrl) {
+      alert("No quote number provided. Redirecting to products page...");
+      navigate("/products");
+    }
+  }, [quoteNumberFromUrl, navigate]);
 
   //
-
-
-
 
   // ========== STEP NAVIGATION ==========
   const handleFormStepChange = (stepCommand: string) => {
@@ -284,8 +272,8 @@ useEffect(() => {
           step.id === newStep.toString().padStart(2, "0")
             ? "current"
             : step.id < newStep.toString().padStart(2, "0")
-            ? "complete"
-            : "upcoming",
+              ? "complete"
+              : "upcoming",
       }));
 
       setSteps(updatedSteps);
@@ -346,7 +334,10 @@ useEffect(() => {
   const handleSaveQuote = async (): Promise<boolean> => {
     const isValid = await step1Methods.trigger();
     if (!isValid) {
-      alert("Please fill all required fields correctly.");
+      triggerNotification({
+        type: "warning",
+        message: "Please fill all required fields correctly.",
+      });
       return false;
     }
 
@@ -364,80 +355,89 @@ useEffect(() => {
       console.log("Saving Product 4 quote as Inactive...");
       const response = await saveQuote(payload);
       setQuoteNumber(response.quote);
-      alert(`Quote saved successfully!\n\nQuote Number: ${response.quote}`);
+      triggerNotification({
+        type: "success",
+        message: `Quote saved successfully!\n\nQuote Number: ${response.quote}`,
+      });
       return true;
     } catch (err: any) {
       console.error("Failed to save quote:", err);
-      alert(`Failed to save quote: ${err.message || "Please try again"}`);
+      triggerNotification({
+        type: "error",
+        message: `Failed to save quote: ${err.message || "Please try again"}`,
+      });
       return false;
     }
   };
 
   // ========== PAYMENT SUCCESS ==========
   const handlePaymentSuccess = () => {
-    alert("Payment successful!");
+    triggerNotification({
+      type: "success",
+      message: "Payment successful!",
+    });
     handleFormStepChange("forward");
   };
 
-
-
-
-
   // Show loading state
-if (loadingQuote) {
-  return (
-    <div className="max-w-5xl mx-auto px-2 py-4 sm:p-6">
-      <div className="flex items-center justify-center h-64">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#2B00B7] mx-auto mb-4"></div>
-          <p className="text-lg text-gray-600">Loading your quote...</p>
+  if (loadingQuote) {
+    return (
+      <div className="max-w-5xl mx-auto px-2 py-4 sm:p-6">
+        <div className="flex items-center justify-center h-64">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#2B00B7] mx-auto mb-4"></div>
+            <p className="text-lg text-gray-600">Loading your quote...</p>
+          </div>
         </div>
       </div>
-    </div>
-  );
-}
+    );
+  }
 
-// Show error state
-if (quoteError) {
-  return (
-    <div className="max-w-5xl mx-auto px-2 py-4 sm:p-6">
-      <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
-        <h3 className="text-lg font-semibold text-red-800 mb-2">Error Loading Quote</h3>
-        <p className="text-red-600 mb-4">{quoteError}</p>
-        <button
-          onClick={() => navigate('/products')}
-          className="bg-[#2B00B7] text-white px-6 py-2 rounded hover:bg-[#2309A1]"
-        >
-          Go to Products
-        </button>
-      </div>
-    </div>
-  );
-}
-
-
-
-  return (
-    <div className="max-w-5xl mx-auto px-2 py-4 sm:p-6">
-
-
-
- <div className="bg-blue-50 border border-blue-200 p-4 mb-6">
-      <div className="flex items-center">
-        <div className="flex-shrink-0">
-          <svg className="h-5 w-5 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
-            <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-          </svg>
-        </div>
-        <div className="ml-3">
-          <p className="text-sm text-blue-700">
-            <strong>Quote #{quoteNumber}</strong> - Your quote details have been pre-filled. Review and proceed to payment.
-          </p>
+  // Show error state
+  if (quoteError) {
+    return (
+      <div className="max-w-5xl mx-auto px-2 py-4 sm:p-6">
+        <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
+          <h3 className="text-lg font-semibold text-red-800 mb-2">
+            Error Loading Quote
+          </h3>
+          <p className="text-red-600 mb-4">{quoteError}</p>
+          <button
+            onClick={() => navigate("/products")}
+            className="bg-[#2B00B7] text-white px-6 py-2 rounded hover:bg-[#2309A1]"
+          >
+            Go to Products
+          </button>
         </div>
       </div>
-    </div>
+    );
+  }
 
-
+  return (
+    <div className="max-w-5xl mx-auto px-2 py-4 sm:p-6">
+      <div className="bg-blue-50 border border-blue-200 p-4 mb-6">
+        <div className="flex items-center">
+          <div className="flex-shrink-0">
+            <svg
+              className="h-5 w-5 text-blue-400"
+              fill="currentColor"
+              viewBox="0 0 20 20"
+            >
+              <path
+                fillRule="evenodd"
+                d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                clipRule="evenodd"
+              />
+            </svg>
+          </div>
+          <div className="ml-3">
+            <p className="text-sm text-blue-700">
+              <strong>Quote #{quoteNumber}</strong> - Your quote details have
+              been pre-filled. Review and proceed to payment.
+            </p>
+          </div>
+        </div>
+      </div>
 
       {/* ========== PROGRESS STEPPER ========== */}
       <nav aria-label="Progress">
@@ -536,7 +536,9 @@ if (quoteError) {
 
           <div className="w-full h-2 mt-5 flex items-center justify-center font-[inter]">
             <h3 className="text-base sm:text-lg">
-              {loading ? "Calculating..." : `Your Quote: $${totalPremium.toFixed(2)} CAD`}
+              {loading
+                ? "Calculating..."
+                : `Your Quote: $${totalPremium.toFixed(2)} CAD`}
             </h3>
           </div>
         </FormProvider>
@@ -566,7 +568,9 @@ if (quoteError) {
           <Address methods={step2Methods as any} />
 
           <div className="max-w-5xl mx-auto mt-6 p-3 sm:p-6 bg-[#F9F9F9]">
-            <h3 className="text-lg font-bold text-left text-[#1B1B1B] mb-5">Payment Summary</h3>
+            <h3 className="text-lg font-bold text-left text-[#1B1B1B] mb-5">
+              Payment Summary
+            </h3>
             <div className="flex justify-between items-center">
               <span>Total Premium:</span>
               <span className="text-xl font-bold text-primary">
@@ -621,6 +625,7 @@ if (quoteError) {
           </button>
         )}
       </div>
+      {NotificationComponent}
     </div>
   );
 };

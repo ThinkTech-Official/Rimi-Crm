@@ -15,6 +15,7 @@ import BeneficiaryInCaseOfDeath from "../../../components/Products/SecureStudyRI
 import PaymentInformation from "../../../components/Products/SecureStudyRIMIInternationalStudentstoCanada/step2/PaymentInformation";
 import Summary from "../../../components/Products/SecureStudyRIMIInternationalStudentstoCanada/step3/Summary";
 import { FormProvider, useForm } from "react-hook-form";
+import useNotification from "../../../hooks/useNotification";
 
 // Hooks
 import { useSaveQuoteNextProduct2 } from "../../../hooks/student-international/useSaveQuoteNextProduct2";
@@ -196,6 +197,7 @@ export default function SecureStudyRIMIInternationalStudentstoCanada() {
   const [totalPremium, setTotalPremium] = useState<number>(0);
   const [, setLoading] = useState<boolean>(false);
   const [, setError] = useState<string | null>(null);
+  const { triggerNotification, NotificationComponent } = useNotification();
 
 
   // ==================== QUOTE RESPONSE STATE ====================
@@ -230,10 +232,10 @@ export default function SecureStudyRIMIInternationalStudentstoCanada() {
   // Check for missing policy ID
 useEffect(() => {
   if (!policyId) {
-    alert('No policy ID provided. Redirecting to policies page.');
+    triggerNotification({ type: "error", message: 'No policy ID provided. Redirecting to policies page.' });
     navigate('/policies');
   }
-}, [policyId, navigate]);
+}, [policyId, navigate, triggerNotification]);
 
 // Pre-fill data from policy (Product 2 specific)
 useEffect(() => {
@@ -323,7 +325,7 @@ useEffect(() => {
   // 
 const handleSaveQuote = async () => {
   if (!isStepOneFilled) {
-    alert("Please fill all required fields and confirm eligibility");
+    triggerNotification({ type: "warning", message: "Please fill all required fields and confirm eligibility" });
     return false;
   }
 
@@ -354,15 +356,16 @@ const handleSaveQuote = async () => {
     setQuoteNumber(response.quote);
 
     // Show success message
-    alert(
-      `Quote saved successfully!\n\nQuote Number: ${response.quote}\n\nYou can continue later or proceed to the next step.`
-    );
+    triggerNotification({
+      type: "success",
+      message: `Quote saved successfully!\n\nQuote Number: ${response.quote}\n\nYou can continue later or proceed to the next step.`
+    });
 
     console.log("Quote saved:", response.quote);
     return true;
   } catch (err: any) {
     console.error("Failed to save quote:", err);
-    alert(`Failed to save quote: ${err.message || "Please try again"}`);
+    triggerNotification({ type: "error", message: `Failed to save quote: ${err.message || "Please try again"}` });
     return false;
   }
 };
@@ -435,7 +438,7 @@ const handleSaveQuote = async () => {
   };
 
   const handlePaymentSuccess = () => {
-    alert("Payment successful");
+    triggerNotification({ type: "success", message: "Payment successful" });
     handleFormStepChange("forward");
   };
 
@@ -732,6 +735,7 @@ if (!policyData) {
           </button>
         )}
       </div>
+      {NotificationComponent}
     </div>
   );
 }
