@@ -1,6 +1,5 @@
 import { CheckIcon } from "@heroicons/react/24/outline";
-import { useEffect, useState } from "react";
-
+import { useEffect, useState, useMemo } from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../app/store";
 import { useSaveQuoteNext } from "../../../hooks/useSaveQuoteNext";
@@ -18,13 +17,16 @@ import Summary from "../../../components/Products/SecureTravelRIMIVisitorstoCana
 import { useEmailQuote } from "../../../hooks/apply/useEmailQuote";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useQuoteByNumber } from "../../../hooks/apply/useQuoteByNumber";
-
+import { FormProvider, useForm } from "react-hook-form";
+import { Step1Payload } from "../../../components/Products/SecureTravelRIMIVisitorstoCanadaTravel/SecureTravelRIMIVisitorstoCanadaTravel";
+import { usePremiumCalculate } from "../../../hooks/usePremiumCalculate";
+import { PremiumCalculationData } from "../../../components/Products/SecureTravelRIMIVisitorstoCanadaTravel/step1/Step1STRVCT";
 
 type SuperVisaOption = "" | "yes" | "no";
 type SuperVisaYears = "" | "1" | "2";
 type YesNo = "" | "yes" | "no";
 
-interface Applicant {
+export interface Applicant {
   index: string;
   firstName: string;
   lastName: string;
@@ -32,6 +34,7 @@ interface Applicant {
   relationship: string;
   preMedCoverage: boolean;
   gender: string;
+  healthQuestionnaire?: { questions: any[] };
 }
 
 interface QuoteStage1Response {
@@ -68,79 +71,247 @@ interface BeneficiaryInfo {
 // const productName = "Secure Travel RIMI Visitors to Canada Travel";
 const productName = "SECURE_TRAVEL_RIMI_VISITORS_TO_CANADA_TRAVEL";
 
+// Helper for age
+const calculateAge = (
+  dob: string | Date,
+  effectiveDate: string | Date,
+): number | null => {
+  if (!dob) return null;
+
+  const targetDate = effectiveDate ? new Date(effectiveDate) : new Date();
+  const birthDate = new Date(dob);
+
+  let age = targetDate.getFullYear() - birthDate.getFullYear();
+  const monthDiff = targetDate.getMonth() - birthDate.getMonth();
+  if (
+    monthDiff < 0 ||
+    (monthDiff === 0 && targetDate.getDate() < birthDate.getDate())
+  ) {
+    age--;
+  }
+  return age;
+};
+
 export default function SecureTravelRIMIVisitorstoCanadaTravel() {
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
 
+  // Get quote number from URL
+  const quoteNumberFromUrl = searchParams.get("quote");
 
-    const [searchParams] = useSearchParams();
-const navigate = useNavigate();
-
-
-// Get quote number from URL
-const quoteNumberFromUrl = searchParams.get('quote');
-
-// Fetch quote data
-const { quoteData, loading: loadingQuote, error: quoteError } = useQuoteByNumber(quoteNumberFromUrl);
-
-
-
-
+  // Fetch quote data
+  const {
+    quoteData,
+    loading: loadingQuote,
+    error: quoteError,
+  } = useQuoteByNumber(quoteNumberFromUrl);
 
   const agentCode = useSelector((state: RootState) => state.auth.agentCode);
 
-  const [primaryFirstName, setPrimaryFirstName] = useState("");
-  const [primaryLastName, setPrimaryLastName] = useState("");
-  const [primaryDateOfBirth, setPrimaryDateOfBirth] = useState("");
-  const [primaryEmail, setprimaryEmail] = useState("");
-  const [applicantNumber, setApplicantNumber] = useState(0);
+  // Replace individual useState with react-hook-form
+  const step1Methods = useForm<Step1Payload>({
+    mode: "onTouched",
+    reValidateMode: "onChange",
+    defaultValues: {
+      primaryFirstName: "",
+      primaryLastName: "",
+      primaryDateOfBirth: "",
+      primaryEmail: "",
+      primaryApplicantGender: "",
+      applicantNumber: 0,
+      coverageForPreMedCon: false,
+      applicants: [],
+      countryOfOrigin: "",
+      inCanada: "",
+      superVisa: "",
+      superVisaYears: "",
+      destinationProvince: "",
+      effectiveDate: "",
+      expiryDate: "",
+      coverageLength: "",
+      policyType: "",
+      coverageOption: "",
+      deductible: 0,
+      paymentOption: "lump-sum",
+      primaryQuestionnaire: null,
+      isConfirmed: false,
+    },
+  });
 
-  const [coverageForPreMedCon, setCoverageForPreMedCon] = useState(false);
+  const contactInfoMethods = useForm({
+    mode: "onTouched",
+    reValidateMode: "onChange",
+    defaultValues: {
+      contactInfo: {
+        additionalEmail: "",
+        phoneNumber: "",
+      },
+    },
+  });
 
-  const [isConfirmed, setIsConfirmed] = useState(false);
+  const addressMethods = useForm({
+    mode: "onTouched",
+    reValidateMode: "onChange",
+    defaultValues: {
+      address: {
+        addressLine1: "",
+        addressLine2: "",
+        city: "",
+        postalCode: "",
+        country: "",
+        province: "",
+      },
+    },
+  });
 
-  const [primaryApplicantGender, setPrimaryApplicantGender] = useState("");
+  const beneficiaryMethods = useForm({
+    mode: "onTouched",
+    reValidateMode: "onChange",
+    defaultValues: {
+      beneficiary: {
+        beneficiaryName: "",
+        relationshipToInsured: "",
+      },
+    },
+  });
 
-  ////////////////////////
+  // Helper to watch payment option for calculations
+  const watchedPaymentOption = step1Methods.watch("paymentOption");
 
-  const [superVisa, setSuperVisa] = useState<SuperVisaOption>("");
-  const [superVisaYears, setSuperVisaYears] = useState<SuperVisaYears>("");
-  const [destinationProvince, setDestinationProvince] = useState<string>("");
-  const [effectiveDate, setEffectiveDate] = useState<string>("");
-  const [expiryDate, setExpiryDate] = useState<string>("");
-  const [coverageLength, setCoverageLength] = useState<string>("");
+  // Watch for premium calculation
+  const primaryFirstName = step1Methods.watch("primaryFirstName");
+  const primaryLastName = step1Methods.watch("primaryLastName");
+  const primaryDateOfBirth = step1Methods.watch("primaryDateOfBirth");
+  const primaryEmail = step1Methods.watch("primaryEmail");
+  const primaryApplicantGender = step1Methods.watch("primaryApplicantGender");
+  const applicantNumber = step1Methods.watch("applicantNumber");
+  const coverageForPreMedCon = step1Methods.watch("coverageForPreMedCon");
+  const applicants = step1Methods.watch("applicants");
+  const countryOfOrigin = step1Methods.watch("countryOfOrigin");
+  const inCanada = step1Methods.watch("inCanada");
+  const superVisa = step1Methods.watch("superVisa");
+  const superVisaYears = step1Methods.watch("superVisaYears");
+  const destinationProvince = step1Methods.watch("destinationProvince");
+  const effectiveDate = step1Methods.watch("effectiveDate");
+  const expiryDate = step1Methods.watch("expiryDate");
+  const coverageLength = step1Methods.watch("coverageLength");
+  const policyType = step1Methods.watch("policyType");
+  const coverageOption = step1Methods.watch("coverageOption");
+  const deductible = step1Methods.watch("deductible");
+  const primaryQuestionnaire = step1Methods.watch("primaryQuestionnaire");
 
-  const [inCanada, setInCanada] = useState<YesNo>("");
+  // Determine if questionnaires are needed/complete
+  const primaryAge = calculateAge(primaryDateOfBirth, effectiveDate);
+  const applicantAges = applicants.map((app: any) =>
+    calculateAge(app.dob, effectiveDate),
+  );
 
-  const [paymentOption, setPaymentOption] = useState<
-    "lump-sum" | "monthly-installments"
-  >("lump-sum");
-  // const [showPaymentOption, setShowPaymentOption] = useState(false)
+  const primaryNeedsQuestionnaire =
+    primaryAge !== null &&
+    primaryAge >= 70 &&
+    primaryAge <= 84 &&
+    coverageForPreMedCon;
 
-  const [policyType, setPolicyType] = useState<string>("");
+  const primaryQuestionnaireComplete =
+    !primaryNeedsQuestionnaire || primaryQuestionnaire !== null;
 
-  const [deductible, setDeductible] = useState<number>(0);
+  const applicantsQuestionnaireComplete = applicants.every(
+    (app: any, idx: number) => {
+      const age = applicantAges[idx];
+      const needsIt =
+        age !== null && age >= 70 && age <= 84 && app.preMedCoverage;
+      return !needsIt || app.healthQuestionnaire !== undefined;
+    },
+  );
 
-  const [countryOfOrigin, setCountryOfOrigin] = useState<string>("");
+  const allQuestionnairesComplete =
+    primaryQuestionnaireComplete && applicantsQuestionnaireComplete;
 
-  const [coverageOption, setCoverageOption] = useState<string>("");
-  const [applicants, setApplicants] = useState<Applicant[]>([]);
+  const CanCalculatePremium =
+    [
+      superVisa,
+      destinationProvince,
+      effectiveDate,
+      expiryDate,
+      coverageLength,
+      policyType,
+      coverageOption,
+      deductible,
+      primaryDateOfBirth,
+    ].every((v) => v !== "" && v !== undefined && v !== null) &&
+    allQuestionnairesComplete;
 
-  //////////////////////////
+  const premiumCalculationData = useMemo<PremiumCalculationData>(
+    () => ({
+      countryOfOrigin,
+      inCanada,
+      superVisa,
+      coverageForPreMedCon,
+      destinationProvince,
+      effectiveDate: effectiveDate ? new Date(effectiveDate).toISOString() : "",
+      expiryDate: expiryDate ? new Date(expiryDate).toISOString() : "",
+      coverageLength,
+      policyType,
+      coverageOption,
+      deductible: Number(deductible),
+      primarydateOfBirth: primaryDateOfBirth
+        ? new Date(primaryDateOfBirth).toISOString()
+        : "",
+      paymentOption: watchedPaymentOption,
+      plan: 1,
+      applicants: applicants,
+    }),
+    [
+      countryOfOrigin,
+      inCanada,
+      superVisa,
+      coverageForPreMedCon,
+      destinationProvince,
+      effectiveDate,
+      expiryDate,
+      coverageLength,
+      policyType,
+      coverageOption,
+      deductible,
+      primaryDateOfBirth,
+      watchedPaymentOption,
+      applicants,
+    ],
+  );
 
-  /////////////////////////////
+  const {
+    totalPremium: hookTotalPremium,
+    schedule: hookSchedule,
+    loading: hookLoading,
+    error: hookError,
+  } = usePremiumCalculate(premiumCalculationData, CanCalculatePremium);
 
   const [quoteNumber, setQuoteNumber] = useState<string | null>(null);
 
-  // const [step1ResponseData, setStep1ResponseData] = useState<QuoteStage1Response | null>(null);
-
   const [step1ResponseData, setStep1ResponseData] =
     useState<QuoteStage1Response | null>(null);
-
-  /////////////////////////////////
 
   const [totalPremium, setTotalPremium] = useState<number>(0);
   const [schedule, setSchedule] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Sync hook values
+  useEffect(() => {
+    setTotalPremium(hookTotalPremium);
+  }, [hookTotalPremium]);
+
+  useEffect(() => {
+    setSchedule(hookSchedule);
+  }, [hookSchedule]);
+
+  useEffect(() => {
+    setLoading(hookLoading);
+  }, [hookLoading]);
+
+  useEffect(() => {
+    setError(hookError);
+  }, [hookError]);
 
   let monthlyAmount: number | undefined = undefined;
   let remainingInstallments: number | undefined = undefined;
@@ -150,13 +321,13 @@ const { quoteData, loading: loadingQuote, error: quoteError } = useQuoteByNumber
   const stripeProductId = "prod_SRGSLGPsB7SQxy";
 
   console.log("\n PAYMENT CALCULATION");
-  console.log("Payment Option:", paymentOption);
+  console.log("Payment Option:", watchedPaymentOption);
   console.log("Total Premium:", totalPremium);
   console.log("Schedule:", schedule);
 
   // If the user picked monthly‐installments and the backend schedule array is in the
   // form [ {…Policy Issue Fee…}, {…Total Initial Payment…}, { label: "Monthly Installment of", amount: ###, count: N}, … ]
-  if (paymentOption === "monthly-installments" && schedule.length >= 3) {
+  if (watchedPaymentOption === "monthly-installments" && schedule.length >= 3) {
     // schedule[2] is guaranteed (by your backend) to be
     // { label: "Monthly Installment of", amount: X, count: Y }
     console.log("\n📅 Processing monthly installments...");
@@ -165,12 +336,12 @@ const { quoteData, loading: loadingQuote, error: quoteError } = useQuoteByNumber
 
     // Find the monthly installment item
     const monthlyItem = schedule.find(
-      (item) => item.label === "Monthly Installment"
+      (item) => item.label === "Monthly Installment",
     );
 
     // Find the first payment item
     const firstPaymentItem = schedule.find(
-      (item) => item.label === "First Payment (2 months + fee)"
+      (item) => item.label === "First Payment (2 months + fee)",
     );
 
     if (monthlyItem && firstPaymentItem) {
@@ -184,13 +355,13 @@ const { quoteData, loading: loadingQuote, error: quoteError } = useQuoteByNumber
       console.log(
         "   Breakdown:",
         firstPaymentAmount,
-        "= $120 fee + $" + (firstPaymentAmount - 120) + " (2 months)"
+        "= $120 fee + $" + (firstPaymentAmount - 120) + " (2 months)",
       );
     } else {
       console.error("Could not find schedule items!");
       console.log("Available schedule:", schedule);
     }
-  } else if (paymentOption === "lump-sum") {
+  } else if (watchedPaymentOption === "lump-sum") {
     console.log("\n Processing lump-sum payment...");
     firstPaymentAmount = totalPremium;
     console.log("Charging full premium:", firstPaymentAmount);
@@ -198,60 +369,13 @@ const { quoteData, loading: loadingQuote, error: quoteError } = useQuoteByNumber
 
   console.log("\n FINAL AMOUNTS TO CHARGE:");
   console.log("First Payment:", firstPaymentAmount);
-  if (paymentOption === "monthly-installments") {
+  if (watchedPaymentOption === "monthly-installments") {
     console.log(
       "Then:",
       remainingInstallments,
-      "x $" + monthlyAmount + "/month"
+      "x $" + monthlyAmount + "/month",
     );
   }
-
-  ///--------------------------------------- Stage 2 -------------------------------------
-
-  // const [addressLine1,setAddressLine1] = useState<string>('')
-  // const [addressLine2, setAddressLine2] = useState<string>('')
-
-  // const [city,setCity] = useState<string>('')
-  // const [postalCode, setPostalCode] = useState<string>('')
-  // const [country,setCountry] = useState<string>('')
-
-  const [address, setAddress] = useState({
-    addressLine1: "",
-    addressLine2: "",
-    city: "",
-    postalCode: "",
-    country: "",
-    province: "",
-  });
-
-  {
-    /* const shipping = {
-  name: 'Jane Doe',
-  address: {
-    line1: '123 Main St',
-    line2: 'Apt. 4B',    // optional
-    city: 'Mumbai',
-    state: 'MH',
-    postal_code: '400001',
-    country: 'IN',
-  },
-}; */
-  }
-
-  const [beneficiary, setBeneficiary] = useState<BeneficiaryInfo>({
-    beneficiaryName: "",
-    relationshipToInsured: "",
-  });
-
-  const [contactInfo, setContactInfo] = useState<ContactInfo>({
-    additionalEmail: "",
-    phoneNumber: "",
-  });
-
-  // const [benifitiaryName, setBenifitaryName] = useState<string>('')
-  // const [relationshipToInsured, setRelationshipToInsured] = useState<string>('')
-
-  //-----------------------------------------------------------------------------------------
 
   const [steps, setSteps] = useState([
     { id: "01", name: "Get Quote", href: "#", status: "current" },
@@ -263,85 +387,69 @@ const { quoteData, loading: loadingQuote, error: quoteError } = useQuoteByNumber
 
   const [isStepOneFilled, setIsStepOneFilled] = useState(false);
 
-  // const {
-  //   saveQuoteNext,
-  //   loading: saving,
-  //   error: saveError,
-  //   data: quoteResponse,
-  // } = useSaveQuoteNext();
-
-  // const { completeApplication, loading: submittingStage2, error: submitError } = useQuoteUpdate()
-
-//
-
-
-
   // AUTO-FILL FORM FROM QUOTE DATA
-useEffect(() => {
-  if (quoteData) {
-    console.log('🔄 Auto-filling form with quote data:', quoteData);
-    
-    // Set quote number
-    setQuoteNumber(quoteData.quoteNumber);
-    
-    // Applicant Information
-    setPrimaryFirstName(quoteData.primaryFirstName || "");
-    setPrimaryLastName(quoteData.primaryLastName || "");
-    setPrimaryDateOfBirth(quoteData.primaryDateOfBirth?.split('T')[0] || "");
-    setprimaryEmail(quoteData.primaryEmail || "");
-    setPrimaryApplicantGender(quoteData.primaryApplicantGender || "");
-    setApplicantNumber(quoteData.applicantNumber || 0);
-    
-    // Coverage Information
-    setCountryOfOrigin(quoteData.countryOfOrigin || "");
-    setInCanada(quoteData.inCanada ? "yes" : "no");
-    setSuperVisa(quoteData.superVisa as SuperVisaOption || "");
-    setSuperVisaYears(quoteData.superVisaYears as SuperVisaYears || "");
-    setDestinationProvince(quoteData.destinationProvince || "");
-    setEffectiveDate(quoteData.effectiveDate?.split('T')[0] || "");
-    setExpiryDate(quoteData.expiryDate?.split('T')[0] || "");
-    setCoverageLength(String(quoteData.coverageLength || ""));
-    setPolicyType(quoteData.policyType || "");
-    setCoverageOption(String(quoteData.coverageOption || ""));
-    setDeductible(quoteData.deductible || 0);
-    setPaymentOption(quoteData.paymentOption as any || "lump-sum");
-    setCoverageForPreMedCon(quoteData.coverageForPreMedCon || false);
-    
-    // Applicants
-    if (quoteData.applicants && quoteData.applicants.length > 0) {
-      setApplicants(quoteData.applicants.map(app => ({
-        index: app.index,
-        firstName: app.firstName,
-        lastName: app.lastName,
-        dob: app.dob.split('T')[0],
-        relationship: app.relationship,
-        preMedCoverage: app.preMedCoverage,
-        gender: app.gender,
-      })));
+  useEffect(() => {
+    if (quoteData) {
+      console.log("Auto-filling form with quote data:", quoteData);
+
+      // Set quote number
+      setQuoteNumber(quoteData.quoteNumber);
+
+      step1Methods.reset({
+        primaryFirstName: quoteData.primaryFirstName || "",
+        primaryLastName: quoteData.primaryLastName || "",
+        primaryDateOfBirth: quoteData.primaryDateOfBirth?.split("T")[0] || "",
+        primaryEmail: quoteData.primaryEmail || "",
+        primaryApplicantGender: quoteData.primaryApplicantGender || "",
+        applicantNumber: quoteData.applicantNumber || 0,
+        coverageForPreMedCon: quoteData.coverageForPreMedCon || false,
+        applicants:
+          quoteData.applicants && quoteData.applicants.length > 0
+            ? quoteData.applicants.map((app) => ({
+                index: app.index,
+                firstName: app.firstName,
+                lastName: app.lastName,
+                dob: app.dob.split("T")[0],
+                relationship: app.relationship,
+                preMedCoverage: app.preMedCoverage,
+                gender: app.gender,
+                healthQuestionnaire: { questions: [] },
+              }))
+            : [],
+        countryOfOrigin: quoteData.countryOfOrigin || "",
+        inCanada: quoteData.inCanada ? "yes" : "no",
+        superVisa: (quoteData.superVisa as SuperVisaOption) || "",
+        superVisaYears: (quoteData.superVisaYears as SuperVisaYears) || "",
+        destinationProvince: quoteData.destinationProvince || "",
+        effectiveDate: quoteData.effectiveDate?.split("T")[0] || "",
+        expiryDate: quoteData.expiryDate?.split("T")[0] || "",
+        coverageLength: String(quoteData.coverageLength || ""),
+        policyType: quoteData.policyType || "",
+        coverageOption: String(quoteData.coverageOption || ""),
+        deductible: quoteData.deductible || 0,
+        paymentOption: (quoteData.paymentOption as any) || "lump-sum",
+        primaryQuestionnaire: null,
+        isConfirmed: true,
+      });
+
+      // Premium
+      // We don't need to manually set totalPremium here if usePremiumCalculate works,
+      // but it will take a moment to recalculate.
+      // If we want to show the retrieved premium immediately, we can set it.
+      // But hookTotalPremium will overwrite it once calculated.
+      setTotalPremium(quoteData.premium || 0);
+
+      console.log("Form auto-filled successfully");
     }
-    
-    // Premium
-    setTotalPremium(quoteData.premium || 0);
-    
-    // Set confirmed to true (they've already saved the quote)
-    setIsConfirmed(true);
-    
-    console.log('Form auto-filled successfully');
-  }
-}, [quoteData]);
+  }, [quoteData, step1Methods]);
 
-// Check if no quote number provided
-useEffect(() => {
-  if (!quoteNumberFromUrl) {
-    alert('No quote number provided. Redirecting to products page...');
-    navigate('/products');
-  }
-}, [quoteNumberFromUrl, navigate]);
-
-
-
-//
-
+  // Check if no quote number provided
+  useEffect(() => {
+    if (!quoteNumberFromUrl) {
+      alert("No quote number provided. Redirecting to products page...");
+      navigate("/products");
+    }
+  }, [quoteNumberFromUrl, navigate]);
 
   const { saveQuoteNext, loading: savingStage1 } = useSaveQuoteNext();
 
@@ -351,10 +459,6 @@ useEffect(() => {
     error: submitError,
     data: policyResponse,
   } = useQuoteUpdate();
-
-  //----------------------------
-
-
 
   const handleFormStepChange = (stepCommand: string) => {
     setFormStep((prevStep) => {
@@ -372,8 +476,8 @@ useEffect(() => {
           step.id === newStep.toString().padStart(2, "0")
             ? "current"
             : step.id < newStep.toString().padStart(2, "0")
-            ? "complete"
-            : "upcoming",
+              ? "complete"
+              : "upcoming",
       }));
 
       setSteps(updatedSteps);
@@ -386,25 +490,37 @@ useEffect(() => {
     console.log("Form Submitted");
   };
 
-  // const handleNext = async () => {
-  //   if (!isStepOneFilled) return;
-
-  //   try {
-  //     const response = await saveQuoteNext(payload);
-  //     // store the returned quoteNumber and any other back‐filled data
-  //     setQuoteNumber(response.quoteNumber);
-
-  //     setFormStep(2);
-  //   } catch {
-  //     // error is in saveError — show a message if you like
-  //   }
-  // };
-
   // your new handler which first saves, then advances the wizard
   const handleNext = async () => {
-    if (!isStepOneFilled || savingStage1) return;
+    // Validate form
+    const isValid = await step1Methods.trigger();
+    if (!isValid) return;
+
+    if (savingStage1) return;
 
     try {
+      const formValues = step1Methods.getValues();
+      const stage1Payload = {
+        ...formValues,
+        primaryDateOfBirth:
+          formValues.primaryDateOfBirth instanceof Date
+            ? formValues.primaryDateOfBirth.toISOString()
+            : formValues.primaryDateOfBirth,
+        effectiveDate:
+          formValues.effectiveDate instanceof Date
+            ? formValues.effectiveDate.toISOString()
+            : formValues.effectiveDate,
+        expiryDate:
+          formValues.expiryDate instanceof Date
+            ? formValues.expiryDate.toISOString()
+            : formValues.expiryDate,
+        agentCode: agentCode!,
+        // product: "Secure Travel RIMI Visitors to Canada Travel",
+        product: productName,
+        quoteNumber: quoteNumber,
+        status: "Inactive",
+      };
+
       const response = await saveQuoteNext(stage1Payload);
       setQuoteNumber(response.quoteNumber);
       setStep1ResponseData({
@@ -438,6 +554,17 @@ useEffect(() => {
   // Step‐2 “Buy Now”
   const handleBuyNow = async () => {
     if (!quoteNumber || submittingStage2) return;
+
+    const validContact = await contactInfoMethods.trigger();
+    const validAddress = await addressMethods.trigger();
+    const validBeneficiary = await beneficiaryMethods.trigger();
+
+    if (!validContact || !validAddress || !validBeneficiary) return;
+
+    const address = addressMethods.getValues().address;
+    const contactInfo = contactInfoMethods.getValues().contactInfo;
+    const beneficiary = beneficiaryMethods.getValues().beneficiary;
+
     const payload: Stage2Payload = {
       quoteNumber,
       address,
@@ -453,103 +580,70 @@ useEffect(() => {
     }
   };
 
-  const stage1Payload = {
-    primaryFirstName,
-    primaryLastName,
-    primaryDateOfBirth,
-    primaryEmail,
-    primaryApplicantGender,
-    coverageForPreMedCon,
-    applicantNumber,
-    applicants,
-    countryOfOrigin,
-    inCanada,
-    superVisa,
-    superVisaYears,
-    destinationProvince,
-    effectiveDate,
-    expiryDate,
-    coverageLength,
-    policyType,
-    coverageOption,
-    deductible,
-    paymentOption,
-    agentCode: agentCode!,
-    // product: "Secure Travel RIMI Visitors to Canada Travel",
-    product: "SECURE_TRAVEL_RIMI_VISITORS_TO_CANADA_TRAVEL",
-    quoteNumber: quoteNumber,
-    status: "Inactive",
-  };
-
   const handlePaymentSuccess = () => {
     alert("payment successfull");
     handleFormStepChange("forward");
   };
 
-  // const handlePaymentSuccess = () => {
-  //   alert('payment successfull')
-  //   handleFormStepChange('forward')
-  // }
-
-
-
-
   // Show loading state
-if (loadingQuote) {
-  return (
-    <div className="max-w-5xl mx-auto px-2 py-4 sm:p-6">
-      <div className="flex items-center justify-center h-64">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#2B00B7] mx-auto mb-4"></div>
-          <p className="text-lg text-gray-600">Loading your quote...</p>
+  if (loadingQuote) {
+    return (
+      <div className="max-w-5xl mx-auto px-2 py-4 sm:p-6">
+        <div className="flex items-center justify-center h-64">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#2B00B7] mx-auto mb-4"></div>
+            <p className="text-lg text-gray-600">Loading your quote...</p>
+          </div>
         </div>
       </div>
-    </div>
-  );
-}
+    );
+  }
 
-// Show error state
-if (quoteError) {
-  return (
-    <div className="max-w-5xl mx-auto px-2 py-4 sm:p-6">
-      <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
-        <h3 className="text-lg font-semibold text-red-800 mb-2">Error Loading Quote</h3>
-        <p className="text-red-600 mb-4">{quoteError}</p>
-        <button
-          onClick={() => navigate('/products')}
-          className="bg-[#2B00B7] text-white px-6 py-2 rounded hover:bg-[#2309A1]"
-        >
-          Go to Products
-        </button>
-      </div>
-    </div>
-  );
-}
-
-
-
-  return (
-    <div className="max-w-5xl mx-auto px-2 py-4 sm:p-6">
-
-
-
- <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-      <div className="flex items-center">
-        <div className="flex-shrink-0">
-          <svg className="h-5 w-5 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
-            <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-          </svg>
-        </div>
-        <div className="ml-3">
-          <p className="text-sm text-blue-700">
-            <strong>Quote #{quoteNumber}</strong> - Your quote details have been pre-filled. Review and proceed to payment.
-          </p>
+  // Show error state
+  if (quoteError) {
+    return (
+      <div className="max-w-5xl mx-auto px-2 py-4 sm:p-6">
+        <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
+          <h3 className="text-lg font-semibold text-red-800 mb-2">
+            Error Loading Quote
+          </h3>
+          <p className="text-red-600 mb-4">{quoteError}</p>
+          <button
+            onClick={() => navigate("/products")}
+            className="bg-[#2B00B7] text-white px-6 py-2 rounded hover:bg-[#2309A1]"
+          >
+            Go to Products
+          </button>
         </div>
       </div>
-    </div>
+    );
+  }
 
-
-
+  return (
+    <div className="max-w-5xl mx-auto px-2 py-4 sm:p-6">
+      <div className="bg-blue-50 border border-blue-200 p-4 mb-6">
+        <div className="flex items-center">
+          <div className="flex-shrink-0">
+            <svg
+              className="h-5 w-5 text-blue-400"
+              fill="currentColor"
+              viewBox="0 0 20 20"
+            >
+              <path
+                fillRule="evenodd"
+                d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                clipRule="evenodd"
+              />
+            </svg>
+          </div>
+          <div className="ml-3">
+            <p className="text-sm text-blue-700">
+              <strong>Quote #{quoteNumber}</strong> - Your quote details have
+              been pre-filled. Review and proceed to payment.
+            </p>
+          </div>
+        </div>
+      </div>
 
       <nav aria-label="Progress">
         <ol
@@ -632,76 +726,27 @@ if (quoteError) {
 
       {steps[0].status === "current" && (
         <div>
-          {/* <ApplicantInformation />
-          <CoverageInformation />
-          <div className="w-full h-2 mt-5 flex items-center justify-center">
-            <h3 className="text-lg">Your Quote: $0.00</h3>
-          </div> */}
-          <Step1STRVCT
-            onValidityChange={setIsStepOneFilled}
-            primaryFirstName={primaryFirstName}
-            setPrimaryFirstName={setPrimaryFirstName}
-            primaryLastName={primaryLastName}
-            setPrimaryLastName={setPrimaryLastName}
-            primaryDateOfBirth={primaryDateOfBirth}
-            setPrimaryDateOfBirth={setPrimaryDateOfBirth}
-            primaryEmail={primaryEmail}
-            setprimaryEmail={setprimaryEmail}
-            applicantNumber={applicantNumber}
-            setApplicantNumber={setApplicantNumber}
-            superVisa={superVisa}
-            setSuperVisa={setSuperVisa}
-            superVisaYears={superVisaYears}
-            setSuperVisaYears={setSuperVisaYears}
-            destinationProvince={destinationProvince}
-            setDestinationProvince={setDestinationProvince}
-            effectiveDate={effectiveDate}
-            setEffectiveDate={setEffectiveDate}
-            expiryDate={expiryDate}
-            setExpiryDate={setExpiryDate}
-            coverageLength={coverageLength}
-            setCoverageLength={setCoverageLength}
-            inCanada={inCanada}
-            setInCanada={setInCanada}
-            paymentOption={paymentOption}
-            setPaymentOption={setPaymentOption}
-            policyType={policyType}
-            setPolicyType={setPolicyType}
-            deductible={deductible}
-            setDeductible={setDeductible}
-            countryOfOrigin={countryOfOrigin}
-            setCountryOfOrigin={setCountryOfOrigin}
-            coverageOption={coverageOption}
-            setCoverageOption={setCoverageOption}
-            applicants={applicants}
-            setApplicants={setApplicants}
-            coverageForPreMedCon={coverageForPreMedCon}
-            setCoverageForPreMedCon={setCoverageForPreMedCon}
-            isConfirmed={isConfirmed}
-            setIsConfirmed={setIsConfirmed}
-            quoteNumber={quoteNumber}
-            setQuoteNumber={setQuoteNumber}
-            primaryApplicantGender={primaryApplicantGender}
-            setPrimaryApplicantGender={setPrimaryApplicantGender}
-            //
-            totalPremium={totalPremium}
-            schedule={schedule}
-            loading={loading}
-            error={error}
-            setTotalPremium={setTotalPremium}
-            setSchedule={setSchedule}
-            setLoading={setLoading}
-            setError={setError}
-            //
-
-            formStep={formStep}
-            handleFormStepChange={handleFormStepChange}
-            handleNext={handleNext}
-            isStepOneFilled={isStepOneFilled}
-            savingStage1={savingStage1}
-
-            //
-          />
+          <FormProvider {...step1Methods}>
+            <Step1STRVCT
+              onValidityChange={setIsStepOneFilled}
+              quoteNumber={quoteNumber}
+              setQuoteNumber={setQuoteNumber}
+              // Passing down state for premiums calculation visualization
+              totalPremium={totalPremium}
+              schedule={schedule}
+              loading={loading}
+              error={error}
+              setTotalPremium={setTotalPremium}
+              setSchedule={setSchedule}
+              setLoading={setLoading}
+              setError={setError}
+              formStep={formStep}
+              handleFormStepChange={handleFormStepChange}
+              handleNext={handleNext}
+              isStepOneFilled={isStepOneFilled}
+              savingStage1={savingStage1}
+            />
+          </FormProvider>
         </div>
       )}
 
@@ -723,89 +768,92 @@ if (quoteError) {
           />
           {/* contactInfo,setContactInfo */}
           <ContactInformation
-            contactInfo={contactInfo}
-            setContactInfo={setContactInfo}
+            methods={contactInfoMethods}
             email={step1ResponseData?.email}
           />
-          <Address address={address} setAddress={setAddress} />
+          <Address methods={addressMethods} />
           {/* beneficiary, setBeneficiary */}
-          <BeneficiaryInCaseOfDeath
-            beneficiaryInfo={beneficiary}
-            setBeneficiaryInfo={setBeneficiary}
-          />
+          <BeneficiaryInCaseOfDeath methods={beneficiaryMethods} />
 
           {/* Payment Stripe   */}
           {/* <PaymentInformation /> */}
 
           {/* visual payment summary */}
 
-          {paymentOption === "monthly-installments" && schedule.length > 0 && (
-            <div className="max-w-md mx-auto mb-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
-              <h3 className="font-semibold text-lg mb-3">
-                Payment Plan Summary
+          {watchedPaymentOption === "monthly-installments" &&
+            schedule.length > 0 && (
+              <div className="mx-auto mb-6 mt-4 bg-greyBg p-4">
+                <h3 className="text-lg font-bold text-left text-[#1B1B1B] mb-5">
+                  Payment Plan Summary
+                </h3>
+
+                <div className="bg-white p-3 border border-inputBorder mb-3">
+                  <div className="flex justify-between items-center">
+                    <span className="font-medium text-text-primary text-lg">
+                      Due Today:
+                    </span>
+                    <span className="text-xl font-bold text-primary">
+                      ${firstPaymentAmount.toFixed(2)}
+                    </span>
+                  </div>
+                  <div className="text-sm mt-1 text-text-secondary">
+                    Includes: $120 policy fee + $
+                    {(firstPaymentAmount - 120).toFixed(2)} (first 2 months)
+                  </div>
+                </div>
+
+                <div className="space-y-2 p-4 bg-white border border-inputBorder">
+                  <div className="flex justify-between">
+                    <span className="text-text-primary font-medium">
+                      Monthly Payment:
+                    </span>
+                    <span className="font-semibold">
+                      ${monthlyAmount?.toFixed(2)}
+                    </span>
+                  </div>
+                  <div className="flex justify-between text-sm text-text-secondary">
+                    <span>Remaining Payments:</span>
+                    <span>{remainingInstallments} months</span>
+                  </div>
+                  <div className="flex justify-between text-sm pt-2 border-t border-inputBorder text-text-secondary">
+                    <span>Total Premium:</span>
+                    <span className="font-semibold">
+                      ${totalPremium.toFixed(2)}
+                    </span>
+                  </div>
+                  <div className="flex justify-between text-sm text-text-secondary">
+                    <span>Policy Fee (one-time):</span>
+                    <span className="font-semibold">$120.00</span>
+                  </div>
+                  <div className="flex justify-between text-text-primary font-bold text-base pt-2 border-t border-inputBorder">
+                    <span>Grand Total:</span>
+                    <span>${(totalPremium + 120).toFixed(2)}</span>
+                  </div>
+                </div>
+
+                <div className="text-xs text-text-secondary mt-3">
+                  Your card will be charged ${firstPaymentAmount.toFixed(2)}{" "}
+                  today, then ${monthlyAmount?.toFixed(2)}/month for{" "}
+                  {remainingInstallments} months
+                </div>
+              </div>
+            )}
+
+          {watchedPaymentOption === "lump-sum" && (
+            <div className="mx-auto mb-6 mt-4 bg-greyBg p-4">
+              <h3 className="text-lg font-bold text-left text-[#1B1B1B] mb-5">
+                Payment Summary
               </h3>
-
-              {/* Today's Payment */}
-              <div className="bg-white rounded p-3 border border-blue-300 mb-3">
-                <div className="flex justify-between items-center">
-                  <span className="font-medium">Due Today:</span>
-                  <span className="text-xl font-bold text-blue-600">
-                    ${firstPaymentAmount.toFixed(2)}
-                  </span>
-                </div>
-                <div className="text-sm text-gray-600 mt-1">
-                  Includes: $120 policy fee + $
-                  {(firstPaymentAmount - 120).toFixed(2)} (first 2 months)
-                </div>
-              </div>
-
-              {/* Future Payments */}
-              <div className="space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span>Monthly Payment:</span>
-                  <span className="font-semibold">
-                    ${monthlyAmount?.toFixed(2)}
-                  </span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span>Remaining Payments:</span>
-                  <span>{remainingInstallments} months</span>
-                </div>
-                <div className="flex justify-between text-sm pt-2 border-t">
-                  <span>Total Premium:</span>
-                  <span className="font-semibold">
-                    ${totalPremium.toFixed(2)}
-                  </span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span>Policy Fee (one-time):</span>
-                  <span className="font-semibold">$120.00</span>
-                </div>
-                <div className="flex justify-between font-bold text-base pt-2 border-t">
-                  <span>Grand Total:</span>
-                  <span>${(totalPremium + 120).toFixed(2)}</span>
-                </div>
-              </div>
-
-              <div className="text-xs text-gray-500 mt-3 pt-3 border-t">
-                Your card will be charged ${firstPaymentAmount.toFixed(2)}{" "}
-                today, then ${monthlyAmount?.toFixed(2)}/month for{" "}
-                {remainingInstallments} months
-              </div>
-            </div>
-          )}
-
-          {paymentOption === "lump-sum" && (
-            <div className="max-w-md mx-auto mb-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
-              <h3 className="font-semibold text-lg mb-2">Payment Summary</h3>
               <div className="flex justify-between items-center">
-                <span>Total Premium:</span>
-                <span className="text-xl font-bold text-blue-600">
+                <span className="text-text-primary font-medium text-lg">
+                  Total Premium:
+                </span>
+                <span className="text-xl font-bold text-primary">
                   ${totalPremium.toFixed(2)}
                 </span>
               </div>
-              <div className="text-sm text-gray-600 mt-2">
-                One-time payment and No additional fees
+              <div className="text-sm text-text-secondary mt-2">
+                One-time payment • No additional fees
               </div>
             </div>
           )}
@@ -814,44 +862,29 @@ if (quoteError) {
             <PaymentInformation
               quoteNumber={quoteNumber}
               description={productName}
-              name={primaryFirstName}
-              shipping={address}
-              paymentOption={paymentOption}
-              // amount={totalPremium}
+              name={step1Methods.getValues("primaryFirstName")}
+              shipping={addressMethods.getValues().address}
+              paymentOption={watchedPaymentOption}
               amount={firstPaymentAmount}
-              // onPaymentSuccess={() => handleFormStepChange('forward')}
-              // handlePaymentSuccess
               onPaymentSuccess={() => handlePaymentSuccess()}
               onBuyNow={handleBuyNow}
-              // { ...(paymentOption === "monthly-installments" && {
-              //       monthlyAmount,
-              //       remainingInstallments,
-              //       stripeProductId,
-              //     })
-              //   }
-
               monthlyAmount={
-                paymentOption === "monthly-installments"
+                watchedPaymentOption === "monthly-installments"
                   ? monthlyAmount
                   : undefined
               }
               remainingInstallments={
-                paymentOption === "monthly-installments"
+                watchedPaymentOption === "monthly-installments"
                   ? remainingInstallments
                   : undefined
               }
               stripeProductId={
-                paymentOption === "monthly-installments"
+                watchedPaymentOption === "monthly-installments"
                   ? stripeProductId
                   : undefined
               }
-              //
               formStep={formStep}
               handleFormStepChange={handleFormStepChange}
-              // handleNext={handleNext}
-              // isStepOneFilled={isStepOneFilled}
-              // savingStage1={savingStage1}
-              handleBuyNow={handleBuyNow}
               submittingStage2={submittingStage2}
             />
           </Elements>
@@ -861,50 +894,14 @@ if (quoteError) {
       )}
 
       {steps[2].status === "current" && (
-        // <div>
-        //   <h3 className="text-xl font-bold text-left text-[#1B1B1B] mt-5 mb-6">
-        //     Step 3: Confirmation
-        //   </h3>
-        //   <p className="text-md text-left text-[#1B1B1B] mb-6">
-        //     Review your application details and submit.
-        //   </p>
-        // </div>
         <Summary quoteId={step1ResponseData?.quoteId ?? ""} />
       )}
-
-      {/* <div className="flex justify-center gap-10 mt-4"> */}
-      {/* {formStep > 1 && (
-          <button
-            className="w-[250px] mt-6 bg-white border border-[#2B00B7] text-[#2B00B7] p-3 hover:bg-[#2209a1] hover:text-white transition flex justify-center items-center"
-            onClick={() => handleFormStepChange("back")}
-          >
-            Previous
-          </button>
-        )} */}
-      {/* {formStep < 3 ? (
-          <button
-            className="w-[250px] mt-6 bg-[#2B00B7] text-white p-3 hover:bg-[#2309A1] transition flex justify-center items-center"
-            onClick={() => handleFormStepChange("forward")}
-          >
-            Next
-          </button>
-        ) : (
-          <button
-            onClick={handleSubmit}
-            className="w-[250px] mt-6 bg-[#2B00B7] text-white p-3 hover:bg-[#2309A1] transition flex justify-center items-center"
-          >
-            Submit
-          </button>
-        )} */}
-      {/* </div> */}
-
-      {/*  */}
 
       <div className="flex justify-center gap-10 mt-4">
         {formStep === 2 && (
           <button
             onClick={() => handleFormStepChange("back")}
-            className=" btn-outline"
+            className=" btn-primary"
           >
             Previous
           </button>
@@ -921,29 +918,7 @@ if (quoteError) {
             {savingStage1 ? "Saving…" : "Next"}
           </button>
         )}
-
-        {/* {formStep === 2 && (
-          <button
-            onClick={handleBuyNow}
-            disabled={submittingStage2}
-            className={`w-[200px] mt-6 bg-[#2B00B7] text-white p-3  hover:bg-[#2309A1] transition flex justify-center items-center cursor-pointer duration-200 ${
-              submittingStage2 ? "opacity-50 cursor-wait" : ""
-            }`}
-          >
-            {submittingStage2 ? "Processing…" : "Buy Now"}
-          </button>
-        )} */}
-
-        {/* {formStep === 3 && (
-          <button onClick={handleSubmitStage3} className="btn-primary">
-            Submit
-          </button>
-        )} */}
       </div>
-
-      {/*  */}
     </div>
   );
 }
-
-

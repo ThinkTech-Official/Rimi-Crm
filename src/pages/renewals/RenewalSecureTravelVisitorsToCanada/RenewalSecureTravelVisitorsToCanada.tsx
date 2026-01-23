@@ -780,73 +780,80 @@ if (!policyData) {
 
           {/* visual payment summary */}
 
-          {watchedPaymentOption === "monthly-installments" && schedule.length > 0 && (
-            <div className="max-w-md mx-auto mb-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
-              <h3 className="font-semibold text-lg mb-3">
-                Payment Plan Summary
-              </h3>
+          {watchedPaymentOption === "monthly-installments" &&
+            schedule.length > 0 && (
+              <div className="mx-auto mb-6 mt-4 bg-greyBg p-4">
+                <h3 className="text-lg font-bold text-left text-[#1B1B1B] mb-5">
+                  Payment Plan Summary
+                </h3>
 
-              {/* Today's Payment */}
-              <div className="bg-white rounded p-3 border border-blue-300 mb-3">
-                <div className="flex justify-between items-center">
-                  <span className="font-medium">Due Today:</span>
-                  <span className="text-xl font-bold text-blue-600">
-                    ${firstPaymentAmount.toFixed(2)}
-                  </span>
+                <div className="bg-white p-3 border border-inputBorder mb-3">
+                  <div className="flex justify-between items-center">
+                    <span className="font-medium text-text-primary text-lg">
+                      Due Today:
+                    </span>
+                    <span className="text-xl font-bold text-primary">
+                      ${firstPaymentAmount.toFixed(2)}
+                    </span>
+                  </div>
+                  <div className="text-sm mt-1 text-text-secondary">
+                    Includes: $120 policy fee + $
+                    {(firstPaymentAmount - 120).toFixed(2)} (first 2 months)
+                  </div>
                 </div>
-                <div className="text-sm text-gray-600 mt-1">
-                  Includes: $120 policy fee + $
-                  {(firstPaymentAmount - 120).toFixed(2)} (first 2 months)
+
+                <div className="space-y-2 p-4 bg-white border border-inputBorder">
+                  <div className="flex justify-between">
+                    <span className="text-text-primary font-medium">
+                      Monthly Payment:
+                    </span>
+                    <span className="font-semibold">
+                      ${monthlyAmount?.toFixed(2)}
+                    </span>
+                  </div>
+                  <div className="flex justify-between text-sm text-text-secondary">
+                    <span>Remaining Payments:</span>
+                    <span>{remainingInstallments} months</span>
+                  </div>
+                  <div className="flex justify-between text-sm pt-2 border-t border-inputBorder text-text-secondary">
+                    <span>Total Premium:</span>
+                    <span className="font-semibold">
+                      ${totalPremium.toFixed(2)}
+                    </span>
+                  </div>
+                  <div className="flex justify-between text-sm text-text-secondary">
+                    <span>Policy Fee (one-time):</span>
+                    <span className="font-semibold">$120.00</span>
+                  </div>
+                  <div className="flex justify-between text-text-primary font-bold text-base pt-2 border-t border-inputBorder">
+                    <span>Grand Total:</span>
+                    <span>${(totalPremium + 120).toFixed(2)}</span>
+                  </div>
+                </div>
+
+                <div className="text-xs text-text-secondary mt-3">
+                  Your card will be charged ${firstPaymentAmount.toFixed(2)}{" "}
+                  today, then ${monthlyAmount?.toFixed(2)}/month for{" "}
+                  {remainingInstallments} months
                 </div>
               </div>
-
-              {/* Future Payments */}
-              <div className="space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span>Monthly Payment:</span>
-                  <span className="font-semibold">
-                    ${monthlyAmount?.toFixed(2)}
-                  </span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span>Remaining Payments:</span>
-                  <span>{remainingInstallments} months</span>
-                </div>
-                <div className="flex justify-between text-sm pt-2 border-t">
-                  <span>Total Premium:</span>
-                  <span className="font-semibold">
-                    ${totalPremium.toFixed(2)}
-                  </span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span>Policy Fee (one-time):</span>
-                  <span className="font-semibold">$120.00</span>
-                </div>
-                <div className="flex justify-between font-bold text-base pt-2 border-t">
-                  <span>Grand Total:</span>
-                  <span>${(totalPremium + 120).toFixed(2)}</span>
-                </div>
-              </div>
-
-              <div className="text-xs text-gray-500 mt-3 pt-3 border-t">
-                Your card will be charged ${firstPaymentAmount.toFixed(2)}{" "}
-                today, then ${monthlyAmount?.toFixed(2)}/month for{" "}
-                {remainingInstallments} months
-              </div>
-            </div>
-          )}
+            )}
 
           {watchedPaymentOption === "lump-sum" && (
-            <div className="max-w-md mx-auto mb-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
-              <h3 className="font-semibold text-lg mb-2">Payment Summary</h3>
+            <div className="mx-auto mb-6 mt-4 bg-greyBg p-4">
+              <h3 className="text-lg font-bold text-left text-[#1B1B1B] mb-5">
+                Payment Summary
+              </h3>
               <div className="flex justify-between items-center">
-                <span>Total Premium:</span>
-                <span className="text-xl font-bold text-blue-600">
+                <span className="text-text-primary font-medium text-lg">
+                  Total Premium:
+                </span>
+                <span className="text-xl font-bold text-primary">
                   ${totalPremium.toFixed(2)}
                 </span>
               </div>
-              <div className="text-sm text-gray-600 mt-2">
-                One-time payment and No additional fees
+              <div className="text-sm text-text-secondary mt-2">
+                One-time payment • No additional fees
               </div>
             </div>
           )}
