@@ -675,15 +675,15 @@ const RIMICanuckVoyageNonMedicalTravel: React.FC = () => {
           />
           <Address methods={step2Methods as any} />
 
-          <div className="max-w-md mx-auto mb-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
-            <h3 className="font-semibold text-lg mb-2">Payment Summary</h3>
+          <div className="max-w-5xl mx-auto mt-6 p-3 sm:p-6 bg-[#F9F9F9]">
+            <h3 className="text-lg font-bold text-left text-[#1B1B1B] mb-5">Payment Summary</h3>
             <div className="flex justify-between items-center">
               <span>Total Premium:</span>
-              <span className="text-xl font-bold text-blue-600">
+              <span className="text-xl font-bold text-primary">
                 ${totalPremium.toFixed(2)} CAD
               </span>
             </div>
-            <div className="text-sm text-gray-600 mt-2">
+            <div className="text-sm text-gray-600 mt-1">
               One-time payment • No additional fees
             </div>
           </div>
