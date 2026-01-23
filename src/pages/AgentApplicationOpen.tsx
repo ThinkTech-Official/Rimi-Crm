@@ -49,8 +49,6 @@ const AgentApplicationOpen: React.FC = () => {
   const showCompanyField =
     applicantType === "independent" || applicantType === "under_mga";
   const showWfgCodeField = applicantType === "wfg";
-  const showPhoneField =
-    applicantType === "independent" || applicantType === "under_mga";
 
   const onSubmit = async (formData: PublicAgentFormData) => {
     // Validate documents for independent agents
@@ -317,7 +315,6 @@ const AgentApplicationOpen: React.FC = () => {
                     </div>
 
                     {/* Phone Number Field (For Independent and Under MGA) */}
-                    {showPhoneField && (
                       <div className="flex flex-col col-span-2 sm:col-span-1">
                         <label className="text-sm font-medium mb-1">
                           Phone Number <span className="text-red-500">*</span>
@@ -325,9 +322,7 @@ const AgentApplicationOpen: React.FC = () => {
                         <input
                           type="tel"
                           {...register("phoneNumber", {
-                            required: showPhoneField
-                              ? "Phone number is required"
-                              : false,
+                            required: "Phone number is required",
                             pattern: {
                               value:
                                 /^[+]?[(]?[0-9]{1,4}[)]?[-\s.]?[(]?[0-9]{1,4}[)]?[-\s.]?[0-9]{1,9}$/,
@@ -345,7 +340,6 @@ const AgentApplicationOpen: React.FC = () => {
                           </p>
                         )}
                       </div>
-                    )}
 
                     {/* WFG Code Field (Only for WFG) */}
                     {showWfgCodeField && (
