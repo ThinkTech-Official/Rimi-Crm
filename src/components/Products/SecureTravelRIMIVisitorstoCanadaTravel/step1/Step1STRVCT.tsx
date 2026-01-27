@@ -19,6 +19,7 @@ import { useEmailQuote } from "../../../../hooks/apply/useEmailQuote";
 import AgeQuestionaire from "./AgeQuestionaire";
 import { useFormContext, Controller, useWatch } from "react-hook-form";
 import { Step1Payload } from "../SecureTravelRIMIVisitorstoCanadaTravel";
+import useNotification from "../../../../hooks/useNotification";
 
 type SuperVisaOption = "" | "yes" | "no";
 type SuperVisaYears = "" | "1" | "2";
@@ -173,6 +174,7 @@ const Step1STRVCT = ({
   const [showConfirmEligibility, setShowConfirmEligibility] = useState(false);
   const [savedFormState, setSavedFormState] = useState<string | null>(null);
   const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
+  const { triggerNotification, NotificationComponent} = useNotification();
 
   const svOptions = allCoverageOptions.filter((o) =>
     ["", "100000", "150000", "500000", "1000000"].includes(o.value)
@@ -508,15 +510,21 @@ const Step1STRVCT = ({
 
   const handleEmailQuote = async () => {
     if (!quoteNumber) {
-      alert("Please save your quote first");
+      triggerNotification({ type: "error", message: "Please save your quote first" });
       return;
     }
 
     try {
       await sendQuoteEmail(quoteNumber);
-      alert(`Quote email sent successfully to ${primaryEmail}`);
+      triggerNotification({
+        type: "success",
+        message: `Quote email sent successfully to ${primaryEmail}`,
+      });
     } catch (err) {
-      alert("Failed to send email. Please try again.");
+      triggerNotification({
+        type: "error",
+        message: "Failed to send email. Please try again.",
+      });
     }
   };
 
@@ -545,6 +553,7 @@ const Step1STRVCT = ({
 
   return (
     <>
+      {NotificationComponent}
       {/*  APPLICANT INFORMATION  */}
       <>
         <div className="max-w-5xl mx-auto mt-4 p-6 bg-[#F9F9F9]">

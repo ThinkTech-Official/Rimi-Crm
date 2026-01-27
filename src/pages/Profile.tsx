@@ -343,6 +343,7 @@ import {
 import { useRequestVerification } from "../hooks/agent-verification/useRequestVerification";
 import { useUploadDocuments } from "../hooks/agent-verification/useUploadDocuments";
 import ConfirmRequestVerification from "../components/ConfirmRequestVerification";
+import useNotification from "../hooks/useNotification";
 
 // Permission definitions
 const adminPermission = {
@@ -393,6 +394,7 @@ export default function Profile() {
   const userInfo = getUserTypeFromToken();
   const userType = userInfo?.userType;
   const showVerificationTab = userType && ["AGENT", "MGA"].includes(userType);
+  const {triggerNotification, NotificationComponent} = useNotification();
 
   const [formData, setFormData] = useState<ProfileForm>({
     id: "",
@@ -553,7 +555,10 @@ export default function Profile() {
       // Refresh the profile data
       window.location.reload();
     } catch (err: any) {
-      alert(`Error updating profile: ${err.message}`);
+      triggerNotification({
+        type: "error",
+        message: `Error updating profile: ${err.message}`,
+      });
       console.error("Profile update error:", err);
     }
   };

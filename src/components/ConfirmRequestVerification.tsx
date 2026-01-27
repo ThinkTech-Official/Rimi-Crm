@@ -29,7 +29,7 @@ const ConfirmRequestVerification = ({
       // Refresh profile to update status
       window.location.reload();
     } catch (err: any) {
-      alert(`Error: ${err.message}`);
+      triggerNotification({ type: "error", message: `Error: ${err.message}` });
     }
   };
   return (

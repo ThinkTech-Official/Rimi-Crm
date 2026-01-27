@@ -111,6 +111,7 @@ import {
   DocumentIcon
 } from '@heroicons/react/24/outline';
 import { API_BASE } from '../../utils/urls';
+import useNotification from '../../hooks/useNotification';
 
 interface VerificationTabProps {
   onUploadClick: () => void;
@@ -122,6 +123,7 @@ export default function VerificationTab({ onUploadClick, userType }: Verificatio
   const verificationStatus = useSelector(selectVerificationStatus);
   const { data, fetchStatus } = useGetVerificationStatus();
   const { requestVerification, loading: requesting } = useRequestVerification();
+  const { triggerNotification, NotificationComponent } = useNotification();
 
   useEffect(() => {
     // Fetch verification status on mount and update Redux
@@ -149,11 +151,11 @@ export default function VerificationTab({ onUploadClick, userType }: Verificatio
 
     try {
       await requestVerification();
-      alert('Verification request submitted successfully! Admin will review your documents.');
+      triggerNotification({ type: "success", message: "Verification request submitted successfully! Admin will review your documents." });
       // Refresh status to show PENDING state
       await refreshStatus();
     } catch (error: any) {
-      alert(`Error: ${error.message}`);
+      triggerNotification({ type: "error", message: `Error: ${error.message}` });
     }
   };
 
@@ -210,6 +212,7 @@ export default function VerificationTab({ onUploadClick, userType }: Verificatio
           )}
         </ul>
       </div>
+      {NotificationComponent}
     </div>
   );
 

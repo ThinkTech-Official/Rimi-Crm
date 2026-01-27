@@ -226,8 +226,7 @@ const RIMICanuckVoyageTravelMedical: React.FC = () => {
 // Check if no quote number provided
 useEffect(() => {
   if (!quoteNumberFromUrl) {
-    alert('No quote number provided. Redirecting to products page...');
-    navigate('/products');
+    navigate("/products");
   }
 }, [quoteNumberFromUrl, navigate]);
 
@@ -289,7 +288,10 @@ useEffect(() => {
   const handleSaveQuote = async (): Promise<boolean> => {
     const isValid = await step1Methods.trigger();
     if (!isValid) {
-      alert("Please fill all required fields and confirm eligibility");
+      triggerNotification({
+        type: "warning",
+        message: "Please fill all required fields and confirm eligibility",
+      });
       return false;
     }
 
@@ -363,12 +365,12 @@ if (loadingQuote) {
 if (quoteError) {
   return (
     <div className="max-w-5xl mx-auto px-2 py-4 sm:p-6">
-      <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
+      <div className="bg-red-50 border border-red-200 p-6 text-center">
         <h3 className="text-lg font-semibold text-red-800 mb-2">Error Loading Quote</h3>
         <p className="text-red-600 mb-4">{quoteError}</p>
         <button
           onClick={() => navigate('/products')}
-          className="bg-[#2B00B7] text-white px-6 py-2 rounded hover:bg-[#2309A1]"
+          className="btn-primary"
         >
           Go to Products
         </button>

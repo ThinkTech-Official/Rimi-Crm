@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useUploadDocuments } from '../../hooks/agent-verification/useUploadDocuments';
 import { DocumentArrowUpIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import useNotification from '../../hooks/useNotification';
 
 interface DocumentUploadProps {
   onSuccess?: () => void;
@@ -14,19 +15,20 @@ export default function DocumentUpload({ onSuccess }: DocumentUploadProps) {
   });
   const [previews, setPreviews] = useState<{ [key: string]: string }>({});
   const { uploadDocuments, loading, error } = useUploadDocuments();
+  const { triggerNotification, NotificationComponent } = useNotification();
 
   const handleFileChange = (key: string, file: File | null) => {
     if (file) {
       // Validate file size (max 5MB)
       if (file.size > 5 * 1024 * 1024) {
-        alert('File size must be less than 5MB');
+        triggerNotification({ type: "error", message: 'File size must be less than 5MB' });
         return;
       }
 
       // Validate file type
       const allowedTypes = ['application/pdf', 'image/jpeg', 'image/png', 'image/jpg'];
       if (!allowedTypes.includes(file.type)) {
-        alert('Only PDF, JPG, JPEG, and PNG files are allowed');
+        triggerNotification({ type: "error", message: 'Only PDF, JPG, JPEG, and PNG files are allowed' });
         return;
       }
 
@@ -58,7 +60,7 @@ export default function DocumentUpload({ onSuccess }: DocumentUploadProps) {
     
     // Check if at least one document is uploaded
     if (!files.document1 && !files.document2 && !files.document3) {
-      alert('Please upload at least one document');
+      triggerNotification({ type: "error", message: 'Please upload at least one document' });
       return;
     }
 
@@ -139,6 +141,7 @@ export default function DocumentUpload({ onSuccess }: DocumentUploadProps) {
             )}
           </div>
         )}
+      {NotificationComponent}
       </div>
     );
   };
@@ -183,6 +186,7 @@ export default function DocumentUpload({ onSuccess }: DocumentUploadProps) {
           </button>
         </div>
       </form>
+      {NotificationComponent}
     </div>
   );
 }

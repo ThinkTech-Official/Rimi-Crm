@@ -675,6 +675,7 @@ import { useForm } from "react-hook-form";
 
 import { useLanguage } from "../context/LanguageContext";
 import { Language } from "../translations";
+import useNotification from "../hooks/useNotification";
 
 type userType = "ADMIN" | "AGENT" | "READONLY" | "MGA" | "";
 
@@ -694,7 +695,7 @@ const CreateUser: React.FC = () => {
   // password visibility toggles
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [confirmPasswordVisible, setConfirmPasswordVisible] = useState(false);
-
+  const { triggerNotification, NotificationComponent } = useNotification();
 
 
   const { t } = useLanguage();
@@ -756,21 +757,21 @@ const CreateUser: React.FC = () => {
   const onSubmit = async (formData: newUser) => {
     // Agent code must be checked and available
     if (availability !== "available" || lastCheckedCode !== agentCode) {
-      alert("Please check agent code availability first");
+      triggerNotification({ type: "error", message: "Please check agent code availability first" });
       return;
     }
 
     //WFG-specific validation
     if (isWfgAgent) {
       if (formData.userType !== 'AGENT') {
-        alert("WFG agents must have user type AGENT");
+        triggerNotification({ type: "error", message: "WFG agents must have user type AGENT" });
         return;
       }
       // Documents NOT required for WFG
     } else {
       // Regular agent - require at least document 1
       if (!docFile1) {
-        alert("Please upload at least Document 1");
+        triggerNotification({ type: "error", message: "Please upload at least Document 1" });
         return;
       }
     }
@@ -1335,6 +1336,7 @@ const CreateUser: React.FC = () => {
           </p>
         )}
       </div>
+      {NotificationComponent}
     </form>
   );
 };
