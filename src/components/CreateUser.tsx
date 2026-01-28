@@ -665,16 +665,13 @@
 
 // ============================================================================
 
-import React, { useContext, useState, FormEvent, ChangeEvent } from "react";
+import React, { useState, ChangeEvent, useEffect } from "react";
 import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
 import { v4 as uuidv4 } from "uuid";
-// import { LangContext } from "../context/LangContext";
 import { useAgentCodes } from "../hooks/useAgentCodes";
 import { newUser, useCreateUser } from "../hooks/useCreateUser";
 import { useForm } from "react-hook-form";
-
 import { useLanguage } from "../context/LanguageContext";
-import { Language } from "../translations";
 import useNotification from "../hooks/useNotification";
 
 type userType = "ADMIN" | "AGENT" | "READONLY" | "MGA" | "";
@@ -711,6 +708,18 @@ const CreateUser: React.FC = () => {
   } = useCreateUser();
 
   const [lastCheckedCode, setLastCheckedCode] = useState("");
+  
+  useEffect(() => {
+    if (success) {
+      triggerNotification({ type: "success", message: t("userCreatedSuccess") });
+    }
+  }, [success, t, triggerNotification]);
+
+  useEffect(() => {
+    if (createError) {
+      triggerNotification({ type: "error", message: createError });
+    }
+  }, [createError, triggerNotification]);
 
   const {
     register,
@@ -723,6 +732,8 @@ const CreateUser: React.FC = () => {
   const agentCode = watch("agentCode");
   const docFile1 = watch("docFile1");
   const docFile2 = watch("docFile2");
+  const docFile3 = watch("docFile3");
+  const docFile4 = watch("docFile4");
 
   // Handle WFG checkbox change
   const handleWfgCheckboxChange = (checked: boolean) => {
@@ -750,7 +761,7 @@ const CreateUser: React.FC = () => {
   };
 
   const handleCheckClick = async () => {
-    const ok = await checkAvailability(agentCode);
+    await checkAvailability(agentCode);
     setLastCheckedCode(agentCode);
   };
 
@@ -800,7 +811,7 @@ const CreateUser: React.FC = () => {
 
   const handleDocsChange = (
     e: ChangeEvent<HTMLInputElement>,
-    docType: "docFile1" | "docFile2"
+    docType: "docFile1" | "docFile2" | "docFile3" | "docFile4"
   ) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -881,6 +892,24 @@ const CreateUser: React.FC = () => {
           )}
         </div>
 
+        {/* Phone Number */}
+        <div className="flex flex-col col-span-3 sm:col-span-1">
+          <label className="text-sm">Phone Number</label>
+          <input
+            type="tel"
+            {...register("phoneNumber", {
+              required: "Phone number is required",
+            })}
+            className={`input-primary ${
+              errors.phoneNumber ? "border-red-500" : "border-black"
+            }`}
+            placeholder="Phone Number"
+          />
+          {errors.phoneNumber && (
+            <p className="text-red-500 text-sm">{errors.phoneNumber.message}</p>
+          )}
+        </div>
+
         {/* WFG Agent Checkbox */}
         <div className="col-span-3">
           <label className="flex items-center gap-2 text-sm cursor-pointer">
@@ -906,12 +935,10 @@ const CreateUser: React.FC = () => {
               {isWfgAgent ? "WFG Code" : "Agent Code"}
             </label>
             <input
-              {...register("agentCode", { required: "Agent code is required" })}
-              value={agentCode || ''}
-              onChange={(e) => {
-                setValue('agentCode', e.target.value);
-                setLastCheckedCode("");
-              }}
+              {...register("agentCode", { 
+                required: "Agent code is required",
+                onChange: () => setLastCheckedCode("")
+              })}
               className="input-primary"
               placeholder={isWfgAgent ? "Enter WFG code" : "Enter or generate agent code"}
             />
@@ -978,8 +1005,10 @@ const CreateUser: React.FC = () => {
         <div className="flex flex-col col-span-2 sm:col-span-1">
           <label className="text-sm">User Type</label>
           <select
-            {...register("userType", { required: "User type is required" })}
-            onChange={(e) => setUserType(e.target.value as any)}
+            {...register("userType", { 
+              required: "User type is required",
+              onChange: (e) => setUserType(e.target.value as any)
+            })}
             className="input-primary"
             disabled={isWfgAgent}
           >
@@ -1239,81 +1268,87 @@ const CreateUser: React.FC = () => {
 
         {/* Documents - Hidden for WFG agents */}
         {!isWfgAgent && (
-          <>
-            {/* Upload Document 1 */}
-            <div className="flex justify-between col-span-3 gap-4">
-              <div className="flex flex-col w-full">
-                <label className="text-sm">Upload Document 1</label>
-                <div className="flex flex-col items-start space-y-2">
-                  <label className="input-primary cursor-pointer">
-                    Choose File <span className="text-xs">(Max 5MB)</span>
-                    <input
-                      type="file"
-                      onChange={(e) => handleDocsChange(e, "docFile1")}
-                      className="hidden"
-                    />
-                  </label>
-                  {docFile1 && (
-                    <p className="text-sm">
-                      {docFile1.name} - {handleFileSize(docFile1)} MB
-                    </p>
-                  )}
-                </div>
-              </div>
-
-              <div className="flex flex-col w-full">
-                <label className="text-sm">Document 1 Valid Upto</label>
-                <input
-                  type="date"
-                  {...register("validUpto", {
-                    required: "Document 1 validity date is required",
-                  })}
-                  className="input-primary"
-                />
-                {errors.validUpto && (
-                  <p className="text-red-500 text-sm">{errors.validUpto.message}</p>
-                )}
-              </div>
-            </div>
-
-            {/* Upload Document 2 */}
-            <div className="flex justify-between col-span-3 gap-4">
-              <div className="flex flex-col w-full">
-                <label className="text-sm">Upload Document 2</label>
-                <div className="flex flex-col items-start space-y-2">
-                  <label className="input-primary cursor-pointer">
-                    Choose File <span className="text-xs">(Max 5MB)</span>
-                    <input
-                      type="file"
-                      onChange={(e) => handleDocsChange(e, "docFile2")}
-                      className="hidden"
-                    />
-                  </label>
-                  {docFile2 && (
-                    <p className="text-sm">
-                      {docFile2.name} - {handleFileSize(docFile2)} MB
-                    </p>
-                  )}
-                </div>
-              </div>
-
-              <div className="flex flex-col w-full">
-                <label className="text-sm">Document 2 Valid Upto</label>
-                <input
-                  type="date"
-                  {...register("validUpto2", {
-                    required: "Document 2 validity date is required",
-                  })}
-                  className="input-primary"
-                />
-                {errors.validUpto2 && (
-                  <p className="text-red-500 text-sm">
-                    {errors.validUpto2.message}
+          <div className="col-span-3 grid grid-cols-1 sm:grid-cols-2 gap-6">
+            {/* Insurance License */}
+            <div className="flex flex-col w-full">
+              <label className="text-sm font-semibold mb-1">Insurance License</label>
+              <div className="flex flex-col items-start space-y-2">
+                <label className="input-primary cursor-pointer w-full text-center">
+                  Choose File <span className="text-xs">(Max 5MB)</span>
+                  <input
+                    type="file"
+                    onChange={(e) => handleDocsChange(e, "docFile1")}
+                    className="hidden"
+                  />
+                </label>
+                {docFile1 && (
+                  <p className="text-sm truncate w-full">
+                    {docFile1.name} - {handleFileSize(docFile1)} MB
                   </p>
                 )}
               </div>
             </div>
-          </>
+
+            {/* E&O Insurance */}
+            <div className="flex flex-col w-full">
+              <label className="text-sm font-semibold mb-1">E&O Insurance</label>
+              <div className="flex flex-col items-start space-y-2">
+                <label className="input-primary cursor-pointer w-full text-center">
+                  Choose File <span className="text-xs">(Max 5MB)</span>
+                  <input
+                    type="file"
+                    onChange={(e) => handleDocsChange(e, "docFile2")}
+                    className="hidden"
+                  />
+                </label>
+                {docFile2 && (
+                  <p className="text-sm truncate w-full">
+                    {docFile2.name} - {handleFileSize(docFile2)} MB
+                  </p>
+                )}
+              </div>
+            </div>
+
+            {/* Bank Details */}
+            <div className="flex flex-col w-full">
+              <label className="text-sm font-semibold mb-1">Bank Details</label>
+              <div className="flex flex-col items-start space-y-2">
+                <label className="input-primary cursor-pointer w-full text-center">
+                  Choose File <span className="text-xs">(Max 5MB)</span>
+                  <input
+                    type="file"
+                    onChange={(e) => handleDocsChange(e, "docFile3")}
+                    className="hidden"
+                  />
+                </label>
+                {docFile3 && (
+                  <p className="text-sm truncate w-full">
+                    {docFile3.name} - {handleFileSize(docFile3)} MB
+                  </p>
+                )}
+              </div>
+            </div>
+
+            {/* Agency Agreement */}
+            <div className="flex flex-col w-full">
+              <label className="text-sm font-semibold mb-1">Agency Agreement</label>
+              <div className="flex flex-col items-start space-y-2">
+                <label className="input-primary cursor-pointer w-full text-center">
+                  Choose File <span className="text-xs">(Max 5MB)</span>
+                  <input
+                    type="file"
+                    onChange={(e) => handleDocsChange(e, "docFile4")}
+                    className="hidden"
+                  />
+                </label>
+                {docFile4 && (
+                  <p className="text-sm truncate w-full">
+                    {docFile4.name} - {handleFileSize(docFile4)} MB
+                  </p>
+                )}
+              </div>
+            </div>
+          </div>
         )}
       </div>
 
@@ -1329,12 +1364,6 @@ const CreateUser: React.FC = () => {
         >
           {createLoading ? t('creating') : t('createUser')}
         </button>
-        {createError && <p className="mt-2 text-red-500">{createError}</p>}
-        {success && (
-          <p className="mt-2 text-green-700">
-            {t('userCreatedSuccess')}
-          </p>
-        )}
       </div>
       {NotificationComponent}
     </form>

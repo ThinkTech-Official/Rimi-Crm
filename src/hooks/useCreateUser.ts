@@ -169,16 +169,17 @@ export interface newUser {
   agentCode: string;
   company: string;
   userType: "ADMIN" | "AGENT" | "READONLY" | "MGA" | "";
+  phoneNumber: string;
   status: "ACTIVE" | "INACTIVE";
   allowBulkUpload: "YES" | "NO";
   password: string;
   confirmPassword: string;
-  validUpto: string; // Valid until date for document 1
-  validUpto2: string; // Valid until date for document 2
   commissionPercent?: string; // Commission percentage for agents
   mgaOverridePercent?: string; //// Commission override percentage for mga
   docFile1?: File | null;
   docFile2?: File | null;
+  docFile3?: File | null;
+  docFile4?: File | null;
   selectedAgents?: string[]; // Added for MGA users
 
   // WFG-specific fields
@@ -276,13 +277,26 @@ export function useCreateUser(): UseCreateUserResult {
       formDataToSend.append("password", formData.password);
       formDataToSend.append("confirmPassword", formData.confirmPassword);
       
-      // Document validity dates
-      formDataToSend.append("validUpto", formData.validUpto); // Document 1 validity
-      formDataToSend.append("validUpto2", formData.validUpto2); // Document 2 validity
+      formDataToSend.append("phoneNumber", formData.phoneNumber);
       
       // Agent commission (optional)
       if (formData.commissionPercent) {
         formDataToSend.append("commissionPercent", formData.commissionPercent);
+      }
+      
+      if (formData.mgaOverridePercent) {
+        formDataToSend.append("mgaOverridePercent", formData.mgaOverridePercent);
+      }
+
+      // WFG-specific fields
+      if (formData.applicantType) {
+        formDataToSend.append("applicantType", formData.applicantType);
+      }
+      if (formData.mgaType) {
+        formDataToSend.append("mgaType", formData.mgaType);
+      }
+      if (formData.wfgCode) {
+        formDataToSend.append("wfgCode", formData.wfgCode);
       }
 
       // Add selected agents for MGA users
@@ -296,6 +310,12 @@ export function useCreateUser(): UseCreateUserResult {
       }
       if (formData.docFile2) {
         formDataToSend.append("documents", formData.docFile2);
+      }
+      if (formData.docFile3) {
+        formDataToSend.append("documents", formData.docFile3);
+      }
+      if (formData.docFile4) {
+        formDataToSend.append("documents", formData.docFile4);
       }
 
       // Debug: Log all FormData entries

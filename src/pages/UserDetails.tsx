@@ -21,16 +21,17 @@ export interface UserFormData {
   allowBulkUpload: boolean;
   docLink1?: string;
   docLink2?: string;
-  // docLink3?: string;
-  validUpto?: string;
-  validUpto2?: string;
+  docLink3?: string;
+  docLink4?: string;
+  docType1?: string;
+  docType2?: string;
+  docType3?: string;
+  docType4?: string;
+  phoneNumber?: string;
   mgaId?: string | null;
   agentCodes?: string[];
   newPwd?: string;
   confirmPwd?: string;
-  // doc1ValidUpto?: string;
-  // doc2ValidUpto?: string;
-  // doc3ValidUpto?: string;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -99,17 +100,15 @@ export default function UserDetails() {
   const [files, setFiles] = useState<{ [key: string]: File | null }>({
     doc1: null,
     doc2: null,
-    // doc3: null,
+    doc3: null,
+    doc4: null,
   });
 
   useEffect(() => {
     if (user) {
-      console.log(user);
-      console.log(typeof user.allowBulkUpload);
+      console.log("User", user);
       reset({
         ...user,
-        validUpto: user.validUpto ? user.validUpto.split("T")[0] : "",
-        validUpto2: user.validUpto2 ? user.validUpto2.split("T")[0] : "",
         newPwd: "",
         confirmPwd: "",
       });
@@ -133,10 +132,6 @@ export default function UserDetails() {
     }
   };
 
-  const handleFileSize = (file: File) => {
-    const fileSizeInMB = file.size / (1024 * 1024);
-    return fileSizeInMB.toFixed(2);
-  };
 
   const handleRemoveFile = (fileName: string) => {
     setFiles((prev) => ({
@@ -155,10 +150,42 @@ export default function UserDetails() {
   if (error) return <p className="text-red-500">Error: {error}</p>;
 
   const formData = watch();
+
+  const formatDocType = (type: string | undefined, defaultLabel: string) => {
+    if (!type) return defaultLabel;
+    return type
+      .replace(/_/g, " ")
+      .replace(/\b\w/g, (l) => l.toUpperCase());
+  };
+
   const currentUserPermissions = PERMISSIONS_MAP[formData.userType] || {};
-  const docs = [formData.docLink1, formData.docLink2].filter(
-    Boolean
-  );
+
+  const documentFields = [
+    {
+      key: "doc1",
+      link: formData.docLink1,
+      typeKey: "docType1" as const,
+      label: formatDocType(formData.docType1, "Insurance License"),
+    },
+    {
+      key: "doc2",
+      link: formData.docLink2,
+      typeKey: "docType2" as const,
+      label: formatDocType(formData.docType2, "E&O Insurance"),
+    },
+    {
+      key: "doc3",
+      link: formData.docLink3,
+      typeKey: "docType3" as const,
+      label: formatDocType(formData.docType3, "Bank Details"),
+    },
+    {
+      key: "doc4",
+      link: formData.docLink4,
+      typeKey: "docType4" as const,
+      label: formatDocType(formData.docType4, "Agency Agreement"),
+    },
+  ];
 
   return (
     <div className="max-w-5xl mx-auto px-2 py-6 sm:p-6 bg-greyBg">
@@ -198,7 +225,12 @@ export default function UserDetails() {
       </div>
 
       {/* User Information */}
-      <div className="border border-inputBorder bg-white p-4 mb-4">
+      <div className="border border-inputBorder bg-white p-4 mb-4 relative">
+        <div className="absolute top-4 right-4">
+          <span className="px-3 py-1 bg-indigo-100 text-indigo-700 text-xs font-bold rounded-full uppercase tracking-wider border border-indigo-200">
+            {formData.userType}
+          </span>
+        </div>
         <h3 className="text-primary font-semibold mb-2 capitalize text-lg">
           User Information
         </h3>
@@ -210,7 +242,7 @@ export default function UserDetails() {
             <input
               {...register("firstName", {
                 required: "First name is required",
-                setValueAs: (value) => value.trim(),
+                setValueAs: (value) => value?.trim() || "",
               })}
               disabled={!isEditing}
               className="input-primary"
@@ -229,7 +261,7 @@ export default function UserDetails() {
             <input
               {...register("lastName", {
                 required: "Last name is required",
-                setValueAs: (value) => value.trim(),
+                setValueAs: (value) => value?.trim() || "",
               })}
               disabled={!isEditing}
               className="input-primary"
@@ -248,7 +280,7 @@ export default function UserDetails() {
             <input
               {...register("agentCode", {
                 required: "Agent code is required",
-                setValueAs: (value) => value.trim(),
+                setValueAs: (value) => value?.trim() || "",
               })}
               disabled={!isEditing}
               className="input-primary"
@@ -266,7 +298,7 @@ export default function UserDetails() {
             </label>
             <input
               {...register("email", {
-                setValueAs: (value) => value.trim().toLowerCase(),
+                setValueAs: (value) => value?.trim()?.toLowerCase() || "",
                 required: "Email is required",
                 pattern: {
                   value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
@@ -290,7 +322,7 @@ export default function UserDetails() {
             <input
               {...register("company", {
                 required: "Company is required",
-                setValueAs: (value) => value.trim(),
+                setValueAs: (value) => value?.trim() || "",
               })}
               disabled={!isEditing}
               className="input-primary"
@@ -300,6 +332,19 @@ export default function UserDetails() {
                 {errors.company.message}
               </span>
             )}
+          </div>
+
+          <div className="flex flex-col gap-1">
+            <label htmlFor="phoneNumber" className="text-sm">
+              Phone Number
+            </label>
+            <input
+              {...register("phoneNumber", {
+                setValueAs: (value) => value?.trim() || "",
+              })}
+              disabled={!isEditing}
+              className="input-primary"
+            />
           </div>
 
           <div className="flex flex-col gap-1">
@@ -501,146 +546,65 @@ export default function UserDetails() {
         <h3 className="text-primary font-semibold mb-2 capitalize text-lg">
           Documents
         </h3>
-        {docs.length > 0 ? (
-          <ul className="space-y-2">
-            {docs.map((link, idx) => {
-              const filename = link!.split("/").pop();
-              return (
-                <li key={idx}>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {documentFields.map((doc) => (
+            <div key={doc.key} className="flex flex-col gap-2">
+                  <label className="text-sm font-medium text-gray-700">
+                    {doc.label}
+                  </label>
+                  {isEditing && (
+                    <input
+                      {...register(doc.typeKey)}
+                      placeholder="Enter document type..."
+                      className="input-primary !py-1 !text-xs mb-1"
+                    />
+                  )}
+                  {doc.link ? (
+                <div className="flex items-center gap-2">
                   <a
-                    href={`${API_BASE}${link}`}
+                    href={`${API_BASE}${doc.link}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-2 text-text-secondary hover:underline"
+                    className="flex items-center gap-2 text-text-secondary hover:underline text-sm"
                   >
                     <DocumentIcon className="h-5 w-5 text-text-primary" />
-                    {filename}
+                    {doc.link.split("/").pop()}
                   </a>
-                </li>
-              );
-            })}
-          </ul>
-        ) : (
-          <p className="text-gray-500">No documents attached</p>
-        )}
-        {isEditing && (
-          <div className="flex flex-col gap-3 mt-2">
-            <div className="flex gap-4">
-              <div className="flex flex-col gap-1 w-full">
-                <label htmlFor="doc1" className="text-sm">
-                  Document 1
-                </label>
-                <label className="input-primary cursor-pointer">
-                  Choose File
-                  <input
-                    name="doc1"
-                    type="file"
-                    onChange={handleFileChange}
-                    className="hidden"
-                  />
-                </label>
+                </div>
+              ) : (
+                <p className="text-gray-400 text-sm">No document attached</p>
+              )}
 
-                {files.doc1 && (
-                  <div className="flex gap-2">
-                    <p className="text-sm">
-                      {files.doc1.name} - {handleFileSize(files.doc1)} MB
-                    </p>
-                    <MdCancel
-                      size={18}
-                      className="text-text-primary cursor-pointer"
-                      onClick={() => handleRemoveFile("doc1")}
+              {isEditing && (
+                <div className="mt-2 text-center">
+                  <label className="input-primary cursor-pointer text-sm border-dashed border-2 hover:bg-gray-50 flex items-center justify-center py-4">
+                    {files[doc.key] ? (
+                      <div className="flex items-center gap-2 text-indigo-600">
+                        <span>{files[doc.key]!.name} (Ready)</span>
+                        <MdCancel
+                          size={18}
+                          className="text-red-500 cursor-pointer"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            handleRemoveFile(doc.key);
+                          }}
+                        />
+                      </div>
+                    ) : (
+                      "Update Document"
+                    )}
+                    <input
+                      name={doc.key}
+                      type="file"
+                      onChange={handleFileChange}
+                      className="hidden"
                     />
-                  </div>
-                )}
-              </div>
-              <div className="flex flex-col gap-1 w-full">
-                <label className="text-sm">Document 1 Valid Upto</label>
-                <input
-                  {...register("validUpto")}
-                  type="date"
-                  className="input-primary"
-                  disabled={!isEditing}
-                />
-              </div>
+                  </label>
+                </div>
+              )}
             </div>
-            <div className="flex gap-4">
-              <div className="flex flex-col gap-1 w-full">
-                <label htmlFor="doc2" className="text-sm">
-                  Document 2
-                </label>
-                <label className="input-primary cursor-pointer">
-                  Choose File
-                  <input
-                    name="doc2"
-                    type="file"
-                    onChange={handleFileChange}
-                    className="hidden"
-                  />
-                </label>
-
-                {files.doc2 && (
-                  <div className="flex gap-2">
-                    <p className="text-sm">
-                      {files.doc2.name} - {handleFileSize(files.doc2)} MB
-                    </p>
-                    <MdCancel
-                      size={18}
-                      className="text-text-primary cursor-pointer"
-                      onClick={() => handleRemoveFile("doc2")}
-                    />
-                  </div>
-                )}
-              </div>
-              <div className="flex flex-col gap-1 w-full">
-                <label className="text-sm">Document 2 Valid Upto</label>
-                <input
-                  {...register("validUpto2")}
-                  type="date"
-                  className="input-primary"
-                  disabled={!isEditing}
-                />
-              </div>
-            </div>
-            {/* <div className="flex gap-4">
-              <div className="flex flex-col gap-1 w-full">
-                <label htmlFor="doc3" className="text-sm">
-                  Document 3
-                </label>
-                <label className="input-primary cursor-pointer">
-                  Choose File
-                  <input
-                    name="doc3"
-                    type="file"
-                    onChange={handleFileChange}
-                    className="hidden"
-                  />
-                </label>
-
-                {files.doc3 && (
-                  <div className="flex gap-2">
-                    <p className="text-sm">
-                      {files.doc3.name} - {handleFileSize(files.doc3)} MB
-                    </p>
-                    <MdCancel
-                      size={18}
-                      className="text-text-primary cursor-pointer"
-                      onClick={() => handleRemoveFile("doc3")}
-                    />
-                  </div>
-                )}
-              </div>
-              <div className="flex flex-col gap-1 w-full">
-                <label className="text-sm">Document 3 Valid Upto</label>
-                <input
-                  {...register("doc3ValidUpto")}
-                  type="date"
-                  className="input-primary"
-                  disabled={!isEditing}
-                />
-              </div>
-            </div> */}
-          </div>
-        )}
+          ))}
+        </div>
       </div>
     </div>
   );
