@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { XMarkIcon } from "@heroicons/react/24/outline";
+import { IoWarning } from "react-icons/io5";
 
 const questions = [
   {
@@ -62,16 +63,17 @@ const questions = [
 interface ApplicantInfo {
   firstName: string;
   lastName: string;
-  index?: number; 
+  index?: number;
 }
 
 interface Props {
-  applicantsToShow: ApplicantInfo[]; 
+  applicantsToShow: ApplicantInfo[];
   primaryQuestionnaire: any;
   setPrimaryQuestionaire: (val: any) => void;
   setIsAgeQuestionnaireOpen: (val: boolean) => void;
   setApplicants: (val: any) => void;
   applicants: any[];
+  setCoverageForPreMedCon: (val: boolean) => void;
 }
 
 const AgeQuestionaire = ({
@@ -81,80 +83,180 @@ const AgeQuestionaire = ({
   setIsAgeQuestionnaireOpen,
   setApplicants,
   applicants,
+  setCoverageForPreMedCon,
 }: Props) => {
-  
+  // Use stable index (applicant.index) for keys. 
+  // Primary applicant is usually -1 or undefined in some contexts, but let's stick to applicant.index
   const [responses, setResponses] = useState<{
-    [applicantIdx: number]: { [questionIdx: number]: string };
+    [appIndex: number]: { [questionIdx: number]: string };
   }>({});
 
+  const [showIneligibilityModal, setShowIneligibilityModal] = useState(false);
+
+  const getAppKey = (applicant: ApplicantInfo) => {
+    return applicant.index === undefined ? -1 : applicant.index;
+  };
+
   const handleOptionChange = (
-    applicantIdx: number,
+    applicant: ApplicantInfo,
     questionIdx: number,
     answer: string
   ) => {
+    const appKey = getAppKey(applicant);
     setResponses((prev) => ({
       ...prev,
-      [applicantIdx]: {
-        ...prev[applicantIdx],
+      [appKey]: {
+        ...prev[appKey],
         [questionIdx]: answer,
       },
     }));
   };
 
-  const handleSubmit = () => {
-    applicantsToShow.forEach((applicant, appIdx) => {
-      const completedAnswers = questions.map((q, qIdx) => ({
-        question: q.question,
-        answer: responses[appIdx]?.[qIdx] || "No",
-      }));
+  const saveData = () => {
+    let updatedApplicants = [...applicants];
 
-      const questionnaireData = {
-        questions: completedAnswers,
-      };
+    applicantsToShow.forEach((applicant) => {
+      const appKey = getAppKey(applicant);
+      const appResponses = responses[appKey] || {};
+      
+      const hasYes = questions.some(
+        (_, qIdx) => appResponses[qIdx] === "Yes"
+      );
 
-      // If index is -1, it's primary applicant
-      if (applicant.index === -1 || applicant.index === undefined) {
-        setPrimaryQuestionaire(questionnaireData);
+      if (hasYes) {
+        // Mark as ineligible and clear questionnaire
+        if (appKey === -1) {
+          setCoverageForPreMedCon(false);
+          setPrimaryQuestionaire({ questions: [] });
+        } else {
+          updatedApplicants = updatedApplicants.map((app, idx) => {
+            if (idx === appKey) {
+              return {
+                ...app,
+                preMedCoverage: false,
+                healthQuestionnaire: { questions: [] },
+              };
+            }
+            return app;
+          });
+        }
       } else {
-        // Update the specific additional applicant
-        const updatedApplicants = applicants.map((app, idx) => {
-          if (idx === applicant.index) {
-            return {
-              ...app,
-              healthQuestionnaire: questionnaireData,
-            };
-          }
-          return app;
-        });
-        setApplicants(updatedApplicants);
+        // Save "No" answers
+        const completedAnswers = questions.map((q, qIdx) => ({
+          question: q.question,
+          answer: appResponses[qIdx] || "No",
+        }));
+
+        const questionnaireData = {
+          questions: completedAnswers,
+        };
+
+        if (appKey === -1) {
+          setPrimaryQuestionaire(questionnaireData);
+        } else {
+          updatedApplicants = updatedApplicants.map((app, idx) => {
+            if (idx === appKey) {
+              return {
+                ...app,
+                healthQuestionnaire: questionnaireData,
+              };
+            }
+            return app;
+          });
+        }
       }
     });
 
+    setApplicants(updatedApplicants);
     setIsAgeQuestionnaireOpen(false);
   };
 
-  useEffect(() => {
-    const initialResponses: { [appIdx: number]: { [qIdx: number]: string } } = {};
+  const handleSubmit = () => {
+    const anyYes = applicantsToShow.some((applicant) => {
+      const appKey = getAppKey(applicant);
+      const appResponses = responses[appKey] || {};
+      return questions.some((_, qIdx) => appResponses[qIdx] === "Yes");
+    });
+
+    if (anyYes) {
+      setShowIneligibilityModal(true);
+      return;
+    }
+
+    saveData();
+  };
+
+  const handleConfirmIneligibility = () => {
+    let updatedApplicants = [...applicants];
     
-    applicantsToShow.forEach((applicant, appIdx) => {
+    // Process ineligible applicants
+    applicantsToShow.forEach((applicant) => {
+      const appKey = getAppKey(applicant);
+      const appResponses = responses[appKey] || {};
+      const hasYes = questions.some((_, qIdx) => appResponses[qIdx] === "Yes");
+
+      if (hasYes) {
+        if (appKey === -1) {
+          setCoverageForPreMedCon(false);
+          setPrimaryQuestionaire({ questions: [] });
+        } else {
+          updatedApplicants = updatedApplicants.map((app, idx) => {
+            if (idx === appKey) {
+              return {
+                ...app,
+                preMedCoverage: false,
+                healthQuestionnaire: { questions: [] },
+              };
+            }
+            return app;
+          });
+        }
+      }
+    });
+
+    setApplicants(updatedApplicants);
+    setShowIneligibilityModal(false);
+
+    // Check if any applicants REMAIN who answered all "No"
+    // Note: applicantsToShow will likely update on next render because parent state changed.
+    // However, we can check based on current responses.
+    const remainingCount = applicantsToShow.filter((applicant) => {
+      const appKey = getAppKey(applicant);
+      const appResponses = responses[appKey] || {};
+      return !questions.some((_, qIdx) => appResponses[qIdx] === "Yes");
+    }).length;
+
+    if (remainingCount === 0) {
+      setIsAgeQuestionnaireOpen(false);
+    }
+  };
+
+  useEffect(() => {
+    const initialResponses: { [appIdx: number]: { [qIdx: number]: string } } =
+      {};
+
+    applicantsToShow.forEach((applicant) => {
+      const appKey = getAppKey(applicant);
       let existingQuestions: any[] = [];
-      
-      if (applicant.index === -1 || applicant.index === undefined) {
+
+      if (appKey === -1) {
         existingQuestions = primaryQuestionnaire?.questions || [];
       } else {
-        const app = applicants[applicant.index];
+        const app = applicants[appKey];
         existingQuestions = app?.healthQuestionnaire?.questions || [];
       }
 
       if (existingQuestions.length > 0) {
         const appResponses: { [qIdx: number]: string } = {};
         questions.forEach((q, qIdx) => {
-          const match = existingQuestions.find(eq => eq.question === q.question);
+          const match = existingQuestions.find(
+            (eq) => eq.question === q.question
+          );
           if (match) {
             appResponses[qIdx] = match.answer;
           }
         });
-        initialResponses[appIdx] = appResponses;
+        initialResponses[appKey] = appResponses;
       }
     });
 
@@ -178,18 +280,26 @@ const AgeQuestionaire = ({
           <div>
             <h1 className="text-2xl font-semibold text-gray-900">
               MEDICAL DECLARATION
-            </h1>
+              </h1>
             <p className="text-sm text-gray-500 mt-2">
-              This Medical Declaration must be completed if you are between 70 and
-              84 years of age as of the effective date of coverage and are
+              This Medical Declaration must be completed if you are between 70
+              and 84 years of age as of the effective date of coverage and are
               applying to purchase coverage for pre-existing medical conditions
-              that have been stable in the 180 days prior to your effective date.
-              Coverage for any pre-existing medical conditions is not available if
-              you are over 84 years of age.
+              that have been stable in the 180 days prior to your effective
+              date. Coverage for any pre-existing medical conditions is not
+              available if you are over 84 years of age.
+              <br />
+              <br />
+              <span className="text-red-600 font-medium">
+                * If you answer "Yes" to any of these questions, you will not be
+                eligible for coverage of stable pre-existing medical conditions
+                and "Include coverage for stable pre-existing medical
+                conditions" will be set to "No" for that applicant.
+              </span>
             </p>
           </div>
-          <button 
-            onClick={closeModal} 
+          <button
+            onClick={closeModal}
             className="text-gray-500 hover:text-gray-700 cursor-pointer p-1"
           >
             <XMarkIcon className="h-6 w-6" />
@@ -218,31 +328,32 @@ const AgeQuestionaire = ({
                   <td className="py-4 pr-4 text-sm align-top min-w-md">
                     {qIdx + 1}. {q.question}
                   </td>
-                  {applicantsToShow.map((applicant, appIdx) => (
-                    <td key={appIdx} className="py-4 px-4 text-center">
-                      <div className="flex gap-4 justify-center">
-                        {q.options.map((option) => (
-                          <label
-                            key={option}
-                            className="flex items-center cursor-pointer"
-                          >
-                            <input
-                              type="radio"
-                              value={option}
-                              checked={
-                                responses[appIdx]?.[qIdx] === option
-                              }
-                              onChange={() =>
-                                handleOptionChange(appIdx, qIdx, option)
-                              }
-                              className="accent-primary"
-                            />
-                            <span className="ml-1 text-sm">{option}</span>
-                          </label>
-                        ))}
-                      </div>
-                    </td>
-                  ))}
+                  {applicantsToShow.map((applicant, idx) => {
+                    const appKey = getAppKey(applicant);
+                    return (
+                      <td key={idx} className="py-4 px-4 text-center">
+                        <div className="flex gap-4 justify-center">
+                          {q.options.map((option) => (
+                            <label
+                              key={option}
+                              className="flex items-center cursor-pointer"
+                            >
+                              <input
+                                type="radio"
+                                value={option}
+                                checked={responses[appKey]?.[qIdx] === option}
+                                onChange={() =>
+                                  handleOptionChange(applicant, qIdx, option)
+                                }
+                                className="accent-primary"
+                              />
+                              <span className="ml-1 text-sm">{option}</span>
+                            </label>
+                          ))}
+                        </div>
+                      </td>
+                    );
+                  })}
                 </tr>
               ))}
             </tbody>
@@ -269,15 +380,51 @@ const AgeQuestionaire = ({
         <div className="flex justify-end gap-4 mt-6">
           <button
             onClick={closeModal}
-            className="px-6 py-2 border border-inputBorder hover:border-gray-700 transition cursor-pointer"
+            className="px-6 py-2 border border-inputBorder hover:border-gray-700 transition cursor-pointer delay-100"
           >
             Cancel
           </button>
-          <button onClick={handleSubmit} className="px-6 py-2 btn-primary cursor-pointer">
+          <button
+            onClick={handleSubmit}
+            className="px-6 py-2 btn-primary cursor-pointer"
+          >
             Save
           </button>
         </div>
       </div>
+
+      {showIneligibilityModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[60] p-4">
+          <div className="bg-white max-w-md w-full p-6 shadow-2xl border border-gray-200">
+            <h2 className="text-2xl font-semibold text-yellow-500 mb-4 flex items-center gap-2"><IoWarning/>Warning</h2>
+            <p className="text-gray-700 mb-6 leading-relaxed">
+              Based on the answers provided, some applicants are not eligible for coverage of stable pre-existing medical conditions.
+              <br />
+              <br />
+              <strong>
+                "Include coverage for stable pre-existing medical conditions"
+              </strong>{" "}
+              will be set to <strong>"No"</strong> for those applicants.
+            </p>
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => {
+                  setShowIneligibilityModal(false);
+                }}
+                className="px-6 py-2 border border-inputBorder hover:border-gray-700 transition cursor-pointer delay-100"
+              >
+                Go Back
+              </button>
+              <button
+                onClick={handleConfirmIneligibility}
+                className="btn-primary"
+              >
+                OK
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

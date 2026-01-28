@@ -670,7 +670,7 @@ const Step1STRVCT = ({
           {/* 85 + Warning for primary applicant  */}
 
           {primaryAge !== null && primaryAge > 84 && coverageForPreMedCon && (
-            <div className="col-span-2 bg-red-50 border border-red-200 rounded p-3 text-sm text-red-800">
+            <div className="col-span-2 bg-red-50 border border-red-200 p-3 mt-4 text-sm text-red-800">
               Age Must be under 85 years on effective date, to be eligible for
               medical coverage for stable pre-existing conditions
             </div>
@@ -1009,7 +1009,7 @@ const Step1STRVCT = ({
                 {applicantAges[idx] !== null &&
                   applicantAges[idx]! > 84 &&
                   app.preMedCoverage && (
-                    <div className="col-span-2 bg-red-50 border border-red-200 rounded p-3 text-sm text-red-800">
+                    <div className="col-span-2 bg-red-50 border border-red-200 mt-4 p-3 text-sm text-red-800">
                       Applicant {idx + 1}: Age Must be under 85 years on
                       effective date, to be eligible for medical coverage for
                       stable pre-existing conditions
@@ -1021,13 +1021,14 @@ const Step1STRVCT = ({
           {/* Open Medical Questionnaire Section */}
           {anyNeedsQuestionnaire && (
             <div className="bg-blue-50 border border-blue-200 p-4 mt-6">
-              <p className="text-sm text-blue-900 mb-3">
+              <p className="text-sm text-blue-900 mb-2">
                 A Medical Declaration must be completed if you are between 70
                 and 84 years of age as of the effective date of coverage and are
                 applying to purchase coverage for stable pre-existing conditions
                 that have been stable in the 180 days prior to your effective
                 date
               </p>
+              <p className="text-sm text-blue-900 mb-3">* If you answer "Yes" to any of these questions, you will not be eligible for coverage of stable pre-existing medical conditions and "Include coverage for stable pre-existing medical conditions" will be set to "No" for that applicant.</p>
               <button
                 onClick={() => setIsAgeQuestionnaireOpen(true)}
                 className="bg-primary text-white py-2 px-4 font-semibold hover:bg-[#2309A1] transition-all duration-200 cursor-pointer disabled:cursor-default disabled:opacity-70"
@@ -1593,6 +1594,7 @@ const Step1STRVCT = ({
             setIsAgeQuestionnaireOpen={setIsAgeQuestionnaireOpen}
             setApplicants={setApplicantsWrapper}
             applicants={applicants}
+            setCoverageForPreMedCon={(val) => setValue("coverageForPreMedCon", val)}
           />
         )}
         {showConfirmEligibility && (
