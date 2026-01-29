@@ -372,6 +372,10 @@ export default function Address({ methods }: AddressProps) {
             placeholder="Address Line 1"
             {...register("address.addressLine1", {
               required: "Address Line 1 is required",
+              maxLength: {
+                value: 100,
+                message: "Address Line 1 cannot exceed 100 characters",
+              },
             })}
           />
           {errors.address?.addressLine1 && (
@@ -387,7 +391,12 @@ export default function Address({ methods }: AddressProps) {
             type="text"
             className="input-primary"
             placeholder="Address Line 2"
-            {...register("address.addressLine2")}
+            {...register("address.addressLine2", {
+              maxLength: {
+                value: 100,
+                message: "Address Line 2 cannot exceed 100 characters",
+              },
+            })}
           />
           {errors.address?.addressLine2 && (
             <p className="text-red-500 text-sm mt-1">
@@ -421,6 +430,10 @@ export default function Address({ methods }: AddressProps) {
             placeholder="Postal Code"
             {...register("address.postalCode", {
               required: "Postal Code is required",
+              maxLength: {
+                value: 20,
+                message: "Postal Code cannot exceed 20 characters",
+              },
               pattern: {
                 value: /^[A-Za-z0-9\s-]+$/,
                 message: "Invalid postal code format",
@@ -469,6 +482,10 @@ export default function Address({ methods }: AddressProps) {
             placeholder="Province/State"
             {...register("address.province", {
               required: "Province/State is required",
+              maxLength: {
+                value: 60,
+                message: "Province/State cannot exceed 60 characters",
+              },
             })}
           />
           {errors.address?.province && (

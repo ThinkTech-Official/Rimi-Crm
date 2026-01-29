@@ -44,15 +44,22 @@ interface Shipping {
   province: string;
 }
 
+interface ContactInfo {
+  email: string;
+  additionalEmail?: string;
+  phoneNumber?: string;
+}
+
 interface Props {
   amount: number;
   onPaymentSuccess: () => void;
-  onBuyNow: () => Promise<void>;
+  onBuyNow: () => Promise<boolean>;
   quoteNumber: string;
   description: string;
-  name: string;
   shipping: Shipping;
+  contactInfo: ContactInfo;
   submittingStage2: boolean;
+  triggerNotification: (config: any) => void;
 }
 
 const stripeCustomerId = "cus_85525845666"; // Replace with actual customer ID
@@ -63,9 +70,10 @@ export default function PaymentInformation({
   onBuyNow,
   quoteNumber,
   description,
-  name,
   shipping,
   submittingStage2,
+  contactInfo,
+  triggerNotification,
 }: Props) {
   const stripe = useStripe();
   const elements = useElements();
@@ -93,8 +101,12 @@ export default function PaymentInformation({
     setStripeError(null);
 
     try {
-      // 1. Save Stage 2 data
-      await onBuyNow();
+      // 1. Save Stage 2 data & Validate
+      const isStep2Valid = await onBuyNow();
+      if (!isStep2Valid) {
+        // Validation handled by parent (scrollToError, etc.)
+        return;
+      }
 
       // 2. Create PaymentIntent
       const clientSecret = await createPaymentIntent(Math.round(amount * 100));
@@ -103,6 +115,7 @@ export default function PaymentInformation({
       const cardElement = elements.getElement(CardElement);
       if (!cardElement) {
         setStripeError("Card input not ready");
+        triggerNotification({ message: "Card input not ready", type: "error" });
         return;
       }
 
@@ -119,11 +132,14 @@ export default function PaymentInformation({
 
       if (error) {
         setStripeError(error.message!);
+        triggerNotification({ message: error.message!, type: "error" });
       } else if (paymentIntent?.status === "succeeded") {
         onPaymentSuccess();
       }
     } catch (err: any) {
-      setStripeError(err.message || "Something went wrong");
+      const errorMsg = err.message || "Something went wrong";
+      setStripeError(errorMsg);
+      triggerNotification({ message: errorMsg, type: "error" });
     }
   };
 

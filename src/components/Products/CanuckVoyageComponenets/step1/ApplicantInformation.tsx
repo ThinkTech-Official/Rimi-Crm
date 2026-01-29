@@ -119,7 +119,7 @@ import {
   InformationCircleIcon,
 } from "@heroicons/react/24/outline";
 import { Step1Payload } from "../RIMICanuckVoyageTravelMedical";
-import { Controller, UseFormReturn } from "react-hook-form";
+import { Controller, UseFormReturn, useFieldArray } from "react-hook-form";
 import ConfirmEligibilityModal from "../../SecureTravelRIMIVisitorstoCanadaTravel/step1/ConfirmEligibility";
 import DatePicker from "../../../DatePicker";
 
@@ -147,9 +147,15 @@ export default function ApplicantInformation({
     formState: { errors, isSubmitted },
   } = methods;
 
+  // useFieldArray for additional applicants
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: "applicants",
+  });
+
   // Watch form values
   const formValues = watch();
-  const { applicantNumber, applicants, isConfirmed } = formValues;
+  const { applicantNumber, isConfirmed } = formValues;
 
   const [displayInfoCountryOfOrigin, setDisplayInfoCountryOfOrigin] =
     useState(false);
@@ -160,23 +166,30 @@ export default function ApplicantInformation({
     setValue("isConfirmed", value);
   };
 
-  // Resize applicants array when number changes
+  // Sync fields with applicantNumber
   useEffect(() => {
-    const currentApplicants = applicants || [];
-    const newApplicants: Applicant[] = Array.from(
-      { length: applicantNumber || 0 },
-      (_, i) =>
-        currentApplicants[i] ?? {
-          index: String(i),
+    const targetCount = applicantNumber || 0;
+    const currentCount = fields.length;
+
+    if (targetCount > currentCount) {
+      const toAdd = targetCount - currentCount;
+      for (let i = 0; i < toAdd; i++) {
+        append({
+          index: String(currentCount + i),
           firstName: "",
           lastName: "",
           dob: "",
           relationship: "",
           gender: "",
-        }
-    );
-    setValue("applicants", newApplicants);
-  }, [applicantNumber, setValue]);
+        });
+      }
+    } else if (targetCount < currentCount) {
+      const toRemove = currentCount - targetCount;
+      for (let i = 0; i < toRemove; i++) {
+        remove(currentCount - 1 - i);
+      }
+    }
+  }, [applicantNumber, append, remove, fields.length]);
 
   const handleCheckboxChange = () => {
     if (isConfirmed) {
@@ -210,8 +223,8 @@ export default function ApplicantInformation({
             {...register("primaryFirstName", {
               required: "First Name is required",
               maxLength: {
-                value: 64,
-                message: "First Name cannot exceed 64 characters",
+                value: 60,
+                message: "First Name cannot exceed 60 characters",
               },
             })}
           />
@@ -231,8 +244,8 @@ export default function ApplicantInformation({
             {...register("primaryLastName", {
               required: "Last Name is required",
               maxLength: {
-                value: 64,
-                message: "Last Name cannot exceed 64 characters",
+                value: 60,
+                message: "Last Name cannot exceed 60 characters",
               },
             })}
           />
@@ -376,8 +389,8 @@ export default function ApplicantInformation({
       
 
       {/* Additional Applicants */}
-      {Array.from({ length: applicantNumber || 0 }).map((_, idx) => (
-        <React.Fragment key={idx}>
+      {fields.map((field, idx) => (
+        <React.Fragment key={field.id}>
           <h1 className="text-md font-semibold text-left text-[#1B1B1B] mt-5 mb-3">
             APPLICANT {idx + 1}
           </h1>
@@ -391,8 +404,8 @@ export default function ApplicantInformation({
                 {...register(`applicants.${idx}.firstName`, {
                   required: "First Name is required",
                   maxLength: {
-                    value: 64,
-                    message: "First Name cannot exceed 64 characters",
+                    value: 60,
+                    message: "First Name cannot exceed 60 characters",
                   },
                 })}
               />
@@ -411,8 +424,8 @@ export default function ApplicantInformation({
                 {...register(`applicants.${idx}.lastName`, {
                   required: "Last Name is required",
                   maxLength: {
-                    value: 64,
-                    message: "Last Name cannot exceed 64 characters",
+                    value: 60,
+                    message: "Last Name cannot exceed 60 characters",
                   },
                 })}
               />

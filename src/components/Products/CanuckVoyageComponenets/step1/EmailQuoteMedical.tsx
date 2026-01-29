@@ -104,12 +104,14 @@ const EmailQuoteMedical = ({
         {/* Footer Buttons */}
         <div className="px-6 py-4 flex justify-end gap-2">
           <button
+            type="button"
             className="py-2 px-4 border border-inputBorder hover:border-gray-700 cursor-pointer transition delay-100"
             onClick={handleModalClose}
           >
             Close
           </button>
           <button
+            type="button"
             className="btn-primary disabled:opacity-70"
             onClick={handleSendEmail}
             disabled={sending}

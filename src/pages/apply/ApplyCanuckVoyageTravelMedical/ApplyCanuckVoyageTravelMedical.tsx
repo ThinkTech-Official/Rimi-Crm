@@ -135,10 +135,10 @@ const RIMICanuckVoyageTravelMedical: React.FC = () => {
   const { triggerNotification, NotificationComponent } = useNotification();
 
   // Watch values for local logic
-  const watchedStep1 = step1Methods.watch();
-  const {
-    primaryFirstName,
-  } = watchedStep1;
+  // const watchedStep1 = step1Methods.watch();
+  // const {
+  //   primaryFirstName,
+  // } = watchedStep1;
 
   const watchedStep2 = step2Methods.watch();
   const { address } = watchedStep2;
@@ -319,8 +319,8 @@ useEffect(() => {
   };
 
   // ========== STAGE 2: BUY NOW ==========
-  const handleBuyNow = async () => {
-    if (!quoteNumber || submittingStage2) return;
+  const handleBuyNow = async (): Promise<boolean> => {
+    if (!quoteNumber || submittingStage2) return false;
 
     const formValues = step2Methods.getValues();
     const payload: Stage2Payload = {
@@ -331,8 +331,10 @@ useEffect(() => {
     try {
       const resp = await completeApplication(payload);
       console.log("✅ Stage 2 complete:", resp);
+      return true;
     } catch (err) {
       console.error("❌ Stage 2 failed:", err);
+      return false;
     }
   };
 
@@ -497,7 +499,6 @@ if (quoteError) {
             setLoading={setLoading}
             error={error}
             setError={setError}
-            onValidityChange={setIsStepOneFilled}
             quoteNumber={quoteNumber}
             agentCode={agentCode!}
             handleSaveQuote={handleSaveQuote}
@@ -551,12 +552,13 @@ if (quoteError) {
             <PaymentInformation
               quoteNumber={quoteNumber}
               description={productName}
-              name={primaryFirstName}
               shipping={address}
+              contactInfo={step2Methods.watch("contactInfo")}
               amount={totalPremium}
               onPaymentSuccess={handlePaymentSuccess}
               onBuyNow={handleBuyNow}
               submittingStage2={submittingStage2}
+              triggerNotification={triggerNotification}
             />
           </Elements>
         </FormProvider>

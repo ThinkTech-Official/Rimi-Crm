@@ -531,7 +531,6 @@ interface CoverageInformationProps {
   setLoading: (value: boolean) => void;
   error: string | null;
   setError: (value: string | null) => void;
-  onValidityChange: (valid: boolean) => void;
   quoteNumber: string | null;
   agentCode: string;
   handleSaveQuote: () => Promise<boolean>;
@@ -543,7 +542,6 @@ export default function CoverageInformation({
   setPremiumBreakdown,
   setLoading,
   setError,
-  onValidityChange,
   quoteNumber,
   handleSaveQuote,
   premiumBreakdown
@@ -634,39 +632,7 @@ export default function CoverageInformation({
     numberOfDaysPerTrip,
   ]);
 
-  // Check if all fields filled for validation
-  const isFormFilled = useMemo(() => {
-    const baseFields = [
-      policyType,
-      effectiveDate,
-      expiryDate,
-      coverageLength,
-      destinationCountry,
-      travelingThroughUS,
-      primaryDateOfBirth,
-      String(deductible),
-    ].every((v) => v !== "" && v !== undefined && v !== null);
 
-    if (policyType === "Multi-Trip Annual") {
-      return baseFields && numberOfDaysPerTrip !== undefined;
-    }
-
-    return baseFields;
-  }, [
-    policyType,
-    effectiveDate,
-    expiryDate,
-    coverageLength,
-    destinationCountry,
-    travelingThroughUS,
-    primaryDateOfBirth,
-    deductible,
-    numberOfDaysPerTrip,
-  ]);
-
-  useEffect(() => {
-    onValidityChange(isFormFilled);
-  }, [isFormFilled, onValidityChange]);
 
   // Premium calculation data
   const premiumCalculationData = useMemo(
@@ -854,7 +820,19 @@ export default function CoverageInformation({
           <Controller
           name={`expiryDate`}
           control={control}
-          rules={{ required: "Expiry Date is required" }}
+          rules={{ 
+            required: "Expiry Date is required",
+            validate: (value) => {
+              if (effectiveDate && value) {
+                const eff = new Date(effectiveDate);
+                const exp = new Date(value);
+                if (exp <= eff) {
+                  return "Expiry date must be after effective date";
+                }
+              }
+              return true;
+            }
+          }}
           render={({ field }) => (
             <DatePicker
               label="Expiry Date"
@@ -1144,27 +1122,25 @@ export default function CoverageInformation({
           </button>
         </div>
       ) : (
-        isFormFilled && (
-          <div className="text-center mt-4">
-            <button
-              onClick={async () => {
-                const success = await handleSaveQuote();
-                if (success) {
-                  // Save snapshot after successful save
-                  const snapshot = JSON.stringify(formValues);
-                  setSavedFormSnapshot(snapshot);
-                  setHasFormChanged(false);
-                }
-              }}
-              disabled={saving}
-              className={`text-base hover:underline underline-offset-2 cursor-pointer text-primary mt-2 ${
-                saving ? "opacity-50" : ""
-              }`}
-            >
-              {saving ? "Saving..." : "Save Quote"}
-            </button>
-          </div>
-        )
+        <div className="text-center mt-4">
+          <button
+            onClick={async () => {
+              const success = await handleSaveQuote();
+              if (success) {
+                // Save snapshot after successful save
+                const snapshot = JSON.stringify(formValues);
+                setSavedFormSnapshot(snapshot);
+                setHasFormChanged(false);
+              }
+            }}
+            disabled={saving}
+            className={`text-base hover:underline underline-offset-2 cursor-pointer text-primary mt-2 ${
+              saving ? "opacity-50" : ""
+            }`}
+          >
+            {saving ? "Saving..." : "Save Quote"}
+          </button>
+        </div>
       )}
       {isEmailModalOpen && (
         <EmailQuoteMedical

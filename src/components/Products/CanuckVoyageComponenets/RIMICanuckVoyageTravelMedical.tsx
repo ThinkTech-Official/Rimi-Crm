@@ -290,8 +290,9 @@ import ContactInformation from "./step2/ContactInformation";
 import Address from "./step2/Address";
 import PaymentInformation from "./step2/PaymentInformation";
 import Summary from "./step3/Summary";
-import { FormProvider, useForm } from "react-hook-form";
+import { FormProvider, useForm, useWatch } from "react-hook-form";
 import useNotification from "../../../hooks/useNotification";
+
 
 interface Applicant {
   index: string;
@@ -402,15 +403,23 @@ const RIMICanuckVoyageTravelMedical: React.FC = () => {
     },
   })
 
+  // Reactive watches for Step 2 data
+  const watchedAddress = useWatch({
+    control: addressMethods.control,
+    name: "address"
+  });
+  const watchedContactInfo = useWatch({
+    control: contactInfoMethods.control,
+    name: "contactInfo"
+  });
+
   // ========== VALIDATION ==========
-  const [isStepOneFilled, setIsStepOneFilled] = useState(false);
 
   // ========== HOOKS ==========
   const { saveQuoteNext, loading: savingStage1 } = useSaveQuoteNextProduct3();
   const {
     completeApplication,
     loading: submittingStage2,
-    error: submitError,
   } = useQuoteUpdateProduct3();
 
   // ========== STEP NAVIGATION ==========
@@ -441,7 +450,7 @@ const RIMICanuckVoyageTravelMedical: React.FC = () => {
 
   // ========== STAGE 1: NEXT BUTTON ==========
   const handleNext = async () => {
-    if (!isStepOneFilled || savingStage1) return;
+    if (savingStage1) return;
      const isValid = await step1Methods.trigger();
     if (!isValid) {
       console.log("Validation failed", step1Methods.formState.errors);
@@ -474,11 +483,9 @@ const RIMICanuckVoyageTravelMedical: React.FC = () => {
 
   // ========== STAGE 2: BUY NOW ==========
   const handleBuyNow = async () => {
-    if (!quoteNumber || submittingStage2) return;
-    const [isValid1, isValid2] = await Promise.all([
-      contactInfoMethods.trigger(),
-      addressMethods.trigger(),
-    ]);
+    if (!quoteNumber || submittingStage2) return false;
+    const isValid1 = await contactInfoMethods.trigger(undefined, { shouldFocus: true });
+    const isValid2 = await addressMethods.trigger(undefined, { shouldFocus: true });
 
     if (!isValid1) {
       console.log(
@@ -493,8 +500,11 @@ const RIMICanuckVoyageTravelMedical: React.FC = () => {
       );
     }
 
-    if (!isValid1 || !isValid2) return;
-const address = addressMethods.getValues().address;
+    if (!isValid1 || !isValid2) {
+      return false;
+    }
+
+    const address = addressMethods.getValues().address;
     const contactInfo = contactInfoMethods.getValues().contactInfo;
     const payload: Stage2Payload = {
       quoteNumber,
@@ -505,12 +515,14 @@ const address = addressMethods.getValues().address;
     try {
       const resp = await completeApplication(payload);
       console.log("✅ Stage 2 complete:", resp);
+      return true;
     } catch (err: any) {
       console.error("❌ Stage 2 failed:", err);
       triggerNotification({
         message: err.message || "Failed to complete application. Please try again.",
         type: "error",
       });
+      return false;
     }
   };
 
@@ -653,7 +665,6 @@ const address = addressMethods.getValues().address;
             setLoading={setLoading}
             error={error}
             setError={setError}
-            onValidityChange={setIsStepOneFilled}
             quoteNumber={quoteNumber}
             agentCode={agentCode!}
             handleSaveQuote={handleSaveQuote}
@@ -668,12 +679,12 @@ const address = addressMethods.getValues().address;
           </div>
           {formStep === 1 && (
             <button
-            onClick={handleNext}
-            disabled={!isStepOneFilled || savingStage1}
-            className={`w-[200px] mx-auto mt-6 bg-[#2B00B7] text-white p-3 hover:bg-[#2309A1] transition flex justify-center items-center cursor-pointer duration-200 disabled:cursor-default default:bg-indigo-700 ${
-              savingStage1 ? "opacity-50 cursor-wait" : ""
+              onClick={handleNext}
+              disabled={savingStage1}
+              className={`w-[200px] mx-auto mt-6 bg-[#2B00B7] text-white p-3 hover:bg-[#2309A1] transition flex justify-center items-center cursor-pointer duration-200 disabled:cursor-default default:bg-indigo-700 ${
+                savingStage1 ? "opacity-50 cursor-wait" : ""
               }`}
-              >
+            >
               {savingStage1 ? "Saving…" : "Next"}
             </button>
           )}
@@ -721,12 +732,13 @@ const address = addressMethods.getValues().address;
             <PaymentInformation
               quoteNumber={quoteNumber}
               description={productName}
-              name={step1ResponseData?.firstName ?? ""}
-              shipping={addressMethods.getValues().address}
+              shipping={watchedAddress}
+              contactInfo={watchedContactInfo}
               amount={totalPremium}
               onPaymentSuccess={handlePaymentSuccess}
               onBuyNow={handleBuyNow}
               submittingStage2={submittingStage2}
+              triggerNotification={triggerNotification}
             />
           </Elements>
         </div>
