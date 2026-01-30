@@ -117,7 +117,7 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
   });
 
   const contactInfoMethods = useForm({
-    mode: "onTouched",
+    mode: "all",
     reValidateMode: "onChange",
     defaultValues: {
       contactInfo: {
@@ -128,7 +128,7 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
   });
 
   const addressMethods = useForm({
-    mode: "onTouched",
+    mode: "all",
     reValidateMode: "onChange",
     defaultValues: {
       address: {
@@ -143,7 +143,7 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
   });
 
   const beneficiaryMethods = useForm({
-    mode: "onTouched",
+    mode: "all",
     reValidateMode: "onChange",
     defaultValues: {
       beneficiary: {

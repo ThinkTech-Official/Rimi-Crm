@@ -377,7 +377,7 @@ const RIMICanuckVoyageTravelMedical: React.FC = () => {
   });
 
     const contactInfoMethods = useForm({
-    mode: 'onTouched',
+    mode: 'all',
     reValidateMode: 'onChange',
     defaultValues: {
       contactInfo: {
@@ -389,7 +389,7 @@ const RIMICanuckVoyageTravelMedical: React.FC = () => {
   })
 
   const addressMethods = useForm({ 
-    mode: 'onTouched',
+    mode: 'all',
     reValidateMode: 'onChange',
     defaultValues: {
       address:{

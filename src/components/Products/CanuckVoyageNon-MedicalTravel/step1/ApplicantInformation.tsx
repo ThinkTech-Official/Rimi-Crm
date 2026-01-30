@@ -458,7 +458,7 @@ export default function ApplicantInformation({
     watch,
     setValue,
     control,
-    formState: { errors },
+    formState: { errors, isSubmitted },
   } = methods;
 
   // Watch form values
@@ -523,8 +523,8 @@ export default function ApplicantInformation({
             {...register("primaryFirstName", {
               required: "First Name is required",
               maxLength: {
-                value: 64,
-                message: "First Name cannot exceed 64 characters",
+                value: 60,
+                message: "First Name cannot exceed 60 characters",
               },
             })}
           />
@@ -545,8 +545,8 @@ export default function ApplicantInformation({
             {...register("primaryLastName", {
               required: "Last Name is required",
               maxLength: {
-                value: 64,
-                message: "Last Name cannot exceed 64 characters",
+                value: 60,
+                message: "Last Name cannot exceed 60 characters",
               },
             })}
           />
@@ -696,6 +696,10 @@ export default function ApplicantInformation({
             placeholder="Province/State of Residence"
             {...register("provinceStateResidence", {
               required: "Province/State is required",
+              maxLength: {
+                value: 60,
+                message: "Province/State cannot exceed 60 characters",
+              },
             })}
           />
           {errors.provinceStateResidence && (
@@ -745,8 +749,8 @@ export default function ApplicantInformation({
                 {...register(`applicants.${idx}.firstName`, {
                   required: "First Name is required",
                   maxLength: {
-                    value: 64,
-                    message: "First Name cannot exceed 64 characters",
+                    value: 60,
+                    message: "First Name cannot exceed 60 characters",
                   },
                 })}
               />
@@ -765,8 +769,8 @@ export default function ApplicantInformation({
                 {...register(`applicants.${idx}.lastName`, {
                   required: "Last Name is required",
                   maxLength: {
-                    value: 64,
-                    message: "Last Name cannot exceed 64 characters",
+                    value: 60,
+                    message: "Last Name cannot exceed 60 characters",
                   },
                 })}
               />
@@ -858,6 +862,9 @@ export default function ApplicantInformation({
           <input
             type="checkbox"
             className="accent-primary cursor-pointer"
+            {...register("isConfirmed", {
+              required: "You must confirm that all applicants are eligible",
+            })}
             checked={isConfirmed || false}
             onChange={handleCheckboxChange}
           />
@@ -865,6 +872,11 @@ export default function ApplicantInformation({
             Confirm that all applicants are eligible for this insurance
           </span>
         </div>
+        {errors.isConfirmed && isSubmitted && (
+          <p className="text-red-500 text-sm mt-1 text-center font-[inter]">
+            {errors.isConfirmed.message}
+          </p>
+        )}
 
         {displayInfoApplicantConfirm && (
           <div className="border border-inputBorder shadow-sm p-4 mt-4 bg-white relative">

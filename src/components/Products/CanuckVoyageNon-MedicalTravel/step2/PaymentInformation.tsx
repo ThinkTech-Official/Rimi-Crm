@@ -42,15 +42,22 @@ interface Shipping {
   province: string;
 }
 
+interface ContactInfo {
+  email: string;
+  additionalEmail: string;
+  phoneNumber: string;
+}
+
 interface Props {
   amount: number;
   onPaymentSuccess: () => void;
-  onBuyNow: () => Promise<void>;
+  onBuyNow: () => Promise<boolean>;
   quoteNumber: string;
   description: string;
-  name: string;
   shipping: Shipping;
+  contactInfo: ContactInfo;
   submittingStage2: boolean;
+  triggerNotification: (config: any) => void;
 }
 
 const stripeCustomerId = "cus_85525845666"; // Replace with actual customer ID
@@ -61,9 +68,10 @@ export default function PaymentInformation({
   onBuyNow,
   quoteNumber,
   description,
-  name,
   shipping,
+  contactInfo,
   submittingStage2,
+  triggerNotification,
 }: Props) {
   const stripe = useStripe();
   const elements = useElements();
@@ -92,7 +100,10 @@ export default function PaymentInformation({
 
     try {
       // 1. Save Stage 2 data
-      await onBuyNow();
+      const isStep2Valid = await onBuyNow();
+      if (!isStep2Valid) {
+        return;
+      }
 
       // 2. Create PaymentIntent
       const clientSecret = await createPaymentIntent(Math.round(amount * 100));
@@ -101,6 +112,11 @@ export default function PaymentInformation({
       const cardElement = elements.getElement(CardElement);
       if (!cardElement) {
         setStripeError("Card input not ready");
+        triggerNotification({
+          message: "Card input not ready",
+          type: "error",
+        });
+         window.scrollTo({ top: 0, behavior: "smooth" });
         return;
       }
 
@@ -110,18 +126,28 @@ export default function PaymentInformation({
         {
           payment_method: {
             card: cardElement,
-            billing_details: { name: cardholderName },
+            billing_details: { 
+              name: cardholderName,
+             },
           },
         }
       );
 
       if (error) {
         setStripeError(error.message!);
+        triggerNotification({
+          message: error.message || "Payment failed",
+          type: "error",
+        });
       } else if (paymentIntent?.status === "succeeded") {
         onPaymentSuccess();
       }
     } catch (err: any) {
       setStripeError(err.message || "Something went wrong");
+      triggerNotification({
+        message: err.message || "Payment failed",
+        type: "error",
+      });
     }
   };
 

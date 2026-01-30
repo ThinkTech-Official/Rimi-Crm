@@ -104,7 +104,6 @@ export default function PaymentInformation({
       // 1. Save Stage 2 data & Validate
       const isStep2Valid = await onBuyNow();
       if (!isStep2Valid) {
-        // Validation handled by parent (scrollToError, etc.)
         return;
       }
 

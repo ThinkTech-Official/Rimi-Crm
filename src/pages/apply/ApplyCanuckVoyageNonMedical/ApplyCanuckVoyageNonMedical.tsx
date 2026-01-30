@@ -127,7 +127,7 @@ const RIMICanuckVoyageNonMedicalTravel: React.FC = () => {
   });
 
   const step2Methods = useForm<Stage2FormValues>({
-    mode: "onChange",
+    mode: "all",
     defaultValues: {
       address: {
         addressLine1: "",
@@ -307,11 +307,11 @@ const RIMICanuckVoyageNonMedicalTravel: React.FC = () => {
   };
 
   // ========== STAGE 2: BUY NOW ==========
-  const handleBuyNow = async () => {
-    if (!quoteNumber || submittingStage2) return;
+  const handleBuyNow = async (): Promise<boolean> => {
+    if (!quoteNumber || submittingStage2) return false;
 
     const isValid = await step2Methods.trigger();
-    if (!isValid) return;
+    if (!isValid) return false;
 
     const { address, contactInfo } = step2Methods.getValues();
     const payload: Stage2Payload = {
@@ -323,8 +323,14 @@ const RIMICanuckVoyageNonMedicalTravel: React.FC = () => {
     try {
       const resp = await completeApplication(payload);
       console.log("Stage 2 complete:", resp);
-    } catch (err) {
+      return true;
+    } catch (err: any) {
       console.error("Stage 2 failed:", err);
+      triggerNotification({
+        message: err.message || "Failed to complete application",
+        type: "error",
+      });
+      return false;
     }
   };
 
@@ -585,12 +591,13 @@ const RIMICanuckVoyageNonMedicalTravel: React.FC = () => {
             <PaymentInformation
               quoteNumber={quoteNumber}
               description={productName}
-              name={primaryFirstName}
               shipping={address}
+              contactInfo={step2Methods.watch("contactInfo")}
               amount={totalPremium}
               onPaymentSuccess={handlePaymentSuccess}
               onBuyNow={handleBuyNow}
               submittingStage2={submittingStage2}
+              triggerNotification={triggerNotification}
             />
           </Elements>
         </FormProvider>

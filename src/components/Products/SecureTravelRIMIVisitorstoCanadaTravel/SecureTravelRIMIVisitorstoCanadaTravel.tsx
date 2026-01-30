@@ -149,7 +149,7 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
 
   // Separate forms for step 2 parts if needed, or just standard useForm
   const contactInfoMethods = useForm({
-    mode: "onTouched",
+    mode: "all",
     reValidateMode: "onChange",
     defaultValues: {
       contactInfo: {
@@ -160,7 +160,7 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
   });
 
   const addressMethods = useForm({
-    mode: "onTouched",
+    mode: "all",
     reValidateMode: "onChange",
     defaultValues: {
       address: {
@@ -175,7 +175,7 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
   });
 
   const beneficiaryMethods = useForm({
-    mode: "onTouched",
+    mode: "all",
     reValidateMode: "onChange",
     defaultValues: {
       beneficiary: {

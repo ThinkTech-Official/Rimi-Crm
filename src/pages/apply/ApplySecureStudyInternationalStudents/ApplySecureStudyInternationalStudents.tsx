@@ -115,7 +115,7 @@ export default function SecureStudyRIMIInternationalStudentstoCanada() {
   });
 
   const step2Methods = useForm<Stage2FormValues>({
-    mode: "onChange",
+    mode: "all",
     defaultValues: {
       address: {
         addressLine1: "",

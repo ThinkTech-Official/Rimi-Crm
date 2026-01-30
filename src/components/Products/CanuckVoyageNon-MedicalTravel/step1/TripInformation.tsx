@@ -556,68 +556,86 @@ export default function TripInformation({
 
         {/* Date inputs */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 md:gap-x-16 lg:gap-x-24 gap-y-4 text-text-secondary">
-          <Controller
-            name={`dateBooked`}
-            control={control}
-            rules={{ required: "Date Booked is required" }}
-            render={({ field }) => (
-              <DatePicker
-                label="Date Booked"
-                value={field.value}
-                onChange={(date: Date) => {
-                  field.onChange(date);
-                }}
-                maxDate={new Date()}
-              />
+          <div className="flex flex-col">
+            <Controller
+              name={`dateBooked`}
+              control={control}
+              rules={{ required: "Date Booked is required" }}
+              render={({ field }) => (
+                <DatePicker
+                  label="Date Booked"
+                  value={field.value}
+                  onChange={(date: Date) => {
+                    field.onChange(date);
+                  }}
+                  maxDate={new Date()}
+                />
+              )}
+            />
+            {errors.dateBooked && (
+              <p className="text-red-500 text-sm mt-1">
+                {errors.dateBooked.message}
+              </p>
             )}
-          />
-          {errors.dateBooked && (
-            <p className="text-red-500 text-sm mt-1">
-              {errors.dateBooked.message}
-            </p>
-          )}
+          </div>
 
-          <Controller
-            name={`effectiveDate`}
-            control={control}
-            rules={{ required: "Date of Departure is required" }}
-            render={({ field }) => (
-              <DatePicker
-                label="Date of Departure"
-                value={field.value}
-                onChange={(date: Date) => {
-                  field.onChange(date);
-                }}
-                minDate={new Date()}
-              />
+          <div className="flex flex-col">
+            <Controller
+              name={`effectiveDate`}
+              control={control}
+              rules={{ required: "Date of Departure is required" }}
+              render={({ field }) => (
+                <DatePicker
+                  label="Date of Departure"
+                  value={field.value}
+                  onChange={(date: Date) => {
+                    field.onChange(date);
+                  }}
+                  minDate={new Date()}
+                />
+              )}
+            />
+            {errors.effectiveDate && (
+              <p className="text-red-500 text-sm mt-1">
+                {errors.effectiveDate.message}
+              </p>
             )}
-          />
-          {errors.effectiveDate && (
-            <p className="text-red-500 text-sm mt-1">
-              {errors.effectiveDate.message}
-            </p>
-          )}
+          </div>
 
-          <Controller
-            name={`expiryDate`}
-            control={control}
-            rules={{ required: "Date of Return is required" }}
-            render={({ field }) => (
-              <DatePicker
-                label="Date of Return"
-                value={field.value}
-                onChange={(date: Date) => {
-                  field.onChange(date);
-                }}
-                minDate={new Date()}
-              />
+          <div className="flex flex-col">
+            <Controller
+              name={`expiryDate`}
+              control={control}
+              rules={{ 
+                required: "Date of Return is required",
+                validate: (value) => {
+                  if (effectiveDate && value) {
+                    const eff = new Date(effectiveDate);
+                    const exp = new Date(value);
+                    if (exp <= eff) {
+                      return "Return date must be after departure date";
+                    }
+                  }
+                  return true;
+                }
+              }}
+              render={({ field }) => (
+                <DatePicker
+                  label="Date of Return"
+                  value={field.value}
+                  onChange={(date: Date) => {
+                    field.onChange(date);
+                  }}
+                  minDate={new Date()}
+                />
+              )}
+            />
+            {errors.expiryDate && (
+              <p className="text-red-500 text-sm mt-1">
+                {errors.expiryDate.message}
+              </p>
             )}
-          />
-          {errors.expiryDate && (
-            <p className="text-red-500 text-sm mt-1">
-              {errors.expiryDate.message}
-            </p>
-          )}
+          </div>
           <div className="flex flex-col">
             <label className="text-sm">Coverage Length (days)</label>
             <input

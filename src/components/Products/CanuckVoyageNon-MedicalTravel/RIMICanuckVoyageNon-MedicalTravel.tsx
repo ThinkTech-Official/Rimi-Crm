@@ -238,7 +238,7 @@
 // ===============================================
 
 import { CheckIcon } from "@heroicons/react/24/outline";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../app/store";
 import {
@@ -398,7 +398,7 @@ const RIMICanuckVoyageNonMedicalTravel: React.FC = () => {
   });
 
   const contactInfoMethods = useForm({
-    mode: 'onTouched',
+    mode: 'all',
     reValidateMode: 'onChange',
     defaultValues: {
       contactInfo: {
@@ -410,7 +410,7 @@ const RIMICanuckVoyageNonMedicalTravel: React.FC = () => {
   })
 
   const addressMethods = useForm({ 
-    mode: 'onTouched',
+    mode: 'all',
     reValidateMode: 'onChange',
     defaultValues: {
       address:{
@@ -423,6 +423,7 @@ const RIMICanuckVoyageNonMedicalTravel: React.FC = () => {
       }
     },
   })
+
   // ========== STEP NAVIGATION ==========
   const handleFormStepChange = (stepCommand: string) => {
     setFormStep((prevStep) => {
@@ -483,11 +484,11 @@ const RIMICanuckVoyageNonMedicalTravel: React.FC = () => {
   };
 
   // ========== STAGE 2: BUY NOW ==========
-  const handleBuyNow = async () => {
-    if (!quoteNumber || submittingStage2) return;
+  const handleBuyNow = async (): Promise<boolean> => {
+    if (!quoteNumber || submittingStage2) return false;
     const [isValid1, isValid2] = await Promise.all([
-      contactInfoMethods.trigger(),
-      addressMethods.trigger(),
+      contactInfoMethods.trigger(undefined, { shouldFocus: true }),
+      addressMethods.trigger(undefined, { shouldFocus: true }),
     ]);
 
     if (!isValid1) {
@@ -503,7 +504,7 @@ const RIMICanuckVoyageNonMedicalTravel: React.FC = () => {
       );
     }
 
-    if (!isValid1 || !isValid2) return;
+    if (!isValid1 || !isValid2) return false;
 
     const address = addressMethods.getValues().address;
     const contactInfo = contactInfoMethods.getValues().contactInfo;
@@ -517,12 +518,14 @@ const RIMICanuckVoyageNonMedicalTravel: React.FC = () => {
     try {
       const resp = await completeApplication(payload);
       console.log("✅ Stage 2 complete:", resp);
+      return true;
     } catch (err: any) {
       console.error("❌ Stage 2 failed:", err);
       triggerNotification({
         message: err.message || "Failed to complete application. Please try again.",
         type: "error",
       });
+      return false;
     }
   };
 
@@ -677,7 +680,7 @@ const RIMICanuckVoyageNonMedicalTravel: React.FC = () => {
           {formStep === 1 && (
             <button
             onClick={handleNext}
-            disabled={!isStepOneFilled || savingStage1}
+            disabled={savingStage1}
             className={`w-[200px] mx-auto mt-6 bg-[#2B00B7] text-white p-3 hover:bg-[#2309A1] transition flex justify-center items-center cursor-pointer duration-200 disabled:cursor-default ${
               savingStage1 ? "opacity-50 cursor-wait" : ""
               }`}
@@ -729,12 +732,13 @@ const RIMICanuckVoyageNonMedicalTravel: React.FC = () => {
             <PaymentInformation
               quoteNumber={quoteNumber}
               description={productName}
-              name={step1ResponseData?.firstName ?? ""}
               shipping={addressMethods.getValues().address}
+              contactInfo={contactInfoMethods.watch("contactInfo")}
               amount={totalPremium}
               onPaymentSuccess={handlePaymentSuccess}
               onBuyNow={handleBuyNow}
               submittingStage2={submittingStage2}
+              triggerNotification={triggerNotification}
             />
           </Elements>
         </div>

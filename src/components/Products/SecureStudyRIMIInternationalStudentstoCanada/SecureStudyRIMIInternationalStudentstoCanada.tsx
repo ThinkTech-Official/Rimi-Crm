@@ -848,7 +848,7 @@ export default function SecureStudyRIMIInternationalStudentstoCanada() {
   });
 
   const contactInfoMethods = useForm({
-    mode: "onTouched",
+    mode: "all",
     reValidateMode: "onChange",
     defaultValues: {
       contactInfo: {
@@ -861,7 +861,7 @@ export default function SecureStudyRIMIInternationalStudentstoCanada() {
   });
 
   const beneficiaryInfoMethods = useForm({
-    mode: "onTouched",
+    mode: "all",
     reValidateMode: "onChange",
     defaultValues: {
       beneficiary: {
@@ -875,7 +875,7 @@ export default function SecureStudyRIMIInternationalStudentstoCanada() {
   });
 
   const addressInfoMethods = useForm({
-    mode: "onTouched",
+    mode: "all",
     reValidateMode: "onChange",
     defaultValues: {
       address: {

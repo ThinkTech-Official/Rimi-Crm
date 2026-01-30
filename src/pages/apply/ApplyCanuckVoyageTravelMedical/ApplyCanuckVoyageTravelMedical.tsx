@@ -114,7 +114,7 @@ const RIMICanuckVoyageTravelMedical: React.FC = () => {
   });
 
   const step2Methods = useForm<Stage2FormValues>({
-    mode: "onChange",
+    mode: "all",
     defaultValues: {
       address: {
         addressLine1: "",

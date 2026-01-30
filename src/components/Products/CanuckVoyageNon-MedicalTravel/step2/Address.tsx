@@ -346,7 +346,7 @@ export default function Address({ methods }: AddressProps) {
   const { register, formState: { errors } } = methods;
 
   return (
-    <div className="max-w-5xl mx-auto mt-6 p-3 sm:p-6 bg-[#F9F9F9]">
+    <div className="max-w-5xl mx-auto mt-4 p-3 sm:p-6 bg-[#F9F9F9]">
       <h3 className="text-lg font-bold text-left text-[#1B1B1B] mb-5">
         Residence Information
       </h3>
@@ -362,6 +362,10 @@ export default function Address({ methods }: AddressProps) {
             placeholder="Address Line 1"
             {...register("address.addressLine1", {
               required: "Address Line 1 is required",
+              maxLength: {
+                value: 100,
+                message: "Address Line 1 cannot exceed 100 characters",
+              },
             })}
           />
           {errors.address?.addressLine1 && (
@@ -378,7 +382,12 @@ export default function Address({ methods }: AddressProps) {
             type="text"
             className="input-primary"
             placeholder="Address Line 2"
-            {...register("address.addressLine2")}
+            {...register("address.addressLine2", {
+              maxLength: {
+                value: 100,
+                message: "Address Line 2 cannot exceed 100 characters",
+              },
+            })}
           />
         </div>
 
@@ -409,6 +418,10 @@ export default function Address({ methods }: AddressProps) {
             placeholder="Postal Code"
             {...register("address.postalCode", {
               required: "Postal Code is required",
+              maxLength: {
+                value: 20,
+                message: "Postal Code cannot exceed 20 characters",
+              },
               pattern: {
                 value: /^[A-Za-z0-9\s-]+$/,
                 message: "Invalid postal code format",
@@ -458,6 +471,10 @@ export default function Address({ methods }: AddressProps) {
             placeholder="Province/State"
             {...register("address.province", {
               required: "Province/State is required",
+              maxLength: {
+                value: 60,
+                message: "Province/State cannot exceed 60 characters",
+              },
             })}
           />
           {errors.address?.province && (
