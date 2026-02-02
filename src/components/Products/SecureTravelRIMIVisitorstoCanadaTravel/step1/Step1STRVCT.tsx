@@ -1577,11 +1577,11 @@ const Step1STRVCT = ({
 
             {quoteNumber != null ? (
               <div className=" flex flex-col justify-center items-center mb-2 gap-2">
-                <p className="mt-2">
-                  <span className="text-text-primary font-medium">
+                <p className="mt-2 text-xl font-bold text-red-600">
+                  <span>
                     Quote Saved:{" "}
                   </span>
-                  <span className="text-text-secondary">{quoteNumber}</span>
+                  <span>{quoteNumber}</span>
                 </p>
                 <p
                   className="text-[#2b00b7] cursor-pointer text-base hover:underline underline-offset-2"

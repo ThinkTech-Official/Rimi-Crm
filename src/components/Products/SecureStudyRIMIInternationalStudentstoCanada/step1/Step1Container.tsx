@@ -462,11 +462,11 @@ export default function Step1Container({
         {/* Quote Number Display - Show after quote is saved */}
         {quoteNumber != null && !hasFormChanged ? (
           <div className="flex flex-col justify-center items-center mb-2 gap-2">
-            <p className="mt-2">
-              <span className="text-text-primary font-medium">
+            <p className="mt-2 text-xl font-bold text-red-600">
+              <span>
                 Quote Saved:{" "}
               </span>
-              <span className="text-text-secondary">{quoteNumber}</span>
+              <span>{quoteNumber}</span>
             </p>
             <button
               type="button"

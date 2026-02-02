@@ -1107,11 +1107,11 @@ export default function CoverageInformation({
 
       {/* Save Quote Button */}
       {quoteNumber && !hasFormChanged ? (
-        <div className="flex flex-col justify-center items-center mt-4">
-          <span className="text-text-primary font-medium">
+        <div className="flex flex-col justify-center items-center mt-4 text-xl font-bold text-red-600">
+          <span>
             Quote Saved:{" "}
           </span>
-          <span className="text-text-secondary">{quoteNumber}</span>
+          <span>{quoteNumber}</span>
 
           <button
             type="button"

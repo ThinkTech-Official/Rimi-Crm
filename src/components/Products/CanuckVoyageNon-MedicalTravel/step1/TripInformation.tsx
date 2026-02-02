@@ -695,11 +695,11 @@ export default function TripInformation({
 
           {/* Save Quote Button */}
           {quoteNumber && !hasFormChanged ? (
-            <div className="flex flex-col justify-center items-center mt-4">
-              <span className="text-text-primary font-medium">
+            <div className="flex flex-col justify-center items-center mt-4 text-xl font-bold text-red-600">
+              <span>
                 Quote Saved:{" "}
               </span>
-              <span className="text-text-secondary">{quoteNumber}</span>
+              <span>{quoteNumber}</span>
 
               <button className="text-[#2b00b7] cursor-pointer text-base hover:underline underline-offset-2 mt-2" onClick={()=>setIsEmailModalOpen(true)}>
                 Email Quote
