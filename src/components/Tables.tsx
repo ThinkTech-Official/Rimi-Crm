@@ -345,18 +345,18 @@ export function CommissionsTable({
               <th className="px-4 py-3 text-left font-medium">Policy #</th>
               <th className="px-4 py-3 text-left font-medium">Type</th>
               <th className="px-4 py-3 text-left font-medium">Payment</th>
-              <th className="px-4 py-3 text-right font-medium">Total Commission</th>
+              {/* <th className="px-4 py-3 text-right font-medium">Total Commission</th> */}
               {isUnderMGA && (
                 <>
                   <th className="px-4 py-3 text-right font-medium text-nowrap">MGA Share</th>
                   <th className="px-4 py-3 text-right font-medium text-nowrap">Agent Share</th>
                 </>
               )}
-              {!isUnderMGA && (
+              {/* {!isUnderMGA && (
                 <th className="px-4 py-3 text-right font-medium">Commission</th>
-              )}
-              <th className="px-4 py-3 text-left font-medium">Status</th>
-              <th className="px-4 py-3 text-center font-medium">Actions</th>
+              )} */}
+              {/* <th className="px-4 py-3 text-left font-medium">Status</th> */}
+              {/* <th className="px-4 py-3 text-center font-medium">Actions</th> */}
             </tr>
           </thead>
           <tbody className="bg-white text-[#808080]">
@@ -417,7 +417,7 @@ export function CommissionsTable({
                     <td className="px-4 py-3 text-nowrap" style={cellStyle}>
                       ${commission.paymentHistory?.amount?.toLocaleString() || '0'}
                     </td>
-                    <td className="px-4 py-3 text-right font-semibold text-nowrap" style={cellStyle}>
+                    {/* <td className="px-4 py-3 text-right font-semibold text-nowrap" style={cellStyle}>
                       <span className={isReversal ? 'text-red-600' : 'text-green-600'}>
                         {isReversal && '-'}
                         ${Math.abs(commission.commissionAmount).toLocaleString('en-US', {
@@ -425,8 +425,8 @@ export function CommissionsTable({
                           maximumFractionDigits: 2
                         })}
                       </span>
-                    </td>
-                    {isUnderMGA && (
+                    </td> */}
+                    {/* {isUnderMGA && (
                       <>
                         <td className="px-4 py-3 text-right text-nowrap" style={cellStyle}>
                           <span className={isReversal ? 'text-red-600' : ''}>
@@ -447,8 +447,8 @@ export function CommissionsTable({
                           </span>
                         </td>
                       </>
-                    )}
-                    {!isUnderMGA && (
+                    )} */}
+                    {/* {!isUnderMGA && (
                       <td className="px-4 py-3 text-right font-semibold text-nowrap" style={cellStyle}>
                         <span className={isReversal ? 'text-red-600' : 'text-green-600'}>
                           {isReversal && '-'}
@@ -458,8 +458,8 @@ export function CommissionsTable({
                           })}
                         </span>
                       </td>
-                    )}
-                    <td className="px-4 py-3" style={cellStyle}>
+                    )} */}
+                    {/* <td className="px-4 py-3" style={cellStyle}>
                       <span className={`px-2 py-1 text-[10px] font-semibold whitespace-nowrap ${
                         commission.status === 'paid' || commission.status === 'paid_to_agent'
                           ? 'bg-green-100 text-green-800'
@@ -475,8 +475,8 @@ export function CommissionsTable({
                       }`}>
                         {commission.status.replace(/_/g, ' ').toUpperCase()}
                       </span>
-                    </td>
-                    <td className="px-4 py-3" style={cellStyle}>
+                    </td> */}
+                    {/* <td className="px-4 py-3" style={cellStyle}>
                       <div className="flex gap-1 justify-center">
                         {nextStatus && (
                           <button
@@ -494,7 +494,7 @@ export function CommissionsTable({
                           </button>
                         )}
                       </div>
-                    </td>
+                    </td> */}
                   </tr>
                 );
               })

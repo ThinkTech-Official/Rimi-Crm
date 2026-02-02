@@ -304,7 +304,7 @@ export default function AdminHome() {
   return (
     <div className="w-full flex flex-col gap-4 pb-4">
       {/* Stats Cards */}
-      {/* <div
+      <div
         className="grid grid-cols-2 lg:grid-cols-4 gap-4 xl:gap-8 w-full"
         role="stats"
       >
@@ -327,48 +327,48 @@ export default function AdminHome() {
             </div>
           </div>
         ))}
-      </div> */}
+      </div>
 
       {/* Quotes Statistics */}
-      {/* <section className="mt-6">
+      <section className="mt-6">
         <h2 className="text-lg font-bold text-text-primary mb-4">
           Quotes Statistics
         </h2>
         <QuotesAnalysisChart />
-      </section> */}
+      </section>
 
       {/* Policy Statistics */}
-      {/* <section className="mt-6">
+      <section className="mt-6">
         <h2 className="text-lg font-bold text-text-primary mb-4">
           Policy Statistics
         </h2>
         <PolicyAnalysisChart />
-      </section> */}
+      </section>
 
       {/* Quotes vs Policies */}
-      {/* <section className="mt-6">
+      <section className="mt-6">
         <h2 className="text-lg font-bold text-text-primary mb-4">
           Quotes vs Policies Conversion
         </h2>
         <QuotesVsPolicyConversionChart />
-      </section> */}
+      </section>
 
       {/* Agent Types Per Month */}
-      {/* <section className="mt-6">
+      <section className="mt-6">
         <h2 className="text-lg font-bold text-text-primary mb-4">
           Agent Types Joined Per Month
         </h2>
         <AgentTypesMonthlyChart />
-      </section> */}
+      </section>
 
       {/* Policy Sales */}
-      {/* <section className="mt-6">
+      <section className="mt-6">
         <div>
           <h2 className="text-lg font-bold text-text-primary">Policy Sales</h2>
           <p className="text-base text-text-secondary">Current Month</p>
         </div>
         <PolicySalesChart />
-      </section> */}
+      </section>
 
       {/* Table Section */}
       <section className="mt-6">

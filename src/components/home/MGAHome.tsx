@@ -203,7 +203,7 @@ export default function MGAHome() {
     <>
       <div className="w-full flex flex-col gap-4">
         {/* Stats Cards */}
-        {/* <div
+        <div
           className="grid grid-cols-2 lg:grid-cols-3 gap-4 xl:gap-8 w-full"
           role="stats"
         >
@@ -225,18 +225,18 @@ export default function MGAHome() {
               </div>
             </div>
           ))}
-        </div> */}
+        </div>
 
         {/* Policy Sales Chart */}
-        {/* <div>
+        <div>
           <h2 className="text-lg font-bold mt-6 text-text-primary">
             Policy Sales Distribution
           </h2>
           <p className="text-base text-text-secondary -mt-1">
             All Agents Under Management
           </p>
-        </div> */}
-        {/* <PolicySalesChart data={distribution} loading={dLoading} error={dError || ""} /> */}
+        </div>
+        <PolicySalesChart data={distribution} loading={dLoading} error={dError || ""} />
 
         {/* Agents Table */}
         <div className="mt-6 space-y-2 w-full">

@@ -5,12 +5,13 @@ import useNotification from "../../../hooks/useNotification";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../app/store";
 import { useSaveQuoteNextProduct4 } from "../../../hooks/canuck-voyage-non-medical/useSaveQuoteNextProduct4";
-import { useQuoteUpdateProduct4, Stage2Payload } from "../../../hooks/canuck-voyage-non-medical/useQuoteUpdateProduct4";
+import {
+  useQuoteUpdateProduct4,
+  Stage2Payload,
+} from "../../../hooks/canuck-voyage-non-medical/useQuoteUpdateProduct4";
 import { useCreateQuoteProduct4 } from "../../../hooks/canuck-voyage-non-medical/useCreateQuoteProduct4";
 import { Elements } from "@stripe/react-stripe-js";
 import { stripePromise } from "../../../utils/stripe";
-
-
 
 import ApplicantInformation from "../../../components/Products/CanuckVoyageNon-MedicalTravel/step1/ApplicantInformation";
 import TripInformation from "../../../components/Products/CanuckVoyageNon-MedicalTravel/step1/TripInformation";
@@ -97,7 +98,6 @@ export interface Step1PayloadProduct4 {
   tripCancellationDeluxe: boolean;
   isConfirmed: boolean;
 }
-
 
 // const productName = "RIMI Canuck Voyage Non-Medical Travel";
 const productName = "RIMI_CANUCK_VOYAGE_NON_MEDICAL_TRAVEL";
@@ -193,7 +193,6 @@ const RIMICanuckVoyageNonMedicalTravel: React.FC = () => {
   const watchedStep2 = step2Methods.watch();
   const { address } = watchedStep2;
 
-
   // ========== QUOTE & PREMIUM ==========
   const [quoteNumber, setQuoteNumber] = useState<string | null>(null);
   const [step1ResponseData, setStep1ResponseData] =
@@ -204,19 +203,15 @@ const RIMICanuckVoyageNonMedicalTravel: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const { triggerNotification, NotificationComponent } = useNotification();
 
-
   // ========== VALIDATION ==========
   const [isStepOneFilled, setIsStepOneFilled] = useState(false);
 
   // ========== HOOKS ==========
   const { saveQuoteNext, loading: savingStage1 } = useSaveQuoteNextProduct4();
-  const {
-    completeApplication,
-    loading: submittingStage2,
-  } = useQuoteUpdateProduct4();
+  const { completeApplication, loading: submittingStage2 } =
+    useQuoteUpdateProduct4();
 
   const { saveQuote: createQuote } = useCreateQuoteProduct4();
-
 
   const handleSaveQuote = async (): Promise<boolean> => {
     const payload = {
@@ -250,24 +245,32 @@ const RIMICanuckVoyageNonMedicalTravel: React.FC = () => {
       setQuoteNumber(response.quote);
 
       // Show success message
-      triggerNotification({ type: "success", message: `Quote saved successfully!\n\nQuote Number: ${response.quote}\n\nYou can continue later or proceed to the next step.` });
+      triggerNotification({
+        type: "success",
+        message: `Quote saved successfully!\n\nQuote Number: ${response.quote}\n\nYou can continue later or proceed to the next step.`,
+      });
 
       console.log("Quote saved:", response.quote);
       return true;
     } catch (err: any) {
       console.error("Failed to save quote:", err);
-      triggerNotification({ type: "error", message: `Failed to save quote: ${err.message || "Please try again"}` });
+      triggerNotification({
+        type: "error",
+        message: `Failed to save quote: ${err.message || "Please try again"}`,
+      });
       return false;
     }
   };
-
 
   //
 
   // Check for missing policy ID
   useEffect(() => {
     if (!policyId) {
-      triggerNotification({ type: "error", message: "No policy ID provided. Redirecting to policies page." });
+      triggerNotification({
+        type: "error",
+        message: "No policy ID provided. Redirecting to policies page.",
+      });
       navigate("/policies");
     }
   }, [policyId, navigate, triggerNotification]);
@@ -278,7 +281,7 @@ const RIMICanuckVoyageNonMedicalTravel: React.FC = () => {
 
     console.log(
       "📋 Pre-filling Product 4 renewal form with policy data:",
-      policyData
+      policyData,
     );
 
     // Reset Step 1
@@ -294,14 +297,16 @@ const RIMICanuckVoyageNonMedicalTravel: React.FC = () => {
       dateBooked: policyData.dateBooked || "",
       tripCancellationDeluxe: policyData.tripCancellationDeluxe || false,
       applicantNumber: policyData.applicants?.length || 0,
-      applicants: policyData.applicants ? policyData.applicants.map((a, idx) => ({
-        index: String(idx + 1),
-        firstName: a.firstName,
-        lastName: a.lastName,
-        dob: a.dateOfBirth,
-        relationship: a.relation || "",
-        gender: a.gender,
-      })) : [],
+      applicants: policyData.applicants
+        ? policyData.applicants.map((a, idx) => ({
+            index: String(idx + 1),
+            firstName: a.firstName,
+            lastName: a.lastName,
+            dob: a.dateOfBirth,
+            relationship: a.relation || "",
+            gender: a.gender,
+          }))
+        : [],
       isConfirmed: false,
       effectiveDate: "",
       expiryDate: "",
@@ -325,9 +330,7 @@ const RIMICanuckVoyageNonMedicalTravel: React.FC = () => {
         phoneNumber: policyData.phoneNumber || "",
       },
     });
-
   }, [policyData, step1Methods, step2Methods]);
-
 
   //
 
@@ -348,8 +351,8 @@ const RIMICanuckVoyageNonMedicalTravel: React.FC = () => {
           step.id === newStep.toString().padStart(2, "0")
             ? "current"
             : step.id < newStep.toString().padStart(2, "0")
-            ? "complete"
-            : "upcoming",
+              ? "complete"
+              : "upcoming",
       }));
 
       setSteps(updatedSteps);
@@ -394,7 +397,6 @@ const RIMICanuckVoyageNonMedicalTravel: React.FC = () => {
       console.error("Stage 1 failed:", err);
     }
   };
-
 
   // ========== STAGE 2: BUY NOW ==========
   const handleBuyNow = async (): Promise<boolean> => {
@@ -504,7 +506,7 @@ const RIMICanuckVoyageNonMedicalTravel: React.FC = () => {
       </div>
 
       {/* Info Banner */}
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+      <div className="bg-blue-50 border border-blue-200 p-4 mb-6">
         <h3 className="font-semibold text-blue-900 flex items-center gap-2">
           <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
             <path
@@ -513,7 +515,7 @@ const RIMICanuckVoyageNonMedicalTravel: React.FC = () => {
               clipRule="evenodd"
             />
           </svg>
-          Creating Renewal Policy
+          Creating New Policy
         </h3>
         <p className="text-sm text-blue-700 mt-1">
           Review the pre-filled information from the original policy. You can
@@ -618,7 +620,7 @@ const RIMICanuckVoyageNonMedicalTravel: React.FC = () => {
           </div>
           <div className="ml-3">
             <p className="text-sm text-amber-700">
-              <strong className="font-semibold">Renewing Policy:</strong>{" "}
+              <strong className="font-semibold">Original Policy:</strong>{" "}
               {policyData.policyNumber}
               <br />
               <span className="text-xs">
@@ -683,7 +685,9 @@ const RIMICanuckVoyageNonMedicalTravel: React.FC = () => {
           <Address methods={step2Methods as any} />
 
           <div className="max-w-5xl mx-auto mt-6 p-3 sm:p-6 bg-[#F9F9F9]">
-            <h3 className="text-lg font-bold text-left text-[#1B1B1B] mb-5">Payment Summary</h3>
+            <h3 className="text-lg font-bold text-left text-[#1B1B1B] mb-5">
+              Payment Summary
+            </h3>
             <div className="flex justify-between items-center">
               <span>Total Premium:</span>
               <span className="text-xl font-bold text-primary">
@@ -710,7 +714,6 @@ const RIMICanuckVoyageNonMedicalTravel: React.FC = () => {
           </Elements>
         </FormProvider>
       )}
-
 
       {/* ========== STEP 3: CONFIRMATION ========== */}
       {steps[2].status === "current" && (

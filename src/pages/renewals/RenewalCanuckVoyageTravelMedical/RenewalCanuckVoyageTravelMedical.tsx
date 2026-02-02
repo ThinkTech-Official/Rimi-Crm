@@ -1,19 +1,18 @@
-
-
 import { CheckIcon } from "@heroicons/react/24/outline";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../app/store";
 import { useSaveQuoteNextProduct3 } from "../../../hooks/canuck-voyage/useSaveQuoteNextProduct3";
-import { useQuoteUpdateProduct3, Stage2Payload } from "../../../hooks/canuck-voyage/useQuoteUpdateProduct3";
+import {
+  useQuoteUpdateProduct3,
+  Stage2Payload,
+} from "../../../hooks/canuck-voyage/useQuoteUpdateProduct3";
 import { useCreateQuoteProduct3 } from "../../../hooks/canuck-voyage/useCreateQuoteProduct3";
 import { Elements } from "@stripe/react-stripe-js";
 
 import { stripePromise } from "../../../utils/stripe";
 import { useForm, FormProvider } from "react-hook-form";
 import useNotification from "../../../hooks/useNotification";
-
-
 
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useRenewalPolicyData } from "../../../hooks/renewals/useRenewalPolicyData";
@@ -25,8 +24,6 @@ import ContactInformation from "../../../components/Products/CanuckVoyageCompone
 import Address from "../../../components/Products/CanuckVoyageComponenets/step2/Address";
 import PaymentInformation from "../../../components/Products/CanuckVoyageComponenets/step2/PaymentInformation";
 import Summary from "../../../components/Products/CanuckVoyageComponenets/step3/Summary";
-
-
 
 interface Applicant {
   index: string;
@@ -101,23 +98,24 @@ export interface Stage2FormValues {
   contactInfo: ContactInfo;
 }
 
-
 // const productName = "RIMI Canuck Voyage Travel Medical";
 const productName = "RIMI_CANUCK_VOYAGE_TRAVEL_MEDICAL";
 
 const RIMICanuckVoyageTravelMedical: React.FC = () => {
-
-    const navigate = useNavigate();
+  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
   const agentCode = useSelector((state: RootState) => state.auth.agentCode);
 
-   // Get policyId from URL
-  const policyId = searchParams.get('policyId');
-  
+  // Get policyId from URL
+  const policyId = searchParams.get("policyId");
+
   //  Fetch original policy data
-  const { data: policyData, loading: loadingPolicy, error: policyError } = 
-    useRenewalPolicyData(policyId);
+  const {
+    data: policyData,
+    loading: loadingPolicy,
+    error: policyError,
+  } = useRenewalPolicyData(policyId);
 
   // ========== STEP MANAGEMENT ==========
   const [steps, setSteps] = useState([
@@ -185,7 +183,6 @@ const RIMICanuckVoyageTravelMedical: React.FC = () => {
     isConfirmed,
     policyType,
 
-
     effectiveDate,
     expiryDate,
     coverageLength,
@@ -206,8 +203,6 @@ const RIMICanuckVoyageTravelMedical: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const { triggerNotification, NotificationComponent } = useNotification();
 
-
-
   // ========== QUOTE RESPONSE STATE ==========
   const [quoteNumber, setQuoteNumber] = useState<string | null>(null);
   const [step1ResponseData, setStep1ResponseData] =
@@ -216,17 +211,12 @@ const RIMICanuckVoyageTravelMedical: React.FC = () => {
   // ========== VALIDATION ==========
   const [isStepOneFilled, setIsStepOneFilled] = useState(false);
 
-
   // ========== HOOKS ==========
   const { saveQuoteNext, loading: savingStage1 } = useSaveQuoteNextProduct3();
-  const {
-    completeApplication,
-    loading: submittingStage2,
-  } = useQuoteUpdateProduct3();
-
+  const { completeApplication, loading: submittingStage2 } =
+    useQuoteUpdateProduct3();
 
   const { saveQuote: createQuote } = useCreateQuoteProduct3();
-
 
   const handleSaveQuote = async (): Promise<boolean> => {
     const payload = {
@@ -261,92 +251,95 @@ const RIMICanuckVoyageTravelMedical: React.FC = () => {
       setQuoteNumber(response.quote);
 
       // Show success message
-      triggerNotification({ type: "success", message: `Quote saved successfully!\n\nQuote Number: ${response.quote}\n\nYou can continue later or proceed to the next step.` });
+      triggerNotification({
+        type: "success",
+        message: `Quote saved successfully!\n\nQuote Number: ${response.quote}\n\nYou can continue later or proceed to the next step.`,
+      });
 
       console.log("Quote saved:", response.quote);
       return true;
     } catch (err: any) {
       console.error("Failed to save quote:", err);
-      triggerNotification({ type: "error", message: `Failed to save quote: ${err.message || "Please try again"}` });
+      triggerNotification({
+        type: "error",
+        message: `Failed to save quote: ${err.message || "Please try again"}`,
+      });
       return false;
     }
   };
 
+  //
 
+  // Check for missing policy ID
+  useEffect(() => {
+    if (!policyId) {
+      triggerNotification({
+        type: "error",
+        message: "No policy ID provided. Redirecting to policies page.",
+      });
+      navigate("/policies");
+    }
+  }, [policyId, navigate, triggerNotification]);
 
+  // Pre-fill data from policy (Product 3 specific)
+  useEffect(() => {
+    if (!policyData) return;
 
-//
+    console.log(
+      "📋 Pre-filling Product 3 renewal form with policy data:",
+      policyData,
+    );
 
+    // Step 1 data
+    step1Methods.reset({
+      primaryFirstName: policyData.firstName || "",
+      primaryLastName: policyData.lastName || "",
+      primaryDateOfBirth: policyData.dateOfBirth || "",
+      primaryEmail: policyData.email || "",
+      primaryApplicantGender: policyData.gender || "",
+      provinceOfResidence: policyData.province || "",
+      policyType: policyData.policyType || "",
+      destinationCountry: policyData.destinationCountry || "",
+      travelingThroughUS: policyData.applicantTravelThroughUs || "",
+      usTravelDays: policyData.usTravelDays || 0,
+      numberOfDaysPerTrip: policyData.numberOfDaysPerTrip || undefined,
+      deductible: policyData.deductible || 0,
+      applicantNumber: policyData.applicants?.length || 0,
+      applicants: policyData.applicants
+        ? policyData.applicants.map((a, idx) => ({
+            index: String(idx + 1),
+            firstName: a.firstName,
+            lastName: a.lastName,
+            dob: a.dateOfBirth,
+            relationship: a.relation || "",
+            gender: a.gender,
+          }))
+        : [],
+      isConfirmed: false,
+      effectiveDate: "",
+      expiryDate: "",
+      coverageLength: 0,
+    });
 
+    // Step 2 data
+    step2Methods.reset({
+      address: {
+        addressLine1: policyData.street || "",
+        addressLine2: policyData.street2 || "",
+        city: policyData.city || "",
+        postalCode: policyData.postalCode || "",
+        country: policyData.countryCode || "",
+        province: policyData.province || "",
+      },
+      contactInfo: {
+        email: policyData.email || "",
+        additionalEmail: policyData.additionalEmail || "",
+        phoneNumber: policyData.phoneNumber || "",
+      },
+    });
+  }, [policyData, step1Methods, step2Methods]);
 
-// Check for missing policy ID
-useEffect(() => {
-  if (!policyId) {
-    triggerNotification({ type: "error", message: 'No policy ID provided. Redirecting to policies page.' });
-    navigate('/policies');
-  }
-}, [policyId, navigate, triggerNotification]);
-
-// Pre-fill data from policy (Product 3 specific)
-useEffect(() => {
-  if (!policyData) return;
-
-  console.log('📋 Pre-filling Product 3 renewal form with policy data:', policyData);
-
-  // Step 1 data
-  step1Methods.reset({
-    primaryFirstName: policyData.firstName || "",
-    primaryLastName: policyData.lastName || "",
-    primaryDateOfBirth: policyData.dateOfBirth || "",
-    primaryEmail: policyData.email || "",
-    primaryApplicantGender: policyData.gender || "",
-    provinceOfResidence: policyData.province || "",
-    policyType: policyData.policyType || "",
-    destinationCountry: policyData.destinationCountry || "",
-    travelingThroughUS: policyData.applicantTravelThroughUs || "",
-    usTravelDays: policyData.usTravelDays || 0,
-    numberOfDaysPerTrip: policyData.numberOfDaysPerTrip || undefined,
-    deductible: policyData.deductible || 0,
-    applicantNumber: policyData.applicants?.length || 0,
-    applicants: policyData.applicants ? policyData.applicants.map((a, idx) => ({
-      index: String(idx + 1),
-      firstName: a.firstName,
-      lastName: a.lastName,
-      dob: a.dateOfBirth,
-      relationship: a.relation || "",
-      gender: a.gender,
-    })) : [],
-    isConfirmed: false,
-    effectiveDate: "",
-    expiryDate: "",
-    coverageLength: 0,
-  });
-
-  // Step 2 data
-  step2Methods.reset({
-    address: {
-      addressLine1: policyData.street || "",
-      addressLine2: policyData.street2 || "",
-      city: policyData.city || "",
-      postalCode: policyData.postalCode || "",
-      country: policyData.countryCode || "",
-      province: policyData.province || "",
-    },
-    contactInfo: {
-      email: policyData.email || "",
-      additionalEmail: policyData.additionalEmail || "",
-      phoneNumber: policyData.phoneNumber || "",
-    },
-  });
-
-}, [policyData, step1Methods, step2Methods]);
-
-
-
-//
-
-
-
+  //
 
   // ========== STEP NAVIGATION ==========
   const handleFormStepChange = (stepCommand: string) => {
@@ -365,8 +358,8 @@ useEffect(() => {
           step.id === newStep.toString().padStart(2, "0")
             ? "current"
             : step.id < newStep.toString().padStart(2, "0")
-            ? "complete"
-            : "upcoming",
+              ? "complete"
+              : "upcoming",
       }));
 
       setSteps(updatedSteps);
@@ -402,7 +395,6 @@ useEffect(() => {
         quoteNumber: quoteNumber || undefined,
         status: "Inactive",
       };
-
 
       const response = await saveQuoteNext(stage1Payload);
       setQuoteNumber(response.quoteNumber);
@@ -440,101 +432,96 @@ useEffect(() => {
     handleFormStepChange("forward");
   };
 
-
-
-
   if (loadingPolicy) {
-  return (
-    <div className="flex justify-center items-center min-h-[400px]">
-      <div className="text-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto"></div>
-        <p className="mt-4 text-gray-600">Loading policy data...</p>
+    return (
+      <div className="flex justify-center items-center min-h-[400px]">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading policy data...</p>
+        </div>
       </div>
-    </div>
-  );
-}
+    );
+  }
 
-if (policyError) {
-  return (
-    <div className="max-w-2xl mx-auto p-6">
-      <div className="bg-red-50 border border-red-200 rounded-lg p-6">
-        <h3 className="text-lg font-semibold text-red-900">Error Loading Policy</h3>
-        <p className="text-red-700 mt-2">{policyError}</p>
-        <button
-          onClick={() => navigate(`/policies/${policyId}`)}
-          className="mt-4 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
-        >
-          Return to Policy
-        </button>
+  if (policyError) {
+    return (
+      <div className="max-w-2xl mx-auto p-6">
+        <div className="bg-red-50 border border-red-200 rounded-lg p-6">
+          <h3 className="text-lg font-semibold text-red-900">
+            Error Loading Policy
+          </h3>
+          <p className="text-red-700 mt-2">{policyError}</p>
+          <button
+            onClick={() => navigate(`/policies/${policyId}`)}
+            className="mt-4 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+          >
+            Return to Policy
+          </button>
+        </div>
       </div>
-    </div>
-  );
-}
+    );
+  }
 
-if (!policyData) {
-  return (
-    <div className="max-w-2xl mx-auto p-6">
-      <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6">
-        <h3 className="text-lg font-semibold text-yellow-900">No Policy Data</h3>
-        <p className="text-yellow-700 mt-2">Could not load policy information.</p>
-        <button
-          onClick={() => navigate("/policies")}
-          className="mt-4 px-4 py-2 bg-yellow-600 text-white rounded hover:bg-yellow-700"
-        >
-          Back to Policies
-        </button>
+  if (!policyData) {
+    return (
+      <div className="max-w-2xl mx-auto p-6">
+        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6">
+          <h3 className="text-lg font-semibold text-yellow-900">
+            No Policy Data
+          </h3>
+          <p className="text-yellow-700 mt-2">
+            Could not load policy information.
+          </p>
+          <button
+            onClick={() => navigate("/policies")}
+            className="mt-4 px-4 py-2 bg-yellow-600 text-white rounded hover:bg-yellow-700"
+          >
+            Back to Policies
+          </button>
+        </div>
       </div>
-    </div>
-  );
-}
-
-
-
-
-
-
+    );
+  }
 
   return (
     <div className="max-w-5xl mx-auto px-2 py-4 sm:p-6">
+      {/* Breadcrumb */}
+      <div className="flex gap-1 mb-4">
+        <span
+          className="underline underline-offset-2 cursor-pointer text-sm text-primary font-medium"
+          onClick={() => navigate("/policies")}
+        >
+          Policies
+        </span>
+        &gt;
+        <span
+          className="underline underline-offset-2 cursor-pointer text-sm text-primary font-medium"
+          onClick={() => navigate(`/policies/${policyId}`)}
+        >
+          {policyId?.substring(0, 8)}...
+        </span>
+        &gt;
+        <span className="text-sm text-primary font-medium">Renewal</span>
+      </div>
 
-
-
- {/* Breadcrumb */}
-    <div className="flex gap-1 mb-4">
-      <span
-        className="underline underline-offset-2 cursor-pointer text-sm text-primary font-medium"
-        onClick={() => navigate("/policies")}
-      >
-        Policies
-      </span>
-      &gt;
-      <span
-        className="underline underline-offset-2 cursor-pointer text-sm text-primary font-medium"
-        onClick={() => navigate(`/policies/${policyId}`)}
-      >
-        {policyId?.substring(0, 8)}...
-      </span>
-      &gt;
-      <span className="text-sm text-primary font-medium">
-        Renewal
-      </span>
-    </div>
-
-    {/* Info Banner */}
-    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-      <h3 className="font-semibold text-blue-900 flex items-center gap-2">
-        <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-          <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-        </svg>
-        Creating Renewal Policy
-      </h3>
-      <p className="text-sm text-blue-700 mt-1">
-        Review the pre-filled information from the original policy. You can update any fields as needed. 
-        Premium will be recalculated based on current rates and coverage dates.
-      </p>
-    </div>
-
-
+      {/* Info Banner */}
+      <div className="bg-blue-50 border border-blue-200 p-4 mb-6">
+        <h3 className="font-semibold text-blue-900 flex items-center gap-2">
+          <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+            <path
+              fillRule="evenodd"
+              d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+              clipRule="evenodd"
+            />
+          </svg>
+          Creating New Policy
+        </h3>
+        <p className="text-sm text-blue-700 mt-1">
+          Review the pre-filled information from the original policy. You can
+          update any fields as needed. Premium will be recalculated based on
+          current rates and coverage dates.
+        </p>
+      </div>
 
       {/* ========== PROGRESS STEPPER ========== */}
       <nav aria-label="Progress">
@@ -613,32 +600,36 @@ if (!policyData) {
         </ol>
       </nav>
 
-
-
-{/* Original Policy Reference */}
-    <div className="bg-amber-50 border-l-4 border-amber-400 p-4 mt-6">
-      <div className="flex">
-        <div className="flex-shrink-0">
-          <svg className="h-5 w-5 text-amber-400" viewBox="0 0 20 20" fill="currentColor">
-            <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-          </svg>
-        </div>
-        <div className="ml-3">
-          <p className="text-sm text-amber-700">
-            <strong className="font-semibold">Renewing Policy:</strong> {policyData.policyNumber}
-            <br />
-            <span className="text-xs">
-              Original Coverage: {new Date(policyData.effectiveDate).toLocaleDateString()} to {new Date(policyData.expiryDate).toLocaleDateString()}
-            </span>
-          </p>
+      {/* Original Policy Reference */}
+      <div className="bg-amber-50 border-l-4 border-amber-400 p-4 mt-6">
+        <div className="flex">
+          <div className="flex-shrink-0">
+            <svg
+              className="h-5 w-5 text-amber-400"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+            >
+              <path
+                fillRule="evenodd"
+                d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                clipRule="evenodd"
+              />
+            </svg>
+          </div>
+          <div className="ml-3">
+            <p className="text-sm text-amber-700">
+              <strong className="font-semibold">Original Policy:</strong>{" "}
+              {policyData.policyNumber}
+              <br />
+              <span className="text-xs">
+                Original Coverage:{" "}
+                {new Date(policyData.effectiveDate).toLocaleDateString()} to{" "}
+                {new Date(policyData.expiryDate).toLocaleDateString()}
+              </span>
+            </p>
+          </div>
         </div>
       </div>
-    </div>
-
-
-
-
-
 
       {/* ========== STEP 1: GET QUOTE ========== */}
       {steps[0].status === "current" && (
@@ -663,7 +654,9 @@ if (!policyData) {
 
           <div className="w-full h-2 mt-5 flex items-center justify-center font-[inter]">
             <h3 className="text-base sm:text-lg">
-              {loading ? "Calculating..." : `Your Quote: $${totalPremium.toFixed(2)} CAD`}
+              {loading
+                ? "Calculating..."
+                : `Your Quote: $${totalPremium.toFixed(2)} CAD`}
             </h3>
           </div>
         </FormProvider>
@@ -692,9 +685,10 @@ if (!policyData) {
           />
           <Address methods={step2Methods as any} />
 
-
           <div className="max-w-5xl mx-auto mt-6 p-3 sm:p-6 bg-[#F9F9F9]">
-            <h3 className="text-lg font-bold text-left text-[#1B1B1B] mb-5">Payment Summary</h3>
+            <h3 className="text-lg font-bold text-left text-[#1B1B1B] mb-5">
+              Payment Summary
+            </h3>
             <div className="flex justify-between items-center">
               <span>Total Premium:</span>
               <span className="text-xl font-bold text-primary">
@@ -721,7 +715,6 @@ if (!policyData) {
           </Elements>
         </FormProvider>
       )}
-
 
       {/* ========== STEP 3: CONFIRMATION ========== */}
       {steps[2].status === "current" && (

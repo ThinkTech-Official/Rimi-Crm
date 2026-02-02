@@ -371,8 +371,8 @@ const RIMICanuckVoyageNonMedicalTravel: React.FC = () => {
   } = useQuoteUpdateProduct4();
 
   const step1Methods = useForm<Step1Payload>({
-    mode: 'onTouched',
-    reValidateMode: 'onChange',
+    mode: "onTouched",
+    reValidateMode: "onChange",
     defaultValues: {
       primaryFirstName: "",
       primaryLastName: "",
@@ -398,31 +398,31 @@ const RIMICanuckVoyageNonMedicalTravel: React.FC = () => {
   });
 
   const contactInfoMethods = useForm({
-    mode: 'all',
-    reValidateMode: 'onChange',
+    mode: "all",
+    reValidateMode: "onChange",
     defaultValues: {
       contactInfo: {
         email: step1ResponseData?.email || "",
         additionalEmail: "",
         phoneNumber: "",
-      }
+      },
     },
-  })
+  });
 
-  const addressMethods = useForm({ 
-    mode: 'all',
-    reValidateMode: 'onChange',
+  const addressMethods = useForm({
+    mode: "all",
+    reValidateMode: "onChange",
     defaultValues: {
-      address:{
+      address: {
         addressLine1: "",
         addressLine2: "",
         city: "",
         postalCode: "",
         country: "",
         province: "",
-      }
+      },
     },
-  })
+  });
 
   // ========== STEP NAVIGATION ==========
   const handleFormStepChange = (stepCommand: string) => {
@@ -441,8 +441,8 @@ const RIMICanuckVoyageNonMedicalTravel: React.FC = () => {
           step.id === newStep.toString().padStart(2, "0")
             ? "current"
             : step.id < newStep.toString().padStart(2, "0")
-            ? "complete"
-            : "upcoming",
+              ? "complete"
+              : "upcoming",
       }));
 
       setSteps(updatedSteps);
@@ -494,14 +494,11 @@ const RIMICanuckVoyageNonMedicalTravel: React.FC = () => {
     if (!isValid1) {
       console.log(
         "Contact validation failed",
-        contactInfoMethods.formState.errors
+        contactInfoMethods.formState.errors,
       );
     }
     if (!isValid2) {
-      console.log(
-        "Address validation failed",
-        addressMethods.formState.errors
-      );
+      console.log("Address validation failed", addressMethods.formState.errors);
     }
 
     if (!isValid1 || !isValid2) return false;
@@ -522,7 +519,8 @@ const RIMICanuckVoyageNonMedicalTravel: React.FC = () => {
     } catch (err: any) {
       console.error("❌ Stage 2 failed:", err);
       triggerNotification({
-        message: err.message || "Failed to complete application. Please try again.",
+        message:
+          err.message || "Failed to complete application. Please try again.",
         type: "error",
       });
       return false;
@@ -570,7 +568,7 @@ const RIMICanuckVoyageNonMedicalTravel: React.FC = () => {
       });
       return false;
     }
-  }
+  };
 
   return (
     <div className="max-w-5xl xl:w-5xl mx-auto px-2 py-4 sm:p-6">
@@ -653,41 +651,41 @@ const RIMICanuckVoyageNonMedicalTravel: React.FC = () => {
 
       {/* ========== STEP 1: GET QUOTE ========== */}
       {steps[0].status === "current" && (
-         <FormProvider {...step1Methods}>
-         <form onSubmit={step1Methods.handleSubmit(handleNext)}>
-           <ApplicantInformation methods={step1Methods} />
+        <FormProvider {...step1Methods}>
+          <form onSubmit={step1Methods.handleSubmit(handleNext)}>
+            <ApplicantInformation methods={step1Methods} />
 
-          <TripInformation
-            methods={step1Methods}
-            premiumBreakdown={premiumBreakdown}
-            setPremiumBreakdown={setPremiumBreakdown}
-            setTotalPremium={setTotalPremium}
-            setLoading={setLoading}
-            error={error}
-            setError={setError}
-            onValidityChange={setIsStepOneFilled}
-            quoteNumber={quoteNumber}
-            handleSaveQuote={handleSaveQuote}
-          />
+            <TripInformation
+              methods={step1Methods}
+              premiumBreakdown={premiumBreakdown}
+              setPremiumBreakdown={setPremiumBreakdown}
+              setTotalPremium={setTotalPremium}
+              setLoading={setLoading}
+              error={error}
+              setError={setError}
+              onValidityChange={setIsStepOneFilled}
+              quoteNumber={quoteNumber}
+              handleSaveQuote={handleSaveQuote}
+            />
 
-          <div className="w-full h-2 mt-5 flex items-center justify-center font-[inter]">
-            <h3 className="text-base sm:text-lg">
-              {loading
-                ? "Calculating..."
-                : `Your Quote: $${totalPremium.toFixed(2)} CAD`}
-            </h3>
-          </div>
-          {formStep === 1 && (
-            <button
-            onClick={handleNext}
-            disabled={savingStage1}
-            className={`w-[200px] mx-auto mt-6 bg-[#2B00B7] text-white p-3 hover:bg-[#2309A1] transition flex justify-center items-center cursor-pointer duration-200 disabled:cursor-default ${
-              savingStage1 ? "opacity-50 cursor-wait" : ""
-              }`}
+            <div className="w-full h-2 mt-5 flex items-center justify-center font-[inter]">
+              <h3 className="text-base sm:text-lg">
+                {loading
+                  ? "Calculating..."
+                  : `Your Quote: $${totalPremium.toFixed(2)} CAD`}
+              </h3>
+            </div>
+            {formStep === 1 && (
+              <button
+                onClick={handleNext}
+                disabled={savingStage1}
+                className={`w-[200px] mx-auto mt-6 bg-[#2B00B7] text-white p-3 hover:bg-[#2309A1] transition flex justify-center items-center cursor-pointer duration-200 disabled:cursor-default ${
+                  savingStage1 ? "opacity-50 cursor-wait" : ""
+                }`}
               >
-              {savingStage1 ? "Saving…" : "Next"}
-            </button>
-          )}
+                {savingStage1 ? "Saving…" : "Next"}
+              </button>
+            )}
           </form>
         </FormProvider>
       )}
@@ -710,13 +708,15 @@ const RIMICanuckVoyageNonMedicalTravel: React.FC = () => {
             applicants={step1ResponseData?.applicants ?? []}
           />
           <ContactInformation
-          email={step1ResponseData?.email ?? ""}
+            email={step1ResponseData?.email ?? ""}
             methods={contactInfoMethods}
           />
           <Address methods={addressMethods} />
 
           <div className="max-w-5xl mx-auto mt-6 p-3 sm:p-6 bg-[#F9F9F9]">
-            <h3 className="text-lg font-bold text-left text-[#1B1B1B] mb-5">Payment Summary</h3>
+            <h3 className="text-lg font-bold text-left text-[#1B1B1B] mb-5">
+              Payment Summary
+            </h3>
             <div className="flex justify-between items-center">
               <span>Total Premium:</span>
               <span className="text-xl font-bold text-primary">

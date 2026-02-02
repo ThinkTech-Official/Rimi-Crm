@@ -1438,7 +1438,7 @@ const PolicyDetailsPage: React.FC = () => {
               onClick={handleIssueRelatedPolicy}
               className="px-3 py-2 bg-green-600 text-white cursor-pointer hover:bg-green-700 transition-all duration-200"
             >
-              Issue Related Policy
+              Issue New Policy
             </button>
           </div>
         )}

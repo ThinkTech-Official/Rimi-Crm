@@ -58,8 +58,6 @@ interface QuoteStage1Response {
   applicants: Applicant[];
 }
 
-
-
 // const productName = "Secure Travel RIMI Visitors to Canada Travel";
 const productName = "SECURE_TRAVEL_RIMI_VISITORS_TO_CANADA_TRAVEL";
 
@@ -338,10 +336,7 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
 
   const { saveQuoteNext, loading: savingStage1 } = useSaveQuoteNext();
 
-  const {
-    completeApplication,
-    loading: submittingStage2,
-  } = useQuoteUpdate();
+  const { completeApplication, loading: submittingStage2 } = useQuoteUpdate();
 
   //----------------------------
 
@@ -370,8 +365,6 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
       return newStep;
     });
   };
-
-
 
   // const handleNext = async () => {
   //   if (!isStepOneFilled) return;
@@ -561,7 +554,7 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
       </div>
 
       {/* ✅ Info Banner */}
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+      <div className="bg-blue-50 border border-blue-200 p-4 mb-6">
         <h3 className="font-semibold text-blue-900 flex items-center gap-2">
           <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
             <path
@@ -570,7 +563,7 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
               clipRule="evenodd"
             />
           </svg>
-          Creating Renewal Policy
+          Creating New Policy
         </h3>
         <p className="text-sm text-blue-700 mt-1">
           Review the pre-filled information from the original policy. You can
@@ -676,7 +669,7 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
           </div>
           <div className="ml-3">
             <p className="text-sm text-amber-700">
-              <strong className="font-semibold">Renewing Policy:</strong>{" "}
+              <strong className="font-semibold">Original Policy:</strong>{" "}
               {policyData.policyNumber}
               <br />
               <span className="text-xs">
