@@ -94,12 +94,14 @@ const ApplicantInformationFinished: React.FC<ApplicantFinishedProps> = ({
                 <p className="input-primary break-words h-auto">{app.gender}</p>
               </div>
 
-              {/* <div className="flex flex-col">
-                <label className="text-sm">Relationship to Primary Applicant</label>
+              <div className="flex flex-col">
+                <label className="text-sm">
+                  Relationship to Primary Applicant
+                </label>
                 <p className="input-primary break-words h-auto">
-                  {app.relation}
+                  {app.relationship}
                 </p>
-              </div> */}
+              </div>
 
               <div className="flex flex-col">
                 <label className="text-sm">

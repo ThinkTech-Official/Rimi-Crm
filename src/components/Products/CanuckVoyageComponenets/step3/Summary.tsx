@@ -324,7 +324,7 @@ const Summary: React.FC<SummaryProps> = ({ quoteId }) => {
                         {formatDate(app.dateOfBirth)}
                       </td>
                       <td className="p-3 text-left text-[#6A6A6A]">
-                        {maybe((app as any).relation)}
+                        {maybe((app as any).relationship || (app as any).relation)}
                       </td>
                       <td className="p-3 text-left text-[#6A6A6A]">
                         {maybe((app as any).gender)}

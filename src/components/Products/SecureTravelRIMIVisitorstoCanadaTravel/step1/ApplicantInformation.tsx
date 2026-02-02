@@ -1,4 +1,7 @@
-import { InformationCircleIcon } from "@heroicons/react/24/outline";
+import {
+  ChevronDownIcon,
+  InformationCircleIcon,
+} from "@heroicons/react/24/outline";
 import { useState } from "react";
 
 export default function ApplicantInformation() {
@@ -205,12 +208,22 @@ export default function ApplicantInformation() {
             />
           </div>
           <div className="flex flex-col gap-2">
-            <label className="font-[inter]">Relationship to Primary Applicant</label>
-            <input
-              className="p-2 border border-[#DBDADE] placeholder-[#00000080] font-[inter]"
-              type="email"
-              placeholder="Enter Email"
-            />
+            <label className="font-[inter]">
+              Relationship to Primary Applicant
+            </label>
+            <div className="relative">
+              <select className="p-2 border border-[#DBDADE] placeholder-[#00000080] font-[inter] w-full appearance-none cursor-pointer">
+                <option value="">Please select</option>
+                <option value="Spouse">Spouse</option>
+                <option value="Dependent Child">Dependent Child</option>
+                <option value="Travelling Companion">
+                  Travelling Companion
+                </option>
+              </select>
+              <div className="pointer-events-none absolute inset-y-0 right-2 flex items-center text-gray-500">
+                <ChevronDownIcon className="h-5 w-5" aria-hidden="true" />
+              </div>
+            </div>
           </div>
 
           <div className="flex flex-col gap-2 ">

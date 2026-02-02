@@ -1,4 +1,7 @@
-import { InformationCircleIcon } from "@heroicons/react/24/outline";
+import {
+  ChevronDownIcon,
+  InformationCircleIcon,
+} from "@heroicons/react/24/outline";
 import { FC, useState } from "react";
 import InfoBox from "../../../InfoBox";
 import { UseFormReturn } from "react-hook-form";
@@ -121,31 +124,45 @@ const BeneficiaryInCaseOfDeath: FC<BeneficiaryInfoProps> = ({
             />
             Relationship to Insured
           </label>
-          {methods ? (
-            <input
-              className="input-primary"
-              type="text"
-              placeholder=""
-              {...register("beneficiary.relationshipToInsured", {
-                required: "Relationship is required",
-                maxLength: { value: 100, message: "Max 100 characters" },
-              })}
-            />
-          ) : (
-            <input
-              className="input-primary"
-              type="text"
-              placeholder=""
-              value={beneficiaryInfo?.relationshipToInsured}
-              onChange={(e) =>
-                setBeneficiaryInfo &&
-                setBeneficiaryInfo((prev: any) => ({
-                  ...prev,
-                  relationshipToInsured: e.target.value,
-                }))
-              }
-            />
-          )}
+          <div className="relative">
+            {methods ? (
+              <select
+                className="input-primary appearance-none cursor-pointer"
+                {...register("beneficiary.relationshipToInsured", {
+                  required: "Relationship is required",
+                })}
+              >
+                <option value="">Please select</option>
+                <option value="Spouse">Spouse</option>
+                <option value="Dependent Child">Dependent Child</option>
+                <option value="Travelling Companion">
+                  Travelling Companion
+                </option>
+              </select>
+            ) : (
+              <select
+                className="input-primary appearance-none cursor-pointer"
+                value={beneficiaryInfo?.relationshipToInsured}
+                onChange={(e) =>
+                  setBeneficiaryInfo &&
+                  setBeneficiaryInfo((prev: any) => ({
+                    ...prev,
+                    relationshipToInsured: e.target.value,
+                  }))
+                }
+              >
+                <option value="">Please select</option>
+                <option value="Spouse">Spouse</option>
+                <option value="Dependent Child">Dependent Child</option>
+                <option value="Travelling Companion">
+                  Travelling Companion
+                </option>
+              </select>
+            )}
+            <div className="pointer-events-none absolute inset-y-0 right-2 flex items-center text-gray-500">
+              <ChevronDownIcon className="h-5 w-5" aria-hidden="true" />
+            </div>
+          </div>
           {(errors as any)?.beneficiary?.relationshipToInsured && (
             <p className="text-red-500 text-sm mt-1">
               {(errors as any).beneficiary.relationshipToInsured.message}

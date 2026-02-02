@@ -3,6 +3,7 @@ interface Applicant {
   lastName: string;
   dob: string;
   gender: string;
+  relationship: string;
 }
 
 interface ApplicantInformationFinishedProps {
@@ -101,6 +102,14 @@ export default function ApplicantInformationFinished({
                 Gender
               </label>
               <p className="input-primary break-words h-auto">{app.gender}</p>
+            </div>
+            <div className="flex flex-col gap-1">
+              <label className="text-sm font-semibold text-[#1B1B1B]">
+                Relationship to Primary Applicant
+              </label>
+              <p className="input-primary break-words h-auto">
+                {app.relationship}
+              </p>
             </div>
           </div>
         </div>

@@ -125,7 +125,7 @@ const renderTable = (rows: [string, React.ReactNode][]) => (
                       "First Name",
                       "Last Name",
                       "Date of Birth",
-                      "Relationship",
+                      "Relationship to Primary Applicant",
                       "Gender",
                     ].map((header, i) => (
                       <th
@@ -157,7 +157,7 @@ const renderTable = (rows: [string, React.ReactNode][]) => (
                         {maybe(app.dateOfBirth)}
                       </td>
                       <td className="p-3 text-left text-[#6A6A6A]">
-                        {maybe((app as any).relation)}
+                        {maybe((app as any).relationship || (app as any).relation)}
                       </td>
                       <td className="p-3 text-left text-[#6A6A6A]">
                         {maybe((app as any).gender)}
