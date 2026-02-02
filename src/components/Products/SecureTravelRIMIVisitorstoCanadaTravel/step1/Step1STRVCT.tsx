@@ -318,8 +318,8 @@ const Step1STRVCT = ({
       exp.setFullYear(eff.getFullYear() + Number(superVisaYears));
       const days = Math.round((exp.getTime() - eff.getTime()) / msPerDay);
 
-      setValue("expiryDate", exp.toISOString().slice(0, 10));
-      setValue("coverageLength", String(days));
+      setValue("expiryDate", exp.toISOString().slice(0, 10), { shouldValidate: true });
+      setValue("coverageLength", String(days), { shouldValidate: true });
     }
   }, [superVisa, superVisaYears, effectiveDate, setValue]);
 
@@ -572,6 +572,7 @@ const Step1STRVCT = ({
                 placeholder="Enter First Name"
                 {...register("primaryFirstName", {
                   required: "First Name is required",
+                  maxLength: { value: 60, message: "Max 60 characters" },
                 })}
               />
               {errors.primaryFirstName && (
@@ -588,6 +589,7 @@ const Step1STRVCT = ({
                 placeholder="Enter Last Name"
                 {...register("primaryLastName", {
                   required: "Last Name is required",
+                  maxLength: { value: 60, message: "Max 60 characters" },
                 })}
               />
               {errors.primaryLastName && (
@@ -628,6 +630,7 @@ const Step1STRVCT = ({
                 placeholder="Enter Email"
                 {...register("primaryEmail", {
                   required: "Email is required",
+                  maxLength: { value: 100, message: "Max 100 characters" },
                   pattern: {
                     value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
                     message: "Invalid email address",
@@ -806,6 +809,7 @@ const Step1STRVCT = ({
                       placeholder="Enter First Name"
                       {...register(`applicants.${idx}.firstName`, {
                         required: "First Name is required",
+                        maxLength: { value: 60, message: "Max 60 characters" },
                       })}
                     />
                     {errors.applicants?.[idx]?.firstName && (
@@ -822,6 +826,7 @@ const Step1STRVCT = ({
                       placeholder="Enter Last Name"
                       {...register(`applicants.${idx}.lastName`, {
                         required: "Last Name is required",
+                        maxLength: { value: 60, message: "Max 60 characters" },
                       })}
                     />
                     {errors.applicants?.[idx]?.lastName && (
@@ -1311,7 +1316,16 @@ const Step1STRVCT = ({
                 <Controller
                   control={control}
                   name="expiryDate"
-                  rules={{ required: "Expiry Date is required" }}
+                  rules={{
+                    required: "Expiry Date is required",
+                    validate: (value) => {
+                      if (!effectiveDate) return true;
+                      return (
+                        new Date(value) >= new Date(effectiveDate) ||
+                        "Expiry date cannot be before effective date"
+                      );
+                    },
+                  }}
                   render={({ field }) => (
                     <DatePicker
                       label="Expiry Date"
@@ -1319,15 +1333,22 @@ const Step1STRVCT = ({
                       value={field.value !== undefined ? field.value : ""}
                       isDisabled={superVisa === "yes"}
                       onChange={(date) => {
-                         field.onChange(date);
-                         if (effectiveDate) {
-                           const diff = Math.round(
-                             (new Date(date).getTime() - new Date(effectiveDate).getTime()) / msPerDay
-                           );
-                           setValue("coverageLength", String(diff));
-                         }
+                        field.onChange(date);
+                        if (effectiveDate) {
+                          const diff =
+                            Math.round(
+                              (new Date(date).getTime() -
+                                new Date(effectiveDate).getTime()) /
+                                msPerDay
+                            ) + 1;
+                          setValue("coverageLength", String(diff), {
+                            shouldValidate: true,
+                          });
+                        }
                       }}
-                      minDate={effectiveDate ? new Date(effectiveDate) : new Date()}
+                      minDate={
+                        effectiveDate ? new Date(effectiveDate) : new Date()
+                      }
                     />
                   )}
                 />
@@ -1347,16 +1368,19 @@ const Step1STRVCT = ({
                   min="1"
                   disabled={superVisa === "yes"}
                   {...register("coverageLength", {
-                     required: "Coverage Length is required",
-                     onChange: (e) => {
-                       const val = e.target.value;
-                       if (effectiveDate && val) {
-                         const exp = new Date(
-                           new Date(effectiveDate).getTime() + Number(val) * msPerDay
-                         );
-                         setValue("expiryDate", exp.toISOString().slice(0, 10));
-                       }
-                     }
+                    required: "Coverage Length is required",
+                    onChange: (e) => {
+                      const val = e.target.value;
+                      if (effectiveDate && val) {
+                        const exp = new Date(
+                          new Date(effectiveDate).getTime() +
+                            (Number(val) - 1) * msPerDay
+                        );
+                        setValue("expiryDate", exp.toISOString().slice(0, 10), {
+                          shouldValidate: true,
+                        });
+                      }
+                    },
                   })}
                 />
                 {errors.coverageLength && (

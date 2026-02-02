@@ -40,6 +40,7 @@ const Address: FC<AddressProps> = ({ methods }) => {
             placeholder="Address Line 1"
             {...register("address.addressLine1", {
               required: "Address Line 1 is required",
+              maxLength: { value: 100, message: "Max 100 characters" },
             })}
           />
           {(errors.address as any)?.addressLine1 && (
@@ -55,7 +56,9 @@ const Address: FC<AddressProps> = ({ methods }) => {
             type="text"
             className="input-primary"
             placeholder="Address Line 2"
-            {...register("address.addressLine2")}
+            {...register("address.addressLine2", {
+              maxLength: { value: 100, message: "Max 100 characters" },
+            })}
           />
         </div>
 
@@ -65,7 +68,10 @@ const Address: FC<AddressProps> = ({ methods }) => {
             type="text"
             className="input-primary"
             placeholder="city"
-            {...register("address.city", { required: "City is required" })}
+            {...register("address.city", {
+              required: "City is required",
+              maxLength: { value: 60, message: "Max 60 characters" },
+            })}
           />
           {(errors.address as any)?.city && (
             <p className="text-red-500 text-sm mt-1">
@@ -82,6 +88,7 @@ const Address: FC<AddressProps> = ({ methods }) => {
             placeholder="Postal Code"
             {...register("address.postalCode", {
               required: "Postal Code is required",
+              maxLength: { value: 20, message: "Max 20 characters" },
             })}
           />
           {(errors.address as any)?.postalCode && (
@@ -111,6 +118,7 @@ const Address: FC<AddressProps> = ({ methods }) => {
             placeholder="Province/State"
             {...register("address.province", {
               required: "Province is required",
+              maxLength: { value: 60, message: "Max 60 characters" },
             })}
           />
           {(errors.address as any)?.province && (

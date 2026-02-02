@@ -55,7 +55,7 @@ export interface Stage2FormValues {
 
 
 
-type YesNo = "" | "yes" | "no";
+
 
 interface Applicant {
   index: string;
@@ -84,19 +84,7 @@ interface QuoteStage1ResponseProduct2 {
   applicants: Applicant[];
 }
 
-interface ContactInfo {
-  additionalEmail: string;
-  phoneNumber: string;
-  legalGuardianName: string;
-}
 
-interface BeneficiaryInfo {
-  beneficiaryName: string;
-  relationshipToInsured: string;
-  address: string;
-  city: string;
-  country: string;
-}
 
 // const productName = "Secure Study RIMI International Students to Canada";
 const productName = "SECURE_STUDY_RIMI_INTERNATIONAL_STUDENTS_TO_CANADA";
@@ -421,8 +409,8 @@ const handleSaveQuote = async () => {
     }
   };
 
-  const handleBuyNow = async () => {
-    if (!quoteNumber || submittingStage2) return;
+  const handleBuyNow = async (): Promise<boolean> => {
+    if (!quoteNumber || submittingStage2) return false;
     const payload: Stage2PayloadProduct2 = {
       quoteNumber,
       address,
@@ -432,8 +420,10 @@ const handleSaveQuote = async () => {
     try {
       const resp = await completeApplication(payload);
       console.log("Product 2 - Stage 2 response:", resp);
+      return true;
     } catch (err) {
       console.error("completeApplication failed", err);
+      return false;
     }
   };
 

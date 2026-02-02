@@ -22,7 +22,7 @@ interface PaymentInformationProps {
   shipping: Shipping;
   amount: number;
   onPaymentSuccess: () => void;
-  onBuyNow: () => Promise<void>;
+  onBuyNow: () => Promise<boolean>;
   submittingStage2: boolean;
 }
 
@@ -68,7 +68,8 @@ export default function PaymentInformation({
 
     try {
       // 0️⃣ Save backend data by calling buyNow
-      await onBuyNow();
+      const success = await onBuyNow();
+      if (!success) return;
 
       // 1️⃣ Create PaymentIntent on backend
       const clientSecret = await createPaymentIntent(
@@ -88,7 +89,9 @@ export default function PaymentInformation({
         {
           payment_method: {
             card: cardElement,
-            billing_details: { name: cardholderName },
+            billing_details: {
+              name: cardholderName,
+            },
           },
         }
       );

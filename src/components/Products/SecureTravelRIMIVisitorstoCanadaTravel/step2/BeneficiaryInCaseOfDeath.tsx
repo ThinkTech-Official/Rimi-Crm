@@ -83,7 +83,10 @@ const BeneficiaryInCaseOfDeath: FC<BeneficiaryInfoProps> = ({
               className="input-primary"
               type="text"
               placeholder=""
-              {...register("beneficiary.beneficiaryName", { required: "Beneficiary Name is required" })}
+              {...register("beneficiary.beneficiaryName", {
+                required: "Beneficiary Name is required",
+                maxLength: { value: 100, message: "Max 100 characters" },
+              })}
             />
           ) : (
             <input
@@ -123,7 +126,10 @@ const BeneficiaryInCaseOfDeath: FC<BeneficiaryInfoProps> = ({
               className="input-primary"
               type="text"
               placeholder=""
-              {...register("beneficiary.relationshipToInsured", { required: "Relationship is required" })}
+              {...register("beneficiary.relationshipToInsured", {
+                required: "Relationship is required",
+                maxLength: { value: 100, message: "Max 100 characters" },
+              })}
             />
           ) : (
             <input

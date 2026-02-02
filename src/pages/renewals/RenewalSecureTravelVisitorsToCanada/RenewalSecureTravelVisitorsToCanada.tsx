@@ -24,7 +24,6 @@ import useNotification from "../../../hooks/useNotification";
 import { useRenewalPolicyData } from "../../../hooks/renewals/useRenewalPolicyData";
 
 type SuperVisaOption = "" | "yes" | "no";
-type SuperVisaYears = "" | "1" | "2";
 type YesNo = "" | "yes" | "no";
 
 interface Applicant {
@@ -59,15 +58,7 @@ interface QuoteStage1Response {
   applicants: Applicant[];
 }
 
-interface ContactInfo {
-  additionalEmail: string;
-  phoneNumber: string;
-}
 
-interface BeneficiaryInfo {
-  beneficiaryName: string;
-  relationshipToInsured: string;
-}
 
 // const productName = "Secure Travel RIMI Visitors to Canada Travel";
 const productName = "SECURE_TRAVEL_RIMI_VISITORS_TO_CANADA_TRAVEL";
@@ -350,8 +341,6 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
   const {
     completeApplication,
     loading: submittingStage2,
-    error: submitError,
-    data: policyResponse,
   } = useQuoteUpdate();
 
   //----------------------------
@@ -382,9 +371,7 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
     });
   };
 
-  const handleSubmitStage3 = () => {
-    console.log("Form Submitted");
-  };
+
 
   // const handleNext = async () => {
   //   if (!isStepOneFilled) return;
@@ -461,14 +448,14 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
   };
 
   // Step‐2 “Buy Now”
-  const handleBuyNow = async () => {
-    if (!quoteNumber || submittingStage2) return;
+  const handleBuyNow = async (): Promise<boolean> => {
+    if (!quoteNumber || submittingStage2) return false;
 
     const validContact = await contactInfoMethods.trigger();
     const validAddress = await addressMethods.trigger();
     const validBeneficiary = await beneficiaryMethods.trigger();
 
-    if (!validContact || !validAddress || !validBeneficiary) return;
+    if (!validContact || !validAddress || !validBeneficiary) return false;
 
     const address = addressMethods.getValues().address;
     const contactInfo = contactInfoMethods.getValues().contactInfo;
@@ -483,8 +470,10 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
       const resp = await completeApplication(payload);
       console.log("from handle buy", resp);
       // handleFormStepChange("forward");
+      return true;
     } catch {
       // show submitError…
+      return false;
     }
   };
 
@@ -782,9 +771,6 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
                   ? stripeProductId
                   : undefined
               }
-              formStep={formStep}
-              handleFormStepChange={handleFormStepChange}
-              submittingStage2={submittingStage2}
             />
           </Elements>
 

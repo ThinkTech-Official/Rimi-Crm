@@ -261,7 +261,7 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
 
   const handleNext = async () => {
     // Validate form
-    const isValid = await step1Methods.trigger();
+    const isValid = await step1Methods.trigger(undefined, { shouldFocus: true });
     if (!isValid) {
       // Optional: triggerNotification for validation error
       console.log("Form validation failed", step1Methods.formState.errors);
@@ -326,11 +326,11 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
   };
 
   const handleBuyNow = async () => {
-    if (!quoteNumber || submittingStage2) return;
+    if (!quoteNumber || submittingStage2) return false;
     // Validate step 2 forms
-    const validContact = await contactInfoMethods.trigger();
-    const validAddress = await addressMethods.trigger();
-    const validBeneficiary = await beneficiaryMethods.trigger();
+    const validContact = await contactInfoMethods.trigger(undefined, { shouldFocus: true });
+    const validAddress = await addressMethods.trigger(undefined, { shouldFocus: true });
+    const validBeneficiary = await beneficiaryMethods.trigger(undefined, { shouldFocus: true });
 
     if (!validContact) {
       console.log(
@@ -345,7 +345,7 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
       console.log("Beneficiary validation failed", beneficiaryMethods.formState.errors);
     }
 
-    if (!validContact || !validAddress || !validBeneficiary) return;
+    if (!validContact || !validAddress || !validBeneficiary) return false;
 
     const address = addressMethods.getValues().address;
     const contactInfo = contactInfoMethods.getValues().contactInfo;
@@ -361,11 +361,13 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
       console.log("from handle buy", resp);
       // Success handling usually happens inside PaymentInformation or custom logic
       // handleFormStepChange("forward"); // Called on payment success usually
+      return true;
     } catch {
       triggerNotification({
         message: "Failed to complete application",
         type: "error",
       });
+      return false;
     }
   };
 
@@ -613,9 +615,6 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
                   ? stripeProductId
                   : undefined
               }
-              formStep={formStep}
-              handleFormStepChange={handleFormStepChange}
-              submittingStage2={submittingStage2}
             />
           </Elements>
         </div>

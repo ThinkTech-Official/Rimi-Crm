@@ -355,7 +355,7 @@ export default function BeneficiaryInCaseOfDeath({
   ] = useState(false);
 
   return (
-    <div className="form-container">
+    <div className="max-w-5xl mx-auto mt-4 p-3 sm:p-6 bg-[#F9F9F9]">
       <h3 className="text-lg font-bold text-left text-[#1B1B1B] mb-5">
         Beneficiary In Case Of Death
       </h3>
@@ -370,6 +370,10 @@ export default function BeneficiaryInCaseOfDeath({
             placeholder="Beneficiary Name"
             {...register("beneficiary.beneficiaryName",{
               required: "Beneficiary Name is required",
+              maxLength: {
+                value: 100,
+                message: "Beneficiary Name cannot exceed 100 characters",
+              }
             })}
           />
           {errors.beneficiary?.beneficiaryName && (
@@ -396,6 +400,10 @@ export default function BeneficiaryInCaseOfDeath({
             placeholder="e.g., Spouse, Parent, Sibling"
             {...register("beneficiary.relationshipToInsured",{
               required: "Relationship to Insured is required",
+              maxLength: {
+                value: 100,
+                message: "Relationship cannot exceed 100 characters",
+              }
             })}
           />
            {errors.beneficiary?.relationshipToInsured && (

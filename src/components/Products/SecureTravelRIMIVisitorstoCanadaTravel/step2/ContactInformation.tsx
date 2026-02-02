@@ -3,12 +3,6 @@ import { FC, useState } from "react";
 import { UseFormReturn } from "react-hook-form";
 
 // Define the shape of the form data for this section
-interface ContactInfoData {
-  contactInfo: {
-    additionalEmail: string;
-    phoneNumber: string;
-  };
-}
 
 interface ContactInfoProps {
   methods: UseFormReturn<any>; // Using any to avoid strict type coupling, or could define a composite type
@@ -49,6 +43,11 @@ const ContactInformation: FC<ContactInfoProps> = ({ methods, email }) => {
             placeholder="Additional Email Address"
             {...register("contactInfo.additionalEmail")}
           />
+          {(errors.contactInfo as any)?.additionalEmail && (
+            <p className="text-red-500 text-sm mt-1">
+              {(errors.contactInfo as any).additionalEmail.message}
+            </p>
+          )}
         </div>
 
         {displayInfoAddEmail && (
@@ -72,6 +71,9 @@ const ContactInformation: FC<ContactInfoProps> = ({ methods, email }) => {
             placeholder="Phone Number"
             {...register("contactInfo.phoneNumber", {
               required: "Phone Number is required",
+              minLength: { value: 10, message: "Min 10 digits" },
+              maxLength: { value: 15, message: "Max 15 digits" },
+              pattern: { value: /^[0-9]+$/, message: "Numbers only" },
             })}
           />
           {(errors.contactInfo as any)?.phoneNumber && (

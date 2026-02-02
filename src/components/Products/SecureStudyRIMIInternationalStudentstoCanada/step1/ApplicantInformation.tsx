@@ -583,8 +583,8 @@ export default function ApplicantInformation({
             {...register("primaryFirstName", {
               required: "First Name is required",
               maxLength: {
-                value: 64,
-                message: "First Name cannot exceed 64 characters",
+                value: 60,
+                message: "First Name cannot exceed 60 characters",
               },
             })}
           />
@@ -605,8 +605,8 @@ export default function ApplicantInformation({
             {...register("primaryLastName", {
               required: "Last Name is required",
               maxLength: {
-                value: 64,
-                message: "Last Name cannot exceed 64 characters",
+                value: 60,
+                message: "Last Name cannot exceed 60 characters",
               },
             })}
           />
@@ -630,7 +630,6 @@ export default function ApplicantInformation({
                   value={field.value}
                   onChange={(date) => {
                     field.onChange(date);
-                    handlePrimaryDOBChange(date);
                   }}
                   maxDate={new Date()}
                 />
@@ -743,6 +742,10 @@ export default function ApplicantInformation({
                 placeholder="Enter First Name"
                 {...register(`applicants.${idx}.firstName`, {
                   required: "First Name is required",
+                  maxLength: {
+                    value: 60,
+                    message: "First Name cannot exceed 60 characters",
+                  },
                 })}
               />
               {errors.applicants?.[idx]?.firstName && (
@@ -759,6 +762,10 @@ export default function ApplicantInformation({
                 placeholder="Enter Last Name"
                 {...register(`applicants.${idx}.lastName`, {
                   required: "Last Name is required",
+                  maxLength: {
+                    value: 60,
+                    message: "Last Name cannot exceed 60 characters",
+                  },
                 })}
               />
               {errors.applicants?.[idx]?.lastName && (

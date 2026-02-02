@@ -75,7 +75,7 @@ export default function CoverageInformation({
   useEffect(() => {
     if (effectiveDate && expiryDate && lastModified !== "coverageLength") {
       const diffDays = calculateDaysBetween(effectiveDate, expiryDate);
-      setValue("coverageLength", String(diffDays));
+      setValue("coverageLength", String(diffDays), { shouldValidate: true });
     }
   }, [effectiveDate, expiryDate, lastModified, setValue]);
 
@@ -89,7 +89,7 @@ export default function CoverageInformation({
   useEffect(() => {
     if (expiryDate && coverageLength && lastModified === "expiryDate") {
       const diffDays = calculateDaysBetween(effectiveDate, expiryDate);
-      setValue("coverageLength", String(diffDays));
+      setValue("coverageLength", String(diffDays), { shouldValidate: true });
     }
   }, [expiryDate, coverageLength, effectiveDate, lastModified, setValue]);
 
@@ -280,7 +280,19 @@ export default function CoverageInformation({
             <Controller
               control={control}
               name="expiryDate"
-              rules={{ required: "Expiry date is required" }}
+              rules={{ 
+                required: "Expiry date is required",
+                validate: (value) => {
+                  if (effectiveDate && value) {
+                    const eff = new Date(effectiveDate);
+                    const exp = new Date(value);
+                    if (exp <= eff) {
+                      return "Expiry date must be after effective date";
+                    }
+                  }
+                  return true;
+                }
+              }}
               render={({ field }) => (
                 <DatePicker
                   label="Expiry Date"

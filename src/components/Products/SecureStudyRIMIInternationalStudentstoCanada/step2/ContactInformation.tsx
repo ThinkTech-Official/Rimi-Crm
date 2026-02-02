@@ -151,7 +151,12 @@ export default function ContactInformation({
             className="input-primary break-words h-auto"
             type="text"
             placeholder="Additional Email Address"
-            {...register("contactInfo.additionalEmail")}
+            {...register("contactInfo.additionalEmail", {
+              maxLength: {
+                value: 100,
+                message: "Additional email cannot exceed 100 characters",
+              },
+            })}
           />
         </div>
 
@@ -185,8 +190,8 @@ export default function ContactInformation({
                 message: "Phone number must be at least 10 digits",
               },
               maxLength: {
-                value: 10,
-                message: "Phone number must be at most 10 digits",
+                value: 15,
+                message: "Phone number must be at most 15 digits",
               },
             })}
             onInput={(e: React.ChangeEvent<HTMLInputElement>) => {
@@ -215,6 +220,10 @@ export default function ContactInformation({
             placeholder="Legal Guardian Name"
             {...register("contactInfo.legalGuardianName", {
               required: "Legal guardian name is required",
+              maxLength: {
+                value: 60,
+                message: "Legal guardian name cannot exceed 60 characters",
+              },
             })}
           />
           {errors.contactInfo?.legalGuardianName && (

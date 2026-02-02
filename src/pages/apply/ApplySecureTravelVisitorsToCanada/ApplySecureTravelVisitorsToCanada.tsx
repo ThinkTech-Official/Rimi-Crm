@@ -495,7 +495,7 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
   // your new handler which first saves, then advances the wizard
   const handleNext = async () => {
     // Validate form
-    const isValid = await step1Methods.trigger();
+    const isValid = await step1Methods.trigger(undefined, { shouldFocus: true });
     if (!isValid) return;
 
     if (savingStage1) return;
@@ -555,13 +555,13 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
 
   // Step‐2 “Buy Now”
   const handleBuyNow = async () => {
-    if (!quoteNumber || submittingStage2) return;
+    if (!quoteNumber) return false;
 
-    const validContact = await contactInfoMethods.trigger();
-    const validAddress = await addressMethods.trigger();
-    const validBeneficiary = await beneficiaryMethods.trigger();
+    const validContact = await contactInfoMethods.trigger(undefined, { shouldFocus: true });
+    const validAddress = await addressMethods.trigger(undefined, { shouldFocus: true });
+    const validBeneficiary = await beneficiaryMethods.trigger(undefined, { shouldFocus: true });
 
-    if (!validContact || !validAddress || !validBeneficiary) return;
+    if (!validContact || !validAddress || !validBeneficiary) return false;
 
     const address = addressMethods.getValues().address;
     const contactInfo = contactInfoMethods.getValues().contactInfo;
@@ -577,8 +577,10 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
       const resp = await completeApplication(payload);
       console.log("from handle buy", resp);
       // handleFormStepChange("forward");
+      return true;
     } catch {
       // show submitError…
+      return false;
     }
   };
 
@@ -885,9 +887,6 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
                   ? stripeProductId
                   : undefined
               }
-              formStep={formStep}
-              handleFormStepChange={handleFormStepChange}
-              submittingStage2={submittingStage2}
             />
           </Elements>
 

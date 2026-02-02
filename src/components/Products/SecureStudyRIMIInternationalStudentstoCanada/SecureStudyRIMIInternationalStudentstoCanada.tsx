@@ -1017,13 +1017,13 @@ export default function SecureStudyRIMIInternationalStudentstoCanada() {
     }
   };
 
-  const handleBuyNow = async () => {
-    if (!quoteNumber || submittingStage2) return;
+  const handleBuyNow = async (): Promise<boolean> => {
+    if (!quoteNumber || submittingStage2) return false;
 
     const [isValid1, isValid2, isValid3] = await Promise.all([
-      addressInfoMethods.trigger(),
-      contactInfoMethods.trigger(),
-      beneficiaryInfoMethods.trigger(),
+      addressInfoMethods.trigger(undefined, { shouldFocus: true }),
+      contactInfoMethods.trigger(undefined, { shouldFocus: true }),
+      beneficiaryInfoMethods.trigger(undefined, { shouldFocus: true }),
     ]);
 
     if (!isValid1) {
@@ -1045,7 +1045,7 @@ export default function SecureStudyRIMIInternationalStudentstoCanada() {
       );
     }
 
-    if (!isValid1 || !isValid2 || !isValid3) return;
+    if (!isValid1 || !isValid2 || !isValid3) return false;
 
     const address = addressInfoMethods.getValues().address;
     const contactInfo = contactInfoMethods.getValues().contactInfo;
@@ -1061,6 +1061,7 @@ export default function SecureStudyRIMIInternationalStudentstoCanada() {
     try {
       const resp = await completeApplication(payload);
       console.log("Product 2 - Stage 2 response:", resp);
+      return true;
     } catch (err: any) {
       console.error("completeApplication failed", err);
       triggerNotification({
@@ -1068,6 +1069,7 @@ export default function SecureStudyRIMIInternationalStudentstoCanada() {
           err.message || "Failed to complete application. Please try again.",
         type: "error",
       });
+      return false;
     }
   };
 
@@ -1173,7 +1175,7 @@ export default function SecureStudyRIMIInternationalStudentstoCanada() {
             {formStep === 1 && (
               <button
                 onClick={handleNext}
-                disabled={!isStepOneFilled || savingStage1}
+                disabled={savingStage1}
                 className={`w-[200px] mx-auto mt-6 bg-[#2B00B7] text-white p-3 hover:bg-[#2309A1] transition flex justify-center items-center cursor-pointer duration-200 disabled:cursor-default disabled:bg-indigo-700 ${
                   savingStage1 ? "opacity-50 cursor-wait" : ""
                 }`}

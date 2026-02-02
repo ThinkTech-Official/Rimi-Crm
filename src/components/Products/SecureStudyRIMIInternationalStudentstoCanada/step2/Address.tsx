@@ -398,6 +398,10 @@ export default function Address({ methods }: AddressProps) {
             placeholder="City"
             {...register("address.city", {
               required: "City is required",
+              maxLength: {
+                value: 60,
+                message: "City cannot exceed 60 characters",
+              },
             })}
           />
           {errors.address?.city && (
@@ -415,8 +419,8 @@ export default function Address({ methods }: AddressProps) {
             {...register("address.postalCode", {
               required: "Postal Code is required",
               maxLength: {
-                value: 10,
-                message: "Postal Code cannot exceed 10 characters",
+                value: 20,
+                message: "Postal Code cannot exceed 20 characters",
               },
               pattern: {
                 value: /^[A-Za-z0-9\s-]+$/,
@@ -463,6 +467,10 @@ export default function Address({ methods }: AddressProps) {
             placeholder="Province/State"
             {...register("address.province", {
               required: "Province/State is required",
+              maxLength: {
+                value: 60,
+                message: "Province/State cannot exceed 60 characters",
+              },
             })}
           />
           {errors.address?.province && (

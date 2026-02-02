@@ -22,19 +22,15 @@ export interface Shipping {
 interface Props {
   amount: number;
   onPaymentSuccess: () => void;
-  onBuyNow: () => Promise<void>;
+  onBuyNow: () => Promise<boolean>;
   quoteNumber: string;
   description: string;
   name: string;
   shipping: Shipping;
   paymentOption: "lump-sum" | "monthly-installments";
-  monthlyAmount?: number ;
-  remainingInstallments?: number ;
-   stripeProductId?: string ;
-   handleFormStepChange: (stepCommand: string) => void;
-   formStep: number;
-   submittingStage2: boolean;
-
+  monthlyAmount?: number;
+  remainingInstallments?: number;
+  stripeProductId?: string;
 }
 
 //
@@ -42,9 +38,6 @@ const stripeCustomerId = 'cus_85525845666'
 //
 
 export default function PaymentInformation({
-  handleFormStepChange,
-  formStep,
-  submittingStage2,
   onBuyNow,
   amount,
   onPaymentSuccess,
@@ -52,7 +45,9 @@ export default function PaymentInformation({
   description,
   shipping,
   paymentOption,
-  monthlyAmount ,remainingInstallments , stripeProductId
+  monthlyAmount,
+  remainingInstallments,
+  stripeProductId,
 }: Props) {
   const stripe = useStripe();
   const elements = useElements();
@@ -87,7 +82,8 @@ export default function PaymentInformation({
 
       // 0 Backend data save by calling buynow
 
-    await onBuyNow()
+    const success = await onBuyNow();
+    if (!success) return;
 
     //
 
@@ -109,7 +105,9 @@ export default function PaymentInformation({
         {
           payment_method: {
             card: cardElement,
-            billing_details: { name: cardholderName },
+            billing_details: {
+              name: cardholderName,
+            },
           },
         }
       );
