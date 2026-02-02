@@ -1512,6 +1512,33 @@ export default function VerificationRequests() {
     setShowVerifyModal(true);
   };
 
+
+  // Auto-populate commission when MGA is selected
+// 
+useEffect(() => {
+  if (adminAssignments.mgaId && mgas.length > 0) {
+    const selectedMga = mgas.find(m => m.id === adminAssignments.mgaId);
+    if (selectedMga) {
+      // Store commission value to avoid TypeScript null issues in callback
+      const mgaCommission = selectedMga.commissionPercent;
+      
+      // Auto-populate commission from MGA
+      if (mgaCommission !== null) {
+        setAdminAssignments(prev => ({
+          ...prev,
+          commissionPercent: mgaCommission.toString(),
+        }));
+      } else {
+        // MGA has no commission set - leave empty for manual entry
+        setAdminAssignments(prev => ({
+          ...prev,
+          commissionPercent: '',
+        }));
+      }
+    }
+  }
+}, [adminAssignments.mgaId, mgas]);
+
   const handleCheckAgentCode = async () => {
     if (!adminAssignments.agentCode || adminAssignments.agentCode.trim().length === 0) {
       return;
@@ -1674,9 +1701,17 @@ const handleVerifySubmit = async () => {
 }
   }
 
+  const verificationDate = isWfgAgent 
+  ? (() => {
+      const date = new Date();
+      date.setFullYear(date.getFullYear() + 100);
+      return date.toISOString().split('T')[0];
+    })()
+  : validityDate;
+
   const payload: any = {
     agentId: selectedAgent.id,
-    verificationValidTill: validityDate,
+    verificationValidTill: verificationDate,
   };
 
   if (needsAssignment) {
@@ -2390,7 +2425,7 @@ const needsMgaAssignment =
             </div>
           )}
           
-          <div>
+          {/* <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Verification Valid Until <span className="text-red-500">*</span>
             </label>
@@ -2404,7 +2439,26 @@ const needsMgaAssignment =
             <p className="text-xs text-gray-500 mt-1">
               Agent verification will expire after this date
             </p>
-          </div>
+          </div> */}
+
+          {/* ✅ UPDATED: Hide date field for WFG agents */}
+{!isWfgAgent && (
+  <div>
+    <label className="block text-sm font-medium text-gray-700 mb-1">
+      Verification Valid Until <span className="text-red-500">*</span>
+    </label>
+    <input
+      type="date"
+      value={validityDate}
+      onChange={(e) => setValidityDate(e.target.value)}
+      min={new Date().toISOString().split('T')[0]}
+      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#2B00B7]"
+    />
+    <p className="text-xs text-gray-500 mt-1">
+      Agent verification will expire after this date
+    </p>
+  </div>
+)}
 
           {/* {hasDocuments && (selectedAgent.docLink1 || selectedAgent.docLink2 || selectedAgent.docLink3) && (
             <div className="bg-gray-50 p-3 rounded-lg">
