@@ -914,8 +914,8 @@ export default function SecureStudyRIMIInternationalStudentstoCanada() {
           step.id === newStep.toString().padStart(2, "0")
             ? "current"
             : step.id < newStep.toString().padStart(2, "0")
-            ? "complete"
-            : "upcoming",
+              ? "complete"
+              : "upcoming",
       }));
 
       setSteps(updatedSteps);
@@ -961,7 +961,7 @@ export default function SecureStudyRIMIInternationalStudentstoCanada() {
     } catch (err: any) {
       console.error("Failed to save quote:", err);
       triggerNotification({
-        message: err.message || "Failed to save quote. Please try again.",
+        message: err.message || "Failed to save quote.",
         type: "error",
       });
       return false;
@@ -1011,7 +1011,7 @@ export default function SecureStudyRIMIInternationalStudentstoCanada() {
     } catch (err: any) {
       console.error("saveQuoteNext failed", err);
       triggerNotification({
-        message: err.message || "Failed to save quote. Please try again.",
+        message: err.message || "Failed to save quote.",
         type: "error",
       });
     }
@@ -1029,19 +1029,19 @@ export default function SecureStudyRIMIInternationalStudentstoCanada() {
     if (!isValid1) {
       console.log(
         "Address validation failed",
-        addressInfoMethods.formState.errors
+        addressInfoMethods.formState.errors,
       );
     }
     if (!isValid2) {
       console.log(
         "Contact validation failed",
-        contactInfoMethods.formState.errors
+        contactInfoMethods.formState.errors,
       );
     }
     if (!isValid3) {
       console.log(
         "Beneficiary validation failed",
-        beneficiaryInfoMethods.formState.errors
+        beneficiaryInfoMethods.formState.errors,
       );
     }
 

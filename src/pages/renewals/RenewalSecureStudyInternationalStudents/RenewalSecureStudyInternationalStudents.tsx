@@ -1,4 +1,4 @@
-import { CheckIcon } from "@heroicons/react/24/outline";
+import { CheckIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../app/store";
@@ -395,9 +395,17 @@ export default function SecureStudyRIMIInternationalStudentstoCanada() {
         applicants: response.applicants,
       });
       console.log("Product 2 - Stage 1 response:", response);
+      triggerNotification({
+        message: "Quote saved successfully!",
+        type: "success",
+      });
       handleFormStepChange("forward");
     } catch (err) {
       console.error("saveQuoteNext failed", err);
+      triggerNotification({
+        message: "Failed to save quote.",
+        type: "error",
+      });
     }
   };
 
@@ -481,21 +489,21 @@ export default function SecureStudyRIMIInternationalStudentstoCanada() {
   return (
     <div className="max-w-5xl mx-auto px-2 py-4 sm:p-6">
       {/* Breadcrumb */}
-      <div className="flex gap-1 mb-4">
+      <div className="flex gap-1 mb-4 items-center text-primary">
         <span
           className="underline underline-offset-2 cursor-pointer text-sm text-primary font-medium"
           onClick={() => navigate("/policies")}
         >
           Policies
         </span>
-        &gt;
+        <ChevronRightIcon className="w-4 h-4" />
         <span
           className="underline underline-offset-2 cursor-pointer text-sm text-primary font-medium"
-          onClick={() => navigate(`/policies/${policyId}`)}
+          onClick={() => navigate(`/policy-detail/${policyId}`)}
         >
           {policyId?.substring(0, 8)}...
         </span>
-        &gt;
+        <ChevronRightIcon className="w-4 h-4" />
         <span className="text-sm text-primary font-medium">Renewal</span>
       </div>
 

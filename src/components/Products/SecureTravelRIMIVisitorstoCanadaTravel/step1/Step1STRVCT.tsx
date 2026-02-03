@@ -68,7 +68,7 @@ type Props = {
 //use today as fallback
 const calculateAge = (
   dob: string | Date,
-  effectiveDate: string | Date
+  effectiveDate: string | Date,
 ): number | null => {
   if (!dob) return null;
 
@@ -174,10 +174,10 @@ const Step1STRVCT = ({
   const [showConfirmEligibility, setShowConfirmEligibility] = useState(false);
   const [savedFormState, setSavedFormState] = useState<string | null>(null);
   const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
-  const { triggerNotification, NotificationComponent} = useNotification();
+  const { triggerNotification, NotificationComponent } = useNotification();
 
   const svOptions = allCoverageOptions.filter((o) =>
-    ["", "100000", "150000", "500000", "1000000"].includes(o.value)
+    ["", "100000", "150000", "500000", "1000000"].includes(o.value),
   );
 
   const coverageOptions = superVisa === "yes" ? svOptions : allCoverageOptions;
@@ -185,7 +185,7 @@ const Step1STRVCT = ({
   // Questionnaire Helpers - PRESERVED LOGIC
   const primaryAge = calculateAge(primaryDateOfBirth, effectiveDate);
   const applicantAges = applicants.map((app: any) =>
-    calculateAge(app.dob, effectiveDate)
+    calculateAge(app.dob, effectiveDate),
   );
 
   // Check who needs questionnaire
@@ -198,7 +198,7 @@ const Step1STRVCT = ({
     (app: any, idx: number) => {
       const age = applicantAges[idx];
       return age !== null && age >= 70 && age <= 84 && app.preMedCoverage;
-    }
+    },
   );
 
   const anyNeedsQuestionnaire =
@@ -213,7 +213,7 @@ const Step1STRVCT = ({
       const needsIt =
         age !== null && age >= 70 && age <= 84 && app.preMedCoverage;
       return !needsIt || app.healthQuestionnaire !== undefined;
-    }
+    },
   );
 
   const allQuestionnairesComplete =
@@ -269,7 +269,7 @@ const Step1STRVCT = ({
             questions: [],
           },
           email: "",
-        }
+        },
     );
     setValue("applicants", newApplicants);
   }, [applicantNumber, applicants, setValue]);
@@ -318,7 +318,9 @@ const Step1STRVCT = ({
       exp.setFullYear(eff.getFullYear() + Number(superVisaYears));
       const days = Math.round((exp.getTime() - eff.getTime()) / msPerDay);
 
-      setValue("expiryDate", exp.toISOString().slice(0, 10), { shouldValidate: true });
+      setValue("expiryDate", exp.toISOString().slice(0, 10), {
+        shouldValidate: true,
+      });
       setValue("coverageLength", String(days), { shouldValidate: true });
     }
   }, [superVisa, superVisaYears, effectiveDate, setValue]);
@@ -405,7 +407,7 @@ const Step1STRVCT = ({
         ? new Date(primaryDateOfBirth).toISOString()
         : "",
       paymentOption,
-      plan: 1, 
+      plan: 1,
       applicants: applicants,
     }),
     [
@@ -422,7 +424,7 @@ const Step1STRVCT = ({
       deductible,
       primaryDateOfBirth,
       paymentOption,
-    ]
+    ],
   );
 
   const {
@@ -502,15 +504,24 @@ const Step1STRVCT = ({
     try {
       const response = await saveQuote(payload);
       setQuoteNumber(String(response?.quote));
-      // handle success
+      triggerNotification({
+        message: `Quote saved successfully!`,
+        type: "success",
+      });
     } catch {
-      // handle error
+      triggerNotification({
+        message: "Failed to save quote.",
+        type: "error",
+      });
     }
   };
 
   const handleEmailQuote = async () => {
     if (!quoteNumber) {
-      triggerNotification({ type: "error", message: "Please save your quote first" });
+      triggerNotification({
+        type: "error",
+        message: "Please save your quote first",
+      });
       return;
     }
 
@@ -846,7 +857,10 @@ const Step1STRVCT = ({
                           value={field.value}
                           onChange={(e) => {
                             field.onChange(e);
-                            setValue(`applicants.${idx}.healthQuestionnaire` as any, { questions: [] });
+                            setValue(
+                              `applicants.${idx}.healthQuestionnaire` as any,
+                              { questions: [] },
+                            );
                           }}
                           maxDate={new Date()}
                         />
@@ -1046,7 +1060,12 @@ const Step1STRVCT = ({
                 that have been stable in the 180 days prior to your effective
                 date
               </p>
-              <p className="text-sm text-blue-900 mb-3">* If you answer "Yes" to any of these questions, you will not be eligible for coverage of stable pre-existing medical conditions and "Include coverage for stable pre-existing medical conditions" will be set to "No" for that applicant.</p>
+              <p className="text-sm text-blue-900 mb-3">
+                * If you answer "Yes" to any of these questions, you will not be
+                eligible for coverage of stable pre-existing medical conditions
+                and "Include coverage for stable pre-existing medical
+                conditions" will be set to "No" for that applicant.
+              </p>
               <button
                 onClick={() => setIsAgeQuestionnaireOpen(true)}
                 className="bg-primary text-white py-2 px-4 font-semibold hover:bg-[#2309A1] transition-all duration-200 cursor-pointer disabled:cursor-default disabled:opacity-70"
@@ -1153,7 +1172,9 @@ const Step1STRVCT = ({
                 label="Country of Origin"
                 info={() => setShowInfoCountryOfOrigin((prev) => !prev)}
                 options={Countries}
-                {...register("countryOfOrigin", { required: "Country of Origin is required" })}
+                {...register("countryOfOrigin", {
+                  required: "Country of Origin is required",
+                })}
               />
               {errors.countryOfOrigin && (
                 <p className="text-red-500 text-sm mt-1">
@@ -1171,7 +1192,9 @@ const Step1STRVCT = ({
                   { value: "yes", label: "Yes" },
                   { value: "no", label: "No" },
                 ]}
-                {...register("inCanada", { required: "This field is required" })}
+                {...register("inCanada", {
+                  required: "This field is required",
+                })}
               />
               {errors.inCanada && (
                 <p className="text-red-500 text-sm mt-1">
@@ -1234,11 +1257,11 @@ const Step1STRVCT = ({
                   {...register("superVisa", {
                     required: "Super Visa selection is required",
                     onChange: (e) => {
-                       // Reset dependent fields
-                       setValue("superVisaYears", "");
-                       setValue("expiryDate", "");
-                       setValue("coverageLength", "");
-                    }
+                      // Reset dependent fields
+                      setValue("superVisaYears", "");
+                      setValue("expiryDate", "");
+                      setValue("coverageLength", "");
+                    },
                   })}
                 />
                 {errors.superVisa && (
@@ -1253,7 +1276,9 @@ const Step1STRVCT = ({
                   label="Destination Province"
                   info={() => setShowInfoDestinationProvince((prev) => !prev)}
                   options={CanadaStates}
-                  {...register("destinationProvince", { required: "Destination Province is required" })}
+                  {...register("destinationProvince", {
+                    required: "Destination Province is required",
+                  })}
                 />
                 {errors.destinationProvince && (
                   <p className="text-red-500 text-sm mt-1">
@@ -1290,7 +1315,10 @@ const Step1STRVCT = ({
                     ]}
                     value={superVisaYears}
                     onChange={(e) =>
-                      setValue("superVisaYears", e.target.value as SuperVisaYears)
+                      setValue(
+                        "superVisaYears",
+                        e.target.value as SuperVisaYears,
+                      )
                     }
                   />
                   {errors.superVisaYears && (
@@ -1351,7 +1379,7 @@ const Step1STRVCT = ({
                             Math.round(
                               (new Date(date).getTime() -
                                 new Date(effectiveDate).getTime()) /
-                                msPerDay
+                                msPerDay,
                             ) + 1;
                           setValue("coverageLength", String(diff), {
                             shouldValidate: true,
@@ -1386,7 +1414,7 @@ const Step1STRVCT = ({
                       if (effectiveDate && val) {
                         const exp = new Date(
                           new Date(effectiveDate).getTime() +
-                            (Number(val) - 1) * msPerDay
+                            (Number(val) - 1) * msPerDay,
                         );
                         setValue("expiryDate", exp.toISOString().slice(0, 10), {
                           shouldValidate: true,
@@ -1411,7 +1439,9 @@ const Step1STRVCT = ({
                     { value: "enhanced", label: "Enhanced" },
                     // { value: 'premium',  label: 'Premium' },
                   ]}
-                  {...register("policyType", { required: "Policy Type is required" })}
+                  {...register("policyType", {
+                    required: "Policy Type is required",
+                  })}
                 />
                 {errors.policyType && (
                   <p className="text-red-500 text-sm mt-1">
@@ -1439,7 +1469,9 @@ const Step1STRVCT = ({
                 label="Coverage Options"
                 info={() => setShowInfoCoverageOption((prev) => !prev)}
                 options={coverageOptions}
-                {...register("coverageOption", { required: "Coverage Option is required" })}
+                {...register("coverageOption", {
+                  required: "Coverage Option is required",
+                })}
               />
               {errors.coverageOption && (
                 <p className="text-red-500 text-sm mt-1">
@@ -1475,7 +1507,7 @@ const Step1STRVCT = ({
                   />
                 )}
               />
-               {errors.deductible && (
+              {errors.deductible && (
                 <p className="text-red-500 text-sm mt-1">
                   {errors.deductible.message}
                 </p>
@@ -1577,9 +1609,7 @@ const Step1STRVCT = ({
             {quoteNumber != null ? (
               <div className=" flex flex-col justify-center items-center mb-2 gap-2">
                 <p className="mt-2 text-xl font-bold text-red-600">
-                  <span>
-                    Quote Saved:{" "}
-                  </span>
+                  <span>Quote Saved: </span>
                   <span>{quoteNumber}</span>
                 </p>
                 <p
@@ -1622,7 +1652,7 @@ const Step1STRVCT = ({
                   firstName: app.firstName,
                   lastName: app.lastName,
                   index: applicants.findIndex((a: any) => a === app),
-                })
+                }),
               ),
             ]}
             primaryQuestionnaire={primaryQuestionnaire}
@@ -1630,7 +1660,9 @@ const Step1STRVCT = ({
             setIsAgeQuestionnaireOpen={setIsAgeQuestionnaireOpen}
             setApplicants={setApplicantsWrapper}
             applicants={applicants}
-            setCoverageForPreMedCon={(val) => setValue("coverageForPreMedCon", val)}
+            setCoverageForPreMedCon={(val) =>
+              setValue("coverageForPreMedCon", val)
+            }
           />
         )}
         {showConfirmEligibility && (

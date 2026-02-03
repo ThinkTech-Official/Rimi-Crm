@@ -477,7 +477,7 @@ const RIMICanuckVoyageNonMedicalTravel: React.FC = () => {
     } catch (err: any) {
       console.error("❌ Stage 1 failed:", err);
       triggerNotification({
-        message: err.message || "Failed to save quote. Please try again.",
+        message: err.message || "Failed to save quote.",
         type: "error",
       });
     }
@@ -563,7 +563,7 @@ const RIMICanuckVoyageNonMedicalTravel: React.FC = () => {
     } catch (err: any) {
       console.error("Failed to save quote:", err);
       triggerNotification({
-        message: err.message || "Failed to save quote. Please try again.",
+        message: err.message || "Failed to save quote.",
         type: "error",
       });
       return false;

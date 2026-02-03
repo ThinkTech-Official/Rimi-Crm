@@ -1,5 +1,3 @@
-
-
 import { CheckIcon } from "@heroicons/react/24/outline";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
@@ -7,13 +5,17 @@ import { RootState } from "../../../app/store";
 import { Elements } from "@stripe/react-stripe-js";
 import { stripePromise } from "../../../utils/stripe";
 
-
 // Hooks
 import { useSaveQuoteNextProduct2 } from "../../../hooks/student-international/useSaveQuoteNextProduct2";
-import { useQuoteUpdateProduct2, Stage2PayloadProduct2 } from "../../../hooks/student-international/useQuoteUpdateProduct2";
+import {
+  useQuoteUpdateProduct2,
+  Stage2PayloadProduct2,
+} from "../../../hooks/student-international/useQuoteUpdateProduct2";
 import { useCreateQuoteProduct2 } from "../../../hooks/student-international/useCreateQuoteProduct2";
 import { FormProvider, useForm } from "react-hook-form";
-import Step1Container, { Step1FormData } from "../../../components/Products/SecureStudyRIMIInternationalStudentstoCanada/step1/Step1Container";
+import Step1Container, {
+  Step1FormData,
+} from "../../../components/Products/SecureStudyRIMIInternationalStudentstoCanada/step1/Step1Container";
 import QuoteSummary from "../../../components/Products/SecureStudyRIMIInternationalStudentstoCanada/step2/QuotesSummary";
 import ApplicantInformationFinished from "../../../components/Products/SecureStudyRIMIInternationalStudentstoCanada/step2/ApplicantInformationFinished";
 import ContactInformation from "../../../components/Products/SecureStudyRIMIInternationalStudentstoCanada/step2/ContactInformation";
@@ -49,8 +51,6 @@ export interface Stage2FormValues {
   };
 }
 
-
-
 interface Applicant {
   index: string;
   firstName: string;
@@ -78,8 +78,6 @@ interface QuoteStage1ResponseProduct2 {
   applicants: Applicant[];
 }
 
-
-
 // const productName = "Secure Study RIMI International Students to Canada";
 const productName = "SECURE_STUDY_RIMI_INTERNATIONAL_STUDENTS_TO_CANADA";
 
@@ -88,10 +86,14 @@ export default function SecureStudyRIMIInternationalStudentstoCanada() {
   const navigate = useNavigate();
 
   // Get quote number from URL
-  const quoteNumberFromUrl = searchParams.get('quote');
+  const quoteNumberFromUrl = searchParams.get("quote");
 
   // Fetch quote data
-  const { quoteData, loading: loadingQuote, error: quoteError } = useQuoteByNumber(quoteNumberFromUrl);
+  const {
+    quoteData,
+    loading: loadingQuote,
+    error: quoteError,
+  } = useQuoteByNumber(quoteNumberFromUrl);
 
   const agentCode = useSelector((state: RootState) => state.auth.agentCode);
 
@@ -144,9 +146,7 @@ export default function SecureStudyRIMIInternationalStudentstoCanada() {
   });
 
   const watchedStep1 = step1Methods.watch();
-  const {
-    primaryFirstName,
-  } = watchedStep1;
+  const { primaryFirstName } = watchedStep1;
 
   const watchedStep2 = step2Methods.watch();
   const { address, contactInfo, beneficiary } = watchedStep2;
@@ -172,67 +172,65 @@ export default function SecureStudyRIMIInternationalStudentstoCanada() {
 
   // ==================== HOOKS ====================
   const { saveQuoteNext, loading: savingStage1 } = useSaveQuoteNextProduct2();
-  const {
-    completeApplication,
-    loading: submittingStage2,
-  } = useQuoteUpdateProduct2();
+  const { completeApplication, loading: submittingStage2 } =
+    useQuoteUpdateProduct2();
 
   const { createQuote } = useCreateQuoteProduct2();
 
-
-
-
-
-  // 
-
+  //
 
   // AUTO-FILL FORM FROM QUOTE DATA
   useEffect(() => {
     if (quoteData) {
-      console.log(' Auto-filling Product 2 form with quote data:', quoteData);
-      
+      console.log(" Auto-filling Product 2 form with quote data:", quoteData);
+
       // Set quote number
       setQuoteNumber(quoteData.quoteNumber);
-      
+
       // Reset step 1 methods
       step1Methods.reset({
         primaryFirstName: quoteData.primaryFirstName || "",
         primaryLastName: quoteData.primaryLastName || "",
-        primaryDateOfBirth: quoteData.primaryDateOfBirth?.split('T')[0] || "",
+        primaryDateOfBirth: quoteData.primaryDateOfBirth?.split("T")[0] || "",
         primaryEmail: quoteData.primaryEmail || "",
         primaryApplicantGender: quoteData.primaryApplicantGender || "",
         applicantNumber: quoteData.applicantNumber || 0,
-        applicants: quoteData.applicants ? quoteData.applicants.map(app => ({
-          index: app.index,
-          firstName: app.firstName,
-          lastName: app.lastName,
-          dob: app.dob.split('T')[0],
-          relationship: app.relationship,
-          gender: app.gender,
-        })) : [],
+        applicants: quoteData.applicants
+          ? quoteData.applicants.map((app) => ({
+              index: app.index,
+              firstName: app.firstName,
+              lastName: app.lastName,
+              dob: app.dob.split("T")[0],
+              relationship: app.relationship,
+              gender: app.gender,
+            }))
+          : [],
         isConfirmed: true,
         countryOfOrigin: quoteData.countryOfOrigin || "",
         destinationProvince: quoteData.destinationProvince || "",
-        effectiveDate: quoteData.effectiveDate?.split('T')[0] || "",
-        expiryDate: quoteData.expiryDate?.split('T')[0] || "",
+        effectiveDate: quoteData.effectiveDate?.split("T")[0] || "",
+        expiryDate: quoteData.expiryDate?.split("T")[0] || "",
         coverageLength: String(quoteData.coverageLength || ""),
         policyType: quoteData.policyType || "",
       });
-      
+
       // Premium
       setTotalPremium(quoteData.premium || 0);
-      
-      console.log(' Product 2 form auto-filled successfully');
+
+      console.log(" Product 2 form auto-filled successfully");
     }
   }, [quoteData, step1Methods]);
 
-// Check if no quote number provided
-useEffect(() => {
-  if (!quoteNumberFromUrl) {
-    triggerNotification({ type: "error", message: 'No quote number provided. Redirecting to products page...' });
-    navigate('/products');
-  }
-}, [quoteNumberFromUrl, navigate, triggerNotification]);
+  // Check if no quote number provided
+  useEffect(() => {
+    if (!quoteNumberFromUrl) {
+      triggerNotification({
+        type: "error",
+        message: "No quote number provided. Redirecting to products page...",
+      });
+      navigate("/products");
+    }
+  }, [quoteNumberFromUrl, navigate, triggerNotification]);
 
   // ==================== HANDLERS ====================
   const handleFormStepChange = (stepCommand: string) => {
@@ -251,8 +249,8 @@ useEffect(() => {
           step.id === newStep.toString().padStart(2, "0")
             ? "current"
             : step.id < newStep.toString().padStart(2, "0")
-            ? "complete"
-            : "upcoming",
+              ? "complete"
+              : "upcoming",
       }));
 
       setSteps(updatedSteps);
@@ -261,37 +259,46 @@ useEffect(() => {
   };
 
   //  ADD THIS NEW HANDLER
-const handleSaveQuote = async (): Promise<boolean> => {
-  if (!isStepOneFilled) {
-    triggerNotification({ type: "warning", message: "Please fill all required fields and confirm eligibility" });
-    return false;
-  }
+  const handleSaveQuote = async (): Promise<boolean> => {
+    if (!isStepOneFilled) {
+      triggerNotification({
+        type: "warning",
+        message: "Please fill all required fields and confirm eligibility",
+      });
+      return false;
+    }
 
-  const payload = {
-    ...watchedStep1,
-    agentCode: agentCode!,
-    product: productName,
-    status: "Inactive", // Save as Inactive (not ready for payment yet)
+    const payload = {
+      ...watchedStep1,
+      agentCode: agentCode!,
+      product: productName,
+      status: "Inactive", // Save as Inactive (not ready for payment yet)
+    };
+
+    try {
+      console.log("Saving Product 2 quote as Inactive...");
+      const response = await createQuote(payload);
+
+      // Update state with the saved quote number
+      setQuoteNumber(response.quote);
+
+      // Show success message
+      triggerNotification({
+        type: "success",
+        message: `Quote saved successfully!\n\nQuote Number: ${response.quote}\n\nYou can continue later or proceed to the next step.`,
+      });
+
+      console.log("Quote saved:", response.quote);
+      return true;
+    } catch (err: any) {
+      console.error("Failed to save quote:", err);
+      triggerNotification({
+        type: "error",
+        message: `Failed to save quote: ${err.message || "Please try again"}`,
+      });
+      return false;
+    }
   };
-
-  try {
-    console.log("Saving Product 2 quote as Inactive...");
-    const response = await createQuote(payload);
-    
-    // Update state with the saved quote number
-    setQuoteNumber(response.quote);
-    
-    // Show success message
-    triggerNotification({ type: "success", message: `Quote saved successfully!\n\nQuote Number: ${response.quote}\n\nYou can continue later or proceed to the next step.` });
-    
-    console.log("Quote saved:", response.quote);
-    return true;
-  } catch (err: any) {
-    console.error("Failed to save quote:", err);
-    triggerNotification({ type: "error", message: `Failed to save quote: ${err.message || "Please try again"}` });
-    return false;
-  }
-};
 
   const handleNext = async () => {
     const isValid = await step1Methods.trigger();
@@ -327,12 +334,19 @@ const handleSaveQuote = async (): Promise<boolean> => {
         applicants: response.applicants,
       });
       console.log("Product 2 - Stage 1 response:", response);
+      triggerNotification({
+        message: "Quote saved successfully!",
+        type: "success",
+      });
       handleFormStepChange("forward");
     } catch (err) {
       console.error("saveQuoteNext failed", err);
+      triggerNotification({
+        message: "Failed to save quote.",
+        type: "error",
+      });
     }
   };
-
 
   const handleBuyNow = async (): Promise<boolean> => {
     if (!quoteNumber || submittingStage2) return false;
@@ -357,70 +371,62 @@ const handleSaveQuote = async (): Promise<boolean> => {
     handleFormStepChange("forward");
   };
 
-
-
-
-
-
   // Show loading state
-if (loadingQuote) {
-  return (
-    <div className="max-w-5xl mx-auto px-2 py-4 sm:p-6">
-      <div className="flex items-center justify-center h-64">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#2B00B7] mx-auto mb-4"></div>
-          <p className="text-lg text-gray-600">Loading your quote...</p>
+  if (loadingQuote) {
+    return (
+      <div className="max-w-5xl mx-auto px-2 py-4 sm:p-6">
+        <div className="flex items-center justify-center h-64">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#2B00B7] mx-auto mb-4"></div>
+            <p className="text-lg text-gray-600">Loading your quote...</p>
+          </div>
         </div>
       </div>
-    </div>
-  );
-}
+    );
+  }
 
-// Show error state
-if (quoteError) {
-  return (
-    <div className="max-w-5xl mx-auto px-2 py-4 sm:p-6">
-      <div className="bg-red-50 border border-red-200 p-6 text-center">
-        <h3 className="text-lg font-semibold text-red-800 mb-2">Error Loading Quote</h3>
-        <p className="text-red-600 mb-4">{quoteError}</p>
-        <button
-          onClick={() => navigate('/products')}
-          className="btn-primary"
-        >
-          Go to Products
-        </button>
+  // Show error state
+  if (quoteError) {
+    return (
+      <div className="max-w-5xl mx-auto px-2 py-4 sm:p-6">
+        <div className="bg-red-50 border border-red-200 p-6 text-center">
+          <h3 className="text-lg font-semibold text-red-800 mb-2">
+            Error Loading Quote
+          </h3>
+          <p className="text-red-600 mb-4">{quoteError}</p>
+          <button onClick={() => navigate("/products")} className="btn-primary">
+            Go to Products
+          </button>
+        </div>
       </div>
-    </div>
-  );
-}
-
-
-
-
-
-
+    );
+  }
 
   return (
     <div className="max-w-5xl mx-auto px-2 py-4 sm:p-6">
-
-
-
-  <div className="bg-blue-50 border border-blue-200 p-4 mb-6">
-      <div className="flex items-center">
-        <div className="flex-shrink-0">
-          <svg className="h-5 w-5 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
-            <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-          </svg>
-        </div>
-        <div className="ml-3">
-          <p className="text-sm text-blue-700">
-            <strong>Quote #{quoteNumber}</strong> - Your quote details have been pre-filled. Review and proceed to payment.
-          </p>
+      <div className="bg-blue-50 border border-blue-200 p-4 mb-6">
+        <div className="flex items-center">
+          <div className="flex-shrink-0">
+            <svg
+              className="h-5 w-5 text-blue-400"
+              fill="currentColor"
+              viewBox="0 0 20 20"
+            >
+              <path
+                fillRule="evenodd"
+                d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                clipRule="evenodd"
+              />
+            </svg>
+          </div>
+          <div className="ml-3">
+            <p className="text-sm text-blue-700">
+              <strong>Quote #{quoteNumber}</strong> - Your quote details have
+              been pre-filled. Review and proceed to payment.
+            </p>
+          </div>
         </div>
       </div>
-    </div>
-
-
 
       {/* PROGRESS NAVIGATION */}
       <nav aria-label="Progress">
@@ -535,13 +541,13 @@ if (quoteError) {
             email={step1ResponseData?.email}
           />
           <Address methods={step2Methods as any} />
-          <BeneficiaryInCaseOfDeath
-            methods={step2Methods as any}
-          />
+          <BeneficiaryInCaseOfDeath methods={step2Methods as any} />
 
           {/* Payment Summary - Lump Sum Only */}
           <div className="max-w-5xl mx-auto mt-6 p-3 sm:p-6 bg-[#F9F9F9]">
-            <h3 className="text-lg font-bold text-left text-[#1B1B1B] mb-5">Payment Summary</h3>
+            <h3 className="text-lg font-bold text-left text-[#1B1B1B] mb-5">
+              Payment Summary
+            </h3>
             <div className="flex justify-between items-center">
               <span>Total Premium:</span>
               <span className="text-xl font-bold text-primary">
