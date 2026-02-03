@@ -328,7 +328,7 @@ export function CommissionsTable({
         <table className="min-w-full">
           <thead className="bg-primary text-white text-base capitalize text-nowrap">
             <tr>
-              <th className="px-4 py-3">
+              {/* <th className="px-4 py-3">
                 <input
                   type="checkbox"
                   checked={
@@ -340,7 +340,7 @@ export function CommissionsTable({
                   onChange={onSelectAll}
                   className="accent-primary cursor-pointer "
                 />
-              </th>
+              </th> */}
               <th className="px-4 py-3 text-left font-medium">Date</th>
               <th className="px-4 py-3 text-left font-medium">Policy #</th>
               <th className="px-4 py-3 text-left font-medium">Type</th>
@@ -393,7 +393,7 @@ export function CommissionsTable({
                     key={commission.id} 
                     className={`hover:bg-gray-30 ${isReversal ? 'bg-red-50' : ''}`}
                   >
-                    <td className="px-4 py-3" style={cellStyle}>
+                    {/* <td className="px-4 py-3" style={cellStyle}>
                       {canBeActedUpon && (
                         <input
                           type="checkbox"
@@ -402,7 +402,7 @@ export function CommissionsTable({
                           className="cursor-pointer accent-primary"
                         />
                       )}
-                    </td>
+                    </td> */}
                     <td className="px-4 py-3 text-nowrap text-sm" style={cellStyle}>
                       {new Date(commission.createdAt).toLocaleDateString()}
                     </td>

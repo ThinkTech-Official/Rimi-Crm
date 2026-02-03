@@ -498,6 +498,16 @@ const navigation = [
     url: "/search-policies",
   },
   {
+    name: "Commissions",
+    nameFr: "Commissions",
+    href: "#",
+    icon: HiOutlineDocumentCurrencyDollar,
+    current: false,
+    slug: "commissions",
+    allowedRoles: ["ADMIN"],
+    url: "/commissions",
+  },
+  {
     name: "Verification Requests",
     nameFr: "Demandes de vérification",
     href: "#",

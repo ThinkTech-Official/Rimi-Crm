@@ -63,6 +63,7 @@ import ApplySecureStudyInternationalStudents from "./pages/apply/ApplySecureStud
 import ApplyCanuckVoyageTravelMedical from "./pages/apply/ApplyCanuckVoyageTravelMedical/ApplyCanuckVoyageTravelMedical.tsx";
 import ApplyCanuckVoyageNonMedical from "./pages/apply/ApplyCanuckVoyageNonMedical/ApplyCanuckVoyageNonMedical.tsx";
 import MGAContracting from "./pages/MGAContracting.tsx";
+import Commissions from "./pages/Commissions.tsx";
 
 // Create ONE client (module-level singleton)
 const queryClient = new QueryClient({
@@ -129,10 +130,22 @@ const router = createBrowserRouter(
       <Route path="/reset-password" element={<ResetPassword />} />
 
       {/* PUBLIC APPLICATION ROUTES accessible without login */}
-      <Route path="/apply/secure-travel-visitors-to-canada" element={<ApplySecureTravelVisitorsToCanada />} />
-      <Route path="/apply/secure-study-international-students-to-canada" element={<ApplySecureStudyInternationalStudents />} />
-      <Route path="/apply/canuck-voyage-travel-medical" element={<ApplyCanuckVoyageTravelMedical />} />
-      <Route path="/apply/canuck-voyage-non-medical-travel" element={<ApplyCanuckVoyageNonMedical />} />
+      <Route
+        path="/apply/secure-travel-visitors-to-canada"
+        element={<ApplySecureTravelVisitorsToCanada />}
+      />
+      <Route
+        path="/apply/secure-study-international-students-to-canada"
+        element={<ApplySecureStudyInternationalStudents />}
+      />
+      <Route
+        path="/apply/canuck-voyage-travel-medical"
+        element={<ApplyCanuckVoyageTravelMedical />}
+      />
+      <Route
+        path="/apply/canuck-voyage-non-medical-travel"
+        element={<ApplyCanuckVoyageNonMedical />}
+      />
       {/* Dashboard as parent route with nested children */}
       <Route
         path="/"
@@ -165,11 +178,13 @@ const router = createBrowserRouter(
           element={<VerificationRequests />}
         />
 
+        <Route path="commissions" element={<Commissions />} />
+
         <Route path="reporting" element={<Reporting />} />
         <Route path="search-users" element={<Users />} />
         <Route path="create-user" element={<CreateUser />} />
         <Route path="documents" element={<Documents />} />
-        <Route path="trip-calculator" element={<TripCalculator />} /> 
+        <Route path="trip-calculator" element={<TripCalculator />} />
         <Route path="profile" element={<Profile />} />
         <Route path="userdetail/:id" element={<UserDetails />} />
         <Route path="migrations/users" element={<UserUpload />} />
@@ -205,20 +220,18 @@ const router = createBrowserRouter(
           element={<RenewalCanuckVoyageNonMedical />}
         />
 
-
         {/* Apply  */}
-     {/* <Route path="/apply/secure-travel-visitors-to-canada" element={<ApplySecureTravelVisitorsToCanada />} />
+        {/* <Route path="/apply/secure-travel-visitors-to-canada" element={<ApplySecureTravelVisitorsToCanada />} />
 <Route path="/apply/secure-study-international-students-to-canada" element={<ApplySecureStudyInternationalStudents />} />
 <Route path="/apply/canuck-voyage-travel-medical" element={<ApplyCanuckVoyageTravelMedical />} />
 <Route path="/apply/canuck-voyage-non-medical-travel" element={<ApplyCanuckVoyageNonMedical />} /> */}
-
       </Route>
 
       {/* Routes outside of dashboard layout */}
       <Route path="/test-dash" element={<TestUi />} />
       <Route path="/agent-dashboard" element={<AgentDashboard />} />
-    </Route>
-  )
+    </Route>,
+  ),
 );
 
 createRoot(document.getElementById("root")!).render(
@@ -237,5 +250,5 @@ createRoot(document.getElementById("root")!).render(
         </QueryClientProvider>
       </PersistGate>
     </Provider>
-  </StrictMode>
+  </StrictMode>,
 );
