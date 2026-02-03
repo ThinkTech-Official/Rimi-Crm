@@ -1048,30 +1048,66 @@ const PolicyDetailsPage: React.FC = () => {
             Premium / Payment Info
           </div>
 
-          <div className="grid grid-cols-4 gap-x-4">
-            <div>
-              <div className="font-medium">Premium</div>
-              <div>
-                {p?.premium.toLocaleString("en-CA", {
-                  style: "currency",
-                  currency: history[0]?.currency || "CAD",
-                  currencyDisplay: "code",
-                })}
+    <div className="grid grid-cols-4 gap-x-4">
+      <div>
+        <div className="font-medium">Premium</div>
+        <div>
+          {p?.premium.toLocaleString("en-CA", {
+            style: "currency",
+            currency: history[0]?.currency || "CAD",
+            currencyDisplay: "code",
+          })}
+        </div>
+      </div>
+      <div>
+        <div className="font-medium">Payment Option</div>
+        <div>{p.paymentOption || "-"}</div>
+      </div>
+      <div>
+        <div className="font-medium">Credit Card</div>
+        {/* <div>{history[0]?.last4 ? `•••• ${history[0].last4}` : "-"}</div> */}
+
+
+<div>
+          {(() => {
+            // Priority: Policy.currentCard -> Most Recent Payment -> First Payment
+            const brand = p.currentCardBrand || 
+                         history[history.length - 1]?.brand || 
+                         history[0]?.brand;
+            const last4 = p.currentCardLast4 || 
+                         history[history.length - 1]?.last4 || 
+                         history[0]?.last4;
+            const name = p.currentCardholderName || 
+                        history[history.length - 1]?.cardholderName || 
+                        history[0]?.cardholderName;
+            
+            if (!last4) return "-";
+            
+            return (
+              <div className="flex flex-col">
+                <span className="font-medium">
+                  {brand?.toUpperCase()} •••• {last4}
+                </span>
+                {name && (
+                  <span className="text-xs text-gray-600">{name}</span>
+                )}
+                {p.currentCardUpdatedAt && (
+                  <span className="text-xs text-gray-500">
+                    Updated: {fmtDate(p.currentCardUpdatedAt.toString())}
+                  </span>
+                )}
               </div>
-            </div>
-            <div>
-              <div className="font-medium">Payment Option</div>
-              <div>{p.paymentOption || "-"}</div>
-            </div>
-            <div>
-              <div className="font-medium">Credit Card</div>
-              <div>{history[0]?.last4 ? `•••• ${history[0].last4}` : "-"}</div>
-            </div>
-            <div>
-              <div className="font-medium">Date</div>
-              <div>{history[0]?.date ? fmtDate(history[0].date) : "-"}</div>
-            </div>
-          </div>
+            );
+          })()}
+        </div>
+
+
+      </div>
+      <div>
+        <div className="font-medium">Date</div>
+        <div>{history[0]?.date ? fmtDate(history[0].date) : "-"}</div>
+      </div>
+    </div>
 
           {/* ✅ ADD THIS: Parent Policy Link for Split Policies */}
           {p.parentPolicyId && (
@@ -1293,7 +1329,7 @@ const PolicyDetailsPage: React.FC = () => {
                               p.status === "CANCELLED" && (
                                 <button
                                   onClick={() =>
-                                    handleRefund(h.id, h.amount, h.paymentType)
+                                    handleRefund(h.id, h.amount)
                                   }
                                   disabled={refundLoading}
                                   className={`inline-flex items-center justify-center w-7 h-7 ${

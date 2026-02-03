@@ -88,6 +88,7 @@ export interface MgaOption {
   agentCode: string;    // For display
   firstName: string;    // For display
   lastName: string;     // For display
+  commissionPercent: number | null; 
 }
 
 interface UseMgaCodesReturn {

@@ -93,6 +93,11 @@ export interface PolicyDetail {
 
   stripeSubscriptionScheduleId: any;
 
+   currentCardBrand?: string;
+  currentCardLast4?: string;
+  currentCardholderName?: string;
+  currentCardUpdatedAt?: Date | string;
+
 
     // SPLIT POLICY 
   parentPolicyId?: string | null;  // Required for banner to show

@@ -82,6 +82,33 @@ export default function VerificationRequests() {
     setShowVerifyModal(true);
   };
 
+
+  // Auto-populate commission when MGA is selected
+// 
+useEffect(() => {
+  if (adminAssignments.mgaId && mgas.length > 0) {
+    const selectedMga = mgas.find(m => m.id === adminAssignments.mgaId);
+    if (selectedMga) {
+      // Store commission value to avoid TypeScript null issues in callback
+      const mgaCommission = selectedMga.commissionPercent;
+      
+      // Auto-populate commission from MGA
+      if (mgaCommission !== null) {
+        setAdminAssignments(prev => ({
+          ...prev,
+          commissionPercent: mgaCommission.toString(),
+        }));
+      } else {
+        // MGA has no commission set - leave empty for manual entry
+        setAdminAssignments(prev => ({
+          ...prev,
+          commissionPercent: '',
+        }));
+      }
+    }
+  }
+}, [adminAssignments.mgaId, mgas]);
+
   const handleCheckAgentCode = async () => {
     if (!adminAssignments.agentCode || adminAssignments.agentCode.trim().length === 0) {
       return;
@@ -257,9 +284,17 @@ const handleVerifySubmit = async () => {
     }
   }
 
+  const verificationDate = isWfgAgent 
+  ? (() => {
+      const date = new Date();
+      date.setFullYear(date.getFullYear() + 100);
+      return date.toISOString().split('T')[0];
+    })()
+  : validityDate;
+
   const payload: any = {
     agentId: selectedAgent.id,
-    verificationValidTill: validityDate,
+    verificationValidTill: verificationDate,
   };
 
   if (needsAssignment) {

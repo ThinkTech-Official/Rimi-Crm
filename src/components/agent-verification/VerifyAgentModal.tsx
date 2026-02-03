@@ -359,7 +359,8 @@ export default function VerificationModal({
           )}
 
           {/* Validity Date Section */}
-          <div>
+          {!isWfgAgent && (
+            <div>
             <div className='flex items-center gap-2 mb-1'>
               <CalendarIcon className='h-5 w-5 text-[#2B00B7]' />
               <span className='text-sm font-semibold text-text-primary'>
@@ -413,6 +414,7 @@ export default function VerificationModal({
               </button>
             </div>
           </div>
+          )}
 
           {/* Info Box */}
           <div className='bg-blue-50/50 border border-blue-200 p-3 sm:p-5 mb-2'>
