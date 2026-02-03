@@ -18,7 +18,7 @@ import { FormProvider, useForm } from "react-hook-form";
 import YourQuoteSummary from "./step2/YourQuoteSummary";
 
 type SuperVisaOption = "" | "yes" | "no";
-type SuperVisaYears = "" | "1" | "2";
+type SuperVisaYears = "" | "1";
 type YesNo = "" | "yes" | "no";
 
 interface Applicant {

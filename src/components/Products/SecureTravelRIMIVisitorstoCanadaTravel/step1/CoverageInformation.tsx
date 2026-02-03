@@ -10,7 +10,7 @@ import {
 import { InformationCircleIcon } from "@heroicons/react/24/outline";
 
 type SuperVisaOption = "" | "yes" | "no";
-type SuperVisaYears = "" | "1" | "2";
+type SuperVisaYears = "" | "1";
 type YesNo = "" | "yes" | "no";
 
 const msPerDay = 1000 * 60 * 60 * 24;
@@ -510,7 +510,6 @@ export default function CoverageInformation() {
               options={[
                 { value: "", label: "Please select..." },
                 { value: "1", label: "1 year" },
-                { value: "2", label: "2 years" },
               ]}
               value={superVisaYears}
               onChange={handleYearsChange}

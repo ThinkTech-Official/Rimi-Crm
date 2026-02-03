@@ -981,6 +981,11 @@ const CreateUser: React.FC = () => {
           {availabilityError && (
             <p className="text-red-500 text-sm mt-1">{availabilityError}</p>
           )}
+          {lastCheckedCode === agentCode && availability === "taken" && (
+             <p className="text-red-500 text-sm mt-1">
+               Agent code already in use, please use another code
+             </p>
+          )}
         </div>
 
         {/* Company */}

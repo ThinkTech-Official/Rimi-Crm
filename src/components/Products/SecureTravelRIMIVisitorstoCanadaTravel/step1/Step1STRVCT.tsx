@@ -22,7 +22,7 @@ import { Step1Payload } from "../SecureTravelRIMIVisitorstoCanadaTravel";
 import useNotification from "../../../../hooks/useNotification";
 
 type SuperVisaOption = "" | "yes" | "no";
-type SuperVisaYears = "" | "1" | "2";
+type SuperVisaYears = "" | "1";
 type YesNo = "" | "yes" | "no";
 
 const msPerDay = 1000 * 60 * 60 * 24;
@@ -1287,7 +1287,6 @@ const Step1STRVCT = ({
                     options={[
                       { value: "", label: "Please select..." },
                       { value: "1", label: "1 year" },
-                      { value: "2", label: "2 years" },
                     ]}
                     value={superVisaYears}
                     onChange={(e) =>

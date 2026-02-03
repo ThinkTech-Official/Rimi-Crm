@@ -271,6 +271,11 @@ export default function VerificationModal({
                        agentCodeAvailability.lastChecked === adminAssignments.agentCode && agentCodeAvailability.status === 'taken' ? 'Taken' : 'Check'}
                     </button>
                   </div>
+                  {agentCodeAvailability.lastChecked === adminAssignments.agentCode && agentCodeAvailability.status === 'taken' && (
+                     <p className="text-red-500 text-sm mt-1">
+                       Agent code already in use, please use another code
+                     </p>
+                  )}
                 </div>
 
                 {!isWfgAgent && (

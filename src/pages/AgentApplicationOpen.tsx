@@ -203,7 +203,7 @@ const AgentApplicationOpen: React.FC = () => {
                 <div className="w-full grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3 gap-4 justify-items-center sm:justify-items-start">
                   {[
                     { id: "independent", title: "Independent Agent" },
-                    { id: "under_mga", title: "Agent MGA" },
+                    { id: "under_mga", title: "Agent Under MGA" },
                     { id: "wfg", title: "WFG Agent" },
                   ].map((type) => (
                     <div

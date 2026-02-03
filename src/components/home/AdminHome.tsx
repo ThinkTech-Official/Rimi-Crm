@@ -272,10 +272,10 @@ export default function AdminHome() {
     { label: "Total Quotes", value: stats?.totalQuotes || 0 },
     { label: "Total Agents", value: stats?.totalAgents || 0 },
     { label: "Active Agents", value: stats?.activeAgents || 0 },
-    {
-      label: "Avg Commission Rate",
-      value: `${stats?.commissionPercent?.toFixed(2) || 0}%`,
-    },
+    // {
+    //   label: "Avg Commission Rate",
+    //   value: `${stats?.commissionPercent?.toFixed(2) || 0}%`,
+    // },
     {
       label: "Total Commissions",
       value: `$${(stats?.totalCommissions || 0).toLocaleString()}`,

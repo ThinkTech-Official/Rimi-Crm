@@ -24,7 +24,7 @@ import { usePremiumCalculate } from "../../../hooks/usePremiumCalculate";
 import { PremiumCalculationData } from "../../../components/Products/SecureTravelRIMIVisitorstoCanadaTravel/step1/Step1STRVCT";
 
 type SuperVisaOption = "" | "yes" | "no";
-type SuperVisaYears = "" | "1" | "2";
+type SuperVisaYears = "" | "1";
 type YesNo = "" | "yes" | "no";
 
 export interface Applicant {
@@ -448,7 +448,10 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
   // Check if no quote number provided
   useEffect(() => {
     if (!quoteNumberFromUrl) {
-      triggerNotification({ type: "error", message: "No quote number provided. Redirecting to products page..." });
+      triggerNotification({
+        type: "error",
+        message: "No quote number provided. Redirecting to products page...",
+      });
       navigate("/products");
     }
   }, [quoteNumberFromUrl, navigate, triggerNotification]);
@@ -495,7 +498,9 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
   // your new handler which first saves, then advances the wizard
   const handleNext = async () => {
     // Validate form
-    const isValid = await step1Methods.trigger(undefined, { shouldFocus: true });
+    const isValid = await step1Methods.trigger(undefined, {
+      shouldFocus: true,
+    });
     if (!isValid) return;
 
     if (savingStage1) return;
@@ -557,9 +562,15 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
   const handleBuyNow = async () => {
     if (!quoteNumber) return false;
 
-    const validContact = await contactInfoMethods.trigger(undefined, { shouldFocus: true });
-    const validAddress = await addressMethods.trigger(undefined, { shouldFocus: true });
-    const validBeneficiary = await beneficiaryMethods.trigger(undefined, { shouldFocus: true });
+    const validContact = await contactInfoMethods.trigger(undefined, {
+      shouldFocus: true,
+    });
+    const validAddress = await addressMethods.trigger(undefined, {
+      shouldFocus: true,
+    });
+    const validBeneficiary = await beneficiaryMethods.trigger(undefined, {
+      shouldFocus: true,
+    });
 
     if (!validContact || !validAddress || !validBeneficiary) return false;
 
@@ -612,10 +623,7 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
             Error Loading Quote
           </h3>
           <p className="text-red-600 mb-4">{quoteError}</p>
-          <button
-            onClick={() => navigate("/products")}
-            className="btn-primary"
-          >
+          <button onClick={() => navigate("/products")} className="btn-primary">
             Go to Products
           </button>
         </div>
