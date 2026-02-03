@@ -1100,7 +1100,43 @@ const handleIssueRelatedPolicy = () => {
       </div>
       <div>
         <div className="font-medium">Credit Card</div>
-        <div>{history[0]?.last4 ? `•••• ${history[0].last4}` : "-"}</div>
+        {/* <div>{history[0]?.last4 ? `•••• ${history[0].last4}` : "-"}</div> */}
+
+
+<div>
+          {(() => {
+            // Priority: Policy.currentCard -> Most Recent Payment -> First Payment
+            const brand = p.currentCardBrand || 
+                         history[history.length - 1]?.brand || 
+                         history[0]?.brand;
+            const last4 = p.currentCardLast4 || 
+                         history[history.length - 1]?.last4 || 
+                         history[0]?.last4;
+            const name = p.currentCardholderName || 
+                        history[history.length - 1]?.cardholderName || 
+                        history[0]?.cardholderName;
+            
+            if (!last4) return "-";
+            
+            return (
+              <div className="flex flex-col">
+                <span className="font-medium">
+                  {brand?.toUpperCase()} •••• {last4}
+                </span>
+                {name && (
+                  <span className="text-xs text-gray-600">{name}</span>
+                )}
+                {p.currentCardUpdatedAt && (
+                  <span className="text-xs text-gray-500">
+                    Updated: {fmtDate(p.currentCardUpdatedAt.toString())}
+                  </span>
+                )}
+              </div>
+            );
+          })()}
+        </div>
+
+
       </div>
       <div>
         <div className="font-medium">Date</div>
@@ -1108,7 +1144,7 @@ const handleIssueRelatedPolicy = () => {
       </div>
     </div>
 
-    {/* ✅ ADD THIS: Parent Policy Link for Split Policies */}
+    {/*  Parent Policy Link for Split Policies */}
     {p.parentPolicyId && (
       <div className="bg-blue-50 border-l-4 border-blue-400 p-3 rounded">
         <div className="flex items-center">
