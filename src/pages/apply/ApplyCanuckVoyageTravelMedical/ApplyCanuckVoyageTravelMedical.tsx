@@ -504,30 +504,44 @@ const RIMICanuckVoyageTravelMedical: React.FC = () => {
       {/* ========== STEP 1: GET QUOTE ========== */}
       {steps[0].status === "current" && (
         <FormProvider {...step1Methods}>
-          <ApplicantInformation methods={step1Methods} />
+          <form onSubmit={step1Methods.handleSubmit(handleNext)}>
+            <ApplicantInformation methods={step1Methods} />
 
-          <CoverageInformation
-            methods={step1Methods}
-            totalPremium={totalPremium}
-            setTotalPremium={setTotalPremium}
-            premiumBreakdown={premiumBreakdown}
-            setPremiumBreakdown={setPremiumBreakdown}
-            loading={loading}
-            setLoading={setLoading}
-            error={error}
-            setError={setError}
-            quoteNumber={quoteNumber}
-            agentCode={agentCode!}
-            handleSaveQuote={handleSaveQuote}
-          />
+            <CoverageInformation
+              methods={step1Methods}
+              totalPremium={totalPremium}
+              setTotalPremium={setTotalPremium}
+              premiumBreakdown={premiumBreakdown}
+              setPremiumBreakdown={setPremiumBreakdown}
+              loading={loading}
+              setLoading={setLoading}
+              error={error}
+              setError={setError}
+              onValidityChange={setIsStepOneFilled}
+              quoteNumber={quoteNumber}
+              agentCode={agentCode!}
+              handleSaveQuote={handleSaveQuote}
+            />
 
-          <div className="w-full h-2 mt-5 flex items-center justify-center font-[inter]">
-            <h3 className="text-base sm:text-lg">
-              {loading
-                ? "Calculating..."
-                : `Your Quote: $${totalPremium.toFixed(2)} CAD`}
-            </h3>
-          </div>
+            <div className="w-full h-2 mt-5 flex items-center justify-center font-[inter]">
+              <h3 className="text-base sm:text-lg">
+                {loading
+                  ? "Calculating..."
+                  : `Your Quote: $${totalPremium.toFixed(2)} CAD`}
+              </h3>
+            </div>
+            {formStep === 1 && (
+              <button
+                type="submit"
+                disabled={!isStepOneFilled || savingStage1}
+                className={`w-[200px] mx-auto mt-6 bg-[#2B00B7] text-white p-3 hover:bg-[#2309A1] transition flex justify-center items-center cursor-pointer duration-200 ${
+                  savingStage1 ? "opacity-50 cursor-wait" : ""
+                }`}
+              >
+                {savingStage1 ? "Saving…" : "Next"}
+              </button>
+            )}
+          </form>
         </FormProvider>
       )}
 
@@ -601,17 +615,6 @@ const RIMICanuckVoyageTravelMedical: React.FC = () => {
           </button>
         )}
 
-        {formStep === 1 && (
-          <button
-            onClick={handleNext}
-            disabled={!isStepOneFilled || savingStage1}
-            className={`w-[200px] mt-6 bg-[#2B00B7] text-white p-3 hover:bg-[#2309A1] transition flex justify-center items-center cursor-pointer duration-200 ${
-              savingStage1 ? "opacity-50 cursor-wait" : ""
-            }`}
-          >
-            {savingStage1 ? "Saving…" : "Next"}
-          </button>
-        )}
       </div>
       {NotificationComponent}
     </div>

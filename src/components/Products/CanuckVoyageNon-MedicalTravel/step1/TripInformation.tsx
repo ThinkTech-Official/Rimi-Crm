@@ -304,7 +304,7 @@ export default function TripInformation({
   }, [canCalculatePremium]);
 
   useEffect(() => {
-    onValidityChange(isFormFilled);
+    onValidityChange?.(isFormFilled);
   }, [isFormFilled, onValidityChange]);
 
   // Premium calculation data

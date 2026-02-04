@@ -745,13 +745,12 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
       </nav>
 
       {steps[0].status === "current" && (
-        <div>
-          <FormProvider {...step1Methods}>
+        <FormProvider {...step1Methods}>
+          <form onSubmit={step1Methods.handleSubmit(handleNext)}>
             <Step1STRVCT
               onValidityChange={setIsStepOneFilled}
               quoteNumber={quoteNumber}
               setQuoteNumber={setQuoteNumber}
-              // Passing down state for premiums calculation visualization
               totalPremium={totalPremium}
               schedule={schedule}
               loading={loading}
@@ -766,8 +765,21 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
               isStepOneFilled={isStepOneFilled}
               savingStage1={savingStage1}
             />
-          </FormProvider>
-        </div>
+            {formStep === 1 && (
+              <div className="flex justify-center mt-4">
+                <button
+                  type="submit"
+                  disabled={!isStepOneFilled || savingStage1}
+                  className={`w-[200px] mt-6 bg-[#2B00B7] text-white p-3 hover:bg-[#2309A1] transition flex justify-center items-center cursor-pointer duration-200 ${
+                    savingStage1 ? "opacity-50 cursor-wait" : ""
+                  }`}
+                >
+                  {savingStage1 ? "Saving…" : "Next"}
+                </button>
+              </div>
+            )}
+          </form>
+        </FormProvider>
       )}
 
       {steps[1].status === "current" && quoteNumber && (
@@ -921,18 +933,6 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
             className=" btn-primary"
           >
             Previous
-          </button>
-        )}
-
-        {formStep === 1 && (
-          <button
-            onClick={handleNext}
-            disabled={!isStepOneFilled || savingStage1}
-            className={`w-[200px] mt-6 bg-[#2B00B7] text-white p-3  hover:bg-[#2309A1] transition flex justify-center items-center cursor-pointer duration-200 ${
-              savingStage1 ? "opacity-50 cursor-wait" : ""
-            }`}
-          >
-            {savingStage1 ? "Saving…" : "Next"}
           </button>
         )}
       </div>

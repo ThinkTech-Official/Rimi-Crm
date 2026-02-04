@@ -508,15 +508,30 @@ export default function SecureStudyRIMIInternationalStudentstoCanada() {
       {/* STEP 1: GET QUOTE */}
       {steps[0].status === "current" && (
         <FormProvider {...step1Methods}>
-          <Step1Container
-            methods={step1Methods}
-            onValidityChange={setIsStepOneFilled}
-            quoteNumber={quoteNumber}
-            onSaveQuote={handleSaveQuote}
-            isStepOneFilled={isStepOneFilled}
-            totalPremium={totalPremium}
-            onPremiumChange={setTotalPremium}
-          />
+          <form onSubmit={step1Methods.handleSubmit(handleNext)}>
+            <Step1Container
+              methods={step1Methods}
+              onValidityChange={setIsStepOneFilled}
+              quoteNumber={quoteNumber}
+              onSaveQuote={handleSaveQuote}
+              isStepOneFilled={isStepOneFilled}
+              totalPremium={totalPremium}
+              onPremiumChange={setTotalPremium}
+            />
+            {formStep === 1 && (
+              <div className="flex justify-center mt-4">
+                <button
+                  type="submit"
+                  disabled={!isStepOneFilled || savingStage1}
+                  className={`w-[200px] mt-6 bg-[#2B00B7] text-white p-3 hover:bg-[#2309A1] transition flex justify-center items-center cursor-pointer duration-200 ${
+                    savingStage1 ? "opacity-50 cursor-wait" : ""
+                  }`}
+                >
+                  {savingStage1 ? "Saving…" : "Next"}
+                </button>
+              </div>
+            )}
+          </form>
         </FormProvider>
       )}
 
@@ -587,18 +602,6 @@ export default function SecureStudyRIMIInternationalStudentstoCanada() {
             className="w-[200px] mt-6 bg-white border border-[#2B00B7] text-[#2B00B7] p-3 hover:bg-[#2209a1] hover:text-white transition flex justify-center items-center"
           >
             Previous
-          </button>
-        )}
-
-        {formStep === 1 && (
-          <button
-            onClick={handleNext}
-            disabled={!isStepOneFilled || savingStage1}
-            className={`w-[200px] mt-6 bg-[#2B00B7] text-white p-3 hover:bg-[#2309A1] transition flex justify-center items-center cursor-pointer duration-200 ${
-              savingStage1 ? "opacity-50 cursor-wait" : ""
-            }`}
-          >
-            {savingStage1 ? "Saving…" : "Next"}
           </button>
         )}
       </div>

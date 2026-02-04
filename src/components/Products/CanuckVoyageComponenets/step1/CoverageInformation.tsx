@@ -534,6 +534,7 @@ interface CoverageInformationProps {
   quoteNumber: string | null;
   agentCode: string;
   handleSaveQuote: () => Promise<boolean>;
+  onValidityChange?: (isValid: boolean) => void;
 }
 
 export default function CoverageInformation({
@@ -544,7 +545,8 @@ export default function CoverageInformation({
   setError,
   quoteNumber,
   handleSaveQuote,
-  premiumBreakdown
+  premiumBreakdown,
+  onValidityChange
 }: CoverageInformationProps) {
   const {
     register,
@@ -631,6 +633,15 @@ export default function CoverageInformation({
     deductible,
     numberOfDaysPerTrip,
   ]);
+
+    // Check if all fields filled for validation
+    const isFormFilled = useMemo(() => {
+      return canCalculatePremium;
+    }, [canCalculatePremium]);
+  
+    useEffect(() => {
+      onValidityChange?.(isFormFilled);
+    }, [isFormFilled, onValidityChange]);
 
 
 

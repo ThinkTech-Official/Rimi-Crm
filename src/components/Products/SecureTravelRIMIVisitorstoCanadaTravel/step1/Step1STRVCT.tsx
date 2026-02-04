@@ -122,7 +122,7 @@ const Step1STRVCT = ({
     getValues,
     watch,
     trigger,
-    formState: { errors },
+    formState: { errors, isSubmitted },
   } = useFormContext<Step1Payload>();
 
   // Use watch to subscribe to form updates for logic
@@ -366,11 +366,11 @@ const Step1STRVCT = ({
     paymentOption,
   ].every((v) => v !== "" && v !== undefined && v !== null);
 
-  const isFormFilled = isConfirmed && canSaveQoute;
+  const isFormFilled = canSaveQoute;
 
   // ---------- Auto CHeck the status of form -----------
   useEffect(() => {
-    onValidityChange(isFormFilled);
+    onValidityChange?.(isFormFilled);
   }, [isFormFilled, onValidityChange]);
 
   // check if coverage informatiion is completed for backend to calculate the premium
@@ -1094,7 +1094,7 @@ const Step1STRVCT = ({
                 Confirm that all applicants are eligible for this insurance
               </span>
             </div>
-            {errors.isConfirmed && isConfirmed === false && (
+            {errors.isConfirmed && isSubmitted && (
               <p className="text-red-500 text-sm mt-1 text-center">
                 {errors.isConfirmed.message}
               </p>

@@ -133,7 +133,7 @@ export default function CoverageInformation({
 
   // Notify parent of validation changes
   useEffect(() => {
-    onValidityChange(isFormFilled);
+    onValidityChange?.(isFormFilled);
   }, [isFormFilled, onValidityChange]);
 
 

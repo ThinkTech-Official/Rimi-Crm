@@ -529,28 +529,43 @@ const RIMICanuckVoyageNonMedicalTravel: React.FC = () => {
       {/* ========== STEP 1: GET QUOTE ========== */}
       {steps[0].status === "current" && (
         <FormProvider {...step1Methods}>
-          <ApplicantInformation methods={step1Methods} />
+          <form onSubmit={step1Methods.handleSubmit(handleNext)}>
+            <ApplicantInformation methods={step1Methods} />
 
-          <TripInformation
-            methods={step1Methods}
-            premiumBreakdown={premiumBreakdown}
-            setPremiumBreakdown={setPremiumBreakdown}
-            setTotalPremium={setTotalPremium}
-            setLoading={setLoading}
-            error={error}
-            setError={setError}
-            onValidityChange={setIsStepOneFilled}
-            quoteNumber={quoteNumber}
-            handleSaveQuote={handleSaveQuote}
-          />
+            <TripInformation
+              methods={step1Methods}
+              premiumBreakdown={premiumBreakdown}
+              setPremiumBreakdown={setPremiumBreakdown}
+              setTotalPremium={setTotalPremium}
+              setLoading={setLoading}
+              error={error}
+              setError={setError}
+              onValidityChange={setIsStepOneFilled}
+              quoteNumber={quoteNumber}
+              handleSaveQuote={handleSaveQuote}
+            />
 
-          <div className="w-full h-2 mt-5 flex items-center justify-center font-[inter]">
-            <h3 className="text-base sm:text-lg">
-              {loading
-                ? "Calculating..."
-                : `Your Quote: $${totalPremium.toFixed(2)} CAD`}
-            </h3>
-          </div>
+            <div className="w-full h-2 mt-5 flex items-center justify-center font-[inter]">
+              <h3 className="text-base sm:text-lg">
+                {loading
+                  ? "Calculating..."
+                  : `Your Quote: $${totalPremium.toFixed(2)} CAD`}
+              </h3>
+            </div>
+            {formStep === 1 && (
+              <div className="flex justify-center mt-4">
+                <button
+                  type="submit"
+                  disabled={!isStepOneFilled || savingStage1}
+                  className={`w-[200px] mt-6 bg-[#2B00B7] text-white p-3 hover:bg-[#2309A1] transition flex justify-center items-center cursor-pointer duration-200 ${
+                    savingStage1 ? "opacity-50 cursor-wait" : ""
+                  }`}
+                >
+                  {savingStage1 ? "Saving…" : "Next"}
+                </button>
+              </div>
+            )}
+          </form>
         </FormProvider>
       )}
 
@@ -621,18 +636,6 @@ const RIMICanuckVoyageNonMedicalTravel: React.FC = () => {
             className="w-[200px] mt-6 bg-white border border-[#2B00B7] text-[#2B00B7] p-3 hover:bg-[#2209a1] hover:text-white transition flex justify-center items-center"
           >
             Previous
-          </button>
-        )}
-
-        {formStep === 1 && (
-          <button
-            onClick={handleNext}
-            disabled={!isStepOneFilled || savingStage1}
-            className={`w-[200px] mt-6 bg-[#2B00B7] text-white p-3 hover:bg-[#2309A1] transition flex justify-center items-center cursor-pointer duration-200 ${
-              savingStage1 ? "opacity-50 cursor-wait" : ""
-            }`}
-          >
-            {savingStage1 ? "Saving…" : "Next"}
           </button>
         )}
       </div>
