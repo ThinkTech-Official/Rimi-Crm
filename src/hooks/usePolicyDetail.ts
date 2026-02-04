@@ -33,6 +33,7 @@ export interface PolicyDetail {
   salesChannel?: string;
   agentCode: string;
   agentEmail: string;
+  primaryIndividualNumber?: string;
 
   firstName?: string;
   lastName?: string;

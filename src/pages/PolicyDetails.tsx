@@ -761,7 +761,7 @@ const PolicyDetailsPage: React.FC = () => {
         <div className="grid grid-cols-3 gap-4 text-sm w-full capitalize">
           <div>
             <div className="font-semibold text-base">Policy Number</div>
-            <div className="text-sm text-[#6F6B7D]">{p.policyNumber}</div>
+            <div className="text-sm text-[#6F6B7D]">{p.primaryIndividualNumber}</div>
           </div>
           {renderEditableField("First Name", "firstName")}
           {renderEditableField("Last Name", "lastName")}
@@ -1154,6 +1154,9 @@ const PolicyDetailsPage: React.FC = () => {
                   onProcessRefund={
                     p.status === "CANCELLED" ? handleRefund : undefined
                   }
+                  cardHolderName = {p.currentCardholderName}
+                  cardLast4 = {p.currentCardLast4}
+                  cardBrand = {p.currentCardBrand}
                 />
               </div>
             )}

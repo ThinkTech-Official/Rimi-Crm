@@ -6,6 +6,9 @@ interface PaymentScheduleTableProps {
   loading: boolean;
   error: string | null;
   onProcessRefund?: (paymentHistoryId: string, amount: number) => void;
+  cardHolderName?: string;
+  cardLast4?: string;
+  cardBrand?: string;
 }
 
 export const PaymentScheduleTable: React.FC<PaymentScheduleTableProps> = ({
@@ -13,6 +16,9 @@ export const PaymentScheduleTable: React.FC<PaymentScheduleTableProps> = ({
   loading,
   error,
   onProcessRefund,
+  cardHolderName,
+  cardLast4,
+  cardBrand,
 }) => {
   if (loading) {
     return (
@@ -128,17 +134,17 @@ export const PaymentScheduleTable: React.FC<PaymentScheduleTableProps> = ({
 
               {/* Cardholder Name */}
               <td className="px-2 sm:px-3 py-2 sm:py-4 whitespace-nowrap" style={cellStyle}>
-                {item.paymentHistory?.cardholderName || "N/A"}
+                {cardHolderName || "N/A"}
               </td>
 
               {/* Brand */}
               <td className="px-2 sm:px-3 py-2 sm:py-4 whitespace-nowrap capitalize" style={cellStyle}>
-                {item.paymentHistory?.brand || "N/A"}
+                {cardBrand || "N/A"}
               </td>
 
               {/* Card Last 4 */}
               <td className="px-2 sm:px-3 py-2 sm:py-4 whitespace-nowrap" style={cellStyle}>
-                {item.paymentHistory?.last4 || "N/A"}
+                {cardLast4 || "N/A"}
               </td>
 
               {/* Charged Amount */}
