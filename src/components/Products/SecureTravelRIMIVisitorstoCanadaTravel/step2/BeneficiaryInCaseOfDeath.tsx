@@ -126,22 +126,20 @@ const BeneficiaryInCaseOfDeath: FC<BeneficiaryInfoProps> = ({
           </label>
           <div className="relative">
             {methods ? (
-              <select
-                className="input-primary appearance-none cursor-pointer"
+              <input
+                className="input-primary"
+                type="text"
+                placeholder="Relationship (e.g. Spouse)"
                 {...register("beneficiary.relationshipToInsured", {
                   required: "Relationship is required",
+                  maxLength: { value: 60, message: "Max 60 characters" },
                 })}
-              >
-                <option value="">Please select</option>
-                <option value="Spouse">Spouse</option>
-                <option value="Dependent Child">Dependent Child</option>
-                <option value="Travelling Companion">
-                  Travelling Companion
-                </option>
-              </select>
+              />
             ) : (
-              <select
-                className="input-primary appearance-none cursor-pointer"
+              <input
+                className="input-primary"
+                type="text"
+                placeholder="Relationship (e.g. Spouse)"
                 value={beneficiaryInfo?.relationshipToInsured}
                 onChange={(e) =>
                   setBeneficiaryInfo &&
@@ -150,18 +148,8 @@ const BeneficiaryInCaseOfDeath: FC<BeneficiaryInfoProps> = ({
                     relationshipToInsured: e.target.value,
                   }))
                 }
-              >
-                <option value="">Please select</option>
-                <option value="Spouse">Spouse</option>
-                <option value="Dependent Child">Dependent Child</option>
-                <option value="Travelling Companion">
-                  Travelling Companion
-                </option>
-              </select>
+              />
             )}
-            <div className="pointer-events-none absolute inset-y-0 right-2 flex items-center text-gray-500">
-              <ChevronDownIcon className="h-5 w-5" aria-hidden="true" />
-            </div>
           </div>
           {(errors as any)?.beneficiary?.relationshipToInsured && (
             <p className="text-red-500 text-sm mt-1">
