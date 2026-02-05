@@ -400,10 +400,6 @@ const RIMICanuckVoyageTravelMedical: React.FC = () => {
       setQuoteNumber(response.quoteNumber);
       setStep1ResponseData(response);
       console.log("✅ Stage 1 response:", response);
-      triggerNotification({
-        message: "Quote saved successfully!",
-        type: "success",
-      });
       handleFormStepChange("forward");
     } catch (err) {
       console.error("❌ Stage 1 failed:", err);

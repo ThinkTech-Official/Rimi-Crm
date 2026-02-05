@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { usePolicyCancellation, RefundPreview } from '../hooks/admin-dashboard/usePolicyCancellation';
 import { MdClose } from 'react-icons/md';
+import { FaInfo } from 'react-icons/fa';
 
 interface PaymentRecord {
   id: string;
@@ -24,6 +25,7 @@ interface CancellationModalProps {
   effectiveDate: string; 
   paymentOption: string; 
   onSuccess: (message: string) => void;
+  isSuperVisa?: string | undefined;
 }
 
 export default function CancellationModal({
@@ -34,7 +36,8 @@ export default function CancellationModal({
   paymentHistory,
   effectiveDate, 
   paymentOption, 
-  onSuccess
+  onSuccess,
+  isSuperVisa
 }: CancellationModalProps) {
   const [step, setStep] = useState<'preview' | 'confirm'>('preview');
   const [cancellationType, setCancellationType] = useState<'visitors' | 'visa-refusal' | 'super-visa' | 'early-return' | 'other'>('visitors');
@@ -106,6 +109,12 @@ export default function CancellationModal({
     }
   };
 
+  useEffect(() => {
+    if (isSuperVisa === "yes") {
+      setCancellationType("super-visa");
+    }
+  }, [isSuperVisa]);
+
   if (!isOpen) return null;
 
   return (
@@ -113,10 +122,13 @@ export default function CancellationModal({
       <div className="bg-white shadow-xl max-w-3xl w-full max-h-[90vh] overflow-y-auto custom-scrollbar3">
         {/* Header */}
         <div className="sticky top-0 bg-white border-b border-inputBorder px-6 py-4 flex justify-between items-center z-10">
-          <h2 className="text-xl font-semibold text-text-black">
+          <h2 className="text-xl font-semibold text-text-black flex items-center">
             Cancel Policy - <span className='text-primary'>
               {policyNumber}
             </span>
+            {isSuperVisa === "yes" && (
+              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-sm font-medium bg-purple-100 text-purple-800 ml-2">Super Visa</span>
+            )}
           </h2>
           <button
             onClick={onClose}
@@ -138,9 +150,9 @@ export default function CancellationModal({
             <>
               
               {noRefundsWillBeIssued ? (
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <div className="bg-blue-50 border border-blue-200 p-4">
                   <div className="flex items-start">
-                    <div className="text-blue-600 text-xl mr-3">ℹ️</div>
+                    <FaInfo className='text-blue-600 text-xl mr-3 mt-1 bg-blue-200 rounded-full p-1'/>
                     <div>
                       <h3 className="font-semibold text-blue-800 mb-2">
                         Policy Already Started - No Refunds
@@ -380,30 +392,30 @@ export default function CancellationModal({
                   {/* Breakdown Table */}
                   {preview.refundBreakdown.length > 0 && (
                     <div className="mt-4">
-                      <h4 className="font-medium mb-2">Refund Breakdown</h4>
-                      <div className="overflow-x-auto">
-                        <table className="w-full text-xs">
-                          <thead className="bg-gray-100">
+                      <h4 className="font-medium mb-2 text-primary">Refund Breakdown</h4>
+                      <div className="overflow-x-auto custom-scrollbar2">
+                        <table className="w-full text-sm">
+                          <thead className="bg-primary text-white text-nowrap capitalize">
                             <tr>
-                              <th className="px-2 py-1 text-left font-medium">Charge ID</th>
-                              <th className="px-2 py-1 text-right font-medium">Original</th>
-                              <th className="px-2 py-1 text-right font-medium">Refund</th>
-                              <th className="px-2 py-1 text-left font-medium">Date</th>
+                              <th className="px-3 py-2 text-left font-medium">Charge ID</th>
+                              <th className="px-3 py-2 text-right font-medium">Original</th>
+                              <th className="px-3 py-2 text-right font-medium">Refund</th>
+                              <th className="px-3 py-2 text-left font-medium">Date</th>
                             </tr>
                           </thead>
                           <tbody className="bg-white" style={{ border: "1px solid #AAA9A9" }}>
                             {preview.refundBreakdown.map((item: any, idx: any) => (
                               <tr key={idx} className="text-[#808080] text-sm">
-                                <td className="px-2 py-1 font-mono text-xs" style={{ borderWidth: "0px 1px 1px 0px", borderStyle: "solid", borderColor: "#AAA9A9" }}>
-                                  {item.chargeId.slice(-8)}
+                                <td className="px-3 py-2 font-mono text-xs" style={{ borderWidth: "0px 1px 1px 0px", borderStyle: "solid", borderColor: "#AAA9A9" }}>
+                                  {item.chargeId.slice(-14)}
                                 </td>
-                                <td className="px-2 py-1 text-right" style={{ borderWidth: "0px 1px 1px 0px", borderStyle: "solid", borderColor: "#AAA9A9" }}>
+                                <td className="px-3 py-2 text-right" style={{ borderWidth: "0px 1px 1px 0px", borderStyle: "solid", borderColor: "#AAA9A9" }}>
                                   ${item.amount.toFixed(2)}
                                 </td>
-                                <td className="px-2 py-1 text-right font-medium text-green-600">
+                                <td className="px-3 py-2 text-right font-medium text-green-600" style={{ borderWidth: "0px 1px 1px 0px", borderStyle: "solid", borderColor: "#AAA9A9" }}>
                                   ${item.willRefund.toFixed(2)}
                                 </td>
-                                <td className="px-2 py-1" style={{ borderWidth: "0px 1px 1px 0px", borderStyle: "solid", borderColor: "#AAA9A9" }}>
+                                <td className="px-3 py-2" style={{ borderWidth: "0px 1px 1px 0px", borderStyle: "solid", borderColor: "#AAA9A9" }}>
                                   {new Date(item.date).toLocaleDateString('en-CA')}
                                 </td>
                               </tr>

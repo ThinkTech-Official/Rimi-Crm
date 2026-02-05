@@ -1199,9 +1199,9 @@ const PolicyDetailsPage: React.FC = () => {
                       <th className="px-2 sm:px-3 py-1 sm:py-3 text-left font-medium text-nowrap">
                         Payment Type
                       </th>
-                      <th className="px-2 sm:px-3 py-1 sm:py-3 text-center font-medium text-nowrap">
+                      {/* <th className="px-2 sm:px-3 py-1 sm:py-3 text-center font-medium text-nowrap">
                         Actions
-                      </th>
+                      </th> */}
                     </tr>
                   </thead>
                   <tbody
@@ -1323,7 +1323,7 @@ const PolicyDetailsPage: React.FC = () => {
                               </span>
                             </div>
                           </td>
-                          <td
+                          {/* <td
                             className="px-2 sm:px-3 py-2 sm:py-4 whitespace-nowrap text-center"
                             style={cellStyle}
                           >
@@ -1365,7 +1365,7 @@ const PolicyDetailsPage: React.FC = () => {
                                   )}
                                 </button>
                               )}
-                          </td>
+                          </td> */}
                         </tr>
                       );
                     })}
@@ -1670,6 +1670,7 @@ const PolicyDetailsPage: React.FC = () => {
         paymentHistory={p.paymentHistory || []}
         effectiveDate={p.effectiveDate?.toString() || ""}
         paymentOption={p.paymentOption || ""}
+        isSuperVisa = {p.applicantOnSuperVisa}
         onSuccess={(message) => {
           triggerNotification({
             message,

@@ -433,10 +433,6 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
         applicants: response.applicants,
       });
       console.log("from quote  getting response of stage 1", response);
-      triggerNotification({
-        message: "Quote saved successfully!",
-        type: "success",
-      });
       handleFormStepChange("forward");
     } catch (err) {
       console.error("saveQuoteNext failed", err);

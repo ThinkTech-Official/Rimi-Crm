@@ -80,9 +80,8 @@ const RenewalNoticeModal: React.FC<RenewalNoticeModalProps> = ({
   };
 
   const allPolicyNumbers = [
-    policy.policyNumber || 'N/A',
-    ...(policy.applicants?.map(a => a.policyNumber || 'N/A') || []),
-  ].filter(Boolean).join(', ');
+    policy.policyNumber
+  ];
 
   const handlePrint = () => {
     window.print();
@@ -124,20 +123,23 @@ const RenewalNoticeModal: React.FC<RenewalNoticeModalProps> = ({
 
           {/* Logo and Summary Card */}
           <div className="bg-gray-50 border border-gray-200 p-3 sm:p-6">
-            <div className="flex justify-between items-start mb-6">
-              <div className="text-2xl font-bold">
+            <div className="flex justify-between items-start mb-3">
+              {/* <div className="text-2xl font-bold">
                 <span className="text-blue-800">Secure</span>
                 <span className="text-red-600">Travel</span>
-              </div>
+              </div> */}
+              <h1 className="text-[22px] font-bold text-primary mb-6">
+              {policy.product?.split("_").join(" ")}
+            </h1>
               <div className="text-right">
                 <div className="text-xs text-gray-500 uppercase font-semibold">Policy Number(s)</div>
                 <div className="text-sm font-medium text-gray-900">{allPolicyNumbers}</div>
               </div>
             </div>
 
-            <h1 className="text-[22px] font-bold text-primary mb-6">
+            {/* <h1 className="text-[22px] font-bold text-primary mb-6">
               {policy.product?.split("_").join(" ")}
-            </h1>
+            </h1> */}
 
             <div className="space-y-4 text-gray-700">
               <p>Dear {policy.lastName || 'Valued Customer'},</p>

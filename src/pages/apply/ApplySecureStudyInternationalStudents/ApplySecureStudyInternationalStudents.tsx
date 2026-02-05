@@ -334,10 +334,6 @@ export default function SecureStudyRIMIInternationalStudentstoCanada() {
         applicants: response.applicants,
       });
       console.log("Product 2 - Stage 1 response:", response);
-      triggerNotification({
-        message: "Quote saved successfully!",
-        type: "success",
-      });
       handleFormStepChange("forward");
     } catch (err) {
       console.error("saveQuoteNext failed", err);
