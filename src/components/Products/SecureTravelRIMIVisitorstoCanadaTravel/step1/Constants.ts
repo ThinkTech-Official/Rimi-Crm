@@ -247,18 +247,19 @@ export const Countries = [
 
 export const CanadaStates = [
   { value: "", label: "Please select..." },
-  { value: "ON", label: "Ontario" },
-  { value: "BC", label: "British Columbia" },
-  { value: "QC", label: "Quebec" },
-  { value: "AB", label: "Alberta" },
-  { value: "MB", label: "Manitoba" },
-  { value: "NB", label: "New Brunswick" },
-  { value: "NL", label: "Newfoundland & Labrador" },
-  { value: "NT", label: "Northwest Territories" },
-  { value: "NS", label: "Nova Scotia" },
-  { value: "PE", label: "Prince Edward Island" },
-  { value: "SK", label: "Saskatchewan" },
-  { value: "YT", label: "Yukon" },
+  { value: "Ontario", label: "Ontario" },
+  { value: "British Columbia", label: "British Columbia" },
+  { value: "Quebec", label: "Quebec" },
+  { value: "Alberta", label: "Alberta" },
+  { value: "Manitoba", label: "Manitoba" },
+  { value: "New Brunswick", label: "New Brunswick" },
+  { value: "Newfoundland and Labrador", label: "Newfoundland & Labrador" },
+  { value: "Northwest Territories", label: "Northwest Territories" },
+  { value: "Nova Scotia", label: "Nova Scotia" },
+  { value: "Prince Edward Island", label: "Prince Edward Island" },
+  { value: "Saskatchewan", label: "Saskatchewan" },
+  { value: "Yukon", label: "Yukon" },
+  { value: "Nunavut", label: "Nunavut" },
 ];
 
 export const allCoverageOptions = [

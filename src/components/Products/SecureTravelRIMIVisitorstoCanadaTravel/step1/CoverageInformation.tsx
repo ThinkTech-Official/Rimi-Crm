@@ -8,6 +8,7 @@ import {
   SelectHTMLAttributes,
 } from "react";
 import { InformationCircleIcon } from "@heroicons/react/24/outline";
+import { CanadaStates } from "./Constants";
 
 type SuperVisaOption = "" | "yes" | "no";
 type SuperVisaYears = "" | "1";
@@ -469,21 +470,7 @@ export default function CoverageInformation() {
           <Dropdown
             label="Destination Province"
             info={() => setShowInfoDestinationProvince((prev) => !prev)}
-            options={[
-              { value: "", label: "Please select..." },
-              { value: "ON", label: "Ontario" },
-              { value: "BC", label: "British Columbia" },
-              { value: "QC", label: "Quebec" },
-              { value: "AB", label: "Alberta" },
-              { value: "MB", label: "Manitoba" },
-              { value: "NB", label: "New Brunswick" },
-              { value: "NL", label: "Newfoundland & Labrador" },
-              { value: "NT", label: "Northwest Territories" },
-              { value: "NS", label: "Nova Scotia" },
-              { value: "PE", label: "Prince Edward Island" },
-              { value: "SK", label: "Saskatchewan" },
-              { value: "YT", label: "Yukon" },
-            ]}
+            options={CanadaStates}
             value={destinationProvince}
             onChange={handleProvinceChange}
           />
