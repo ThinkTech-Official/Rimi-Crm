@@ -441,6 +441,7 @@ import {
   HomeIcon,
   ShieldCheckIcon,
   ArrowPathIcon,
+  AcademicCapIcon,
 } from "@heroicons/react/24/outline";
 import { Disclosure } from "@headlessui/react";
 import { LangContext } from "../context/LangContext";
@@ -577,10 +578,20 @@ const navigation = [
     allowedRoles: ["ADMIN"],
     url: "#",
     children: [
-      { name: "User Migration", url: "/migrations/users", slug: "user-migration" },
       { name: "Quote Migration", url: "/migrations/quotes", slug: "quote-migration" },
       { name: "Policy Migration", url: "/migrations/policies", slug: "policy-migration" },
     ]
+  },
+  {
+    name: "Agent Training Portal",
+    nameFr: "Portail de formation des agents",
+    href: "#",
+    icon: AcademicCapIcon,
+    current: false,
+    slug: "agent-training-portal",
+    allowedRoles: ["ADMIN", "AGENT", "MGA"],
+    url: "https://rimitrainingportal.com/",
+    external: true,
   }
 ];
 
@@ -665,6 +676,10 @@ export default function Dashboard() {
   );
   
   const handleLinkClick = (nav: any) => {
+    if (nav.external) {
+      window.open(nav.url, "_blank");
+      return;
+    }
     setSelectedComponent(nav.slug);
     navigate(nav.url);
   };
