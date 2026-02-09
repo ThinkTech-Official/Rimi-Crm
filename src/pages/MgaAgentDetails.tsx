@@ -25,6 +25,9 @@ const MGAAgentDetails = () => {
 
     const [commissionsPage, setCommissionsPage] = useState(1);
 
+    const [dateFrom, setDateFrom] = useState<string>('');
+    const [dateTo, setDateTo] = useState<string>('');
+
   // Fetch agent details using existing hook
   const { data: agentData, loading: detailsLoading, error: detailsError } = useMgaAgentDetails(agentCode || "");
   
@@ -50,7 +53,9 @@ const MGAAgentDetails = () => {
   const { data: commissionsData, loading: commissionsLoading } = useMgaAgentCommissions(
   agentCode || "",
   commissionsPage,
-  limit
+  limit,
+  dateFrom,
+  dateTo
 );
 
 
@@ -286,6 +291,18 @@ const MGAAgentDetails = () => {
         </div>
       </div>
 
+
+      {/* Commission Search  */}
+
+      
+
+
+
+
+
+
+
+
       {/* Tables with Pagination */}
       <div className="mt-6">
         {filter === "Policies" && (
@@ -414,6 +431,67 @@ const MGAAgentDetails = () => {
 
         {filter === "Commissions" && (
   <div>
+
+ <div className="mb-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
+      <div className="flex flex-wrap items-end gap-4">
+        <div className="flex-1 min-w-[200px]">
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            From Date
+          </label>
+          <input
+            type="date"
+            value={dateFrom}
+            onChange={(e) => {
+              setDateFrom(e.target.value);
+              setCommissionsPage(1); 
+            }}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+          />
+        </div>
+        
+        <div className="flex-1 min-w-[200px]">
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            To Date
+          </label>
+          <input
+            type="date"
+            value={dateTo}
+            onChange={(e) => {
+              setDateTo(e.target.value);
+              setCommissionsPage(1); 
+            }}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+          />
+        </div>
+        
+        <button
+          onClick={() => {
+            setDateFrom('');
+            setDateTo('');
+            setCommissionsPage(1);
+          }}
+          disabled={!dateFrom && !dateTo}
+          className="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          Clear Filters
+        </button>
+      </div>
+      
+      {/* Show active filter info */}
+      {(dateFrom || dateTo) && (
+        <div className="mt-2 text-sm text-gray-600">
+          Showing commissions 
+          {dateFrom && ` from ${new Date(dateFrom).toLocaleDateString()}`}
+          {dateTo && ` to ${new Date(dateTo).toLocaleDateString()}`}
+        </div>
+      )}
+    </div>
+
+
+
+
+
+
     {commissionsLoading ? (
       <div className="flex justify-center items-center py-20">
         <Spinner className="w-8 h-8" />
@@ -455,6 +533,58 @@ const MGAAgentDetails = () => {
           loading={false}
           error={null}
         />
+
+
+
+          {commissionsData?.summary && (
+          <div className="mt-4 p-6 bg-gradient-to-br from-blue-50 to-purple-50 rounded-lg border-2 border-blue-200">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-blue-900">
+                Commission Summary
+              </h3>
+              <span className="text-sm text-gray-600">
+                {dateFrom || dateTo 
+                  ? `Filtered Period` 
+                  : 'All Time'
+                }
+              </span>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="bg-white p-4 rounded-lg border border-blue-200">
+                <div className="text-sm text-gray-600 mb-1">Total Commissions</div>
+                <div className="text-2xl font-bold text-blue-900">
+                  {commissionsData.summary.totalCommissions}
+                </div>
+                <div className="text-xs text-gray-500 mt-1">
+                  Total: ${commissionsData.summary.totalAmount.toFixed(2)}
+                </div>
+              </div>
+              
+              <div className="bg-white p-4 rounded-lg border border-purple-200">
+                <div className="text-sm text-gray-600 mb-1">MGA Override Share</div>
+                <div className="text-2xl font-bold text-purple-700">
+                  ${commissionsData.summary.totalMgaShare.toFixed(2)}
+                </div>
+                <div className="text-xs text-gray-500 mt-1">
+                  Your earnings from this agent
+                </div>
+              </div>
+              
+              <div className="bg-white p-4 rounded-lg border border-green-200">
+                <div className="text-sm text-gray-600 mb-1">Agent Share</div>
+                <div className="text-2xl font-bold text-green-700">
+                  ${commissionsData.summary.totalAgentShare.toFixed(2)}
+                </div>
+                <div className="text-xs text-gray-500 mt-1">
+                  Amount payable to agent
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+
 
         {/* Pagination */}
         {commissionsData && commissionsData.totalPages > 1 && (
