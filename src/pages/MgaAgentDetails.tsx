@@ -129,9 +129,9 @@ const MGAAgentDetails = () => {
       {/* Back button */}
       <button
         onClick={() => navigate('/mga/dashboard')}
-        className="mb-4 text-primary hover:underline flex items-center gap-2"
+        className="mb-4 text-primary flex items-center gap-2 cursor-pointer"
       >
-        ← Back to Dashboard
+        <ChevronLeftIcon className="w-4 h-4" /> Back to Dashboard
       </button>
 
       {/* Header with agent info and actions */}
@@ -255,7 +255,7 @@ const MGAAgentDetails = () => {
         <div className="flex gap-6 border-b border-gray-200">
           <button
             onClick={() => toggleTableFilter("Policies")}
-            className={`pb-3 px-1 font-medium text-sm transition-colors relative ${
+            className={`pb-3 px-1 font-medium cursor-pointer transition-colors relative ${
               filter === "Policies"
                 ? "text-primary border-b-2 border-primary"
                 : "text-gray-500 hover:text-gray-700"
@@ -265,7 +265,7 @@ const MGAAgentDetails = () => {
           </button>
           <button
             onClick={() => toggleTableFilter("Quotes")}
-            className={`pb-3 px-1 font-medium text-sm transition-colors relative ${
+            className={`pb-3 px-1 font-medium cursor-pointer transition-colors relative ${
               filter === "Quotes"
                 ? "text-primary border-b-2 border-primary"
                 : "text-gray-500 hover:text-gray-700"
@@ -275,7 +275,7 @@ const MGAAgentDetails = () => {
           </button>
           <button
   onClick={() => toggleTableFilter("Commissions")}
-  className={`pb-3 px-1 font-medium text-sm transition-colors relative ${
+  className={`pb-3 px-1 font-medium cursor-pointer transition-colors relative ${
     filter === "Commissions"
       ? "text-primary border-b-2 border-primary"
       : "text-gray-500 hover:text-gray-700"
