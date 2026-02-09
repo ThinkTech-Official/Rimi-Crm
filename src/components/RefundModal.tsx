@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { MdClose } from 'react-icons/md';
 
 interface RefundModalProps {
   isOpen: boolean;
@@ -86,23 +87,29 @@ const RefundModal: React.FC<RefundModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
+    <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50 h-full">
+      <div className="bg-white rounded-lg shadow-xl max-w-lg w-full max-h-[90vh] overflow-y-auto custom-scrollbar3">
         {/* Header */}
-        <div className="border-b px-6 py-4">
-          <h2 className="text-xl font-semibold text-gray-900">
+        <div className="sticky top-0 bg-white border-b border-inputBorder px-6 py-4 flex justify-between items-center z-10">
+          <h2 className="text-xl font-semibold text-text-black">
             Early Return - Refund Processing
           </h2>
+          <button
+            onClick={onClose}
+            className="text-gray-500 hover:text-gray-700 text-2xl leading-none cursor-pointer"
+          >
+            <MdClose />
+          </button>
         </div>
 
         {/* Content */}
-        <div className="px-6 py-4 space-y-4">
-          <p className="text-sm text-gray-600">
+        <div className="px-6 py-6 space-y-6">
+          <p className="text-sm text-text-secondary">
             Policy modified for early return. Please review the refund details below:
           </p>
 
           {/* Date Information */}
-          <div className="bg-gray-50 rounded p-4 space-y-2 text-sm">
+          <div className="bg-gray-50 rounded p-4 space-y-2 text-sm border border-inputBorder">
             <div className="flex justify-between">
               <span className="text-gray-600">Original Expiry:</span>
               <span className="font-medium">
@@ -122,7 +129,7 @@ const RefundModal: React.FC<RefundModalProps> = ({
           </div>
 
           {/* Refund Calculation */}
-          <div className="space-y-3">
+          <div className="space-y-4">
             <div className="flex justify-between items-center">
               <span className="text-sm font-medium text-gray-700">
                 Maximum Refundable:
@@ -134,8 +141,8 @@ const RefundModal: React.FC<RefundModalProps> = ({
 
             {/* Transaction Fee Input */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Transaction Fee: <span className="text-red-500">*</span>
+              <label className="block text-sm font-medium text-text-secondary mb-1">
+                Transaction Fee <span className="text-red-500">*</span>
               </label>
               <div className="relative">
                 <span className="absolute left-3 top-2.5 text-gray-500">$</span>
@@ -146,9 +153,9 @@ const RefundModal: React.FC<RefundModalProps> = ({
                   max={maxRefundable}
                   value={transactionFee}
                   onChange={handleTransactionFeeChange}
-                  className={`w-full pl-7 pr-4 py-2 border rounded ${
-                    error ? 'border-red-500' : 'border-gray-300'
-                  } focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                  className={`input-primary pl-7 ${
+                    error ? 'border-red-500' : ''
+                  }`}
                   placeholder="0.00"
                   disabled={loading}
                 />
@@ -160,11 +167,11 @@ const RefundModal: React.FC<RefundModalProps> = ({
             </div>
 
             {/* Net Refund Display */}
-            <div className="flex justify-between items-center pt-2 border-t">
+            <div className="flex justify-between items-center pt-4 border-t border-inputBorder">
               <span className="text-sm font-medium text-gray-700">
                 Net Refund Amount:
               </span>
-              <span className="text-xl font-bold text-blue-600">
+              <span className="text-xl font-bold text-primary">
                 ${netRefund.toFixed(2)}
               </span>
             </div>
@@ -172,7 +179,7 @@ const RefundModal: React.FC<RefundModalProps> = ({
 
           {/* Warning if net refund is $0 */}
           {netRefund === 0 && transactionFee && (
-            <div className="bg-yellow-50 border border-yellow-200 rounded p-3">
+             <div className="bg-yellow-50 border border-yellow-200 rounded p-3">
               <p className="text-sm text-yellow-800">
                 ℹ️ Net refund is $0.00 because the transaction fee equals the refundable amount.
               </p>
@@ -181,18 +188,18 @@ const RefundModal: React.FC<RefundModalProps> = ({
         </div>
 
         {/* Footer */}
-        <div className="border-t px-6 py-4 flex justify-end space-x-3">
+        <div className="sticky bottom-0 bg-white border-t border-inputBorder px-6 py-4 flex justify-end space-x-3 z-10">
           <button
             onClick={onClose}
             disabled={loading}
-            className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="py-2 px-4 border border-inputBorder hover:border-gray-400 cursor-pointer transition delay-100 rounded text-sm font-medium text-gray-700"
           >
             Cancel
           </button>
           <button
             onClick={handleConfirm}
             disabled={loading || !transactionFee || !!error}
-            className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
+            className="bg-primary text-white py-2 px-4 font-semibold hover:bg-[#2309A1] transition-all duration-200 cursor-pointer disabled:cursor-not-allowed disabled:opacity-70 rounded text-sm flex items-center space-x-2"
           >
             {loading ? (
               <>

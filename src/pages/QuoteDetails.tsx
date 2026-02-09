@@ -8,9 +8,9 @@ import {
 const DetailItem: React.FC<{ label: string; value: string | number | null | undefined; className?: string }> = ({ label, value, className = "" }) => {
   if (value === null || value === undefined || value === "" || value === "-") return null;
   return (
-    <div className={className}>
-      <div className="font-semibold text-base">{label}</div>
-      <div className="text-sm text-[#6F6B7D]">{value}</div>
+    <div className={`min-w-0 ${className}`}>
+      <div className="font-semibold text-base break-words">{label}</div>
+      <div className="text-sm text-[#6F6B7D] break-words">{value}</div>
     </div>
   );
 };

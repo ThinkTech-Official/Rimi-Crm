@@ -549,7 +549,7 @@ const PolicyDetailsPage: React.FC = () => {
     const value = editedPolicy[field] ?? p[field] ?? "";
 
     return (
-      <div>
+      <div className="min-w-0">
         <div className="font-semibold text-base">{label}</div>
         {isEditMode ? (
           type === "select" ? (
@@ -585,7 +585,7 @@ const PolicyDetailsPage: React.FC = () => {
             />
           )
         ) : (
-          <div className="text-sm text-[#6F6B7D]">
+          <div className="text-sm text-[#6F6B7D] break-words">
             {type === "date" ? fmtDate(value as string) : (value as string)}
           </div>
         )}
@@ -717,38 +717,38 @@ const PolicyDetailsPage: React.FC = () => {
           Policy Information
         </div>
         <div className="grid grid-cols-3 gap-4 text-sm capitalize w-full">
-          <div>
+          <div className="min-w-0">
             <div className="font-semibold text-base">Policy Number</div>
-            <div className="text-sm text-[#6F6B7D]">{p.policyNumber}</div>
+            <div className="text-sm text-[#6F6B7D] break-words">{p.policyNumber}</div>
           </div>
-          <div>
+          <div className="min-w-0">
             <div className="font-semibold text-base">Sale Date</div>
-            <div className="text-sm text-[#6F6B7D]">
+            <div className="text-sm text-[#6F6B7D] break-words">
               {fmtDate(p.dateIssued)}
             </div>
           </div>
-          <div>
+          <div className="min-w-0">
             <div className="font-semibold text-base">Status</div>
             <div
-              className={
+              className={`break-words ${
                 p.status === "CANCELLED"
                   ? "text-red-600 font-semibold"
                   : "text-sm text-[#6F6B7D]"
-              }
+              }`}
             >
               {p.status}
             </div>
           </div>
           {renderEditableField("Language", "language")}
-          <div>
-            <div className="font-semibold mt-4">Sales Channel</div>
-            <div className="text-sm text-[#6F6B7D]">
+          <div className="min-w-0">
+            <div className="font-semibold">Sales Channel</div>
+            <div className="text-sm text-[#6F6B7D] break-words">
               {p.salesChannel || "-"}
             </div>
           </div>
-          <div>
-            <div className="font-semibold mt-4">Agent</div>
-            <div className="text-sm text-[#6F6B7D]">{p.agentCode}</div>
+          <div className="min-w-0">
+            <div className="font-semibold">Agent</div>
+            <div className="text-sm text-[#6F6B7D] break-words">{p.agentCode}</div>
           </div>
         </div>
       </div>
@@ -759,16 +759,16 @@ const PolicyDetailsPage: React.FC = () => {
           Primary Insured Person
         </div>
         <div className="grid grid-cols-3 gap-4 text-sm w-full capitalize">
-          <div>
+          <div className="min-w-0">
             <div className="font-semibold text-base">Policy Number</div>
-            <div className="text-sm text-[#6F6B7D]">{p.primaryIndividualNumber}</div>
+            <div className="text-sm text-[#6F6B7D] break-words">{p.primaryIndividualNumber}</div>
           </div>
           {renderEditableField("First Name", "firstName")}
           {renderEditableField("Last Name", "lastName")}
           {renderEditableField("Date of Birth", "dateOfBirth", "date")}
-          <div>
+          <div className="min-w-0">
             <div className="font-semibold mt-4">Age on Effective Date</div>
-            <div className="text-sm text-[#6F6B7D]">
+            <div className="text-sm text-[#6F6B7D] break-words">
               {calcAge(
                 editedPolicy.dateOfBirth || p.dateOfBirth?.toString(),
                 editedPolicy.effectiveDate || p.effectiveDate?.toString()
@@ -780,17 +780,17 @@ const PolicyDetailsPage: React.FC = () => {
             "Female",
             "Other",
           ])}
-          <div className="col-span-2 mt-4">
+          <div className="col-span-2 mt-4 min-w-0">
             <div className="font-semibold text-base">
               Include Coverage for Stable Pre-Existing Medical Conditions
             </div>
-            <div className="text-sm text-[#6F6B7D]">
+            <div className="text-sm text-[#6F6B7D] break-words">
               {p.PreExCoverage || "No"}
             </div>
           </div>
-          <div className="mt-4">
+          <div className="mt-4 min-w-0">
             <div className="font-semibold text-base">Premium</div>
-            <div className="text-sm text-[#6F6B7D]">CAD {p.premium}</div>
+            <div className="text-sm text-[#6F6B7D] break-words">CAD {p.premium}</div>
           </div>
         </div>
       </div>
@@ -811,10 +811,10 @@ const PolicyDetailsPage: React.FC = () => {
             "email"
           )}
           {renderEditableField("Phone Number", "phoneNumber")}
-          <div className="mt-4 col-span-2">
+          <div>
             {renderEditableField("Address Line 1", "street")}
           </div>
-          <div className="mt-4">
+          <div>
             {renderEditableField("Address Line 2", "street2")}
           </div>
           {renderEditableField("City", "city")}
@@ -835,11 +835,11 @@ const PolicyDetailsPage: React.FC = () => {
               Insured Person {idx + 2}
             </div>
             <div className="grid grid-cols-3 gap-4 text-sm w-full capitalize">
-              <div>
+              <div className="min-w-0">
                 <div className="font-semibold text-base">Policy Number</div>
-                <div className="text-sm text-[#6F6B7D]">{a.policyNumber}</div>
+                <div className="text-sm text-[#6F6B7D] break-words">{a.policyNumber}</div>
               </div>
-              <div>
+              <div className="min-w-0">
                 <div className="font-semibold text-base">First Name</div>
                 {isEditMode ? (
                   <input
@@ -851,10 +851,10 @@ const PolicyDetailsPage: React.FC = () => {
                     className="input-primary"
                   />
                 ) : (
-                  <div className="text-sm text-[#6F6B7D]">{a.firstName}</div>
+                  <div className="text-sm text-[#6F6B7D] break-words">{a.firstName}</div>
                 )}
               </div>
-              <div>
+              <div className="min-w-0">
                 <div className="font-semibold text-base">Last Name</div>
                 {isEditMode ? (
                   <input
@@ -866,10 +866,10 @@ const PolicyDetailsPage: React.FC = () => {
                     className="input-primary"
                   />
                 ) : (
-                  <div className="text-sm text-[#6F6B7D]">{a.lastName}</div>
+                  <div className="text-sm text-[#6F6B7D] break-words">{a.lastName}</div>
                 )}
               </div>
-              <div>
+              <div className="min-w-0">
                 <div className="font-semibold mt-4">Date of Birth</div>
                 {isEditMode && p.status === "SOLD" ? (
                   <input
@@ -881,18 +881,18 @@ const PolicyDetailsPage: React.FC = () => {
                     className="input-primary"
                   />
                 ) : (
-                  <div className="text-sm text-[#6F6B7D]">
+                  <div className="text-sm text-[#6F6B7D] break-words">
                     {fmtDate(a.dateOfBirth)}
                   </div>
                 )}
               </div>
-              <div>
+              <div className="min-w-0">
                 <div className="font-semibold mt-4">Age on Effective Date</div>
-                <div className="text-sm text-[#6F6B7D]">
+                <div className="text-sm text-[#6F6B7D] break-words">
                   {calcAge(a.dateOfBirth, p.effectiveDate?.toString())}
                 </div>
               </div>
-              <div>
+              <div className="min-w-0">
                 <div className="font-semibold mt-4">Gender</div>
                 {isEditMode ? (
                   <select
@@ -907,10 +907,10 @@ const PolicyDetailsPage: React.FC = () => {
                     <option value="Other">Other</option>
                   </select>
                 ) : (
-                  <div className="text-sm text-[#6F6B7D]">{a.gender}</div>
+                  <div className="text-sm text-[#6F6B7D] break-words">{a.gender}</div>
                 )}
               </div>
-              <div>
+              <div className="min-w-0">
                 <div className="font-semibold mt-4">
                   Relationship to Primary Applicant
                 </div>
@@ -924,20 +924,20 @@ const PolicyDetailsPage: React.FC = () => {
                     className="input-primary"
                   />
                 ) : (
-                  <div className="text-sm text-[#6F6B7D]">{a.relation}</div>
+                  <div className="text-sm text-[#6F6B7D] break-words">{a.relation}</div>
                 )}
               </div>
-              <div className="col-span-2 mt-4">
+              <div className="col-span-2 mt-4 min-w-0">
                 <div className="font-semibold text-base">
                   Include Coverage for Stable Pre-Existing Medical Conditions
                 </div>
-                <div className="text-sm text-[#6F6B7D]">
+                <div className="text-sm text-[#6F6B7D] break-words">
                   {a.PreExCoverage || "No"}
                 </div>
               </div>
-              <div className="mt-4">
+              <div className="mt-4 min-w-0">
                 <div className="font-semibold text-base">Premium</div>
-                <div className="text-sm text-[#6F6B7D]">
+                <div className="text-sm text-[#6F6B7D] break-words">
                   {Number(a.premium || 0).toLocaleString("en-CA", {
                     style: "currency",
                     currency: "CAD",
@@ -959,9 +959,9 @@ const PolicyDetailsPage: React.FC = () => {
         <div className="grid grid-cols-3 gap-4 text-sm w-full capitalize">
           {renderEditableField("Effective Date", "effectiveDate", "date")}
           {renderEditableField("Expiry Date", "expiryDate", "date")}
-          <div>
+          <div className="min-w-0">
             <div className="font-semibold text-base">Coverage Length</div>
-            <div className="text-sm text-[#6F6B7D]">
+            <div className="text-sm text-[#6F6B7D] break-words">
               {calculateDays(
                 editedPolicy.effectiveDate ||
                   fmtDate(p.effectiveDate?.toString()),
@@ -970,22 +970,22 @@ const PolicyDetailsPage: React.FC = () => {
               Days
             </div>
           </div>
-          <div>
+          <div className="min-w-0">
             <div className="font-semibold mt-4">Policy Type</div>
-            <div className="text-sm text-[#6F6B7D]">{p.policyType}</div>
+            <div className="text-sm text-[#6F6B7D] break-words">{p.policyType}</div>
           </div>
-          <div>
+          <div className="min-w-0">
             <div className="font-semibold mt-4">Country of Origin</div>
-            <div className="text-sm text-[#6F6B7D]">{p.countryOfOrigin}</div>
+            <div className="text-sm text-[#6F6B7D] break-words">{p.countryOfOrigin}</div>
           </div>
           {renderEditableField("Destination Province", "destination")}
-          <div>
+          <div className="min-w-0">
             <div className="font-semibold mt-4">
               Are Applicants Currently in Canada?
             </div>
-            <div className="text-sm text-[#6F6B7D]">{p.applicantInCanada}</div>
+            <div className="text-sm text-[#6F6B7D] break-words">{p.applicantInCanada}</div>
           </div>
-          <div>
+          <div className="min-w-0">
             <div className="font-semibold mt-4">
               Are Applicants Travelling on a Super Visa?
             </div>
@@ -1006,14 +1006,14 @@ const PolicyDetailsPage: React.FC = () => {
                 <option value="no">No</option>
               </select>
             ) : (
-              <div className="text-sm text-[#6F6B7D]">
+              <div className="text-sm text-[#6F6B7D] break-words">
                 {p.applicantOnSuperVisa}
               </div>
             )}
           </div>
-          <div>
+          <div className="min-w-0">
             <div className="font-semibold mt-4">Coverage</div>
-            <div className="text-sm text-[#6F6B7D]">{p.coverage}</div>
+            <div className="text-sm text-[#6F6B7D] break-words">{p.coverage}</div>
           </div>
           {renderEditableField("Deductible", "deductible")}
         </div>
@@ -1025,15 +1025,15 @@ const PolicyDetailsPage: React.FC = () => {
           Beneficiary Information
         </div>
         <div className="grid grid-cols-3 gap-4 text-sm w-full capitalize">
-          <div>
+          <div className="min-w-0">
             <div className="font-semibold text-base">Name</div>
-            <div className="text-sm text-[#6F6B7D]">{p.beneficiaryName}</div>
+            <div className="text-sm text-[#6F6B7D] break-words">{p.beneficiaryName}</div>
           </div>
-          <div>
+          <div className="min-w-0">
             <div className="font-semibold text-base">
               Relationship to Insured
             </div>
-            <div className="text-sm text-[#6F6B7D]">
+            <div className="text-sm text-[#6F6B7D] break-words">
               {p.beneficiaryRelation}
             </div>
           </div>
@@ -1049,9 +1049,9 @@ const PolicyDetailsPage: React.FC = () => {
           </div>
 
     <div className="grid grid-cols-4 gap-x-4">
-      <div>
+      <div className="min-w-0">
         <div className="font-medium">Premium</div>
-        <div>
+        <div className="break-words">
           {p?.premium.toLocaleString("en-CA", {
             style: "currency",
             currency: history[0]?.currency || "CAD",
@@ -1059,16 +1059,16 @@ const PolicyDetailsPage: React.FC = () => {
           })}
         </div>
       </div>
-      <div>
+      <div className="min-w-0">
         <div className="font-medium">Payment Option</div>
-        <div>{p.paymentOption || "-"}</div>
+        <div className="break-words">{p.paymentOption || "-"}</div>
       </div>
-      <div>
+      <div className="min-w-0">
         <div className="font-medium">Credit Card</div>
         {/* <div>{history[0]?.last4 ? `•••• ${history[0].last4}` : "-"}</div> */}
 
 
-<div>
+<div className="min-w-0">
           {(() => {
             // Priority: Policy.currentCard -> Most Recent Payment -> First Payment
             const brand = p.currentCardBrand || 
@@ -1103,9 +1103,9 @@ const PolicyDetailsPage: React.FC = () => {
 
 
       </div>
-      <div>
+      <div className="min-w-0">
         <div className="font-medium">Date</div>
-        <div>{history[0]?.date ? fmtDate(history[0].date) : "-"}</div>
+        <div className="break-words">{history[0]?.date ? fmtDate(history[0].date) : "-"}</div>
       </div>
     </div>
 
