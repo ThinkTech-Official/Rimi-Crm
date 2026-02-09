@@ -703,7 +703,7 @@ const AdminAgentDetails = () => {
       </div> */}
 
       {/*  Commission Status Breakdown */}
-      {Object.keys(statusGroups).length > 0 && (
+      {/* {Object.keys(statusGroups).length > 0 && (
         <div className="mb-6 bg-white p-6 rounded-md border border-inputBorder">
           <h3 className="text-xl font-bold text-primary mb-5 flex items-center gap-2">
             <FaCoins className="text-primary/70" />
@@ -756,7 +756,7 @@ const AdminAgentDetails = () => {
               })}
           </div>
         </div>
-      )}
+      )} */}
 
       {/* Tabs */}
       <div className="relative mt-6">
