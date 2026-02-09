@@ -277,6 +277,7 @@ export const useAgentDetails = (agentCode: string) => {
     queryKey: ["agent-details", agentCode],
     queryFn: async () => {
       const response = await axiosInstance.get(`/admin/agents/${agentCode}`);
+      console.log('commission data', response.data)
       return response.data;
     },
     enabled: !!agentCode,

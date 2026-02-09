@@ -196,6 +196,7 @@ export const useCommissions = () => {
       const { data } = await axiosInstance.get(
         `${API_BASE}/admin/commissions?${params.toString()}`
       );
+      console.log('commission data ', data)
       return data;
     },
     onError: (error: any) => {

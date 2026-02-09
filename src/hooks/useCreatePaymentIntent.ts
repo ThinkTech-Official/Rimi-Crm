@@ -61,7 +61,8 @@ export function useCreatePaymentIntent(
   paymentOption: "lump-sum" | "monthly-installments",
   monthlyAmount?: number,
   remainingInstallments?: number,
-  stripeProductId?: string
+  stripeProductId?: string,
+  testClockCustomerId?: string
 ) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -89,7 +90,8 @@ export function useCreatePaymentIntent(
           paymentOption,
           monthlyAmount,
           remainingInstallments,
-          stripeProductId
+          stripeProductId,
+          testClockCustomerId
         });
 
         const { data } = await axios.post(
@@ -103,7 +105,8 @@ export function useCreatePaymentIntent(
             paymentOption: paymentOption,
             monthlyAmount,
           remainingInstallments,
-          stripeProductId
+          stripeProductId,
+          testClockCustomerId
           }
         );
 
@@ -121,7 +124,8 @@ export function useCreatePaymentIntent(
       paymentOption,        
     monthlyAmount,        
     remainingInstallments,
-    stripeProductId
+    stripeProductId,
+    testClockCustomerId
     ]
   );
 
