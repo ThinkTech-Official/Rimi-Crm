@@ -153,6 +153,7 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
     reValidateMode: "onChange",
     defaultValues: {
       contactInfo: {
+        email: "",
         additionalEmail: "",
         phoneNumber: "",
       },

@@ -238,7 +238,7 @@
 // ===============================================
 
 import { CheckIcon } from "@heroicons/react/24/outline";
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../app/store";
 import {

@@ -96,6 +96,8 @@ export default function ContactInformation({
         <div className="flex flex-col">
           <label className="text-sm">Email Address</label>
           <p className="input-primary break-words">{email}</p>
+          {/* Hidden field to register email with form */}
+          <input type="hidden" {...register("contactInfo.email")} value={email || ""} />
         </div>
 
         {/* Additional Email */}
