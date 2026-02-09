@@ -1,4 +1,5 @@
-import React from 'react';
+import React from "react";
+import { MdClose } from "react-icons/md";
 
 interface SuccessModalProps {
   isOpen: boolean;
@@ -14,28 +15,16 @@ const SuccessModal: React.FC<SuccessModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
+    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
+      <div className="bg-white shadow-xl max-w-md w-full mx-auto overflow-hidden">
         {/* Header */}
-        <div className="flex justify-between items-center p-6 border-b">
-          <h2 className="text-xl font-semibold text-gray-900">Success</h2>
+        <div className="bg-white border-b border-inputBorder px-6 py-4 flex justify-between items-center">
+          <h2 className="text-xl font-semibold text-text-black">Success</h2>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 transition-colors"
+            className="text-gray-500 hover:text-gray-700 text-2xl leading-none cursor-pointer"
           >
-            <svg
-              className="w-6 h-6"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M6 18L18 6M6 6l12 12"
-              />
-            </svg>
+            <MdClose />
           </button>
         </div>
 
@@ -45,11 +34,8 @@ const SuccessModal: React.FC<SuccessModalProps> = ({
         </div>
 
         {/* Footer */}
-        <div className="flex justify-end p-6 border-t">
-          <button
-            onClick={onClose}
-            className="px-6 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition-colors"
-          >
+        <div className="p-4 flex justify-end gap-3 border-t border-inputBorder">
+          <button onClick={onClose} className="btn-primary px-8">
             CLOSE
           </button>
         </div>

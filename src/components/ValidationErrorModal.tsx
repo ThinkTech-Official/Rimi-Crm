@@ -1,4 +1,5 @@
 import React from 'react';
+import { MdClose } from 'react-icons/md';
 
 interface ValidationErrorModalProps {
   isOpen: boolean;
@@ -54,22 +55,32 @@ const ValidationErrorModal: React.FC<ValidationErrorModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
+    <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50 p-4 h-screen">
+      <div className="bg-white shadow-xl max-w-md w-full mx-auto overflow-hidden">
+        {/* Header */}
+        <div className="bg-white border-b border-inputBorder px-6 py-4 flex justify-between items-center">
+          <h2 className="text-xl font-semibold text-text-black">
+            {title}
+          </h2>
+          <button
+            onClick={onClose}
+            className="text-gray-500 hover:text-gray-700 text-2xl leading-none cursor-pointer"
+          >
+            <MdClose />
+          </button>
+        </div>
+
         {/* Content */}
         <div className="p-6">
           <div className="flex items-start space-x-4">
             {/* Icon */}
-            <div className={`flex-shrink-0 ${iconColors[type]}`}>
+            <div className={`flex-shrink-0 mt-1 ${iconColors[type]}`}>
               {icons[type]}
             </div>
 
             {/* Message */}
             <div className="flex-1">
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                {title}
-              </h3>
-              <div className={`${bgColors[type]} ${borderColors[type]} border rounded p-3`}>
+              <div className={`${bgColors[type]} ${borderColors[type]} border p-3`}>
                 <p className="text-sm text-gray-700">
                   {message}
                 </p>
@@ -79,10 +90,10 @@ const ValidationErrorModal: React.FC<ValidationErrorModalProps> = ({
         </div>
 
         {/* Footer */}
-        <div className="border-t px-6 py-4 flex justify-end">
+        <div className="p-4 flex justify-end gap-3 border-t border-inputBorder">
           <button
             onClick={onClose}
-            className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded hover:bg-blue-700"
+            className="btn-primary px-8"
           >
             OK
           </button>

@@ -63,7 +63,7 @@ const UpdatePaymentMethodConfirmationModal: React.FC<
           </button>
           <button
             onClick={onConfirm}
-            className="bg-primary text-white py-2 px-6 hover:bg-[#2309A1] transition-all duration-200 cursor-pointer flex items-center gap-2"
+            className="btn-primary"
           >
             Yes, Update Card
           </button>
