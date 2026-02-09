@@ -299,6 +299,11 @@ export function useCreateUser(): UseCreateUserResult {
         formDataToSend.append("wfgCode", formData.wfgCode);
       }
 
+      // MGA override percent Opptional
+    if (formData.mgaOverridePercent) {
+      formDataToSend.append("mgaOverridePercent", formData.mgaOverridePercent);
+    }
+
       // Add selected agents for MGA users
       if (formData.selectedAgents && formData.selectedAgents.length > 0) {
         formDataToSend.append("selectedAgents", JSON.stringify(formData.selectedAgents));

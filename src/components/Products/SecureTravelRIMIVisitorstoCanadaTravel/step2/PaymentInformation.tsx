@@ -34,7 +34,11 @@ interface Props {
 }
 
 //
-const stripeCustomerId = 'cus_85525845666'
+// const stripeCustomerId = 'cus_85525845666'
+const stripeCustomerId = 'cus_85525845666';
+
+// Get this ID after clicking "Add first customer" in your test clock
+// const testClockCustomerId = 'cus_TvkhIwxZVX4So7';
 //
 
 export default function PaymentInformation({
