@@ -1,10 +1,18 @@
-import { en } from './en';
-import { fr } from './fr';
+import authFr from './locales/fr/auth.json';
+import navigationFr from './locales/fr/navigation.json';
+import policiesFr from './locales/fr/policies.json';
+import managementFr from './locales/fr/management.json';
+import commonFr from './locales/fr/common.json';
 
 export const translations = {
-  en,
-  fr,
+  fr: {
+    ...authFr,
+    ...navigationFr,
+    ...policiesFr,
+    ...managementFr,
+    ...commonFr,
+  },
 } as const;
 
-export type Language = keyof typeof translations;
-export type TranslationKey = keyof typeof translations.en;
+export type Language = 'en' | 'fr';
+export type TranslationKey = keyof (typeof translations)['fr'];

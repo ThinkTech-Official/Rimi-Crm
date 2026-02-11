@@ -4,7 +4,7 @@ import { translations, Language, TranslationKey } from '../translations';
 interface LanguageContextType {
   language: Language;
   setLanguage: (lang: Language) => void;
-  t: (key: TranslationKey) => string;
+  t: (key: string, params?: Record<string, string>) => string;
 }
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
@@ -21,8 +21,21 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     localStorage.setItem('app-language', language);
   }, [language]);
 
-  const t = (key: TranslationKey): string => {
-    return translations[language][key] || translations.en[key] || key;
+  const t = (key: string, params?: Record<string, string>): string => {
+    // If language is 'en', return key itself.
+    // If language is 'fr', look up in translations.fr. Fallback to key if missing.
+    let text = key;
+    if (language === 'fr') {
+      text = (translations.fr as any)[key] || key;
+    }
+
+    if (params) {
+      Object.entries(params).forEach(([k, v]) => {
+        text = text.replace(new RegExp(`{{${k}}}`, 'g'), v);
+      });
+    }
+
+    return text;
   };
 
   return (

@@ -42,7 +42,7 @@ const Login = () => {
     } else {
       triggerNotification({
         type: "error",
-        message: "Network Error",
+        message: t("Network Error"),
       });
       setSignInClicked(false);
     }
@@ -61,7 +61,7 @@ const Login = () => {
             Rimi Insurance
           </h1>
           <p className="text-[#4A4A4A] max-w-sm capitalize text-base">
-           welcome to RIMI  travel insurance portal
+           {t("welcome to RIMI  travel insurance portal")}
           </p>
         </div>
         
@@ -83,13 +83,13 @@ const Login = () => {
             onClick={() => navigate("/apply-mga")}
             className="px-6 py-2 border border-[#2B00B7] text-[#2B00B7] font-medium text-sm transition-colors cursor-pointer"
           >
-            Apply as MGA
+            {t("Apply as MGA")}
           </button>
           <button 
             onClick={() => navigate("/apply")}
             className="btn-primary w-[150px] py-2 font-medium text-sm cursor-pointer"
           >
-            Apply as agent
+            {t("Apply as agent")}
           </button>
         </div>
 
@@ -103,10 +103,10 @@ const Login = () => {
 
             <div className="mb-4 sm:mb-8">
               <h2 className="text-2xl sm:text-3xl font-bold text-[#232323] mb-2 font-[inter]">
-                Welcome to RIMI Insurance
+                {t("Welcome to RIMI Insurance")}
               </h2>
               <p className="text-[#969696] text-sm font-normal font-[inter]">
-                Please login to continue to your account.
+                {t("Please login to continue to your account.")}
               </p>
             </div>
 
@@ -117,7 +117,7 @@ const Login = () => {
             >
               <div>
                 <label htmlFor="email" className="text-sm font-medium mb-1 text-text-secondary">
-                  {t("email")}
+                  {t("Email")}
                 </label>
                 <div>
                   <input
@@ -125,14 +125,14 @@ const Login = () => {
                     type="email"
                     autoComplete="email"
                     {...register("email", {
-                      required: t("emailRequired"),
+                      required: t("Email is required"),
                       pattern: {
                         value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                        message: t("invalidEmail"),
+                        message: t("Invalid email address"),
                       },
                     })}
                     className="input-primary"
-                    placeholder={t("emailPlaceholder")}
+                    placeholder={t("Enter your email")}
                   />
                   {errors.email && (
                     <span className="text-red-500 text-sm font-[inter] mt-1 block">
@@ -144,7 +144,7 @@ const Login = () => {
 
               <div>
                 <label htmlFor="password" className="text-sm font-medium mb-1 text-text-secondary">
-                  {t("password")}
+                  {t("Password")}
                 </label>
                 <div className="relative">
                   <input
@@ -152,10 +152,10 @@ const Login = () => {
                     type={showPassword ? "text" : "password"}
                     autoComplete="current-password"
                     {...register("password", {
-                      required: t("passwordRequired"),
+                      required: t("Password is required"),
                     })}
                     className="input-primary pr-10"
-                    placeholder={t("passwordPlaceholder")}
+                    placeholder={t("Enter your password")}
                   />
                   <div
                     className="absolute inset-y-0 right-3 flex items-center cursor-pointer text-black/50"
@@ -181,7 +181,7 @@ const Login = () => {
                   onClick={handleForgotPassword}
                   className="text-sm font-semibold font-[inter] leading-6 text-[#4340DA] hover:text-[#2B00B7] cursor-pointer"
                 >
-                  {t("forgotPassword")}
+                  {t("Forgot Password?")}
                 </button>
               </div>
 
@@ -193,7 +193,7 @@ const Login = () => {
                     signInClicked ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
                   }`}
                 >
-                  {signInClicked ? "Signing in..." : "Sign in"}
+                  {signInClicked ? t("Signing in...") : t("Sign in")}
                 </button>
               </div>
             </form>
