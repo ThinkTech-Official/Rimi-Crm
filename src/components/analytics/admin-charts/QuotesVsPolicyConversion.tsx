@@ -144,6 +144,7 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
+import { useLanguage } from "../../../context/LanguageContext";
 import type { ChartData } from "../../../hooks/admin-dashboard"; 
 
 type Props = {
@@ -151,6 +152,7 @@ type Props = {
 };
 
 const QuotesVsPolicyConversion = ({ data }: Props) => {
+  const { t } = useLanguage();
   const [chartHeight, setChartHeight] = useState(500);
 
   // Find which dataset is "quotes" vs "policies"
@@ -214,7 +216,7 @@ const QuotesVsPolicyConversion = ({ data }: Props) => {
             <div className="w-full h-[300px] md:h-[400px] 2xl:h-[500px]">
               {isEmpty ? (
                 <div className="w-full h-[300px] flex items-center justify-center text-gray-500">
-                  No data available
+                  {t("No data available")}
                 </div>
               ) : (
                 <ResponsiveContainer width="100%" height="100%">
@@ -253,18 +255,18 @@ const QuotesVsPolicyConversion = ({ data }: Props) => {
                       labelClassName="text-[#1B1B1B] text-[16px]"
                       cursor={{ fill: "#F1F5F9" }}
                       formatter={(value: any, name) => {
-                        if (name === "conv") return [`${(value as number).toFixed(1)}%`, "Conversion"];
-                        if (name === "quotes") return [value as number, "Quotes"];
-                        if (name === "policies") return [value as number, "Policies"];
+                        if (name === "conv") return [`${(value as number).toFixed(1)}%`, t("Conversion")];
+                        if (name === "quotes") return [value as number, t("Quotes")];
+                        if (name === "policies") return [value as number, t("Policies")];
                         return [value, name];
                       }}
                     />
                     <Legend
                       formatter={(value) => {
-                        if (value === "quotes") return "Quotes Generated";
-                        if (value === "policies") return "Policies Issued";
-                        if (value === "conv") return "Conversion %";
-                        return value;
+                        if (value === "quotes") return t("Quotes Generated");
+                        if (value === "policies") return t("Policies Issued");
+                        if (value === "conv") return t("Conversion %");
+                        return t(value);
                       }}
                     />
                     <Bar dataKey="quotes" fill="#1A16F3" radius={[4, 4, 0, 0]} />

@@ -85,7 +85,7 @@ import {
 } from "recharts";
 import { useMemo } from "react";
 import type { ChartData } from "../../../hooks/admin-dashboard"; 
-
+import { useLanguage } from "../../../context/LanguageContext";
 type Props = {
   data?: ChartData; // from usePolicySales(period)
 };
@@ -93,6 +93,7 @@ type Props = {
 const COLORS = ["#1A16F3", "#EAB308", "#3B82F6", "#10B981", "#F97316", "#6366F1", "#EF4444"];
 
 const AdminPolicySalesChart = ({ data }: Props) => {
+  const { t } = useLanguage();
   // Transform ChartData -> [{ policy: label, <dataset.label>: value, fullMark }, ...]
   const rows = useMemo(() => {
     if (!data?.labels?.length || !data?.datasets?.length) return [];
@@ -120,7 +121,7 @@ const AdminPolicySalesChart = ({ data }: Props) => {
       <div className="w-full h-[350px]">
         {isEmpty ? (
           <div className="h-full flex items-center justify-center text-gray-500">
-            No data available
+            {t("No data available")}
           </div>
         ) : (
           <ResponsiveContainer width="100%" height="100%">

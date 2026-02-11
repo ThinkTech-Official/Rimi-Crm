@@ -70,8 +70,6 @@
 
 // ========================================================
 
-
-
 import {
   PieChart,
   Pie,
@@ -80,6 +78,7 @@ import {
   Legend,
   Tooltip,
 } from "recharts";
+import { useLanguage } from "../../../context/LanguageContext";
 
 const COLORS = [
   "#8884d8", // Blue
@@ -99,11 +98,17 @@ interface PolicySalesChartProps {
   filter?: string;
 }
 
-const PolicySalesChart = ({ data, loading, error, filter = "policies" }: PolicySalesChartProps) => {
+const PolicySalesChart = ({
+  data,
+  loading,
+  error,
+  filter = "policies",
+}: PolicySalesChartProps) => {
+  const { t } = useLanguage();
   if (loading) {
     return (
       <div className="flex justify-center items-center py-10">
-        <p className="text-primary">Loading chart...</p>
+        <p className="text-primary">{t("Loading chart...")}</p>
       </div>
     );
   }
@@ -111,7 +116,9 @@ const PolicySalesChart = ({ data, loading, error, filter = "policies" }: PolicyS
   if (error) {
     return (
       <div className="flex justify-center items-center py-10">
-        <p className="text-red-500">Error loading chart: {error}</p>
+        <p className="text-red-500">
+          {t("Error loading chart")}: {t(error)}
+        </p>
       </div>
     );
   }
@@ -119,7 +126,9 @@ const PolicySalesChart = ({ data, loading, error, filter = "policies" }: PolicyS
   if (!data || data.length === 0) {
     return (
       <div className="flex justify-center items-center py-10">
-        <p className="text-gray-500">No {filter.toLowerCase()} data available</p>
+        <p className="text-gray-500">
+          {t("No data available", { filter: t(filter.toLowerCase()) })}
+        </p>
       </div>
     );
   }
@@ -140,10 +149,13 @@ const PolicySalesChart = ({ data, loading, error, filter = "policies" }: PolicyS
   };
 
   return (
-    <div className="bg-white p-6 rounded-lg" style={{
-      boxShadow: "0px 4px 6.7px 0px rgba(0, 0, 0, 0.04)",
-      border: "1px solid rgba(235, 235, 235, 1)",
-    }}>
+    <div
+      className="bg-white p-6 rounded-lg"
+      style={{
+        boxShadow: "0px 4px 6.7px 0px rgba(0, 0, 0, 0.04)",
+        border: "1px solid rgba(235, 235, 235, 1)",
+      }}
+    >
       <ResponsiveContainer width="100%" height={400}>
         <PieChart>
           <Pie
@@ -156,18 +168,24 @@ const PolicySalesChart = ({ data, loading, error, filter = "policies" }: PolicyS
             fill="#8884d8"
             dataKey="value"
           >
-            {chartData.map((entry, index) => (
-              <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+            {chartData.map((_, index) => (
+              <Cell
+                key={`cell-${index}`}
+                fill={COLORS[index % COLORS.length]}
+              />
             ))}
           </Pie>
-          <Tooltip 
-            formatter={(value: number) => [`${value} ${filter.toLowerCase()}`, 'Count']}
+          <Tooltip
+            formatter={(value: number) => [
+              `${value} ${t(filter.toLowerCase())}`,
+              t("Count"),
+            ]}
           />
-          <Legend 
-            verticalAlign="bottom" 
+          <Legend
+            verticalAlign="bottom"
             height={36}
             formatter={(value) => {
-              const item = chartData.find(d => d.name === value);
+              const item = chartData.find((d) => d.name === value);
               return `${value} (${item?.value || 0})`;
             }}
           />

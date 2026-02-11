@@ -423,7 +423,7 @@
 
 
 
-import { Fragment, useContext, useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import {
   Bars3Icon,
@@ -436,19 +436,17 @@ import {
   ClipboardDocumentIcon,
   UserPlusIcon,
   ChevronRightIcon,
-  ChartPieIcon,
-  ChevronLeftIcon,
   HomeIcon,
   ShieldCheckIcon,
   ArrowPathIcon,
+  ChevronLeftIcon,
   AcademicCapIcon,
 } from "@heroicons/react/24/outline";
 import { Disclosure } from "@headlessui/react";
-import { LangContext } from "../context/LangContext";
+import { useLanguage } from "../context/LanguageContext";
 import { getUserTypeFromToken } from "../utils/getUserType";
 import { HiOutlineDocumentCurrencyDollar } from "react-icons/hi2";
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
-import { useTranslation } from "react-i18next";
 import Footer from "../components/Footer";
 import VerificationBanner from "../components/agent-verification/VerificationBanner";
 import VerificationIndicator from "../components/agent-verification/VerificationIndicator";
@@ -460,7 +458,6 @@ import { setVerificationStatus, setPendingCount, selectPendingCount } from "../f
 const navigation = [
   {
     name: "Home",
-    nameFr: "Accueil",
     href: "#",
     icon: HomeIcon,
     current: true,
@@ -470,7 +467,6 @@ const navigation = [
   },
   {
     name: "Products",
-    nameFr: "Produits",
     href: "#",
     icon: BriefcaseIcon,
     current: false,
@@ -480,7 +476,6 @@ const navigation = [
   },
   {
     name: "Quotes",
-    nameFr: "Citations",
     href: "#",
     icon: HiOutlineDocumentCurrencyDollar,
     current: false,
@@ -490,7 +485,6 @@ const navigation = [
   },
   {
     name: "Policies",
-    nameFr: "Politiques",
     href: "#",
     icon: ClipboardDocumentIcon,
     current: false,
@@ -500,7 +494,6 @@ const navigation = [
   },
   {
     name: "Commissions",
-    nameFr: "Commissions",
     href: "#",
     icon: HiOutlineDocumentCurrencyDollar,
     current: false,
@@ -510,7 +503,6 @@ const navigation = [
   },
   {
     name: "Verification Requests",
-    nameFr: "Demandes de vérification",
     href: "#",
     icon: ShieldCheckIcon,
     current: false,
@@ -520,7 +512,6 @@ const navigation = [
   },
   {
     name: "Reporting",
-    nameFr: "Rapports",
     href: "#",
     icon: CalendarIcon,
     current: false,
@@ -530,7 +521,6 @@ const navigation = [
   },
   {
     name: "Users",
-    nameFr: "Utilisateurs",
     href: "#",
     icon: UsersIcon,
     current: false,
@@ -540,7 +530,6 @@ const navigation = [
   },
   {
     name: "Create User",
-    nameFr: "Créer un utilisateur",
     href: "#",
     icon: UserPlusIcon,
     current: false,
@@ -550,7 +539,6 @@ const navigation = [
   },
   {
     name: "Documents",
-    nameFr: "Documents",
     href: "#",
     icon: FolderIcon,
     current: false,
@@ -560,7 +548,6 @@ const navigation = [
   },
   {
     name: "Trip Calculator",
-    nameFr: "Calculateur de voyage",
     href: "#",
     icon: CalculatorIcon,
     current: false,
@@ -570,7 +557,6 @@ const navigation = [
   },
   {
     name: "Migrations",
-    nameFr: "Migrations",
     href: "#",
     icon: ArrowPathIcon,
     current: false,
@@ -584,7 +570,6 @@ const navigation = [
   },
   {
     name: "Agent Training Portal",
-    nameFr: "Portail de formation des agents",
     href: "#",
     icon: AcademicCapIcon,
     current: false,
@@ -595,18 +580,15 @@ const navigation = [
   }
 ];
 
-function classNames(...classes: any) {
-  return classes.filter(Boolean).join(" ");
-}
+// classNames unused
 
 export default function Dashboard() {
   const [selectedComponent, setSelectedComponent] = useState<string>("home");
   const [userType, setUserType] = useState<string | null>(null);
-  const [userName, setUserName] = useState<string | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isSidebarCollapsed, setSidebarCollapsed] = useState(true);
   
-  const { t } = useTranslation();
+  const { t } = useLanguage();
   const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useDispatch();
@@ -616,19 +598,11 @@ export default function Dashboard() {
   const { fetchCount } = useGetVerificationCount();
   const pendingCount = useSelector(selectPendingCount);
 
-  // State of breadcrumbs
-  const [breadCrumbState, setBreadCrumbState] = useState<string[]>([]);
-
-  const handleSetComponent = (componentSeleted: string) => {
-    if (selectedComponent === componentSeleted) return;
-    setBreadCrumbState([componentSeleted]);
-    setSelectedComponent(componentSeleted);
-  };
+  // console.log("selectedComponent", selectedComponent);
 
   useEffect(() => {
     const type = getUserTypeFromToken();
-    setUserType(type?.userType);
-    setUserName(type?.fullName);
+    setUserType(type?.userType || null);
     console.log(type);
   }, []);
 
@@ -731,7 +705,7 @@ export default function Dashboard() {
                         className="-m-2.5 p-2.5"
                         onClick={() => setSidebarOpen(false)}
                       >
-                        <span className="sr-only">Close sidebar</span>
+                        <span className="sr-only">{t("Close sidebar")}</span>
                         <XMarkIcon
                           className="h-6 w-6 text-primary cursor-pointer"
                           aria-hidden="true"
@@ -829,7 +803,7 @@ export default function Dashboard() {
                                                     : "text-[#4B465C]"
                                                 }`}
                                             >
-                                              {subItem.name}
+                                              {t(subItem.name)}
                                             </li>
                                           ))}
                                         </ul>
@@ -976,7 +950,7 @@ export default function Dashboard() {
                                               : "text-[#4B465C]"
                                           }`}
                                       >
-                                        {subItem.name}
+                                        {t(subItem.name)}
                                       </li>
                                     ))}
                                   </ul>
@@ -1002,7 +976,7 @@ export default function Dashboard() {
               className="text-gray-700 lg:hidden"
               onClick={() => setSidebarOpen(true)}
             >
-              <span className="sr-only">Open sidebar</span>
+              <span className="sr-only">{t("Open sidebar")}</span>
               <Bars3Icon
                 className="h-6 w-6 cursor-pointer"
                 aria-hidden="true"

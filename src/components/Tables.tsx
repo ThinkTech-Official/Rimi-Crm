@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { Agent } from "../hooks/admin-dashboard";
 import Spinner from "./Spinner";
 import { RenderPageNumbers } from "./RenderPageNumbers";
+import { useLanguage } from "../context/LanguageContext";
 
 export function PoliciesTable({
   data,
@@ -14,130 +15,131 @@ export function PoliciesTable({
   loading?: boolean;
   pError?: string;
 }) {
+  const { t } = useLanguage();
   return (
     <div className="mt-6 space-y-2">
       <h2 className="text-lg font-bold text-text-primary">
-        All Policies issued by agent
+        {t("All Policies issued by agent")}
       </h2>
       <div className="overflow-auto custom-scrollbar-x">
         <table className="min-w-full divide-y divide-gray-200">
-        <thead className="bg-primary text-white text-base 2xl:text-xl capitalize text-nowrap">
-          <tr>
-            <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium">
-              Policy no.
-            </th>
-            <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium">
-              Name
-            </th>
-            <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium">
-              Type
-            </th>
-            <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium">
-              Premium
-            </th>
-            <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium">
-              Status
-            </th>
-            <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium">
-              Issued at
-            </th>
-          </tr>
-        </thead>
-        <tbody className="bg-white" style={{ border: "1px solid #AAA9A9" }}>
-          {loading ? (
+          <thead className="bg-primary text-white text-base 2xl:text-xl capitalize text-nowrap">
             <tr>
-              <td className="p-2 text-primary text-center h-40" colSpan={6}>
-                Loading…
-              </td>
+              <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium">
+                {t("Policy no.")}
+              </th>
+              <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium">
+                {t("Name")}
+              </th>
+              <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium">
+                {t("Type")}
+              </th>
+              <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium">
+                {t("Premium")}
+              </th>
+              <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium">
+                {t("Status")}
+              </th>
+              <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium">
+                {t("Issued at")}
+              </th>
             </tr>
-          ) : pError ? (
-            <tr>
-              <td className="p-2 text-red-500 text-center" colSpan={6}>
-                {pError}
-              </td>
-            </tr>
-          ) : data?.length === 0 ? (
-            <tr>
-              <td className="p-2 text-text-secondary text-center" colSpan={6}>
-                No policies issued
-              </td>
-            </tr>
-          ) : (
-            data?.map((p: PolicyRow, i) => (
-              <tr key={i} className="text-[#808080] text-sm 2xl:text-xl">
-                <td
-                  className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
-                  style={{
-                    borderWidth: "0px 1px 1px 0px",
-                    borderStyle: "solid",
-                    borderColor: "#AAA9A9",
-                  }}
-                >
-                  {" "}
-                  {p.policyNumber}
-                </td>
-                <td
-                  className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
-                  style={{
-                    borderWidth: "0px 1px 1px 0px",
-                    borderStyle: "solid",
-                    borderColor: "#AAA9A9",
-                  }}
-                >
-                  {" "}
-                  {p.firstName} {p.lastName}
-                </td>
-                <td
-                  className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
-                  style={{
-                    borderWidth: "0px 1px 1px 0px",
-                    borderStyle: "solid",
-                    borderColor: "#AAA9A9",
-                  }}
-                >
-                  {" "}
-                  {p.policyType}
-                </td>
-                <td
-                  className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
-                  style={{
-                    borderWidth: "0px 1px 1px 0px",
-                    borderStyle: "solid",
-                    borderColor: "#AAA9A9",
-                  }}
-                >
-                  {" "}
-                  {p.premium != null ? p.premium.toFixed(2) : "-"}
-                </td>
-                <td
-                  className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
-                  style={{
-                    borderWidth: "0px 1px 1px 0px",
-                    borderStyle: "solid",
-                    borderColor: "#AAA9A9",
-                  }}
-                >
-                  {" "}
-                  {p.status}
-                </td>
-                <td
-                  className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
-                  style={{
-                    borderWidth: "0px 1px 1px 0px",
-                    borderStyle: "solid",
-                    borderColor: "#AAA9A9",
-                  }}
-                >
-                  {" "}
-                  {p.dateIssued
-                    ? new Date(p.dateIssued).toLocaleDateString()
-                    : "-"}
+          </thead>
+          <tbody className="bg-white" style={{ border: "1px solid #AAA9A9" }}>
+            {loading ? (
+              <tr>
+                <td className="p-2 text-primary text-center h-40" colSpan={6}>
+                  {t("Loading...")}
                 </td>
               </tr>
-            ))
-          )}
-        </tbody>
-      </table>
+            ) : pError ? (
+              <tr>
+                <td className="p-2 text-red-500 text-center" colSpan={6}>
+                  {t(pError)}
+                </td>
+              </tr>
+            ) : data?.length === 0 ? (
+              <tr>
+                <td className="p-2 text-text-secondary text-center" colSpan={6}>
+                  {t("No policies issued")}
+                </td>
+              </tr>
+            ) : (
+              data?.map((p: PolicyRow, i) => (
+                <tr key={i} className="text-[#808080] text-sm 2xl:text-xl">
+                  <td
+                    className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
+                    style={{
+                      borderWidth: "0px 1px 1px 0px",
+                      borderStyle: "solid",
+                      borderColor: "#AAA9A9",
+                    }}
+                  >
+                    {" "}
+                    {p.policyNumber}
+                  </td>
+                  <td
+                    className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
+                    style={{
+                      borderWidth: "0px 1px 1px 0px",
+                      borderStyle: "solid",
+                      borderColor: "#AAA9A9",
+                    }}
+                  >
+                    {" "}
+                    {p.firstName} {p.lastName}
+                  </td>
+                  <td
+                    className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
+                    style={{
+                      borderWidth: "0px 1px 1px 0px",
+                      borderStyle: "solid",
+                      borderColor: "#AAA9A9",
+                    }}
+                  >
+                    {" "}
+                    {p.policyType}
+                  </td>
+                  <td
+                    className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
+                    style={{
+                      borderWidth: "0px 1px 1px 0px",
+                      borderStyle: "solid",
+                      borderColor: "#AAA9A9",
+                    }}
+                  >
+                    {" "}
+                    {p.premium != null ? p.premium.toFixed(2) : "-"}
+                  </td>
+                  <td
+                    className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
+                    style={{
+                      borderWidth: "0px 1px 1px 0px",
+                      borderStyle: "solid",
+                      borderColor: "#AAA9A9",
+                    }}
+                  >
+                    {" "}
+                    {p.status}
+                  </td>
+                  <td
+                    className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
+                    style={{
+                      borderWidth: "0px 1px 1px 0px",
+                      borderStyle: "solid",
+                      borderColor: "#AAA9A9",
+                    }}
+                  >
+                    {" "}
+                    {p.dateIssued
+                      ? new Date(p.dateIssued).toLocaleDateString()
+                      : "-"}
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
       </div>
     </div>
   );
@@ -152,144 +154,146 @@ export function QuotesTable({
   loading?: boolean;
   qError?: string;
 }) {
+  const { t } = useLanguage();
   return (
     <div className="mt-6 space-y-2">
       <h2 className="text-lg font-bold text-text-primary">
-        All Quotes issued by agent
+        {t("All Quotes issued by agent")}
       </h2>
-      <div className="overflow-auto w-full custom-scrollbar-x"><table className="min-w-full divide-y divide-gray-200">
-        <thead className="bg-primary text-white text-base 2xl:text-xl capitalize text-nowrap">
-          <tr>
-            <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium">
-              Quote no.
-            </th>
-            <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium">
-              Name
-            </th>
-            <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium">
-              Type
-            </th>
-            <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium">
-              Premium
-            </th>
-            <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium">
-              Product
-            </th>
-            <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium">
-              Status
-            </th>
-            <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium">
-              Created at
-            </th>
-          </tr>
-        </thead>
-        <tbody className="bg-white" style={{ border: "1px solid #AAA9A9" }}>
-          {loading ? (
+      <div className="overflow-auto w-full custom-scrollbar-x">
+        <table className="min-w-full divide-y divide-gray-200">
+          <thead className="bg-primary text-white text-base 2xl:text-xl capitalize text-nowrap">
             <tr>
-              <td className="p-2 text-primary text-center h-40" colSpan={6}>
-                Loading…
-              </td>
+              <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium">
+                {t("Quote no.")}
+              </th>
+              <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium">
+                {t("Name")}
+              </th>
+              <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium">
+                {t("Type")}
+              </th>
+              <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium">
+                {t("Premium")}
+              </th>
+              <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium">
+                {t("Product")}
+              </th>
+              <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium">
+                {t("Status")}
+              </th>
+              <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium">
+                {t("Created at")}
+              </th>
             </tr>
-          ) : qError ? (
-            <tr>
-              <td className="p-2 text-red-500 text-center" colSpan={6}>
-                {qError}
-              </td>
-            </tr>
-          ) : data?.length === 0 ? (
-            <tr>
-              <td className="p-2 text-text-secondary text-center" colSpan={7}>
-                No quotes found
-              </td>
-            </tr>
-          ) : (
-            data?.map((q: QuoteRow, i) => (
-              <tr key={i} className="text-[#808080] text-sm 2xl:text-xl">
-                <td
-                  className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
-                  style={{
-                    borderWidth: "0px 1px 1px 0px",
-                    borderStyle: "solid",
-                    borderColor: "#AAA9A9",
-                  }}
-                >
-                  {" "}
-                  {q.quoteNumber}
-                </td>
-                <td
-                  className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
-                  style={{
-                    borderWidth: "0px 1px 1px 0px",
-                    borderStyle: "solid",
-                    borderColor: "#AAA9A9",
-                  }}
-                >
-                  {" "}
-                  {q.firstName} {q.lastName}
-                </td>
-                <td
-                  className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
-                  style={{
-                    borderWidth: "0px 1px 1px 0px",
-                    borderStyle: "solid",
-                    borderColor: "#AAA9A9",
-                  }}
-                >
-                  {" "}
-                  {q.policyType}
-                </td>
-                <td
-                  className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
-                  style={{
-                    borderWidth: "0px 1px 1px 0px",
-                    borderStyle: "solid",
-                    borderColor: "#AAA9A9",
-                  }}
-                >
-                  {" "}
-                  {q.premium != null ? q.premium.toFixed(2) : "-"}
-                </td>
-                <td
-                  className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
-                  style={{
-                    borderWidth: "0px 1px 1px 0px",
-                    borderStyle: "solid",
-                    borderColor: "#AAA9A9",
-                  }}
-                >
-                  {" "}
-                  {q.product}
-                </td>
-                <td
-                  className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
-                  style={{
-                    borderWidth: "0px 1px 1px 0px",
-                    borderStyle: "solid",
-                    borderColor: "#AAA9A9",
-                  }}
-                >
-                  {" "}
-                  {q.status}
-                </td>
-                <td
-                  className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
-                  style={{
-                    borderWidth: "0px 1px 1px 0px",
-                    borderStyle: "solid",
-                    borderColor: "#AAA9A9",
-                  }}
-                >
-                  {" "}
-                  {q.createdAt
-                    ? new Date(q.createdAt).toLocaleDateString()
-                    : "-"}
+          </thead>
+          <tbody className="bg-white" style={{ border: "1px solid #AAA9A9" }}>
+            {loading ? (
+              <tr>
+                <td className="p-2 text-primary text-center h-40" colSpan={7}>
+                  {t("Loading...")}
                 </td>
               </tr>
-            ))
-          )}
-        </tbody>
-      </table></div>
-      
+            ) : qError ? (
+              <tr>
+                <td className="p-2 text-red-500 text-center" colSpan={7}>
+                  {t(qError)}
+                </td>
+              </tr>
+            ) : data?.length === 0 ? (
+              <tr>
+                <td className="p-2 text-text-secondary text-center" colSpan={7}>
+                  {t("No quotes found")}
+                </td>
+              </tr>
+            ) : (
+              data?.map((q: QuoteRow, i) => (
+                <tr key={i} className="text-[#808080] text-sm 2xl:text-xl">
+                  <td
+                    className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
+                    style={{
+                      borderWidth: "0px 1px 1px 0px",
+                      borderStyle: "solid",
+                      borderColor: "#AAA9A9",
+                    }}
+                  >
+                    {" "}
+                    {q.quoteNumber}
+                  </td>
+                  <td
+                    className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
+                    style={{
+                      borderWidth: "0px 1px 1px 0px",
+                      borderStyle: "solid",
+                      borderColor: "#AAA9A9",
+                    }}
+                  >
+                    {" "}
+                    {q.firstName} {q.lastName}
+                  </td>
+                  <td
+                    className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
+                    style={{
+                      borderWidth: "0px 1px 1px 0px",
+                      borderStyle: "solid",
+                      borderColor: "#AAA9A9",
+                    }}
+                  >
+                    {" "}
+                    {q.policyType}
+                  </td>
+                  <td
+                    className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
+                    style={{
+                      borderWidth: "0px 1px 1px 0px",
+                      borderStyle: "solid",
+                      borderColor: "#AAA9A9",
+                    }}
+                  >
+                    {" "}
+                    {q.premium != null ? q.premium.toFixed(2) : "-"}
+                  </td>
+                  <td
+                    className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
+                    style={{
+                      borderWidth: "0px 1px 1px 0px",
+                      borderStyle: "solid",
+                      borderColor: "#AAA9A9",
+                    }}
+                  >
+                    {" "}
+                    {q.product}
+                  </td>
+                  <td
+                    className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
+                    style={{
+                      borderWidth: "0px 1px 1px 0px",
+                      borderStyle: "solid",
+                      borderColor: "#AAA9A9",
+                    }}
+                  >
+                    {" "}
+                    {q.status}
+                  </td>
+                  <td
+                    className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
+                    style={{
+                      borderWidth: "0px 1px 1px 0px",
+                      borderStyle: "solid",
+                      borderColor: "#AAA9A9",
+                    }}
+                  >
+                    {" "}
+                    {q.createdAt
+                      ? new Date(q.createdAt).toLocaleDateString()
+                      : "-"}
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }
@@ -313,11 +317,12 @@ export function CommissionsTable({
   onUpdateStatus: (id: string, nextStatus: string) => void;
   isPending: boolean;
 }) {
+  const { t } = useLanguage();
   const getNextStatus = (currentStatus: string, isUnderMGA: boolean): string | null => {
     const transitions: Record<string, string> = {
-      'pending': 'approved',
-      'verified': 'approved',
-      'approved': isUnderMGA ? 'paid_to_mga' : 'paid',
+      pending: "approved",
+      verified: "approved",
+      approved: isUnderMGA ? "paid_to_mga" : "paid",
     };
     return transitions[currentStatus] || null;
   };
@@ -328,59 +333,52 @@ export function CommissionsTable({
         <table className="min-w-full">
           <thead className="bg-primary text-white text-base capitalize text-nowrap">
             <tr>
-              {/* <th className="px-4 py-3">
-                <input
-                  type="checkbox"
-                  checked={
-                    selectedIds.length > 0 && 
-                    selectedIds.length === data.filter((c: any) => 
-                      !['reversed', 'partially_reversed', 'paid', 'paid_to_agent'].includes(c.status)
-                    ).length
-                  }
-                  onChange={onSelectAll}
-                  className="accent-primary cursor-pointer "
-                />
-              </th> */}
-              <th className="px-4 py-3 text-left font-medium">Date</th>
-              <th className="px-4 py-3 text-left font-medium">Policy #</th>
-              <th className="px-4 py-3 text-left font-medium">Type</th>
-              <th className="px-4 py-3 text-left font-medium">Payment</th>
-              {/* <th className="px-4 py-3 text-right font-medium">Total Commission</th> */}
+              <th className="px-4 py-3 text-left font-medium">{t("Date")}</th>
+              <th className="px-4 py-3 text-left font-medium">{t("Policy #")}</th>
+              <th className="px-4 py-3 text-left font-medium">{t("Type")}</th>
+              <th className="px-4 py-3 text-left font-medium">{t("Payment")}</th>
               {isUnderMGA && (
                 <>
-                  <th className="px-4 py-3 text-right font-medium text-nowrap">MGA Share</th>
-                  <th className="px-4 py-3 text-right font-medium text-nowrap">Agent Share</th>
+                  <th className="px-4 py-3 text-right font-medium text-nowrap">
+                    {t("MGA Share")}
+                  </th>
+                  <th className="px-4 py-3 text-right font-medium text-nowrap">
+                    {t("Agent Share")}
+                  </th>
                 </>
               )}
-              {/* {!isUnderMGA && (
-                <th className="px-4 py-3 text-right font-medium">Commission</th>
-              )} */}
-              {/* <th className="px-4 py-3 text-left font-medium">Status</th> */}
-              {/* <th className="px-4 py-3 text-center font-medium">Actions</th> */}
             </tr>
           </thead>
           <tbody className="bg-white text-[#808080]">
             {loading ? (
               <tr>
-                <td colSpan={isUnderMGA ? 11 : 10} className="p-8 text-center bg-white h-40">
+                <td
+                  colSpan={isUnderMGA ? 6 : 4}
+                  className="p-8 text-center bg-white h-40"
+                >
                   <div className="flex justify-center flex-col items-center gap-2">
                     <div className="spinner w-8 h-8"></div>
-                    <p className="text-primary font-medium">Loading commissions…</p>
+                    <p className="text-primary font-medium">
+                      {t("Loading commissions...")}
+                    </p>
                   </div>
                 </td>
               </tr>
             ) : data.length === 0 ? (
               <tr>
-                <td colSpan={isUnderMGA ? 11 : 10} className="px-4 py-3a text-center">
-                  No commissions found
+                <td
+                  colSpan={isUnderMGA ? 6 : 4}
+                  className="px-4 py-3 text-center"
+                >
+                  {t("No commissions found")}
                 </td>
               </tr>
             ) : (
               data.map((commission: any) => {
-                const isReversal = ['reversed', 'partially_reversed'].includes(commission.status) || 
-                                  commission.reversalOf;
-                const canBeActedUpon = !['reversed', 'partially_reversed', 'paid', 'paid_to_agent'].includes(commission.status);
-                const nextStatus = getNextStatus(commission.status, isUnderMGA);
+                const isReversal =
+                  ["reversed", "partially_reversed"].includes(
+                    commission.status
+                  ) || commission.reversalOf;
                 
                 const cellStyle = {
                   borderWidth: "0px 1px 1px 0px",
@@ -389,112 +387,75 @@ export function CommissionsTable({
                 };
 
                 return (
-                  <tr 
-                    key={commission.id} 
-                    className={`hover:bg-gray-30 ${isReversal ? 'bg-red-50' : ''}`}
+                  <tr
+                    key={commission.id}
+                    className={`hover:bg-gray-30 ${
+                      isReversal ? "bg-red-50" : ""
+                    }`}
                   >
-                    {/* <td className="px-4 py-3" style={cellStyle}>
-                      {canBeActedUpon && (
-                        <input
-                          type="checkbox"
-                          checked={selectedIds.includes(commission.id)}
-                          onChange={() => onSelect(commission.id)}
-                          className="cursor-pointer accent-primary"
-                        />
-                      )}
-                    </td> */}
-                    <td className="px-4 py-3 text-nowrap text-sm" style={cellStyle}>
+                    <td
+                      className="px-4 py-3 text-nowrap text-sm"
+                      style={cellStyle}
+                    >
                       {new Date(commission.createdAt).toLocaleDateString()}
                     </td>
-                    <td className="px-4 py-3 font-medium text-primary text-nowrap" style={cellStyle}>
-                      {commission.policy?.policyNumber || 'N/A'}
+                    <td
+                      className="px-4 py-3 font-medium text-primary text-nowrap"
+                      style={cellStyle}
+                    >
+                      {commission.policy?.policyNumber || "N/A"}
                     </td>
                     <td className="px-4 py-3" style={cellStyle}>
                       <span className="text-[10px] px-2 py-1 bg-gray-100 text-text-primary capitalize text-nowrap">
-                        {commission.paymentHistory?.paymentType?.replace(/-/g, ' ') || 'N/A'}
+                        {commission.paymentHistory?.paymentType?.replace(
+                          /-/g,
+                          " "
+                        ) || "N/A"}
                       </span>
                     </td>
                     <td className="px-4 py-3 text-nowrap" style={cellStyle}>
-                      ${commission.paymentHistory?.amount?.toLocaleString() || '0'}
+                      $
+                      {commission.paymentHistory?.amount?.toLocaleString() ||
+                        "0"}
                     </td>
-                    {/* <td className="px-4 py-3 text-right font-semibold text-nowrap" style={cellStyle}>
-                      <span className={isReversal ? 'text-red-600' : 'text-green-600'}>
-                        {isReversal && '-'}
-                        ${Math.abs(commission.commissionAmount).toLocaleString('en-US', {
-                          minimumFractionDigits: 2,
-                          maximumFractionDigits: 2
-                        })}
-                      </span>
-                    </td> */}
-                    {/* {isUnderMGA && (
+                    {isUnderMGA && (
                       <>
-                        <td className="px-4 py-3 text-right text-nowrap" style={cellStyle}>
-                          <span className={isReversal ? 'text-red-600' : ''}>
-                            {isReversal && '-'}
-                            ${Math.abs(commission.mgaShare || 0).toLocaleString('en-US', {
+                        <td
+                          className="px-4 py-3 text-right text-nowrap"
+                          style={cellStyle}
+                        >
+                          <span className={isReversal ? "text-red-600" : ""}>
+                            {isReversal && "-"}
+                            $
+                            {Math.abs(
+                              commission.mgaShare || 0
+                            ).toLocaleString("en-US", {
                               minimumFractionDigits: 2,
-                              maximumFractionDigits: 2
+                              maximumFractionDigits: 2,
                             })}
                           </span>
                         </td>
-                        <td className="px-4 py-3 text-right font-semibold text-nowrap" style={cellStyle}>
-                          <span className={isReversal ? 'text-red-600' : 'text-green-600'}>
-                            {isReversal && '-'}
-                            ${Math.abs(commission.agentShare || 0).toLocaleString('en-US', {
+                        <td
+                          className="px-4 py-3 text-right font-semibold text-nowrap"
+                          style={cellStyle}
+                        >
+                          <span
+                            className={
+                              isReversal ? "text-red-600" : "text-green-600"
+                            }
+                          >
+                            {isReversal && "-"}
+                            $
+                            {Math.abs(
+                              commission.agentShare || 0
+                            ).toLocaleString("en-US", {
                               minimumFractionDigits: 2,
-                              maximumFractionDigits: 2
+                              maximumFractionDigits: 2,
                             })}
                           </span>
                         </td>
                       </>
-                    )} */}
-                    {/* {!isUnderMGA && (
-                      <td className="px-4 py-3 text-right font-semibold text-nowrap" style={cellStyle}>
-                        <span className={isReversal ? 'text-red-600' : 'text-green-600'}>
-                          {isReversal && '-'}
-                          ${Math.abs(commission.commissionAmount).toLocaleString('en-US', {
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2
-                          })}
-                        </span>
-                      </td>
-                    )} */}
-                    {/* <td className="px-4 py-3" style={cellStyle}>
-                      <span className={`px-2 py-1 text-[10px] font-semibold whitespace-nowrap ${
-                        commission.status === 'paid' || commission.status === 'paid_to_agent'
-                          ? 'bg-green-100 text-green-800'
-                          : commission.status === 'verified'
-                          ? 'bg-blue-100 text-blue-800'
-                          : commission.status === 'approved'
-                          ? 'bg-purple-100 text-purple-800'
-                          : commission.status === 'paid_to_mga'
-                          ? 'bg-yellow-100 text-yellow-800'
-                          : commission.status === 'reversed' || commission.status === 'partially_reversed'
-                          ? 'bg-red-100 text-red-800'
-                          : 'bg-gray-100 text-gray-800'
-                      }`}>
-                        {commission.status.replace(/_/g, ' ').toUpperCase()}
-                      </span>
-                    </td> */}
-                    {/* <td className="px-4 py-3" style={cellStyle}>
-                      <div className="flex gap-1 justify-center">
-                        {nextStatus && (
-                          <button
-                            onClick={() => onUpdateStatus(commission.id, nextStatus)}
-                            disabled={isPending}
-                            className={`px-3 py-1 text-sm text-white flex items-center gap-1 ${
-                              nextStatus === 'approved' ? 'bg-green-500 hover:bg-green-600' :
-                              nextStatus === 'paid' || nextStatus === 'paid_to_mga' ? 'bg-purple-500 hover:bg-purple-600' :
-                              'bg-blue-500 hover:bg-blue-600'
-                            } disabled:opacity-50 cursor-pointer transition-all duration-200`}
-                          >
-                            {nextStatus === 'approved' && 'Approve'}
-                            {nextStatus === 'paid' && 'Pay'}
-                            {nextStatus === 'paid_to_mga' && 'Pay MGA'}
-                          </button>
-                        )}
-                      </div>
-                    </td> */}
+                    )}
                   </tr>
                 );
               })
@@ -505,6 +466,7 @@ export function CommissionsTable({
     </div>
   );
 }
+
 type AgentsTableProps = {
   data: Agent[];
   loading?: boolean;
@@ -521,36 +483,41 @@ export function AgentsTable({
   onPageChange,
 }: AgentsTableProps) {
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const handleAgentDetails = (agentCode: string) => {
     navigate(`/agent-details/${agentCode}`);
   };
   return (
     <div className="mt-6 space-y-2 w-full">
-      <h2 className="text-lg font-bold text-text-primary">All Agents</h2>
+      <h2 className="text-lg font-bold text-text-primary">{t("All Agents")}</h2>
       <div className="w-full overflow-x-auto">
         <table className="min-w-full divide-y divide-gray-200 overflow-x-auto">
           <thead className="bg-primary text-white text-base 2xl:text-xl capitalize">
             <tr>
               <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium text-nowrap">
-                Agent Code
+                {t("Agent Code")}
               </th>
               <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium text-nowrap">
-                Joined Date
+                {t("Joined Date")}
               </th>
               <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium text-nowrap">
-                Name
+                {t("Name")}
               </th>
               <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium text-nowrap">
-                Validity
+                {t("Validity")}
               </th>
               <th className="px-2 sm:px-6 py-1 sm:py-3 text-center font-medium text-nowrap">
-                Action
+                {t("Action")}
               </th>
             </tr>
           </thead>
           <tbody className="bg-white" style={{ border: "1px solid #AAA9A9" }}>
             {loading ? (
-              <Spinner className="w-8 h-8" />
+              <tr>
+                <td colSpan={5} className="p-8 text-center bg-white h-40">
+                  <Spinner className="w-8 h-8" />
+                </td>
+              </tr>
             ) : (
               data?.map((agent: any) => (
                 <tr
@@ -614,7 +581,7 @@ export function AgentsTable({
                       className="text-primary hover:underline hover:underline-offset-2 cursor-pointer font-medium px-4 text-center w-full"
                       onClick={() => handleAgentDetails(agent.agentCode)}
                     >
-                      View Details
+                      {t("View Details")}
                     </button>
                   </td>
                 </tr>
@@ -631,7 +598,7 @@ export function AgentsTable({
           disabled={currentPage === 1}
           onClick={() => onPageChange(currentPage - 1)}
           className="px-2 py-[10px] bg-[#CCCCCC] text-[#6F6B7D] cursor-pointer"
-          title="Previous"
+          title={t("Previous")}
         >
           <ChevronLeftIcon className="h-5 w-5" />
         </button>
@@ -644,7 +611,7 @@ export function AgentsTable({
           // disabled={currentPage === totalPages}
           onClick={() => onPageChange(currentPage + 1)}
           className="px-2 py-[10px] bg-[#CCCCCC] text-[#6F6B7D] cursor-pointer"
-          title="Next"
+          title={t("Next")}
         >
           <ChevronRightIcon className="h-5 w-5" />
         </button>

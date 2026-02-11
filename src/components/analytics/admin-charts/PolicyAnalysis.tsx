@@ -227,6 +227,7 @@ import {
   Pie,
   Cell,
 } from "recharts";
+import { useLanguage } from "../../../context/LanguageContext";
 
 interface TopAgent {
   rank: number;
@@ -260,6 +261,7 @@ interface PolicyAnalysisProps {
 }
 
 const PolicyAnalysis = ({ data }: PolicyAnalysisProps) => {
+  const { t } = useLanguage();
   // Colors for the 4 product types
   const PRODUCT_COLORS = {
     "RIMI Canuck Voyage Travel Medical": {
@@ -344,7 +346,7 @@ const PolicyAnalysis = ({ data }: PolicyAnalysisProps) => {
             style={{ boxShadow: "0px 0px 6.6px 0px #0000001C" }}
           >
             <h3 className="font-semibold mb-5 px-2 sm:px-4 text-[#3a17c5]">
-              Monthly Policy Volume
+              {t("Monthly Policy Volume")}
             </h3>
             <div className="flex-1 min-h-0">
               {hasBarData ? (
@@ -395,7 +397,7 @@ const PolicyAnalysis = ({ data }: PolicyAnalysisProps) => {
                     <Bar
                       dataKey="policies"
                       fill="#3B82F6"
-                      name="Total Policies"
+                      name={t("Total Policies")}
                       radius={[8, 8, 0, 0]}
                     />
                   </BarChart>
@@ -416,9 +418,9 @@ const PolicyAnalysis = ({ data }: PolicyAnalysisProps) => {
                         d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
                       />
                     </svg>
-                    <p className="text-sm font-medium">No policy data available</p>
+                    <p className="text-sm font-medium">{t("No policy data available")}</p>
                     <p className="text-xs mt-1">
-                      Policies will appear here once issued
+                      {t("Policies will appear here once issued")}
                     </p>
                   </div>
                 </div>
@@ -432,7 +434,7 @@ const PolicyAnalysis = ({ data }: PolicyAnalysisProps) => {
             style={{ boxShadow: "0px 0px 6.6px 0px #0000001C" }}
           >
             <span className="font-semibold px-2 sm:px-4 text-[#475569]">
-              Policies by Product Type
+              {t("Policies by Product Type")}
             </span>
 
             {hasPieData ? (
@@ -453,7 +455,9 @@ const PolicyAnalysis = ({ data }: PolicyAnalysisProps) => {
                         <Cell key={`cell-${index}`} fill={entry.colorInside} />
                       ))}
                     </Pie>
-                    <Tooltip />
+                    <Tooltip 
+                      formatter={(value: number, name: string) => [value, t(name)]}
+                    />
                   </PieChart>
                 </ResponsiveContainer>
 
@@ -474,7 +478,7 @@ const PolicyAnalysis = ({ data }: PolicyAnalysisProps) => {
                         ></span>
                       </span>
                       <div className="flex-1">
-                        <span className="text-[#475569]">{entry.name}</span>
+                        <span className="text-[#475569]">{t(entry.name)}</span>
                         <span
                           className="ml-2 font-semibold"
                           style={{ color: entry.colorInside }}
@@ -508,13 +512,13 @@ const PolicyAnalysis = ({ data }: PolicyAnalysisProps) => {
                       d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z"
                     />
                   </svg>
-                  <p className="text-sm font-medium">No product data</p>
-                  <p className="text-xs mt-1 px-4">
-                    Product distribution will appear here
-                  </p>
+                    <p className="text-sm font-medium">{t("No product data")}</p>
+                    <p className="text-xs mt-1 px-4">
+                      {t("Product distribution will appear here")}
+                    </p>
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
           </div>
         </div>
 
@@ -525,7 +529,7 @@ const PolicyAnalysis = ({ data }: PolicyAnalysisProps) => {
         >
           <h3 className="font-semibold mb-4 text-[#3a17c5] flex items-center gap-2">
             <span>🏆</span>
-            <span>Top 5 Agents This Month (By Policies)</span>
+            <span>{t("Top 5 Agents This Month (By Policies)")}</span>
           </h3>
 
           <div className="w-full overflow-x-auto">
@@ -533,16 +537,16 @@ const PolicyAnalysis = ({ data }: PolicyAnalysisProps) => {
               <thead className="bg-primary text-white text-nowrap">
                 <tr>
                   <th className="px-4 py-3 text-left text-sm 2xl:text-base font-medium">
-                    Rank
+                    {t("Rank")}
                   </th>
                   <th className="px-4 py-3 text-left text-sm 2xl:text-base font-medium">
-                    Agent Code
+                    {t("Agent Code")}
                   </th>
                   <th className="px-4 py-3 text-left text-sm 2xl:text-base font-medium">
-                    Agent Name
+                    {t("Agent Name")}
                   </th>
                   <th className="px-4 py-3 text-right text-sm 2xl:text-base font-medium">
-                    Policies Issued
+                    {t("Policies Issued")}
                   </th>
                 </tr>
               </thead>
@@ -567,11 +571,10 @@ const PolicyAnalysis = ({ data }: PolicyAnalysisProps) => {
                         />
                       </svg>
                       <p className="text-sm font-medium">
-                        No agent data available for this month
+                        {t("No agent data available for this month")}
                       </p>
                       <p className="text-xs mt-1">
-                        Top performing agents will appear here once policies are
-                        issued
+                        {t("Top performing agents will appear here once policies are issued")}
                       </p>
                     </td>
                   </tr>

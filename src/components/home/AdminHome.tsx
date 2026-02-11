@@ -190,11 +190,12 @@
 // ===========================================
 
 // components/AdminHome.tsx
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
 import { MdKeyboardArrowRight } from "react-icons/md";
 import { useNavigate } from "react-router-dom";
 import Spinner from "../Spinner";
+import { useLanguage } from "../../context/LanguageContext";
 import {
   useAdminStats,
   useQuotesAnalysis,
@@ -218,6 +219,7 @@ import { useOnClickOutside } from "../../hooks/useOnClickOutside";
 
 export default function AdminHome() {
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const [filter, setFilter] = useState("Agent data");
   const [isFilterDropdownOpen, setIsFilterDropdownOpen] = useState(false);
 
@@ -262,30 +264,30 @@ export default function AdminHome() {
     return (
       <div className="flex flex-col justify-center items-center gap-3 fixed top-1/2 left-1/2">
         <Spinner className="w-10 h-10" />
-        <p>Loading dashboard...</p>
+        <p>{t("Loading dashboard...")}</p>
       </div>
     );
   }
 
   const statsCards = [
-    { label: "Total Policies", value: stats?.totalPolicies || 0 },
-    { label: "Total Quotes", value: stats?.totalQuotes || 0 },
-    { label: "Total Agents", value: stats?.totalAgents || 0 },
-    { label: "Active Agents", value: stats?.activeAgents || 0 },
+    { label: t("Total Policies"), value: stats?.totalPolicies || 0 },
+    { label: t("Total Quotes"), value: stats?.totalQuotes || 0 },
+    { label: t("Total Agents"), value: stats?.totalAgents || 0 },
+    { label: t("Active Agents"), value: stats?.activeAgents || 0 },
     // {
     //   label: "Avg Commission Rate",
     //   value: `${stats?.commissionPercent?.toFixed(2) || 0}%`,
     // },
     {
-      label: "Total Commissions",
+      label: t("Total Commissions"),
       value: `$${(stats?.totalCommissions || 0).toLocaleString()}`,
     },
     {
-      label: "Current Month Commissions",
+      label: t("Current Month Commissions"),
       value: `$${(stats?.currentMonthCommissions || 0).toLocaleString()}`,
     },
     {
-      label: "Monthly Premiums",
+      label: t("Monthly Premiums"),
       value: stats?.monthlyPremiums || 0,
     },
   ];
@@ -332,7 +334,7 @@ export default function AdminHome() {
       {/* Quotes Statistics */}
       <section className="mt-6">
         <h2 className="text-lg font-bold text-text-primary mb-4">
-          Quotes Statistics
+          {t("Quotes Statistics")}
         </h2>
         <QuotesAnalysisChart />
       </section>
@@ -340,7 +342,7 @@ export default function AdminHome() {
       {/* Policy Statistics */}
       <section className="mt-6">
         <h2 className="text-lg font-bold text-text-primary mb-4">
-          Policy Statistics
+          {t("Policy Statistics")}
         </h2>
         <PolicyAnalysisChart />
       </section>
@@ -348,7 +350,7 @@ export default function AdminHome() {
       {/* Quotes vs Policies */}
       <section className="mt-6">
         <h2 className="text-lg font-bold text-text-primary mb-4">
-          Quotes vs Policies Conversion
+          {t("Quotes vs Policies Conversion")}
         </h2>
         <QuotesVsPolicyConversionChart />
       </section>
@@ -356,7 +358,7 @@ export default function AdminHome() {
       {/* Agent Types Per Month */}
       <section className="mt-6">
         <h2 className="text-lg font-bold text-text-primary mb-4">
-          Agent Types Joined Per Month
+          {t("Agent Types Joined Per Month")}
         </h2>
         <AgentTypesMonthlyChart />
       </section>
@@ -364,8 +366,8 @@ export default function AdminHome() {
       {/* Policy Sales */}
       <section className="mt-6">
         <div>
-          <h2 className="text-lg font-bold text-text-primary">Policy Sales</h2>
-          <p className="text-base text-text-secondary">Current Month</p>
+          <h2 className="text-lg font-bold text-text-primary">{t("Policy Sales")}</h2>
+          <p className="text-base text-text-secondary">{t("Current Month")}</p>
         </div>
         <PolicySalesChart />
       </section>
@@ -374,13 +376,13 @@ export default function AdminHome() {
       <section className="mt-6">
         <div className="relative" ref={tableDropDownRef}>
           <div className="flex gap-2 items-center absolute top-0 right-0">
-            <span className="text-text-light">Show</span>
+            <span className="text-text-light">{t("Show")}</span>
             <div className="relative">
               <button
                 className="flex items-center gap-2 text-text-secondary border border-[#e5e5e6] p-2 text-[16px] 2xl:text-xl font-medium relative cursor-pointer"
                 onClick={() => setIsFilterDropdownOpen(!isFilterDropdownOpen)}
               >
-                {filter}
+                {t(filter)}
                 <MdKeyboardArrowRight
                   className={`h-4 w-4 2xl:w-6 2xl:h-6 transform transition ${
                     isFilterDropdownOpen ? "rotate-90" : ""
@@ -396,7 +398,7 @@ export default function AdminHome() {
                         onClick={() => toggleTableFilter(option)}
                         className={`px-2 py-2 cursor-pointer hover:bg-primary hover:text-white`}
                       >
-                        {option}
+                        {t(option)}
                       </li>
                     ))}
                   </ul>

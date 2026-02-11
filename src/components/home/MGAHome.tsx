@@ -114,8 +114,10 @@ import { useMgaAgents } from "../../hooks/mga-dashboard/useMgaAgents.ts";
 import PolicySalesChart from "../analytics/charts/PolicySalesChart.tsx";
 import { AgentsTable } from "../Tables.tsx";
 import Spinner from "../Spinner.tsx";
+import { useLanguage } from "../../context/LanguageContext";
 
 export default function MGAHome() {
+  const { t } = useLanguage();
   const [agentsPage, setAgentsPage] = useState(1);
   const limit = 10;
 
@@ -135,18 +137,18 @@ export default function MGAHome() {
   console.log("MGA agents", agents);
 
   const stats = [
-    { label: "Total Policies", value: summary?.totalPolicies || 0 },
-    { label: "Total Quotes", value: summary?.totalQuotes || 0 },
+    { label: t("Total Policies"), value: summary?.totalPolicies || 0 },
+    { label: t("Total Quotes"), value: summary?.totalQuotes || 0 },
     {
-      label: "Commission Percent",
+      label: t("Commission Percent"),
       value: `${summary?.commissionPercent || 0}%`,
     },
-    { label: "Total Commissions", value: `$${summary?.totalCommissions || 0}` },
+    { label: t("Total Commissions"), value: `$${summary?.totalCommissions || 0}` },
     {
-      label: "Current Month Commissions",
+      label: t("Current Month Commissions"),
       value: `$${summary?.currentMonthCommissions || 0}`,
     },
-    { label: "Total Agents", value: summary?.totalAgents || 0 },
+    { label: t("Total Agents"), value: summary?.totalAgents || 0 },
   ];
 
   // Pagination handlers for agents
@@ -185,7 +187,7 @@ export default function MGAHome() {
     return (
       <div className="flex flex-col justify-center items-center gap-3 fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
         <Spinner className="w-10 h-10" />
-        <p>Loading MGA Dashboard...</p>
+        <p>{t("Loading MGA Dashboard...")}</p>
       </div>
     );
   }
@@ -193,7 +195,7 @@ export default function MGAHome() {
   if (sError || dError || aError) {
     return (
       <div className="flex flex-col justify-center items-center gap-3 fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-        <p className="text-red-500">Error loading MGA dashboard data</p>
+        <p className="text-red-500">{t("Error loading MGA dashboard data")}</p>
         <p className="text-sm text-gray-500">{sError || dError || aError}</p>
       </div>
     );
@@ -230,10 +232,10 @@ export default function MGAHome() {
         {/* Policy Sales Chart */}
         <div>
           <h2 className="text-lg font-bold mt-6 text-text-primary">
-            Policy Sales Distribution
+            {t("Policy Sales Distribution")}
           </h2>
           <p className="text-base text-text-secondary -mt-1">
-            All Agents Under Management
+            {t("All Agents Under Management")}
           </p>
         </div>
         <PolicySalesChart data={distribution} loading={dLoading} error={dError || ""} />
@@ -242,12 +244,14 @@ export default function MGAHome() {
         <div className="mt-6 space-y-2 w-full">
           <div className="flex justify-between items-center">
             <h2 className="text-lg font-bold text-text-primary">
-              All Agents ({agents?.total || 0})
+              {t("All Agents")} ({agents?.total || 0})
             </h2>
             <div className="text-sm text-gray-500">
-              Showing {(agentsPage - 1) * limit + 1} to{" "}
-              {Math.min(agentsPage * limit, agents?.total || 0)} of{" "}
-              {agents?.total || 0} agents
+              {t("Showing {{start}} to {{end}} of {{total}} agents", {
+                start: ((agentsPage - 1) * limit + 1).toString(),
+                end: Math.min(agentsPage * limit, agents?.total || 0).toString(),
+                total: (agents?.total || 0).toString()
+              })}
             </div>
           </div>
 
@@ -256,28 +260,28 @@ export default function MGAHome() {
               <thead className="bg-primary text-white text-base 2xl:text-xl capitalize text-nowrap">
                 <tr>
                   <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium">
-                    Agent Code
+                    {t("Agent Code")}
                   </th>
                   <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium">
-                    Joined Date
+                    {t("Joined Date")}
                   </th>
                   <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium">
-                    Name
+                    {t("Name")}
                   </th>
                   <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium">
-                    Validity
+                    {t("Validity")}
                   </th>
                   <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium">
-                    Status
+                    {t("Status")}
                   </th>
                   <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium">
-                    Policies
+                    {t("Policies")}
                   </th>
                   <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium">
-                    Quotes
+                    {t("Quotes")}
                   </th>
                   <th className="px-2 sm:px-6 py-1 sm:py-3 text-center font-medium">
-                    Action
+                    {t("Action")}
                   </th>
                 </tr>
               </thead>
@@ -291,13 +295,13 @@ export default function MGAHome() {
                       className="p-2 text-primary text-center h-40"
                       colSpan={8}
                     >
-                      Loading agents...
+                      {t("Loading agents...")}
                     </td>
                   </tr>
                 ) : aError ? (
                   <tr>
                     <td className="p-2 text-red-500 text-center" colSpan={8}>
-                      {aError}
+                      {t(aError)}
                     </td>
                   </tr>
                 ) : agents?.items?.length === 0 ? (
@@ -306,7 +310,7 @@ export default function MGAHome() {
                       className="p-2 text-text-secondary text-center"
                       colSpan={8}
                     >
-                      No agents found
+                      {t("No agents found")}
                     </td>
                   </tr>
                 ) : (
@@ -415,7 +419,7 @@ export default function MGAHome() {
                             window.location.href = `/mga/agent-details/${agent.agentCode}`;
                           }}
                         >
-                          View Details
+                          {t("View Details")}
                         </button>
                       </td>
                     </tr>
@@ -439,7 +443,7 @@ export default function MGAHome() {
                     ? "bg-[#F5F5F5] text-[#CCCCCC] cursor-not-allowed"
                     : "bg-[#CCCCCC] text-[#6F6B7D] cursor-pointer hover:bg-[#BBBBBB]"
                 }`}
-                title="Previous"
+                title={t("Previous")}
               >
                 <ChevronLeftIcon className="h-5 w-5" />
               </button>
@@ -468,7 +472,7 @@ export default function MGAHome() {
                     ? "bg-[#F5F5F5] text-[#CCCCCC] cursor-not-allowed"
                     : "bg-[#CCCCCC] text-[#6F6B7D] cursor-pointer hover:bg-[#BBBBBB]"
                 }`}
-                title="Next"
+                title={t("Next")}
               >
                 <ChevronRightIcon className="h-5 w-5" />
               </button>

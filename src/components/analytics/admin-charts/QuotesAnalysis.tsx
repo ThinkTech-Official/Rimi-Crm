@@ -306,6 +306,7 @@ import {
   Pie,
   Cell,
 } from "recharts";
+import { useLanguage } from "../../../context/LanguageContext";
 
 interface TopAgent {
   rank: number;
@@ -339,6 +340,7 @@ interface QuotesAnalysisProps {
 }
 
 const QuotesAnalysis = ({ data }: QuotesAnalysisProps) => {
+  const { t } = useLanguage();
   // Colors for the 4 product types
   const PRODUCT_COLORS = {
     "RIMI Canuck Voyage Travel Medical": {
@@ -423,7 +425,7 @@ const QuotesAnalysis = ({ data }: QuotesAnalysisProps) => {
             style={{ boxShadow: "0px 0px 6.6px 0px #0000001C" }}
           >
             <h3 className="font-semibold mb-5 px-2 sm:px-4 text-[#3a17c5]">
-              Monthly Quote Volume
+              {t("Monthly Quote Volume")}
             </h3>
             <div className="flex-1 min-h-0">
               {hasBarData ? (
@@ -474,7 +476,7 @@ const QuotesAnalysis = ({ data }: QuotesAnalysisProps) => {
                     <Bar
                       dataKey="quotes"
                       fill="#3B82F6"
-                      name="Total Quotes"
+                      name={t("Total Quotes")}
                       radius={[8, 8, 0, 0]}
                     />
                   </BarChart>
@@ -495,9 +497,9 @@ const QuotesAnalysis = ({ data }: QuotesAnalysisProps) => {
                         d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
                       />
                     </svg>
-                    <p className="text-sm font-medium">No quote data available</p>
+                    <p className="text-sm font-medium">{t("No quote data available")}</p>
                     <p className="text-xs mt-1">
-                      Quotes will appear here once created
+                      {t("Quotes will appear here once created")}
                     </p>
                   </div>
                 </div>
@@ -511,7 +513,7 @@ const QuotesAnalysis = ({ data }: QuotesAnalysisProps) => {
             style={{ boxShadow: "0px 0px 6.6px 0px #0000001C" }}
           >
             <span className="font-semibold px-2 sm:px-4 text-[#475569]">
-              Quotes by Product Type
+              {t("Quotes by Product Type")}
             </span>
 
             {hasPieData ? (
@@ -532,7 +534,9 @@ const QuotesAnalysis = ({ data }: QuotesAnalysisProps) => {
                         <Cell key={`cell-${index}`} fill={entry.colorInside} />
                       ))}
                     </Pie>
-                    <Tooltip />
+                    <Tooltip 
+                      formatter={(value: number, name: string) => [value, t(name)]}
+                    />
                   </PieChart>
                 </ResponsiveContainer>
 
@@ -553,7 +557,7 @@ const QuotesAnalysis = ({ data }: QuotesAnalysisProps) => {
                         ></span>
                       </span>
                       <div className="flex-1">
-                        <span className="text-[#475569]">{entry.name}</span>
+                        <span className="text-[#475569]">{t(entry.name)}</span>
                         <span
                           className="ml-2 font-semibold"
                           style={{ color: entry.colorInside }}
@@ -587,13 +591,13 @@ const QuotesAnalysis = ({ data }: QuotesAnalysisProps) => {
                       d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z"
                     />
                   </svg>
-                  <p className="text-sm font-medium">No product data</p>
-                  <p className="text-xs mt-1 px-4">
-                    Product distribution will appear here
-                  </p>
+                    <p className="text-sm font-medium">{t("No product data")}</p>
+                    <p className="text-xs mt-1 px-4">
+                      {t("Product distribution will appear here")}
+                    </p>
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
           </div>
         </div>
 
@@ -604,7 +608,7 @@ const QuotesAnalysis = ({ data }: QuotesAnalysisProps) => {
         >
           <h3 className="font-semibold mb-4 text-[#3a17c5] flex items-center gap-2">
             <span>🏆</span>
-            <span>Top 5 Agents This Month</span>
+            <span>{t("Top 5 Agents This Month")}</span>
           </h3>
 
           <div className="w-full overflow-x-auto">
@@ -612,16 +616,16 @@ const QuotesAnalysis = ({ data }: QuotesAnalysisProps) => {
               <thead className="bg-primary text-white text-nowrap">
                 <tr>
                   <th className="px-4 py-3 text-left text-sm 2xl:text-base font-medium">
-                    Rank
+                    {t("Rank")}
                   </th>
                   <th className="px-4 py-3 text-left text-sm 2xl:text-base font-medium">
-                    Agent Code
+                    {t("Agent Code")}
                   </th>
                   <th className="px-4 py-3 text-left text-sm 2xl:text-base font-medium">
-                    Agent Name
+                    {t("Agent Name")}
                   </th>
                   <th className="px-4 py-3 text-right text-sm 2xl:text-base font-medium">
-                    Quotes Generated
+                    {t("Quotes Generated")}
                   </th>
                 </tr>
               </thead>
@@ -646,11 +650,10 @@ const QuotesAnalysis = ({ data }: QuotesAnalysisProps) => {
                         />
                       </svg>
                       <p className="text-sm font-medium">
-                        No agent data available for this month
+                        {t("No agent data available for this month")}
                       </p>
                       <p className="text-xs mt-1">
-                        Top performing agents will appear here once quotes are
-                        created
+                        {t("Top performing agents will appear here once quotes are created")}
                       </p>
                     </td>
                   </tr>
