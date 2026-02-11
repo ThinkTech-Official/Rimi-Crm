@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useLanguage } from "../../../../context/LanguageContext";
 
 const EmailQuoteMedical = ({
   premiumBreakdown,
@@ -6,13 +7,14 @@ const EmailQuoteMedical = ({
   quoteNumber = "Q-12345",
   quoteLink = "#",
 }: {
-    premiumBreakdown: any;
+  premiumBreakdown: any;
   setIsEmailModalOpen: (val: boolean) => void;
   quoteNumber: string | null;
   quoteLink?: string;
 }) => {
   const [email, setEmail] = useState("");
   const [sending, setSending] = useState(false);
+  const {t} = useLanguage();
 
   const handleModalClose = () => setIsEmailModalOpen(false);
 
@@ -43,7 +45,7 @@ const EmailQuoteMedical = ({
           <label className="block text-sm mb-1">Recipient Email</label>
           <input
             type="email"
-            placeholder="Enter email address"
+            placeholder={t("Enter email address")}
             className="input-primary w-full"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
@@ -82,15 +84,15 @@ const EmailQuoteMedical = ({
             </p>
 
             <div>
-            <div className="space-y-1">
-              <div className="flex justify-between text-base">
-                <span>Total Premium:</span>
-                <span className="">
-                  ${premiumBreakdown.finalPremium.toFixed(2)} CAD
-                </span>
+              <div className="space-y-1">
+                <div className="flex justify-between text-base">
+                  <span>Total Premium:</span>
+                  <span className="">
+                    ${premiumBreakdown.finalPremium.toFixed(2)} CAD
+                  </span>
+                </div>
               </div>
             </div>
-          </div>
 
             {/* Footer */}
             <p className="mt-6 text-gray-700">

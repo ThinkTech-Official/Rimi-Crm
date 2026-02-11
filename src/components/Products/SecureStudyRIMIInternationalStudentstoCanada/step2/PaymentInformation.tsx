@@ -5,6 +5,7 @@ import {
 } from '@stripe/react-stripe-js';
 import { FormEvent, useState } from 'react';
 import { useCreatePaymentIntent } from '../../../../hooks/useCreatePaymentIntent';
+import { useLanguage } from '../../../../context/LanguageContext';
 
 export interface Shipping {
   addressLine1: string;
@@ -38,6 +39,7 @@ export default function PaymentInformation({
   onBuyNow,
   submittingStage2,
 }: PaymentInformationProps) {
+  const { t } = useLanguage();
   const stripe = useStripe();
   const elements = useElements();
 
@@ -79,7 +81,7 @@ export default function PaymentInformation({
       // 2️⃣ Grab the mounted CardElement
       const cardElement = elements.getElement(CardElement);
       if (!cardElement) {
-        setStripeError('Card input not ready');
+        setStripeError(t('Card input not ready'));
         return;
       }
 
@@ -102,7 +104,7 @@ export default function PaymentInformation({
         onPaymentSuccess();
       }
     } catch (err: any) {
-      setStripeError(err.message || "Something went wrong");
+      setStripeError(err.message || t("Something went wrong"));
     }
   };
 
@@ -112,7 +114,7 @@ export default function PaymentInformation({
       className="bg-greyBg p-3 sm:p-6 space-y-6 mt-6"
     >
       <h3 className="text-lg font-bold text-left text-[#1B1B1B]">
-        Payment Information
+        {t("Payment Information")}
       </h3>
 
       {/* 1. Display the amount */}
@@ -121,7 +123,7 @@ export default function PaymentInformation({
           htmlFor="paymentAmount"
           className="block text-sm font-medium text-text-secondary"
         >
-          Amount
+          {t("Amount")}
         </label>
         <input
           id="paymentAmount"
@@ -138,7 +140,7 @@ export default function PaymentInformation({
           htmlFor="cardholder-name"
           className="block text-sm font-medium text-text-secondary"
         >
-          Cardholder Name
+          {t("Cardholder Name")}
         </label>
         <input
           id="cardholder-name"
@@ -153,7 +155,7 @@ export default function PaymentInformation({
       {/* 3. The Stripe CardElement */}
      <div>
         <label className="block text-sm font-medium text-gray-700">
-          Card Details
+          {t("Card Details")}
         </label>
         <div className="input-primary">
           <CardElement
@@ -185,8 +187,8 @@ export default function PaymentInformation({
         `}
       >
         {intentLoading || submittingStage2
-          ? 'Processing…'
-          : `Pay $${amount.toFixed(2)}`}
+          ? t('Processing…')
+          : `${t("Pay")} $${amount.toFixed(2)}`}
       </button>
     </form>
   );

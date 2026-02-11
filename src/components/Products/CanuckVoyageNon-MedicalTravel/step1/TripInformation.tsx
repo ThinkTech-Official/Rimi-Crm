@@ -182,6 +182,7 @@ import {
 import { usePremiumCalculationProduct4 } from "../../../../hooks/canuck-voyage-non-medical/usePremiumCalculationProduct4";
 import { useCreateQuoteProduct4 } from "../../../../hooks/canuck-voyage-non-medical/useCreateQuoteProduct4";
 import { Controller, UseFormReturn } from "react-hook-form";
+import { useLanguage } from "../../../../context/LanguageContext";
 import { Step1Payload } from "../RIMICanuckVoyageNon-MedicalTravel";
 import DatePicker from "../../../DatePicker";
 import EmailQuoteNonMed from "./EmailQuoteNonMed";
@@ -218,6 +219,7 @@ export default function TripInformation({
   setTotalPremium,
   handleSaveQuote
 }: TripInformationProps) {
+  const { t } = useLanguage();
   const [showTripCost, setShowTripCost] = useState(false);
   const [showTripCancellation, setShowTripCancellation] = useState(false);
   const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
@@ -384,7 +386,7 @@ export default function TripInformation({
     <div>
       <div className="max-w-5xl mx-auto mt-4 p-3 sm:p-6 bg-[#F9F9F9]">
         <h3 className="text-lg font-bold text-left text-[#1B1B1B] mb-5">
-          Trip Information
+          {t("Trip Information")}
         </h3>
 
         {/* Trip Cost */}
@@ -395,7 +397,7 @@ export default function TripInformation({
               className="h-5 w-5 text-[#3a17c5] cursor-pointer"
               aria-hidden="true"
             />
-            Trip Cost (per person)
+            {t("Trip Cost (per person)")}
           </label>
           <input
             className="input-primary"
@@ -403,11 +405,11 @@ export default function TripInformation({
             min="0"
             max="30000"
             step="0.01"
-            placeholder="Enter trip cost"
+            placeholder={t("Enter trip cost")}
             {...register("tripCost", {
-              required: "Trip cost is required",
-              min: { value: 1, message: "Trip cost must be at least $1" },
-              max: { value: 30000, message: "Trip cost cannot exceed $30,000" },
+              required: t("Trip cost is required"),
+              min: { value: 1, message: t("Trip cost must be at least $1") },
+              max: { value: 30000, message: t("Trip cost cannot exceed $30,000") },
               valueAsNumber: true,
             })}
           />
@@ -424,15 +426,14 @@ export default function TripInformation({
               className="text-primary underline absolute top-2 right-2 cursor-pointer underline-offset-2"
               onClick={() => setShowTripCost(false)}
             >
-              close
+              {t("close")}
             </button>
             <h2 className="text-lg font-semibold border-b border-[#c2c2c2] pb-2">
-              Trip Cost
+              {t("Trip Cost")}
             </h2>
             <p className="text-sm text-gray-600 mt-2">
-              Enter the total cost, per person, of the non-refundable, pre-paid
-              travel arrangements. The maximum available trip cost is{" "}
-              <strong>$30,000 per person</strong>.
+              {t("Enter the total cost, per person, of the non-refundable, pre-paid travel arrangements. The maximum available trip cost is")}{" "}
+              <strong>{t("$30,000 per person")}</strong>.
             </p>
           </div>
         )}
@@ -445,7 +446,7 @@ export default function TripInformation({
               className="h-5 w-5 text-[#3a17c5] cursor-pointer"
               aria-hidden="true"
             />
-            Trip Cancellation - Deluxe Option
+            {t("Trip Cancellation - Deluxe Option")}
           </label>
           <div className="relative">
             <Controller
@@ -453,7 +454,7 @@ export default function TripInformation({
               control={control}
               rules={{
                 validate: (value) =>
-                  value === true || value === false || "Please select an option",
+                  value === true || value === false || t("Please select an option"),
               }}
               render={({ field }) => (
                 <select
@@ -475,9 +476,9 @@ export default function TripInformation({
                   }}
                   onBlur={field.onBlur}
                 >
-                  <option value="">Please select...</option>
-                  <option value="yes">Yes (+15% premium)</option>
-                  <option value="no">No</option>
+                  <option value="">{t("Please select...")}</option>
+                  <option value="yes">{t("Yes (+15% premium)")}</option>
+                  <option value="no">{t("No")}</option>
                 </select>
               )}
             />
@@ -499,56 +500,45 @@ export default function TripInformation({
               className="text-primary underline absolute top-2 right-2 cursor-pointer underline-offset-2"
               onClick={() => setShowTripCancellation(false)}
             >
-              close
+              {t("close")}
             </button>
             <h2 className="text-lg font-semibold border-b border-[#c2c2c2] pb-2">
-              Trip Cancellation - Deluxe Option
+              {t("Trip Cancellation - Deluxe Option")}
             </h2>
             <p className="mt-2 text-sm text-gray-700">
-              The following trip cancellation insured risks are covered if the
-              Deluxe Option is selected:
+              {t("The following trip cancellation insured risks are covered if the Deluxe Option is selected:")}
             </p>
             <ul className="list-disc pl-5 mt-2 text-sm text-gray-700 space-y-2">
-              <li>Rail services cancelled due to staff shortages.</li>
+              <li>{t("Rail services cancelled due to staff shortages.")}</li>
               <li>
-                Pregnancy of your immediate family member, provided pregnancy
-                occurs after the date of initial booking.
+                {t("Pregnancy of your immediate family member, provided pregnancy occurs after the date of initial booking.")}
               </li>
               <li>
-                The cancellation of a trip by your insured travel companion due
-                to an insured risk.
+                {t("The cancellation of a trip by your insured travel companion due to an insured risk.")}
               </li>
               <li>
-                Cancellation of commercial child care services within 7 days
-                prior to the departure date.
+                {t("Cancellation of commercial child care services within 7 days prior to the departure date.")}
               </li>
               <li>
-                Critical illness of your cat or dog, less than 5 years old,
-                within 7 days prior to the departure date.
+                {t("Critical illness of your cat or dog, less than 5 years old, within 7 days prior to the departure date.")}
               </li>
               <li>
-                Undue financial hardship of your corporation due to unforeseen
-                circumstances.
+                {t("Undue financial hardship of your corporation due to unforeseen circumstances.")}
               </li>
               <li>
-                Your employer mandates that you are required to work during your
-                scheduled trip.
+                {t("Your employer mandates that you are required to work during your scheduled trip.")}
               </li>
               <li>
-                Political unrest, riot, rebellion, or revolution in your home
-                country or destination country.
+                {t("Political unrest, riot, rebellion, or revolution in your home country or destination country.")}
               </li>
               <li>
-                A report of adverse weather at your destination at the time of
-                your scheduled arrival.
+                {t("A report of adverse weather at your destination at the time of your scheduled arrival.")}
               </li>
               <li>
-                Worsening of your chronic illness that was stable at the time
-                your trip was booked.
+                {t("Worsening of your chronic illness that was stable at the time your trip was booked.")}
               </li>
               <li>
-                Your required attendance at a business or board event that was
-                scheduled after this insurance was purchased.
+                {t("Your required attendance at a business or board event that was scheduled after this insurance was purchased.")}
               </li>
             </ul>
           </div>
@@ -560,10 +550,10 @@ export default function TripInformation({
             <Controller
               name={`dateBooked`}
               control={control}
-              rules={{ required: "Date Booked is required" }}
+              rules={{ required: t("Date Booked is required") }}
               render={({ field }) => (
                 <DatePicker
-                  label="Date Booked"
+                  label={t("Date Booked")}
                   value={field.value}
                   onChange={(date: Date) => {
                     field.onChange(date);
@@ -583,10 +573,10 @@ export default function TripInformation({
             <Controller
               name={`effectiveDate`}
               control={control}
-              rules={{ required: "Date of Departure is required" }}
+              rules={{ required: t("Date of Departure is required") }}
               render={({ field }) => (
                 <DatePicker
-                  label="Date of Departure"
+                  label={t("Date of Departure")}
                   value={field.value}
                   onChange={(date: Date) => {
                     field.onChange(date);
@@ -607,13 +597,13 @@ export default function TripInformation({
               name={`expiryDate`}
               control={control}
               rules={{ 
-                required: "Date of Return is required",
+                required: t("Date of Return is required"),
                 validate: (value) => {
                   if (effectiveDate && value) {
                     const eff = new Date(effectiveDate);
                     const exp = new Date(value);
                     if (exp <= eff) {
-                      return "Return date must be after departure date";
+                      return t("Return date must be after departure date");
                     }
                   }
                   return true;
@@ -621,7 +611,7 @@ export default function TripInformation({
               }}
               render={({ field }) => (
                 <DatePicker
-                  label="Date of Return"
+                  label={t("Date of Return")}
                   value={field.value}
                   onChange={(date: Date) => {
                     field.onChange(date);
@@ -637,7 +627,7 @@ export default function TripInformation({
             )}
           </div>
           <div className="flex flex-col">
-            <label className="text-sm">Coverage Length (days)</label>
+            <label className="text-sm">{t("Coverage Length (days)")}</label>
             <input
               className="input-primary"
               type="text"
@@ -648,11 +638,11 @@ export default function TripInformation({
           </div>
 
           <div className="flex flex-col">
-            <label className="text-sm">Destination Country</label>
+            <label className="text-sm">{t("Destination Country")}</label>
             <input
               className="input-primary"
               type="text"
-              value="Canada"
+              value={t("Canada")}
               disabled
               readOnly
             />
@@ -664,23 +654,23 @@ export default function TripInformation({
           {/* Premium Breakdown */}
           <div>
             <h4 className="text-lg font-bold text-left text-[#1B1B1B] mb-5">
-              Premium Breakdown
+              {t("Premium Breakdown")}
             </h4>
             <div className="space-y-1">
               <div className="flex justify-between">
-                <span>Base Premium:</span>
+                <span>{t("Base Premium:")}</span>
                 <span>${premiumBreakdown.basePremium.toFixed(2)}</span>
               </div>
               {premiumBreakdown.deluxePremium && (
                 <div className="flex justify-between text-green-700">
-                  <span>Deluxe Option (+15%):</span>
+                  <span>{t("Deluxe Option (+15%):")}</span>
                   <span>+${premiumBreakdown.deluxePremium.toFixed(2)}</span>
                 </div>
               )}
               <div className="flex justify-between font-bold text-lg border-t border-inputBorder pt-2 mt-2">
-                <span>Total Premium:</span>
+                <span>{t("Total Premium:")}</span>
                 <span className="text-primary">
-                  ${premiumBreakdown.finalPremium.toFixed(2)} CAD
+                  ${premiumBreakdown.finalPremium.toFixed(2)} {t("CAD")}
                 </span>
               </div>
             </div>
@@ -689,7 +679,7 @@ export default function TripInformation({
           {/* Error Display */}
           {error && (
             <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
-              <strong>Error:</strong> {error}
+              <strong>{t("Error:")}</strong> {error}
             </div>
           )}
 
@@ -697,12 +687,12 @@ export default function TripInformation({
           {quoteNumber && !hasFormChanged ? (
             <div className="flex flex-col justify-center items-center mt-4 text-xl font-bold text-red-600">
               <span>
-                Quote Saved:{" "}
+                {t("Quote Saved:")}{" "}
               </span>
               <span>{quoteNumber}</span>
 
               <button className="text-[#2b00b7] cursor-pointer text-base hover:underline underline-offset-2 mt-2" onClick={()=>setIsEmailModalOpen(true)}>
-                Email Quote
+                {t("Email Quote")}
               </button>
             </div>
           ) : (
@@ -723,7 +713,7 @@ export default function TripInformation({
                     saving ? "opacity-50" : ""
                   }`}
                 >
-                  {saving ? "Saving..." : "Save Quote"}
+                  {saving ? t("Saving...") : t("Save Quote")}
                 </button>
               </div>
             )

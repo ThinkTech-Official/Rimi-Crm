@@ -16,6 +16,7 @@ import Summary from "./step3/Summary";
 import useNotification from "../../../hooks/useNotification";
 import { FormProvider, useForm } from "react-hook-form";
 import YourQuoteSummary from "./step2/YourQuoteSummary";
+import { useLanguage } from "../../../context/LanguageContext";
 
 type SuperVisaOption = "" | "yes" | "no";
 type SuperVisaYears = "" | "1";
@@ -105,12 +106,13 @@ interface QuoteStage1Response {
 const productName = "SECURE_TRAVEL_RIMI_VISITORS_TO_CANADA_TRAVEL";
 
 export default function SecureTravelRIMIVisitorstoCanadaTravel() {
+  const { t } = useLanguage();
   const agentCode = useSelector((state: RootState) => state.auth.agentCode);
 
   const [steps, setSteps] = useState([
-    { id: "01", name: "Get Quote", href: "#", status: "current" },
-    { id: "02", name: "Complete Application", href: "#", status: "upcoming" },
-    { id: "03", name: "Summary", href: "#", status: "upcoming" },
+    { id: "01", name: t("Get Quote"), href: "#", status: "current" },
+    { id: "02", name: t("Complete Application"), href: "#", status: "upcoming" },
+    { id: "03", name: t("Summary"), href: "#", status: "upcoming" },
   ]);
 
   const [formStep, setFormStep] = useState(1);
@@ -322,7 +324,7 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
       handleFormStepChange("forward");
     } catch (err) {
       console.error("saveQuoteNext failed", err);
-      triggerNotification({ message: "Failed to save quote", type: "error" });
+      triggerNotification({ message: t("Failed to save quote"), type: "error" });
     }
   };
 
@@ -365,7 +367,7 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
       return true;
     } catch {
       triggerNotification({
-        message: "Failed to complete application",
+        message: t("Failed to complete application"),
         type: "error",
       });
       return false;
@@ -488,7 +490,7 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
           <div className="w-full h-2 mt-8 flex items-center justify-center mb-5">
             <h3 className="text-xl">
               <span className="text-text-primary font-semibold">
-                Your Quote:
+                {t("Your Quote")}:
               </span>{" "}
               <span className="text-text-secondary">
                 ${step1ResponseData?.quoteAmount}
@@ -517,57 +519,56 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
             schedule.length > 0 && (
               <div className="mx-auto mb-6 mt-4 bg-greyBg p-4">
                 <h3 className="text-lg font-bold text-left text-[#1B1B1B] mb-5">
-                  Payment Plan Summary
+                  {t("Payment Plan Summary")}
                 </h3>
 
                 <div className="bg-white p-3 border border-inputBorder mb-3">
                   <div className="flex justify-between items-center">
                     <span className="font-medium text-text-primary text-lg">
-                      Due Today:
+                      {t("Due Today")}:
                     </span>
                     <span className="text-xl font-bold text-primary">
                       ${firstPaymentAmount.toFixed(2)}
                     </span>
                   </div>
                   <div className="text-sm mt-1 text-text-secondary">
-                    Includes: $120 policy fee + $
-                    {(firstPaymentAmount - 120).toFixed(2)} (first 2 months)
+                    {t("Includes: $120 policy fee + $")}{(firstPaymentAmount - 120).toFixed(2)} {t("(first 2 months)")}
                   </div>
                 </div>
 
                 <div className="space-y-2 p-4 bg-white border border-inputBorder">
                   <div className="flex justify-between">
                     <span className="text-text-primary font-medium">
-                      Monthly Payment:
+                      {t("Monthly Payment")}:
                     </span>
                     <span className="font-semibold">
                       ${monthlyAmount?.toFixed(2)}
                     </span>
                   </div>
                   <div className="flex justify-between text-sm text-text-secondary">
-                    <span>Remaining Payments:</span>
-                    <span>{remainingInstallments} months</span>
+                    <span>{t("Remaining Payments")}:</span>
+                    <span>{remainingInstallments} {t("months")}</span>
                   </div>
                   <div className="flex justify-between text-sm pt-2 border-t border-inputBorder text-text-secondary">
-                    <span>Total Premium:</span>
+                    <span>{t("Total Premium")}:</span>
                     <span className="font-semibold">
                       ${totalPremium.toFixed(2)}
                     </span>
                   </div>
                   <div className="flex justify-between text-sm text-text-secondary">
-                    <span>Policy Fee (one-time):</span>
+                    <span>{t("Policy Fee (one-time)")}:</span>
                     <span className="font-semibold">$120.00</span>
                   </div>
                   <div className="flex justify-between text-text-primary font-bold text-base pt-2 border-t border-inputBorder">
-                    <span>Grand Total:</span>
+                    <span>{t("Grand Total")}:</span>
                     <span>${(totalPremium + 120).toFixed(2)}</span>
                   </div>
                 </div>
 
                 <div className="text-xs text-text-secondary mt-3">
-                  Your card will be charged ${firstPaymentAmount.toFixed(2)}{" "}
-                  today, then ${monthlyAmount?.toFixed(2)}/month for{" "}
-                  {remainingInstallments} months
+                  {t("Your card will be charged")} ${firstPaymentAmount.toFixed(2)}{" "}
+                  {t("today, then")} ${monthlyAmount?.toFixed(2)}{t("/month for")}{" "}
+                  {remainingInstallments} {t("months")}
                 </div>
               </div>
             )}
@@ -575,18 +576,18 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
           {watchedPaymentOption === "lump-sum" && (
             <div className="mx-auto mb-6 mt-4 bg-greyBg p-4">
               <h3 className="text-lg font-bold text-left text-[#1B1B1B] mb-5">
-                Payment Summary
+                {t("Payment Summary")}
               </h3>
               <div className="flex justify-between items-center">
                 <span className="text-text-primary font-medium text-lg">
-                  Total Premium:
+                  {t("Total Premium")}:
                 </span>
                 <span className="text-xl font-bold text-primary">
                   ${totalPremium.toFixed(2)}
                 </span>
               </div>
               <div className="text-sm text-text-secondary mt-2">
-                One-time payment • No additional fees
+                {t("One-time payment • No additional fees")}
               </div>
             </div>
           )}
@@ -631,7 +632,7 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
             onClick={() => handleFormStepChange("back")}
             className=" btn-primary"
           >
-            Previous
+            {t("Previous")}
           </button>
         )}
 
@@ -642,8 +643,8 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
             className={`w-[200px] mt-6 bg-[#2B00B7] text-white p-3  hover:bg-[#2309A1] transition flex justify-center items-center cursor-pointer duration-200 ${
               savingStage1 ? "opacity-50 cursor-wait" : ""
             }`}
-          >
-            {savingStage1 ? "Saving…" : "Next"}
+           >
+            {savingStage1 ? t("Saving…") : t("Next")}
           </button>
         )}
       </div>

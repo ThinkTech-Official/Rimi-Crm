@@ -3,10 +3,12 @@ import {
   InformationCircleIcon,
 } from "@heroicons/react/24/outline";
 import { useState } from "react";
+import { useLanguage } from "../../../../context/LanguageContext";
 
 export default function ApplicantInformation() {
   const [displayInfoApplicantConfirm, setDisplayInfoApplicantConfirm] =
     useState(false);
+    const { t } = useLanguage();
 
   const [coverageForPreMedCon, setCoverageForPreMedCon] = useState(false);
   const [applicantNumber,setApplicantNumber] = useState(0)
@@ -56,34 +58,34 @@ export default function ApplicantInformation() {
 
       <div className="grid grid-cols-2 gap-x-36 gap-y-4 text-gray-700">
         <div className="flex flex-col gap-2">
-          <label className="font-[inter]">First Name</label>
+          <label className="font-[inter]">{t("First Name")}</label>
           <input
             className="p-2 border border-[#DBDADE] placeholder-[#00000080] font-[inter]"
             type="text"
-            placeholder="Enter First Name"
+            placeholder={t("Enter First Name")}
           />
         </div>
         <div className="flex flex-col gap-2">
-          <label className="font-[inter]">Last Name</label>
+          <label className="font-[inter]">{t("Last Name")}</label>
           <input
             className="p-2 border border-[#DBDADE] placeholder-[#00000080] font-[inter]"
             type="text"
-            placeholder="Enter Last Name"
+            placeholder={t("Enter Last Name")}
           />
         </div>
         <div className="flex flex-col gap-2">
-          <label className="font-[inter]">Date of Birth</label>
+          <label className="font-[inter]">{t("Date of Birth")}</label>
           <input
             className="p-2 border border-[#DBDADE] placeholder-[#00000080] font-[inter]"
             type="date"
           />
         </div>
         <div className="flex flex-col gap-2">
-          <label className="font-[inter]">Email</label>
+          <label className="font-[inter]">{t("Email")}</label>
           <input
             className="p-2 border border-[#DBDADE] placeholder-[#00000080] font-[inter]"
             type="email"
-            placeholder="Enter Email"
+            placeholder={t("Enter Email")}
           />
         </div>
       </div>
@@ -99,7 +101,7 @@ export default function ApplicantInformation() {
               className="h-5 w-5 text-[#3a17c5] cursor-pointer"
               aria-hidden="true"
             />
-            Include coverage for stable pre-existing medical conditions
+            {t("Include coverage for stable pre-existing medical conditions")}
           </label>
           <select
             className="p-2 border border-[#DBDADE] font-[inter] w-full max-w-xs"
@@ -116,7 +118,7 @@ export default function ApplicantInformation() {
         {/* <div className="grid grid-cols-2 gap-x-36 gap-y-4 mt-6 text-gray-700"> */}
           <div className="flex flex-col gap-2">
             <label className="font-[inter]">
-              Number of Additional Applicants
+              {t("Number of Additional Applicants")}
             </label>
             <select 
             value={applicantNumber}
@@ -185,23 +187,23 @@ export default function ApplicantInformation() {
         >
           
           <div className="flex flex-col gap-2">
-            <label className="font-[inter]">First Name</label>
+            <label className="font-[inter]">{t("First Name")}</label>
             <input
               className="p-2 border border-[#DBDADE] placeholder-[#00000080] font-[inter]"
               type="text"
-              placeholder="Enter First Name"
+              placeholder={t("Enter First Name")}
             />
           </div>
           <div className="flex flex-col gap-2">
-            <label className="font-[inter]">Last Name</label>
+            <label className="font-[inter]">{t("Last Name")}</label>
             <input
               className="p-2 border border-[#DBDADE] placeholder-[#00000080] font-[inter]"
               type="text"
-              placeholder="Enter Last Name"
+              placeholder={t("Enter Last Name")}
             />
           </div>
           <div className="flex flex-col gap-2">
-            <label className="font-[inter]">Date of Birth</label>
+            <label className="font-[inter]">{t("Date of Birth")}</label>
             <input
               className="p-2 border border-[#DBDADE] placeholder-[#00000080] font-[inter]"
               type="date"
@@ -209,7 +211,7 @@ export default function ApplicantInformation() {
           </div>
           <div className="flex flex-col gap-2">
             <label className="font-[inter]">
-              Relationship to Primary Applicant
+              {t("Relationship to Primary Applicant")}
             </label>
             <div className="relative">
               <select className="p-2 border border-[#DBDADE] placeholder-[#00000080] font-[inter] w-full appearance-none cursor-pointer">
@@ -233,7 +235,7 @@ export default function ApplicantInformation() {
               className="h-5 w-5 text-[#3a17c5] cursor-pointer"
               aria-hidden="true"
             />
-            Include coverage for stable pre-existing medical conditions
+            {t("Include coverage for stable pre-existing medical conditions")}
           </label>
           <select
             className="p-2 border border-[#DBDADE] font-[inter] w-full max-w-xs"

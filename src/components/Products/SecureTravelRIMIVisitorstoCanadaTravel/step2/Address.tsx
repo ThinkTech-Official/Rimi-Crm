@@ -2,6 +2,7 @@ import { FC } from "react";
 import Dropdown from "../../../DropDown";
 import { Countries } from "../step1/Constants";
 import { UseFormReturn } from "react-hook-form";
+import { useLanguage } from "../../../../context/LanguageContext";
 
 // Define the shape of the form data for this section
 export interface AddressData {
@@ -24,23 +25,24 @@ const Address: FC<AddressProps> = ({ methods }) => {
     register,
     formState: { errors },
   } = methods;
+  const { t } = useLanguage();
 
   return (
     <div className="max-w-5xl mx-auto mt-4 p-6 bg-[#F9F9F9]">
       <h3 className="text-lg font-bold text-left text-[#1B1B1B] mb-5">
-        Address
+        {t("Address")}
       </h3>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 md:gap-x-16 lg:gap-x-24 gap-y-4 text-text-secondary">
         <div className="flex flex-col">
-          <label className="text-sm">Address Line 1</label>
+          <label className="text-sm">{t("Address Line 1")}</label>
           <input
             type="text"
             className="input-primary"
-            placeholder="Address Line 1"
+            placeholder={t("Address Line 1")}
             {...register("address.addressLine1", {
-              required: "Address Line 1 is required",
-              maxLength: { value: 100, message: "Max 100 characters" },
+              required: t("Address Line 1 is required"),
+              maxLength: { value: 100, message: t("Max 100 characters") },
             })}
           />
           {(errors.address as any)?.addressLine1 && (
@@ -51,26 +53,26 @@ const Address: FC<AddressProps> = ({ methods }) => {
         </div>
 
         <div className="flex flex-col">
-          <label className="text-sm">Address Line 2</label>
+          <label className="text-sm">{t("Address Line 2")}</label>
           <input
             type="text"
             className="input-primary"
-            placeholder="Address Line 2"
+            placeholder={t("Address Line 2")}
             {...register("address.addressLine2", {
-              maxLength: { value: 100, message: "Max 100 characters" },
+              maxLength: { value: 100, message: t("Max 100 characters") },
             })}
           />
         </div>
 
         <div className="flex flex-col">
-          <label className="text-sm">City</label>
+          <label className="text-sm">{t("City")}</label>
           <input
             type="text"
             className="input-primary"
-            placeholder="city"
+            placeholder={t("City")}
             {...register("address.city", {
-              required: "City is required",
-              maxLength: { value: 60, message: "Max 60 characters" },
+              required: t("City is required"),
+              maxLength: { value: 60, message: t("Max 60 characters") },
             })}
           />
           {(errors.address as any)?.city && (
@@ -81,14 +83,14 @@ const Address: FC<AddressProps> = ({ methods }) => {
         </div>
 
         <div className="flex flex-col">
-          <label className="text-sm">Postal Code</label>
+          <label className="text-sm">{t("Postal Code")}</label>
           <input
             type="text"
             className="input-primary"
-            placeholder="Postal Code"
+            placeholder={t("Postal Code")}
             {...register("address.postalCode", {
-              required: "Postal Code is required",
-              maxLength: { value: 20, message: "Max 20 characters" },
+              required: t("Postal Code is required"),
+              maxLength: { value: 20, message: t("Max 20 characters") },
             })}
           />
           {(errors.address as any)?.postalCode && (
@@ -99,9 +101,9 @@ const Address: FC<AddressProps> = ({ methods }) => {
         </div>
         <div className="flex flex-col">
           <Dropdown
-            label="Country"
+            label={t("Country")}
             options={Countries}
-            {...register("address.country", { required: "Country is required" })}
+            {...register("address.country", { required: t("Country is required") })}
           />
           {(errors.address as any)?.country && (
             <p className="text-red-500 text-sm mt-1">
@@ -111,14 +113,14 @@ const Address: FC<AddressProps> = ({ methods }) => {
         </div>
 
         <div className="flex flex-col">
-          <label className="text-sm">Province/State</label>
+          <label className="text-sm">{t("Province/State")}</label>
           <input
             type="text"
             className="input-primary"
-            placeholder="Province/State"
+            placeholder={t("Province/State")}
             {...register("address.province", {
-              required: "Province is required",
-              maxLength: { value: 60, message: "Max 60 characters" },
+              required: t("Province is required"),
+              maxLength: { value: 60, message: t("Max 60 characters") },
             })}
           />
           {(errors.address as any)?.province && (

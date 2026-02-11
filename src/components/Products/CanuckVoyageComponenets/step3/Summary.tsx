@@ -80,30 +80,32 @@
 
 import React from "react";
 import { useQuoteDetail } from "../../../../hooks/useQuoteDetail";
+import { useLanguage } from "../../../../context/LanguageContext";
 
 interface SummaryProps {
   quoteId: string | null;
 }
 
 const Summary: React.FC<SummaryProps> = ({ quoteId }) => {
+  const { t } = useLanguage();
   const { data, loading, error } = useQuoteDetail(quoteId);
 
   if (loading) {
-    return <p className="text-center mt-8">Loading quote summary…</p>;
+    return <p className="text-center mt-8">{t("Loading quote summary…")}</p>;
   }
   if (error) {
     return (
       <p className="text-red-600 text-center mt-8">
-        Error fetching quote details: {error}
+        {t("Error fetching quote details")}: {error}
       </p>
     );
   }
   if (!data) {
-    return <p className="text-center mt-8">No data to display.</p>;
+    return <p className="text-center mt-8">{t("No data to display.")}</p>;
   }
 
   const maybe = (value: any) =>
-    value === undefined || value === null || value === "" ? "N/A" : value;
+    value === undefined || value === null || value === "" ? t("N/A") : value;
 
   const formatDate = (dateString: any) => {
     if (!dateString) return "N/A";
@@ -151,39 +153,39 @@ const Summary: React.FC<SummaryProps> = ({ quoteId }) => {
   // TABLE DATA DEFINITIONS
   // ---------------------------
   const contactInfoRows: [string, React.ReactNode][] = [
-    ["First Name", maybe(data.firstName)],
-    ["Last Name", maybe(data.lastName)],
-    ["Date of Birth", formatDate(data.dateOfBirth)],
-    ["Gender", maybe(data.gender)],
-    ["Primary Email", maybe(data.email)],
-    ["Additional Email", maybe((data as any).additionalEmail)],
-    ["Phone Number", maybe((data as any).phoneNumber)],
+    [t("First Name"), maybe(data.firstName)],
+    [t("Last Name"), maybe(data.lastName)],
+    [t("Date of Birth"), formatDate(data.dateOfBirth)],
+    [t("Gender"), maybe(data.gender)],
+    [t("Primary Email"), maybe(data.email)],
+    [t("Additional Email"), maybe((data as any).additionalEmail)],
+    [t("Phone Number"), maybe((data as any).phoneNumber)],
   ];
 
   // Build quote rows with conditional entries
   const quoteRows: [string, React.ReactNode][] = [
-    ["Quote Number", maybe(data.quoteNumber)],
-    ["Product", maybe(data.product)],
+    [t("Quote Number"), maybe(data.quoteNumber)],
+    [t("Product"), maybe(data.product)],
     [
-      "Status",
+      t("Status"),
       <span key="status" className="inline-block px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm font-semibold">
-        {maybe(data.status)}
+        {t(maybe(data.status))}
       </span>,
     ],
-    ["Policy Type", maybe(data.policyType)],
-    ["Effective Date", formatDate(data.effectiveDate)],
-    ["Expiry Date", formatDate(data.expiryDate)],
+    [t("Policy Type"), t(maybe(data.policyType))],
+    [t("Effective Date"), formatDate(data.effectiveDate)],
+    [t("Expiry Date"), formatDate(data.expiryDate)],
     [
-      "Coverage Length",
-      `${maybe(data.covLen)} ${pluralize(data.covLen, "day", "days")}`,
+      t("Coverage Length"),
+      `${maybe(data.covLen)} ${t(pluralize(data.covLen, "day", "days"))}`,
     ],
-    ["Destination Country", maybe(data.destination)],
+    [t("Destination Country"), maybe(data.destination)],
     [
-      "Traveling Through US?",
+      t("Traveling Through US?"),
       (data as any).applicantTravelThroughUs === "yes" ? (
-        <span key="travel-us" className="text-green-600 font-semibold">Yes</span>
+        <span key="travel-us" className="text-green-600 font-semibold">{t("Yes")}</span>
       ) : (
-        <span key="no-travel-us" className="text-gray-600">No</span>
+        <span key="no-travel-us" className="text-gray-600">{t("No")}</span>
       ),
     ],
   ];
@@ -191,57 +193,57 @@ const Summary: React.FC<SummaryProps> = ({ quoteId }) => {
   // Add US Travel Days if applicable
   if ((data as any).applicantTravelThroughUs === "yes") {
     quoteRows.push([
-      "US Travel Days",
-      `${maybe((data as any).usTravelDays)} ${pluralize(
+      t("US Travel Days"),
+      `${maybe((data as any).usTravelDays)} ${t(pluralize(
         (data as any).usTravelDays,
         "day",
         "days"
-      )}`,
+      ))}`,
     ]);
   }
 
   // Add Days per Trip if Multi-Trip Annual
   if (data.policyType === "Multi-Trip Annual") {
     quoteRows.push([
-      "Days per Trip",
-      `${maybe((data as any).numberOfDaysPerTrip)} ${pluralize(
+      t("Days per Trip"),
+      `${maybe((data as any).numberOfDaysPerTrip)} ${t(pluralize(
         (data as any).numberOfDaysPerTrip,
         "day",
         "days"
-      )}`,
+      ))}`,
     ]);
   }
 
   // Add remaining rows
   quoteRows.push(
-    ["Deductible", `${maybe(data.deductible)} CAD`],
-    ["Province of Residence", maybe(data.province)]
+    [t("Deductible"), `${maybe(data.deductible)} ${t("CAD")}`],
+    [t("Province of Residence"), maybe(data.province)]
   );
 
   const addressRows: [string, React.ReactNode][] = [
-    ["Address Line 1", maybe(data.street)],
-    ["Address Line 2", maybe((data as any).street2)],
-    ["City", maybe(data.city)],
-    ["Province / State", maybe(data.province)],
-    ["Postal Code", maybe((data as any).postalCode)],
-    ["Country", maybe(data.countryCode)],
+    [t("Address Line 1"), maybe(data.street)],
+    [t("Address Line 2"), maybe((data as any).street2)],
+    [t("City"), maybe(data.city)],
+    [t("Province / State"), maybe(data.province)],
+    [t("Postal Code"), maybe((data as any).postalCode)],
+    [t("Country"), maybe(data.countryCode)],
   ];
 
   const premiumRows: [string, React.ReactNode][] = [
     [
-      "Total Premium",
+      t("Total Premium"),
       <span className="text-xl font-bold text-green-600">
-        ${maybe(data.premium)} CAD
+        ${maybe(data.premium)} {t("CAD")}
       </span>,
     ],
     [
-      "Paid Premium",
-      <span className="font-semibold">${maybe(data.paidPremium)} CAD</span>,
+      t("Paid Premium"),
+      <span className="font-semibold">${maybe(data.paidPremium)} {t("CAD")}</span>,
     ],
     [
-      "Payment Status",
+      t("Payment Status"),
       <span className="inline-block px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-semibold">
-        Paid
+        {t("Paid")}
       </span>,
     ],
   ];
@@ -251,38 +253,38 @@ const Summary: React.FC<SummaryProps> = ({ quoteId }) => {
       {/* HEADER */}
       <div className="text-center mb-6">
         <h2 className="text-2xl font-bold text-[#2B00B7]">
-          Your Policy is Under Process
+          {t("Your Policy is Under Process")}
         </h2>
         <h3 className="text-lg text-gray-600 mt-1">
-          <b>Note:</b> This is not the final policy document
+          <b>{t("Note")}:</b> {t("This is not the final policy document")}
         </h3>
         <p className="text-sm text-gray-500 mt-1">
-          You will receive a confirmation email shortly
+          {t("You will receive a confirmation email shortly")}
         </p>
       </div>
 
       <div className="space-y-10">
         {/* CONTACT INFORMATION */}
-        {/* <div className="w-full overflow-x-auto custom-scrollbar ">
+        <div className="w-full overflow-x-auto custom-scrollbar ">
           <h2 className="text-xl font-semibold mb-2 text-[#1B1B1B]">
-            Contact Information
+            {t("Contact Information")}
           </h2>
           {renderTable(contactInfoRows)}
-        </div> */}
+        </div>
 
         {/* QUOTE SUMMARY */}
         <div className="w-full overflow-hidden custom-scrollbar ">
           <h2 className="text-xl font-semibold mb-2 text-[#1B1B1B]">
-            Quote Summary
+            {t("Quote Summary")}
           </h2>
           {renderTable(quoteRows)}
         </div>
 
         {/* ADDITIONAL TRAVELLERS */}
-        {/* {Array.isArray(data.applicants) && data.applicants.length > 0 && (
+        {Array.isArray(data.applicants) && data.applicants.length > 0 && (
           <div>
             <h2 className="text-xl font-semibold mb-2 text-[#1B1B1B]">
-              Additional Travellers
+              {t("Additional Travellers")}
             </h2>
             <div className="overflow-x-auto">
               <table className="w-full border border-[#DBDADE]">
@@ -300,7 +302,7 @@ const Summary: React.FC<SummaryProps> = ({ quoteId }) => {
                         key={header}
                         className="p-3 text-left font-semibold text-[#1B1B1B]"
                       >
-                        {header}
+                        {t(header)}
                       </th>
                     ))}
                   </tr>
@@ -324,10 +326,10 @@ const Summary: React.FC<SummaryProps> = ({ quoteId }) => {
                         {formatDate(app.dateOfBirth)}
                       </td>
                       <td className="p-3 text-left text-[#6A6A6A]">
-                        {maybe((app as any).relationship || (app as any).relation)}
+                        {t(maybe((app as any).relationship || (app as any).relation))}
                       </td>
                       <td className="p-3 text-left text-[#6A6A6A]">
-                        {maybe((app as any).gender)}
+                        {t(maybe((app as any).gender))}
                       </td>
                     </tr>
                   ))}
@@ -335,7 +337,7 @@ const Summary: React.FC<SummaryProps> = ({ quoteId }) => {
               </table>
             </div>
           </div>
-        )} */}
+        )}
 
         {/* RESIDENCE ADDRESS */}
         {/* <div className="w-full overflow-x-auto custom-scrollbar ">
@@ -356,25 +358,21 @@ const Summary: React.FC<SummaryProps> = ({ quoteId }) => {
         {/* NEXT STEPS */}
         <div className="bg-blue-50 border border-blue-200 p-6">
           <h2 className="text-xl font-semibold mb-3 text-[#2B00B7]">
-            What Happens Next?
+            {t("What Happens Next?")}
           </h2>
           <ol className="list-decimal list-inside space-y-2 text-gray-700">
             <li>
-              Your payment has been processed successfully and your policy is
-              being generated.
+              {t("Your payment has been processed successfully and your policy is being generated.")}
             </li>
             <li>
-              You will receive a confirmation email at{" "}
-              <strong>{data.email}</strong> within the next 24 hours.
+              {t("You will receive a confirmation email at")} <strong>{data.email}</strong> {t("within the next 24 hours.")}
             </li>
             <li>
-              Your official policy document will be sent to your email address
-              once finalized.
+              {t("Your official policy document will be sent to your email address once finalized.")}
             </li>
             <li>
-              Please save your quote number:{" "}
-              <strong className="text-[#2B00B7]">{data.quoteNumber}</strong> for
-              future reference.
+              {t("Please save your quote number:")}{" "}
+              <strong className="text-[#2B00B7]">{data.quoteNumber}</strong> {t("for future reference.")}
             </li>
           </ol>
         </div>
@@ -382,21 +380,20 @@ const Summary: React.FC<SummaryProps> = ({ quoteId }) => {
         {/* SUPPORT CONTACT */}
         <div className="bg-gray-50 border border-gray-200 p-6">
           <h2 className="text-xl font-semibold mb-3 text-[#2B00B7]">
-            Need Help?
+            {t("Need Help?")}
           </h2>
           <p className="text-gray-700 mb-3">
-            If you have any questions about your policy, please contact our
-            support team:
+            {t("If you have any questions about your policy, please contact our support team:")}
           </p>
           <div className="space-y-2 text-gray-700">
             <p>
-              <strong>Email:</strong> support@rimiinsurance.com
+              <strong>{t("Email")}:</strong> support@rimiinsurance.com
             </p>
             <p>
-              <strong>Phone:</strong> 1-800-XXX-XXXX
+              <strong>{t("Phone")}:</strong> 1-800-XXX-XXXX
             </p>
             <p>
-              <strong>Hours:</strong> Monday - Friday, 9:00 AM - 5:00 PM EST
+              <strong>{t("Hours")}:</strong> {t("Monday - Friday, 9:00 AM - 5:00 PM EST")}
             </p>
           </div>
         </div>

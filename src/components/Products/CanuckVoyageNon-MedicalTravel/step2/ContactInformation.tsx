@@ -60,6 +60,7 @@
 
 import { InformationCircleIcon } from "@heroicons/react/24/outline";
 import { useState } from "react";
+import { useLanguage } from "../../../../context/LanguageContext";
 import { UseFormReturn } from "react-hook-form";
 
 interface ContactInfo {
@@ -79,6 +80,7 @@ export default function ContactInformation({
   email,
   methods,
 }: ContactInformationProps) {
+  const { t } = useLanguage();
   const {
     register,
     formState: { errors },
@@ -88,16 +90,20 @@ export default function ContactInformation({
   return (
     <div className="max-w-5xl mx-auto mt-4 p-3 sm:p-6 bg-[#F9F9F9]">
       <h3 className="text-lg font-bold text-left text-[#1B1B1B] mb-5">
-        Contact Information
+        {t("Contact Information")}
       </h3>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 md:gap-x-16 lg:gap-x-24 gap-y-4 text-text-secondary">
         {/* Email */}
         <div className="flex flex-col">
-          <label className="text-sm">Email Address</label>
+          <label className="text-sm">{t("Email Address")}</label>
           <p className="input-primary break-words">{email}</p>
           {/* Hidden field to register email with form */}
-          <input type="hidden" {...register("contactInfo.email")} value={email || ""} />
+          <input
+            type="hidden"
+            {...register("contactInfo.email")}
+            value={email || ""}
+          />
         </div>
 
         {/* Additional Email */}
@@ -108,43 +114,51 @@ export default function ContactInformation({
               className="h-5 w-5 text-[#3a17c5] cursor-pointer"
               aria-hidden="true"
             />
-            Additional Email Address (Optional)
+            {t("Additional Email Address (Optional)")}
           </label>
           <input
             className="input-primary break-words h-auto"
             type="email"
-            placeholder="Additional Email Address"
+            placeholder={t("Additional Email Address")}
             {...register("contactInfo.additionalEmail")}
           />
         </div>
 
         {displayInfoAddEmail && (
           <div className="col-span-2 flex flex-col items-start mt-2 mb-2 border border-gray-300 p-4 bg-white text-sm text-gray-700 rounded-md">
-            <p>Enter up to 5 email addresses, separated with a semicolon ";"</p>
-            <p>Example: parent@email.com; school@email.com; agent@email.com</p>
+            <p>
+              {t(
+                'Enter up to 5 email addresses, separated with a semicolon ";"',
+              )}
+            </p>
+            <p>
+              {t(
+                "Example: parent@email.com; school@email.com; agent@email.com",
+              )}
+            </p>
           </div>
         )}
 
         {/* Phone Number */}
         <div className="flex flex-col">
-          <label className="text-sm">Phone Number</label>
+          <label className="text-sm">{t("Phone Number")}</label>
           <input
             className="input-primary break-words h-auto"
             type="tel"
-            placeholder="Phone Number"
+            placeholder={t("Phone Number")}
             {...register("contactInfo.phoneNumber", {
-              required: "Phone number is required",
+              required: t("Phone number is required"),
               pattern: {
                 value: /^[0-9]*$/,
-                message: "Phone number must contain digits only",
+                message: t("Phone number must contain digits only"),
               },
               minLength: {
                 value: 10,
-                message: "Phone number must be at least 10 digits",
+                message: t("Phone number must be at least 10 digits"),
               },
               maxLength: {
                 value: 10,
-                message: "Phone number must be at most 10 digits",
+                message: t("Phone number must be at most 10 digits"),
               },
             })}
           />

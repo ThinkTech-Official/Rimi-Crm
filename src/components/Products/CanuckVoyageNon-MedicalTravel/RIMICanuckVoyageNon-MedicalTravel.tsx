@@ -262,6 +262,7 @@ import PaymentInformation from "./step2/PaymentInformation";
 import Summary from "./step3/Summary";
 import { FormProvider, useForm } from "react-hook-form";
 import useNotification from "../../../hooks/useNotification";
+import { useLanguage } from "../../../context/LanguageContext";
 
 interface Applicant {
   index: string;
@@ -321,13 +322,14 @@ export interface Step1Payload extends Stage1Payload {
 const productName = "RIMI_CANUCK_VOYAGE_NON_MEDICAL_TRAVEL";
 
 const RIMICanuckVoyageNonMedicalTravel: React.FC = () => {
+  const { t } = useLanguage();
   const agentCode = useSelector((state: RootState) => state.auth.agentCode!);
 
   // ========== STEP MANAGEMENT ==========
   const [steps, setSteps] = useState([
-    { id: "01", name: "Get Quote", href: "#", status: "current" },
-    { id: "02", name: "Complete Application", href: "#", status: "upcoming" },
-    { id: "03", name: "Confirmation", href: "#", status: "upcoming" },
+    { id: "01", name: t("Get Quote"), href: "#", status: "current" },
+    { id: "02", name: t("Complete Application"), href: "#", status: "upcoming" },
+    { id: "03", name: t("Confirmation"), href: "#", status: "upcoming" },
   ]);
   const [formStep, setFormStep] = useState(1);
 
@@ -671,8 +673,8 @@ const RIMICanuckVoyageNonMedicalTravel: React.FC = () => {
             <div className="w-full h-2 mt-5 flex items-center justify-center font-[inter]">
               <h3 className="text-base sm:text-lg">
                 {loading
-                  ? "Calculating..."
-                  : `Your Quote: $${totalPremium.toFixed(2)} CAD`}
+                  ? t("Calculating...")
+                  : `${t("Your Quote")}: $${totalPremium.toFixed(2)} ${t("CAD")}`}
               </h3>
             </div>
             {formStep === 1 && (
@@ -683,7 +685,7 @@ const RIMICanuckVoyageNonMedicalTravel: React.FC = () => {
                   savingStage1 ? "opacity-50 cursor-wait" : ""
                 }`}
               >
-                {savingStage1 ? "Saving…" : "Next"}
+                {savingStage1 ? t("Saving…") : t("Next")}
               </button>
             )}
           </form>
@@ -695,7 +697,8 @@ const RIMICanuckVoyageNonMedicalTravel: React.FC = () => {
         <div>
           <div className="w-full h-2 mt-8 flex items-center justify-center font-[inter]">
             <h3 className="text-base sm:text-lg">
-              Your Quote: ${step1ResponseData?.quoteAmount.toFixed(2)} CAD
+              {t("Your Quote")}: ${step1ResponseData?.quoteAmount.toFixed(2)}{" "}
+              {t("CAD")}
             </h3>
           </div>
 
@@ -715,16 +718,16 @@ const RIMICanuckVoyageNonMedicalTravel: React.FC = () => {
 
           <div className="max-w-5xl mx-auto mt-6 p-3 sm:p-6 bg-[#F9F9F9]">
             <h3 className="text-lg font-bold text-left text-[#1B1B1B] mb-5">
-              Payment Summary
+              {t("Payment Summary")}
             </h3>
             <div className="flex justify-between items-center">
-              <span>Total Premium:</span>
+              <span>{t("Total Premium:")}</span>
               <span className="text-xl font-bold text-primary">
-                ${totalPremium.toFixed(2)} CAD
+                ${totalPremium.toFixed(2)} {t("CAD")}
               </span>
             </div>
             <div className="text-sm text-gray-600 mt-1">
-              One-time payment • No additional fees
+              {t("One-time payment • No additional fees")}
             </div>
           </div>
 
@@ -756,7 +759,7 @@ const RIMICanuckVoyageNonMedicalTravel: React.FC = () => {
             onClick={() => handleFormStepChange("back")}
             className="btn-primary"
           >
-            Previous
+            {t("Previous")}
           </button>
         )}
       </div>

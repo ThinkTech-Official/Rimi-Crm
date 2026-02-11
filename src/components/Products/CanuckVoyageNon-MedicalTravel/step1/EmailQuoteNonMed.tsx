@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useLanguage } from "../../../../context/LanguageContext";
 
 const EmailQuoteNonMed = ({
   premiumBreakdown,
@@ -11,6 +12,7 @@ const EmailQuoteNonMed = ({
   quoteNumber: string | null;
   quoteLink?: string;
 }) => {
+  const { t } = useLanguage();
   const [email, setEmail] = useState("");
   const [sending, setSending] = useState(false);
 
@@ -19,7 +21,7 @@ const EmailQuoteNonMed = ({
   const handleSendEmail = async () => {
     console.log("Send to:", email);
   };
-  const subject = `Your Insurance Quote ${quoteNumber} from RIMI Insurance`;
+  const subject = `${t("Your Insurance Quote")} ${quoteNumber} ${t("from RIMI Insurance")}`;
 
   useEffect(() => {
     document.body.style.overflow = "hidden";
@@ -34,16 +36,16 @@ const EmailQuoteNonMed = ({
         {/* Modal Header */}
         <div className="px-6 py-4 border-b border-inputBorder">
           <h2 className="text-xl font-bold text-primary text-center">
-            Email Quote Preview
+            {t("Email Quote Preview")}
           </h2>
         </div>
 
         {/* Email Input */}
         <div className="px-6 py-4">
-          <label className="block text-sm mb-1">Recipient Email</label>
+          <label className="block text-sm mb-1">{t("Recipient Email")}</label>
           <input
             type="email"
-            placeholder="Enter email address"
+            placeholder={t("Enter email address")}
             className="input-primary w-full"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
@@ -55,22 +57,20 @@ const EmailQuoteNonMed = ({
           <div className="bg-white p-6 shadow-sm">
             {/* Subject */}
             <p className="mb-4 text-text-primary text-base">
-              <strong>Subject: </strong>
+              <strong>{t("Subject:")} </strong>
               {subject}
             </p>
             {/* Greeting */}
-            <p className="mb-4 text-gray-700">Hi,</p>
+            <p className="mb-4 text-gray-700">{t("Hi,")}</p>
 
             {/* Email body */}
             <p className="mb-4 text-gray-700">
-              Thank you for requesting a quote with RIMI Insurance. Your quote
-              amount details are provided below. You can view your full quote by
-              clicking the quote number.
+              {t("Thank you for requesting a quote with RIMI Insurance. Your quote amount details are provided below. You can view your full quote by clicking the quote number.")}
             </p>
 
             {/* Quote Number as clickable link */}
             <p className="mb-4 text-gray-700">
-              Quote Number:{" "}
+              {t("Quote Number:")}{" "}
               <a
                 href={quoteLink}
                 target="_blank"
@@ -84,19 +84,19 @@ const EmailQuoteNonMed = ({
             <div>
             <div className="space-y-1">
               <div className="flex justify-between">
-                <span>Base Premium:</span>
+                <span>{t("Base Premium:")}</span>
                 <span>${premiumBreakdown.basePremium.toFixed(2)}</span>
               </div>
               {premiumBreakdown.deluxePremium && (
                 <div className="flex justify-between">
-                  <span>Deluxe Option (+15%):</span>
+                  <span>{t("Deluxe Option (+15%):")}</span>
                   <span>+${premiumBreakdown.deluxePremium.toFixed(2)}</span>
                 </div>
               )}
               <div className="flex justify-between text-base">
-                <span>Total Premium:</span>
+                <span>{t("Total Premium:")}</span>
                 <span className="">
-                  ${premiumBreakdown.finalPremium.toFixed(2)} CAD
+                  ${premiumBreakdown.finalPremium.toFixed(2)} {t("CAD")}
                 </span>
               </div>
             </div>
@@ -104,9 +104,9 @@ const EmailQuoteNonMed = ({
 
             {/* Footer */}
             <p className="mt-6 text-gray-700">
-              Kind regards,
+              {t("Kind regards,")}
               <br />
-              RIMI Insurance Team
+              {t("RIMI Insurance Team")}
             </p>
           </div>
         </div>
@@ -117,14 +117,14 @@ const EmailQuoteNonMed = ({
             className="py-2 px-4 border border-inputBorder hover:border-gray-700 cursor-pointer transition delay-100"
             onClick={handleModalClose}
           >
-            Close
+            {t("Close")}
           </button>
           <button
             className="btn-primary disabled:opacity-70"
             onClick={handleSendEmail}
             disabled={sending}
           >
-            {sending ? "Sending..." : "Send Email"}
+            {sending ? t("Sending...") : t("Send Email")}
           </button>
         </div>
       </div>

@@ -20,6 +20,7 @@ import AgeQuestionaire from "./AgeQuestionaire";
 import { useFormContext, Controller, useWatch } from "react-hook-form";
 import { Step1Payload } from "../SecureTravelRIMIVisitorstoCanadaTravel";
 import useNotification from "../../../../hooks/useNotification";
+import { useLanguage } from "../../../../context/LanguageContext";
 
 type SuperVisaOption = "" | "yes" | "no";
 type SuperVisaYears = "" | "1";
@@ -108,6 +109,7 @@ const Step1STRVCT = ({
   //   isStepOneFilled,
   savingStage1,
 }: Props) => {
+  const { t } = useLanguage();
   const agentCode = useSelector((state: RootState) => state.auth.agentCode);
   const {
     sendQuoteEmail,
@@ -505,12 +507,12 @@ const Step1STRVCT = ({
       const response = await saveQuote(payload);
       setQuoteNumber(String(response?.quote));
       triggerNotification({
-        message: `Quote saved successfully!`,
+        message: t("Quote saved successfully!"),
         type: "success",
       });
     } catch {
       triggerNotification({
-        message: "Failed to save quote.",
+        message: t("Failed to save quote."),
         type: "error",
       });
     }
@@ -520,7 +522,7 @@ const Step1STRVCT = ({
     if (!quoteNumber) {
       triggerNotification({
         type: "error",
-        message: "Please save your quote first",
+        message: t("Please save your quote first"),
       });
       return;
     }
@@ -529,12 +531,12 @@ const Step1STRVCT = ({
       await sendQuoteEmail(quoteNumber);
       triggerNotification({
         type: "success",
-        message: `Quote email sent successfully to ${primaryEmail}`,
+        message: `${t("Quote email sent successfully to")} ${primaryEmail}`,
       });
     } catch (err) {
       triggerNotification({
         type: "error",
-        message: "Failed to send email. Please try again.",
+        message: t("Failed to send email. Please try again."),
       });
     }
   };
@@ -569,21 +571,21 @@ const Step1STRVCT = ({
       <>
         <div className="max-w-5xl mx-auto mt-4 p-6 bg-[#F9F9F9]">
           <h3 className="text-lg font-bold text-left text-[#1B1B1B] mb-5">
-            Applicant Information
+            {t("Applicant Information")}
           </h3>
 
           {/* Primary Applicant  */}
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 md:gap-x-16 lg:gap-x-24 gap-y-4 text-text-secondary">
             <div className="flex flex-col">
-              <label className="text-sm">First Name</label>
+              <label className="text-sm">{t("First Name")}</label>
               <input
                 className="input-primary"
                 type="text"
-                placeholder="Enter First Name"
+                placeholder={t("Enter First Name")}
                 {...register("primaryFirstName", {
-                  required: "First Name is required",
-                  maxLength: { value: 60, message: "Max 60 characters" },
+                  required: t("First Name is required"),
+                  maxLength: { value: 60, message: t("Max 60 characters") },
                 })}
               />
               {errors.primaryFirstName && (
@@ -593,14 +595,14 @@ const Step1STRVCT = ({
               )}
             </div>
             <div className="flex flex-col">
-              <label className="text-sm">Last Name</label>
+              <label className="text-sm">{t("Last Name")}</label>
               <input
                 className="input-primary"
                 type="text"
-                placeholder="Enter Last Name"
+                placeholder={t("Enter Last Name")}
                 {...register("primaryLastName", {
-                  required: "Last Name is required",
-                  maxLength: { value: 60, message: "Max 60 characters" },
+                  required: t("Last Name is required"),
+                  maxLength: { value: 60, message: t("Max 60 characters") },
                 })}
               />
               {errors.primaryLastName && (
@@ -613,10 +615,10 @@ const Step1STRVCT = ({
               <Controller
                 control={control}
                 name="primaryDateOfBirth"
-                rules={{ required: "Date of Birth is required" }}
+                rules={{ required: t("Date of Birth is required") }}
                 render={({ field }) => (
                   <DatePicker
-                    label="Date of Birth"
+                    label={t("Date of Birth")}
                     {...field}
                     value={field.value !== undefined ? field.value : ""}
                     onChange={(date) => {
@@ -634,17 +636,17 @@ const Step1STRVCT = ({
               )}
             </div>
             <div className="flex flex-col">
-              <label className="text-sm">Email</label>
+              <label className="text-sm">{t("Email")}</label>
               <input
                 className="input-primary"
                 type="email"
-                placeholder="Enter Email"
+                placeholder={t("Enter Email")}
                 {...register("primaryEmail", {
-                  required: "Email is required",
-                  maxLength: { value: 100, message: "Max 100 characters" },
+                  required: t("Email is required"),
+                  maxLength: { value: 100, message: t("Max 100 characters") },
                   pattern: {
                     value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                    message: "Invalid email address",
+                    message: t("Invalid email address"),
                   },
                 })}
               />
@@ -655,19 +657,19 @@ const Step1STRVCT = ({
               )}
             </div>
             <div className="flex flex-col">
-              <label className="text-sm">Gender</label>
+              <label className="text-sm">{t("Gender")}</label>
               <div className="relative">
                 <select
                   {...register("primaryApplicantGender", {
-                    required: "Gender is required",
+                    required: t("Gender is required"),
                   })}
                   className="input-primary appearance-none cursor-pointer"
                 >
-                  <option value="">Please select</option>
-                  <option value="Female">Female</option>
-                  <option value="Male">Male</option>
-                  <option value="Non-Binary">Non-Binary</option>
-                  <option value="Undeclared">Undeclared</option>
+                  <option value="">{t("Please select")}</option>
+                  <option value="Female">{t("Female")}</option>
+                  <option value="Male">{t("Male")}</option>
+                  <option value="Non-Binary">{t("Non-Binary")}</option>
+                  <option value="Undeclared">{t("Undeclared")}</option>
                 </select>
                 <div className="pointer-events-none absolute inset-y-0 right-2 flex items-center text-gray-500">
                   <ChevronDownIcon className="h-5 w-5" aria-hidden="true" />
@@ -685,8 +687,7 @@ const Step1STRVCT = ({
 
           {primaryAge !== null && primaryAge > 84 && coverageForPreMedCon && (
             <div className="col-span-2 bg-red-50 border border-red-200 p-3 mt-4 text-sm text-red-800">
-              Age Must be under 85 years on effective date, to be eligible for
-              medical coverage for stable pre-existing conditions
+              {t("Age Must be under 85 years on effective date, to be eligible for medical coverage for stable pre-existing conditions")}
             </div>
           )}
 
@@ -705,7 +706,7 @@ const Step1STRVCT = ({
                   className="h-5 w-5 text-[#3a17c5] cursor-pointer"
                   aria-hidden="true"
                 />
-                Include coverage for stable pre-existing medical conditions
+                {t("Include coverage for stable pre-existing medical conditions")}
               </label>
               <div className="relative">
                 <Controller
@@ -717,9 +718,9 @@ const Step1STRVCT = ({
                       onChange={(e) => field.onChange(e.target.value === "yes")}
                       value={field.value ? "yes" : "no"}
                     >
-                      <option value="">Select an option</option>
-                      <option value="yes">Yes</option>
-                      <option value="no">No</option>
+                      <option value="">{t("Select an option")}</option>
+                      <option value="yes">{t("Yes")}</option>
+                      <option value="no">{t("No")}</option>
                     </select>
                   )}
                 />
@@ -732,7 +733,7 @@ const Step1STRVCT = ({
             {/* // */}
 
             <div className="flex flex-col">
-              <label className="text-sm">Number of Additional Applicants</label>
+              <label className="text-sm">{t("Number of Additional Applicants")}</label>
               <div className="relative">
                 <select
                   {...register("applicantNumber", { valueAsNumber: true })}
@@ -760,38 +761,24 @@ const Step1STRVCT = ({
                 className="text-primary underline absolute top-2 right-2 cursor-pointer underline-offset-2"
                 onClick={() => setShowInfocoverageForPreMedCon(false)}
               >
-                Close
+                {t("Close")}
               </button>
               <div className="border-b border-[#c2c2c2] pb-2 text-lg font-semibold">
-                Coverage for stable pre-existing medical conditions
+                {t("Coverage for stable pre-existing medical conditions")}
               </div>
               <div className="text-text-secondary mt-2 space-y-2">
                 <p>
-                  Any sickness, injury or medical condition that existed prior
-                  to the effective date will be excluded from coverage if you
-                  have selected "No" and paid for Plan 1 as indicated on your
-                  Confirmation of Insurance.
+                  {t("Any sickness, injury or medical condition that existed prior to the effective date will be excluded from coverage if you have selected \"No\" and paid for Plan 1 as indicated on your Confirmation of Insurance.")}
                 </p>
                 <p>
-                  If you have selected "Yes" and paid for Plan 2 as indicated on
-                  your Confirmation of Insurance, there is no coverage for any
-                  sickness, injury or medical condition that existed prior to
-                  the effective date, other than:
+                  {t("If you have selected \"Yes\" and paid for Plan 2 as indicated on your Confirmation of Insurance, there is no coverage for any sickness, injury or medical condition that existed prior to the effective date, other than:")}
                 </p>
                 <ul className="list-disc pl-6">
                   <li>
-                    <strong>Up to Age 69:</strong> Any sickness, injury or
-                    medical condition that was stable in the 90 days prior to
-                    the effective date.
+                    <strong>{t("Up to Age 69")}:</strong> {t("Any sickness, injury or medical condition that was stable in the 90 days prior to the effective date.")}
                   </li>
                   <li>
-                    <strong>Age 70-84:</strong> Any sickness, injury or medical
-                    condition that was stable in the 180 days prior to the
-                    effective date provided you have accurately answered no to
-                    all questions on the medical declaration. If any question on
-                    the medical declaration is answered yes, there is no
-                    coverage for any sickness, injury or medical condition that
-                    existed prior to the effective date, whether or not stable.
+                    <strong>{t("Age 70-84")}:</strong> {t("Any sickness, injury or medical condition that was stable in the 180 days prior to the effective date provided you have accurately answered no to all questions on the medical declaration. If any question on the medical declaration is answered yes, there is no coverage for any sickness, injury or medical condition that existed prior to the effective date, whether or not stable.")}
                   </li>
                 </ul>
               </div>
@@ -805,22 +792,22 @@ const Step1STRVCT = ({
           {applicants &&
             applicants.map((app: any, idx: number) => (
               <React.Fragment key={idx}>
-                <h1 className=" text-md font-semibold text-left text-[#1B1B1B] mt-5 mb-3">
-                  APPLICANT {idx + 1}
-                </h1>
+                <h3 className=" text-md font-semibold text-left text-[#1B1B1B] mt-5 mb-3">
+                  {t("Additional Applicant")} {idx + 1}
+                </h3>
                 <div
                   key={idx}
                   className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 md:gap-x-16 lg:gap-x-24 gap-y-4 text-text-secondary"
                 >
                   <div className="flex flex-col">
-                    <label className="text-sm">First Name</label>
+                    <label className="text-sm">{t("First Name")}</label>
                     <input
                       className="input-primary"
                       type="text"
-                      placeholder="Enter First Name"
+                      placeholder={t("Enter First Name")}
                       {...register(`applicants.${idx}.firstName`, {
-                        required: "First Name is required",
-                        maxLength: { value: 60, message: "Max 60 characters" },
+                        required: t("First Name is required"),
+                        maxLength: { value: 60, message: t("Max 60 characters") },
                       })}
                     />
                     {errors.applicants?.[idx]?.firstName && (
@@ -830,14 +817,14 @@ const Step1STRVCT = ({
                     )}
                   </div>
                   <div className="flex flex-col">
-                    <label className="text-sm">Last Name</label>
+                    <label className="text-sm">{t("Last Name")}</label>
                     <input
                       className="input-primary"
                       type="text"
-                      placeholder="Enter Last Name"
+                      placeholder={t("Enter Last Name")}
                       {...register(`applicants.${idx}.lastName`, {
-                        required: "Last Name is required",
-                        maxLength: { value: 60, message: "Max 60 characters" },
+                        required: t("Last Name is required"),
+                        maxLength: { value: 60, message: t("Max 60 characters") },
                       })}
                     />
                     {errors.applicants?.[idx]?.lastName && (
@@ -850,9 +837,10 @@ const Step1STRVCT = ({
                     <Controller
                       control={control}
                       name={`applicants.${idx}.dob`}
+                      rules={{ required: t("Date of Birth is required") }}
                       render={({ field }) => (
                         <DatePicker
-                          label="Date of Birth"
+                          label={t("Date of Birth")}
                           {...field}
                           value={field.value}
                           onChange={(e) => {
@@ -875,16 +863,16 @@ const Step1STRVCT = ({
 
                   {/* Email Field */}
                   <div className="flex flex-col">
-                    <label className="text-sm">Email</label>
+                    <label className="text-sm">{t("Email")}</label>
                     <input
                       className="input-primary"
                       type="email"
-                      placeholder="Enter Email"
+                      placeholder={t("Enter Email")}
                       {...register(`applicants.${idx}.email`, {
-                        required: "Email is required",
+                        required: t("Email is required"),
                         pattern: {
                           value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                          message: "Invalid email address",
+                          message: t("Invalid email address"),
                         },
                       })}
                     />
@@ -896,19 +884,19 @@ const Step1STRVCT = ({
                   </div>
 
                   <div className="flex flex-col">
-                    <label className="text-sm">Gender</label>
+                    <label className="text-sm">{t("Gender")}</label>
                     <div className="relative">
                       <select
                         {...register(`applicants.${idx}.gender`, {
-                          required: "Gender is required",
+                          required: t("Gender is required"),
                         })}
                         className="input-primary appearance-none cursor-pointer"
                       >
-                        <option value="">Please select</option>
-                        <option value="Female">Female</option>
-                        <option value="Male">Male</option>
-                        <option value="Non-Binary">Non-Binary</option>
-                        <option value="Undeclared">Undeclared</option>
+                        <option value="">{t("Please select")}</option>
+                        <option value="Female">{t("Female")}</option>
+                        <option value="Male">{t("Male")}</option>
+                        <option value="Non-Binary">{t("Non-Binary")}</option>
+                        <option value="Undeclared">{t("Undeclared")}</option>
                       </select>
                       <div className="pointer-events-none absolute inset-y-0 right-2 flex items-center text-gray-500">
                         <ChevronDownIcon
@@ -925,20 +913,20 @@ const Step1STRVCT = ({
                   </div>
                   <div className="flex flex-col">
                     <label className="text-sm">
-                      Relationship to Primary Applicant
+                      {t("Relationship to Primary Applicant")}
                     </label>
                     <div className="relative">
                       <select
                         className="input-primary appearance-none cursor-pointer"
                         {...register(`applicants.${idx}.relationship`, {
-                          required: "Relationship is required",
+                          required: t("Relationship is required"),
                         })}
                       >
-                        <option value="">Please select</option>
-                        <option value="Spouse">Spouse</option>
-                        <option value="Dependent Child">Dependent Child</option>
+                        <option value="">{t("Please select")}</option>
+                        <option value="Spouse">{t("Spouse")}</option>
+                        <option value="Dependent Child">{t("Dependent Child")}</option>
                         <option value="Travelling Companion">
-                          Travelling Companion
+                          {t("Travelling Companion")}
                         </option>
                       </select>
                       <div className="pointer-events-none absolute inset-y-0 right-2 flex items-center text-gray-500">
@@ -962,8 +950,7 @@ const Step1STRVCT = ({
                         className="h-5 w-5 text-[#3a17c5] cursor-pointer"
                         aria-hidden="true"
                       />
-                      Include coverage for stable pre-existing medical
-                      conditions
+                      {t("Include coverage for stable pre-existing medical conditions")}
                     </label>
                     <div className="relative">
                       <select
@@ -974,9 +961,9 @@ const Step1STRVCT = ({
                           updateApplicant(idx, "preMedCoverage", isYes);
                         }}
                       >
-                        <option value="">Select an option</option>
-                        <option value="yes">Yes</option>
-                        <option value="no">No</option>
+                        <option value="">{t("Select an option")}</option>
+                        <option value="yes">{t("Yes")}</option>
+                        <option value="no">{t("No")}</option>
                       </select>
                       <div className="pointer-events-none absolute inset-y-0 right-2 flex items-center text-gray-500">
                         <ChevronDownIcon
@@ -998,39 +985,24 @@ const Step1STRVCT = ({
                         }))
                       }
                     >
-                      Close
+                      {t("Close")}
                     </button>
                     <div className="border-b border-[#c2c2c2] pb-2 text-lg font-semibold">
-                      Coverage for stable pre-existing medical conditions
+                      {t("Coverage for stable pre-existing medical conditions")}
                     </div>
                     <div className="text-text-secondary mt-2 space-y-2">
                       <p>
-                        Any sickness, injury or medical condition that existed
-                        prior to the effective date will be excluded from
-                        coverage if you have selected "No" and paid for Plan 1
-                        as indicated on your Confirmation of Insurance.
+                        {t("Any sickness, injury or medical condition that existed prior to the effective date will be excluded from coverage if you have selected \"No\" and paid for Plan 1 as indicated on your Confirmation of Insurance.")}
                       </p>
                       <p>
-                        If you have selected "Yes" and paid for Plan 2 as
-                        indicated on your Confirmation of Insurance, there is no
-                        coverage for any sickness, injury or medical condition
-                        that existed prior to the effective date, other than:
+                        {t("If you have selected \"Yes\" and paid for Plan 2 as indicated on your Confirmation of Insurance, there is no coverage for any sickness, injury or medical condition that existed prior to the effective date, other than:")}
                       </p>
                       <ul className="list-disc pl-6">
                         <li>
-                          <strong>Up to Age 69:</strong> Any sickness, injury or
-                          medical condition that was stable in the 90 days prior
-                          to the effective date.
+                          <strong>{t("Up to Age 69")}:</strong> {t("Any sickness, injury or medical condition that was stable in the 90 days prior to the effective date.")}
                         </li>
                         <li>
-                          <strong>Age 70-84:</strong> Any sickness, injury or
-                          medical condition that was stable in the 180 days
-                          prior to the effective date provided you have
-                          accurately answered no to all questions on the medical
-                          declaration. If any question on the medical
-                          declaration is answered yes, there is no coverage for
-                          any sickness, injury or medical condition that existed
-                          prior to the effective date, whether or not stable.
+                          <strong>{t("Age 70-84")}:</strong> {t("Any sickness, injury or medical condition that was stable in the 180 days prior to the effective date provided you have accurately answered no to all questions on the medical declaration. If any question on the medical declaration is answered yes, there is no coverage for any sickness, injury or medical condition that existed prior to the effective date, whether or not stable.")}
                         </li>
                       </ul>
                     </div>
@@ -1042,9 +1014,7 @@ const Step1STRVCT = ({
                   applicantAges[idx]! > 84 &&
                   app.preMedCoverage && (
                     <div className="col-span-2 bg-red-50 border border-red-200 mt-4 p-3 text-sm text-red-800">
-                      Applicant {idx + 1}: Age Must be under 85 years on
-                      effective date, to be eligible for medical coverage for
-                      stable pre-existing conditions
+                      {t("Applicant")} {idx + 1}: {t("Age Must be under 85 years on effective date, to be eligible for medical coverage for stable pre-existing conditions")}
                     </div>
                   )}
               </React.Fragment>
@@ -1054,23 +1024,16 @@ const Step1STRVCT = ({
           {anyNeedsQuestionnaire && (
             <div className="bg-blue-50 border border-blue-200 p-4 mt-6">
               <p className="text-sm text-blue-900 mb-2">
-                A Medical Declaration must be completed if you are between 70
-                and 84 years of age as of the effective date of coverage and are
-                applying to purchase coverage for stable pre-existing conditions
-                that have been stable in the 180 days prior to your effective
-                date
+                {t("A Medical Declaration must be completed if you are between 70 and 84 years of age as of the effective date of coverage and are applying to purchase coverage for stable pre-existing conditions that have been stable in the 180 days prior to your effective date")}
               </p>
               <p className="text-sm text-blue-900 mb-3">
-                * If you answer "Yes" to any of these questions, you will not be
-                eligible for coverage of stable pre-existing medical conditions
-                and "Include coverage for stable pre-existing medical
-                conditions" will be set to "No" for that applicant.
+                {t("* If you answer \"Yes\" to any of these questions, you will not be eligible for coverage of stable pre-existing medical conditions and \"Include coverage for stable pre-existing medical conditions\" will be set to \"No\" for that applicant.")}
               </p>
               <button
                 onClick={() => setIsAgeQuestionnaireOpen(true)}
                 className="bg-primary text-white py-2 px-4 font-semibold hover:bg-[#2309A1] transition-all duration-200 cursor-pointer disabled:cursor-default disabled:opacity-70"
               >
-                Open Medical Questionnaire
+                {t("Open Medical Questionnaire")}
               </button>
             </div>
           )}
@@ -1086,12 +1049,12 @@ const Step1STRVCT = ({
                 className="accent-primary cursor-pointer"
                 checked={isConfirmed}
                 {...register("isConfirmed", {
-                  required: "You must confirm eligibility to proceed",
+                  required: t("You must confirm eligibility to proceed"),
                 })}
                 onChange={handleCheckboxChange}
               />
               <span className="font-semibold text-[#2B00B7] text-sm">
-                Confirm that all applicants are eligible for this insurance
+                {t("Confirm that all applicants are eligible for this insurance")}
               </span>
             </div>
             {errors.isConfirmed && isSubmitted && (
@@ -1103,51 +1066,38 @@ const Step1STRVCT = ({
             {showInfo && (
               <div className="border border-inputBorder shadow-sm p-4 mt-4 bg-white relative">
                 <div className="border-b pb-2 text-lg font-semibold">
-                  Eligibility
+                  {t("Eligibility")}
                 </div>
                 <ul className="list-decimal pl-5 mt-2 text-text-secondary space-y-2">
                   <li>
-                    Be a visitor to Canada or a person in Canada under a valid
-                    work or student visa, a Canadian or an immigrant not
-                    eligible for benefits under a government health insurance
-                    plan; and
+                    {t("Be a visitor to Canada or a person in Canada under a valid work or student visa, a Canadian or an immigrant not eligible for benefits under a government health insurance plan; and")}
                   </li>
                   <li>
-                    Be at least 15 days of age and less than 90 years of age;
-                    and
+                    {t("Be at least 15 days of age and less than 90 years of age; and")}
                   </li>
                   <li>
-                    Not be travelling against the advice of a physician and/or
-                    have not been diagnosed with a terminal illness; and
+                    {t("Not be travelling against the advice of a physician and/or have not been diagnosed with a terminal illness; and")}
                   </li>
                   <li>
-                    Not be experiencing new or undiagnosed signs or symptoms
-                    and/or know of any reason to seek medical attention; and
+                    {t("Not be experiencing new or undiagnosed signs or symptoms and/or know of any reason to seek medical attention; and")}
                   </li>
                   <li>
-                    Not require assistance with the activities of daily living
-                    (eating, bathing, dressing, functional mobility, using the
-                    toilet).
+                    {t("Not require assistance with the activities of daily living (eating, bathing, dressing, functional mobility, using the toilet).")}
                   </li>
                   <li>
-                    Have not been diagnosed or treated for pancreatic, liver,
-                    lung, brain or any kind of metastasized cancer.
+                    {t("Have not been diagnosed or treated for pancreatic, liver, lung, brain or any kind of metastasized cancer.")}
                   </li>
                   <li>
-                    Have not been diagnosed or treated for kidney condition
-                    requiring dialysis within the last 24 months.
+                    {t("Have not been diagnosed or treated for kidney condition requiring dialysis within the last 24 months.")}
                   </li>
                   <li>
-                    Have not been diagnosed or treated for bone marrow or organ
-                    transplant within the last 24 months.
+                    {t("Have not been diagnosed or treated for bone marrow or organ transplant within the last 24 months.")}
                   </li>
                   <li>
-                    Have not been diagnosed for terminal sickness with less than
-                    2 years to live.
+                    {t("Have not been diagnosed for terminal sickness with less than 2 years to live.")}
                   </li>
                   <li>
-                    Have not taken home oxygen in the past 12 months prior to
-                    the effective date.
+                    {t("Have not taken home oxygen in the past 12 months prior to the effective date.")}
                   </li>
                 </ul>
               </div>
@@ -1163,17 +1113,17 @@ const Step1STRVCT = ({
       <>
         <div className="max-w-5xl mx-auto mt-6 p-6 bg-[#F9F9F9]">
           <h3 className="text-lg font-bold text-left text-[#1B1B1B] mb-5">
-            Coverage Information
+            {t("Coverage Information")}
           </h3>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 md:gap-x-16 lg:gap-x-24 gap-y-4 text-text-secondary">
             <div className="flex flex-col">
               <Dropdown
-                label="Country of Origin"
+                label={t("Country of Origin")}
                 info={() => setShowInfoCountryOfOrigin((prev) => !prev)}
                 options={Countries}
                 {...register("countryOfOrigin", {
-                  required: "Country of Origin is required",
+                  required: t("Country of Origin is required"),
                 })}
               />
               {errors.countryOfOrigin && (
@@ -1185,15 +1135,15 @@ const Step1STRVCT = ({
 
             <div className="flex flex-col">
               <Dropdown
-                label="Are applicants currently in Canada?"
+                label={t("Are applicants currently in Canada?")}
                 info={() => setShowInfoInCanada((prev) => !prev)}
                 options={[
-                  { value: "", label: "Please select..." },
-                  { value: "yes", label: "Yes" },
-                  { value: "no", label: "No" },
+                  { value: "", label: t("Please select...") },
+                  { value: "yes", label: t("Yes") },
+                  { value: "no", label: t("No") },
                 ]}
                 {...register("inCanada", {
-                  required: "This field is required",
+                  required: t("This field is required"),
                 })}
               />
               {errors.inCanada && (
@@ -1205,15 +1155,15 @@ const Step1STRVCT = ({
           </div>
           {showInfoCountryOfOrigin && (
             <InfoBox
-              title="Country of Origin"
-              text="Country of Origin means the country for which the insured person holds a passport..."
+              title={t("Country of Origin")}
+              text={t("Country of Origin means the country for which the insured person holds a passport...")}
               onClose={() => setShowInfoCountryOfOrigin(false)}
             />
           )}
           {showInfoInCanada && (
             <InfoBox
-              title="Currently in Canada?"
-              text="If the applicant is already in Canada, select Yes."
+              title={t("Currently in Canada?")}
+              text={t("If the applicant is already in Canada, select Yes.")}
               onClose={() => setShowInfoInCanada(false)}
             />
           )}
@@ -1221,19 +1171,15 @@ const Step1STRVCT = ({
           {/* Waiting Period Section */}
           {inCanada === "yes" && (
             <div className="mt-6 p-6 border border-[#DBDADE] bg-white shadow-md">
-              <h4 className="text-lg font-semibold mb-2">Waiting Period</h4>
+              <h4 className="text-lg font-semibold mb-2">{t("Waiting Period")}</h4>
               <p className="text-base text-[#555]">
-                If the applicant is already in Canada and the policy effective
-                date is not the same as the arrival date, then a waiting period
-                will apply. The standard waiting period is:
+                {t("If the applicant is already in Canada and the policy effective date is not the same as the arrival date, then a waiting period will apply. The standard waiting period is:")}
                 <ul className="list-disc list-inside mt-2">
                   <li>
-                    48 hours following the policy effective date, if purchased
-                    within 30 days of arrival.
+                    {t("48 hours following the policy effective date, if purchased within 30 days of arrival.")}
                   </li>
                   <li>
-                    7 days following the policy effective date, if purchased
-                    after 30 days of arrival.
+                    {t("7 days following the policy effective date, if purchased after 30 days of arrival.")}
                   </li>
                 </ul>
               </p>
@@ -1247,15 +1193,15 @@ const Step1STRVCT = ({
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 md:gap-x-16 lg:gap-x-24 gap-y-4 text-text-secondary mt-4">
               <div className="flex flex-col">
                 <Dropdown
-                  label="Are applicants travelling to Canada on a Super Visa?"
+                  label={t("Are applicants travelling to Canada on a Super Visa?")}
                   info={() => setShowInfoSuperVisa((prev) => !prev)}
                   options={[
-                    { value: "", label: "Please select..." },
-                    { value: "yes", label: "Yes" },
-                    { value: "no", label: "No" },
+                    { value: "", label: t("Please select...") },
+                    { value: "yes", label: t("Yes") },
+                    { value: "no", label: t("No") },
                   ]}
                   {...register("superVisa", {
-                    required: "Super Visa selection is required",
+                    required: t("Super Visa selection is required"),
                     onChange: (e) => {
                       // Reset dependent fields
                       setValue("superVisaYears", "");
@@ -1273,11 +1219,11 @@ const Step1STRVCT = ({
 
               <div className="flex flex-col">
                 <Dropdown
-                  label="Destination Province"
+                  label={t("Destination Province")}
                   info={() => setShowInfoDestinationProvince((prev) => !prev)}
                   options={CanadaStates}
                   {...register("destinationProvince", {
-                    required: "Destination Province is required",
+                    required: t("Destination Province is required"),
                   })}
                 />
                 {errors.destinationProvince && (
@@ -1290,15 +1236,15 @@ const Step1STRVCT = ({
 
             {showInfoSuperVisa && (
               <InfoBox
-                title="Super Visa"
-                text="Select yes if this quote is for parents or grandparents of a Canadian citizen..."
+                title={t("Super Visa")}
+                text={t("Select yes if this quote is for parents or grandparents of a Canadian citizen...")}
                 onClose={() => setShowInfoSuperVisa(false)}
               />
             )}
             {showInfoDestinationProvince && (
               <InfoBox
-                title="Destination Province"
-                text="Select the primary destination Province for your trip."
+                title={t("Destination Province")}
+                text={t("Select the primary destination Province for your trip.")}
                 onClose={() => setShowInfoDestinationProvince(false)}
               />
             )}
@@ -1308,10 +1254,10 @@ const Step1STRVCT = ({
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 md:gap-x-16 lg:gap-x-24 gap-y-4 text-text-secondary mt-4">
                 <div className="flex flex-col">
                   <Dropdown
-                    label="Super Visa Duration"
+                    label={t("Super Visa Duration")}
                     options={[
-                      { value: "", label: "Please select..." },
-                      { value: "1", label: "1 year" },
+                      { value: "", label: t("Please select...") },
+                      { value: "1", label: t("1 year") },
                     ]}
                     value={superVisaYears}
                     onChange={(e) =>
@@ -1336,10 +1282,10 @@ const Step1STRVCT = ({
                 <Controller
                   control={control}
                   name="effectiveDate"
-                  rules={{ required: "Effective Date is required" }}
+                  rules={{ required: t("Effective Date is required") }}
                   render={({ field }) => (
                     <DatePicker
-                      label="Effective Date"
+                      label={t("Effective Date")}
                       {...field}
                       value={field.value !== undefined ? field.value : ""}
                       minDate={new Date()}
@@ -1357,18 +1303,18 @@ const Step1STRVCT = ({
                   control={control}
                   name="expiryDate"
                   rules={{
-                    required: "Expiry Date is required",
+                    required: t("Expiry Date is required"),
                     validate: (value) => {
                       if (!effectiveDate) return true;
                       return (
                         new Date(value) >= new Date(effectiveDate) ||
-                        "Expiry date cannot be before effective date"
+                        t("Expiry date cannot be before effective date")
                       );
                     },
                   }}
                   render={({ field }) => (
                     <DatePicker
-                      label="Expiry Date"
+                      label={t("Expiry Date")}
                       {...field}
                       value={field.value !== undefined ? field.value : ""}
                       isDisabled={superVisa === "yes"}
@@ -1403,12 +1349,12 @@ const Step1STRVCT = ({
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 md:gap-x-16 lg:gap-x-24 gap-y-4 text-text-secondary mt-4">
               <div className="flex flex-col">
                 <TextInput
-                  label="Coverage Length (days)"
+                  label={t("Coverage Length (days)")}
                   type="number"
                   min="1"
                   disabled={superVisa === "yes"}
                   {...register("coverageLength", {
-                    required: "Coverage Length is required",
+                    required: t("Coverage Length is required"),
                     onChange: (e) => {
                       const val = e.target.value;
                       if (effectiveDate && val) {
@@ -1431,16 +1377,16 @@ const Step1STRVCT = ({
               </div>
               <div className="flex flex-col">
                 <Dropdown
-                  label="Policy Type"
+                  label={t("Policy Type")}
                   info={() => setShowInfoPolicyType((prev) => !prev)}
                   options={[
-                    { value: "", label: "Please select..." },
-                    { value: "standard", label: "Standard" },
-                    { value: "enhanced", label: "Enhanced" },
+                    { value: "", label: t("Please select...") },
+                    { value: "standard", label: t("Standard") },
+                    { value: "enhanced", label: t("Enhanced") },
                     // { value: 'premium',  label: 'Premium' },
                   ]}
                   {...register("policyType", {
-                    required: "Policy Type is required",
+                    required: t("Policy Type is required"),
                   })}
                 />
                 {errors.policyType && (
@@ -1456,8 +1402,8 @@ const Step1STRVCT = ({
 
           {showInfoPolicyType && (
             <InfoBox
-              title="Policy Type"
-              text="Description of the policy types available including their benefits..."
+              title={t("Policy Type")}
+              text={t("Description of the policy types available including their benefits...")}
               onClose={() => setShowInfoPolicyType(false)}
             />
           )}
@@ -1466,11 +1412,11 @@ const Step1STRVCT = ({
             {/* Coverage Options */}
             <div className="flex flex-col">
               <Dropdown
-                label="Coverage Options"
+                label={t("Coverage Options")}
                 info={() => setShowInfoCoverageOption((prev) => !prev)}
                 options={coverageOptions}
                 {...register("coverageOption", {
-                  required: "Coverage Option is required",
+                  required: t("Coverage Option is required"),
                 })}
               />
               {errors.coverageOption && (
@@ -1485,13 +1431,13 @@ const Step1STRVCT = ({
               <Controller
                 control={control}
                 name="deductible"
-                rules={{ required: "Deductible is required" }}
+                rules={{ required: t("Deductible is required") }}
                 render={({ field }) => (
                   <Dropdown
-                    label="Deductible"
+                    label={t("Deductible")}
                     info={() => setShowInfoDeductible((prev) => !prev)}
                     options={[
-                      { value: "", label: "Please select..." },
+                      { value: "", label: t("Please select...") },
                       { value: "0", label: "$0.00 CAD" },
                       { value: "100", label: "$100.00 CAD" },
                       { value: "250", label: "$250.00 CAD" },
@@ -1519,15 +1465,15 @@ const Step1STRVCT = ({
 
           {showInfoCoverageOption && (
             <InfoBox
-              title="Coverage Options"
-              text="This is the maximum amount that will be covered for eligible medical expenses."
+              title={t("Coverage Options")}
+              text={t("This is the maximum amount that will be covered for eligible medical expenses.")}
               onClose={() => setShowInfoCoverageOption(false)}
             />
           )}
           {showInfoDeductible && (
             <InfoBox
-              title="Deductible"
-              text="Deductible means the amount (if applicable) which the insured must pay before any reimbursement."
+              title={t("Deductible")}
+              text={t("Deductible means the amount (if applicable) which the insured must pay before any reimbursement.")}
               onClose={() => setShowInfoDeductible(false)}
             />
           )}
@@ -1537,11 +1483,11 @@ const Step1STRVCT = ({
             <div className="flex flex-col">
               {showPaymentOption && (
                 <Dropdown
-                  label="Payment Option"
+                  label={t("Payment Option")}
                   info={() => setShowInfoPaymentOption((prev) => !prev)}
                   options={paymentOptions}
                   {...register("paymentOption", {
-                    required: "Payment Option is required",
+                    required: t("Payment Option is required"),
                   })}
                 />
               )}
@@ -1554,8 +1500,8 @@ const Step1STRVCT = ({
           </div>
           {showInfoPaymentOption && (
             <InfoBox
-              title="Payment Option"
-              text="Monthly payment installments are available when applying for one year of coverage, with a minimum Coverage Option of $100,000."
+              title={t("Payment Option")}
+              text={t("Monthly payment installments are available when applying for one year of coverage, with a minimum Coverage Option of $100,000.")}
               onClose={() => setShowInfoPaymentOption(false)}
             />
           )}
@@ -1571,18 +1517,18 @@ const Step1STRVCT = ({
           <div className="flex flex-col gap-2 items-center">
             <Spinner className="h-6 w-6" />
             <p className="text-center text-text-primary">
-              Calculating your Premium…
+              {t("Calculating your Premium…")}
             </p>
           </div>
         ) : error ? (
-          <p className="text-red-500">Error: {error}</p>
+          <p className="text-red-500">{t("Error")}: {t(error)}</p>
         ) : (
           <div>
             <div>
               {schedule.length > 0 && (
                 <div className="mb-4">
                   <p className="text-text-primary text-xl font-bold text-center">
-                    Payment Schedule
+                    {t("Payment Schedule")}
                   </p>
                   <div className="flex flex-col gap-1 mt-2">
                     {schedule.map((item: any, idx: any) => (
@@ -1601,7 +1547,7 @@ const Step1STRVCT = ({
                 </div>
               )}
               <h3 className="text-lg text-center mt-2 text-text-secondary">
-                <span className="font-bold text-text-primary">Your Quote:</span>{" "}
+                <span className="font-bold text-text-primary">{t("Your Quote")}:</span>{" "}
                 ${totalPremium} CAD
               </h3>
             </div>
@@ -1609,14 +1555,14 @@ const Step1STRVCT = ({
             {quoteNumber != null ? (
               <div className=" flex flex-col justify-center items-center mb-2 gap-2">
                 <p className="mt-2 text-xl font-bold text-red-600">
-                  <span>Quote Saved: </span>
+                  <span>{t("Quote Saved")}: </span>
                   <span>{quoteNumber}</span>
                 </p>
                 <p
                   className="text-[#2b00b7] cursor-pointer text-base hover:underline underline-offset-2"
                   onClick={handleEmailQuote}
                 >
-                  Email Quote
+                  {t("Email Quote")}
                 </p>
               </div>
             ) : (
@@ -1626,7 +1572,7 @@ const Step1STRVCT = ({
                     onClick={handleQuoteSave}
                     className="text-base hover:underline underline-offset-2 cursor-pointer"
                   >
-                    Save Quote
+                    {t("Save Quote")}
                   </p>
                 ) : (
                   ""

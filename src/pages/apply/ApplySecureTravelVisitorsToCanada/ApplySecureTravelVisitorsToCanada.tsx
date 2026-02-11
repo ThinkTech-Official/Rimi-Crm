@@ -22,6 +22,7 @@ import { FormProvider, useForm } from "react-hook-form";
 import { Step1Payload } from "../../../components/Products/SecureTravelRIMIVisitorstoCanadaTravel/SecureTravelRIMIVisitorstoCanadaTravel";
 import { usePremiumCalculate } from "../../../hooks/usePremiumCalculate";
 import { PremiumCalculationData } from "../../../components/Products/SecureTravelRIMIVisitorstoCanadaTravel/step1/Step1STRVCT";
+import { useLanguage } from "../../../context/LanguageContext";
 
 type SuperVisaOption = "" | "yes" | "no";
 type SuperVisaYears = "" | "1";
@@ -94,6 +95,7 @@ const calculateAge = (
 };
 
 export default function SecureTravelRIMIVisitorstoCanadaTravel() {
+  const { t } = useLanguage();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
 
@@ -381,9 +383,9 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
   }
 
   const [steps, setSteps] = useState([
-    { id: "01", name: "Get Quote", href: "#", status: "current" },
-    { id: "02", name: "Complete Application", href: "#", status: "upcoming" },
-    { id: "03", name: "Confirmation", href: "#", status: "upcoming" },
+    { id: "01", name: t("Get Quote"), href: "#", status: "current" },
+    { id: "02", name: t("Complete Application"), href: "#", status: "upcoming" },
+    { id: "03", name: t("Confirmation"), href: "#", status: "upcoming" },
   ]);
 
   const [formStep, setFormStep] = useState(1);
@@ -612,7 +614,7 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
         <div className="flex items-center justify-center h-64">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#2B00B7] mx-auto mb-4"></div>
-            <p className="text-lg text-gray-600">Loading your quote...</p>
+            <p className="text-lg text-gray-600">{t("Loading your quote...")}</p>
           </div>
         </div>
       </div>
@@ -625,11 +627,11 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
       <div className="max-w-5xl mx-auto px-2 py-4 sm:p-6">
         <div className="bg-red-50 border border-red-200 p-6 text-center">
           <h3 className="text-lg font-semibold text-red-800 mb-2">
-            Error Loading Quote
+            {t("Error Loading Quote")}
           </h3>
-          <p className="text-red-600 mb-4">{quoteError}</p>
+          <p className="text-red-600 mb-4">{t(quoteError)}</p>
           <button onClick={() => navigate("/products")} className="btn-primary">
-            Go to Products
+            {t("Go to Products")}
           </button>
         </div>
       </div>
@@ -655,8 +657,7 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
           </div>
           <div className="ml-3">
             <p className="text-sm text-blue-700">
-              <strong>Quote #{quoteNumber}</strong> - Your quote details have
-              been pre-filled. Review and proceed to payment.
+              <strong>{t("Quote #")}{quoteNumber}</strong> - {t("Your quote details have been pre-filled. Review and proceed to payment.")}
             </p>
           </div>
         </div>
@@ -771,7 +772,7 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
                     savingStage1 ? "opacity-50 cursor-wait" : ""
                   }`}
                 >
-                  {savingStage1 ? "Saving…" : "Next"}
+                  {savingStage1 ? t("Saving…") : t("Next")}
                 </button>
               </div>
             )}
@@ -783,7 +784,7 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
         <div>
           <div className="w-full h-2 mt-8 flex items-center justify-center">
             <h3 className="text-lg">
-              Your Quote: ${step1ResponseData?.quoteAmount}
+              {t("Your Quote")}: ${step1ResponseData?.quoteAmount}
             </h3>
           </div>
           <YourQuoteSummary step1ResponseData={step1ResponseData} />
@@ -929,7 +930,7 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
             onClick={() => handleFormStepChange("back")}
             className=" btn-primary"
           >
-            Previous
+            {t("Previous")}
           </button>
         )}
       </div>

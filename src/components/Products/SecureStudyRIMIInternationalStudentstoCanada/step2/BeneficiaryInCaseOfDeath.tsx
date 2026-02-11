@@ -329,6 +329,7 @@ import {
 import { useState } from "react";
 import { UseFormReturn } from "react-hook-form";
 import { StudentsToCanadaCountries } from "../../SecureTravelRIMIVisitorstoCanadaTravel/step1/Constants";
+import { useLanguage } from "../../../../context/LanguageContext";
 
 interface BeneficiaryData {
   beneficiary: {
@@ -347,7 +348,11 @@ interface BeneficiaryInCaseOfDeathProps {
 export default function BeneficiaryInCaseOfDeath({
   methods,
 }: BeneficiaryInCaseOfDeathProps) {
-  const { register, formState:{ errors } } = methods;
+  const { t } = useLanguage();
+  const {
+    register,
+    formState: { errors },
+  } = methods;
 
   const [
     displayInfoRelationShipToInsured,
@@ -357,23 +362,23 @@ export default function BeneficiaryInCaseOfDeath({
   return (
     <div className="max-w-5xl mx-auto mt-4 p-3 sm:p-6 bg-[#F9F9F9]">
       <h3 className="text-lg font-bold text-left text-[#1B1B1B] mb-5">
-        Beneficiary In Case Of Death
+        {t("Beneficiary In Case Of Death")}
       </h3>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 md:gap-x-16 lg:gap-x-24 gap-y-4 text-text-secondary">
         {/* BENEFICIARY NAME */}
         <div className="flex flex-col">
-          <label className="text-sm">Beneficiary Name</label>
+          <label className="text-sm">{t("Beneficiary Name")}</label>
           <input
             className="input-primary"
             type="text"
-            placeholder="Beneficiary Name"
-            {...register("beneficiary.beneficiaryName",{
-              required: "Beneficiary Name is required",
+            placeholder={t("Beneficiary Name")}
+            {...register("beneficiary.beneficiaryName", {
+              required: t("Beneficiary Name is required"),
               maxLength: {
                 value: 100,
-                message: "Beneficiary Name cannot exceed 100 characters",
-              }
+                message: t("Beneficiary Name cannot exceed 100 characters"),
+              },
             })}
           />
           {errors.beneficiary?.beneficiaryName && (
@@ -392,16 +397,16 @@ export default function BeneficiaryInCaseOfDeath({
               }
               className="h-5 w-5 text-[#3a17c5] cursor-pointer"
             />
-            Relationship to Insured
+            {t("Relationship to Insured")}
           </label>
           <div className="relative">
             <input
               className="input-primary"
               type="text"
-              placeholder="Relationship (e.g. Spouse)"
+              placeholder={t("Relationship (e.g. Spouse)")}
               {...register("beneficiary.relationshipToInsured", {
-                required: "Relationship to Insured is required",
-                maxLength: { value: 60, message: "Max 60 characters" }
+                required: t("Relationship to Insured is required"),
+                maxLength: { value: 60, message: t("Max 60 characters") },
               })}
             />
           </div>
@@ -415,30 +420,30 @@ export default function BeneficiaryInCaseOfDeath({
         {displayInfoRelationShipToInsured && (
           <div className="col-span-2 flex flex-col items-start mt-2 mb-2 border border-gray-300 p-4 bg-white text-sm text-gray-700 rounded-md font-[inter]">
             <h2 className="text-base font-semibold mb-2">
-              Relationship to Insured
+              {t("Relationship to Insured")}
             </h2>
             <p>
-              Enter the beneficiary's relationship to the Primary Applicant.
+              {t("Enter the beneficiary's relationship to the Primary Applicant.")}
             </p>
           </div>
         )}
 
         {/* ADDRESS */}
         <div className="flex flex-col">
-          <label className="text-sm">Address</label>
+          <label className="text-sm">{t("Address")}</label>
           <input
             className="input-primary"
             type="text"
-            placeholder="Address"
-            {...register("beneficiary.address",{
-              required: "Address is required",
-              maxLength:{
+            placeholder={t("Address")}
+            {...register("beneficiary.address", {
+              required: t("Address is required"),
+              maxLength: {
                 value: 100,
-                message: "Address must be less than 100 characters",
-              }
+                message: t("Address must be less than 100 characters"),
+              },
             })}
           />
-           {errors.beneficiary?.address && (
+          {errors.beneficiary?.address && (
             <p className="text-red-500 text-sm mt-1">
               {errors.beneficiary.address.message}
             </p>
@@ -447,20 +452,20 @@ export default function BeneficiaryInCaseOfDeath({
 
         {/* CITY */}
         <div className="flex flex-col">
-          <label className="text-sm">City</label>
+          <label className="text-sm">{t("City")}</label>
           <input
             className="input-primary"
             type="text"
-            placeholder="City"
-            {...register("beneficiary.city",{
-              required: "City is required",
-              maxLength:{
+            placeholder={t("City")}
+            {...register("beneficiary.city", {
+              required: t("City is required"),
+              maxLength: {
                 value: 100,
-                message: "City must be less than 100 characters",
-              }
+                message: t("City must be less than 100 characters"),
+              },
             })}
           />
-           {errors.beneficiary?.city && (
+          {errors.beneficiary?.city && (
             <p className="text-red-500 text-sm mt-1">
               {errors.beneficiary.city.message}
             </p>
@@ -469,12 +474,12 @@ export default function BeneficiaryInCaseOfDeath({
 
         {/* COUNTRY */}
         <div className="flex flex-col">
-          <label className="text-sm">Country</label>
+          <label className="text-sm">{t("Country")}</label>
           <div className="relative">
             <select
               className="input-primary appearance-none cursor-pointer"
-              {...register("beneficiary.country",{
-                required: "Country is required",
+              {...register("beneficiary.country", {
+                required: t("Country is required"),
               })}
             >
               {StudentsToCanadaCountries.map((c) => (
@@ -488,7 +493,7 @@ export default function BeneficiaryInCaseOfDeath({
               <ChevronDownIcon className="h-5 w-5" />
             </div>
           </div>
-           {errors.beneficiary?.country && (
+          {errors.beneficiary?.country && (
             <p className="text-red-500 text-sm mt-1">
               {errors.beneficiary.country.message}
             </p>

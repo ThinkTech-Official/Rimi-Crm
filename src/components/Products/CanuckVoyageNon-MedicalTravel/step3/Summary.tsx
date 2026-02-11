@@ -1,4 +1,5 @@
 import React from "react";
+import { useLanguage } from "../../../../context/LanguageContext";
 import { useQuoteDetail } from "../../../../hooks/useQuoteDetail";
 
 interface SummaryProps {
@@ -6,20 +7,21 @@ interface SummaryProps {
 }
 
 const Summary: React.FC<SummaryProps> = ({ quoteId }) => {
+  const { t } = useLanguage();
   const { data, loading, error } = useQuoteDetail(quoteId);
 
   if (loading) {
-    return <p className="text-center mt-8">Loading quote summary…</p>;
+    return <p className="text-center mt-8">{t("Loading quote summary…")}</p>;
   }
   if (error) {
     return (
       <p className="text-red-600 text-center mt-8">
-        Error fetching quote details: {error}
+        {t("Error fetching quote details:")} {error}
       </p>
     );
   }
   if (!data) {
-    return <p className="text-center mt-8">No data to display.</p>;
+    return <p className="text-center mt-8">{t("No data to display.")}</p>;
   }
 
   const maybe = (value: any) =>
@@ -40,8 +42,8 @@ const Summary: React.FC<SummaryProps> = ({ quoteId }) => {
 
   const pluralize = (value: any, singular: string, plural: string) => {
     const num = Number(value);
-    if (isNaN(num) || num === 0) return plural;
-    return num === 1 ? singular : plural;
+    if (isNaN(num) || num === 0) return t(plural);
+    return num === 1 ? t(singular) : t(plural);
   };
 
   // ---------------------------
@@ -49,67 +51,67 @@ const Summary: React.FC<SummaryProps> = ({ quoteId }) => {
   // ---------------------------
 
   const contactInfoRows: [string, React.ReactNode][] = [
-    ["First Name", maybe(data.firstName)],
-    ["Last Name", maybe(data.lastName)],
-    ["Date of Birth", formatDate(data.dateOfBirth)],
-    ["Gender", maybe(data.gender)],
-    ["Primary Email", maybe(data.email)],
-    ["Additional Email", maybe((data as any).additionalEmail)],
-    ["Phone Number", maybe((data as any).phoneNumber)],
+    [t("First Name"), maybe(data.firstName)],
+    [t("Last Name"), maybe(data.lastName)],
+    [t("Date of Birth"), formatDate(data.dateOfBirth)],
+    [t("Gender"), maybe(data.gender)],
+    [t("Primary Email"), maybe(data.email)],
+    [t("Additional Email"), maybe((data as any).additionalEmail)],
+    [t("Phone Number"), maybe((data as any).phoneNumber)],
   ];
 
   const quoteRows: [string, React.ReactNode][] = [
-    ["Quote Number", maybe(data.quoteNumber)],
-    ["Product", maybe(data.product)],
+    [t("Quote Number"), maybe(data.quoteNumber)],
+    [t("Product"), maybe(data.product)],
     [
-      "Status",
+      t("Status"),
       <span className="inline-block px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm font-semibold">
         {maybe(data.status)}
       </span>,
     ],
-    ["Policy Type", maybe(data.policyType)],
-    ["Trip Cost (per person)", `$${maybe((data as any).tripCost)} CAD`],
-    ["Date Trip was Booked", formatDate((data as any).dateBooked)],
-    ["Departure Date", formatDate(data.effectiveDate)],
-    ["Return Date", formatDate(data.expiryDate)],
+    [t("Policy Type"), maybe(data.policyType)],
+    [t("Trip Cost (per person)"), `$${maybe((data as any).tripCost)} ${t("CAD")}`],
+    [t("Date Trip was Booked"), formatDate((data as any).dateBooked)],
+    [t("Departure Date"), formatDate(data.effectiveDate)],
+    [t("Return Date"), formatDate(data.expiryDate)],
     [
-      "Coverage Length",
+      t("Coverage Length"),
       `${maybe(data.covLen)} ${pluralize(data.covLen, "day", "days")}`,
     ],
-    ["Destination Country", maybe(data.destination)],
+    [t("Destination Country"), maybe(data.destination)],
     [
-      "Trip Cancellation - Deluxe",
+      t("Trip Cancellation - Deluxe"),
       (data as any).tripCancellationDeluxe ? (
-        <span className="text-green-600 font-semibold">Yes</span>
+        <span className="text-green-600 font-semibold">{t("Yes")}</span>
       ) : (
-        <span className="text-gray-600">No</span>
+        <span className="text-gray-600">{t("No")}</span>
       ),
     ],
-    ["Country of Origin", maybe((data as any).countryOfOrigin)],
-    ["Province/State of Residence", maybe((data as any).provinceStateResidence)],
+    [t("Country of Origin"), maybe((data as any).countryOfOrigin)],
+    [t("Province/State of Residence"), maybe((data as any).provinceStateResidence)],
   ];
 
   const addressRows: [string, React.ReactNode][] = [
-    ["Address Line 1", maybe(data.street)],
-    ["Address Line 2", maybe((data as any).street2)],
-    ["City", maybe(data.city)],
-    ["Province / State", maybe(data.province)],
-    ["Postal Code", maybe((data as any).postalCode)],
-    ["Country", maybe(data.countryCode)],
+    [t("Address Line 1"), maybe(data.street)],
+    [t("Address Line 2"), maybe((data as any).street2)],
+    [t("City"), maybe(data.city)],
+    [t("Province / State"), maybe(data.province)],
+    [t("Postal Code"), maybe((data as any).postalCode)],
+    [t("Country"), maybe(data.countryCode)],
   ];
 
   const premiumRows: [string, React.ReactNode][] = [
     [
-      "Total Premium",
+      t("Total Premium"),
       <span className="font-semibold text-text-primary">
-        ${maybe(data.premium)} CAD
+        ${maybe(data.premium)} {t("CAD")}
       </span>,
     ],
-    ["Paid Premium", `$${maybe(data.paidPremium)} CAD`],
+    [t("Paid Premium"), `$${maybe(data.paidPremium)} ${t("CAD")}`],
     [
-      "Payment Status",
+      t("Payment Status"),
       <span className="inline-block px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-semibold">
-        Paid
+        {t("Paid")}
       </span>,
     ],
   ];
@@ -146,13 +148,13 @@ const Summary: React.FC<SummaryProps> = ({ quoteId }) => {
     <div className="w-full mt-4 p-6 bg-[#F9F9F9]">
       <div className="text-center mb-6">
         <h2 className="text-2xl font-bold text-[#2B00B7]">
-          Your Policy is Under Process
+          {t("Your Policy is Under Process")}
         </h2>
         <h3 className="text-lg text-gray-600 mt-1">
-          <b>Note:</b> This is not the final policy document
+          <b>{t("Note:")}</b> {t("This is not the final policy document")}
         </h3>
         <p className="text-sm text-gray-500 mt-1">
-          You will receive a confirmation email shortly
+          {t("You will receive a confirmation email shortly")}
         </p>
       </div>
 
@@ -160,7 +162,7 @@ const Summary: React.FC<SummaryProps> = ({ quoteId }) => {
         {/* CONTACT INFO */}
         <section>
           <h2 className="text-xl font-semibold mb-2">
-            Contact Information
+            {t("Contact Information")}
           </h2>
           {renderTable(contactInfoRows)}
         </section>
@@ -168,7 +170,7 @@ const Summary: React.FC<SummaryProps> = ({ quoteId }) => {
         {/* QUOTE SUMMARY */}
         <section>
           <h2 className="text-xl font-semibold mb-2">
-            Quote Summary
+            {t("Quote Summary")}
           </h2>
           {renderTable(quoteRows)}
         </section>
@@ -177,7 +179,7 @@ const Summary: React.FC<SummaryProps> = ({ quoteId }) => {
         {Array.isArray(data.applicants) && data.applicants.length > 0 && (
           <section>
             <h2 className="text-xl font-semibold mb-2">
-              Additional Travellers
+              {t("Additional Travellers")}
             </h2>
 
             <div className="overflow-auto">
@@ -186,11 +188,11 @@ const Summary: React.FC<SummaryProps> = ({ quoteId }) => {
                   <tr>
                     {[
                       "#",
-                      "First Name",
-                      "Last Name",
-                      "Date of Birth",
-                      "Relationship",
-                      "Gender",
+                      t("First Name"),
+                      t("Last Name"),
+                      t("Date of Birth"),
+                      t("Relationship"),
+                      t("Gender"),
                     ].map((h) => (
                       <th
                         key={h}
@@ -220,10 +222,10 @@ const Summary: React.FC<SummaryProps> = ({ quoteId }) => {
                         {formatDate(app.dateOfBirth)}
                       </td>
                       <td className="p-3 text-left text-[#6A6A6A]">
-                        {maybe(app.relationship || app.relation)}
+                        {maybe(t(app.relationship || app.relation))}
                       </td>
                       <td className="p-3 text-left text-[#6A6A6A]">
-                        {maybe(app.gender)}
+                        {maybe(t(app.gender))}
                       </td>
                     </tr>
                   ))}
@@ -236,7 +238,7 @@ const Summary: React.FC<SummaryProps> = ({ quoteId }) => {
         {/* ADDRESS */}
         <section>
           <h2 className="text-xl font-semibold mb-2">
-            Residence Address
+            {t("Residence Address")}
           </h2>
           {renderTable(addressRows)}
         </section>
@@ -244,7 +246,7 @@ const Summary: React.FC<SummaryProps> = ({ quoteId }) => {
         {/* PREMIUM */}
         <section>
           <h2 className="text-xl font-semibold mb-2">
-            Premium Details
+            {t("Premium Details")}
           </h2>
           {renderTable(premiumRows)}
         </section>

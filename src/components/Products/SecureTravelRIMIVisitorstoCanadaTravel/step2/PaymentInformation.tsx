@@ -9,6 +9,7 @@ import {
 } from '@stripe/react-stripe-js';
 import { FormEvent, useState } from 'react';
 import { useCreatePaymentIntent } from '../../../../hooks/useCreatePaymentIntent';
+import { useLanguage } from "../../../../context/LanguageContext";
 
 export interface Shipping {
     addressLine1: string;
@@ -53,6 +54,7 @@ export default function PaymentInformation({
   remainingInstallments,
   stripeProductId,
 }: Props) {
+  const { t } = useLanguage();
   const stripe = useStripe();
   const elements = useElements();
 
@@ -99,7 +101,7 @@ export default function PaymentInformation({
       // 2️ Grab the mounted CardElement
       const cardElement = elements.getElement(CardElement);
       if (!cardElement) {
-        setStripeError('Card input not ready');
+        setStripeError(t('Card input not ready'));
         return;
       }
 
@@ -122,7 +124,7 @@ export default function PaymentInformation({
         onPaymentSuccess();
       }
     } catch (err: any) {
-      setStripeError(err.message || "Something went wrong");
+      setStripeError(err.message || t("Something went wrong"));
     }
   };
 
@@ -138,7 +140,7 @@ export default function PaymentInformation({
           htmlFor="paymentAmount"
           className="block text-sm font-medium text-text-secondary"
         >
-          Amount
+          {t("Amount")}
         </label>
         <input
           id="paymentAmount"
@@ -155,7 +157,7 @@ export default function PaymentInformation({
           htmlFor="cardholder-name"
           className="block text-sm font-medium text-text-secondary"
         >
-          Cardholder Name
+          {t("Cardholder Name")}
         </label>
         <input
           id="cardholder-name"
@@ -168,9 +170,9 @@ export default function PaymentInformation({
       </div>
 
       {/* 3. The Stripe CardElement */}
-      <div>
+       <div>
         <label className="block text-sm font-medium text-gray-700">
-          Card Details
+          {t("Card Details")}
         </label>
         <div className="input-primary">
           <CardElement
@@ -188,9 +190,9 @@ export default function PaymentInformation({
         </div>
       </div>
 
-      {/* 4. Show any errors */}
-      {intentError && <p className="text-red-600 text-sm">{intentError}</p>}
-      {stripeError && <p className="text-red-600 text-sm">{stripeError}</p>}
+       {/* 4. Show any errors */}
+      {intentError && <p className="text-red-600 text-sm">{t(intentError)}</p>}
+      {stripeError && <p className="text-red-600 text-sm">{t(stripeError)}</p>}
 
       {/* 5. Submit button */}
       <button
@@ -200,8 +202,8 @@ export default function PaymentInformation({
           btn-primary w-full
           ${intentLoading ? 'opacity-50 cursor-wait' : 'hover:bg-indigo-700'}
         `}
-      >
-        {intentLoading ? 'Processing…' : `Pay $${amount.toFixed(2)}`}
+       >
+        {intentLoading ? t('Processing…') : `${t("Pay")} $${amount.toFixed(2)}`}
       </button>
     </form>
 

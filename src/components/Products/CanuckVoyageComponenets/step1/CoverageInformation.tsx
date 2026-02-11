@@ -508,6 +508,7 @@ import { useCreateQuoteProduct3 } from "../../../../hooks/canuck-voyage/useCreat
 import { Step1Payload } from "../RIMICanuckVoyageTravelMedical";
 import DatePicker from "../../../DatePicker";
 import EmailQuoteMedical from "./EmailQuoteMedical";
+import { useLanguage } from "../../../../context/LanguageContext";
 
 const today = new Date().toISOString().slice(0, 10);
 const msPerDay = 1000 * 60 * 60 * 24;
@@ -548,6 +549,7 @@ export default function CoverageInformation({
   premiumBreakdown,
   onValidityChange
 }: CoverageInformationProps) {
+  const { t } = useLanguage();
   const {
     register,
     watch,
@@ -768,18 +770,18 @@ export default function CoverageInformation({
   return (
     <div className="max-w-5xl mx-auto mt-6 p-3 sm:p-6 bg-[#F9F9F9]">
       <h3 className="text-lg font-bold text-left text-[#1B1B1B] mb-5">
-        Coverage Information
+        {t("Coverage Information")}
       </h3>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 md:gap-x-16 lg:gap-x-24 gap-y-4 text-text-secondary">
         {/* Policy Type */}
         <div className="flex flex-col">
-          <label className="text-sm">Policy Type</label>
+          <label className="text-sm">{t("Policy Type")}</label>
           <div className="relative">
             <select
               className="input-primary appearance-none cursor-pointer"
               {...register("policyType", {
-                required: "Policy Type is required",
+                required: t("Policy Type is required"),
                 onChange: (e) => {
                   if (e.target.value !== "Multi-Trip Annual") {
                     setValue("numberOfDaysPerTrip", undefined);
@@ -787,9 +789,9 @@ export default function CoverageInformation({
                 },
               })}
             >
-              <option value="">Please select</option>
-              <option value="Single Trip">Single Trip</option>
-              <option value="Multi-Trip Annual">Multi-Trip Annual</option>
+              <option value="">{t("Please select")}</option>
+              <option value="Single Trip">{t("Single Trip")}</option>
+              <option value="Multi-Trip Annual">{t("Multi-Trip Annual")}</option>
             </select>
             <div className="pointer-events-none absolute inset-y-0 right-2 flex items-center text-gray-500">
               <ChevronDownIcon className="h-5 w-5" aria-hidden="true" />
@@ -807,10 +809,10 @@ export default function CoverageInformation({
           <Controller
           name={`effectiveDate`}
           control={control}
-          rules={{ required: "Effective Date is required" }}
+          rules={{ required: t("Effective Date is required") }}
           render={({ field }) => (
             <DatePicker
-              label="Effective Date"
+              label={t("Effective Date")}
               value={field.value}
               onChange={(date: Date) => {
                 field.onChange(date);
@@ -832,13 +834,13 @@ export default function CoverageInformation({
           name={`expiryDate`}
           control={control}
           rules={{ 
-            required: "Expiry Date is required",
+            required: t("Expiry Date is required"),
             validate: (value) => {
               if (effectiveDate && value) {
                 const eff = new Date(effectiveDate);
                 const exp = new Date(value);
                 if (exp <= eff) {
-                  return "Expiry date must be after effective date";
+                  return t("Expiry date must be after effective date");
                 }
               }
               return true;
@@ -846,7 +848,7 @@ export default function CoverageInformation({
           }}
           render={({ field }) => (
             <DatePicker
-              label="Expiry Date"
+              label={t("Expiry Date")}
               value={field.value}
               onChange={(date: Date) => {
                 field.onChange(date);
@@ -864,7 +866,7 @@ export default function CoverageInformation({
 
         {/* Coverage Length */}
         <div className="flex flex-col">
-          <label className="text-sm">Coverage Length (days)</label>
+          <label className="text-sm">{t("Coverage Length (days)")}</label>
           <input
             className="input-primary"
             type="text"
@@ -876,26 +878,26 @@ export default function CoverageInformation({
         {/* Number of Days per Trip (Multi-Trip only) */}
         {policyType === "Multi-Trip Annual" && (
           <div className="flex flex-col">
-            <label className="text-sm">Number of Days per Trip</label>
+            <label className="text-sm">{t("Number of Days per Trip")}</label>
             <div className="relative">
               <select
                 className="input-primary appearance-none cursor-pointer"
                 {...register("numberOfDaysPerTrip", {
                   required:
                     policyType === "Multi-Trip Annual"
-                      ? "Number of days per trip is required"
+                      ? t("Number of days per trip is required")
                       : false,
                   valueAsNumber: true,
                 })}
               >
-                <option value={0}>Please select...</option>
-                <option value={5}>5 days</option>
-                <option value={10}>10 days</option>
-                <option value={20}>20 days</option>
-                <option value={35}>35 days</option>
-                <option value={50}>50 days</option>
-                <option value={65}>65 days</option>
-                <option value={100}>100 days</option>
+                <option value={0}>{t("Please select...")}</option>
+                <option value={5}>{t("5 days")}</option>
+                <option value={10}>{t("10 days")}</option>
+                <option value={20}>{t("20 days")}</option>
+                <option value={35}>{t("35 days")}</option>
+                <option value={50}>{t("50 days")}</option>
+                <option value={65}>{t("65 days")}</option>
+                <option value={100}>{t("100 days")}</option>
               </select>
               <div className="pointer-events-none absolute inset-y-0 right-2 flex items-center text-gray-500">
                 <ChevronDownIcon className="h-5 w-5" aria-hidden="true" />
@@ -912,7 +914,7 @@ export default function CoverageInformation({
         {/* Destination Country */}
         <div className="flex flex-col">
           <label className="flex items-center text-sm">
-            Destination Country
+            {t("Destination Country")}
             <InformationCircleIcon
               onClick={() => setDisplayInfoDestinationCountry((prev) => !prev)}
               className="h-5 w-5 text-[#3a17c5] cursor-pointer ml-1"
@@ -923,14 +925,14 @@ export default function CoverageInformation({
             <select
               className="input-primary appearance-none cursor-pointer"
               {...register("destinationCountry", {
-                required: "Destination Country is required",
+                required: t("Destination Country is required"),
               })}
             >
-              <option value="">Please select</option>
-              <option value="CA">Canada</option>
-              <option value="US">United States</option>
-              <option value="FR">France</option>
-              <option value="GB">United Kingdom</option>
+              <option value="">{t("Please select")}</option>
+              <option value="CA">{t("Canada")}</option>
+              <option value="US">{t("United States")}</option>
+              <option value="FR">{t("France")}</option>
+              <option value="GB">{t("United Kingdom")}</option>
               {/* Add all countries here */}
             </select>
             <div className="pointer-events-none absolute inset-y-0 right-2 flex items-center text-gray-500">
@@ -951,22 +953,20 @@ export default function CoverageInformation({
             className="text-primary underline absolute top-2 right-2 cursor-pointer underline-offset-2"
             onClick={() => setDisplayInfoDestinationCountry(false)}
           >
-            close
+            {t("close")}
           </button>
           <h2 className="text-center text-primary font-semibold">
-            Destination
+            {t("Destination")}
           </h2>
           <p className="text-sm text-text-secondary mt-2">
-            Select the primary destination country for your trip. Select Canada
-            only if you are travelling outside your home province, but within
-            Canada for your entire trip.
+            {t("Select the primary destination country for your trip. Select Canada only if you are travelling outside your home province, but within Canada for your entire trip.")}
           </p>
         </div>
       )}
 
       {/* Traveling Through US */}
       <div className="mt-6 flex flex-col text-text-secondary">
-        <label>Are you travelling through the US?</label>
+        <label>{t("Are you travelling through the US?")}</label>
         <div className="flex gap-10">
           <label className="flex items-center space-x-1">
             <input
@@ -974,10 +974,10 @@ export default function CoverageInformation({
               value="yes"
               className="form-radio accent-primary cursor-pointer"
               {...register("travelingThroughUS", {
-                required: "Please select if travelling through US",
+                required: t("Please select if travelling through US"),
               })}
             />
-            <span>Yes</span>
+            <span>{t("Yes")}</span>
           </label>
           <label className="flex items-center space-x-1">
             <input
@@ -985,10 +985,10 @@ export default function CoverageInformation({
               value="no"
               className="form-radio accent-primary cursor-pointer"
               {...register("travelingThroughUS", {
-                required: "Please select if travelling through US",
+                required: t("Please select if travelling through US"),
               })}
             />
-            <span>No</span>
+            <span>{t("No")}</span>
           </label>
         </div>
         {errors.travelingThroughUS && (
@@ -1000,20 +1000,20 @@ export default function CoverageInformation({
 
       {travelingThroughUS === "yes" && (
         <div className="mt-4 flex flex-col text-text-secondary">
-          <label className="text-sm">Number of Travel Days in the US</label>
+          <label className="text-sm">{t("Number of Travel Days in the US")}</label>
           <input
             type="number"
             className="input-primary"
-            placeholder="Enter number of days"
+            placeholder={t("Enter number of days")}
             {...register("usTravelDays", {
               required:
                 travelingThroughUS === "yes"
-                  ? "Number of US travel days is required"
+                  ? t("Number of US travel days is required")
                   : false,
               valueAsNumber: true,
               min: {
                 value: 1,
-                message: "Must be at least 1 day",
+                message: t("Must be at least 1 day"),
               },
             })}
           />
@@ -1028,7 +1028,7 @@ export default function CoverageInformation({
       {/* Deductible */}
       <div className="mt-6 flex flex-col">
         <label className="flex items-center text-sm text-text-secondary">
-          Deductible
+          {t("Deductible")}
           <InformationCircleIcon
             onClick={() => setDisplayInfoDeductible((prev) => !prev)}
             className="h-5 w-5 text-[#3a17c5] cursor-pointer ml-1"
@@ -1039,11 +1039,11 @@ export default function CoverageInformation({
           <select
             className="input-primary appearance-none cursor-pointer"
             {...register("deductible", {
-              required: "Deductible is required",
+              required: t("Deductible is required"),
               valueAsNumber: true,
             })}
           >
-            <option value="">Please select...</option>
+            <option value="">{t("Please select...")}</option>
             <option value={0}>$0.00 CAD</option>
             <option value={250}>$250.00 CAD</option>
             <option value={500}>$500.00 CAD</option>
@@ -1065,39 +1065,37 @@ export default function CoverageInformation({
       {displayInfoDeductible && (
         <div className="border border-inputBorder shadow-sm p-4 mt-4 bg-white relative">
           <h2 className="text-lg font-semibold border-b border-[#c2c2c2] pb-2">
-            Deductible
+            {t("Deductible")}
           </h2>
           <button
             className="text-primary underline absolute top-2 right-2 cursor-pointer underline-offset-2"
             onClick={() => setDisplayInfoDeductible(false)}
           >
-            close
+            {t("close")}
           </button>
           <p className="text-sm text-gray-600 mt-2">
-            Deductible means the amount (if applicable), in Canadian dollars,
-            which the insured must pay before any remaining eligible expenses
-            are reimbursed under this policy.
+            {t("Deductible means the amount (if applicable), in Canadian dollars, which the insured must pay before any remaining eligible expenses are reimbursed under this policy.")}
           </p>
 
           <div className="mt-4">
             <h3 className="text-md font-semibold text-gray-700 text-center">
-              Deductible Discounts
+              {t("Deductible Discounts")}
             </h3>
             <div className="overflow-x-auto">
               <table className="w-full border border-gray-300 mt-2 text-sm">
                 <thead className="bg-gray-100">
                   <tr>
                     <th className="border border-gray-300 p-2 text-left">
-                      Deductible Option
+                      {t("Deductible Option")}
                     </th>
                     <th className="border border-gray-300 p-2 text-left">
-                      Discount
+                      {t("Discount")}
                     </th>
                   </tr>
                 </thead>
                 <tbody>
                   {[
-                    { option: "$0", discount: "No discount" },
+                    { option: "$0", discount: t("No discount") },
                     { option: "$250", discount: "9%" },
                     { option: "$500", discount: "14%" },
                     { option: "$1,000", discount: "18%" },
@@ -1120,7 +1118,7 @@ export default function CoverageInformation({
       {quoteNumber && !hasFormChanged ? (
         <div className="flex flex-col justify-center items-center mt-4 text-xl font-bold text-red-600">
           <span>
-            Quote Saved:{" "}
+            {t("Quote Saved:")}{" "}
           </span>
           <span>{quoteNumber}</span>
 
@@ -1129,7 +1127,7 @@ export default function CoverageInformation({
             className="text-[#2b00b7] cursor-pointer text-base hover:underline underline-offset-2 mt-2"
             onClick={() => setIsEmailModalOpen(true)}
           >
-            Email Quote
+            {t("Email Quote")}
           </button>
         </div>
       ) : (
@@ -1149,7 +1147,7 @@ export default function CoverageInformation({
               saving ? "opacity-50" : ""
             }`}
           >
-            {saving ? "Saving..." : "Save Quote"}
+            {saving ? t("Saving...") : t("Save Quote")}
           </button>
         </div>
       )}

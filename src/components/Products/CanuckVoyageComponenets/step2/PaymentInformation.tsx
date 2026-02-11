@@ -34,6 +34,7 @@
 import { CardElement, useStripe, useElements } from "@stripe/react-stripe-js";
 import { FormEvent, useState } from "react";
 import { useCreatePaymentIntent } from "../../../../hooks/useCreatePaymentIntent";
+import { useLanguage } from "../../../../context/LanguageContext";
 
 interface Shipping {
   addressLine1: string;
@@ -75,6 +76,7 @@ export default function PaymentInformation({
   contactInfo,
   triggerNotification,
 }: Props) {
+  const { t } = useLanguage();
   const stripe = useStripe();
   const elements = useElements();
 
@@ -113,8 +115,8 @@ export default function PaymentInformation({
       // 3. Get CardElement
       const cardElement = elements.getElement(CardElement);
       if (!cardElement) {
-        setStripeError("Card input not ready");
-        triggerNotification({ message: "Card input not ready", type: "error" });
+        setStripeError(t("Card input not ready"));
+        triggerNotification({ message: t("Card input not ready"), type: "error" });
         return;
       }
 
@@ -136,7 +138,7 @@ export default function PaymentInformation({
         onPaymentSuccess();
       }
     } catch (err: any) {
-      const errorMsg = err.message || "Something went wrong";
+      const errorMsg = err.message || t("Something went wrong");
       setStripeError(errorMsg);
       triggerNotification({ message: errorMsg, type: "error" });
     }
@@ -149,7 +151,7 @@ export default function PaymentInformation({
     >
 
       <h3 className="text-lg font-bold text-left text-[#1B1B1B]">
-        Payment Information
+        {t("Payment Information")}
       </h3>
       {/* Amount */}
       <div>
@@ -157,13 +159,13 @@ export default function PaymentInformation({
           htmlFor="paymentAmount"
           className="block text-sm font-medium text-text-secondary"
         >
-          Amount
+          {t("Amount")}
         </label>
         <input
           id="paymentAmount"
           type="text"
           readOnly
-          value={`$${amount.toFixed(2)} CAD`}
+          value={`$${amount.toFixed(2)} ${t("CAD")}`}
           className="input-primary"
         />
       </div>
@@ -174,7 +176,7 @@ export default function PaymentInformation({
           htmlFor="cardholder-name"
           className="block text-sm font-medium text-text-secondary"
         >
-          Cardholder Name
+          {t("Cardholder Name")}
         </label>
         <input
           id="cardholder-name"
@@ -189,7 +191,7 @@ export default function PaymentInformation({
       {/* Card Details */}
       <div>
         <label className="block text-sm font-medium text-gray-700">
-          Card Details
+          {t("Card Details")}
         </label>
         <div className="input-primary">
           <CardElement
@@ -225,8 +227,8 @@ export default function PaymentInformation({
         `}
       >
         {intentLoading || submittingStage2
-          ? "Processing…"
-          : `Pay $${amount.toFixed(2)} CAD`}
+          ? t("Processing…")
+          : `${t("Pay")} $${amount.toFixed(2)} ${t("CAD")}`}
       
       </button>
     </form>

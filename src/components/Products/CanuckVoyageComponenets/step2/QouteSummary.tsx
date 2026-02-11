@@ -41,13 +41,10 @@
 
 // export default QuoteSummary;
 
-
-
 // =============================================
 
-
-
 import React from "react";
+import { useLanguage } from "../../../../context/LanguageContext";
 
 interface QuoteStage1Response {
   quoteNumber: string;
@@ -66,6 +63,7 @@ interface QuoteSummaryProps {
 }
 
 export default function QuoteSummary({ step1ResponseData }: QuoteSummaryProps) {
+  const { t } = useLanguage();
   if (!step1ResponseData) {
     return null;
   }
@@ -86,23 +84,26 @@ export default function QuoteSummary({ step1ResponseData }: QuoteSummaryProps) {
     amt.toLocaleString(undefined, { style: "currency", currency: "CAD" });
 
   const rows: [string, React.ReactNode][] = [
-    ["Policy Type", policyType],
-    ["Effective Date", fmtDate(effectiveDate)],
-    ["Expiry Date", fmtDate(expiryDate)],
-    ["Coverage Length", `${coverageLength} day${coverageLength !== 1 ? "s" : ""}`],
-    ["Destination Country", destinationCountry],
-    ["Deductible", fmtMoney(deductible)],
-    ["Number of Travellers", numberOfTravellers],
-    ["Quote Amount", fmtMoney(quoteAmount)],
+    [t("Policy Type"), t(policyType)],
+    [t("Effective Date"), fmtDate(effectiveDate)],
+    [t("Expiry Date"), fmtDate(expiryDate)],
+    [
+      t("Coverage Length"),
+      `${coverageLength} ${t(coverageLength !== 1 ? "days" : "day")}`,
+    ],
+    [t("Destination Country"), t(destinationCountry)],
+    [t("Deductible"), fmtMoney(deductible)],
+    [t("Number of Travellers"), numberOfTravellers],
+    [t("Quote Amount"), fmtMoney(quoteAmount)],
   ];
 
   return (
     <div className="max-w-5xl mx-auto mt-4 p-3 sm:p-6 bg-[#F9F9F9]">
       <h2 className="text-lg font-bold text-left text-[#1B1B1B]">
-        Your Quote Summary
+        {t("Your Quote Summary")}
       </h2>
       <p className="text-left font-medium text-[#6A6A6A] mb-8">
-        Please review the details below before proceeding.
+        {t("Please review the details below before proceeding.")}
       </p>
 
       <table className="w-full border border-[#DBDADE] font-[inter] text-sm sm:text-base">

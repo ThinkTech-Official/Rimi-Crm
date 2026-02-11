@@ -432,6 +432,7 @@ import {
   InformationCircleIcon,
 } from "@heroicons/react/24/outline";
 import { Controller, UseFormReturn } from "react-hook-form";
+import { useLanguage } from "../../../../context/LanguageContext";
 import { Step1Payload } from "../RIMICanuckVoyageNon-MedicalTravel";
 import DatePicker from "../../../DatePicker";
 import ConfirmEligibilityModal from "../../SecureTravelRIMIVisitorstoCanadaTravel/step1/ConfirmEligibility";
@@ -453,6 +454,7 @@ interface ApplicantInformationProps {
 export default function ApplicantInformation({
   methods,
 }: ApplicantInformationProps) {
+  const { t } = useLanguage();
   const {
     register,
     watch,
@@ -508,23 +510,23 @@ export default function ApplicantInformation({
   return (
     <div className="max-w-5xl mx-auto mt-4 p-3 sm:p-6 bg-[#F9F9F9]">
       <h3 className="text-lg font-bold text-left text-[#1B1B1B] mb-5">
-        Applicant Information
+        {t("Applicant Information")}
       </h3>
 
       {/* Primary Applicant */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 md:gap-x-16 lg:gap-x-24 gap-y-4 text-text-secondary">
         {/* First Name */}
         <div className="flex flex-col">
-          <label className="text-sm">First Name</label>
+          <label className="text-sm">{t("First Name")}</label>
           <input
             className="input-primary"
             type="text"
-            placeholder="Enter First Name"
+            placeholder={t("Enter First Name")}
             {...register("primaryFirstName", {
-              required: "First Name is required",
+              required: t("First Name is required"),
               maxLength: {
                 value: 60,
-                message: "First Name cannot exceed 60 characters",
+                message: t("First Name cannot exceed 60 characters"),
               },
             })}
           />
@@ -537,16 +539,16 @@ export default function ApplicantInformation({
 
         {/* Last Name */}
         <div className="flex flex-col">
-          <label className="text-sm">Last Name</label>
+          <label className="text-sm">{t("Last Name")}</label>
           <input
             className="input-primary"
             type="text"
-            placeholder="Enter Last Name"
+            placeholder={t("Enter Last Name")}
             {...register("primaryLastName", {
-              required: "Last Name is required",
+              required: t("Last Name is required"),
               maxLength: {
                 value: 60,
-                message: "Last Name cannot exceed 60 characters",
+                message: t("Last Name cannot exceed 60 characters"),
               },
             })}
           />
@@ -562,11 +564,11 @@ export default function ApplicantInformation({
           <Controller
             name="primaryDateOfBirth"
             control={control}
-            rules={{ required: "Date of Birth is required" }}
+            rules={{ required: t("Date of Birth is required") }}
             render={({ field }) => (
               <div className="flex flex-col">
                 <DatePicker
-                  label="Date of Birth"
+                  label={t("Date of Birth")}
                   value={field.value}
                   onChange={(date) => {
                     field.onChange(date);
@@ -585,16 +587,16 @@ export default function ApplicantInformation({
 
         {/* Email */}
         <div className="flex flex-col">
-          <label className="text-sm">Email</label>
+          <label className="text-sm">{t("Email")}</label>
           <input
             className="input-primary"
             type="email"
-            placeholder="Enter Email Address"
+            placeholder={t("Enter Email Address")}
             {...register("primaryEmail", {
-              required: "Email is required",
+              required: t("Email is required"),
               pattern: {
                 value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                message: "Invalid email address",
+                message: t("Invalid email address"),
               },
             })}
           />
@@ -607,19 +609,19 @@ export default function ApplicantInformation({
 
         {/* Gender */}
         <div className="flex flex-col">
-          <label className="text-sm">Gender</label>
+          <label className="text-sm">{t("Gender")}</label>
           <div className="relative">
             <select
               className="input-primary appearance-none cursor-pointer"
               {...register("primaryApplicantGender", {
-                required: "Gender is required",
+                required: t("Gender is required"),
               })}
             >
-              <option value="">Please select</option>
-              <option value="Female">Female</option>
-              <option value="Male">Male</option>
-              <option value="Non-Binary">Non-Binary</option>
-              <option value="Undeclared">Undeclared</option>
+              <option value="">{t("Please select")}</option>
+              <option value="Female">{t("Female")}</option>
+              <option value="Male">{t("Male")}</option>
+              <option value="Non-Binary">{t("Non-Binary")}</option>
+              <option value="Undeclared">{t("Undeclared")}</option>
             </select>
             <div className="pointer-events-none absolute inset-y-0 right-2 flex items-center text-gray-500">
               <ChevronDownIcon className="h-5 w-5" aria-hidden="true" />
@@ -640,18 +642,18 @@ export default function ApplicantInformation({
               className="h-5 w-5 text-[#3a17c5] cursor-pointer mr-1"
               aria-hidden="true"
             />
-            Country of Origin
+            {t("Country of Origin")}
           </label>
           <div className="relative">
             <select
               className="input-primary appearance-none cursor-pointer"
               {...register("countryOfOrigin", {
-                required: "Country of Origin is required",
+                required: t("Country of Origin is required"),
               })}
             >
              {NonMedTravelCountries.map((country) => (
               <option key={country.value} value={country.value}>
-                {country.label}
+                {t(country.label)}
               </option>
             ))}
             </select>
@@ -672,33 +674,29 @@ export default function ApplicantInformation({
               className="text-primary underline absolute top-2 right-2 cursor-pointer underline-offset-2"
               onClick={() => setDisplayInfoCountryOfOrigin(false)}
             >
-              close
+              {t("close")}
             </button>
             <div className="border-b border-inputBorder pb-2 text-lg font-semibold">
-              Country of Origin
+              {t("Country of Origin")}
             </div>
             <div className="pt-2 text-text-secondary">
-              <strong className="font-bold">Country of Origin</strong> means the
-              country for which the insured person holds a passport. Where the
-              insured person holds more than one passport, the country of origin
-              will be taken to mean the country that the insured person has
-              declared on the application.
+              <strong className="font-bold">{t("Country of Origin")}</strong> {t("means the country for which the insured person holds a passport. Where the insured person holds more than one passport, the country of origin will be taken to mean the country that the insured person has declared on the application.")}
             </div>
           </div>
         )}
 
         {/* Province/State of Residence */}
         <div className="flex flex-col">
-          <label className="text-sm">Province/State of Residence</label>
+          <label className="text-sm">{t("Province/State of Residence")}</label>
           <input
             className="input-primary"
             type="text"
-            placeholder="Province/State of Residence"
+            placeholder={t("Province/State of Residence")}
             {...register("provinceStateResidence", {
-              required: "Province/State is required",
+              required: t("Province/State is required"),
               maxLength: {
                 value: 60,
-                message: "Province/State cannot exceed 60 characters",
+                message: t("Province/State cannot exceed 60 characters"),
               },
             })}
           />
@@ -711,7 +709,7 @@ export default function ApplicantInformation({
 
         {/* Number of Additional Applicants */}
         <div className="flex flex-col">
-          <label className="text-sm">Number of Additional Applicants</label>
+          <label className="text-sm">{t("Number of Additional Applicants")}</label>
           <div className="relative">
             <select
               className="input-primary appearance-none cursor-pointer"
@@ -736,47 +734,47 @@ export default function ApplicantInformation({
       {/* Additional Applicants */}
       {Array.from({ length: applicantNumber || 0 }).map((_, idx) => (
         <React.Fragment key={idx}>
-          <h1 className="text-md font-semibold text-left text-[#1B1B1B] mt-5 mb-3">
-            APPLICANT {idx + 1}
+          <h1 className="text-md font-semibold text-left text-[#1B1B1B] mt-5 mb-3 text-nowrap">
+            {t("APPLICANT")} {idx + 1}
           </h1>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 md:gap-x-16 lg:gap-x-24 gap-y-4 text-text-secondary">
             <div className="flex flex-col">
-              <label className="text-sm">First Name</label>
+              <label className="text-sm">{t("First Name")}</label>
               <input
                 className="input-primary"
                 type="text"
-                placeholder="Enter First Name"
+                placeholder={t("Enter First Name")}
                 {...register(`applicants.${idx}.firstName`, {
-                  required: "First Name is required",
+                  required: t("First Name is required"),
                   maxLength: {
                     value: 60,
-                    message: "First Name cannot exceed 60 characters",
+                    message: t("First Name cannot exceed 60 characters"),
                   },
                 })}
               />
               {errors.applicants?.[idx]?.firstName && (
                 <p className="text-red-500 text-sm mt-1">
-                  {errors.applicants[idx].firstName.message}
+                  {errors.applicants[idx].firstName!.message}
                 </p>
               )}
             </div>
             <div className="flex flex-col">
-              <label className="text-sm">Last Name</label>
+              <label className="text-sm">{t("Last Name")}</label>
               <input
                 className="input-primary"
                 type="text"
-                placeholder="Enter Last Name"
+                placeholder={t("Enter Last Name")}
                 {...register(`applicants.${idx}.lastName`, {
-                  required: "Last Name is required",
+                  required: t("Last Name is required"),
                   maxLength: {
                     value: 60,
-                    message: "Last Name cannot exceed 60 characters",
+                    message: t("Last Name cannot exceed 60 characters"),
                   },
                 })}
               />
               {errors.applicants?.[idx]?.lastName && (
                 <p className="text-red-500 text-sm mt-1">
-                  {errors.applicants[idx].lastName.message}
+                  {errors.applicants[idx].lastName!.message}
                 </p>
               )}
             </div>
@@ -784,11 +782,11 @@ export default function ApplicantInformation({
               <Controller
                 name={`applicants.${idx}.dob`}
                 control={control}
-                rules={{ required: "Date of Birth is required" }}
+                rules={{ required: t("Date of Birth is required") }}
                 render={({ field }) => (
                   <div className="flex flex-col">
                     <DatePicker
-                      label="Date of Birth"
+                      label={t("Date of Birth")}
                       value={field.value}
                       onChange={(date: Date) => {
                         field.onChange(date);
@@ -797,7 +795,7 @@ export default function ApplicantInformation({
                     />
                     {errors.applicants?.[idx]?.dob && (
                       <p className="text-red-500 text-sm mt-1">
-                        {errors.applicants[idx].dob.message}
+                        {errors.applicants[idx].dob!.message}
                       </p>
                     )}
                   </div>
@@ -805,19 +803,19 @@ export default function ApplicantInformation({
               />
             </div>
             <div className="flex flex-col">
-              <label className="text-sm">Gender</label>
+              <label className="text-sm">{t("Gender")}</label>
               <div className="relative">
                 <select
                   className="input-primary appearance-none cursor-pointer"
                   {...register(`applicants.${idx}.gender`, {
-                    required: "Gender is required",
+                    required: t("Gender is required"),
                   })}
                 >
-                  <option value="">Please select</option>
-                  <option value="Female">Female</option>
-                  <option value="Male">Male</option>
-                  <option value="Non-Binary">Non-Binary</option>
-                  <option value="Undeclared">Undeclared</option>
+                  <option value="">{t("Please select")}</option>
+                  <option value="Female">{t("Female")}</option>
+                  <option value="Male">{t("Male")}</option>
+                  <option value="Non-Binary">{t("Non-Binary")}</option>
+                  <option value="Undeclared">{t("Undeclared")}</option>
                 </select>
                 <div className="pointer-events-none absolute inset-y-0 right-2 flex items-center text-gray-500">
                   <ChevronDownIcon className="h-5 w-5" aria-hidden="true" />
@@ -825,26 +823,26 @@ export default function ApplicantInformation({
               </div>
               {errors.applicants?.[idx]?.gender && (
                 <p className="text-red-500 text-sm mt-1">
-                  {errors.applicants[idx].gender.message}
+                  {errors.applicants[idx].gender!.message}
                 </p>
               )}
             </div>
             <div className="flex flex-col">
               <label className="text-sm">
-                Relationship to Primary Applicant
+                {t("Relationship to Primary Applicant")}
               </label>
               <div className="relative">
                 <select
                   className="input-primary appearance-none cursor-pointer"
                   {...register(`applicants.${idx}.relationship`, {
-                    required: "Relationship is required",
+                    required: t("Relationship is required"),
                   })}
                 >
-                  <option value="">Please select</option>
-                  <option value="Spouse">Spouse</option>
-                  <option value="Dependent Child">Dependent Child</option>
+                  <option value="">{t("Please select")}</option>
+                  <option value="Spouse">{t("Spouse")}</option>
+                  <option value="Dependent Child">{t("Dependent Child")}</option>
                   <option value="Travelling Companion">
-                    Travelling Companion
+                    {t("Travelling Companion")}
                   </option>
                 </select>
                 <div className="pointer-events-none absolute inset-y-0 right-2 flex items-center text-gray-500">
@@ -853,7 +851,7 @@ export default function ApplicantInformation({
               </div>
               {errors.applicants?.[idx]?.relationship && (
                 <p className="text-red-500 text-sm mt-1">
-                  {errors.applicants[idx].relationship.message}
+                  {errors.applicants[idx].relationship!.message}
                 </p>
               )}
             </div>
@@ -873,18 +871,18 @@ export default function ApplicantInformation({
             type="checkbox"
             className="accent-primary cursor-pointer"
             {...register("isConfirmed", {
-              required: "You must confirm that all applicants are eligible",
+              required: t("You must confirm that all applicants are eligible"),
             })}
             checked={isConfirmed || false}
             onChange={handleCheckboxChange}
           />
           <span className="font-semibold font-[inter] text-[#2B00B7] text-sm">
-            Confirm that all applicants are eligible for this insurance
+            {t("Confirm that all applicants are eligible for this insurance")}
           </span>
         </div>
         {errors.isConfirmed && isSubmitted && (
           <p className="text-red-500 text-sm mt-1 text-center font-[inter]">
-            {errors.isConfirmed.message}
+            {errors.isConfirmed!.message}
           </p>
         )}
 
@@ -894,48 +892,35 @@ export default function ApplicantInformation({
               className="text-primary underline absolute top-2 right-2 cursor-pointer"
               onClick={() => setDisplayInfoApplicantConfirm(false)}
             >
-              close
+              {t("close")}
             </button>
             <div className="border-b border-[#c2c2c2] pb-2 text-lg font-semibold">
-              Eligibility
+              {t("Eligibility")}
             </div>
             <p className="text-[#3a17c5] font-semibold text-center mt-2">
-              To be eligible for coverage, on the effective date, you must:
+              {t("To be eligible for coverage, on the effective date, you must:")}
             </p>
             <ol className="list-decimal pl-5 mt-2 text-gray-700 space-y-2">
               <li>
-                Be at least 15 days of age and less than 86 years of age
-                traveling for no more than 90 days; and
+                {t("Be at least 15 days of age and less than 86 years of age traveling for no more than 90 days; and")}
               </li>
               <li>
-                Be a member in good standing of an association or organization,
-                or a client of a tour operator, that has agreed to participate
-                in this insurance plan, or be the spouse or dependent child of a
-                member insured under the same policy; and
+                {t("Be a member in good standing of an association or organization, or a client of a tour operator, that has agreed to participate in this insurance plan, or be the spouse or dependent child of a member insured under the same policy; and")}
               </li>
               <li>
-                Purchase coverage within 10 days of the initial deposit for your
-                trip or prior to any cancellation penalties being applicable;
-                and
+                {t("Purchase coverage within 10 days of the initial deposit for your trip or prior to any cancellation penalties being applicable; and")}
               </li>
               <li>
-                Purchase coverage for the full value of the non-refundable,
-                pre-paid travel arrangements; and
+                {t("Purchase coverage for the full value of the non-refundable, pre-paid travel arrangements; and")}
               </li>
               <li>
-                Purchase coverage for the entire duration of your trip; and
+                {t("Purchase coverage for the entire duration of your trip; and")}
               </li>
               <li>
-                For traveling Canadians, purchase coverage prior to the date of
-                departure from your province or territory of residence or Canada
-                or; for visitors to Canada, purchase coverage prior to the date
-                of departure from your home country; and
+                {t("For traveling Canadians, purchase coverage prior to the date of departure from your province or territory of residence or Canada or; for visitors to Canada, purchase coverage prior to the date of departure from your home country; and")}
               </li>
               <li>
-                Know of no reason that you, an immediate family member, a travel
-                companion, a travel companion's immediate family member, or
-                business partner would be unable to start or complete the trip
-                as booked.
+                {t("Know of no reason that you, an immediate family member, a travel companion, a travel companion's immediate family member, or business partner would be unable to start or complete the trip as booked.")}
               </li>
             </ol>
           </div>

@@ -9,6 +9,7 @@ import Dropdown from "../../../DropDown";
 import { CanadaStates } from "../../SecureTravelRIMIVisitorstoCanadaTravel/step1/Constants";
 import InfoBox from "../../../InfoBox";
 import DatePicker from "../../../DatePicker";
+import { useLanguage } from "../../../../context/LanguageContext";
 
 
 interface CoverageInformationProps {
@@ -20,6 +21,7 @@ export default function CoverageInformation({
   methods,
   onValidityChange,
 }: CoverageInformationProps) {
+  const { t } = useLanguage();
   const {
     register,
     watch,
@@ -140,7 +142,7 @@ export default function CoverageInformation({
   return (
     <div className="max-w-5xl mx-auto mt-6 p-3 sm:p-6 bg-[#F9F9F9]">
       <h3 className="text-lg font-bold text-left text-[#1B1B1B] mb-5">
-        Policy & Coverage Information
+        {t("Policy & Coverage Information")}
       </h3>
 
       <div className="space-y-6">
@@ -152,19 +154,19 @@ export default function CoverageInformation({
                 className="h-5 w-5 text-[#3a17c5] cursor-pointer"
                 onClick={() => setShowInfoPolicyType((prev) => !prev)}
               />
-              Policy Type
+              {t("Policy Type")}
             </label>
 
             <div className="relative">
               <select
                 {...register("policyType", {
-                  required: "Policy type is required",
+                  required: t("Policy type is required"),
                 })}
                 className="input-primary appearance-none cursor-pointer"
               >
-                <option value="">Select Policy Type</option>
-                <option value="Single">Single</option>
-                <option value="Family">Family</option>
+                <option value="">{t("Select Policy Type")}</option>
+                <option value="Single">{t("Single")}</option>
+                <option value="Family">{t("Family")}</option>
               </select>
               <ChevronDownIcon className="h-5 w-5 text-gray-400 absolute right-3 top-1/2 transform -translate-y-1/2" />
             </div>
@@ -182,15 +184,15 @@ export default function CoverageInformation({
                 className="h-5 w-5 text-[#3a17c5] cursor-pointer"
                 onClick={() => setShowInfoCountryOfOrigin((prev) => !prev)}
               />{" "}
-              Country of Origin
+              {t("Country of Origin")}
             </label>
             <input
               type="text"
               {...register("countryOfOrigin", {
-                required: "Country of origin is required",
+                required: t("Country of origin is required"),
               })}
               className="input-primary"
-              placeholder="Enter country name"
+              placeholder={t("Enter country name")}
             />
             {errors.countryOfOrigin && (
               <p className="text-red-500 text-sm">
@@ -202,15 +204,15 @@ export default function CoverageInformation({
 
         {showInfoPolicyType && (
           <InfoBox
-            title="Policy Type"
-            text="A single policy is for a single person. A family policy is for a family of up to 4 people."
+            title={t("Policy Type")}
+            text={t("A single policy is for a single person. A family policy is for a family of up to 4 people.")}
             onClose={() => setShowInfoPolicyType(false)}
           />
         )}
         {showInfoCountryOfOrigin && (
           <InfoBox
-            title="Country of Origin"
-            text="The applicant’s country of residence before arriving in Canada."
+            title={t("Country of Origin")}
+            text={t("The applicant’s country of residence before arriving in Canada.")}
             onClose={() => setShowInfoCountryOfOrigin(false)}
           />
         )}
@@ -220,10 +222,10 @@ export default function CoverageInformation({
             <Controller
               control={control}
               name="destinationProvince"
-              rules={{ required: "Destination province is required" }}
+              rules={{ required: t("Destination province is required") }}
               render={({ field }) => (
                 <Dropdown
-                  label="Destination Province"
+                  label={t("Destination Province")}
                   info={() => setShowInfoDestinationProvince((prev) => !prev)}
                   options={CanadaStates}
                   value={field.value}
@@ -245,10 +247,10 @@ export default function CoverageInformation({
             <Controller
               control={control}
               name="effectiveDate"
-              rules={{ required: "Effective date is required" }}
+              rules={{ required: t("Effective date is required") }}
               render={({ field }) => (
                 <DatePicker
-                  label="Effective Date"
+                  label={t("Effective Date")}
                   value={field.value}
                   onChange={(date) => {
                     field.onChange(date);
@@ -268,8 +270,8 @@ export default function CoverageInformation({
 
         {showInfoDestinationProvince && (
           <InfoBox
-            title="Destination Province"
-            text="Select the primary destination Province for your trip."
+            title={t("Destination Province")}
+            text={t("Select the primary destination Province for your trip.")}
             onClose={() => setShowInfoDestinationProvince(false)}
           />
         )}
@@ -281,13 +283,13 @@ export default function CoverageInformation({
               control={control}
               name="expiryDate"
               rules={{ 
-                required: "Expiry date is required",
+                required: t("Expiry date is required"),
                 validate: (value) => {
                   if (effectiveDate && value) {
                     const eff = new Date(effectiveDate);
                     const exp = new Date(value);
                     if (exp <= eff) {
-                      return "Expiry date must be after effective date";
+                      return t("Expiry date must be after effective date");
                     }
                   }
                   return true;
@@ -295,7 +297,7 @@ export default function CoverageInformation({
               }}
               render={({ field }) => (
                 <DatePicker
-                  label="Expiry Date"
+                  label={t("Expiry Date")}
                   value={field.value}
                   onChange={(date) => {
                     field.onChange(date);
@@ -314,17 +316,17 @@ export default function CoverageInformation({
           {/* Coverage Length */}
           <div className="flex flex-col">
             <label className="text-sm font-medium text-gray-700">
-              Coverage Length (Days)
+              {t("Coverage Length (Days)")}
             </label>
             <input
               type="number"
               {...register("coverageLength", {
-                required: "Coverage length is required",
-                min: { value: 1, message: "Must be at least 1 day" },
+                required: t("Coverage length is required"),
+                min: { value: 1, message: t("Must be at least 1 day") },
                 onChange: () => setLastModified("coverageLength"),
               })}
               className="input-primary"
-              placeholder="Enter number of days"
+              placeholder={t("Enter number of days")}
             />
             {errors.coverageLength && (
               <p className="text-red-500 text-sm">

@@ -1,5 +1,6 @@
 import React from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { useLanguage } from "../../context/LanguageContext";
 import RIMICanuckVoyageTravelMedical from "./CanuckVoyageComponenets/RIMICanuckVoyageTravelMedical";
 import RIMICanuckVoyageNonMedicalTravel from "./CanuckVoyageNon-MedicalTravel/RIMICanuckVoyageNon-MedicalTravel";
 import SecureStudyRIMIInternationalStudentstoCanada from "./SecureStudyRIMIInternationalStudentstoCanada/SecureStudyRIMIInternationalStudentstoCanada";
@@ -8,6 +9,7 @@ import BulkUpload from "./SecureStudyRIMIInternationalStudentstoCanada/BulkUploa
 import { MdChevronRight } from "react-icons/md";
 
 const ProductWrapper: React.FC = () => {
+  const { t } = useLanguage();
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
   const renderProductComponent = () => {
@@ -26,9 +28,9 @@ const ProductWrapper: React.FC = () => {
         return (
           <div className="p-8">
             <h2 className="text-2xl font-bold text-red-600">
-              Product Not Found
+              {t("Product Not Found")}
             </h2>
-            <p>The requested product "{slug}" could not be found.</p>
+            <p>{t("The requested product")} "{slug}" {t("could not be found.")}</p>
           </div>
         );
     }
@@ -41,7 +43,7 @@ const ProductWrapper: React.FC = () => {
           className="underline underline-offset-2 cursor-pointer text-sm text-primary font-medium"
           onClick={() => navigate("/products")}
         >
-          Products
+          {t("Products")}
         </span>
         <MdChevronRight className="text-primary"/>
         <span className="text-sm text-primary font-medium capitalize">

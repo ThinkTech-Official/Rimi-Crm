@@ -1,6 +1,7 @@
 import { InformationCircleIcon } from "@heroicons/react/24/outline";
 import { FC, useState } from "react";
 import { UseFormReturn } from "react-hook-form";
+import { useLanguage } from "../../../../context/LanguageContext";
 
 // Define the shape of the form data for this section
 
@@ -14,17 +15,18 @@ const ContactInformation: FC<ContactInfoProps> = ({ methods, email }) => {
     register,
     formState: { errors },
   } = methods;
+  const { t } = useLanguage();
   const [displayInfoAddEmail, setDisplayInfoAddEmail] = useState(false);
 
   return (
     <div className="max-w-5xl mx-auto mt-4 p-6 bg-[#F9F9F9]">
       <h3 className="text-lg font-bold text-left text-[#1B1B1B] mb-5">
-        Contact Information
+        {t("Contact Information")}
       </h3>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 md:gap-x-16 lg:gap-x-24 gap-y-4 text-text-secondary">
         <div className="flex flex-col">
-          <label className="text-sm">Email Address</label>
+          <label className="text-sm">{t("Email Address")}</label>
           <p className="input-primary break-words h-auto">{email}</p>
           {/* Hidden field to register email with form */}
           <input type="hidden" {...register("contactInfo.email")} value={email || ""} />
@@ -37,12 +39,12 @@ const ContactInformation: FC<ContactInfoProps> = ({ methods, email }) => {
               className="h-5 w-5 text-[#3a17c5] cursor-pointer"
               aria-hidden="true"
             />
-            Additional Email Address (Optional)
+            {t("Additional Email Address (Optional)")}
           </label>
           <input
             className="input-primary break-words h-auto"
             type="text"
-            placeholder="Additional Email Address"
+            placeholder={t("Additional Email Address")}
             {...register("contactInfo.additionalEmail")}
           />
           {(errors.contactInfo as any)?.additionalEmail && (
@@ -58,24 +60,24 @@ const ContactInformation: FC<ContactInfoProps> = ({ methods, email }) => {
               className="text-primary underline absolute top-2 right-2 cursor-pointer underline-offset-2"
               onClick={() => setDisplayInfoAddEmail(false)}
             >
-              Close
+              {t("Close")}
             </button>
-            <p>Enter up to 5 email addresses, separated with a semicolon “;”</p>
-            <p>Example: School Administrator, Parent/Guardian, Agent</p>
+            <p>{t("Enter up to 5 email addresses, separated with a semicolon “;”")}</p>
+            <p>{t("Example: School Administrator, Parent/Guardian, Agent")}</p>
           </div>
         )}
 
         <div className="flex flex-col">
-          <label className="text-sm">Phone Number</label>
+          <label className="text-sm">{t("Phone Number")}</label>
           <input
             className="input-primary break-words h-auto"
             type="text"
-            placeholder="Phone Number"
+            placeholder={t("Phone Number")}
             {...register("contactInfo.phoneNumber", {
-              required: "Phone Number is required",
-              minLength: { value: 10, message: "Min 10 digits" },
-              maxLength: { value: 15, message: "Max 15 digits" },
-              pattern: { value: /^[0-9]+$/, message: "Numbers only" },
+              required: t("Phone Number is required"),
+              minLength: { value: 10, message: t("Min 10 digits") },
+              maxLength: { value: 15, message: t("Max 15 digits") },
+              pattern: { value: /^[0-9]+$/, message: t("Numbers only") },
             })}
           />
           {(errors.contactInfo as any)?.phoneNumber && (

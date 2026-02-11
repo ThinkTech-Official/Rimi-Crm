@@ -730,6 +730,7 @@ import {
 } from "../../../hooks/student-international/useQuoteUpdateProduct2";
 import { FormProvider, useForm } from "react-hook-form";
 import useNotification from "../../../hooks/useNotification";
+import { useLanguage } from "../../../context/LanguageContext";
 
 export interface Applicant {
   index: string;
@@ -802,6 +803,7 @@ interface AddressInfo {
 const productName = "SECURE_STUDY_RIMI_INTERNATIONAL_STUDENTS_TO_CANADA";
 
 export default function SecureStudyRIMIInternationalStudentstoCanada() {
+  const { t } = useLanguage();
   const agentCode = useSelector((state: RootState) => state.auth.agentCode);
 
   // ==================== PREMIUM STATE ====================
@@ -816,9 +818,9 @@ export default function SecureStudyRIMIInternationalStudentstoCanada() {
 
   // ==================== WIZARD STATE ====================
   const [steps, setSteps] = useState([
-    { id: "01", name: "Get Quote", href: "#", status: "current" },
-    { id: "02", name: "Complete Application", href: "#", status: "upcoming" },
-    { id: "03", name: "Summary", href: "#", status: "upcoming" },
+    { id: "01", name: t("Get Quote"), href: "#", status: "current" },
+    { id: "02", name: t("Complete Application"), href: "#", status: "upcoming" },
+    { id: "03", name: t("Summary"), href: "#", status: "upcoming" },
   ]);
 
   const [formStep, setFormStep] = useState(1);
@@ -930,7 +932,7 @@ export default function SecureStudyRIMIInternationalStudentstoCanada() {
     if (!isValid) {
       console.log("Validation failed", step1Methods.formState.errors);
       triggerNotification({
-        message: "Please fill all required fields correctly.",
+        message: t("Please fill all required fields correctly."),
         type: "error",
       });
       return false;
@@ -952,7 +954,7 @@ export default function SecureStudyRIMIInternationalStudentstoCanada() {
       setQuoteNumber(response.quoteNumber);
 
       triggerNotification({
-        message: "Quote saved successfully!",
+        message: t("Quote saved successfully!"),
         type: "success",
       });
 
@@ -961,7 +963,7 @@ export default function SecureStudyRIMIInternationalStudentstoCanada() {
     } catch (err: any) {
       console.error("Failed to save quote:", err);
       triggerNotification({
-        message: err.message || "Failed to save quote.",
+        message: err.message || t("Failed to save quote."),
         type: "error",
       });
       return false;
@@ -1011,7 +1013,7 @@ export default function SecureStudyRIMIInternationalStudentstoCanada() {
     } catch (err: any) {
       console.error("saveQuoteNext failed", err);
       triggerNotification({
-        message: err.message || "Failed to save quote.",
+        message: err.message || t("Failed to save quote."),
         type: "error",
       });
     }
@@ -1066,7 +1068,7 @@ export default function SecureStudyRIMIInternationalStudentstoCanada() {
       console.error("completeApplication failed", err);
       triggerNotification({
         message:
-          err.message || "Failed to complete application. Please try again.",
+          err.message || t("Failed to complete application. Please try again."),
         type: "error",
       });
       return false;
@@ -1180,7 +1182,7 @@ export default function SecureStudyRIMIInternationalStudentstoCanada() {
                   savingStage1 ? "opacity-50 cursor-wait" : ""
                 }`}
               >
-                {savingStage1 ? "Saving…" : "Next"}
+                {savingStage1 ? t("Saving…") : t("Next")}
               </button>
             )}
           </form>
@@ -1192,7 +1194,7 @@ export default function SecureStudyRIMIInternationalStudentstoCanada() {
         <div>
           <div className="w-full h-2 mt-8 flex items-center justify-center font-[inter]">
             <h3 className="text-base sm:text-lg">
-              Your Quote: ${step1ResponseData?.quoteAmount.toFixed(2)} CAD
+              {t("Your Quote")}: ${step1ResponseData?.quoteAmount.toFixed(2)} {t("CAD")}
             </h3>
           </div>
 
@@ -1214,16 +1216,16 @@ export default function SecureStudyRIMIInternationalStudentstoCanada() {
           {/* Payment Summary */}
           <div className="max-w-5xl mx-auto mt-6 p-3 sm:p-6 bg-[#F9F9F9]">
             <h3 className="text-lg font-bold text-left text-[#1B1B1B] mb-5">
-              Payment Summary
+              {t("Payment Summary")}
             </h3>
             <div className="flex justify-between items-center">
-              <span>Total Premium:</span>
+              <span>{t("Total Premium")}:</span>
               <span className="text-xl font-bold text-primary">
-                ${totalPremium.toFixed(2)} CAD
+                ${totalPremium.toFixed(2)} {t("CAD")}
               </span>
             </div>
             <div className="text-sm text-gray-600 mt-1">
-              One-time payment • No additional fees
+              {t("One-time payment • No additional fees")}
             </div>
           </div>
 
@@ -1254,7 +1256,7 @@ export default function SecureStudyRIMIInternationalStudentstoCanada() {
             onClick={() => handleFormStepChange("back")}
             className="w-[200px] mt-6 bg-[#2B00B7] text-white p-3 hover:bg-[#2309A1] transition flex justify-center items-center cursor-pointer duration-200"
           >
-            Previous
+            {t("Previous")}
           </button>
         )}
       </div>

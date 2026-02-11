@@ -281,6 +281,7 @@ import { UseFormReturn } from "react-hook-form";
 import { Applicant } from "../SecureStudyRIMIInternationalStudentstoCanada";
 import Spinner from "../../../Spinner";
 import EmailQuoteStudent from "./EmailQuoteStudent";
+import { useLanguage } from "../../../../context/LanguageContext";
 
 export interface Step1FormData {
   primaryFirstName: string;
@@ -322,6 +323,7 @@ export default function Step1Container({
   onLoadingChange,
   onErrorChange,
 }: Step1ContainerProps) {
+  const { t } = useLanguage();
   // Track form changes for re-saving quotes
   const [savedFormSnapshot, setSavedFormSnapshot] = useState<any>(null);
   const [hasFormChanged, setHasFormChanged] = useState(false);
@@ -407,19 +409,19 @@ export default function Step1Container({
               <div className="flex flex-col gap-2 items-center">
                 <Spinner className="h-6 w-6" />
                 <p className="text-center text-text-primary">
-                  Calculating Premium…
+                  {t("Calculating Premium…")}
                 </p>
               </div>
             ) : premiumError ? (
               <div className="text-red-600">
-                <p className="font-semibold">Error calculating premium</p>
+                <p className="font-semibold">{t("Error calculating premium")}</p>
                 <p className="text-sm">{premiumError}</p>
               </div>
             ) : calculatedPremium > 0 ? (
               <>
                 <h3 className="text-xl text-center mt-2 text-text-secondary">
                   <span className="font-bold text-text-primary">
-                    Your Quote:
+                    {t("Your Quote")}:
                   </span>{" "}
                   ${calculatedPremium.toFixed(2)} CAD
                 </h3>
@@ -427,15 +429,15 @@ export default function Step1Container({
                     Your Quote: ${calculatedPremium.toFixed(2)}
                   </h3> */}
                 <p className="text-base text-text-secondary">
-                  Coverage for {Number(coverageLength)} days
+                  {t("Coverage for")} {Number(coverageLength)} {t("days")}
                 </p>
                 <p className="text-sm text-text-secondary mt-1 first-letter:capitalize">
-                  {policyType} Plan • {applicantNumber + 1} traveller(s)
+                  {t(policyType)} {t("Plan")} • {applicantNumber + 1} {t("traveller(s)")}
                 </p>
               </>
             ) : (
               <p className="text-text-secondary">
-                Fill out all fields to see your quote
+                {t("Fill out all fields to see your quote")}
               </p>
             )}
 
@@ -464,7 +466,7 @@ export default function Step1Container({
           <div className="flex flex-col justify-center items-center mb-2 gap-2">
             <p className="mt-2 text-xl font-bold text-red-600">
               <span>
-                Quote Saved:{" "}
+                {t("Quote Saved")}:{" "}
               </span>
               <span>{quoteNumber}</span>
             </p>
@@ -473,7 +475,7 @@ export default function Step1Container({
               className="text-[#2b00b7] cursor-pointer text-base hover:underline underline-offset-2 mt-2"
               onClick={() => setIsEmailModalOpen(true)}
             >
-              Email Quote
+              {t("Email Quote")}
             </button>
           </div>
         ) : (
@@ -491,7 +493,7 @@ export default function Step1Container({
                 }}
                 className="text-base hover:underline underline-offset-2 cursor-pointer text-[#2b00b7]"
               >
-                Save Quote
+                {t("Save Quote")}
               </p>
             ) : (
               ""

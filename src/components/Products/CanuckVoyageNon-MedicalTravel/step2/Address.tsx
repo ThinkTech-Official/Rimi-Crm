@@ -291,7 +291,7 @@
 //                 <option value="EH">Western Sahara</option>
 //                 <option value="YE">Yemen</option>
 //                 <option value="ZM">Zambia</option>
-            
+
 //             <option value="ZW">Zimbabwe</option>
 //           </select>
 //            <div className="pointer-events-none absolute inset-y-0 right-2 flex items-center text-gray-500">
@@ -313,18 +313,10 @@
 //   );
 // }
 
-
-
-
-
-
-
-
 // ===================================================
 
-
-
 import { ChevronDownIcon } from "@heroicons/react/24/outline";
+import { useLanguage } from "../../../../context/LanguageContext";
 import { UseFormReturn } from "react-hook-form";
 
 interface AddressInfo {
@@ -343,28 +335,31 @@ interface AddressProps {
 }
 
 export default function Address({ methods }: AddressProps) {
-  const { register, formState: { errors } } = methods;
+  const { t } = useLanguage();
+  const {
+    register,
+    formState: { errors },
+  } = methods;
 
   return (
     <div className="max-w-5xl mx-auto mt-4 p-3 sm:p-6 bg-[#F9F9F9]">
       <h3 className="text-lg font-bold text-left text-[#1B1B1B] mb-5">
-        Residence Information
+        {t("Residence Information")}
       </h3>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 md:gap-x-16 lg:gap-x-24 gap-y-4 text-text-secondary">
-
         {/* Address Line 1 */}
         <div className="flex flex-col">
-          <label className="text-sm">Address Line 1</label>
+          <label className="text-sm">{t("Address Line 1")}</label>
           <input
             type="text"
             className="input-primary"
-            placeholder="Address Line 1"
+            placeholder={t("Address Line 1")}
             {...register("address.addressLine1", {
-              required: "Address Line 1 is required",
+              required: t("Address Line 1 is required"),
               maxLength: {
                 value: 100,
-                message: "Address Line 1 cannot exceed 100 characters",
+                message: t("Address Line 1 cannot exceed 100 characters"),
               },
             })}
           />
@@ -377,15 +372,15 @@ export default function Address({ methods }: AddressProps) {
 
         {/* Address Line 2 */}
         <div className="flex flex-col">
-          <label className="text-sm">Address Line 2 (Optional)</label>
+          <label className="text-sm">{t("Address Line 2 (Optional)")}</label>
           <input
             type="text"
             className="input-primary"
-            placeholder="Address Line 2"
+            placeholder={t("Address Line 2")}
             {...register("address.addressLine2", {
               maxLength: {
                 value: 100,
-                message: "Address Line 2 cannot exceed 100 characters",
+                message: t("Address Line 2 cannot exceed 100 characters"),
               },
             })}
           />
@@ -393,13 +388,13 @@ export default function Address({ methods }: AddressProps) {
 
         {/* City */}
         <div className="flex flex-col">
-          <label className="text-sm">City</label>
+          <label className="text-sm">{t("City")}</label>
           <input
             type="text"
             className="input-primary"
-            placeholder="City"
+            placeholder={t("City")}
             {...register("address.city", {
-              required: "City is required",
+              required: t("City is required"),
             })}
           />
           {errors.address?.city && (
@@ -411,20 +406,20 @@ export default function Address({ methods }: AddressProps) {
 
         {/* Postal Code */}
         <div className="flex flex-col">
-          <label className="text-sm">Postal Code</label>
+          <label className="text-sm">{t("Postal Code")}</label>
           <input
             type="text"
             className="input-primary"
-            placeholder="Postal Code"
+            placeholder={t("Postal Code")}
             {...register("address.postalCode", {
-              required: "Postal Code is required",
+              required: t("Postal Code is required"),
               maxLength: {
                 value: 20,
-                message: "Postal Code cannot exceed 20 characters",
+                message: t("Postal Code cannot exceed 20 characters"),
               },
               pattern: {
                 value: /^[A-Za-z0-9\s-]+$/,
-                message: "Invalid postal code format",
+                message: t("Invalid postal code format"),
               },
             })}
           />
@@ -437,17 +432,17 @@ export default function Address({ methods }: AddressProps) {
 
         {/* Country */}
         <div className="flex flex-col">
-          <label className="text-sm">Country</label>
+          <label className="text-sm">{t("Country")}</label>
           <div className="relative">
             <select
               className="input-primary appearance-none cursor-pointer"
               {...register("address.country", {
-                required: "Country is required",
+                required: t("Country is required"),
               })}
             >
-              <option value="">Please select...</option>
-              <option value="CA">Canada</option>
-              <option value="US">United States</option>
+              <option value="">{t("Please select...")}</option>
+              <option value="CA">{t("Canada")}</option>
+              <option value="US">{t("United States")}</option>
             </select>
 
             <div className="pointer-events-none absolute inset-y-0 right-2 flex items-center text-gray-500">
@@ -464,16 +459,16 @@ export default function Address({ methods }: AddressProps) {
 
         {/* Province */}
         <div className="flex flex-col">
-          <label className="text-sm">Province/State</label>
+          <label className="text-sm">{t("Province/State")}</label>
           <input
             type="text"
             className="input-primary"
-            placeholder="Province/State"
+            placeholder={t("Province/State")}
             {...register("address.province", {
-              required: "Province/State is required",
+              required: t("Province/State is required"),
               maxLength: {
                 value: 60,
-                message: "Province/State cannot exceed 60 characters",
+                message: t("Province/State cannot exceed 60 characters"),
               },
             })}
           />
@@ -483,7 +478,6 @@ export default function Address({ methods }: AddressProps) {
             </p>
           )}
         </div>
-
       </div>
     </div>
   );

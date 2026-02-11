@@ -87,7 +87,7 @@ const Login = () => {
           </button>
           <button 
             onClick={() => navigate("/apply")}
-            className="btn-primary w-[150px] py-2 font-medium text-sm cursor-pointer"
+            className="btn-primary py-2 font-medium text-sm cursor-pointer"
           >
             {t("Apply as agent")}
           </button>

@@ -405,10 +405,10 @@
 //             className="text-primary underline absolute top-2 right-2 cursor-pointer underline-offset-2"
 //             onClick={() => setShowInfo(false)}
 //           >
-//             close
+//             {t("Close")}
 //           </button>
 //           <div className="border-b border-[#c2c2c2] pb-2 text-lg font-semibold">
-//             Eligibility
+//             {t("Eligibility")}
 //           </div>
 //           <p className="text-[#3a17c5] font-semibold text-center mt-2">
 //             To be eligible for coverage, on the effective date, you must be:
@@ -462,6 +462,7 @@ import {
 } from "../SecureStudyRIMIInternationalStudentstoCanada";
 import ConfirmEligibilityModal from "../../SecureTravelRIMIVisitorstoCanadaTravel/step1/ConfirmEligibility";
 import DatePicker from "../../../DatePicker";
+import { useLanguage } from "../../../../context/LanguageContext";
 
 interface ApplicantInformationProps {
   methods: UseFormReturn<Step1FormData>;
@@ -470,6 +471,7 @@ interface ApplicantInformationProps {
 export default function ApplicantInformation({
   methods,
 }: ApplicantInformationProps) {
+  const { t } = useLanguage();
   const {
     register,
     watch,
@@ -497,7 +499,7 @@ export default function ApplicantInformation({
           dob: "",
           relationship: "",
           gender: "",
-        }
+        },
     );
     setValue("applicants", newApplicants);
   }, [applicantNumber, setValue, applicants, watch]);
@@ -519,7 +521,6 @@ export default function ApplicantInformation({
       setShowInfo(true);
     }
   };
-
   const handleApplicantNumberChange = (num: number) => {
     setValue("applicantNumber", num);
 
@@ -548,7 +549,6 @@ export default function ApplicantInformation({
   const setIsConfirmed = (value: boolean) => {
     setValue("isConfirmed", value, { shouldValidate: true, shouldDirty: true });
   };
-
   const setPrimaryDateOfBirth = (value: Date) => {
     setValue("primaryDateOfBirth", value.toDateString());
   };
@@ -568,23 +568,23 @@ export default function ApplicantInformation({
   return (
     <div className="max-w-5xl mx-auto mt-6 p-3 sm:p-6 bg-[#F9F9F9]">
       <h3 className="text-lg font-bold text-left text-[#1B1B1B] mb-5">
-        Applicant Information
+        {t("Applicant Information")}
       </h3>
 
       {/* PRIMARY APPLICANT */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 md:gap-x-16 lg:gap-x-24 gap-y-4 text-text-secondary">
         {/* FIRST NAME */}
         <div className="flex flex-col">
-          <label className="text-sm">First Name</label>
+          <label className="text-sm">{t("First Name")}</label>
           <input
             className="input-primary"
             type="text"
-            placeholder="Enter First Name"
+            placeholder={t("Enter First Name")}
             {...register("primaryFirstName", {
-              required: "First Name is required",
+              required: t("First Name is required"),
               maxLength: {
                 value: 60,
-                message: "First Name cannot exceed 60 characters",
+                message: t("First Name cannot exceed 60 characters"),
               },
             })}
           />
@@ -597,16 +597,16 @@ export default function ApplicantInformation({
 
         {/* LAST NAME */}
         <div className="flex flex-col">
-          <label className="text-sm">Last Name</label>
+          <label className="text-sm">{t("Last Name")}</label>
           <input
             className="input-primary"
             type="text"
-            placeholder="Enter Last Name"
+            placeholder={t("Enter Last Name")}
             {...register("primaryLastName", {
-              required: "Last Name is required",
+              required: t("Last Name is required"),
               maxLength: {
                 value: 60,
-                message: "Last Name cannot exceed 60 characters",
+                message: t("Last Name cannot exceed 60 characters"),
               },
             })}
           />
@@ -622,11 +622,11 @@ export default function ApplicantInformation({
           <Controller
             name="primaryDateOfBirth"
             control={control}
-            rules={{ required: "Date of Birth is required" }}
+            rules={{ required: t("Date of Birth is required") }}
             render={({ field }) => (
               <div className="flex flex-col">
                 <DatePicker
-                  label="Date of Birth"
+                  label={t("Date of Birth")}
                   value={field.value}
                   onChange={(date) => {
                     field.onChange(date);
@@ -645,16 +645,16 @@ export default function ApplicantInformation({
 
         {/* EMAIL */}
         <div className="flex flex-col">
-          <label className="text-sm">Email</label>
+          <label className="text-sm">{t("Email")}</label>
           <input
             className="input-primary"
             type="email"
-            placeholder="Enter Email"
+            placeholder={t("Enter Email")}
             {...register("primaryEmail", {
-              required: "Email is required",
+              required: t("Email is required"),
               pattern: {
                 value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                message: "Invalid email address",
+                message: t("Invalid email address"),
               },
               setValueAs: (v) => v.trim().toLowerCase(),
             })}
@@ -668,19 +668,19 @@ export default function ApplicantInformation({
 
         {/* GENDER */}
         <div className="flex flex-col">
-          <label className="text-sm">Gender</label>
+          <label className="text-sm">{t("Gender")}</label>
           <div className="relative">
             <select
               className="input-primary appearance-none cursor-pointer"
               {...register("primaryApplicantGender", {
-                required: "Gender is required",
+                required: t("Gender is required"),
               })}
             >
-              <option value="">Please select</option>
-              <option value="Female">Female</option>
-              <option value="Male">Male</option>
-              <option value="Non-Binary">Non-Binary</option>
-              <option value="Undeclared">Undeclared</option>
+              <option value="">{t("Please select")}</option>
+              <option value="Female">{t("Female")}</option>
+              <option value="Male">{t("Male")}</option>
+              <option value="Non-Binary">{t("Non-Binary")}</option>
+              <option value="Undeclared">{t("Undeclared")}</option>
             </select>
             <div className="pointer-events-none absolute inset-y-0 right-2 flex items-center text-gray-500">
               <ChevronDownIcon className="h-5 w-5" />
@@ -695,12 +695,14 @@ export default function ApplicantInformation({
 
         {/* NUMBER OF ADDITIONAL APPLICANTS */}
         <div className="flex flex-col">
-          <label className="text-sm">Number of Additional Applicants</label>
+          <label className="text-sm">
+            {t("Number of Additional Applicants")}
+          </label>
           <div className="relative">
             <select
               className="input-primary appearance-none cursor-pointer"
               {...register("applicantNumber", {
-                required: "Please select number of applicants",
+                required: t("Please select number of applicants"),
                 valueAsNumber: true,
               })}
               onChange={(e) =>
@@ -731,20 +733,20 @@ export default function ApplicantInformation({
       {Array.from({ length: applicantNumber || 0 }).map((_, idx) => (
         <div key={idx}>
           <h1 className="text-md font-semibold text-left text-[#1B1B1B] mt-6 font-[inter]">
-            APPLICANT {idx + 1}
+            {t("APPLICANT")} {idx + 1}
           </h1>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 md:gap-x-16 lg:gap-x-24 gap-y-4 text-text-secondary mt-4">
             <div className="flex flex-col">
-              <label className="text-sm">First Name</label>
+              <label className="text-sm">{t("First Name")}</label>
               <input
                 className="input-primary"
                 type="text"
-                placeholder="Enter First Name"
+                placeholder={t("Enter First Name")}
                 {...register(`applicants.${idx}.firstName`, {
-                  required: "First Name is required",
+                  required: t("First Name is required"),
                   maxLength: {
                     value: 60,
-                    message: "First Name cannot exceed 60 characters",
+                    message: t("First Name cannot exceed 60 characters"),
                   },
                 })}
               />
@@ -755,16 +757,16 @@ export default function ApplicantInformation({
               )}
             </div>
             <div className="flex flex-col">
-              <label className="text-sm">Last Name</label>
+              <label className="text-sm">{t("Last Name")}</label>
               <input
                 className="input-primary"
                 type="text"
-                placeholder="Enter Last Name"
+                placeholder={t("Enter Last Name")}
                 {...register(`applicants.${idx}.lastName`, {
-                  required: "Last Name is required",
+                  required: t("Last Name is required"),
                   maxLength: {
                     value: 60,
-                    message: "Last Name cannot exceed 60 characters",
+                    message: t("Last Name cannot exceed 60 characters"),
                   },
                 })}
               />
@@ -778,10 +780,10 @@ export default function ApplicantInformation({
               <Controller
                 name={`applicants.${idx}.dob`}
                 control={control}
-                rules={{ required: "Date of Birth is required" }}
+                rules={{ required: t("Date of Birth is required") }}
                 render={({ field }) => (
                   <DatePicker
-                    label="Date of Birth"
+                    label={t("Date of Birth")}
                     value={field.value}
                     onChange={(date: Date) => {
                       field.onChange(date);
@@ -801,20 +803,22 @@ export default function ApplicantInformation({
 
             <div className="flex flex-col">
               <label className="text-sm">
-                Relationship to Primary Applicant
+                {t("Relationship to Primary Applicant")}
               </label>
               <div className="relative">
                 <select
                   className="input-primary appearance-none cursor-pointer"
                   {...register(`applicants.${idx}.relationship`, {
-                    required: "Relationship is required",
+                    required: t("Relationship is required"),
                   })}
                 >
-                  <option value="">Please select</option>
-                  <option value="Spouse">Spouse</option>
-                  <option value="Dependent Child">Dependent Child</option>
+                  <option value="">{t("Please select")}</option>
+                  <option value="Spouse">{t("Spouse")}</option>
+                  <option value="Dependent Child">
+                    {t("Dependent Child")}
+                  </option>
                   <option value="Travelling Companion">
-                    Travelling Companion
+                    {t("Travelling Companion")}
                   </option>
                 </select>
                 <div className="pointer-events-none absolute inset-y-0 right-2 flex items-center text-gray-500">
@@ -828,19 +832,19 @@ export default function ApplicantInformation({
               )}
             </div>
             <div className="flex flex-col">
-              <label className="text-sm">Gender</label>
+              <label className="text-sm">{t("Gender")}</label>
               <div className="relative">
                 <select
                   className="input-primary appearance-none cursor-pointer"
                   {...register(`applicants.${idx}.gender`, {
-                    required: "Gender is required",
+                    required: t("Gender is required"),
                   })}
                 >
-                  <option value="">Please select</option>
-                  <option value="Female">Female</option>
-                  <option value="Male">Male</option>
-                  <option value="Non-Binary">Non-Binary</option>
-                  <option value="Undeclared">Undeclared</option>
+                  <option value="">{t("Please select")}</option>
+                  <option value="Female">{t("Female")}</option>
+                  <option value="Male">{t("Male")}</option>
+                  <option value="Non-Binary">{t("Non-Binary")}</option>
+                  <option value="Undeclared">{t("Undeclared")}</option>
                 </select>
                 <div className="pointer-events-none absolute inset-y-0 right-2 flex items-center text-gray-500">
                   <ChevronDownIcon className="h-5 w-5" aria-hidden="true" />
@@ -868,14 +872,13 @@ export default function ApplicantInformation({
             type="checkbox"
             className="accent-primary cursor-pointer"
             {...register("isConfirmed", {
-              required:
-                "You must confirm that all applicants are eligible for this insurance",
+              required: t("You must confirm eligibility to proceed"),
             })}
             checked={isConfirmed || false}
             onChange={handleCheckboxChange}
           />
-          <span className="font-semibold text-[#2B00B7] text-sm">
-            Confirm that all applicants are eligible for this insurance
+          <span className="font-semibold text-primary text-sm">
+            {t("Confirm that all applicants are eligible for this insurance")}
           </span>
         </div>
         {errors.isConfirmed && (
@@ -887,48 +890,59 @@ export default function ApplicantInformation({
 
       {showInfo && (
         <div className="border border-inputBorder shadow-sm p-4 mt-4 bg-white relative">
-          <div className="border-b pb-2 text-lg font-semibold">Eligibility</div>
+          <div className="border-b pb-2 text-lg font-semibold">
+            {t("Eligibility")}
+          </div>
           <ul className="list-decimal pl-5 mt-2 text-text-secondary space-y-2 text-sm sm:text-base">
             <li>
-              Be a visitor to Canada or a person in Canada under a valid work or
-              student visa, a Canadian or an immigrant not eligible for benefits
-              under a government health insurance plan; and
+              {t(
+                "Be a visitor to Canada or a person in Canada under a valid work or student visa, a Canadian or an immigrant not eligible for benefits under a government health insurance plan; and",
+              )}
             </li>
             <li>
-              Be at least 15 days of age and less than 90 years of age; and
+              {t(
+                "Be at least 15 days of age and less than 90 years of age; and",
+              )}
             </li>
             <li>
-              Not be travelling against the advice of a physician and/or have
-              not been diagnosed with a terminal illness; and
+              {t(
+                "Not be travelling against the advice of a physician and/or have not been diagnosed with a terminal illness; and",
+              )}
             </li>
             <li>
-              Not be experiencing new or undiagnosed signs or symptoms and/or
-              know of any reason to seek medical attention; and
+              {t(
+                "Not be experiencing new or undiagnosed signs or symptoms and/or know of any reason to seek medical attention; and",
+              )}
             </li>
             <li>
-              Not require assistance with the activities of daily living
-              (eating, bathing, dressing, functional mobility, using the
-              toilet).
+              {t(
+                "Not require assistance with the activities of daily living (eating, bathing, dressing, functional mobility, using the toilet).",
+              )}
             </li>
             <li>
-              Have not been diagnosed or treated for pancreatic, liver, lung,
-              brain or any kind of metastasized cancer.
+              {t(
+                "Have not been diagnosed or treated for pancreatic, liver, lung, brain or any kind of metastasized cancer.",
+              )}
             </li>
             <li>
-              Have not been diagnosed or treated for kidney condition requiring
-              dialysis within the last 24 months.
+              {t(
+                "Have not been diagnosed or treated for kidney condition requiring dialysis within the last 24 months.",
+              )}
             </li>
             <li>
-              Have not been diagnosed or treated for bone marrow or organ
-              transplant within the last 24 months.
+              {t(
+                "Have not been diagnosed or treated for bone marrow or organ transplant within the last 24 months.",
+              )}
             </li>
             <li>
-              Have not been diagnosed for terminal sickness with less than 2
-              years to live.
+              {t(
+                "Have not been diagnosed for terminal sickness with less than 2 years to live.",
+              )}
             </li>
             <li>
-              Have not taken home oxygen in the past 12 months prior to the
-              effective date.
+              {t(
+                "Have not taken home oxygen in the past 12 months prior to the effective date.",
+              )}
             </li>
           </ul>
         </div>

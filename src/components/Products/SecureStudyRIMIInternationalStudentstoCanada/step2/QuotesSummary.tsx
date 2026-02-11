@@ -1,3 +1,5 @@
+import { useLanguage } from "../../../../context/LanguageContext";
+
 // export default function QuoteSummary() {
 //   return (
 //     <div className="max-w-5xl mx-auto mt-6 p-6 bg-[#F9F9F9]">
@@ -72,10 +74,12 @@ interface QuoteSummaryProps {
 }
 
 export default function QuoteSummary({ step1ResponseData }: QuoteSummaryProps) {
+  const { t } = useLanguage();
+
   if (!step1ResponseData) {
     return (
       <div className="max-w-5xl mx-auto mt-6 p-6 bg-[#F9F9F9]">
-        <p className="text-center text-gray-500">Loading quote summary...</p>
+        <p className="text-center text-gray-500">{t("Loading quote summary...")}</p>
       </div>
     );
   }
@@ -91,25 +95,25 @@ export default function QuoteSummary({ step1ResponseData }: QuoteSummaryProps) {
   };
 
   const summaryData = [
-    ["Effective Date", formatDate(step1ResponseData.effectiveDate)],
-    ["Expiry Date", formatDate(step1ResponseData.expiryDate)],
-    ["Coverage Length", `${step1ResponseData.coverageLength} Days`],
-    ["Number of Travellers", String(step1ResponseData.numberOfTravellers)],
+    [t("Effective Date"), formatDate(step1ResponseData.effectiveDate)],
+    [t("Expiry Date"), formatDate(step1ResponseData.expiryDate)],
+    [t("Coverage Length"), `${step1ResponseData.coverageLength} ${t("Days")}`],
+    [t("Number of Travellers"), String(step1ResponseData.numberOfTravellers)],
     [
-      "Policy Type",
-      step1ResponseData.policyType.charAt(0).toUpperCase() +
-        step1ResponseData.policyType.slice(1),
+      t("Policy Type"),
+      t(step1ResponseData.policyType.charAt(0).toUpperCase() +
+        step1ResponseData.policyType.slice(1)),
     ],
-    ["Destination Province", step1ResponseData.destinationProvince],
+    [t("Destination Province"), t(step1ResponseData.destinationProvince)],
   ];
 
   return (
     <div className="max-w-5xl mx-auto mt-6 p-3 sm:p-6 bg-[#F9F9F9]">
       <h3 className="text-lg font-bold text-left text-[#1B1B1B]">
-        Your Quote Summary
+        {t("Your Quote Summary")}
       </h3>
       <p className="text-left font-medium text-text-secondary mb-4 sm:mb-8 text-sm sm:text-base">
-        Please review the details below before proceeding.
+        {t("Please review the details below before proceeding.")}
       </p>
 
       <table className="w-full border border-[#DBDADE] font-[inter] text-sm sm:text-base">

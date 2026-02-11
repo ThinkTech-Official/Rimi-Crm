@@ -269,6 +269,7 @@
 
 import { CheckIcon } from "@heroicons/react/24/outline";
 import React, { useState } from "react";
+import { useLanguage } from "../../../context/LanguageContext";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../app/store";
 import {
@@ -329,13 +330,14 @@ interface QuoteStage1Response {
 const productName = "RIMI_CANUCK_VOYAGE_TRAVEL_MEDICAL";
 
 const RIMICanuckVoyageTravelMedical: React.FC = () => {
+  const { t } = useLanguage();
   const agentCode = useSelector((state: RootState) => state.auth.agentCode);
 
   // ========== STEP MANAGEMENT ==========
   const [steps, setSteps] = useState([
-    { id: "01", name: "Get Quote", href: "#", status: "current" },
-    { id: "02", name: "Complete Application", href: "#", status: "upcoming" },
-    { id: "03", name: "Confirmation", href: "#", status: "upcoming" },
+    { id: "01", name: t("Get Quote"), href: "#", status: "current" },
+    { id: "02", name: t("Complete Application"), href: "#", status: "upcoming" },
+    { id: "03", name: t("Confirmation"), href: "#", status: "upcoming" },
   ]);
   const [formStep, setFormStep] = useState(1);
 
@@ -472,7 +474,7 @@ const RIMICanuckVoyageTravelMedical: React.FC = () => {
     } catch (err: any) {
       console.error("❌ Stage 1 failed:", err);
       triggerNotification({
-        message: err.message || "Failed to save quote.",
+        message: err.message || t("Failed to save quote."),
         type: "error",
       });
     }
@@ -518,7 +520,7 @@ const RIMICanuckVoyageTravelMedical: React.FC = () => {
       console.error("❌ Stage 2 failed:", err);
       triggerNotification({
         message:
-          err.message || "Failed to complete application. Please try again.",
+          err.message || t("Failed to complete application. Please try again."),
         type: "error",
       });
       return false;
@@ -536,7 +538,7 @@ const RIMICanuckVoyageTravelMedical: React.FC = () => {
     if (!isValid) {
       console.log("Validation failed", step1Methods.formState.errors);
       triggerNotification({
-        message: "Please fill all required fields correctly.",
+        message: t("Please fill all required fields correctly."),
         type: "error",
       });
       return false;
@@ -554,14 +556,14 @@ const RIMICanuckVoyageTravelMedical: React.FC = () => {
       setQuoteNumber(response.quoteNumber);
       console.log("Saved quote number:", response.quoteNumber);
       triggerNotification({
-        message: `Quote saved successfully!`,
+        message: t("Quote saved successfully!"),
         type: "success",
       });
       return true;
     } catch (err: any) {
       console.error("Failed to save quote:", err);
       triggerNotification({
-        message: err.message || "Failed to save quote.",
+        message: err.message || t("Failed to save quote."),
         type: "error",
       });
       return false;
@@ -671,8 +673,8 @@ const RIMICanuckVoyageTravelMedical: React.FC = () => {
             <div className="w-full h-2 mt-5 flex items-center justify-center font-[inter]">
               <h3 className="text-base sm:text-lg">
                 {loading
-                  ? "Calculating..."
-                  : `Your Quote: $${totalPremium.toFixed(2)} CAD`}
+                  ? t("Calculating...")
+                  : `${t("Your Quote")}: $${totalPremium.toFixed(2)} ${t("CAD")}`}
               </h3>
             </div>
             {formStep === 1 && (
@@ -683,7 +685,7 @@ const RIMICanuckVoyageTravelMedical: React.FC = () => {
                   savingStage1 ? "opacity-50 cursor-wait" : ""
                 }`}
               >
-                {savingStage1 ? "Saving…" : "Next"}
+                {savingStage1 ? t("Saving…") : t("Next")}
               </button>
             )}
           </form>
@@ -695,7 +697,7 @@ const RIMICanuckVoyageTravelMedical: React.FC = () => {
         <div>
           <div className="w-full h-2 mt-8 flex items-center justify-center font-[inter]">
             <h3 className="text-base sm:text-lg">
-              Your Quote: ${step1ResponseData?.quoteAmount.toFixed(2)} CAD
+              {t("Your Quote")}: ${step1ResponseData?.quoteAmount.toFixed(2)} {t("CAD")}
             </h3>
           </div>
 
@@ -715,16 +717,16 @@ const RIMICanuckVoyageTravelMedical: React.FC = () => {
 
           <div className="max-w-5xl mx-auto mt-6 p-3 sm:p-6 bg-[#F9F9F9]">
             <h3 className="text-lg font-bold text-left text-[#1B1B1B] mb-5">
-              Payment Summary
+              {t("Payment Summary")}
             </h3>
             <div className="flex justify-between items-center">
-              <span>Total Premium:</span>
+              <span>{t("Total Premium")}:</span>
               <span className="text-xl font-bold text-primary">
-                ${totalPremium.toFixed(2)} CAD
+                ${totalPremium.toFixed(2)} {t("CAD")}
               </span>
             </div>
             <div className="text-sm text-gray-600 mt-1">
-              One-time payment • No additional fees
+              {t("One-time payment • No additional fees")}
             </div>
           </div>
 
@@ -756,7 +758,7 @@ const RIMICanuckVoyageTravelMedical: React.FC = () => {
             onClick={() => handleFormStepChange("back")}
             className="w-[200px] mt-6 bg-[#2B00B7] text-white p-3 hover:bg-[#2309A1] transition flex justify-center items-center cursor-pointer duration-200"
           >
-            Previous
+            {t("Previous")}
           </button>
         )}
 

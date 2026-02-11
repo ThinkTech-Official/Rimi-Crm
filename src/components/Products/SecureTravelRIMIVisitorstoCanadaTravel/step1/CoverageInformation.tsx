@@ -7,6 +7,7 @@ import {
   InputHTMLAttributes,
   SelectHTMLAttributes,
 } from "react";
+import { useLanguage } from "../../../../context/LanguageContext";
 import { InformationCircleIcon } from "@heroicons/react/24/outline";
 import { CanadaStates } from "./Constants";
 
@@ -29,6 +30,7 @@ const allCoverageOptions = [
 ];
 
 export default function CoverageInformation() {
+  const { t } = useLanguage();
   const [showInfoCountryOfOrigin, setShowInfoCountryOfOrigin] = useState(false);
   const [showInfoSuperVisa, setShowInfoSuperVisa] = useState(false);
   const [showInfoInCanada, setShowInfoInCanada] = useState(false);
@@ -88,10 +90,10 @@ export default function CoverageInformation() {
   }, [showPaymentOption])
 
   const paymentOptions = [
-    { value: 'lump-sum',            label: 'Lump Sum' },
+    { value: 'lump-sum',            label: t('Lump Sum') },
     // only include monthly‐installments if coverageOption > 100k
     ...(Number(coverageOption) >= 100000
-      ? [{ value: 'monthly-installments', label: 'Monthly Installments' }]
+      ? [{ value: 'monthly-installments', label: t('Monthly Installments') }]
       : []),
   ]
 
@@ -144,15 +146,15 @@ export default function CoverageInformation() {
 
   return (
     <div className="max-w-5xl mx-auto mt-4 p-6 bg-[#F9F9F9] font-[inter] text-[#1B1B1B]">
-      <h3 className="text-xl font-bold text-left mb-6">Coverage Information</h3>
+      <h3 className="text-xl font-bold text-left mb-6">{t("Coverage Information")}</h3>
 
       <div className="grid grid-cols-2 gap-x-36 gap-y-4 text-gray-700">
         {/* Country of Origin */}
         <Dropdown
-          label="Country of Origin"
+          label={t("Country of Origin")}
           info={() => setShowInfoCountryOfOrigin((prev) => !prev)}
           options={[
-            { value: "", label: "Please select..." },
+            { value: "", label: t("Please select...") },
             { value: "AF", label: "Afghanistan" },
             { value: "AX", label: "Åland Islands" },
             { value: "AL", label: "Albania" },
@@ -402,12 +404,12 @@ export default function CoverageInformation() {
         {/* Ques: Are applicants currently in Canada? */}
         
         <Dropdown
-          label="Are applicants currently in Canada?"
+          label={t("Are applicants currently in Canada?")}
           info={() => setShowInfoInCanada((prev) => !prev)}
           options={[
-            { value: "", label: "Please select..." },
-            { value: "yes", label: "Yes" },
-            { value: "no", label: "No" },
+            { value: "", label: t("Please select...") },
+            { value: "yes", label: t("Yes") },
+            { value: "no", label: t("No") },
           ]}
           value={inCanada}
           onChange={handleInCanadaChange}
@@ -415,33 +417,29 @@ export default function CoverageInformation() {
       </div>
       {showInfoCountryOfOrigin && (
         <InfoBox
-          title="Country of Origin"
-          text="Country of Origin means the country for which the insured person holds a passport..."
+          title={t("Country of Origin")}
+          text={t("Country of Origin means the country for which the insured person holds a passport...")}
         />
       )}
       {showInfoInCanada && (
         <InfoBox
-          title="Currently in Canada?"
-          text="If the applicant is already in Canada, select Yes."
+          title={t("Currently in Canada?")}
+          text={t("If the applicant is already in Canada, select Yes.")}
         />
       )}
 
       {/* Waiting Period Section */}
       {inCanada === "yes" && (
         <div className="mt-6 p-6 border border-[#DBDADE] bg-white rounded-lg">
-          <h4 className="text-lg font-semibold mb-2">Waiting Period</h4>
+          <h4 className="text-lg font-semibold mb-2">{t("Waiting Period")}</h4>
           <p className="text-sm text-[#555]">
-            If the applicant is already in Canada and the policy effective date
-            is not the same as the arrival date, then a waiting period will
-            apply. The standard waiting period is:
+            {t("If the applicant is already in Canada and the policy effective date is not the same as the arrival date, then a waiting period will apply. The standard waiting period is:")}
             <ul className="list-disc list-inside mt-2">
               <li>
-                48 hours following the policy effective date, if purchased
-                within 30 days of arrival.
+                {t("48 hours following the policy effective date, if purchased within 30 days of arrival.")}
               </li>
               <li>
-                7 days following the policy effective date, if purchased after
-                30 days of arrival.
+                {t("7 days following the policy effective date, if purchased after 30 days of arrival.")}
               </li>
             </ul>
           </p>
@@ -456,21 +454,21 @@ export default function CoverageInformation() {
         {/* SuperVisa + DestinationProvince */}
         <div className="grid grid-cols-2 gap-x-36 gap-y-4 text-gray-700 mt-10">
           <Dropdown
-            label="Are applicants travelling to Canada on a Super Visa?"
+            label={t("Are applicants travelling to Canada on a Super Visa?")}
             info={() => setShowInfoSuperVisa((prev) => !prev)}
             options={[
-              { value: "", label: "Please select..." },
-              { value: "yes", label: "Yes" },
-              { value: "no", label: "No" },
+              { value: "", label: t("Please select...") },
+              { value: "yes", label: t("Yes") },
+              { value: "no", label: t("No") },
             ]}
             value={superVisa}
             onChange={handleSuperVisaChange}
           />
 
           <Dropdown
-            label="Destination Province"
+            label={t("Destination Province")}
             info={() => setShowInfoDestinationProvince((prev) => !prev)}
-            options={CanadaStates}
+            options={CanadaStates.map(opt => ({ ...opt, label: t(opt.label) }))}
             value={destinationProvince}
             onChange={handleProvinceChange}
           />
@@ -478,14 +476,14 @@ export default function CoverageInformation() {
 
         {showInfoSuperVisa && (
           <InfoBox
-            title="Super Visa"
-            text="Select yes if this quote is for parents or grandparents of a Canadian citizen..."
+            title={t("Super Visa")}
+            text={t("Select yes if this quote is for parents or grandparents of a Canadian citizen...")}
           />
         )}
         {showInfoDestinationProvince && (
           <InfoBox
-            title="Destination Province"
-            text="Select the primary destination Province for your trip."
+            title={t("Destination Province")}
+            text={t("Select the primary destination Province for your trip.")}
           />
         )}
 
@@ -493,10 +491,10 @@ export default function CoverageInformation() {
         {superVisa === "yes" && (
           <div className="grid grid-cols-2 gap-x-36 gap-y-4 text-gray-700 mt-6">
             <Dropdown
-              label="Super Visa Duration"
+              label={t("Super Visa Duration")}
               options={[
-                { value: "", label: "Please select..." },
-                { value: "1", label: "1 year" },
+                { value: "", label: t("Please select...") },
+                { value: "1", label: t("1 year") },
               ]}
               value={superVisaYears}
               onChange={handleYearsChange}
@@ -507,14 +505,14 @@ export default function CoverageInformation() {
         {/*  Next Rows: Dates & Coverage  */}
         <div className="grid grid-cols-2 gap-x-36 gap-y-4 text-gray-700 mt-10">
           <TextInput
-            label="Effective Date"
+            label={t("Effective Date")}
             type="date"
             min={today}
             value={effectiveDate}
             onChange={handleEffectiveDateChange}
           />
           <TextInput
-            label="Expiry Date"
+            label={t("Expiry Date")}
             type="date"
             value={expiryDate}
             disabled={superVisa === "yes"}
@@ -525,7 +523,7 @@ export default function CoverageInformation() {
 
         <div className="grid grid-cols-2 gap-x-36 gap-y-4 text-gray-700 mt-10">
           <TextInput
-            label="Coverage Length (days)"
+            label={t("Coverage Length (days)")}
             type="number"
             value={coverageLength}
             disabled={superVisa === "yes"}
@@ -533,12 +531,12 @@ export default function CoverageInformation() {
             onChange={handleCoverageChange}
           />
           <Dropdown
-            label="Policy Type"
+            label={t("Policy Type")}
             info={() => setShowInfoPolicyType((prev) => !prev)}
             options={[
-              { value: "", label: "Please select..." },
-              { value: "standard", label: "Standard" },
-              { value: "enhanced", label: "Enhanced" },
+              { value: "", label: t("Please select...") },
+              { value: "standard", label: t("Standard") },
+              { value: "enhanced", label: t("Enhanced") },
               // { value: 'premium',  label: 'Premium' },
             ]}
             
@@ -550,33 +548,33 @@ export default function CoverageInformation() {
 
       {showInfoPolicyType && (
         <InfoBox
-          title="Policy Type"
-          text="Description of the policy types available including their benefits..."
+          title={t("Policy Type")}
+          text={t("Description of the policy types available including their benefits...")}
         />
       )}
 
       <div className="grid grid-cols-2 gap-x-36 gap-y-4 text-gray-700 mt-10">
         {/* Coverage Options */}
         <Dropdown
-          label="Coverage Options"
+          label={t("Coverage Options")}
           info={() => setShowInfoCoverageOption((prev) => !prev)}
-          options={coverageOptions}
+          options={coverageOptions.map(opt => ({ ...opt, label: t(opt.label) }))}
           value={coverageOption}
           onChange={handleCoverageOptionChange}
         />
 
         {/* Deductible */}
         <Dropdown
-          label="Deductible"
+          label={t("Deductible")}
           info={() => setShowInfoDeductible((prev) => !prev)}
           options={[
-            { value: "", label: "Please select..." },
-            { value: "0", label: "$0.00 CAD" },
-            { value: "100", label: "$100.00 CAD" },
-            { value: "250", label: "$250.00 CAD" },
-            { value: "500", label: "$500.00 CAD" },
-            { value: "1000", label: "$1,000.00 CAD" },
-            { value: "3000", label: "$3,000.00 CAD" },
+            { value: "", label: t("Please select...") },
+            { value: "0", label: t("$0.00 CAD") },
+            { value: "100", label: t("$100.00 CAD") },
+            { value: "250", label: t("$250.00 CAD") },
+            { value: "500", label: t("$500.00 CAD") },
+            { value: "1000", label: t("$1,000.00 CAD") },
+            { value: "3000", label: t("$3,000.00 CAD") },
           ]}
         />
         {/* </div> */}
@@ -586,14 +584,14 @@ export default function CoverageInformation() {
 
       {showInfoCoverageOption && (
         <InfoBox
-          title="Coverage Options"
-          text="This is the maximum amount that will be covered for eligible medical expenses."
+          title={t("Coverage Options")}
+          text={t("This is the maximum amount that will be covered for eligible medical expenses.")}
         />
       )}
       {showInfoDeductible && (
         <InfoBox
-          title="Deductible"
-          text="Deductible means the amount (if applicable) which the insured must pay before any reimbursement."
+          title={t("Deductible")}
+          text={t("Deductible means the amount (if applicable) which the insured must pay before any reimbursement.")}
         />
       )}
       {/*  */}
@@ -604,7 +602,7 @@ export default function CoverageInformation() {
           {showPaymentOption && (
         
           <Dropdown
-            label="Payment Option"
+            label={t("Payment Option")}
             info={() => setShowInfoPaymentOption(prev => !prev)}
             options={paymentOptions}
             value={paymentOption}
@@ -616,8 +614,8 @@ export default function CoverageInformation() {
       </div>
       {showInfoPaymentOption && (
         <InfoBox
-          title="Payment Option"
-          text="Monthly payment installments are available when applying for one year of coverage, with a minimum Coverage Option of $100,000."
+          title={t("Payment Option")}
+          text={t("Monthly payment installments are available when applying for one year of coverage, with a minimum Coverage Option of $100,000.")}
         />
       )}
 

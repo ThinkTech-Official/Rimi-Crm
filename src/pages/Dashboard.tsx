@@ -689,7 +689,7 @@ export default function Dashboard() {
                 leaveFrom="translate-x-0"
                 leaveTo="-translate-x-full"
               >
-                <Dialog.Panel className="relative mr-16 flex w-full max-w-64 flex-1">
+                <Dialog.Panel className="relative mr-16 flex w-full max-w-68 flex-1">
                   <Transition.Child
                     as={Fragment}
                     enter="ease-in-out duration-300"
@@ -827,7 +827,7 @@ export default function Dashboard() {
         {/* Desktop Sidebar */}
         <div
           className={`hidden md:fixed md:inset-y-0 md:z-50 md:flex ${
-            isSidebarCollapsed ? "w-64 z-10" : "w-12"
+            isSidebarCollapsed ? "w-68 z-10" : "w-12"
           } md:flex-col bg-white`}
           style={{ boxShadow: "0px 4px 4px 0px #00000040" }}
         >
@@ -883,7 +883,7 @@ export default function Dashboard() {
                             aria-hidden="true"
                           />
                           {isSidebarCollapsed && (
-                            <span className="capitalize transition-all duration-200">
+                            <span className="capitalize transition-all duration-200 break-words">
                               {t(item.name)}
                             </span>
                           )}
@@ -897,7 +897,7 @@ export default function Dashboard() {
                            userType === 'ADMIN' && 
                            pendingCount > 0 && (
                             <span className={`absolute ${
-                              isSidebarCollapsed ? 'right-2 top-2.5' : 'left-5 top-0'
+                              isSidebarCollapsed ? 'right-1 top-2.5' : 'left-5 top-0'
                             } bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center`}>
                               {pendingCount > 9 ? '9+' : pendingCount}
                             </span>
@@ -968,7 +968,7 @@ export default function Dashboard() {
           </div>
         </div>
 
-        <div className={`${isSidebarCollapsed ? "md:pl-64" : "md:pl-14"}`}>
+        <div className={`${isSidebarCollapsed ? "md:pl-68" : "md:pl-14"}`}>
           {/* Mobile Header */}
           <div className="fixed top-0 left-0 -mt-1 z-5 flex items-center gap-x-3 px-4 py-4 sm:px-6 lg:px-8 md:hidden">
             <button
