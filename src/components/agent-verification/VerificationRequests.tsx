@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useGetVerificationRequests } from '../../hooks/agent-verification/useGetVerificationRequests';
 import { useVerifyAgent } from '../../hooks/agent-verification/useVerifyAgent';
-import { CheckCircleIcon, ClockIcon, DocumentIcon, UserIcon } from "@heroicons/react/24/outline";
+import { CheckCircleIcon, ClockIcon, DocumentIcon, UserIcon, ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
 import { format } from 'date-fns';
 import { API_BASE } from '../../utils/urls';
 import { useMgaCodes } from '../../hooks/agent-verification/useMgaCodes'; 
@@ -9,6 +9,7 @@ import { VerifiedAgentsTable } from './VerifiedAgentsTable';
 import useNotification from '../../hooks/useNotification';
 import VerificationModal from './VerifyAgentModal';
 import { useLanguage } from '../../context/LanguageContext';
+import { RenderPageNumbers } from '../RenderPageNumbers';
 
 
 
@@ -500,13 +501,13 @@ const handleVerifySubmit = async () => {
             />
           ) : (
             // Unverified Agents
-            <>
-              {loading ? (
-                <div className="flex justify-center items-center py-8">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#2B00B7]"></div>
-                </div>
-              ) : requests && requests.data.length > 0 ? (
-                <>
+            <div className="flex flex-col h-full">
+              <div className="flex-1 min-h-[400px]">
+                {loading ? (
+                  <div className="flex justify-center items-center h-64">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#2B00B7]"></div>
+                  </div>
+                ) : requests && requests.data.length > 0 ? (
                   <div className="space-y-4">
                     {requests.data.map((agent) => (
                       <div
@@ -775,38 +776,47 @@ const handleVerifySubmit = async () => {
                       </div>
                     ))}
                   </div>
-
-                  {/* Pagination for Unverified */}
-                  {requests.totalPages > 1 && (
-                    <div className="mt-6 flex justify-center">
-                      <nav className="flex items-center space-x-2">
-                        <button
-                          onClick={() => setCurrentPage(currentPage - 1)}
-                          disabled={!requests.hasPrevPage}
-                          className="px-3 py-1 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-                        >
-                          {t("Previous")}
-                        </button>
-                        <span className="text-sm text-gray-700">
-                          {t("Page")} {currentPage} {t("of")} {requests.totalPages}
-                        </span>
-                        <button
-                          onClick={() => setCurrentPage(currentPage + 1)}
-                          disabled={!requests.hasNextPage}
-                          className="px-3 py-1 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-                        >
-                          {t("Next")}
-                        </button>
-                      </nav>
+                ) : (
+                  <div className="flex flex-col items-center justify-center py-12 text-text-secondary bg-gray-50 rounded-lg border-2 border-dashed border-gray-200">
+                    <div className="bg-gray-100 p-3 rounded-full mb-3">
+                      <ClockIcon className="h-8 w-8 text-gray-400" />
                     </div>
-                  )}
-                </>
-              ) : (
-                <div className="text-center py-8 text-text-secondary">
-                  No pending verification requests
+                    <p className="text-lg font-medium">{t("No pending requests")}</p>
+                    <p className="text-sm">{t("All agents are currently processed")}</p>
+                  </div>
+                )}
+              </div>
+
+              {/* Pagination for Unverified - Outside of loading conditional */}
+              {requests && requests.totalPages > 1 && (
+                <div
+                  className="mt-8 flex items-center justify-center p-4 space-x-2 border-t border-gray-100"
+                  role="pagination"
+                >
+                  <button
+                    disabled={currentPage === 1}
+                    onClick={() => setCurrentPage(currentPage - 1)}
+                    className="px-2 py-[10px] bg-[#CCCCCC] text-[#6F6B7D] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                    title={t("Previous")}
+                  >
+                    <ChevronLeftIcon className="h-5 w-5" />
+                  </button>
+                  <RenderPageNumbers
+                    onPageChange={setCurrentPage}
+                    totalPages={requests.totalPages}
+                    page={currentPage}
+                  />
+                  <button
+                    disabled={currentPage === requests.totalPages}
+                    onClick={() => setCurrentPage(currentPage + 1)}
+                    className="px-2 py-[10px] bg-[#CCCCCC] text-[#6F6B7D] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                    title={t("Next")}
+                  >
+                    <ChevronRightIcon className="h-5 w-5" />
+                  </button>
                 </div>
               )}
-            </>
+            </div>
           )}
         </div>
 
