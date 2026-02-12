@@ -1,6 +1,7 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { LangContext } from "../context/LangContext";
+// import { LangContext } from "../context/LangContext";
+import { useLanguage } from "../context/LanguageContext";
 
 interface TripCalculatorFormInputs {
   startDate: string;
@@ -14,7 +15,8 @@ interface TripCalculatorFormInputs {
 }
 
 const TripCalculator: React.FC = () => {
-  const { langauge } = useContext(LangContext);
+  // const { langauge } = useContext(LangContext);
+  const { t } = useLanguage();
   const [calculationType, setCalculationType] = useState<"duration" | "newDate">("duration");
   const [result, setResult] = useState<string>("");
 
@@ -47,7 +49,7 @@ const TripCalculator: React.FC = () => {
       const end = new Date(endDate);
       const diffTime = end.getTime() - start.getTime();
       const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
-      setResult(`${diffDays} Days`);
+      setResult(`${diffDays} ${t("Days")}`);
     } else if (calculationType === "newDate" && startDate) {
       let newDate = new Date(startDate);
       const op = operation === "subtract" ? -1 : 1;
@@ -59,7 +61,7 @@ const TripCalculator: React.FC = () => {
 
       setResult(newDate.toDateString());
     } else {
-      setResult("Invalid Input");
+      setResult(t("Invalid Input"));
     }
   };
 
@@ -72,13 +74,11 @@ const TripCalculator: React.FC = () => {
   return (
     <div className="max-w-3xl mx-auto mt-4 px-2 py-4 sm:p-6 shadow-md">
       <h2 className="text-xl font-bold text-[#1B1B1B] text-center">
-        {langauge === "En" ? "Trip Calculator" : "Calculateur de voyage"}
+        {t("Trip Calculator")}
       </h2>
 
       <p className="font-medium text-[#6A6A6A] mb-8 text-center text-base">
-        {langauge === "En"
-          ? "Choose a calculation type and fill in the fields below."
-          : "Choisissez un type de calcul et remplissez les champs ci-dessous."}
+        {t("Choose a calculation type and fill in the fields below.")}
       </p>
 
       <form onSubmit={handleSubmit(onSubmit)}>
@@ -93,7 +93,7 @@ const TripCalculator: React.FC = () => {
                 : "text-text-secondary border-inputBorder"
             }`}
           >
-            {langauge === "En" ? "Calculate Duration" : "Calculer la durée"}
+            {t("Calculate Duration")}
           </button>
           <button
             type="button"
@@ -104,7 +104,7 @@ const TripCalculator: React.FC = () => {
                 : "text-text-secondary border-inputBorder"
             }`}
           >
-            {langauge === "En" ? "Calculate New Date" : "Calculer une nouvelle date"}
+            {t("Calculate New Date")}
           </button>
         </div>
 
@@ -113,12 +113,12 @@ const TripCalculator: React.FC = () => {
           {/* Start Date */}
           <div className="flex flex-col font-[inter]">
             <label className="text-sm">
-              {langauge === "En" ? "Start Date" : "Date de début"}
+              {t("Start Date")}
             </label>
             <input
               type="date"
               className="input-primary"
-              {...register("startDate", { required: "Start Date is required" })}
+              {...register("startDate", { required: t("Start Date is required") })}
             />
             {errors.startDate && (
               <p className="text-red-500 text-sm">{errors.startDate.message}</p>
@@ -129,12 +129,12 @@ const TripCalculator: React.FC = () => {
           {calculationType === "duration" ? (
             <div className="flex flex-col font-[inter]">
               <label className="text-sm">
-                {langauge === "En" ? "End Date" : "Date de fin"}
+                {t("End Date")}
               </label>
               <input
                 type="date"
                 className="input-primary"
-                {...register("endDate", { required: "End Date is required" })}
+                {...register("endDate", { required: t("End Date is required") })}
               />
               {errors.endDate && (
                 <p className="text-red-500 text-sm">{errors.endDate.message}</p>
@@ -144,14 +144,14 @@ const TripCalculator: React.FC = () => {
             <>
               <div className="flex flex-col font-[inter]">
                 <label className="text-sm">
-                  {langauge === "En" ? "Operation" : "Opération"}
+                  {t("Operation")}
                 </label>
                 <select className="input-primary" {...register("operation")}>
                   <option value="add">
-                    {langauge === "En" ? "Add" : "Ajouter"}
+                    {t("Add")}
                   </option>
                   <option value="subtract">
-                    {langauge === "En" ? "Subtract" : "Soustraire"}
+                    {t("Subtract")}
                   </option>
                 </select>
               </div>
@@ -159,7 +159,7 @@ const TripCalculator: React.FC = () => {
               {/* Years, Months, Weeks, Days */}
               {["years", "months", "weeks", "days"].map((field) => (
                 <div key={field} className="flex flex-col">
-                  <label className="text-sm capitalize">{field}</label>
+                  <label className="text-sm capitalize">{t(field)}</label>
                   <input
                     type="number"
                     placeholder="0"
@@ -176,7 +176,7 @@ const TripCalculator: React.FC = () => {
         {calculationType === "duration" && (
           <div className="w-full mt-4 flex flex-col">
             <label className="text-sm">
-              {langauge === "En" ? "Days" : "Jours"}
+              {t("Days")}
             </label>
             <input
               type="number"
@@ -193,7 +193,7 @@ const TripCalculator: React.FC = () => {
             type="submit"
             className="w-[180px] mt-6 bg-[#2B00B7] text-white p-3 hover:bg-[#2309A1] transition font-[inter] cursor-pointer"
           >
-            {langauge === "En" ? "Calculate" : "Calculer"}
+            {t("Calculate")}
           </button>
         </div>
       </form>
@@ -201,7 +201,7 @@ const TripCalculator: React.FC = () => {
       {/* Result */}
       {result && (
         <div className="mt-6 text-center text-lg font-semibold text-[#1B1B1B] font-[inter]">
-          {langauge === "En" ? "Result:" : "Résultat :"} {result}
+          {t("Result:")} {result}
         </div>
       )}
     </div>

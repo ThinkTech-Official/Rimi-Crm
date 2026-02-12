@@ -324,6 +324,21 @@
   "Not uploaded": "Non téléversé",
   "Uploaded": "Téléversé",
   "Page": "Page",
-  "of": "de"
+  "of": "de",
+  "Trip Calculator": "Calculateur de voyage",
+  "Choose a calculation type and fill in the fields below.": "Choisissez un type de calcul et remplissez les champs ci-dessous.",
+  "Calculate Duration": "Calculer la durée",
+  "Calculate New Date": "Calculer une nouvelle date",
+  "Operation": "Opération",
+  "Add": "Ajouter",
+  "Subtract": "Soustraire",
+  "years": "années",
+  "months": "mois",
+  "weeks": "semaines",
+  "days": "jours",
+  "Calculate": "Calculer",
+  "Result:": "Résultat :",
+  "Invalid Input": "Entrée invalide",
+  "Add Document": "Ajouter un document"
 }
 

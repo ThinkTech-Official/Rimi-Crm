@@ -845,12 +845,12 @@ const CreateUser: React.FC = () => {
       <div className="grid grid-col-3 gap-4 text-text-secondary">
         {/* First Name */}
         <div className="flex flex-col col-span-3 sm:col-span-1">
-          <label className="text-sm">First Name</label>
+          <label className="text-sm">{t("First Name")}</label>
           <input
             type="text"
-            {...register("firstName", { required: "First name is required" })}
+            {...register("firstName", { required: t("First name is required") })}
             className="input-primary"
-            placeholder="First Name"
+            placeholder={t("First Name")}
           />
           {errors.firstName && (
             <p className="text-red-500 text-sm">{errors.firstName.message}</p>
@@ -859,11 +859,11 @@ const CreateUser: React.FC = () => {
 
         {/* Last Name */}
         <div className="flex flex-col col-span-3 sm:col-span-1">
-          <label className="text-sm">Last Name</label>
+          <label className="text-sm">{t("Last Name")}</label>
           <input
-            {...register("lastName", { required: "Last name is required" })}
+            {...register("lastName", { required: t("Last name is required") })}
             className="input-primary"
-            placeholder="Last Name"
+            placeholder={t("Last Name")}
           />
           {errors.lastName && (
             <p className="text-red-500 text-sm">{errors.lastName.message}</p>
@@ -872,20 +872,20 @@ const CreateUser: React.FC = () => {
 
         {/* Email */}
         <div className="flex flex-col col-span-3 sm:col-span-1">
-          <label className="text-sm">Email</label>
+          <label className="text-sm">{t("Email")}</label>
           <input
             type="email"
             {...register("email", {
-              required: "Email is required",
+              required: t("Email is required"),
               pattern: {
                 value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                message: "Invalid email address",
+                message: t("Invalid email address"),
               },
             })}
             className={`input-primary ${
               errors.email ? "border-red-500" : "border-black"
             }`}
-            placeholder="Email"
+            placeholder={t("Email")}
           />
           {errors.email && (
             <p className="text-red-500 text-sm">{errors.email.message}</p>
@@ -894,16 +894,16 @@ const CreateUser: React.FC = () => {
 
         {/* Phone Number */}
         <div className="flex flex-col col-span-3 sm:col-span-1">
-          <label className="text-sm">Phone Number</label>
+          <label className="text-sm">{t("Phone Number")}</label>
           <input
             type="tel"
             {...register("phoneNumber", {
-              required: "Phone number is required",
+              required: t("Phone number is required"),
             })}
             className={`input-primary ${
               errors.phoneNumber ? "border-red-500" : "border-black"
             }`}
-            placeholder="Phone Number"
+            placeholder={t("Phone Number")}
           />
           {errors.phoneNumber && (
             <p className="text-red-500 text-sm">{errors.phoneNumber.message}</p>
@@ -919,11 +919,11 @@ const CreateUser: React.FC = () => {
               onChange={(e) => handleWfgCheckboxChange(e.target.checked)}
               className="accent-primary cursor-pointer w-4 h-4"
             />
-            <span className="font-medium">This is a WFG agent</span>
+            <span className="font-medium">{t("This is a WFG agent")}</span>
           </label>
           {isWfgAgent && (
             <p className="text-xs text-blue-600 mt-1">
-              WFG agents will be auto-verified and don't need document uploads
+              {t("WFG agents will be auto-verified and don't need document uploads")}
             </p>
           )}
         </div>
@@ -932,15 +932,15 @@ const CreateUser: React.FC = () => {
         <div className="col-span-3 sm:col-span-1">
           <div className="flex flex-col">
             <label className="text-sm">
-              {isWfgAgent ? "WFG Code" : "Agent Code"}
+              {isWfgAgent ? t("WFG Code") : t("Agent Code")}
             </label>
             <input
               {...register("agentCode", { 
-                required: "Agent code is required",
+                required: t("Agent code is required"),
                 onChange: () => setLastCheckedCode("")
               })}
               className="input-primary"
-              placeholder={isWfgAgent ? "Enter WFG code" : "Enter or generate agent code"}
+              placeholder={isWfgAgent ? t("Enter WFG code") : t("Enter or generate agent code")}
             />
             {errors.agentCode && (
               <p className="text-red-500 text-sm">{errors.agentCode.message}</p>
@@ -954,7 +954,7 @@ const CreateUser: React.FC = () => {
                 onClick={generateAgentCode}
                 className="h-10 px-3 bg-gray-200 hover:bg-gray-300 transition cursor-pointer"
               >
-                Generate
+                {t("Generate")}
               </button>
             )}
             <button
@@ -970,12 +970,12 @@ const CreateUser: React.FC = () => {
               }`}
             >
               {availability === "checking"
-                ? "Checking…"
+                ? t("Checking…")
                 : lastCheckedCode === agentCode && availability === "available"
-                ? "Available"
+                ? t("Available")
                 : lastCheckedCode === agentCode && availability === "taken"
-                ? "Taken"
-                : "Check"}
+                ? t("Taken")
+                : t("Check")}
             </button>
           </div>
           {availabilityError && (
@@ -990,11 +990,11 @@ const CreateUser: React.FC = () => {
 
         {/* Company */}
         <div className="flex flex-col col-span-3 sm:col-span-1">
-          <label className="text-sm">Company</label>
+          <label className="text-sm">{t("Company")}</label>
           <input
-            {...register("company", { required: "Company name is required" })}
+            {...register("company", { required: t("Company name is required") })}
             className="input-primary"
-            placeholder="Company"
+            placeholder={t("Company")}
           />
           {isWfgAgent && (
             <p className="text-xs text-blue-600 mt-1">
@@ -1008,20 +1008,20 @@ const CreateUser: React.FC = () => {
 
         {/* User Type */}
         <div className="flex flex-col col-span-2 sm:col-span-1">
-          <label className="text-sm">User Type</label>
+          <label className="text-sm">{t("User Type")}</label>
           <select
             {...register("userType", { 
-              required: "User type is required",
+              required: t("User type is required"),
               onChange: (e) => setUserType(e.target.value as any)
             })}
             className="input-primary"
             disabled={isWfgAgent}
           >
-            <option value="">-- select --</option>
-            <option value="ADMIN">Admin</option>
-            <option value="AGENT">Agent</option>
-            <option value="READONLY">Read Only</option>
-            <option value="MGA">MGA</option>
+            <option value="">{t("-- select --")}</option>
+            <option value="ADMIN">{t("Admin")}</option>
+            <option value="AGENT">{t("Agent")}</option>
+            <option value="READONLY">{t("Read Only")}</option>
+            <option value="MGA">{t("MGA")}</option>
           </select>
           {isWfgAgent && (
             <p className="text-xs text-blue-600 mt-1">
@@ -1036,15 +1036,15 @@ const CreateUser: React.FC = () => {
         {/* MGA-only: Agent Codes */}
         {userType === "MGA" && (
           <div className="col-span-3 space-y-2">
-            <label className="font-semibold">Agent Codes</label>
+            <label className="font-semibold">{t("Agent Codes")}</label>
             <input
               type="text"
               value={agentSearch}
               onChange={(e) => setAgentSearch(e.target.value)}
               className="w-full input-primary"
-              placeholder="Search agent codes..."
+              placeholder={t("Search agent codes...")}
             />
-            {agentsLoading && <p>Loading agents…</p>}
+            {agentsLoading && <p>{t("Loading agents…")}</p>}
             {agentsError && <p className="text-red-500">{agentsError}</p>}
             {agentSearch.length > 0 &&
               (agents.length > 0 ? (
@@ -1070,13 +1070,13 @@ const CreateUser: React.FC = () => {
               ) : (
                 !agentsLoading && (
                   <div className="max-h-40 overflow-y-auto border border-inputBorder rounded p-2 space-y-1 text-sm">
-                    <p>No agents found with code "{agentSearch}"</p>
+                    <p>{t("No agents found with code")} "{agentSearch}"</p>
                   </div>
                 )
               ))}
             {selectedAgents.length > 0 && (
               <>
-                <p className="font-medium mt-2">Selected Agents:</p>
+                <p className="font-medium mt-2">{t("Selected Agents:")}</p>
                 <ul className="list-disc ml-6 text-sm text-gray-600">
                   {selectedAgents.map((a) => (
                     <li key={a}>{a}</li>
@@ -1091,7 +1091,7 @@ const CreateUser: React.FC = () => {
         {(userType === "AGENT" || userType === "MGA") && (
           <div className="flex flex-col col-span-3 sm:col-span-1">
             <label className="text-sm">
-              {userType === "MGA" ? "MGA Commission (%)" : "Agent Commission (%)"}
+              {userType === "MGA" ? t("MGA Commission (%)") : t("Agent Commission (%)")}
             </label>
             <input
               type="number"
@@ -1099,11 +1099,11 @@ const CreateUser: React.FC = () => {
               min="0"
               max="100"
               {...register("commissionPercent", {
-                min: { value: 0, message: "Commission cannot be negative" },
-                max: { value: 100, message: "Commission cannot exceed 100%" },
+                min: { value: 0, message: t("Commission cannot be negative") },
+                max: { value: 100, message: t("Commission cannot exceed 100%") },
                 pattern: {
                   value: /^\d+(\.\d{1,2})?$/,
-                  message: "Please enter a valid percentage (e.g., 15.5)",
+                  message: t("Please enter a valid percentage (e.g., 15.5)"),
                 },
               })}
               className="input-primary"
@@ -1116,8 +1116,8 @@ const CreateUser: React.FC = () => {
             )}
             <p className="text-xs text-gray-500 mt-1">
               {userType === "MGA" 
-                ? "Commission for MGA's direct policy sales (0-100%)"
-                : "Enter the commission percentage for this agent (0-100%)"
+                ? t("Commission for MGA's direct policy sales (0-100%)")
+                : t("Enter the commission percentage for this agent (0-100%)")
               }
             </p>
           </div>
@@ -1126,19 +1126,19 @@ const CreateUser: React.FC = () => {
         {/* MGA Override Percent */}
         {userType === "MGA" && (
           <div className="flex flex-col col-span-3 sm:col-span-1">
-            <label className="text-sm">MGA Override Percent (%)</label>
+            <label className="text-sm">{t("MGA Override Percent (%)")}</label>
             <input
               type="number"
               step="0.01"
               min="0"
               max="100"
               {...register("mgaOverridePercent", {
-                required: "MGA override percent is required",
-                min: { value: 0, message: "Override percent cannot be negative" },
-                max: { value: 100, message: "Override percent cannot exceed 100%" },
+                required: t("MGA override percent is required"),
+                min: { value: 0, message: t("Override percent cannot be negative") },
+                max: { value: 100, message: t("Override percent cannot exceed 100%") },
                 pattern: {
                   value: /^\d+(\.\d{1,2})?$/,
-                  message: "Please enter a valid percentage (e.g., 5.0)",
+                  message: t("Please enter a valid percentage (e.g., 5.0)"),
                 },
               })}
               className="input-primary"
@@ -1150,14 +1150,14 @@ const CreateUser: React.FC = () => {
               </p>
             )}
             <p className="text-xs text-gray-500 mt-1">
-              MGA's share of commission from sub-agents (0-100%)
+              {t("MGA's share of commission from sub-agents (0-100%)")}
             </p>
           </div>
         )}
         
         {/* Status */}
         <div className="col-span-1 space-y-2">
-          <label className="text-sm">Status</label>
+          <label className="text-sm">{t("Status")}</label>
           <div className="flex space-x-6 items-center">
             <label className="flex items-center gap-2">
               <input
@@ -1168,7 +1168,7 @@ const CreateUser: React.FC = () => {
                 onChange={() => setStatus("ACTIVE")}
                 className="accent-primary cursor-pointer"
               />{" "}
-              Active
+              {t("Active")}
             </label>
             <label className="flex items-center gap-2">
               <input
@@ -1179,14 +1179,14 @@ const CreateUser: React.FC = () => {
                 onChange={() => setStatus("INACTIVE")}
                 className="accent-primary cursor-pointer"
               />{" "}
-              Inactive
+              {t("Inactive")}
             </label>
           </div>
         </div>
 
         {/* Bulk upload */}
         <div className="col-span-1 space-y-2">
-          <label className="text-sm">Allow Bulk Upload</label>
+          <label className="text-sm">{t("Allow Bulk Upload")}</label>
           <div className="flex space-x-6 items-center">
             <label className="flex items-center gap-2">
               <input
@@ -1197,7 +1197,7 @@ const CreateUser: React.FC = () => {
                 onChange={() => setAllowBulkUpload("YES")}
                 className="accent-primary cursor-pointer"
               />{" "}
-              Yes
+              {t("Yes")}
             </label>
             <label className="flex items-center gap-2">
               <input
@@ -1208,21 +1208,21 @@ const CreateUser: React.FC = () => {
                 onChange={() => setAllowBulkUpload("NO")}
                 className="accent-primary cursor-pointer"
               />{" "}
-              No
+              {t("No")}
             </label>
           </div>
         </div>
 
         {/* Password */}
         <div className="col-span-3 space-y-2">
-          <label className="text-sm">Password</label>
+          <label className="text-sm">{t("Password")}</label>
           <div className="relative">
             <input
               type={passwordVisible ? "text" : "password"}
-              placeholder="New Password"
+              placeholder={t("New Password")}
               {...register("password", {
-                required: "Password is required",
-                minLength: { value: 6, message: "Minimum length is 6" },
+                required: t("Password is required"),
+                minLength: { value: 6, message: t("Minimum length is 6") },
               })}
               className="w-full input-primary"
             />
@@ -1241,17 +1241,17 @@ const CreateUser: React.FC = () => {
             <p className="text-red-500 text-sm">{errors.password.message}</p>
           )}
 
-          <label className="text-sm">Confirm Password</label>
+          <label className="text-sm">{t("Confirm Password")}</label>
           <div className="relative">
             <input
               type={confirmPasswordVisible ? "text" : "password"}
               {...register("confirmPassword", {
-                required: "Please confirm password",
+                required: t("Please confirm password"),
                 validate: (value) =>
-                  value === watch("password") || "Passwords do not match",
+                  value === watch("password") || t("Passwords do not match"),
               })}
               className="w-full input-primary"
-              placeholder="Confirm Password"
+              placeholder={t("Confirm Password")}
             />
             <span
               className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer"
@@ -1276,10 +1276,10 @@ const CreateUser: React.FC = () => {
           <div className="col-span-3 grid grid-cols-1 sm:grid-cols-2 gap-6">
             {/* Insurance License */}
             <div className="flex flex-col w-full">
-              <label className="text-sm font-semibold mb-1">Insurance License</label>
+              <label className="text-sm font-semibold mb-1">{t("Insurance License")}</label>
               <div className="flex flex-col items-start space-y-2">
                 <label className="input-primary cursor-pointer w-full text-center">
-                  Choose File <span className="text-xs">(Max 5MB)</span>
+                  {t("Choose File")} <span className="text-xs">(Max 5MB)</span>
                   <input
                     type="file"
                     onChange={(e) => handleDocsChange(e, "docFile1")}
@@ -1296,10 +1296,10 @@ const CreateUser: React.FC = () => {
 
             {/* E&O Insurance */}
             <div className="flex flex-col w-full">
-              <label className="text-sm font-semibold mb-1">E&O Insurance</label>
+              <label className="text-sm font-semibold mb-1">{t("E&O Insurance")}</label>
               <div className="flex flex-col items-start space-y-2">
                 <label className="input-primary cursor-pointer w-full text-center">
-                  Choose File <span className="text-xs">(Max 5MB)</span>
+                  {t("Choose File")} <span className="text-xs">(Max 5MB)</span>
                   <input
                     type="file"
                     onChange={(e) => handleDocsChange(e, "docFile2")}
@@ -1316,10 +1316,10 @@ const CreateUser: React.FC = () => {
 
             {/* Bank Details */}
             <div className="flex flex-col w-full">
-              <label className="text-sm font-semibold mb-1">Bank Details</label>
+              <label className="text-sm font-semibold mb-1">{t("Bank Details")}</label>
               <div className="flex flex-col items-start space-y-2">
                 <label className="input-primary cursor-pointer w-full text-center">
-                  Choose File <span className="text-xs">(Max 5MB)</span>
+                  {t("Choose File")} <span className="text-xs">(Max 5MB)</span>
                   <input
                     type="file"
                     onChange={(e) => handleDocsChange(e, "docFile3")}
@@ -1336,10 +1336,10 @@ const CreateUser: React.FC = () => {
 
             {/* Agency Agreement */}
             <div className="flex flex-col w-full">
-              <label className="text-sm font-semibold mb-1">Agency Agreement</label>
+              <label className="text-sm font-semibold mb-1">{t("Agency Agreement")}</label>
               <div className="flex flex-col items-start space-y-2">
                 <label className="input-primary cursor-pointer w-full text-center">
-                  Choose File <span className="text-xs">(Max 5MB)</span>
+                  {t("Choose File")} <span className="text-xs">(Max 5MB)</span>
                   <input
                     type="file"
                     onChange={(e) => handleDocsChange(e, "docFile4")}

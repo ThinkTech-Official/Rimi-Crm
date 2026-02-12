@@ -1,7 +1,8 @@
 // src/components/Users.tsx
-import React, { useState, useContext } from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { LangContext } from "../context/LangContext";
+// import { LangContext } from "../context/LangContext";
+import { useLanguage } from "../context/LanguageContext";
 import { useSearchUsers, SearchCriteria, User } from "../hooks/useSearchUsers";
 import {
   ChevronDownIcon,
@@ -12,7 +13,8 @@ import { useForm } from "react-hook-form";
 import { RenderPageNumbers } from "./RenderPageNumbers";
 
 const Users: React.FC = () => {
-  const { langauge } = useContext(LangContext);
+  // const { langauge } = useContext(LangContext);
+  const { t } = useLanguage();
 
   // combined search & pagination criteria
   const [criteria, setCriteria] = useState<SearchCriteria>({
@@ -60,25 +62,23 @@ const Users: React.FC = () => {
   return (
     <div className="w-full mx-auto mt-4 px-2 py-4 sm:p-6 bg-[#F9F9F9]">
       <h2 className="text-lg 2xl:text-xl font-bold text-left text-[#1B1B1B] mb-2">
-        {langauge === "En" ? "Search Users" : "Rchercher utilisateurs"}
+        {t("Search Users")}
       </h2>
       <p className="text-left font-medium text-[#6A6A6A] mb-8">
-        {langauge === "En"
-          ? "Fill in as many of the following criteria as you can to generate a search."
-          : "Remplissez autant de critères suivants que possible pour générer une recherche."}
+        {t("Fill in as many of the following criteria as you can to generate a search.")}
       </p>
 
       {/* ── Search Form ───────────────────────────────────────── */}
       <form onSubmit={handleSubmit(onSearch)}>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 md:gap-x-16 lg:gap-x-24 gap-y-4 text-text-secondary">
           {[
-            { label: "First Name", key: "firstName" },
-            { label: "Last Name", key: "lastName" },
-            { label: "Email", key: "email" },
-            { label: "Agent Code", key: "agentCode" },
-            { label: "Created After", key: "createdAfter", type: "date" },
-            { label: "Created Before", key: "createdBefore", type: "date" },
-            { label: "Company", key: "company" },
+            { label: t("First Name"), key: "firstName" },
+            { label: t("Last Name"), key: "lastName" },
+            { label: t("Email"), key: "email" },
+            { label: t("Agent Code"), key: "agentCode" },
+            { label: t("Created After"), key: "createdAfter", type: "date" },
+            { label: t("Created Before"), key: "createdBefore", type: "date" },
+            { label: t("Company"), key: "company" },
           ].map(({ label, key, type }) => (
             <div key={key}>
               <label className="text-sm 2xl:text-base">{label}</label>
@@ -89,7 +89,7 @@ const Users: React.FC = () => {
                   ...(key === "email" && {
                     pattern: {
                       value: /^\S+@\S+\.\S+$/,
-                      message: "Invalid email format",
+                      message: t("Invalid email format"),
                     },
                     setValueAs: (value) => value.trim().toLowerCase(),
                   }),
@@ -108,7 +108,7 @@ const Users: React.FC = () => {
 
           <div>
             <label className="text-sm">
-              {langauge === "En" ? "User Type" : `Type D'Utilisateur`}
+              {t("User Type")}
             </label>
             <div className="relative">
               <select
@@ -116,11 +116,11 @@ const Users: React.FC = () => {
                 onChange={(e) => setValue("userType", e.target.value)}
                 className="input-primary appearance-none cursor-pointer"
               >
-                <option value="">All</option>
-                <option value="ADMIN">Admin</option>
-                <option value="MGA">Mga</option>
-                <option value="AGENT">Agent</option>
-                <option value="READONLY">Read Only</option>
+                <option value="">{t("All")}</option>
+                <option value="ADMIN">{t("Admin")}</option>
+                <option value="MGA">{t("MGA")}</option>
+                <option value="AGENT">{t("Agent")}</option>
+                <option value="READONLY">{t("Read Only")}</option>
               </select>
               <div className="pointer-events-none absolute inset-y-0 right-2 flex items-center text-gray-500">
                 <ChevronDownIcon className="h-5 w-5" aria-hidden="true" />
@@ -130,7 +130,7 @@ const Users: React.FC = () => {
 
           <div>
             <label className="text-sm">
-              {langauge === "En" ? "Status" : "Statut"}
+              {t("Status")}
             </label>
             <div className="relative">
               <select
@@ -138,9 +138,9 @@ const Users: React.FC = () => {
                 onChange={(e) => setValue("status", e.target.value)}
                 className="input-primary appearance-none cursor-pointer"
               >
-                <option value="">All</option>
-                <option value="ACTIVE">Active</option>
-                <option value="INACTIVE">Inactive</option>
+                <option value="">{t("All")}</option>
+                <option value="ACTIVE">{t("Active")}</option>
+                <option value="INACTIVE">{t("Inactive")}</option>
               </select>
               <div className="pointer-events-none absolute inset-y-0 right-2 flex items-center text-gray-500">
                 <ChevronDownIcon className="h-5 w-5" aria-hidden="true" />
@@ -153,10 +153,8 @@ const Users: React.FC = () => {
       <div className="flex justify-center mb-6 mt-8">
         <button onClick={handleSubmit(onSearch)} className="btn-primary">
           {loading
-            ? "Searching..."
-            : langauge === "En"
-            ? "SEARCH"
-            : "RECHERCHE"}
+            ? t("Searching...")
+            : t("SEARCH")}
         </button>
       </div>
       {error && <p className="text-red-500">{error}</p>}
@@ -167,13 +165,13 @@ const Users: React.FC = () => {
             <thead className="bg-primary text-white text-base 2xl:text-xl capitalize">
               <tr>
                 {[
-                  "Agent Code",
-                  "Name",
-                  "Email",
-                  "Company",
-                  "User Type",
-                  "Status",
-                  "Actions",
+                  t("Agent Code"),
+                  t("Name"),
+                  t("Email"),
+                  t("Company"),
+                  t("User Type"),
+                  t("Status"),
+                  t("Actions"),
                 ].map((h) => (
                   <th
                     key={h}
@@ -191,7 +189,7 @@ const Users: React.FC = () => {
                     className="p-2 text-primary text-center h-40 "
                     colSpan={9}
                   >
-                    Loading…
+                    {t("Loading...")}
                   </td>
                 </tr>
               ) : error ? (
@@ -206,7 +204,7 @@ const Users: React.FC = () => {
                     className="p-2 text-text-secondary text-center"
                     colSpan={9}
                   >
-                    No users found
+                    {t("No users found")}
                   </td>
                 </tr>
               ) : (
@@ -298,7 +296,7 @@ const Users: React.FC = () => {
                         to={`/userdetail/${u.id}`}
                         className="text-primary hover:underline hover:underline-offset-2 cursor-pointer font-medium px-4 text-center w-full"
                       >
-                        View
+                        {t("View")}
                       </Link>
                     </td>
                   </tr>

@@ -1,7 +1,8 @@
 
-import { useContext, useState, useEffect, Fragment } from "react";
+import { useState, useEffect, Fragment } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
-import { LangContext } from "../context/LangContext";
+// import { LangContext } from "../context/LangContext";
+import { useLanguage } from "../context/LanguageContext";
 import { useReporting, ReportingPayload } from "../hooks/useReporting";
 import { Transition } from "@headlessui/react";
 import {
@@ -19,7 +20,8 @@ interface Toast {
 }
 
 const Reporting: React.FC = () => {
-  const { langauge } = useContext(LangContext);
+  // const { langauge } = useContext(LangContext);
+  const { t } = useLanguage();
   const { sendReport, loading, error, result } = useReporting();
 
   // React Hook Form setup
@@ -58,15 +60,12 @@ const Reporting: React.FC = () => {
     if (result?.success) {
       setToast({
         type: "success",
-        message:
-          langauge === "En"
-            ? "Report created successfully!"
-            : "Rapport créé avec succès !",
+        message: t("Report created successfully!"),
         show: true,
       });
       reset(); // clear form
     }
-  }, [result, langauge, reset]);
+  }, [result, reset, t]);
 
   const onSubmit: SubmitHandler<ReportingPayload> = async (data) => {
     await sendReport(data);
@@ -80,24 +79,22 @@ const Reporting: React.FC = () => {
         noValidate
       >
         <h2 className="text-lg font-bold text-left text-[#1B1B1B] mb-2">
-          {langauge === "En" ? "Reporting" : "Rapports"}
+          {t("Reporting")}
         </h2>
         <p className="text-left font-medium text-[#6A6A6A] mb-8">
-          {langauge === "En"
-            ? "Enter all the criteria for the report"
-            : "Saisissez tous les critères du rapport"}
+          {t("Enter all the criteria for the report")}
         </p>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 md:gap-x-16 lg:gap-x-24 gap-y-4 text-text-secondary">
           {/* PRODUCT */}
           <div className="flex flex-col gap-1">
             <label className="text-sm">
-              {langauge === "En" ? "Product" : "Produit"}
+              {t("Product")}
             </label>
 
             <div className="relative">
               <select
-                {...register("product", { required: "Product is required" })}
+                {...register("product", { required: t("Product is required") })}
                 className={`appearance-none input-primary w-full pr-10
                 ${errors.product ? "border-red-500" : "border-[#3a17c5]"}
               `}
@@ -132,20 +129,20 @@ const Reporting: React.FC = () => {
           {/* REPORT TYPE */}
           <div className="flex flex-col gap-1">
             <label className="text-sm">
-              {langauge === "En" ? "Report Type" : "Type de rapport"}
+              {t("Report Type")}
             </label>
             <div className="relative">
               <select
                 {...register("reportType", {
-                  required: "Report type is required",
+                  required: t("Report type is required"),
                 })}
                 className={`appearance-none input-primary ${
                   errors.reportType ? "border-red-500" : "border-[#3a17c5]"
                 }`}
               >
                 <option value="">---</option>
-                <option value="SALES">Sales</option>
-                <option value="CHANGE">Change Logs</option>
+                <option value="SALES">{t("Sales")}</option>
+                <option value="CHANGE">{t("Change Logs")}</option>
               </select>
               <div className="pointer-events-none absolute inset-y-0 right-2 flex items-center text-gray-500">
                 <ChevronDownIcon className="h-5 w-5" aria-hidden="true" />
@@ -161,11 +158,11 @@ const Reporting: React.FC = () => {
           {/* START DATE */}
           <div className="flex flex-col gap-1">
             <label className="text-sm">
-              {langauge === "En" ? "Start Date" : "Date de début"}
+              {t("Start Date")}
             </label>
             <input
               {...register("startDate", {
-                required: "Start date is required",
+                required: t("Start date is required"),
               })}
               type="date"
               className={`input-primary ${
@@ -180,11 +177,11 @@ const Reporting: React.FC = () => {
           {/* END DATE */}
           <div className="flex flex-col gap-1">
             <label className="text-sm">
-              {langauge === "En" ? "End Date" : "Date de fin"}
+              {t("End Date")}
             </label>
             <input
               {...register("endDate", {
-                required: "End date is required",
+                required: t("End date is required"),
               })}
               type="date"
               className={`input-primary ${
@@ -199,15 +196,15 @@ const Reporting: React.FC = () => {
           {/* EMAIL TO */}
           <div className="flex flex-col gap-1">
             <label className="text-sm">
-              {langauge === "En" ? "Email To" : "Email To"}
+              {t("Email To")}
             </label>
             <input
-              placeholder="Email"
+              placeholder={t("Email")}
               {...register("emailTo", {
-                required: "Recipient email is required",
+                required: t("Recipient email is required"),
                 pattern: {
                   value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                  message: "Invalid email address",
+                  message: t("Invalid email address"),
                 },
               })}
               type="email"
@@ -223,14 +220,14 @@ const Reporting: React.FC = () => {
           {/* EMAIL CC (optional) */}
           <div className="flex flex-col gap-1">
             <label className="text-sm">
-              {langauge === "En" ? "Email CC" : "Email CC"}
+              {t("Email CC")}
             </label>
             <input
-              placeholder="CC email address"
+              placeholder={t("CC email address")}
               {...register("emailCc", {
                 pattern: {
                   value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                  message: "Invalid CC email address",
+                  message: t("Invalid CC email address"),
                 },
               })}
               type="email"
@@ -246,7 +243,7 @@ const Reporting: React.FC = () => {
 
         <div className="flex justify-center items-center mt-6">
           <button type="submit" disabled={loading} className="btn-primary">
-            {langauge === "En" ? "SEND REPORT" : "ENVOYER LE RAPPORT"}
+            {t("SEND REPORT")}
           </button>
         </div>
       </form>
@@ -285,7 +282,7 @@ const Reporting: React.FC = () => {
                 </div>
                 <div className="ml-3 w-0 flex-1 pt-0.5">
                   <p className="text-sm font-medium text-gray-900">
-                    {toast.type === "error" ? "Error" : "Success"}
+                    {toast.type === "error" ? t("Error") : t("Success")}
                   </p>
                   <p className="mt-1 text-sm text-gray-500">{toast.message}</p>
                 </div>
@@ -295,7 +292,7 @@ const Reporting: React.FC = () => {
                     className="inline-flex rounded-md bg-white text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
                     onClick={() => setToast((t) => ({ ...t, show: false }))}
                   >
-                    <span className="sr-only">Close</span>
+                    <span className="sr-only">{t("Close")}</span>
                     <XMarkIcon className="h-5 w-5" aria-hidden="true" />
                   </button>
                 </div>
