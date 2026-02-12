@@ -1,5 +1,6 @@
-import React, { useContext, useState } from "react";
-import { LangContext } from "../context/LangContext";
+import React, { useEffect, useState } from "react";
+// import { LangContext } from "../context/LangContext";
+import { useLanguage } from "../context/LanguageContext";
 import {
   useSearchPolicies,
   SearchPoliciesCriteria,
@@ -9,6 +10,10 @@ import { FaAngleDown } from "react-icons/fa";
 import { useForm } from "react-hook-form";
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
 import { RenderPageNumbers } from "./RenderPageNumbers";
+
+const PoliciesSearch: React.FC = () => {
+  // const { langauge } = useContext(LangContext);
+  const { t } = useLanguage();
 
 const allProducts = [
   {
@@ -29,10 +34,8 @@ const allProducts = [
   },
 ];
 
-const status = ["All", "Active", "Sold", "Cancelled", "Expired"];
+  const status = ["All", "Active", "Sold", "Cancelled", "Expired"];
 
-const PoliciesSearch: React.FC = () => {
-  const { langauge } = useContext(LangContext);
   const [isSelectStatusOpen, setIsSelectStatusOpen] = useState(false);
   const [searchData, setSearchData] = useState<SearchPoliciesCriteria>({
     products: ["All"],
@@ -108,12 +111,10 @@ const PoliciesSearch: React.FC = () => {
     <div className="w-full mx-auto mt-4 px-2 py-4 sm:p-6 bg-[#F9F9F9]">
       <div className="space-y-2">
         <h2 className="text-lg 2xl:text-xl font-bold text-left text-[#1B1B1B] mb-2">
-          {langauge === "En" ? "Search Policies" : "Rechercher Polices"}
+          {t("Search Policies")}
         </h2>
         <p className="text-left font-medium text-[#6A6A6A] mb-8">
-          {langauge === "En"
-            ? "Fill in as many criteria as you can to search."
-            : "Remplissez autant de critères que possible pour la recherche."}
+          {t("Fill in as many criteria as you can to search.")}
         </p>
       </div>
 
@@ -122,76 +123,76 @@ const PoliciesSearch: React.FC = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 md:gap-x-16 lg:gap-x-24 gap-y-4 text-text-secondary">
           {/* First Name */}
           <div className="flex flex-col">
-            <label className="text-sm 2xl:text-base">First Name</label>
+            <label className="text-sm 2xl:text-base">{t("First Name")}</label>
             <input
               {...register("firstName", {
                 setValueAs: (value) => value.trim(),
               })}
               className="input-primary"
-              placeholder="First Name"
+              placeholder={t("First Name")}
             />
           </div>
           {/* Last Name */}
           <div className="flex flex-col">
-            <label className="text-sm 2xl:text-base">Last Name</label>
+            <label className="text-sm 2xl:text-base">{t("Last Name")}</label>
             <input
               {...register("lastName", {
                 setValueAs: (value) => value.trim(),
               })}
               className="input-primary"
-              placeholder="Last Name"
+              placeholder={t("Last Name")}
             />
           </div>
           {/* Date of Birth */}
           <div className="flex flex-col">
-            <label className="text-sm 2xl:text-base">Date of Birth</label>
+            <label className="text-sm 2xl:text-base">{t("Date of Birth")}</label>
             <input
               type="date"
               {...register("dateOfBirth")}
               className="input-primary"
-              placeholder="Date of Birth"
+              placeholder={t("Date of Birth")}
             />
           </div>
           {/* Policy Number */}
           <div className="flex flex-col">
-            <label className="text-sm 2xl:text-base">Policy Number</label>
+            <label className="text-sm 2xl:text-base">{t("Policy Number")}</label>
             <input
               {...register("policyNumber", {
                 setValueAs: (value) => value.trim(),
               })}
               className="input-primary"
-              placeholder="Policy Number"
+              placeholder={t("Policy Number")}
             />
           </div>
           {/* Phone Number */}
           <div className="flex flex-col">
-            <label className="text-sm 2xl:text-base">Phone Number</label>
+            <label className="text-sm 2xl:text-base">{t("Phone Number")}</label>
             <input
               {...register("phoneNumber", {
                 setValueAs: (value) => value.trim(),
               })}
               className="input-primary"
-              placeholder="Phone Number"
+              placeholder={t("Phone Number")}
             />
           </div>
           {/* Email */}
           <div className="flex flex-col">
-            <label className="text-sm 2xl:text-base">Email</label>
+            <label className="text-sm 2xl:text-base">{t("Email")}</label>
             <input
               type="email"
               {...register("email", {
                 pattern: {
                   value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                  message: "Invalid email address",
+                  message: t("Invalid email address"),
                 },
               })}
               className="input-primary"
-              placeholder="Email"
+              placeholder={t("Email")}
             />
           </div>
           {/* Sale Date From */}
           <div className="flex flex-col">
-            <label className="text-sm 2xl:text-base">Sale Date From</label>
+            <label className="text-sm 2xl:text-base">{t("Sale Date From")}</label>
             <input
               type="date"
               {...register("saleDateFrom")}
@@ -200,7 +201,7 @@ const PoliciesSearch: React.FC = () => {
           </div>
           {/* Sale Date To */}
           <div className="flex flex-col">
-            <label className="text-sm 2xl:text-base">Sale Date To</label>
+            <label className="text-sm 2xl:text-base">{t("Sale Date To")}</label>
             <input
               type="date"
               {...register("saleDateTo")}
@@ -209,7 +210,7 @@ const PoliciesSearch: React.FC = () => {
           </div>
           {/* Effective Date From */}
           <div className="flex flex-col">
-            <label className="text-sm 2xl:text-base">Effective Date From</label>
+            <label className="text-sm 2xl:text-base">{t("Effective Date From")}</label>
             <input
               type="date"
               {...register("effectiveDateFrom")}
@@ -218,7 +219,7 @@ const PoliciesSearch: React.FC = () => {
           </div>
           {/* Effective Date To */}
           <div className="flex flex-col">
-            <label className="text-sm 2xl:text-base">Effective Date To</label>
+            <label className="text-sm 2xl:text-base">{t("Effective Date To")}</label>
             <input
               type="date"
               {...register("effectiveDateTo")}
@@ -227,34 +228,34 @@ const PoliciesSearch: React.FC = () => {
           </div>
           {/* Application ID */}
           <div className="flex flex-col">
-            <label className="text-sm 2xl:text-base">Application ID</label>
+            <label className="text-sm 2xl:text-base">{t("Application ID")}</label>
             <input
               {...register("applicationId", {
                 setValueAs: (value) => value.trim(),
               })}
               className="input-primary"
-              placeholder="Application ID"
+              placeholder={t("Application ID")}
             />
           </div>
           {/* Agent */}
           <div className="flex flex-col">
-            <label className="text-sm 2xl:text-base">Agent Code</label>
+            <label className="text-sm 2xl:text-base">{t("Agent Code")}</label>
             <input
               {...register("agent")}
               className="input-primary"
-              placeholder="Agent Code"
+              placeholder={t("Agent Code")}
             />
           </div>
           {/* Status */}
           <div className="flex flex-col">
-            <label className="text-sm 2xl:text-base">Status</label>
+            <label className="text-sm 2xl:text-base">{t("Status")}</label>
             <div className="relative bg-white">
               <button
                 type="button"
                 className="w-full border border-inputBorder py-2 sm:py-3 px-4 focus:border-0 focus:ring-1 focus:ring-primary capitalize flex items-center justify-between text-left text-text-light cursor-pointer"
                 onClick={() => setIsSelectStatusOpen((prev) => !prev)}
               >
-                <span className="capitalize">{selectedStatus || "All"}</span>
+                <span className="capitalize">{t(selectedStatus) || t("All")}</span>
                 <FaAngleDown
                   className={`ml-2 cusor-pointer transition-transform ${
                     isSelectStatusOpen ? "rotate-180" : ""
@@ -278,7 +279,7 @@ const PoliciesSearch: React.FC = () => {
                         setIsSelectStatusOpen(false);
                       }}
                     >
-                      {s}
+                      {t(s)}
                     </div>
                   ))}
                 </div>
@@ -289,7 +290,7 @@ const PoliciesSearch: React.FC = () => {
         {/* Product list */}
         <div className="mt-6">
           <p className="text-[#1B1B1B]  font-[inter] mb-2">
-            {langauge === "En" ? "Product" : "PRODUIT"}
+            {t("Product")}
           </p>
           <div className="border border-[#DBDADE] p-2 bg-[#F9F9F9] overflow-y-auto rounded text-sm font-[inter] text-[#1B1B1B] space-y-2">
             <label className="block">
@@ -299,7 +300,7 @@ const PoliciesSearch: React.FC = () => {
                 onChange={() => handleProductChange("All")}
                 className="mr-2 text-[#1B1B1B] accent-primary cursor-pointer"
               />
-              All
+              {t("All")}
             </label>
             {allProducts.map((p) => (
               <label key={p.value} className="block">
@@ -316,7 +317,7 @@ const PoliciesSearch: React.FC = () => {
         </div>
         <div className="flex justify-center mt-6">
           <button type="submit" disabled={loading} className="btn-primary">
-            {loading ? "Searching..." : "Search Policies"}
+            {loading ? t("Searching...") : t("Search Policies")}
           </button>
         </div>
       </form>
@@ -328,7 +329,7 @@ const PoliciesSearch: React.FC = () => {
           <div className="mt-4">
             {!loading && (
               <p className="mb-1 text-text-primary">
-                Found {data.total} policies.
+                {t("Found")} {data.total} {t("policies.")}
               </p>
             )}
           </div>
@@ -337,14 +338,14 @@ const PoliciesSearch: React.FC = () => {
               <tr>
                 {[
                   // "ID",
-                  "Policy No.",
-                  "Status",
-                  "Name",
+                  t("Policy No."),
+                  t("Status"),
+                  t("Name"),
                   // "DOB",
-                  "Eff. Date",
-                  "Exp. Date",
-                  "Product",
-                  "Actions",
+                  t("Eff. Date"),
+                  t("Exp. Date"),
+                  t("Product"),
+                  t("Actions"),
                 ].map((h) => (
                   <th
                     key={h}
@@ -359,7 +360,7 @@ const PoliciesSearch: React.FC = () => {
               {loading ? (
                 <tr>
                   <td className="p-2 text-primary text-center h-40" colSpan={9}>
-                    Loading…
+                    {t("Loading...")}
                   </td>
                 </tr>
               ) : error ? (
@@ -374,7 +375,7 @@ const PoliciesSearch: React.FC = () => {
                     className="p-2 text-text-secondary text-center"
                     colSpan={9}
                   >
-                    No policies found
+                    {t("No policies found")}
                   </td>
                 </tr>
               ) : (
@@ -399,7 +400,7 @@ const PoliciesSearch: React.FC = () => {
                         borderColor: "#AAA9A9",
                       }}
                     >
-                      {p.status}
+                      {t(p.status || "")}
                     </td>
                     {/* <td className="px-2 sm:px-3 py-2 sm:py-3 whitespace-nowrap"
                     style={{
@@ -481,7 +482,7 @@ const PoliciesSearch: React.FC = () => {
                         to={`/policy-detail/${p.id}`}
                         className="text-primary hover:underline hover:underline-offset-2 cursor-pointer font-medium px-4 text-center w-full"
                       >
-                        View
+                        {t("View")}
                       </Link>
                     </td>
                   </tr>

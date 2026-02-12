@@ -327,8 +327,9 @@
 // ================================================
 
 // src/components/QuotesSearch.tsx
-import React, { useContext, useEffect, useState } from "react";
-import { LangContext } from "../context/LangContext";
+import React, { useEffect, useState } from "react";
+// import { LangContext } from "../context/LangContext";
+import { useLanguage } from "../context/LanguageContext";
 import { getUserTypeFromToken } from "../utils/getUserType";
 import { useSearchQuotes, SearchCriteria } from "../hooks/useSearchQuotes";
 import { Link } from "react-router-dom";
@@ -337,7 +338,8 @@ import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
 import { RenderPageNumbers } from "./RenderPageNumbers";
 
 const QuotesSearch: React.FC = () => {
-  const { langauge } = useContext(LangContext);
+  // const { langauge } = useContext(LangContext);
+  const { t } = useLanguage();
 
   const [userType, setUserType] = useState<string | null>(null);
   const [searchData, setSearchData] = useState<SearchCriteria>({
@@ -360,30 +362,32 @@ const QuotesSearch: React.FC = () => {
   const totalPages = data?.totalPages || 0;
   const products = [
     {
-      en: "RIMI Canuck Voyage Travel Medical",
-      fr: "RIMI Canuck Voyage Travel Medical",
+      en: t("RIMI Canuck Voyage Travel Medical"),
+      fr: t("RIMI Canuck Voyage Travel Medical"),
       value: "RIMI_CANUCK_VOYAGE_TRAVEL_MEDICAL",
     },
     {
-      en: "RIMI Canuck Voyage Non-Medical Travel",
-      fr: "RIMI Assurance voyage non médicale Travel",
+      en: t("RIMI Canuck Voyage Non-Medical Travel"),
+      fr: t("RIMI Assurance voyage non médicale Travel"),
       value: "RIMI_CANUCK_VOYAGE_NON_MEDICAL_TRAVEL",
     },
     {
-      en: "Secure Study RIMI International Students to Canada",
-      fr: "Secure Study RIMI International Students to Canada",
+      en: t("Secure Study RIMI International Students to Canada"),
+      fr: t("Secure Study RIMI International Students to Canada"),
       value: "SECURE_STUDY_RIMI_INTERNATIONAL_STUDENTS_TO_CANADA",
     },
     {
-      en: "Secure Travel RIMI Visitors to Canada Travel",
-      fr: "Secure Travel RIMI Visitors to Canada Travel",
+      en: t("Secure Travel RIMI Visitors to Canada Travel"),
+      fr: t("Secure Travel RIMI Visitors to Canada Travel"),
       value: "SECURE_TRAVEL_RIMI_VISITORS_TO_CANADA_TRAVEL",
     },
   ];
 
   useEffect(() => {
     const type = getUserTypeFromToken();
-    setUserType(type.userType);
+    if (type) {
+      setUserType(type.userType);
+    }
   }, []);
 
   // const handleChange =
@@ -443,12 +447,10 @@ const QuotesSearch: React.FC = () => {
   return (
     <div className="w-full mx-auto mt-4 px-2 py-4 sm:p-6 bg-[#F9F9F9]">
       <h2 className="text-lg 2xl:text-xl font-bold text-left text-[#1B1B1B] mb-2">
-        {langauge === "En" ? "Search Quotes" : "Rechercher Quotes"}
+        {t("Search Quotes")}
       </h2>
       <p className="text-left font-medium text-[#6A6A6A] mb-8">
-        {langauge === "En"
-          ? "Fill in as many of the following criteria as you can to generate a search."
-          : "Indiquez Le Plus De Critères Possible Parmi Les Suivants Pour Lancer Une Recherche."}
+        {t("Fill in as many of the following criteria as you can to generate a search.")}
       </p>
 
       {/* Form Fields  */}
@@ -456,7 +458,7 @@ const QuotesSearch: React.FC = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 md:gap-x-16 lg:gap-x-24 gap-y-4 text-text-secondary">
           <div className="flex flex-col gap-1">
             <label className="text-sm 2xl:text-base">
-              {langauge === "En" ? "Quote Number" : "Numéro de devis"}
+              {t("Quote Number")}
             </label>
             <input
               {...register("quoteNumber", {
@@ -469,7 +471,7 @@ const QuotesSearch: React.FC = () => {
           </div>
           <div className="flex flex-col">
             <label className="text-sm 2xl:text-base">
-              {langauge === "En" ? "Quote Date" : "Date du devis"}
+              {t("Quote Date")}
             </label>
             <input
               {...register("quoteDate", {
@@ -481,7 +483,7 @@ const QuotesSearch: React.FC = () => {
           </div>
           <div className="flex flex-col">
             <label className="text-sm 2xl:text-base">
-              {langauge === "En" ? "First Name" : "Prénom"}
+              {t("First Name")}
             </label>
             <input
               {...register("firstName", {
@@ -493,7 +495,7 @@ const QuotesSearch: React.FC = () => {
           </div>
           <div className="flex flex-col">
             <label className="text-sm 2xl:text-base">
-              {langauge === "En" ? "Last Name" : "Nom de famille"}
+              {t("Last Name")}
             </label>
             <input
               {...register("lastName", {
@@ -505,7 +507,7 @@ const QuotesSearch: React.FC = () => {
           </div>
           <div className="flex flex-col">
             <label className="text-sm 2xl:text-base">
-              {langauge === "En" ? "Date of Birth" : "Date de naissance"}
+              {t("Date of Birth")}
             </label>
             <input
               className="input-primary"
@@ -514,7 +516,7 @@ const QuotesSearch: React.FC = () => {
             />
           </div>
           <div className="flex flex-col">
-            <label className="text-sm 2xl:text-base">Email</label>
+            <label className="text-sm 2xl:text-base">{t("Email")}</label>
             <input
               {...register("email", {
                 setValueAs: (value) => value.trim().toLowerCase(),
@@ -526,9 +528,7 @@ const QuotesSearch: React.FC = () => {
           </div>
           <div className="flex flex-col">
             <label className="text-sm 2xl:text-base">
-              {langauge === "En"
-                ? "Effective Date"
-                : `Date d'entrée en vigueur`}
+              {t("Effective Date")}
             </label>
             <input
               className="input-primary"
@@ -538,7 +538,7 @@ const QuotesSearch: React.FC = () => {
           </div>
           <div className="flex flex-col">
             <label className="text-sm 2xl:text-base">
-              {langauge === "En" ? "Expiry Date" : `Date d'expiration`}
+              {t("Expiry Date")}
             </label>
             <input
               {...register("expiryDate")}
@@ -549,7 +549,7 @@ const QuotesSearch: React.FC = () => {
           {userType === "ADMIN" && (
             <div className="flex flex-col">
               <label className="text-sm 2xl:text-base">
-                {langauge === "En" ? "Agent Code" : "Agent Code"}
+                {t("Agent Code")}
               </label>
               <input
                 {...register("agent", {
@@ -565,7 +565,7 @@ const QuotesSearch: React.FC = () => {
       {/* Product Selector  */}
       <div className="mt-6">
         <p className="text-[#1B1B1B]   mb-2">
-          {langauge === "En" ? "Product" : "PRODUIT"}
+          {t("Product")}
         </p>
         <div className="border border-[#DBDADE] p-2 bg-[#F9F9F9] overflow-y-auto text-sm  text-[#1B1B1B] space-y-2">
           <label className="block">
@@ -585,7 +585,7 @@ const QuotesSearch: React.FC = () => {
                 checked={selectedProducts?.includes(p.value)}
                 onChange={() => handleProductChange(p.value)}
               />
-              {langauge === "En" ? p.en : p.fr}
+              {t(p.en)}
             </label>
           ))}
         </div>
@@ -595,14 +595,12 @@ const QuotesSearch: React.FC = () => {
       <div className="w-full flex justify-center mt-6">
         <button
           onClick={handleSubmit(onSearch)}
-          disabled={!!emailError || loading}
+          disabled={loading}
           className="btn-primary"
         >
           {loading
-            ? "Searching..."
-            : langauge === "En"
-            ? "Search Quotes"
-            : "Rechercher Quotes"}
+            ? t("Searching...")
+            : t("Search Quotes")}
         </button>
       </div>
 
@@ -615,7 +613,7 @@ const QuotesSearch: React.FC = () => {
           <div className="mt-4">
             {!loading && (
               <p className="mb-1 text-text-primary">
-                Found {data.total} quotes.
+                {t("Found")} {data.total} {t("quotes.")}
               </p>
             )}
           </div>
@@ -623,13 +621,13 @@ const QuotesSearch: React.FC = () => {
             <thead className="bg-primary text-white text-base 2xl:text-xl capitalize">
               <tr>
                 {[
-                  "Quote Number",
-                  "Name",
-                  "Status",
+                  t("Quote Number"),
+                  t("Name"),
+                  t("Status"),
                   // "Date of Birth",
-                  "Quote Date",
-                  "Product Name",
-                  "Actions",
+                  t("Quote Date"),
+                  t("Product Name"),
+                  t("Actions"),
                 ].map((h) => (
                   <th
                     key={h}
@@ -644,7 +642,7 @@ const QuotesSearch: React.FC = () => {
               {loading ? (
                 <tr>
                   <td className="p-2 text-primary text-center h-40" colSpan={8}>
-                    Loading…
+                    {t("Loading...")}
                   </td>
                 </tr>
               ) : error ? (
@@ -659,7 +657,7 @@ const QuotesSearch: React.FC = () => {
                     className="p-2 text-text-secondary text-center"
                     colSpan={9}
                   >
-                    No quotes found
+                    {t("No quotes found")}
                   </td>
                 </tr>
               ) : (
@@ -697,7 +695,7 @@ const QuotesSearch: React.FC = () => {
                         borderColor: "#AAA9A9",
                       }}
                     >
-                      {u.status}
+                      {t(u.status)}
                     </td>
                     {/* <td
                       className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
@@ -724,7 +722,7 @@ const QuotesSearch: React.FC = () => {
                     >
                       {u.dateIssued
                         ? new Date(u.dateIssued).toLocaleDateString(
-                            langauge === "En" ? "en-CA" : "fr-CA",
+                            undefined,
                             { year: "numeric", month: "short", day: "numeric" }
                           )
                         : "-"}
@@ -753,7 +751,7 @@ const QuotesSearch: React.FC = () => {
                         to={`/quote-detail/${u.id}`}
                         className="text-primary hover:underline hover:underline-offset-2 cursor-pointer font-medium px-4 text-center w-full"
                       >
-                        View
+                        {t("View")}
                       </Link>
                     </td>
                   </tr>
