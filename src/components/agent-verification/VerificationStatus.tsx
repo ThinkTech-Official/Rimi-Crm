@@ -11,14 +11,16 @@ import {
 } from '@heroicons/react/24/outline';
 import { format } from 'date-fns';
 import { API_BASE } from '../../utils/urls';
+import { useLanguage } from '../../context/LanguageContext';
 
 export default function VerificationStatus() {
+  const { t } = useLanguage();
   const status = useSelector(selectVerificationStatus);
 
   if (!status) {
     return (
       <div className="bg-gray-50 border border-gray-200 rounded-lg p-6">
-        <p className="text-gray-500">Loading verification status...</p>
+        <p className="text-gray-500">{t("Loading verification status...")}</p>
       </div>
     );
   }
@@ -31,8 +33,8 @@ export default function VerificationStatus() {
           color: 'text-green-600',
           bgColor: 'bg-green-50',
           borderColor: 'border-green-200',
-          title: 'Verified',
-          message: 'Your account is verified and active.'
+          title: t('Verified'),
+          message: t('Your account is verified and active.')
         };
       case 'PENDING':
         return {
@@ -40,8 +42,8 @@ export default function VerificationStatus() {
           color: 'text-yellow-600',
           bgColor: 'bg-yellow-50',
           borderColor: 'border-yellow-200',
-          title: 'Verification Pending',
-          message: 'Your documents are under review. You will be notified once verified.'
+          title: t('Verification Pending'),
+          message: t('Your documents are under review. You will be notified once verified.')
         };
       case 'REJECTED':
         return {
@@ -49,8 +51,8 @@ export default function VerificationStatus() {
           color: 'text-red-600',
           bgColor: 'bg-red-50',
           borderColor: 'border-red-200',
-          title: 'Verification Rejected',
-          message: 'Your verification was rejected. Please upload new documents.'
+          title: t('Verification Rejected'),
+          message: t('Your verification was rejected. Please upload new documents.')
         };
       case 'EXPIRED':
         return {
@@ -58,8 +60,8 @@ export default function VerificationStatus() {
           color: 'text-orange-600',
           bgColor: 'bg-orange-50',
           borderColor: 'border-orange-200',
-          title: 'Verification Expired',
-          message: 'Your verification has expired. Please upload new documents to renew.'
+          title: t('Verification Expired'),
+          message: t('Your verification has expired. Please upload new documents to renew.')
         };
       case 'NOT_UPLOADED':
         return {
@@ -67,10 +69,10 @@ export default function VerificationStatus() {
           color: 'text-gray-600',
           bgColor: 'bg-gray-50',
           borderColor: 'border-gray-200',
-          title: 'Documents Not Uploaded',
+          title: t('Documents Not Uploaded'),
           message: status.isImportedAgent 
-            ? 'Please upload verification documents before March 1st, 2026.'
-            : 'Please upload your verification documents to activate your account.'
+            ? t('Please upload verification documents before March 1st, 2026.')
+            : t('Please upload your verification documents to activate your account.')
         };
       default:
         return null;
@@ -83,9 +85,9 @@ export default function VerificationStatus() {
   const StatusIcon = statusDisplay.icon;
 
   const documents = [
-    { link: status.docLink1, name: 'Document 1' },
-    { link: status.docLink2, name: 'Document 2' },
-    { link: status.docLink3, name: 'Document 3' },
+    { link: status.docLink1, name: t('Document 1') },
+    { link: status.docLink2, name: t('Document 2') },
+    { link: status.docLink3, name: t('Document 3') },
   ].filter(doc => doc.link);
 
   return (
@@ -105,7 +107,7 @@ export default function VerificationStatus() {
               <div className="flex items-center space-x-2">
                 <DocumentIcon className="h-4 w-4" />
                 <span>
-                  Documents uploaded on: {format(new Date(status.documentsUploadedAt), 'MMM dd, yyyy')}
+                  {t("Documents uploaded on")}: {format(new Date(status.documentsUploadedAt), 'MMM dd, yyyy')}
                 </span>
               </div>
             )}
@@ -114,7 +116,7 @@ export default function VerificationStatus() {
               <div className="flex items-center space-x-2">
                 <CheckCircleIcon className="h-4 w-4" />
                 <span>
-                  Verified on: {format(new Date(status.verifiedAt), 'MMM dd, yyyy')}
+                  {t("Verified on")}: {format(new Date(status.verifiedAt), 'MMM dd, yyyy')}
                 </span>
               </div>
             )}
@@ -125,7 +127,7 @@ export default function VerificationStatus() {
                 <span className={
                   new Date(status.verificationValidTill) <= new Date() ? 'text-red-600 font-medium' : ''
                 }>
-                  Valid until: {format(new Date(status.verificationValidTill), 'MMM dd, yyyy')}
+                  {t("Valid until")}: {format(new Date(status.verificationValidTill), 'MMM dd, yyyy')}
                 </span>
               </div>
             )}
@@ -133,11 +135,11 @@ export default function VerificationStatus() {
             {status.isImportedAgent && (
               <div className="mt-3">
                 <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                  Imported Agent
+                  {t("Imported Agent")}
                 </span>
                 {!status.documentsUploadedAt && (
                   <p className="mt-2 text-xs text-orange-600 font-medium">
-                    ⚠️ Document upload deadline: March 1, 2026
+                    ⚠️ {t("Document upload deadline")}: March 1, 2026
                   </p>
                 )}
               </div>
@@ -147,7 +149,7 @@ export default function VerificationStatus() {
           {/* Uploaded Documents Section */}
           {documents.length > 0 && (
             <div className="mt-4 pt-4 border-t border-gray-200">
-              <p className="text-sm font-medium text-gray-700 mb-2">Uploaded Documents:</p>
+              <p className="text-sm font-medium text-gray-700 mb-2">{t("Uploaded Documents")}:</p>
               <div className="space-y-1">
                 {documents.map((doc, idx) => {
                   const filename = doc.link?.split('/').pop() || doc.name;

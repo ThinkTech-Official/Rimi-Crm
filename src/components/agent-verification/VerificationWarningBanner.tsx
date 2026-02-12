@@ -1,13 +1,15 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ExclamationTriangleIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { useGetVerificationStatus } from '../../hooks/agent-verification/useGetVerificationStatus';
 import { useNavigate } from 'react-router-dom';
+import { useLanguage } from '../../context/LanguageContext';
 
 interface VerificationWarningBannerProps {
   userType: string | null;
 }
 
 export default function VerificationWarningBanner({ userType }: VerificationWarningBannerProps) {
+  const { t } = useLanguage();
   const { data: verificationStatus, fetchStatus } = useGetVerificationStatus();
   const [showBanner, setShowBanner] = useState(false);
   const [dismissed, setDismissed] = useState(false);
@@ -42,21 +44,21 @@ export default function VerificationWarningBanner({ userType }: VerificationWarn
     if (!verificationStatus) return '';
 
     if (verificationStatus.isImportedAgent && !verificationStatus.documentsUploadedAt) {
-      return 'Important: Verification documents must be uploaded before March 1st, 2026 to continue using the platform.';
+      return t('Important: Verification documents must be uploaded before March 1st, 2026 to continue using the platform.');
     }
 
     switch (verificationStatus.verificationStatus) {
       case 'NOT_UPLOADED':
-        return 'Please upload your verification documents to access all features.';
+        return t('Please upload your verification documents to access all features.');
       case 'PENDING':
-        return 'Your verification documents are under review. You will be notified once verified.';
+        return t('Your verification documents are under review. You will be notified once verified.');
       case 'REJECTED':
-        return 'Your verification was rejected. Please upload new documents for review.';
+        return t('Your verification was rejected. Please upload new documents for review.');
       case 'EXPIRED':
         const expiredDate = verificationStatus.verificationValidTill 
           ? new Date(verificationStatus.verificationValidTill).toLocaleDateString()
-          : 'recently';
-        return `Your verification expired on ${expiredDate}. Please upload new documents.`;
+          : t('recently');
+        return `${t("Your verification expired on")} ${expiredDate}. ${t("Please upload new documents.")}`;
       default:
         return '';
     }
@@ -84,7 +86,7 @@ export default function VerificationWarningBanner({ userType }: VerificationWarn
                   onClick={handleUploadClick}
                   className="ml-4 bg-yellow-600 text-white px-3 py-1 rounded text-sm font-medium hover:bg-yellow-700 transition-colors"
                 >
-                  Upload Documents
+                  {t("Upload Documents")}
                 </button>
               )}
             </div>

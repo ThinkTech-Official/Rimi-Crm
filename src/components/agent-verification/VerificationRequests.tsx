@@ -1,30 +1,24 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useGetVerificationRequests } from '../../hooks/agent-verification/useGetVerificationRequests';
 import { useVerifyAgent } from '../../hooks/agent-verification/useVerifyAgent';
-import { CheckCircleIcon, ClockIcon, DocumentIcon, UserIcon, XMarkIcon, UserCircleIcon, CalendarIcon } from '@heroicons/react/24/outline';
+import { CheckCircleIcon, ClockIcon, DocumentIcon, UserIcon } from "@heroicons/react/24/outline";
 import { format } from 'date-fns';
 import { API_BASE } from '../../utils/urls';
-import { useMgaCodes, MgaOption } from '../../hooks/agent-verification/useMgaCodes'; 
+import { useMgaCodes } from '../../hooks/agent-verification/useMgaCodes'; 
 import { VerifiedAgentsTable } from './VerifiedAgentsTable';
 import useNotification from '../../hooks/useNotification';
 import VerificationModal from './VerifyAgentModal';
+import { useLanguage } from '../../context/LanguageContext';
 
 
 
 
-const getDocumentLabel = (docType: string | null): string => {
-  const labels: Record<string, string> = {
-    'insurance_license': 'Insurance License',
-    'eo_insurance': 'E&O Insurance',
-    'bank_details': 'Bank Details',
-    'agency_agreement': 'Agency Agreement',
-  };
-  return docType && labels[docType] ? labels[docType] : 'Document';
-};
+
 
 
 
 export default function VerificationRequests() {
+  const { t } = useLanguage();
   const { NotificationComponent, triggerNotification } = useNotification();
   const [adminAssignments, setAdminAssignments] = useState<{
     agentCode: string;
@@ -125,7 +119,7 @@ useEffect(() => {
       );
 
       if (!response.ok) {
-        throw new Error('Failed to check availability');
+        throw new Error(t('Failed to check availability'));
       }
 
       const data = await response.json();
@@ -136,7 +130,7 @@ useEffect(() => {
     } catch (error) {
       triggerNotification({
         type: 'error',
-        message: 'Failed to check agent code availability. Please try again.',
+        message: t('Failed to check agent code availability. Please try again.'),
         duration: 5000,
       });
       setAgentCodeAvailability({ status: 'idle', lastChecked: '' });
@@ -247,7 +241,7 @@ const handleVerifySubmit = async () => {
     if (!adminAssignments.agentCode || !adminAssignments.agentCode.trim()) {
       triggerNotification({
         type: 'error',
-        message: 'Please provide an Agent Code',
+        message: t('Please provide an Agent Code'),
         duration: 3000,
       });
       return;
@@ -257,7 +251,7 @@ const handleVerifySubmit = async () => {
         agentCodeAvailability.status !== 'available') {
       triggerNotification({
         type: 'error',
-        message: 'Please check agent code availability first',
+        message: t('Please check agent code availability first'),
         duration: 3000,
       });
       return;
@@ -267,7 +261,7 @@ const handleVerifySubmit = async () => {
     if (!isWfgAgent && (!adminAssignments.commissionPercent || parseFloat(adminAssignments.commissionPercent) <= 0)) {
       triggerNotification({
         type: 'error',
-        message: 'Please provide a valid Commission Percentage',
+        message: t('Please provide a valid Commission Percentage'),
         duration: 3000,
       });
       return;
@@ -277,7 +271,7 @@ const handleVerifySubmit = async () => {
    if (selectedAgent.applicantType === 'under_mga' && !adminAssignments.mgaId){
       triggerNotification({
         type: 'error',
-        message: 'Please select an MGA for this agent',
+        message: t('Please select an MGA for this agent'),
         duration: 3000,
       });
       return;
@@ -386,7 +380,7 @@ const handleVerifySubmit = async () => {
   if (agent.applicantType === 'independent') {
     return (
       <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-        Independent Agent
+        {t("Independent Agent")}
       </span>
     );
   }
@@ -395,7 +389,7 @@ const handleVerifySubmit = async () => {
   if (agent.applicantType === 'wfg') {
     return (
       <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
-        WFG Agent
+        {t("WFG Agent")}
       </span>
     );
   }
@@ -404,7 +398,7 @@ const handleVerifySubmit = async () => {
   if (agent.applicantType === 'under_mga' && agent.mgaType === 'wfg') {
     return (
       <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
-        WFG Agent (Legacy)
+        {t("WFG Agent (Legacy)")}
       </span>
     );
   }
@@ -412,7 +406,7 @@ const handleVerifySubmit = async () => {
   if (agent.applicantType === 'under_mga' && agent.mgaType === 'other') {
     return (
       <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
-        Agent under MGA
+        {t("Agent under MGA")}
       </span>
     );
   }
@@ -440,7 +434,7 @@ const handleVerifySubmit = async () => {
     <div>
       {NotificationComponent}
       <h1 className="text-2xl font-bold text-text-primary mb-6">
-        Verification Requests
+        {t("Verification Requests")}
       </h1>
 
       <div className="bg-white shadow">
@@ -460,7 +454,7 @@ const handleVerifySubmit = async () => {
             >
               <div className="flex items-center gap-2">
                 <ClockIcon className="h-5 w-5" />
-                Unverified Requests
+                {t("Unverified Requests")}
                 {!loading && requests &&
                   activeTab === "unverified" &&
                   requests.total > 0 && (
@@ -483,7 +477,7 @@ const handleVerifySubmit = async () => {
             >
               <div className="flex items-center gap-2">
                 <CheckCircleIcon className="h-5 w-5" />
-                Verified Agents
+                {t("Verified Agents")}
                 {!loading && requests && activeTab === "verified" && requests.total > 0 && (
                   <span className="bg-green-100 text-green-800 px-2 py-0.5 rounded-full text-xs">
                     {requests.total}
@@ -537,31 +531,31 @@ const handleVerifySubmit = async () => {
                               
                               <div className="grid grid-cols-1 gap-y-1.5">
                                 <div className="flex items-start gap-1 text-sm">
-                                  <span className="text-text-secondary min-w-[80px]">Email:</span>
+                                  <span className="text-text-secondary min-w-[80px]">{t("Email")}:</span>
                                   <span className="text-gray-900 font-medium break-all">{agent.email}</span>
                                 </div>
                                 
                                 <div className="flex items-start gap-1 text-sm">
-                                  <span className="text-text-secondary min-w-[80px]">Agent Code:</span>
+                                  <span className="text-text-secondary min-w-[80px]">{t("Agent Code")}:</span>
                                   <span className="text-gray-900 font-medium font-mono">{agent.agentCode}</span>
                                 </div>
                                 
                                 {agent.company && (
                                   <div className="flex items-start gap-1 text-sm">
-                                    <span className="text-text-secondary min-w-[80px]">Company:</span>
+                                    <span className="text-text-secondary min-w-[80px]">{t("Company")}:</span>
                                     <span className="text-gray-900 font-medium">{agent.company}</span>
                                   </div>
                                 )}
 
                                 {agent.applicantType === 'under_mga' && agent.mgaType === 'wfg' && agent.wfgCode && (
                                   <div className="flex items-start gap-1 text-sm">
-                                    <span className="text-text-secondary min-w-[80px]">WFG Code:</span>
+                                    <span className="text-text-secondary min-w-[80px]">{t("WFG Code")}:</span>
                                     <span className="text-purple-700 font-medium font-mono">{agent.wfgCode}</span>
                                   </div>
                                 )}
                                 
                                 <div className="flex items-start gap-1 text-sm">
-                                  <span className="text-text-secondary min-w-[80px]">User Type:</span>
+                                  <span className="text-text-secondary min-w-[80px]">{t("User Type")}:</span>
                                   <span className="text-gray-900 font-medium">
                                     {agent.userType || "AGENT"}
                                   </span>
@@ -571,7 +565,7 @@ const handleVerifySubmit = async () => {
                               {agent.isImportedAgent && (
                                 <div className="mt-2">
                                   <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-blue-50 text-blue-700 border border-blue-200">
-                                    Imported Agent
+                                    {t("Imported Agent")}
                                   </span>
                                 </div>
                               )}
@@ -582,58 +576,58 @@ const handleVerifySubmit = async () => {
                           <div className="flex flex-col gap-3 pt-3 border-t border-gray-100">
                             <div className="flex flex-col gap-3">
                               <div>
-                                <p className="text-xs text-text-secondary mb-0.5">Uploaded</p>
+                                <p className="text-xs text-text-secondary mb-0.5">{t("Uploaded")}</p>
                                 <p className="text-sm font-medium text-gray-700">
                                   {agent.documentsUploadedAt
                                     ? format(new Date(agent.documentsUploadedAt), "MMM dd, yyyy")
                                     : agent.applicantType === 'under_mga' && agent.mgaType === 'wfg'
-                                    ? 'WFG Code Provided'
-                                    : 'Not uploaded'}
+                                    ? t("WFG Code Provided")
+                                    : t("Not uploaded")}
                                 </p>
                               </div>
 
                               {hasDocuments(agent) && (
                                 <div className="flex flex-col gap-2">
-                                  <span className="text-text-secondary text-sm font-medium">Documents:</span>
+                                  <span className="text-text-secondary text-sm font-medium">{t("Documents")}:</span>
                                   <div className="flex flex-wrap gap-2">
                                     {agent.docLink1 && (
                                       <button
                                         onClick={() => openDocument(agent.docLink1)}
                                         className="inline-flex items-center gap-1 text-[#2B00B7] hover:text-[#2309A1] transition-colors cursor-pointer text-sm font-medium"
-                                        title="Insurance License"
+                                        title={t("Insurance License")}
                                       >
                                         <DocumentIcon className="h-4 w-4" />
-                                        <span>Insurance License</span>
+                                        <span>{t("Insurance License")}</span>
                                       </button>
                                     )}
                                     {agent.docLink2 && (
                                       <button
                                         onClick={() => openDocument(agent.docLink2)}
                                         className="inline-flex items-center gap-1 text-[#2B00B7] hover:text-[#2309A1] transition-colors cursor-pointer text-sm font-medium"
-                                        title="E&O Insurance"
+                                        title={t("E&O Insurance")}
                                       >
                                         <DocumentIcon className="h-4 w-4" />
-                                        <span>E&O Insurance</span>
+                                        <span>{t("E&O Insurance")}</span>
                                       </button>
                                     )}
                                     {agent.docLink3 && (
                                       <button
                                         onClick={() => openDocument(agent.docLink3)}
                                         className="inline-flex items-center gap-1 text-[#2B00B7] hover:text-[#2309A1] transition-colors cursor-pointer text-sm font-medium"
-                                        title="Bank Details"
+                                        title={t("Bank Details")}
                                       >
                                         <DocumentIcon className="h-4 w-4" />
-                                        <span>Bank Details</span>
+                                        <span>{t("Bank Details")}</span>
                                       </button>
                                     )}
                                     {agent.docLink4 && (
                                       <button
                                         onClick={() => openDocument(agent.docLink4)}
                                         className="inline-flex items-center gap-1 text-[#2B00B7] hover:text-[#2309A1] transition-colors cursor-pointer text-sm font-medium"
-                                        title="Agency Agreement"
+                                        title={t("Agency Agreement")}
                                       >
                                         <DocumentIcon className="h-4 w-4" />
-                                        <span>Agency Agreement</span>
+                                        <span>{t("Agency Agreement")}</span>
                                       </button>
                                     )}
                                   </div>
@@ -645,7 +639,7 @@ const handleVerifySubmit = async () => {
                               onClick={() => handleVerifyClick(agent)}
                               className="w-full px-4 py-2 bg-primary hover:bg-[#2309A1] text-white cursor-pointer rounded transition-colors"
                             >
-                              Verify Agent
+                              {t("Verify Agent")}
                             </button>
                           </div>
                         </div>
@@ -668,31 +662,31 @@ const handleVerifySubmit = async () => {
                               
                               <div className="grid grid-cols-1 gap-x-8 gap-y-1">
                                 <div className="flex items-start gap-1">
-                                  <span className="text-text-secondary min-w-[90px]">Email:</span>
+                                  <span className="text-text-secondary min-w-[90px]">{t("Email")}:</span>
                                   <span className="text-gray-900 font-medium break-all">{agent.email}</span>
                                 </div>
                                 
                                 <div className="flex items-start gap-1">
-                                  <span className="text-text-secondary min-w-[90px]">Agent Code:</span>
+                                  <span className="text-text-secondary min-w-[90px]">{t("Agent Code")}:</span>
                                   <span className="text-gray-900 font-medium font-mono">{agent.agentCode}</span>
                                 </div>
                                 
                                 {agent.company && (
                                   <div className="flex items-start gap-1">
-                                    <span className="text-text-secondary min-w-[90px]">Company:</span>
+                                    <span className="text-text-secondary min-w-[90px]">{t("Company")}:</span>
                                     <span className="text-gray-900 font-medium">{agent.company}</span>
                                   </div>
                                 )}
 
                                 {agent.applicantType === 'under_mga' && agent.mgaType === 'wfg' && agent.wfgCode && (
                                   <div className="flex items-start gap-1">
-                                    <span className="text-text-secondary min-w-[90px]">WFG Code:</span>
+                                    <span className="text-text-secondary min-w-[90px]">{t("WFG Code")}:</span>
                                     <span className="text-purple-700 font-medium font-mono">{agent.wfgCode}</span>
                                   </div>
                                 )}
                                 
                                 <div className="flex items-start gap-1">
-                                  <span className="text-text-secondary min-w-[90px]">User Type:</span>
+                                  <span className="text-text-secondary min-w-[90px]">{t("User Type")}:</span>
                                   <span className="text-gray-900 font-medium">
                                     {agent.userType || "AGENT"}
                                   </span>
@@ -702,7 +696,7 @@ const handleVerifySubmit = async () => {
                               {agent.isImportedAgent && (
                                 <div className="mt-3">
                                   <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-blue-50 text-blue-700 border border-blue-200">
-                                    Imported Agent
+                                    {t("Imported Agent")}
                                   </span>
                                 </div>
                               )}
@@ -712,58 +706,58 @@ const handleVerifySubmit = async () => {
                           {/* Right Section - Actions */}
                           <div className="flex flex-col items-end gap-3 flex-shrink-0">
                             <div className="text-right">
-                              <p className="text-xs text-text-secondary mb-1">Uploaded</p>
+                              <p className="text-xs text-text-secondary mb-1">{t("Uploaded")}</p>
                               <p className="text-sm font-medium text-gray-700">
                                 {agent.documentsUploadedAt
                                   ? format(new Date(agent.documentsUploadedAt), "MMM dd, yyyy")
                                   : agent.applicantType === 'under_mga' && agent.mgaType === 'wfg'
-                                  ? 'WFG Code Provided'
-                                  : 'Not uploaded'}
+                                  ? t("WFG Code Provided")
+                                  : t("Not uploaded")}
                               </p>
                             </div>
 
                              {hasDocuments(agent) && (
                                <div className="flex flex-col items-end gap-2">
-                                 <span className="text-text-secondary text-sm font-medium">Documents:</span>
+                                 <span className="text-text-secondary text-sm font-medium">{t("Documents")}:</span>
                                  <div className="flex flex-wrap justify-end gap-2">
                                    {agent.docLink1 && (
                                      <button
                                        onClick={() => openDocument(agent.docLink1)}
                                        className="inline-flex items-center gap-1 text-[#2B00B7] hover:text-[#2309A1] transition-colors cursor-pointer text-sm font-medium"
-                                       title="Insurance License"
+                                       title={t("Insurance License")}
                                      >
                                        <DocumentIcon className="h-4 w-4" />
-                                       <span>Insurance License</span>
+                                       <span>{t("Insurance License")}</span>
                                      </button>
                                    )}
                                    {agent.docLink2 && (
                                      <button
                                        onClick={() => openDocument(agent.docLink2)}
                                        className="inline-flex items-center gap-1 text-[#2B00B7] hover:text-[#2309A1] transition-colors cursor-pointer text-sm font-medium"
-                                       title="E&O Insurance"
+                                       title={t("E&O Insurance")}
                                      >
                                        <DocumentIcon className="h-4 w-4" />
-                                       <span>E&O Insurance</span>
+                                       <span>{t("E&O Insurance")}</span>
                                      </button>
                                    )}
                                    {agent.docLink3 && (
                                      <button
                                        onClick={() => openDocument(agent.docLink3)}
                                        className="inline-flex items-center gap-1 text-[#2B00B7] hover:text-[#2309A1] transition-colors cursor-pointer text-sm font-medium"
-                                       title="Bank Details"
+                                       title={t("Bank Details")}
                                      >
                                        <DocumentIcon className="h-4 w-4" />
-                                       <span>Bank Details</span>
+                                       <span>{t("Bank Details")}</span>
                                      </button>
                                    )}
                                    {agent.docLink4 && (
                                      <button
                                        onClick={() => openDocument(agent.docLink4)}
                                        className="inline-flex items-center gap-1 text-[#2B00B7] hover:text-[#2309A1] transition-colors cursor-pointer text-sm font-medium"
-                                       title="Agency Agreement"
+                                       title={t("Agency Agreement")}
                                      >
                                        <DocumentIcon className="h-4 w-4" />
-                                       <span>Agency Agreement</span>
+                                       <span>{t("Agency Agreement")}</span>
                                      </button>
                                    )}
                                  </div>
@@ -774,7 +768,7 @@ const handleVerifySubmit = async () => {
                               onClick={() => handleVerifyClick(agent)}
                               className="px-4 py-2 bg-primary hover:bg-[#2309A1] text-white cursor-pointer rounded transition-colors"
                             >
-                              Verify Agent
+                              {t("Verify Agent")}
                             </button>
                           </div>
                         </div>
@@ -791,17 +785,17 @@ const handleVerifySubmit = async () => {
                           disabled={!requests.hasPrevPage}
                           className="px-3 py-1 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                         >
-                          Previous
+                          {t("Previous")}
                         </button>
                         <span className="text-sm text-gray-700">
-                          Page {currentPage} of {requests.totalPages}
+                          {t("Page")} {currentPage} {t("of")} {requests.totalPages}
                         </span>
                         <button
                           onClick={() => setCurrentPage(currentPage + 1)}
                           disabled={!requests.hasNextPage}
                           className="px-3 py-1 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                         >
-                          Next
+                          {t("Next")}
                         </button>
                       </nav>
                     </div>

@@ -3,12 +3,14 @@ import { useRequestVerification } from "../hooks/agent-verification/useRequestVe
 import { setVerificationStatus } from "../features/verificationSlice";
 import { useGetVerificationStatus } from "../hooks/agent-verification/useGetVerificationStatus";
 import useNotification from "../hooks/useNotification";
+import { useLanguage } from "../context/LanguageContext";
 
 const ConfirmRequestVerification = ({
   setShowRequestVerification,
 }: {
   setShowRequestVerification: (val: boolean) => void;
 }) => {
+  const { language, t } = useLanguage();
   const { requestVerification, loading: requestingVerification } =
     useRequestVerification();
   const { fetchStatus } = useGetVerificationStatus();
@@ -18,7 +20,7 @@ const ConfirmRequestVerification = ({
   const handleConfirm = async () => {
     try {
       const result = await requestVerification();
-      triggerNotification({ type: "success", message: result.message || "Verification request submitted successfully!" });
+      triggerNotification({ type: "success", message: result.message || t("Verification request submitted successfully!") });
 
       // Refresh verification status
       const status = await fetchStatus();
@@ -29,7 +31,7 @@ const ConfirmRequestVerification = ({
       // Refresh profile to update status
       window.location.reload();
     } catch (err: any) {
-      triggerNotification({ type: "error", message: `Error: ${err.message}` });
+      triggerNotification({ type: "error", message: `${t("Error")}: ${err.message}` });
     }
   };
   return (
@@ -37,22 +39,21 @@ const ConfirmRequestVerification = ({
       <div className="bg-white shadow-xl max-w-lg w-full mx-4">
         <div className="border-b border-inputBorder px-6 py-4">
           <h2 className="text-xl font-semibold text-text-primary">
-            Confirm Request
+            {t("Confirm Request")}
           </h2>
         </div>
         <div className="px-6 py-4 space-y-4">
           <p className="text-left text-text-secondary mb-8">
-            Are you sure you want to submit your documents for verification?
-            Make sure all documents are correct?
+            {t("Are you sure you want to submit your documents for verification? Make sure all documents are correct.")}
           </p>
           <div className="flex justify-end space-x-4">
             <button
               className="py-2 px-4 border border-inputBorder hover:border-gray-700 cursor-pointer transition delay-100"
               onClick={handleClose}
             >
-              Cancel
+              {t("Cancel")}
             </button>
-            <button className={`btn-primary ${requestingVerification ? "Submitting" : ""}`} onClick={handleConfirm}>Confirm</button>
+            <button className={`btn-primary ${requestingVerification ? "Submitting" : ""}`} onClick={handleConfirm}>{t("Confirm")}</button>
           </div>
         </div>
       </div>

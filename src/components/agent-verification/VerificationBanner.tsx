@@ -4,8 +4,10 @@ import { useSelector } from 'react-redux';
 import { selectVerificationStatus } from '../../features/verificationSlice';
 import { useNavigate } from 'react-router-dom';
 import { getUserTypeFromToken } from '../../utils/getUserType';
+import { useLanguage } from '../../context/LanguageContext';
 
 export default function VerificationBanner() {
+  const { t } = useLanguage();
   const verificationStatus = useSelector(selectVerificationStatus);
   const [dismissed, setDismissed] = React.useState(false);
   const navigate = useNavigate();
@@ -35,21 +37,21 @@ export default function VerificationBanner() {
 
   const getWarningMessage = () => {
     if (verificationStatus.isImportedAgent && !verificationStatus.documentsUploadedAt) {
-      return 'Important: Verification documents must be uploaded before March 1st, 2026 to continue using the platform.';
+      return t('Important: Verification documents must be uploaded before March 1st, 2026 to continue using the platform.');
     }
 
     switch (verificationStatus.verificationStatus) {
       case 'NOT_UPLOADED':
-        return 'Please upload your verification documents to access all features.';
+        return t('Please upload your verification documents to access all features.');
       case 'PENDING':
-        return 'Your verification documents are under review. You will be notified once verified.';
+        return t('Your verification documents are under review. You will be notified once verified.');
       case 'REJECTED':
-        return 'Your verification was rejected. Please upload new documents for review.';
+        return t('Your verification was rejected. Please upload new documents for review.');
       case 'EXPIRED':
         const expiredDate = verificationStatus.verificationValidTill 
           ? new Date(verificationStatus.verificationValidTill).toLocaleDateString()
-          : 'recently';
-        return `Your verification expired on ${expiredDate}. Please upload new documents.`;
+          : t('recently');
+        return `${t("Your verification expired on")} ${expiredDate}. ${t("Please upload new documents.")}`;
       default:
         return '';
     }
@@ -75,7 +77,7 @@ export default function VerificationBanner() {
                 onClick={() => navigate('/profile')}
                 className="bg-yellow-600 text-white px-3 py-1 rounded text-sm font-medium hover:bg-yellow-700 transition-colors whitespace-nowrap"
               >
-                Upload Documents
+                {t("Upload Documents")}
               </button>
             )}
           </div>

@@ -7,8 +7,10 @@ import {
   XCircleIcon 
 } from '@heroicons/react/24/solid';
 import { getUserTypeFromToken } from '../../utils/getUserType';
+import { useLanguage } from '../../context/LanguageContext';
 
 export default function VerificationIndicator() {
+  const { t } = useLanguage();
   const verificationStatus = useSelector(selectVerificationStatus);
   const userType = getUserTypeFromToken()?.userType;
 
@@ -29,7 +31,7 @@ export default function VerificationIndicator() {
         icon: ExclamationTriangleIcon,
         color: 'text-orange-500',
         bgColor: 'bg-orange-100',
-        title: 'Verification Expired'
+        title: t('Verification Expired')
       };
     }
 
@@ -39,35 +41,35 @@ export default function VerificationIndicator() {
           icon: CheckBadgeIcon,
           color: 'text-green-600',
           bgColor: 'bg-green-100',
-          title: 'Verified'
+          title: t('Verified')
         };
       case 'PENDING':
         return {
           icon: ClockIcon,
           color: 'text-yellow-500',
           bgColor: 'bg-yellow-100',
-          title: 'Verification Pending'
+          title: t('Verification Pending')
         };
       case 'REJECTED':
         return {
           icon: XCircleIcon,
           color: 'text-red-500',
           bgColor: 'bg-red-100',
-          title: 'Verification Rejected'
+          title: t('Verification Rejected')
         };
       case 'EXPIRED':
         return {
           icon: ExclamationTriangleIcon,
           color: 'text-orange-500',
           bgColor: 'bg-orange-100',
-          title: 'Verification Expired'
+          title: t('Verification Expired')
         };
       case 'NOT_UPLOADED':
         return {
           icon: ExclamationTriangleIcon,
           color: 'text-gray-500',
           bgColor: 'bg-gray-100',
-          title: 'Documents Required'
+          title: t('Documents Required')
         };
       default:
         return null;

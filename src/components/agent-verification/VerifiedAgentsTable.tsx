@@ -2,6 +2,7 @@ import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
 import { format } from "date-fns";
 import Spinner from "../Spinner";
 import { RenderPageNumbers } from "../RenderPageNumbers";
+import { useLanguage } from "../../context/LanguageContext";
 
 type VerifiedAgent = {
   id: string;
@@ -29,6 +30,7 @@ export function VerifiedAgentsTable({
   currentPage,
   onPageChange,
 }: VerifiedAgentsTableProps) {
+  const { t } = useLanguage();
   return (
     <div className="mt-6 space-y-2 w-full">
       <div className="w-full overflow-x-auto">
@@ -36,22 +38,22 @@ export function VerifiedAgentsTable({
           <thead className="bg-primary text-white text-base 2xl:text-xl capitalize">
             <tr>
               <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium text-nowrap">
-                Agent Code
+                {t("Agent Code")}
               </th>
               <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium text-nowrap">
-                Name
+                {t("Name")}
               </th>
               <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium text-nowrap">
-                Email
+                {t("Email")}
               </th>
               <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium text-nowrap">
-                User Type
+                {t("User Type")}
               </th>
               <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium text-nowrap">
-                Verified Date
+                {t("Verified Date")}
               </th>
               <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium text-nowrap">
-                Valid Until
+                {t("Valid Until")}
               </th>
             </tr>
           </thead>
@@ -65,7 +67,7 @@ export function VerifiedAgentsTable({
             ) : data.length === 0 ? (
               <tr>
                 <td colSpan={6} className="p-4 text-center text-text-secondary">
-                  No verified agents found
+                  {t("No verified agents found")}
                 </td>
               </tr>
             ) : (
@@ -153,7 +155,7 @@ export function VerifiedAgentsTable({
             disabled={currentPage === 1}
             onClick={() => onPageChange(currentPage - 1)}
             className="px-2 py-[10px] bg-[#CCCCCC] text-[#6F6B7D] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-            title="Previous"
+            title={t("Previous")}
           >
             <ChevronLeftIcon className="h-5 w-5" />
           </button>
@@ -166,7 +168,7 @@ export function VerifiedAgentsTable({
             disabled={currentPage === totalPages}
             onClick={() => onPageChange(currentPage + 1)}
             className="px-2 py-[10px] bg-[#CCCCCC] text-[#6F6B7D] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-            title="Next"
+            title={t("Next")}
           >
             <ChevronRightIcon className="h-5 w-5" />
           </button>

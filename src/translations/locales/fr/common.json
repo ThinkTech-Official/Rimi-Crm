@@ -310,5 +310,20 @@
   "Please fill all required fields correctly.": "Veuillez remplir correctement tous les champs obligatoires.",
   "No discount": "Pas d'escompte",
   "Deductible Option": "Option de franchise",
-  "Discount": "Escompte"
+  "Discount": "Escompte",
+  "Confirm Request": "Confirmer la demande",
+  "Are you sure you want to submit your documents for verification? Make sure all documents are correct.": "Êtes-vous sûr de vouloir soumettre vos documents pour vérification ? Assurez-vous que tous les documents sont corrects.",
+  "Verification request submitted successfully!": "Demande de vérification soumise avec succès !",
+  "Failed to check availability": "Échec de la vérification de la disponibilité",
+  "Failed to check agent code availability. Please try again.": "Échec de la vérification de la disponibilité du code d'agent. Veuillez réessayer.",
+  "Please provide an Agent Code": "Veuillez fournir un code d'agent",
+  "Please select an MGA for this agent": "Veuillez sélectionner un MGA pour cet agent",
+  "Unverified Requests": "Demandes non vérifiées",
+  "Verified Agents": "Agents vérifiés",
+  "WFG Code Provided": "Code WFG fourni",
+  "Not uploaded": "Non téléversé",
+  "Uploaded": "Téléversé",
+  "Page": "Page",
+  "of": "de"
 }
+

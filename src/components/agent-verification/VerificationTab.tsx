@@ -118,7 +118,10 @@ interface VerificationTabProps {
   userType: string;
 }
 
+import { useLanguage } from '../../context/LanguageContext';
+
 export default function VerificationTab({ onUploadClick, userType }: VerificationTabProps) {
+  const { language, t } = useLanguage();
   const dispatch = useDispatch();
   const verificationStatus = useSelector(selectVerificationStatus);
   const { data, fetchStatus } = useGetVerificationStatus();
@@ -144,18 +147,18 @@ export default function VerificationTab({ onUploadClick, userType }: Verificatio
 
   const handleRequestVerification = async () => {
     const confirmed = window.confirm(
-      'Are you sure you want to submit your documents for verification? Make sure all documents are correct.'
+      t('Are you sure you want to submit your documents for verification? Make sure all documents are correct.')
     );
     
     if (!confirmed) return;
 
     try {
       await requestVerification();
-      triggerNotification({ type: "success", message: "Verification request submitted successfully! Admin will review your documents." });
+      triggerNotification({ type: "success", message: t("Verification request submitted successfully! Admin will review your documents.") });
       // Refresh status to show PENDING state
       await refreshStatus();
     } catch (error: any) {
-      triggerNotification({ type: "error", message: `Error: ${error.message}` });
+      triggerNotification({ type: "error", message: `${t("Error")}: ${error.message}` });
     }
   };
 
@@ -168,7 +171,7 @@ export default function VerificationTab({ onUploadClick, userType }: Verificatio
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-3">
           <ShieldCheckIcon className="h-6 w-6 text-[#3a17c5]" />
-          <h3 className="text-lg font-semibold text-gray-900">Verification Status</h3>
+          <h3 className="text-lg font-semibold text-gray-900">{t("Verification Status")}</h3>
         </div>
         <StatusBadge status={status} />
       </div>
@@ -181,17 +184,17 @@ export default function VerificationTab({ onUploadClick, userType }: Verificatio
         <div className="bg-white border border-gray-200 rounded-lg p-4">
           <h4 className="text-sm font-medium text-gray-700 mb-3 flex items-center gap-2">
             <DocumentIcon className="h-5 w-5" />
-            Uploaded Documents
+            {t("Uploaded Documents")}
           </h4>
           <div className="space-y-2">
             {verificationStatus?.docLink1 && (
-              <DocumentLink link={verificationStatus.docLink1} label="Document 1" />
+              <DocumentLink link={verificationStatus.docLink1} label={t("Document 1")} />
             )}
             {verificationStatus?.docLink2 && (
-              <DocumentLink link={verificationStatus.docLink2} label="Document 2" />
+              <DocumentLink link={verificationStatus.docLink2} label={t("Document 2")} />
             )}
             {verificationStatus?.docLink3 && (
-              <DocumentLink link={verificationStatus.docLink3} label="Document 3" />
+              <DocumentLink link={verificationStatus.docLink3} label={t("Document 3")} />
             )}
           </div>
         </div>
@@ -199,15 +202,15 @@ export default function VerificationTab({ onUploadClick, userType }: Verificatio
 
       {/* Information Box */}
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-        <h4 className="text-sm font-medium text-blue-900 mb-2">Verification Information</h4>
+        <h4 className="text-sm font-medium text-blue-900 mb-2">{t("Verification Information")}</h4>
         <ul className="text-sm text-blue-700 space-y-1">
-          <li>• Upload up to 3 documents for verification</li>
-          <li>• Supported formats: PDF, JPG, JPEG, PNG (max 5MB each)</li>
-          <li>• Review your documents before requesting verification</li>
-          <li>• Admin will review and approve your documents</li>
+          <li>• {t("Upload up to 3 documents for verification")}</li>
+          <li>• {t("Supported formats: PDF, JPG, JPEG, PNG (max 5MB each)")}</li>
+          <li>• {t("Review your documents before requesting verification")}</li>
+          <li>• {t("Admin will review and approve your documents")}</li>
           {verificationStatus?.isImportedAgent && (
             <li className="font-medium text-orange-700">
-              • As an imported agent, documents must be uploaded before March 1, 2026
+              • {t("As an imported agent, documents must be uploaded before March 1, 2026")}
             </li>
           )}
         </ul>
@@ -227,15 +230,15 @@ export default function VerificationTab({ onUploadClick, userType }: Verificatio
               <DocumentArrowUpIcon className="h-8 w-8 text-gray-400" />
             </div>
             <div className="flex-1">
-              <h4 className="text-lg font-medium text-gray-900">No Documents Uploaded</h4>
+              <h4 className="text-lg font-medium text-gray-900">{t("No Documents Uploaded")}</h4>
               <p className="mt-2 text-sm text-gray-600">
-                Please upload your verification documents to get started. You'll be able to review them before submitting for verification.
+                {t("Please upload your verification documents to get started. You'll be able to review them before submitting for verification.")}
               </p>
               <button
                 onClick={onUploadClick}
                 className="mt-4 px-4 py-2 bg-[#3a17c5] text-white rounded hover:bg-[#2d1299] transition-colors"
               >
-                Upload Documents
+                {t("Upload Documents")}
               </button>
             </div>
           </div>
@@ -252,13 +255,13 @@ export default function VerificationTab({ onUploadClick, userType }: Verificatio
               <ExclamationCircleIcon className="h-8 w-8 text-yellow-600" />
             </div>
             <div className="flex-1">
-              <h4 className="text-lg font-medium text-yellow-900">Documents Ready for Verification</h4>
+              <h4 className="text-lg font-medium text-yellow-900">{t("Documents Ready for Verification")}</h4>
               <p className="mt-2 text-sm text-yellow-700">
-                Your documents have been saved. Please review them carefully. When you're satisfied, click "Request Verification" to submit them for admin review.
+                {t("Your documents have been saved. Please review them carefully. When you're satisfied, click \"Request Verification\" to submit them for admin review.")}
               </p>
               {verificationStatus?.documentsUploadedAt && (
                 <p className="mt-1 text-xs text-yellow-600">
-                  Last uploaded: {new Date(verificationStatus.documentsUploadedAt).toLocaleString()}
+                  {t("Last uploaded")}: {new Date(verificationStatus.documentsUploadedAt).toLocaleString()}
                 </p>
               )}
               <div className="mt-4 flex gap-3">
@@ -266,14 +269,14 @@ export default function VerificationTab({ onUploadClick, userType }: Verificatio
                   onClick={onUploadClick}
                   className="px-4 py-2 bg-white border border-yellow-300 text-yellow-700 hover:bg-yellow-50 transition-colors delay-100 cursor-pointer"
                 >
-                  Edit Documents
+                  {t("Edit Documents")}
                 </button>
                 <button
                   onClick={handleRequestVerification}
                   disabled={requesting}
                   className="px-4 py-2 bg-[#3a17c5] text-white hover:bg-[#2d1299] disabled:opacity-50 disabled:cursor-not-allowed transition-colors delay-100 cursor-pointer"
                 >
-                  {requesting ? 'Submitting...' : 'Request Verification'}
+                  {requesting ? t('Submitting...') : t('Request Verification')}
                 </button>
               </div>
             </div>
@@ -291,13 +294,13 @@ export default function VerificationTab({ onUploadClick, userType }: Verificatio
               <ClockIcon className="h-8 w-8 text-blue-600 animate-pulse" />
             </div>
             <div className="flex-1">
-              <h4 className="text-lg font-medium text-blue-900">Verification Pending</h4>
+              <h4 className="text-lg font-medium text-blue-900">{t("Verification Pending")}</h4>
               <p className="mt-2 text-sm text-blue-700">
-                Your documents have been submitted and are awaiting admin review. You'll be notified once the verification is complete.
+                {t("Your documents have been submitted and are awaiting admin review. You'll be notified once the verification is complete.")}
               </p>
               {verificationStatus?.documentsUploadedAt && (
                 <div className="mt-3 text-xs text-blue-600 space-y-1">
-                  <p><strong>Uploaded:</strong> {new Date(verificationStatus.documentsUploadedAt).toLocaleString()}</p>
+                  <p><strong>{t("Uploaded")}:</strong> {new Date(verificationStatus.documentsUploadedAt).toLocaleString()}</p>
                   {/* Show requested time if available */}
                   {/* <p><strong>Requested:</strong> {new Date(verificationStatus.verificationRequestedAt).toLocaleString()}</p> */}
                 </div>
@@ -317,19 +320,19 @@ export default function VerificationTab({ onUploadClick, userType }: Verificatio
               <CheckCircleIcon className="h-8 w-8 text-green-600" />
             </div>
             <div className="flex-1">
-              <h4 className="text-lg font-medium text-green-900">Verified ✓</h4>
+              <h4 className="text-lg font-medium text-green-900">{t("Verified")} ✓</h4>
               <p className="mt-2 text-sm text-green-700">
-                Your account has been verified by the admin. You now have full access to all features.
+                {t("Your account has been verified by the admin. You now have full access to all features.")}
               </p>
               <div className="mt-3 text-sm text-green-600 space-y-1">
                 {verificationStatus?.verifiedAt && (
-                  <p><strong>Verified on:</strong> {new Date(verificationStatus.verifiedAt).toLocaleDateString()}</p>
+                  <p><strong>{t("Verified on")}:</strong> {new Date(verificationStatus.verifiedAt).toLocaleDateString()}</p>
                 )}
                 {verificationStatus?.verificationValidTill && (
-                  <p><strong>Valid until:</strong> {new Date(verificationStatus.verificationValidTill).toLocaleDateString()}</p>
+                  <p><strong>{t("Valid until")}:</strong> {new Date(verificationStatus.verificationValidTill).toLocaleDateString()}</p>
                 )}
                 {verificationStatus?.verifiedBy && (
-                  <p className="text-xs text-green-500">Verified by: {verificationStatus.verifiedBy}</p>
+                  <p className="text-xs text-green-500">{t("Verified by")}: {verificationStatus.verifiedBy}</p>
                 )}
               </div>
             </div>
@@ -347,15 +350,15 @@ export default function VerificationTab({ onUploadClick, userType }: Verificatio
               <ExclamationCircleIcon className="h-8 w-8 text-red-600" />
             </div>
             <div className="flex-1">
-              <h4 className="text-lg font-medium text-red-900">Verification Rejected</h4>
+              <h4 className="text-lg font-medium text-red-900">{t("Verification Rejected")}</h4>
               <p className="mt-2 text-sm text-red-700">
-                Your verification request was not approved. Please upload correct documents and try again.
+                {t("Your verification request was not approved. Please upload correct documents and try again.")}
               </p>
               <button
                 onClick={onUploadClick}
                 className="mt-4 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition-colors"
               >
-                Upload New Documents
+                {t("Upload New Documents")}
               </button>
             </div>
           </div>
@@ -372,20 +375,20 @@ export default function VerificationTab({ onUploadClick, userType }: Verificatio
               <ClockIcon className="h-8 w-8 text-orange-600" />
             </div>
             <div className="flex-1">
-              <h4 className="text-lg font-medium text-orange-900">Verification Expired</h4>
+              <h4 className="text-lg font-medium text-orange-900">{t("Verification Expired")}</h4>
               <p className="mt-2 text-sm text-orange-700">
-                Your verification has expired. Please upload new documents to renew your verification.
+                {t("Your verification has expired. Please upload new documents to renew your verification.")}
               </p>
               {verificationStatus?.verificationValidTill && (
                 <p className="mt-1 text-xs text-orange-600">
-                  Expired on: {new Date(verificationStatus.verificationValidTill).toLocaleDateString()}
+                  {t("Expired on")}: {new Date(verificationStatus.verificationValidTill).toLocaleDateString()}
                 </p>
               )}
               <button
                 onClick={onUploadClick}
                 className="mt-4 px-4 py-2 bg-orange-600 text-white rounded hover:bg-orange-700 transition-colors"
               >
-                Upload New Documents
+                {t("Upload New Documents")}
               </button>
             </div>
           </div>
@@ -396,7 +399,7 @@ export default function VerificationTab({ onUploadClick, userType }: Verificatio
     // Default fallback
     return (
       <div className="bg-gray-50 border border-gray-200 rounded-lg p-6">
-        <p className="text-sm text-gray-600">Loading verification status...</p>
+        <p className="text-sm text-gray-600">{t("Loading verification status...")}</p>
       </div>
     );
   }
@@ -404,15 +407,16 @@ export default function VerificationTab({ onUploadClick, userType }: Verificatio
 
 // Status Badge Component
 function StatusBadge({ status }: { status?: string }) {
+  const { t } = useLanguage();
   const config: Record<string, { bg: string; text: string; label: string }> = {
-    DRAFT: { bg: 'bg-yellow-100', text: 'text-yellow-800', label: 'Draft' },
-    PENDING: { bg: 'bg-blue-100', text: 'text-blue-800', label: 'Pending Review' },
-    VERIFIED: { bg: 'bg-green-100', text: 'text-green-800', label: 'Verified' },
-    REJECTED: { bg: 'bg-red-100', text: 'text-red-800', label: 'Rejected' },
-    EXPIRED: { bg: 'bg-orange-100', text: 'text-orange-800', label: 'Expired' },
+    DRAFT: { bg: 'bg-yellow-100', text: 'text-yellow-800', label: t('Draft') },
+    PENDING: { bg: 'bg-blue-100', text: 'text-blue-800', label: t('Pending Review') },
+    VERIFIED: { bg: 'bg-green-100', text: 'text-green-800', label: t('Verified') },
+    REJECTED: { bg: 'bg-red-100', text: 'text-red-800', label: t('Rejected') },
+    EXPIRED: { bg: 'bg-orange-100', text: 'text-orange-800', label: t('Expired') },
   };
 
-  const badge = status ? config[status] : { bg: 'bg-gray-100', text: 'text-gray-800', label: 'Not Uploaded' };
+  const badge = status ? config[status] : { bg: 'bg-gray-100', text: 'text-gray-800', label: t('Not Uploaded') };
 
   return (
     <span className={`px-3 py-1 rounded-full text-xs font-medium ${badge.bg} ${badge.text}`}>

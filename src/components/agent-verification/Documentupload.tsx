@@ -2,12 +2,14 @@ import React, { useState } from 'react';
 import { useUploadDocuments } from '../../hooks/agent-verification/useUploadDocuments';
 import { DocumentArrowUpIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import useNotification from '../../hooks/useNotification';
+import { useLanguage } from '../../context/LanguageContext';
 
 interface DocumentUploadProps {
   onSuccess?: () => void;
 }
 
 export default function DocumentUpload({ onSuccess }: DocumentUploadProps) {
+  const { t } = useLanguage();
   const [files, setFiles] = useState<{ [key: string]: File | null }>({
     document1: null,
     document2: null,
@@ -21,14 +23,14 @@ export default function DocumentUpload({ onSuccess }: DocumentUploadProps) {
     if (file) {
       // Validate file size (max 5MB)
       if (file.size > 5 * 1024 * 1024) {
-        triggerNotification({ type: "error", message: 'File size must be less than 5MB' });
+        triggerNotification({ type: "error", message: t('File size must be less than 5MB') });
         return;
       }
 
       // Validate file type
       const allowedTypes = ['application/pdf', 'image/jpeg', 'image/png', 'image/jpg'];
       if (!allowedTypes.includes(file.type)) {
-        triggerNotification({ type: "error", message: 'Only PDF, JPG, JPEG, and PNG files are allowed' });
+        triggerNotification({ type: "error", message: t('Only PDF, JPG, JPEG, and PNG files are allowed') });
         return;
       }
 
@@ -60,7 +62,7 @@ export default function DocumentUpload({ onSuccess }: DocumentUploadProps) {
     
     // Check if at least one document is uploaded
     if (!files.document1 && !files.document2 && !files.document3) {
-      triggerNotification({ type: "error", message: 'Please upload at least one document' });
+      triggerNotification({ type: "error", message: t('Please upload at least one document') });
       return;
     }
 
@@ -104,10 +106,10 @@ export default function DocumentUpload({ onSuccess }: DocumentUploadProps) {
               <div className="flex flex-col items-center space-y-2">
                 <DocumentArrowUpIcon className="w-8 h-8 text-gray-400" />
                 <span className="text-sm text-gray-600">
-                  Click to upload or drag and drop
+                  {t("Click to upload or drag and drop")}
                 </span>
                 <span className="text-xs text-gray-500">
-                  PDF, JPG, JPEG, PNG (Max 5MB)
+                  {t("PDF, JPG, JPEG, PNG (Max 5MB)")}
                 </span>
               </div>
             </label>
@@ -149,16 +151,16 @@ export default function DocumentUpload({ onSuccess }: DocumentUploadProps) {
   return (
     <div className="bg-white rounded-lg shadow p-6">
       <div className="mb-6">
-        <h2 className="text-xl font-semibold text-gray-900">Upload Verification Documents</h2>
+        <h2 className="text-xl font-semibold text-gray-900">{t("Upload Verification Documents")}</h2>
         <p className="mt-1 text-sm text-gray-600">
-          Please upload the required documents for account verification. At least one document is required.
+          {t("Please upload the required documents for account verification. At least one document is required.")}
         </p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        {renderFileInput('document1', 'Document 1', true)}
-        {renderFileInput('document2', 'Document 2 (Optional)')}
-        {renderFileInput('document3', 'Document 3 (Optional)')}
+        {renderFileInput('document1', t('Document 1'), true)}
+        {renderFileInput('document2', t('Document 2 (Optional)'))}
+        {renderFileInput('document3', t('Document 3 (Optional)'))}
 
         {error && (
           <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
@@ -175,14 +177,14 @@ export default function DocumentUpload({ onSuccess }: DocumentUploadProps) {
             }}
             className="px-4 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300"
           >
-            Clear All
+            {t("Clear All")}
           </button>
           <button
             type="submit"
             disabled={loading || (!files.document1 && !files.document2 && !files.document3)}
             className="px-6 py-2 text-white bg-primary rounded-md hover:bg-primary-dark disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {loading ? 'Uploading...' : 'Upload Documents'}
+            {loading ? t('Uploading...') : t('Upload Documents')}
           </button>
         </div>
       </form>

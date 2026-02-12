@@ -381,7 +381,10 @@ const PERMISSIONS_MAP: Record<string, typeof adminPermission> = {
   READONLY: readOnlyPermission,
 };
 
+import { useLanguage } from "../context/LanguageContext";
+
 export default function Profile() {
+  const { t } = useLanguage();
   const { profile, loading, error, updateProfile } = useProfile();
   const { uploadDocuments } = useUploadDocuments();
   const [isEditing, setIsEditing] = useState(false);
@@ -598,7 +601,7 @@ export default function Profile() {
   return (
     <div className="max-w-5xl mx-auto p-6 bg-white shadow-lg border border-gray-200">
       <h2 className="text-xl font-semibold text-center text-primary mb-4">
-        {isEditing ? "MODIFY USER" : "USER PROFILE"}
+        {isEditing ? t("MODIFY USER") : t("USER PROFILE")}
       </h2>
 
       {/* Request Verification Button */}
@@ -622,11 +625,10 @@ export default function Profile() {
             </div>
             <div className="flex-1">
               <h3 className="text-sm font-medium text-yellow-800">
-                Documents Ready for Verification
+                {t("Documents Ready for Verification")}
               </h3>
               <p className="mt-1 text-sm text-yellow-700">
-                Your documents have been uploaded. Click the button below to
-                submit them for admin verification.
+                {t("Your documents have been uploaded. Click the button below to submit them for admin verification.")}
               </p>
               <div className="mt-3">
                 <button
@@ -635,8 +637,8 @@ export default function Profile() {
                   className="text-white bg-primary px-4 py-2 hover:bg-[#2309A1] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {requestingVerification
-                    ? "Submitting..."
-                    : "Request Verification"}
+                    ? t("Submitting...")
+                    : t("Request Verification")}
                 </button>
               </div>
             </div>
@@ -662,7 +664,7 @@ export default function Profile() {
               />
             </svg>
             <span className="text-sm font-medium text-blue-800">
-              Verification Pending - Waiting for admin review
+              {t("Verification Pending - Waiting for admin review")}
             </span>
           </div>
         </div>
@@ -686,11 +688,11 @@ export default function Profile() {
             </svg>
             <div className="flex-1">
               <span className="text-sm font-medium text-green-800">
-                Verified ✓
+                {t("Verified")} ✓
               </span>
               {formData.verificationValidTill && (
                 <span className="text-xs text-green-600 ml-2">
-                  Valid until{" "}
+                  {t("Valid until")}{" "}
                   {new Date(
                     formData.verificationValidTill
                   ).toLocaleDateString()}
@@ -715,7 +717,7 @@ export default function Profile() {
             >
               <div className="flex items-center gap-1">
                 <UserIcon className="h-5 w-5" />
-              <span>Profile Information</span>
+              <span>{t("Profile Information")}</span>
               </div>
             </button>
             <button
@@ -728,7 +730,7 @@ export default function Profile() {
             >
               <div className="flex items-center gap-1">
                 <ShieldCheckIcon className="h-5 w-5" />
-              <span>Verification Status</span>
+              <span>{t("Verification Status")}</span>
               </div>
             </button>
           </nav>
@@ -745,13 +747,13 @@ export default function Profile() {
                   onClick={handleSave}
                   className="btn-primary"
                 >
-                  Save Changes
+                  {t("Save Changes")}
                 </button>
                 <button
                   onClick={() => setIsEditing(false)}
                   className="px-4 py-2 bg-gray-50 hover:bg-gray-100 border border-gray-300 hover:border-gray-500 cursor-pointer transition-all delay-100"
                 >
-                  Discard Changes
+                  {t("Discard Changes")}
                 </button>
               </>
             ) : (
@@ -759,19 +761,19 @@ export default function Profile() {
                 onClick={() => setIsEditing(true)}
                 className="btn-primary"
               >
-                Modify User
+                {t("Modify User")}
               </button>
             )}
           </div>
 
           <div className="border border-inputBorder bg-white p-4 mb-4 relative">
         <h3 className="text-primary font-semibold mb-2 capitalize text-lg">
-          User Information
+          {t("User Information")}
         </h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-gray-700">
           <div className="flex flex-col gap-1">
             <label htmlFor="firstName" className="text-sm">
-              First Name
+              {t("First Name")}
             </label>
             <input
               value={formData.firstName}
@@ -781,7 +783,7 @@ export default function Profile() {
           </div>
           <div className="flex flex-col gap-1">
             <label htmlFor="lastName" className="text-sm">
-              Last Name
+              {t("Last Name")}
             </label>
             <input
               value={formData.lastName}
@@ -791,7 +793,7 @@ export default function Profile() {
           </div>
           <div className="flex flex-col gap-1">
             <label htmlFor="email" className="text-sm">
-              Email
+              {t("Email")}
             </label>
             <input
               value={formData.email}
@@ -802,7 +804,7 @@ export default function Profile() {
           </div>
           <div className="flex flex-col gap-1">
             <label htmlFor="phoneNumber" className="text-sm">
-              Contact No.
+              {t("Contact No.")}
             </label>
             <input
               value={formData.phoneNumber!}
@@ -813,7 +815,7 @@ export default function Profile() {
           </div>
           <div className="flex flex-col gap-1">
             <label htmlFor="agentCode" className="text-sm">
-              Agent Code
+              {t("Agent Code")}
             </label>
             <input
               name="agentCode"
@@ -824,7 +826,7 @@ export default function Profile() {
           </div>
           <div className="flex flex-col gap-1">
             <label htmlFor="company" className="text-sm">
-              Company
+              {t("Company")}
             </label>
             <input
               value={formData.company}
@@ -834,7 +836,7 @@ export default function Profile() {
           </div>
           <div className="flex flex-col gap-1">
             <label htmlFor="userType" className="text-sm">
-              User Type
+              {t("User Type")}
             </label>
             <select
               value={formData.userType}
@@ -850,7 +852,7 @@ export default function Profile() {
 
           <div className="flex flex-col gap-1">
             <label htmlFor="createdAt" className="text-sm">
-              Created At (dd-mm-yyyy)
+              {t("Created At (dd-mm-yyyy)")}
             </label>
             <input
               value={new Date(formData.createdAt).toLocaleDateString()}
@@ -862,7 +864,7 @@ export default function Profile() {
           {formData.validUpto && (
             <div className="flex flex-col gap-1">
               <label htmlFor="validUpto" className="text-sm">
-                Valid Upto (dd-mm-yyyy)
+                {t("Valid Upto (dd-mm-yyyy)")}
               </label>
               <input
                 value={new Date(formData.validUpto).toLocaleDateString()}
@@ -876,12 +878,12 @@ export default function Profile() {
             <div className="flex gap-4 col-span-full">
               <div className="flex flex-col gap-1 w-full">
                 <label htmlFor="password" className="text-sm">
-                  New Password
+                  {t("New Password")}
                 </label>
                 <input
                   name="password"
                   type="password"
-                  placeholder="New Password"
+                  placeholder={t("New Password")}
                   value={passwords.password}
                   onChange={handlePassChange}
                   className="input-primary"
@@ -889,12 +891,12 @@ export default function Profile() {
               </div>
               <div className="flex flex-col gap-1 w-full">
                 <label htmlFor="confirmPassword" className="text-sm">
-                  Confirm Password
+                  {t("Confirm Password")}
                 </label>
                 <input
                   name="confirmPassword"
                   type="password"
-                  placeholder="Confirm Password"
+                  placeholder={t("Confirm Password")}
                   value={passwords.confirmPassword}
                   onChange={handlePassChange}
                   className="input-primary"
@@ -910,7 +912,7 @@ export default function Profile() {
 
           <div className="border border-inputBorder bg-white p-4 mb-4">
             <h3 className="text-primary font-semibold mb-2 capitalize text-lg">
-              User Permissions
+              {t("User Permissions")}
             </h3>
             {Object.entries(currentUserPermissions).map(([key, allowed]) => (
               <label key={key} className="block text-gray-700 capitalize">
@@ -928,7 +930,7 @@ export default function Profile() {
           {formData.agentCodes?.length! > 0 && (
             <div className="border border-inputBorder bg-white p-4 mb-4">
               <h3 className="text-[#3a17c5] font-semibold mb-2">
-                ASSIGNED AGENT CODES
+                {t("ASSIGNED AGENT CODES")}
               </h3>
               <ul className="list-disc list-inside text-gray-700">
                 {formData.agentCodes!.map((code) => (
@@ -940,7 +942,7 @@ export default function Profile() {
 
           <div className="border border-inputBorder bg-white p-4 mb-4">
             <h3 className="text-primary font-semibold mb-2 capitalize text-lg">
-              Documents
+              {t("Documents")}
             </h3>
             {docs.length > 0 ? (
               <ul className="space-y-2">
@@ -966,10 +968,10 @@ export default function Profile() {
                     <div className="flex gap-4">
                       <div className="flex flex-col gap-1 w-full">
                         <label htmlFor="doc1" className="text-sm">
-                          Document 1
+                          {t("Document 1")}
                         </label>
                         <label className="input-primary cursor-pointer">
-                          Choose File
+                          {t("Choose File")}
                           <input
                             name="doc1"
                             type="file"
@@ -992,7 +994,7 @@ export default function Profile() {
                         )}
                       </div>
                       <div className="flex flex-col gap-1 w-full">
-                        <label className="text-sm">Document 1 Valid Upto</label>
+                        <label className="text-sm">{t("Document 1 Valid Upto")}</label>
                         <input
                           name="doc1"
                           type="date"
@@ -1004,10 +1006,10 @@ export default function Profile() {
                     <div className="flex gap-4">
                       <div className="flex flex-col gap-1 w-full">
                         <label htmlFor="doc2" className="text-sm">
-                          Document 2
+                          {t("Document 2")}
                         </label>
                         <label className="input-primary cursor-pointer">
-                          Choose File
+                          {t("Choose File")}
                           <input
                             name="doc2"
                             type="file"
@@ -1030,7 +1032,7 @@ export default function Profile() {
                         )}
                       </div>
                       <div className="flex flex-col gap-1 w-full">
-                        <label className="text-sm">Document 2 Valid Upto</label>
+                        <label className="text-sm">{t("Document 2 Valid Upto")}</label>
                         <input
                           name="doc2"
                           type="date"
@@ -1042,10 +1044,10 @@ export default function Profile() {
                     <div className="flex gap-4">
                       <div className="flex flex-col gap-1 w-full">
                         <label htmlFor="doc1" className="text-sm">
-                          Document 3
+                          {t("Document 3")}
                         </label>
                         <label className="input-primary cursor-pointer">
-                          Choose File
+                          {t("Choose File")}
                           <input
                             name="doc3"
                             type="file"
@@ -1068,7 +1070,7 @@ export default function Profile() {
                         )}
                       </div>
                       <div className="flex flex-col gap-1 w-full">
-                        <label className="text-sm">Document 3 Valid Upto</label>
+                        <label className="text-sm">{t("Document 3 Valid Upto")}</label>
                         <input
                           name="doc3"
                           type="date"
@@ -1081,7 +1083,7 @@ export default function Profile() {
                 )}
               </ul>
             ) : (
-              <p className="text-gray-500">No documents attached</p>
+              <p className="text-gray-500">{t("No documents attached")}</p>
             )}
           </div>
         </>
