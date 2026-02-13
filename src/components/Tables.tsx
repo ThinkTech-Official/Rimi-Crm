@@ -403,14 +403,14 @@ export function CommissionsTable({
                       className="px-4 py-3 font-medium text-primary text-nowrap"
                       style={cellStyle}
                     >
-                      {commission.policy?.policyNumber || "N/A"}
+                      {commission.policy?.policyNumber || t("N/A")}
                     </td>
                     <td className="px-4 py-3" style={cellStyle}>
                       <span className="text-[10px] px-2 py-1 bg-gray-100 text-text-primary capitalize text-nowrap">
-                        {commission.paymentHistory?.paymentType?.replace(
+                        {t(commission.paymentHistory?.paymentType?.replace(
                           /-/g,
                           " "
-                        ) || "N/A"}
+                        ) || "N/A")}
                       </span>
                     </td>
                     <td className="px-4 py-3 text-nowrap" style={cellStyle}>

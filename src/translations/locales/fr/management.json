@@ -468,5 +468,10 @@
   "Are you sure you want to update the payment method for this policy?": "Êtes-vous sûr de vouloir mettre à jour le mode de paiement de cette police ?",
   "All future recurring payments will use the new card.": "Tous les futurs paiements récurrents utiliseront la nouvelle carte.",
   "No, Cancel": "Non, annuler",
-  "Yes, Update Card": "Oui, mettre à jour la carte"
+  "Yes, Update Card": "Oui, mettre à jour la carte",
+  "Commissions": "Commissions",
+  "Language": "Langue",
+  "Payment": "Paiement",
+  "MGA Share": "Part MGA",
+  "Agent Share": "Part Agent"
 }

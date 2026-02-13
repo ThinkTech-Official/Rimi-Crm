@@ -332,6 +332,22 @@
   "Calculate": "Calculer",
   "Result:": "Résultat :",
   "Invalid Input": "Entrée invalide",
-  "Add Document": "Ajouter un document"
+  "Add Document": "Ajouter un document",
+  "From Date": "Date de début",
+  "To Date": "Date de fin",
+  "monthly installments": "versements mensuels",
+  "initial": "initial",
+  "renewal": "renouvellement",
+  "N/A": "S/O",
+  "en": "Anglais",
+  "fr": "Français",
+  "EN": "Anglais",
+  "FR": "Français",
+  "Search": "Rechercher",
+  "Date": "Date",
+  "Policy #": "N° de police",
+  "Type": "Type",
+  "Loading commissions...": "Chargement des commissions...",
+  "No commissions found": "Aucune commission trouvée"
 }
 

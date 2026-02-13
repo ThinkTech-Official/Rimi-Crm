@@ -4,8 +4,10 @@ import { CommissionsTable } from "../components/Tables";
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
 import { RenderPageNumbers } from "../components/RenderPageNumbers";
 import DatePicker from "../components/DatePicker";
+import { useLanguage } from "../context/LanguageContext";
 
 export default function Commissions() {
+  const { t } = useLanguage();
   const [page, setPage] = useState(1);
   const [dateFrom, setDateFrom] = useState<Date | null>(null);
   const [dateTo, setDateTo] = useState<Date | null>(null);
@@ -66,12 +68,12 @@ export default function Commissions() {
     <div className="w-full flex flex-col gap-4">
       {/* Header & Filters */}
       <div className="bg-white p-4">
-        <h1 className="text-2xl font-bold text-text-primary mb-4">Commissions</h1>
+        <h1 className="text-2xl font-bold text-text-primary mb-4">{t("Commissions")}</h1>
         
         <div className="flex flex-wrap items-end gap-4">
           <div className="w-full sm:w-auto">
              <DatePicker
-              label="From Date"
+              label={t("From Date")}
               value={dateFrom || ""}
               onChange={(date: Date) => setDateFrom(date)}
             />
@@ -79,7 +81,7 @@ export default function Commissions() {
 
           <div className="w-full sm:w-auto">
              <DatePicker
-              label="To Date"
+              label={t("To Date")}
               value={dateTo || ""}
               onChange={(date: Date) => setDateTo(date)}
             />
@@ -89,7 +91,7 @@ export default function Commissions() {
             onClick={handleSearch}
             className="btn-primary"
           >
-            Search
+            {t("Search")}
           </button>
         </div>
       </div>
