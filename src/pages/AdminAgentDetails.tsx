@@ -758,46 +758,45 @@ const AdminAgentDetails = () => {
       )} */}
 
       {/* Tabs */}
-      <div className="relative mt-6">
-        <div className="px-2 sm:px-4 sm:py-3 absolute -top-2 right-0">
-          <label className="inline-flex items-center mr-4 text-text-secondary">
-            <input
-              type="radio"
-              name="filter"
-              checked={filter === "Policies"}
-              onChange={() => toggleTableFilter("Policies")}
-              className="form-radio cursor-pointer checked:accent-primary"
-            />
-            <span className="ml-2 capitalize">{t("Policies")} ({recentPolicies.length})</span>
-          </label>
-          <label className="inline-flex items-center text-text-secondary">
-            <input
-              type="radio"
-              name="filter"
-              checked={filter === "Quotes"}
-              onChange={() => toggleTableFilter("Quotes")}
-              className="form-radio cursor-pointer checked:accent-primary"
-            />
-            <span className="ml-2 capitalize">{t("Quotes")} ({recentQuotes.length})</span>
-          </label>
-          <label className="inline-flex items-center ml-4 text-text-secondary">
-            <input
-              type="radio"
-              name="filter"
-              checked={filter === "Commissions"}
-              onChange={() => toggleTableFilter("Commissions")}
-              className="form-radio cursor-pointer checked:accent-primary"
-            />
-            <span className="ml-2 capitalize">{t("Commissions")} ({commissions.length})</span>
-          </label>
+      <div className="relative mt-8">
+        <div className="flex gap-6 border-b border-gray-200">
+            <button
+              onClick={() => toggleTableFilter("Policies")}
+              className={`pb-3 px-1 font-medium cursor-pointer transition-colors relative ${
+                filter === "Policies"
+                  ? "text-primary border-b-2 border-primary"
+                  : "text-gray-500 hover:text-gray-700"
+              }`}
+            >
+              {t("Policies")} ({recentPolicies.length})
+            </button>
+            <button
+              onClick={() => toggleTableFilter("Quotes")}
+              className={`pb-3 px-1 font-medium cursor-pointer transition-colors relative ${
+                filter === "Quotes"
+                  ? "text-primary border-b-2 border-primary"
+                  : "text-gray-500 hover:text-gray-700"
+              }`}
+            >
+              {t("Quotes")} ({recentQuotes.length})
+            </button>
+            <button
+              onClick={() => toggleTableFilter("Commissions")}
+              className={`pb-3 px-1 font-medium cursor-pointer transition-colors relative ${
+                filter === "Commissions"
+                  ? "text-primary border-b-2 border-primary"
+                  : "text-gray-500 hover:text-gray-700"
+              }`}
+            >
+              {t("Commissions")} ({commissions.length})
+            </button>
         </div>
       </div>
 
       {/* Tables */}
-      <div className="mt-12">
+      <div className="mt-6">
         {filter === "Policies" && (
           <div>
-            <h3 className="text-lg font-semibold mb-3">{t("Recent Policies")}</h3>
             <PoliciesTable
               data={recentPolicies}
               loading={false}
@@ -808,7 +807,6 @@ const AdminAgentDetails = () => {
         
         {filter === "Quotes" && (
           <div>
-            <h3 className="text-lg font-semibold mb-3">{t("Recent Quotes")}</h3>
             <QuotesTable
               data={recentQuotes}
               loading={false}

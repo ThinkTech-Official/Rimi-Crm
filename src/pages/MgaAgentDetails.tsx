@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { FaUser, FaBan, FaCheckCircle } from "react-icons/fa";
+import { FaUser } from "react-icons/fa";
 import { useParams, useNavigate } from "react-router-dom";
+import { useLanguage } from "../context/LanguageContext";
 import { 
   useMgaAgentDetails, 
   useMgaAgentPolicies, 
@@ -12,9 +13,11 @@ import { PoliciesTable, QuotesTable } from "../components/Tables";
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
 import Spinner from "../components/Spinner";
 import { CommissionsTable } from "../components/CommissionsTable";
+import DatePicker from "../components/DatePicker";
 
 const MGAAgentDetails = () => {
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const { agentCode } = useParams<{ agentCode: string }>();
   
   // State for tab filtering and pagination
@@ -105,7 +108,7 @@ const MGAAgentDetails = () => {
     return (
       <div className="flex flex-col justify-center items-center gap-3 fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
         <Spinner className="w-10 h-10" />
-        <p>Loading agent details...</p>
+        <p>{t("Loading agent details...")}</p>
       </div>
     );
   }
@@ -116,13 +119,13 @@ const MGAAgentDetails = () => {
       <div className="px-8">
         <div className="flex flex-col justify-center items-center h-64 gap-4">
           <div className="text-red-500 text-lg">
-            Failed to load agent details
+            {t("Failed to load agent details")}
           </div>
           <button 
             onClick={() => navigate('/mga/dashboard')}
             className="px-4 py-2 bg-primary text-white rounded hover:bg-primary/90"
           >
-            Back to Dashboard
+            {t("Back to Dashboard")}
           </button>
         </div>
       </div>
@@ -136,7 +139,7 @@ const MGAAgentDetails = () => {
         onClick={() => navigate('/mga/dashboard')}
         className="mb-4 text-primary flex items-center gap-2 cursor-pointer"
       >
-        <ChevronLeftIcon className="w-4 h-4" /> Back to Dashboard
+        <ChevronLeftIcon className="w-4 h-4" /> {t("Back to Dashboard")}
       </button>
 
       {/* Header with agent info and actions */}
@@ -152,43 +155,43 @@ const MGAAgentDetails = () => {
             
             <div className="grid grid-cols-2 gap-x-8 gap-y-2">
               <div className="flex gap-2">
-                <span className="text-text-primary font-semibold">Email:</span>
+                <span className="text-text-primary font-semibold">{t("Email")}:</span>
                 <span className="text-text-secondary">{agentData.email}</span>
               </div>
               
               <div className="flex gap-2">
-                <span className="text-text-primary font-semibold">Agent Code:</span>
+                <span className="text-text-primary font-semibold">{t("Agent Code")}:</span>
                 <span className="text-text-secondary font-mono">{agentData.agentCode}</span>
               </div>
               
               <div className="flex gap-2">
-                <span className="text-text-primary font-semibold">Status:</span>
+                <span className="text-text-primary font-semibold">{t("Status")}:</span>
                 <span className={`font-semibold px-2 py-0.5 rounded text-sm ${
                   agentData.status === 'ACTIVE' 
                     ? 'bg-green-100 text-green-800' 
                     : 'bg-red-100 text-red-800'
                 }`}>
-                  {agentData.status}
+                  {t(agentData.status)}
                 </span>
               </div>
               
               <div className="flex gap-2">
-                <span className="text-text-primary font-semibold">Commission:</span>
+                <span className="text-text-primary font-semibold">{t("Commission")}:</span>
                 <span className="text-text-secondary font-semibold">{agentData.commissionPercent}%</span>
               </div>
               
               <div className="flex gap-2">
-                <span className="text-text-primary font-semibold">Company:</span>
-                <span className="text-text-secondary">{agentData.company || 'N/A'}</span>
+                <span className="text-text-primary font-semibold">{t("Company")}:</span>
+                <span className="text-text-secondary">{agentData.company || t("N/A")}</span>
               </div>
               
               <div className="flex gap-2">
-                <span className="text-text-primary font-semibold">Joined:</span>
+                <span className="text-text-primary font-semibold">{t("Joined")}:</span>
                 <span className="text-text-secondary">{agentData.joinedDate}</span>
               </div>
               
               <div className="flex gap-2">
-                <span className="text-text-primary font-semibold">Valid Until:</span>
+                <span className="text-text-primary font-semibold">{t("Valid Until")}:</span>
                 <span className="text-text-secondary">{agentData.validity}</span>
               </div>
             </div>
@@ -220,7 +223,7 @@ const MGAAgentDetails = () => {
       {/* Success message */}
       {statusSuccess && (
         <div className="mb-4 p-4 bg-green-100 text-green-800 rounded-lg border border-green-300">
-          ✓ Agent status updated successfully! Refreshing...
+          {t("✓ Agent status updated successfully! Refreshing...")}
         </div>
       )}
 
@@ -258,36 +261,36 @@ const MGAAgentDetails = () => {
       {/* Tabs */}
       <div className="relative mt-8">
         <div className="flex gap-6 border-b border-gray-200">
-          <button
-            onClick={() => toggleTableFilter("Policies")}
-            className={`pb-3 px-1 font-medium cursor-pointer transition-colors relative ${
-              filter === "Policies"
-                ? "text-primary border-b-2 border-primary"
-                : "text-gray-500 hover:text-gray-700"
-            }`}
-          >
-            Policies ({policiesData?.total || 0})
-          </button>
-          <button
-            onClick={() => toggleTableFilter("Quotes")}
-            className={`pb-3 px-1 font-medium cursor-pointer transition-colors relative ${
-              filter === "Quotes"
-                ? "text-primary border-b-2 border-primary"
-                : "text-gray-500 hover:text-gray-700"
-            }`}
-          >
-            Quotes ({quotesData?.total || 0})
-          </button>
-          <button
-  onClick={() => toggleTableFilter("Commissions")}
-  className={`pb-3 px-1 font-medium cursor-pointer transition-colors relative ${
-    filter === "Commissions"
-      ? "text-primary border-b-2 border-primary"
-      : "text-gray-500 hover:text-gray-700"
-  }`}
->
-  Commissions ({commissionsData?.total || 0})
-</button>
+            <button
+              onClick={() => toggleTableFilter("Policies")}
+              className={`pb-3 px-1 font-medium cursor-pointer transition-colors relative ${
+                filter === "Policies"
+                  ? "text-primary border-b-2 border-primary"
+                  : "text-gray-500 hover:text-gray-700"
+              }`}
+            >
+              {t("Policies")} ({policiesData?.total || 0})
+            </button>
+            <button
+              onClick={() => toggleTableFilter("Quotes")}
+              className={`pb-3 px-1 font-medium cursor-pointer transition-colors relative ${
+                filter === "Quotes"
+                  ? "text-primary border-b-2 border-primary"
+                  : "text-gray-500 hover:text-gray-700"
+              }`}
+            >
+              {t("Quotes")} ({quotesData?.total || 0})
+            </button>
+            <button
+              onClick={() => toggleTableFilter("Commissions")}
+              className={`pb-3 px-1 font-medium cursor-pointer transition-colors relative ${
+                filter === "Commissions"
+                  ? "text-primary border-b-2 border-primary"
+                  : "text-gray-500 hover:text-gray-700"
+              }`}
+            >
+              {t("Commissions")} ({commissionsData?.total || 0})
+            </button>
         </div>
       </div>
 
@@ -432,35 +435,43 @@ const MGAAgentDetails = () => {
         {filter === "Commissions" && (
   <div>
 
- <div className="mb-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
+ <div className="mb-4 p-4 rounded-lg">
       <div className="flex flex-wrap items-end gap-4">
-        <div className="flex-1 min-w-[200px]">
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            From Date
-          </label>
-          <input
-            type="date"
+        <div className="flex-1 min-w-[200px] max-w-[350px]">
+          <DatePicker
+            label={t("From Date")}
             value={dateFrom}
-            onChange={(e) => {
-              setDateFrom(e.target.value);
+            onChange={(date: Date) => {
+              if (date) {
+               // Convert Date object to YYYY-MM-DD string
+               const year = date.getFullYear();
+               const month = String(date.getMonth() + 1).padStart(2, '0');
+               const day = String(date.getDate()).padStart(2, '0');
+               setDateFrom(`${year}-${month}-${day}`);
+              } else {
+                setDateFrom('');
+              }
               setCommissionsPage(1); 
             }}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
           />
         </div>
         
-        <div className="flex-1 min-w-[200px]">
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            To Date
-          </label>
-          <input
-            type="date"
+        <div className="flex-1 min-w-[200px] max-w-[350px]">
+          <DatePicker
+            label={t("To Date")}
             value={dateTo}
-            onChange={(e) => {
-              setDateTo(e.target.value);
+            onChange={(date: Date) => {
+              if (date) {
+               // Convert Date object to YYYY-MM-DD string
+               const year = date.getFullYear();
+               const month = String(date.getMonth() + 1).padStart(2, '0');
+               const day = String(date.getDate()).padStart(2, '0');
+               setDateTo(`${year}-${month}-${day}`);
+              } else {
+                setDateTo('');
+              }
               setCommissionsPage(1); 
             }}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
           />
         </div>
         
@@ -471,18 +482,18 @@ const MGAAgentDetails = () => {
             setCommissionsPage(1);
           }}
           disabled={!dateFrom && !dateTo}
-          className="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          className="btn-primary"
         >
-          Clear Filters
+          {t("Clear Filters")}
         </button>
       </div>
       
       {/* Show active filter info */}
       {(dateFrom || dateTo) && (
         <div className="mt-2 text-sm text-gray-600">
-          Showing commissions 
-          {dateFrom && ` from ${new Date(dateFrom).toLocaleDateString()}`}
-          {dateTo && ` to ${new Date(dateTo).toLocaleDateString()}`}
+          {t("Showing commissions")} 
+          {dateFrom && ` ${t("from")} ${new Date(dateFrom).toLocaleDateString()}`}
+          {dateTo && ` ${t("to")} ${new Date(dateTo).toLocaleDateString()}`}
         </div>
       )}
     </div>
@@ -537,47 +548,47 @@ const MGAAgentDetails = () => {
 
 
           {commissionsData?.summary && (
-          <div className="mt-4 p-6 bg-gradient-to-br from-blue-50 to-purple-50 rounded-lg border-2 border-blue-200">
+          <div className="mt-4 p-6 bg-blue-50">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold text-blue-900">
-                Commission Summary
+                {t("Commission Summary")}
               </h3>
               <span className="text-sm text-gray-600">
                 {dateFrom || dateTo 
-                  ? `Filtered Period` 
-                  : 'All Time'
+                  ? t("Filtered Period")
+                  : t("All Time")
                 }
               </span>
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="bg-white p-4 rounded-lg border border-blue-200">
-                <div className="text-sm text-gray-600 mb-1">Total Commissions</div>
-                <div className="text-2xl font-bold text-blue-900">
+              <div className="bg-white p-4 border border-blue-200">
+                <div className="text-sm text-text-secondary mb-1">{t("Total Commissions")}</div>
+                <div className="text-2xl font-bold text-primary">
                   {commissionsData.summary.totalCommissions}
                 </div>
                 <div className="text-xs text-gray-500 mt-1">
-                  Total: ${commissionsData.summary.totalAmount.toFixed(2)}
+                  {t("Total")}: ${commissionsData.summary.totalAmount.toFixed(2)}
                 </div>
               </div>
               
-              <div className="bg-white p-4 rounded-lg border border-purple-200">
-                <div className="text-sm text-gray-600 mb-1">MGA Override Share</div>
-                <div className="text-2xl font-bold text-purple-700">
+              <div className="bg-white p-4 border border-blue-200">
+                <div className="text-sm text-text-secondary mb-1">{t("MGA Override Share")}</div>
+                <div className="text-2xl font-bold text-primary">
                   ${commissionsData.summary.totalMgaShare.toFixed(2)}
                 </div>
                 <div className="text-xs text-gray-500 mt-1">
-                  Your earnings from this agent
+                  {t("Your earnings from this agent")}
                 </div>
               </div>
               
-              <div className="bg-white p-4 rounded-lg border border-green-200">
-                <div className="text-sm text-gray-600 mb-1">Agent Share</div>
+              <div className="bg-white p-4 border border-blue-200">
+                <div className="text-sm text-text-secondary mb-1">{t("Agent Share")}</div>
                 <div className="text-2xl font-bold text-green-700">
                   ${commissionsData.summary.totalAgentShare.toFixed(2)}
                 </div>
                 <div className="text-xs text-gray-500 mt-1">
-                  Amount payable to agent
+                  {t("Amount payable to agent")}
                 </div>
               </div>
             </div>

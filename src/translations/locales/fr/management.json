@@ -510,5 +510,22 @@
   "commission": "commission",
   "commissions": "commissions",
   "reversal": "extourne",
-  "reversals": "extournes"
+  "reversals": "extournes",
+  "Back to Dashboard": "Retour au tableau de bord",
+  "Suspend Agent": "Suspendre l'agent",
+  "Activate Agent": "Activer l'agent",
+  "✓ Agent status updated successfully! Refreshing...": "✓ Le statut de l'agent a été mis à jour avec succès ! Actualisation...",
+  "Commission Summary": "Résumé des commissions",
+  "Filtered Period": "Période filtrée",
+  "All Time": "Depuis le début",
+  "MGA Override Share": "Part de dérogation MGA",
+  "Your earnings from this agent": "Vos gains provenant de cet agent",
+  "Amount payable to agent": "Montant payable à l'agent",
+  "Showing commissions": "Affichage des commissions",
+  "from": "de",
+  "Customer": "Client",
+  "Gross Amount": "Montant brut",
+  "Comm. %": "% Comm.",
+  "Comm. Amount": "Montant Comm.",
+  "MGA Override %": "% Dérogation MGA"
 }

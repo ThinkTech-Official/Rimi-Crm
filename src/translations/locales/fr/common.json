@@ -333,8 +333,8 @@
   "Result:": "Résultat :",
   "Invalid Input": "Entrée invalide",
   "Add Document": "Ajouter un document",
-  "From Date": "Date de début",
-  "To Date": "Date de fin",
+  "From Date": "De la date",
+  "To Date": "À la date",
   "monthly installments": "versements mensuels",
   "initial": "initial",
   "renewal": "renouvellement",
@@ -350,6 +350,7 @@
   "Save failed": "Échec de l'enregistrement",
   "Status is required": "Le statut est requis",
   "Re-enter Password": "Saisir à nouveau le mot de passe",
-  "selected": "sélectionnés"
+  "selected": "sélectionnés",
+  "Clear Filters": "Effacer les filtres"
 }
 

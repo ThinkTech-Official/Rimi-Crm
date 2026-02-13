@@ -147,6 +147,7 @@
 
 
 import React from 'react';
+import { useLanguage } from '../context/LanguageContext';
 
 interface CommissionRow {
   id: string;
@@ -181,12 +182,13 @@ interface CommissionsTableProps {
 }
 
 export function CommissionsTable({ data, loading, error }: CommissionsTableProps) {
+  const { t } = useLanguage();
   if (loading) {
     return (
       <div className="mt-6 p-8 text-center bg-white border border-inputBorder h-40">
         <div className="flex justify-center flex-col items-center gap-2">
           <div className="spinner w-8 h-8"></div>
-          <p className="text-primary font-medium">Loading commissions…</p>
+          <p className="text-primary font-medium">{t("Loading commissions...")}</p>
         </div>
       </div>
     );
@@ -195,7 +197,7 @@ export function CommissionsTable({ data, loading, error }: CommissionsTableProps
   if (error) {
     return (
       <div className="mt-6 p-8 text-center bg-white border border-inputBorder text-red-500">
-        Error loading commissions
+        {t("Error")}
       </div>
     );
   }
@@ -203,7 +205,7 @@ export function CommissionsTable({ data, loading, error }: CommissionsTableProps
   if (!data || data.length === 0) {
     return (
       <div className="mt-6 p-8 text-center bg-white border border-inputBorder text-gray-500">
-        No commissions found
+        {t("No commissions found")}
       </div>
     );
   }
@@ -219,16 +221,16 @@ export function CommissionsTable({ data, loading, error }: CommissionsTableProps
       <table className="min-w-full divide-y divide-gray-200">
         <thead className="bg-primary text-white text-base 2xl:text-xl capitalize text-nowrap">
           <tr>
-            <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium">Date</th>
-            <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium">Policy</th>
-            <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium">Customer</th>
-            <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium">Payment Type</th>
-            <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium">Gross Amount</th>
-            <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium">Comm. %</th>
-            <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium">Comm. Amount</th>
-            <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium">MGA Override %</th>
-            <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium">MGA Share</th>
-            <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium">Agent Share</th>
+            <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium">{t("Date")}</th>
+            <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium">{t("Policy")}</th>
+            <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium">{t("Customer")}</th>
+            <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium">{t("Payment Type")}</th>
+            <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium">{t("Gross Amount")}</th>
+            <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium">{t("Comm. %")}</th>
+            <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium">{t("Comm. Amount")}</th>
+            <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium">{t("MGA Override %")}</th>
+            <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium">{t("MGA Share")}</th>
+            <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium">{t("Agent Share")}</th>
           </tr>
         </thead>
         <tbody className="bg-white">
@@ -238,14 +240,14 @@ export function CommissionsTable({ data, loading, error }: CommissionsTableProps
                 {new Date(commission.paymentHistory.date).toLocaleDateString()}
               </td>
               <td className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap font-medium text-primary" style={cellStyle}>
-                {commission.policy.policyNumber || 'N/A'}
+                {commission.policy.policyNumber || t("N/A")}
               </td>
               <td className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap" style={cellStyle}>
                 {commission.policy.firstName} {commission.policy.lastName}
               </td>
               <td className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap" style={cellStyle}>
                 <span className="text-[10px] px-2 py-1 bg-gray-100 text-text-primary capitalize">
-                  {commission.paymentHistory.paymentType?.replace(/-/g, ' ') || 'N/A'}
+                  {commission.paymentHistory.paymentType?.replace(/-/g, ' ') || t("N/A")}
                 </span>
               </td>
               <td className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap" style={cellStyle}>
