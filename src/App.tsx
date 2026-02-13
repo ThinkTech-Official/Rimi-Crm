@@ -1,5 +1,6 @@
 import { Outlet } from "react-router-dom"
 import Navbar from "./components/Navbar"
+import { AuthSyncListener } from "./components/protection/AuthSyncListener"
 
 
 
@@ -12,6 +13,7 @@ function App() {
     {/* <Dashboard /> */}
     <Navbar />
     <main>
+       <AuthSyncListener />
       <Outlet />
     </main>
     {/* <Footer /> */}

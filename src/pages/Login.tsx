@@ -5,7 +5,7 @@ import { XCircleIcon } from "@heroicons/react/24/outline";
 import { XMarkIcon } from "@heroicons/react/20/solid";
 import { EyeIcon, EyeSlashIcon } from "@heroicons/react/16/solid";
 // import useAdmin from '../hooks/useAdmin';
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 import rimilogo from "../assets/rimi_en.png";
 // import { LangContext } from "../context/LangContext";
@@ -18,6 +18,7 @@ interface LoginFormInputs {
 
 const Login = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
   // const { langauge } = useContext(LangContext);
 
@@ -43,7 +44,8 @@ const Login = () => {
     const result = await login(data.email, data.password);
     console.log(result.type);
     if (result.type === "auth/loginUser/fulfilled") {
-      navigate("/");
+      const returnUrl = searchParams.get("returnUrl") || "/";
+      navigate(returnUrl, { replace: true });
     } else if (result.type === "auth/loginUser/rejected") {
       setErrMsg(result.payload);
       setShow(true);
@@ -99,6 +101,14 @@ const Login = () => {
                 Please login to continue to your account.
               </h4>
 
+              {searchParams.get("sessionExpired") === "true" && (
+                <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-md">
+                  <p className="text-sm text-yellow-800 text-center">
+                    Your session expired. Please log in again.
+                  </p>
+                </div>
+              )}
+
               {/* <p className="mt-2 text-sm leading-6 text-gray-500">
                     Not a member?{' '}
                     <a href="#" className="font-semibold text-indigo-600 hover:text-indigo-500">
@@ -151,7 +161,7 @@ const Login = () => {
                       htmlFor="password"
                       className="sr-only block text-sm font-medium leading-6 text-[#D9D9D9]"
                     >
-                     <p>Password</p>
+                      <p>Password</p>
                     </label>
                     <div className="mt-2 relative">
                       <input

@@ -1,7 +1,163 @@
 
 
 
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+// import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+// import axios from "axios";
+// import Cookies from "js-cookie";
+// import { jwtDecode } from "jwt-decode";
+// import { API_BASE } from "../utils/urls";
+
+// interface DecodedToken {
+//   sub: string;
+//   userType: string;
+//   fullName: string;
+//   agentCode: string;
+//   iat: number;
+//   exp: number;
+// }
+
+// interface AuthState {
+//   token: string | null;
+//   userType: string | null;
+//   agentCode: string | null;
+//   fullName: string | null;
+//   loading: boolean;
+//   error: string | null;
+//   initialized: boolean;
+// }
+
+
+// const initializeAuthState = (): Omit<AuthState, 'loading' | 'error'> => {
+//   const token = Cookies.get("token");
+  
+//   if (!token) {
+//     return {
+//       token: null,
+//       userType: null,
+//       agentCode: null,
+//       fullName: null,
+//       initialized: true,
+//     };
+//   }
+
+//   try {
+//     const decoded: DecodedToken = jwtDecode(token);
+    
+  
+//     const now = Date.now() / 1000;
+//     if (decoded.exp < now) {
+//       Cookies.remove("token");
+//       return {
+//         token: null,
+//         userType: null,
+//         agentCode: null,
+//         fullName: null,
+//         initialized: true,
+//       };
+//     }
+
+//     return {
+//       token,
+//       userType: decoded.userType,
+//       fullName: decoded.fullName,
+//       agentCode: decoded.agentCode,
+//       initialized: true,
+//     };
+//   } catch (error) {
+//     console.error("Failed to decode token:", error);
+//     Cookies.remove("token");
+//     return {
+//       token: null,
+//       userType: null,
+//       agentCode: null,
+//       fullName: null,
+//       initialized: true,
+//     };
+//   }
+// };
+
+// const initialState: AuthState = {
+//   ...initializeAuthState(),
+//   loading: false,
+//   error: null,
+// };
+
+// export const loginUser = createAsyncThunk(
+//   "auth/loginUser",
+//   async (
+//     credentials: { email: string; password: string },
+//     { rejectWithValue }
+//   ) => {
+//     try {
+//       const response = await axios.post(
+//         `${API_BASE}/auth/login`,
+//         credentials,
+//         {
+//           withCredentials: true,
+//         }
+//       );
+//       const token = response.data.access_token;
+
+//       const decoded: DecodedToken = jwtDecode(token);
+
+//       return {
+//         token,
+//         userType: decoded.userType,
+//         fullName: decoded.fullName,
+//         agentCode: decoded.agentCode,
+//       };
+//     } catch (err: any) {
+//       return rejectWithValue(err.response?.data?.message || "Login failed");
+//     }
+//   }
+// );
+
+// const authSlice = createSlice({
+//   name: "auth",
+//   initialState,
+//   reducers: {
+//     logout: (state) => {
+//       state.token = null;
+//       state.userType = null;
+//       state.fullName = null;
+//       state.agentCode = null;
+      
+//       Cookies.remove("token");
+      
+//       axios.post(`${API_BASE}/auth/logout`, {}, { withCredentials: true })
+//         .catch(err => console.error('Logout error:', err));
+//     },
+//   },
+//   extraReducers: (builder) => {
+//     builder
+//       .addCase(loginUser.pending, (state) => {
+//         state.loading = true;
+//         state.error = null;
+//       })
+//       .addCase(loginUser.fulfilled, (state, action) => {
+//         state.loading = false;
+//         state.token = action.payload.token;
+//         state.userType = action.payload.userType;
+//         state.fullName = action.payload.fullName;
+//         state.agentCode = action.payload.agentCode;
+//         state.initialized = true;
+//       })
+//       .addCase(loginUser.rejected, (state, action) => {
+//         state.loading = false;
+//         state.error = action.payload as string;
+//       });
+//   },
+// });
+
+// export const { logout } = authSlice.actions;
+// export default authSlice.reducer;
+
+
+// =====================================
+
+
+
+import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import axios from "axios";
 import Cookies from "js-cookie";
 import { jwtDecode } from "jwt-decode";
@@ -27,8 +183,9 @@ interface AuthState {
 }
 
 
+
 const initializeAuthState = (): Omit<AuthState, 'loading' | 'error'> => {
-  const token = Cookies.get("token");
+  const token = Cookies.get("accessToken"); // Changed from "token" to "accessToken"
   
   if (!token) {
     return {
@@ -43,10 +200,12 @@ const initializeAuthState = (): Omit<AuthState, 'loading' | 'error'> => {
   try {
     const decoded: DecodedToken = jwtDecode(token);
     
-  
+ 
     const now = Date.now() / 1000;
     if (decoded.exp < now) {
-      Cookies.remove("token");
+      console.log('Access token expired on init');
+      Cookies.remove("accessToken");
+      Cookies.remove("refreshToken");
       return {
         token: null,
         userType: null,
@@ -65,7 +224,8 @@ const initializeAuthState = (): Omit<AuthState, 'loading' | 'error'> => {
     };
   } catch (error) {
     console.error("Failed to decode token:", error);
-    Cookies.remove("token");
+    Cookies.remove("accessToken");
+    Cookies.remove("refreshToken");
     return {
       token: null,
       userType: null,
@@ -82,6 +242,8 @@ const initialState: AuthState = {
   error: null,
 };
 
+
+
 export const loginUser = createAsyncThunk(
   "auth/loginUser",
   async (
@@ -92,12 +254,11 @@ export const loginUser = createAsyncThunk(
       const response = await axios.post(
         `${API_BASE}/auth/login`,
         credentials,
-        {
-          withCredentials: true,
-        }
+        { withCredentials: true }
       );
-      const token = response.data.access_token;
-
+      
+      
+      const token = response.data.accessToken;
       const decoded: DecodedToken = jwtDecode(token);
 
       return {
@@ -112,6 +273,8 @@ export const loginUser = createAsyncThunk(
   }
 );
 
+
+
 const authSlice = createSlice({
   name: "auth",
   initialState,
@@ -122,10 +285,30 @@ const authSlice = createSlice({
       state.fullName = null;
       state.agentCode = null;
       
-      Cookies.remove("token");
+      // Remove cookies
+      Cookies.remove("accessToken");
+      Cookies.remove("refreshToken");
       
+      // Trigger multi-tab logout
+      localStorage.setItem('logout-event', Date.now().toString());
+      localStorage.removeItem('logout-event');
+      
+      // Call backend logout to revoke refresh tokens
       axios.post(`${API_BASE}/auth/logout`, {}, { withCredentials: true })
-        .catch(err => console.error('Logout error:', err));
+        .catch(err => console.error('Backend logout error:', err));
+    },
+    
+    // 
+    setAccessToken: (state, action: PayloadAction<string>) => {
+      try {
+        const decoded: DecodedToken = jwtDecode(action.payload);
+        state.token = action.payload;
+        state.userType = decoded.userType;
+        state.fullName = decoded.fullName;
+        state.agentCode = decoded.agentCode;
+      } catch (error) {
+        console.error('Failed to decode refreshed token:', error);
+      }
     },
   },
   extraReducers: (builder) => {
@@ -149,5 +332,5 @@ const authSlice = createSlice({
   },
 });
 
-export const { logout } = authSlice.actions;
+export const { logout, setAccessToken } = authSlice.actions;
 export default authSlice.reducer;
