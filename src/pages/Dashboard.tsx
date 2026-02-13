@@ -568,6 +568,9 @@ const navigation = [
       { name: "Policy Migration", url: "/migrations/policies", slug: "policy-migration" },
     ]
   },
+];
+
+const bottomNavigation = [
   {
     name: "Agent Training Portal",
     href: "#",
@@ -648,6 +651,8 @@ export default function Dashboard() {
   const filteredNavigation = navigation.filter((item) =>
     item.allowedRoles.includes(userType || "")
   );
+
+
   
   const handleLinkClick = (nav: any) => {
     if (nav.external) {
@@ -714,7 +719,7 @@ export default function Dashboard() {
                     </div>
                   </Transition.Child>
                   {/* Mobile Sidebar */}
-                  <div className="flex grow flex-col gap-y-5 overflow-y-auto bg-white px-3 pb-4">
+                  <div className="flex grow flex-col gap-y-5 overflow-y-auto bg-white px-3 pb-2">
                     <div className="flex h-16 shrink-0 items-center">
                       <img
                         className="h-8 w-auto"
@@ -724,7 +729,7 @@ export default function Dashboard() {
                     </div>
                     <nav className="flex flex-1 flex-col">
                       <ul role="list" className="flex flex-1 flex-col gap-y-7">
-                        <li>
+                        <li className="flex-1 overflow-y-auto custom-scrollbar-y">
                           <ul role="list" className="space-y-1">
                             {filteredNavigation.map((item) => (
                               !item.children ? (
@@ -815,6 +820,41 @@ export default function Dashboard() {
                             ))}
                           </ul>
                         </li>
+                        {/* Bottom Sticky Items for Mobile */}
+                        {bottomNavigation.length > 0 && (
+                          <li className="mt-auto border-t border-gray-200 pt-2">
+                            <ul role="list" className="space-y-1">
+                              {bottomNavigation.map((item) => (
+                                <li
+                                  onClick={() => handleLinkClick(item)}
+                                  key={item.name}
+                                  className={`group cursor-pointer hover:text-primary relative
+                                    ${
+                                      item.slug === selectedComponent
+                                        ? "bg-gray-50 text-[#2B00B7] font-semibold"
+                                        : "text-[#4B465C] hover:text-[#2B00B7] hover:bg-gray-50"
+                                    }
+                                    flex gap-x-3 rounded-md p-1 text-sm leading-6 justify-center`}
+                                >
+                                  <item.icon
+                                    className={`
+                                      ${
+                                        item.slug === selectedComponent
+                                          ? "text-[#2B00B7]"
+                                          : "text-gray-400 group-hover:text-[#2B00B7] transition-all duration-200"
+                                      }
+                                      h-5 w-5 shrink-0
+                                    `}
+                                    aria-hidden="true"
+                                  />
+                                  <span className="capitalize transition-all duration-200">
+                                    {t(item.name)}
+                                  </span>
+                                </li>
+                              ))}
+                            </ul>
+                          </li>
+                        )}
                       </ul>
                     </nav>
                   </div>
@@ -853,8 +893,8 @@ export default function Dashboard() {
           </div>
           
           {/* Desktop Navigation */}
-          <div className="flex grow flex-col gap-y-5 overflow-y-auto px-1 pb-4">
-            <nav className="flex flex-1 flex-col mt-6">
+          <div className="flex grow flex-col gap-y-5 px-1 pb-2 overflow-hidden">
+            <nav className="flex flex-1 flex-col mt-6 overflow-y-auto custom-scrollbar-y">
               <ul role="list" className="flex flex-1 flex-col gap-y-7">
                 <li>
                   <ul role="list" className="space-y-1">
@@ -965,6 +1005,49 @@ export default function Dashboard() {
                 </li>
               </ul>
             </nav>
+
+            {/* Bottom Sticky Items */}
+            {bottomNavigation.length > 0 && (
+              <div className="mt-auto border-t border-gray-200 pt-2">
+                <ul role="list" className="space-y-1">
+                  {bottomNavigation.map((item) => (
+                    <li
+                      onClick={() => handleLinkClick(item)}
+                      key={item.name}
+                      className={`group cursor-pointer hover:text-primary relative
+                        ${
+                          item.slug === selectedComponent
+                            ? "bg-gray-50 text-[#2B00B7] font-semibold"
+                            : "text-[#4B465C] hover:text-[#2B00B7] hover:bg-gray-50"
+                        }
+                        flex gap-x-3 rounded-md p-1 text-sm leading-6 justify-center`}
+                    >
+                      <item.icon
+                        className={`
+                          ${
+                            item.slug === selectedComponent
+                              ? "text-[#2B00B7]"
+                              : "text-gray-400 group-hover:text-[#2B00B7] transition-all duration-200"
+                          }
+                          h-5 w-5 shrink-0
+                        `}
+                        aria-hidden="true"
+                      />
+                      {isSidebarCollapsed && (
+                        <span className="capitalize transition-all duration-200 break-words">
+                          {t(item.name)}
+                        </span>
+                      )}
+                      {!isSidebarCollapsed && (
+                        <span className="absolute left-full ml-1 z-50 bg-[#393939] text-white text-xs px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap pointer-events-none">
+                          {item.name}
+                        </span>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
           </div>
         </div>
 
