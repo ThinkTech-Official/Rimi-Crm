@@ -1,4 +1,5 @@
 import React from 'react';
+import { useLanguage } from '../context/LanguageContext';
 
 interface PremiumChangeModalProps {
   isOpen: boolean;
@@ -21,6 +22,7 @@ const PremiumChangeModal: React.FC<PremiumChangeModalProps> = ({
   reason,
   isAgeBracketChange = false,
 }) => {
+  const { t } = useLanguage();
   if (!isOpen) return null;
 
   const isIncrease = premiumDifference > 0;
@@ -34,7 +36,7 @@ const PremiumChangeModal: React.FC<PremiumChangeModalProps> = ({
             {isAgeBracketChange && (
               <span className="text-yellow-600">⚠️</span>
             )}
-            <span>Premium Recalculation Required</span>
+            <span>{t("Premium Recalculation Required")}</span>
           </h2>
         </div>
 
@@ -51,10 +53,10 @@ const PremiumChangeModal: React.FC<PremiumChangeModalProps> = ({
                 </div>
                 <div className="ml-3">
                   <p className="text-sm text-yellow-700 font-medium">
-                    Age Bracket Change Detected
+                    {t("Age Bracket Change Detected")}
                   </p>
                   <p className="text-sm text-yellow-700 mt-1">
-                    {reason || 'The effective date change has resulted in a different age bracket, affecting the premium rate.'}
+                    {reason || t('The effective date change has resulted in a different age bracket, affecting the premium rate.')}
                   </p>
                 </div>
               </div>
@@ -64,14 +66,14 @@ const PremiumChangeModal: React.FC<PremiumChangeModalProps> = ({
           {/* Premium Comparison */}
           <div className="bg-gray-50 rounded-lg p-4 space-y-3">
             <div className="flex justify-between items-center">
-              <span className="text-sm text-gray-600">Original Premium:</span>
+              <span className="text-sm text-gray-600">{t("Original Premium:")}</span>
               <span className="text-lg font-semibold text-gray-900">
                 ${originalPremium.toFixed(2)}
               </span>
             </div>
             
             <div className="flex justify-between items-center">
-              <span className="text-sm text-gray-600">New Premium:</span>
+              <span className="text-sm text-gray-600">{t("New Premium:")}</span>
               <span className="text-lg font-semibold text-gray-900">
                 ${newPremium.toFixed(2)}
               </span>
@@ -79,7 +81,7 @@ const PremiumChangeModal: React.FC<PremiumChangeModalProps> = ({
 
             <div className="border-t pt-3 flex justify-between items-center">
               <span className="text-sm font-medium text-gray-700">
-                {isIncrease ? 'Additional Payment Due:' : 'Refund Due:'}
+                {isIncrease ? t('Additional Payment Due:') : t('Refund Due:')}
               </span>
               <span className={`text-xl font-bold ${
                 isIncrease ? 'text-red-600' : 'text-green-600'
@@ -93,19 +95,19 @@ const PremiumChangeModal: React.FC<PremiumChangeModalProps> = ({
           {isIncrease && (
             <div className="bg-blue-50 border border-blue-200 rounded p-4">
               <p className="text-sm font-medium text-blue-900 mb-2">
-                💡 Recommendation:
+                💡 {t("Recommendation:")}
               </p>
               <p className="text-sm text-blue-800">
-                Consider reducing coverage days to stay within the original budget, or proceed with the additional payment.
+                {t("Consider reducing coverage days to stay within the original budget, or proceed with the additional payment.")}
               </p>
             </div>
           )}
 
           {/* Note */}
           <p className="text-xs text-gray-500 italic">
-            Note: {isIncrease 
-              ? 'Additional payment will need to be collected separately after saving these changes.'
-              : 'The refund will be processed automatically when you save these changes.'
+            {t("Note:")} {isIncrease 
+              ? t('Additional payment will need to be collected separately after saving these changes.')
+              : t('The refund will be processed automatically when you save these changes.')
             }
           </p>
         </div>
@@ -116,13 +118,13 @@ const PremiumChangeModal: React.FC<PremiumChangeModalProps> = ({
             onClick={onClose}
             className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded hover:bg-gray-50"
           >
-            {isIncrease ? 'Cancel & Adjust' : 'Cancel'}
+            {isIncrease ? t('Cancel & Adjust') : t('Cancel')}
           </button>
           <button
             onClick={onProceed}
             className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded hover:bg-blue-700"
           >
-            Save Changes
+            {t("Save Changes")}
           </button>
         </div>
       </div>

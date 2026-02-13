@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { MdClose, MdPrint } from 'react-icons/md';
+import { useLanguage } from '../../context/LanguageContext';
 
 interface PolicyApplicant {
   id: string;
@@ -42,6 +43,7 @@ const RenewalNoticeModal: React.FC<RenewalNoticeModalProps> = ({
   onClose,
   policy,
 }) => {
+  const { t } = useLanguage();
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden';
@@ -57,7 +59,7 @@ const RenewalNoticeModal: React.FC<RenewalNoticeModalProps> = ({
   if (!isOpen) return null;
 
   const formatDate = (date?: Date | string) => {
-    if (!date) return 'N/A';
+    if (!date) return t('N/A');
     const d = new Date(date);
     return d.toISOString().split('T')[0];
   };
@@ -71,12 +73,12 @@ const RenewalNoticeModal: React.FC<RenewalNoticeModalProps> = ({
   };
 
   const calculateCoverageLength = () => {
-    if (!policy.effectiveDate || !policy.expiryDate) return 'N/A';
+    if (!policy.effectiveDate || !policy.expiryDate) return t('N/A');
     const start = new Date(policy.effectiveDate);
     const end = new Date(policy.expiryDate);
     const diffTime = Math.abs(end.getTime() - start.getTime());
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    return `${diffDays} Days`;
+    return `${diffDays} ${t("Days")}`;
   };
 
   const allPolicyNumbers = [
@@ -94,10 +96,10 @@ const RenewalNoticeModal: React.FC<RenewalNoticeModalProps> = ({
         <div className="sticky top-0 bg-white border-b border-inputBorder px-3 sm:px-6 py-4 flex justify-between items-center z-10">
           <div>
             <h2 className="text-xl font-semibold text-text-black">
-              View Renewal Notice
+              {t("View Renewal Notice")}
             </h2>
             <p className="text-sm text-text-secondary mt-1">
-              Policy: <span className="text-primary font-medium">{policy.policyNumber}</span>
+              {t("Policy:")} <span className="text-primary font-medium">{policy.policyNumber}</span>
             </p>
           </div>
           <button
@@ -117,7 +119,7 @@ const RenewalNoticeModal: React.FC<RenewalNoticeModalProps> = ({
               className="flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors cursor-pointer text-sm font-medium"
             >
               <MdPrint className="text-xl" />
-              View Printable Version
+              {t("View Printable Version")}
             </button>
           </div>
 
@@ -129,10 +131,10 @@ const RenewalNoticeModal: React.FC<RenewalNoticeModalProps> = ({
                 <span className="text-red-600">Travel</span>
               </div> */}
               <h1 className="text-[22px] font-bold text-primary mb-6">
-              {policy.product?.split("_").join(" ")}
+              {t(policy.product?.split("_").join(" ") || '')}
             </h1>
               <div className="text-right">
-                <div className="text-xs text-gray-500 uppercase font-semibold">Policy Number(s)</div>
+                <div className="text-xs text-gray-500 uppercase font-semibold">{t("Policy Number(s)")}</div>
                 <div className="text-sm font-medium text-gray-900">{allPolicyNumbers}</div>
               </div>
             </div>
@@ -142,17 +144,14 @@ const RenewalNoticeModal: React.FC<RenewalNoticeModalProps> = ({
             </h1> */}
 
             <div className="space-y-4 text-gray-700">
-              <p>Dear {policy.lastName || 'Valued Customer'},</p>
-              <p>Thank you for your confidence in RIMI Insurance Solutions Inc.</p>
+              <p>{t("Dear")} {policy.lastName || t('Valued Customer')},</p>
+              <p>{t("Thank you for your confidence in RIMI Insurance Solutions Inc.")}</p>
               <p>
-                According to our records, your travel insurance policy is scheduled to
-                expire shortly. If you have already received a new policy to continue
-                your coverage, please disregard this notice.
+                {t("According to our records, your travel insurance policy is scheduled to expire shortly. If you have already received a new policy to continue your coverage, please disregard this notice.")}
               </p>
               <p>
-                If you wish to continue your coverage, please contact your agent or
-                click <a href="#" className="text-primary font-medium underline">here</a>.
-                Please note the new policy issuance is subject to the policy eligibility criteria.
+                {t("If you wish to continue your coverage, please contact your agent or click")} <a href="#" className="text-primary font-medium underline">{t("here")}</a>.
+                {t("Please note the new policy issuance is subject to the policy eligibility criteria.")}
               </p>
             </div>
           </div>
@@ -160,21 +159,21 @@ const RenewalNoticeModal: React.FC<RenewalNoticeModalProps> = ({
           {/* Primary Insured Person */}
           <section>
             <h3 className="text-lg font-bold text-primary mb-4 border-b pb-2">
-              Primary Insured Person
+              {t("Primary Insured Person")}
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              <InfoField label="Policy Number" value={policy.policyNumber} />
-              <InfoField label="First Name" value={policy.firstName} />
-              <InfoField label="Last Name" value={policy.lastName} />
-              <InfoField label="Date of Birth" value={formatDate(policy.dateOfBirth)} />
-              <InfoField label="Gender" value={policy.gender} />
+              <InfoField label={t("Policy Number")} value={policy.policyNumber} />
+              <InfoField label={t("First Name")} value={policy.firstName} />
+              <InfoField label={t("Last Name")} value={policy.lastName} />
+              <InfoField label={t("Date of Birth")} value={formatDate(policy.dateOfBirth)} />
+              <InfoField label={t("Gender")} value={t(policy.gender || '')} />
               <InfoField
-                label="Pre-Ex Coverage"
-                value={policy.PreExCoverage || 'No'}
+                label={t("Pre-Ex Coverage")}
+                value={policy.PreExCoverage === 'yes' ? t('Yes') : t('No')}
                 className="col-span-1 md:col-span-2 lg:col-span-2"
               />
               <InfoField
-                label="Premium"
+                label={t("Premium")}
                 value={formatCurrency(policy.premium || 0)}
                 valueClassName="text-green-600 font-bold"
               />
@@ -187,22 +186,22 @@ const RenewalNoticeModal: React.FC<RenewalNoticeModalProps> = ({
               {policy.applicants.map((applicant, index) => (
                 <section key={applicant.id}>
                   <h3 className="text-lg font-bold text-primary mb-4 border-b pb-2">
-                    Insured Person {index + 2}
+                    {t("Insured Person")} {index + 2}
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <InfoField label="Policy Number" value={applicant.policyNumber} />
-                    <InfoField label="First Name" value={applicant.firstName} />
-                    <InfoField label="Last Name" value={applicant.lastName} />
-                    <InfoField label="Date of Birth" value={formatDate(applicant.dateOfBirth)} />
-                    <InfoField label="Gender" value={applicant.gender} />
-                    <InfoField label="Relation" value={applicant.relation} />
+                    <InfoField label={t("Policy Number")} value={applicant.policyNumber} />
+                    <InfoField label={t("First Name")} value={applicant.firstName} />
+                    <InfoField label={t("Last Name")} value={applicant.lastName} />
+                    <InfoField label={t("Date of Birth")} value={formatDate(applicant.dateOfBirth)} />
+                    <InfoField label={t("Gender")} value={t(applicant.gender || '')} />
+                    <InfoField label={t("Relation")} value={t(applicant.relation || '')} />
                     <InfoField
-                      label="Pre-Ex Coverage"
-                      value={applicant.PreExCoverage || 'No'}
+                      label={t("Pre-Ex Coverage")}
+                      value={applicant.PreExCoverage === "yes" ? t('Yes') : t('No')}
                       className="col-span-1 md:col-span-2"
                     />
                     <InfoField
-                      label="Premium"
+                      label={t("Premium")}
                       value={formatCurrency(applicant.premium || 0)}
                       valueClassName="text-green-600 font-bold"
                     />
@@ -214,19 +213,19 @@ const RenewalNoticeModal: React.FC<RenewalNoticeModalProps> = ({
 
           {/* Coverage Details */}
           <section className="bg-blue-50/50 border border-blue-100 p-3 sm:p-6">
-            <h3 className="text-lg font-bold text-primary mb-4">Coverage Details</h3>
+            <h3 className="text-lg font-bold text-primary mb-4">{t("Coverage Details")}</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-y-6 gap-x-8">
-              <InfoField label="Plan Name" value="Visitors to Canada" />
-              <InfoField label="Policy Type" value={policy.policyType || 'Standard'} />
-              <InfoField label="Coverage Amount" value={policy.coverage} />
-              <InfoField label="Deductible" value={policy.deductible} />
-              <InfoField label="Country of Origin" value={policy.countryOfOrigin} />
-              <InfoField label="Super Visa?" value={policy.applicantOnSuperVisa} />
-              <InfoField label="Destination" value={policy.destination} />
-              <InfoField label="Effective Date" value={formatDate(policy.effectiveDate)} />
-              <InfoField label="Expiry Date" value={formatDate(policy.expiryDate)} />
+              <InfoField label={t("Plan Name")} value={t("Visitors to Canada")} />
+              <InfoField label={t("Policy Type")} value={t(policy.policyType || 'Standard')} />
+              <InfoField label={t("Coverage Amount")} value={policy.coverage} />
+              <InfoField label={t("Deductible")} value={policy.deductible} />
+              <InfoField label={t("Country of Origin")} value={t(policy.countryOfOrigin || '')} />
+              <InfoField label={t("Super Visa?")} value={policy.applicantOnSuperVisa === "yes" ? t("Yes") : t("No")} />
+              <InfoField label={t("Destination")} value={t(policy.destination || '')} />
+              <InfoField label={t("Effective Date")} value={formatDate(policy.effectiveDate)} />
+              <InfoField label={t("Expiry Date")} value={formatDate(policy.expiryDate)} />
               <InfoField
-                label="Coverage Length"
+                label={t("Coverage Length")}
                 value={calculateCoverageLength()}
                 valueClassName="font-bold text-primary"
               />
@@ -240,7 +239,7 @@ const RenewalNoticeModal: React.FC<RenewalNoticeModalProps> = ({
             onClick={onClose}
             className="px-6 py-2 border border-inputBorder hover:border-gray-400 font-semibold transition-all cursor-pointer"
           >
-            CLOSE
+            {t("CLOSE")}
           </button>
         </div>
       </div>

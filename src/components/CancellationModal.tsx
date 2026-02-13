@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { usePolicyCancellation, RefundPreview } from '../hooks/admin-dashboard/usePolicyCancellation';
 import { MdClose } from 'react-icons/md';
 import { FaInfo } from 'react-icons/fa';
+import { useLanguage } from '../context/LanguageContext';
 
 interface PaymentRecord {
   id: string;
@@ -39,6 +40,7 @@ export default function CancellationModal({
   onSuccess,
   isSuperVisa
 }: CancellationModalProps) {
+  const { t } = useLanguage();
   const [step, setStep] = useState<'preview' | 'confirm'>('preview');
   const [cancellationType, setCancellationType] = useState<'visitors' | 'visa-refusal' | 'super-visa' | 'early-return' | 'other'>('visitors');
   const [cancellationFee, setCancellationFee] = useState(50);
@@ -123,7 +125,7 @@ export default function CancellationModal({
         {/* Header */}
         <div className="sticky top-0 bg-white border-b border-inputBorder px-6 py-4 flex justify-between items-center z-10">
           <h2 className="text-xl font-semibold text-text-black flex items-center">
-            Cancel Policy - <span className='text-primary'>
+            {t("Cancel Policy")} - <span className='text-primary'>
               {policyNumber}
             </span>
             {isSuperVisa === "yes" && (
@@ -155,17 +157,17 @@ export default function CancellationModal({
                     <FaInfo className='text-blue-600 text-xl mr-3 mt-1 bg-blue-200 rounded-full p-1'/>
                     <div>
                       <h3 className="font-semibold text-blue-800 mb-2">
-                        Policy Already Started - No Refunds
+                        {t("Policy Already Started - No Refunds")}
                       </h3>
                       <p className="text-sm text-blue-700 mb-2">
-                        This policy has already started (Effective: {new Date(effectiveDate).toLocaleDateString('en-CA')}). 
-                        Cancelling will:
+                        {t("This policy has already started (Effective:")} {new Date(effectiveDate).toLocaleDateString('en-CA')}). 
+                        {t("Cancelling will:")}
                       </p>
                       <ul className="list-disc list-inside text-sm text-blue-700 space-y-1">
-                        <li>Stop all future monthly charges immediately</li>
-                        <li>Keep your coverage through the last paid period</li>
-                        <li><strong>No refunds will be issued</strong> (premium already earned)</li>
-                        <li>Cancel the Stripe subscription</li>
+                        <li>{t("Stop all future monthly charges immediately")}</li>
+                        <li>{t("Keep your coverage through the last paid period")}</li>
+                        <li><strong>{t("No refunds will be issued")}</strong> ({t("premium already earned")})</li>
+                        <li>{t("Cancel the Stripe subscription")}</li>
                       </ul>
                     </div>
                   </div>
@@ -173,7 +175,7 @@ export default function CancellationModal({
               ) : (
                 <div className="bg-yellow-50 border border-yellow-200 p-4">
                   <p className="text-sm text-yellow-800">
-                    <strong>Note:</strong> Refunds will be processed according to the breakdown below.
+                    <strong>{t("Note:")}</strong> {t("Refunds will be processed according to the breakdown below.")}
                   </p>
                 </div>
               )}
@@ -181,21 +183,21 @@ export default function CancellationModal({
               {/* Transaction Records Table */}
               <div className="space-y-2">
                 <h3 className="font-semibold text-sm text-primary">
-                  Transaction Record
+                  {t("Transaction Record")}
                 </h3>
                 <div className="overflow-x-auto custom-scrollbar2">
                   <table className="min-w-full divide-y divide-gray-200">
                     <thead className="bg-primary text-white text-sm text-nowrap capitalize">
                       <tr>
                         <th className="px-3 py-2 text-left font-medium">#</th>
-                        <th className="px-3 py-2 text-left font-medium">Payment Method</th>
-                        <th className="px-3 py-2 text-left font-medium">Cardholder Name</th>
-                        <th className="px-3 py-2 text-left font-medium">Brand</th>
-                        <th className="px-3 py-2 text-left font-medium">Card Number Last 4</th>
-                        <th className="px-3 py-2 text-right font-medium">Charged Amount</th>
-                        <th className="px-3 py-2 text-right font-medium">Transaction Fee</th>
-                        <th className="px-3 py-2 text-left font-medium">Status</th>
-                        <th className="px-3 py-2 text-left font-medium">Date</th>
+                        <th className="px-3 py-2 text-left font-medium">{t("Payment Method")}</th>
+                        <th className="px-3 py-2 text-left font-medium">{t("Cardholder Name")}</th>
+                        <th className="px-3 py-2 text-left font-medium">{t("Brand")}</th>
+                        <th className="px-3 py-2 text-left font-medium">{t("Card Number Last 4")}</th>
+                        <th className="px-3 py-2 text-right font-medium">{t("Charged Amount")}</th>
+                        <th className="px-3 py-2 text-right font-medium">{t("Transaction Fee")}</th>
+                        <th className="px-3 py-2 text-left font-medium">{t("Status")}</th>
+                        <th className="px-3 py-2 text-left font-medium">{t("Date")}</th>
                       </tr>
                     </thead>
                     <tbody className="bg-white text-nowrap" style={{ border: "1px solid #AAA9A9" }}>
@@ -225,7 +227,7 @@ export default function CancellationModal({
                           <td className={`px-3 py-2 capitalize ${
                             payment.status === 'succeeded' ? 'text-green-600' : ''
                           }`} style={{ borderWidth: "0px 1px 1px 0px", borderStyle: "solid", borderColor: "#AAA9A9" }}>
-                            {payment.status}
+                            {t(payment.status)}
                           </td>
                           <td className="px-3 py-2" style={{ borderWidth: "0px 1px 1px 0px", borderStyle: "solid", borderColor: "#AAA9A9" }}>
                             {new Date(payment.date).toLocaleDateString('en-CA')}
@@ -240,44 +242,44 @@ export default function CancellationModal({
               {/* Cancellation Options */}
               <div className="space-y-4">
                 <div>
-                  <label className="block font-medium mb-2 text-text-secondary">Cancellation Type</label>
+                  <label className="block font-medium mb-2 text-text-secondary">{t("Cancellation Type")}</label>
                   <select
                     value={cancellationType}
                     onChange={(e) => setCancellationType(e.target.value as any)}
                     className="input-primary"
                   >
-                    <option value="visitors">Visitors Insurance</option>
-                    <option value="visa-refusal">Visa Refusal (No Fee)</option>
-                    <option value="super-visa">Super Visa ($150 Fee)</option>
-                    <option value="early-return">Early Return ($50 Fee)</option>
-                    <option value="other">Other</option>
+                    <option value="visitors">{t("Visitors Insurance")}</option>
+                    <option value="visa-refusal">{t("Visa Refusal (No Fee)")}</option>
+                    <option value="super-visa">{t("Super Visa ($150 Fee)")}</option>
+                    <option value="early-return">{t("Early Return ($50 Fee)")}</option>
+                    <option value="other">{t("Other")}</option>
                   </select>
                 </div>
 
                 {cancellationType === 'other' && (
                   <div>
-                    <label className="block font-medium mb-2 text-text-secondary">Specify Other Type</label>
+                    <label className="block font-medium mb-2 text-text-secondary">{t("Specify Other Type")}</label>
                     <input
                       type="text"
                       value={otherTypeText}
                       onChange={(e) => setOtherTypeText(e.target.value)}
                       className="input-primary"
-                      placeholder="Enter cancellation type..."
+                      placeholder={t("Enter cancellation type...")}
                     />
                   </div>
                 )}
               {!noRefundsWillBeIssued && (
                 <div>
                   <label className="block font-medium mb-2">
-                    Cancellation Fee (CAD)
+                    {t("Cancellation Fee (CAD)")}
                     {cancellationType === 'visa-refusal' && (
-                      <span className="text-sm text-gray-500 ml-2">(No fee for visa refusal)</span>
+                      <span className="text-sm text-gray-500 ml-2">({t("No fee for visa refusal")})</span>
                     )}
                     {cancellationType === 'super-visa' && (
-                      <span className="text-sm text-gray-500 ml-2">($150 fee for super visa)</span>
+                      <span className="text-sm text-gray-500 ml-2">({t("$150 fee for super visa")})</span>
                     )}
                     {cancellationType === 'early-return' && (
-                      <span className="text-sm text-gray-500 ml-2">($50 fee for early return)</span>
+                      <span className="text-sm text-gray-500 ml-2">({t("$50 fee for early return")})</span>
                     )}
                   </label>
                   <input
@@ -324,24 +326,24 @@ export default function CancellationModal({
                 </div> */}
 
                 <div>
-                  <label className="block font-medium mb-2 text-text-secondary">Notes (Optional)</label>
+                  <label className="block font-medium mb-2 text-text-secondary">{t("Notes (Optional)")}</label>
                   <textarea
                     value={notes}
                     onChange={(e) => setNotes(e.target.value)}
                     className="input-primary"
                     rows={3}
-                    placeholder="Enter cancellation notes..."
+                    placeholder={t("Enter cancellation notes...")}
                   />
                 </div>
 
                 <div>
-                  <label className="block font-medium mb-2 text-text-secondary">Processed By (Optional)</label>
+                  <label className="block font-medium mb-2 text-text-secondary">{t("Processed By (Optional)")}</label>
                   <input
                     type="text"
                     value={processedBy}
                     onChange={(e) => setProcessedBy(e.target.value)}
                     className="input-primary"
-                    placeholder="Your name or ID"
+                    placeholder={t("Your name or ID")}
                   />
                 </div>
               </div>
@@ -350,41 +352,41 @@ export default function CancellationModal({
               {loading ? (
                 <div className="text-center py-8">
                   <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-                  <p className="mt-2 text-gray-600">Calculating refund...</p>
+                  <p className="mt-2 text-gray-600">{t("Calculating refund...")}</p>
                 </div>
               ) : preview ? (
                 <div className="bg-gray-50 rounded-lg p-6 space-y-4">
-                  <h3 className="font-semibold text-lg" style={{ color: '#2309a1' }}>Refund Preview</h3>
+                  <h3 className="font-semibold text-lg" style={{ color: '#2309a1' }}>{t("Refund Preview")}</h3>
                   
                   <div className="grid grid-cols-2 gap-4 text-sm">
                     <div>
-                      <div className="text-gray-600">Payment Option</div>
-                      <div className="font-medium">{preview.paymentOption}</div>
+                      <div className="text-gray-600">{t("Payment Option")}</div>
+                      <div className="font-medium">{t(preview.paymentOption)}</div>
                     </div>
                     <div>
-                      <div className="text-gray-600">Total Paid</div>
+                      <div className="text-gray-600">{t("Total Paid")}</div>
                       <div className="font-medium">CAD ${preview.totalPaid.toFixed(2)}</div>
                     </div>
                     <div>
-                      <div className="text-gray-600">Cancellation Fee</div>
+                      <div className="text-gray-600">{t("Cancellation Fee")}</div>
                       <div className="font-medium">CAD ${preview.cancellationFee.toFixed(2)}</div>
                     </div>
                     <div>
-                      <div className="text-gray-600">Admin Fee Refundable</div>
+                      <div className="text-gray-600">{t("Admin Fee Refundable")}</div>
                       <div className="font-medium">CAD ${preview.adminFeeRefundable.toFixed(2)}</div>
                     </div>
                   </div>
 
                   <div className="border-t border-inputBorder pt-4">
                     <div className="flex justify-between items-center">
-                      <span className="text-lg font-semibold">Total Refundable</span>
+                      <span className="text-lg font-semibold">{t("Total Refundable")}</span>
                       <span className="text-2xl font-bold text-green-600">
                         CAD ${preview.totalRefundable.toFixed(2)}
                       </span>
                     </div>
                     {noRefundsWillBeIssued && (
                       <p className="text-sm text-gray-600 mt-2">
-                        No refunds will be issued. Subscription will be cancelled.
+                        {t("No refunds will be issued. Subscription will be cancelled.")}
                       </p>
                     )}
                   </div>
@@ -392,15 +394,15 @@ export default function CancellationModal({
                   {/* Breakdown Table */}
                   {preview.refundBreakdown.length > 0 && (
                     <div className="mt-4">
-                      <h4 className="font-medium mb-2 text-primary">Refund Breakdown</h4>
+                      <h4 className="font-medium mb-2 text-primary">{t("Refund Breakdown")}</h4>
                       <div className="overflow-x-auto custom-scrollbar2">
                         <table className="w-full text-sm">
                           <thead className="bg-primary text-white text-nowrap capitalize">
                             <tr>
-                              <th className="px-3 py-2 text-left font-medium">Charge ID</th>
-                              <th className="px-3 py-2 text-right font-medium">Original</th>
-                              <th className="px-3 py-2 text-right font-medium">Refund</th>
-                              <th className="px-3 py-2 text-left font-medium">Date</th>
+                              <th className="px-3 py-2 text-left font-medium">{t("Charge ID")}</th>
+                              <th className="px-3 py-2 text-right font-medium">{t("Original")}</th>
+                              <th className="px-3 py-2 text-right font-medium">{t("Refund")}</th>
+                              <th className="px-3 py-2 text-left font-medium">{t("Date")}</th>
                             </tr>
                           </thead>
                           <tbody className="bg-white" style={{ border: "1px solid #AAA9A9" }}>
@@ -430,19 +432,19 @@ export default function CancellationModal({
 
               {/* Action Buttons */}
               <div className="flex justify-end space-x-3 pt-4 border-t border-inputBorder">
-                <button
-                  onClick={onClose}
-                  className="py-2 px-4 border border-inputBorder hover:border-gray-400 cursor-pointer transition delay-100"
-                >
-                  NO, GO BACK
-                </button>
-                <button
-                  onClick={() => setStep('confirm')}
-                  disabled={!preview || loading}
-                  className="btn-primary"
-                >
-                  {noRefundsWillBeIssued ? 'PROCEED TO CANCEL' : 'PREVIEW REFUND'}
-                </button>
+                  <button
+                    onClick={onClose}
+                    className="py-2 px-4 border border-inputBorder hover:border-gray-400 cursor-pointer transition delay-100"
+                  >
+                    {t("NO, GO BACK")}
+                  </button>
+                  <button
+                    onClick={() => setStep('confirm')}
+                    disabled={!preview || loading}
+                    className="btn-primary"
+                  >
+                    {noRefundsWillBeIssued ? t('PROCEED TO CANCEL') : t('PREVIEW REFUND')}
+                  </button>
               </div>
             </>
           )}
@@ -454,18 +456,18 @@ export default function CancellationModal({
                   <div className="text-yellow-600 text-xl mr-3">⚠️</div>
                   <div>
                     <h3 className="font-semibold text-yellow-800 mb-2">
-                      Confirm Policy Cancellation
+                      {t("Confirm Policy Cancellation")}
                     </h3>
                     <p className="text-sm text-yellow-700">
-                      This action cannot be undone. The following will occur:
+                      {t("This action cannot be undone. The following will occur:")}
                     </p>
                     <ul className="list-disc list-inside text-sm text-yellow-700 mt-2 space-y-1">
-                      <li>Policy status will be set to CANCELLED</li>
-                      {!noRefundsWillBeIssued && <li>Refunds will be processed to the original payment method</li>}
-                      <li>Subscription will be cancelled (if applicable)</li>
-                      <li>Pending commissions will be reversed</li>
+                      <li>{t("Policy status will be set to CANCELLED")}</li>
+                      {!noRefundsWillBeIssued && <li>{t("Refunds will be processed to the original payment method")}</li>}
+                      <li>{t("Subscription will be cancelled (if applicable)")}</li>
+                      <li>{t("Pending commissions will be reversed")}</li>
                       {noRefundsWillBeIssued && (
-                        <li className="font-semibold">No refunds will be issued (policy already started)</li>
+                        <li className="font-semibold">{t("No refunds will be issued (policy already started)")}</li>
                       )}
                     </ul>
                   </div>
@@ -475,14 +477,14 @@ export default function CancellationModal({
               {preview && (
                 <div className="bg-greyBg p-4">
                   <div className="flex justify-between items-center">
-                    <span className="font-medium">{noRefundsWillBeIssued ? 'Total refund:' : 'Total to be refunded:'}</span>
+                    <span className="font-medium">{noRefundsWillBeIssued ? t('Total refund:') : t('Total to be refunded:')}</span>
                     <span className="text-2xl font-bold text-green-600">
                       CAD ${preview.totalRefundable.toFixed(2)}
                     </span>
                   </div>
                   {noRefundsWillBeIssued && (
                     <p className="text-sm text-gray-600 mt-2">
-                      Future charges will be stopped. Coverage continues through last paid period.
+                      {t("Future charges will be stopped. Coverage continues through last paid period.")}
                     </p>
                   )}
                 </div>
@@ -493,14 +495,14 @@ export default function CancellationModal({
                   onClick={() => setStep('preview')}
                   className="py-2 px-4 border border-inputBorder hover:border-gray-400 cursor-pointer transition delay-100"
                 >
-                  Back
+                  {t("Back")}
                 </button>
                 <button
                   onClick={handleCancel}
                   disabled={loading}
                   className="bg-red-600 text-white py-2 sm:py-3 px-5 font-semibold hover:bg-red-700 transition-all duration-200 cursor-pointer disabled:cursor-default disabled:opacity-70 flex gap-1 items-center text-nowrap w-fit"
                 >
-                  {loading ? 'Processing...' : 'CONFIRM CANCELLATION'}
+                  {loading ? t('Processing...') : t('CONFIRM CANCELLATION')}
                 </button>
               </div>
             </>

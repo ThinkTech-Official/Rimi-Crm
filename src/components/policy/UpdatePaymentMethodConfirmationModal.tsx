@@ -1,5 +1,6 @@
 import React, { useEffect } from "react";
 import { MdClose, MdCreditCard } from "react-icons/md";
+import { useLanguage } from "../../context/LanguageContext";
 
 interface UpdatePaymentMethodConfirmationModalProps {
   isOpen: boolean;
@@ -10,6 +11,7 @@ interface UpdatePaymentMethodConfirmationModalProps {
 const UpdatePaymentMethodConfirmationModal: React.FC<
   UpdatePaymentMethodConfirmationModalProps
 > = ({ isOpen, onClose, onConfirm }) => {
+  const { t } = useLanguage();
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = "hidden";
@@ -30,7 +32,7 @@ const UpdatePaymentMethodConfirmationModal: React.FC<
         {/* Header */}
         <div className="bg-white border-b border-inputBorder px-6 py-4 flex justify-between items-center">
           <h2 className="text-xl font-semibold text-text-black">
-            Update Payment Method
+            {t("Update Payment Method")}
           </h2>
           <button
             onClick={onClose}
@@ -44,12 +46,12 @@ const UpdatePaymentMethodConfirmationModal: React.FC<
         <div className="p-6">
           <div className="flex items-center gap-3 text-amber-600 mb-4 bg-amber-50 p-3">
              <MdCreditCard className="text-2xl shrink-0" />
-             <p className="font-semibold text-sm">Action Required</p>
+             <p className="font-semibold text-sm">{t("Action Required")}</p>
           </div>
           <p className="text-gray-700">
-            Are you sure you want to update the payment method for this policy? 
+            {t("Are you sure you want to update the payment method for this policy?")} 
             <br /><br />
-            <span className="font-semibold">All future recurring payments will use the new card.</span>
+            <span className="font-semibold">{t("All future recurring payments will use the new card.")}</span>
           </p>
         </div>
 
@@ -59,13 +61,13 @@ const UpdatePaymentMethodConfirmationModal: React.FC<
             onClick={onClose}
             className="px-4 py-2 border border-inputBorder hover:border-gray-400 transition-all cursor-pointer"
           >
-            No, Cancel
+            {t("No, Cancel")}
           </button>
           <button
             onClick={onConfirm}
             className="btn-primary"
           >
-            Yes, Update Card
+            {t("Yes, Update Card")}
           </button>
         </div>
       </div>

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { usePolicySplit } from '../../hooks/admin-dashboard/usePolicySplit';
 import { MdClose } from 'react-icons/md';
+import { useLanguage } from '../../context/LanguageContext';
 
 
 interface Applicant {
@@ -40,6 +41,7 @@ export const PolicySplitModal: React.FC<PolicySplitModalProps> = ({
   paymentOption,
   onSuccess,
 }) => {
+  const { t } = useLanguage();
   const { loading, error, preview, getPreview, executeSplit } = usePolicySplit(policyId);
 
   const [currentStep, setCurrentStep] = useState<WizardStep>('select');
@@ -89,7 +91,7 @@ export const PolicySplitModal: React.FC<PolicySplitModalProps> = ({
 
       if (hasDifferentDates) {
         errors.push(
-          'Selected applicants have different travel dates. They cannot be grouped together.'
+          t('Selected applicants have different travel dates. They cannot be grouped together.')
         );
       }
     }
@@ -168,7 +170,7 @@ export const PolicySplitModal: React.FC<PolicySplitModalProps> = ({
    */
   const handleConfirmSplit = async () => {
     if (!adminNotes.trim()) {
-      setValidationErrors(['Please provide a reason for the split']);
+      setValidationErrors([t('Please provide a reason for the split')]);
       return;
     }
 
@@ -198,17 +200,6 @@ export const PolicySplitModal: React.FC<PolicySplitModalProps> = ({
   /**
    * Format date for display
    */
-  const formatDate = (dateStr: string) => {
-    return new Date(dateStr).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-    });
-  };
-
-  /**
-   * Calculate days between dates
-   */
   const calculateDays = (start: string, end: string) => {
     const diffTime = new Date(end).getTime() - new Date(start).getTime();
     return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
@@ -223,9 +214,9 @@ export const PolicySplitModal: React.FC<PolicySplitModalProps> = ({
           {/* Header */}
           <div className="sticky top-0 bg-white border-b border-inputBorder px-6 py-4 flex items-center justify-between z-10">
             <div>
-              <h2 className="text-2xl font-bold text-primary">Split Policy</h2>
+              <h2 className="text-2xl font-bold text-primary">{t("Split Policy")}</h2>
               <p className="text-sm text-text-secondary mt-1">
-                Policy: {policyNumber} | Step {currentStep === 'select' ? '1' : currentStep === 'preview' ? '2' : '3'} of 3
+                {t("Policy:")} {policyNumber} | {t("Step")} {currentStep === 'select' ? '1' : currentStep === 'preview' ? '2' : '3'} {t("of")} 3
               </p>
             </div>
             <button
@@ -241,11 +232,11 @@ export const PolicySplitModal: React.FC<PolicySplitModalProps> = ({
             {/* Error Display */}
             {(error || validationErrors.length > 0) && (
               <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
-                <p className="text-red-800 font-semibold">Errors:</p>
+                <p className="text-red-800 font-semibold">{t("Errors:")}</p>
                 <ul className="list-disc list-inside text-red-700 text-sm mt-2">
-                  {error && <li>{error}</li>}
+                  {error && <li>{t(error)}</li>}
                   {validationErrors.map((err, idx) => (
-                    <li key={idx}>{err}</li>
+                    <li key={idx}>{t(err)}</li>
                   ))}
                 </ul>
               </div>
@@ -257,7 +248,7 @@ export const PolicySplitModal: React.FC<PolicySplitModalProps> = ({
                 {/* Split Mode Selection */}
                 <div className="mb-6">
                   <label className="block text-sm font-medium text-text-secondary mb-3">
-                    How would you like to split this policy?
+                    {t("How would you like to split this policy?")}
                   </label>
                   <div className="space-y-3">
                     <label className="flex items-start p-4 border border-inputBorder cursor-pointer hover:bg-gray-50 transition-colors">
@@ -270,9 +261,9 @@ export const PolicySplitModal: React.FC<PolicySplitModalProps> = ({
                         className="mt-1 h-4 w-4 text-blue-600 accent-primary"
                       />
                       <div className="ml-3">
-                        <span className="font-medium text-text-primary">Split into individual policies</span>
+                        <span className="font-medium text-text-primary">{t("Split into individual policies")}</span>
                         <p className="text-sm text-gray-600 mt-1">
-                          Each insured person will have their own separate policy
+                          {t("Each insured person will have their own separate policy")}
                         </p>
                       </div>
                     </label>
@@ -287,9 +278,9 @@ export const PolicySplitModal: React.FC<PolicySplitModalProps> = ({
                         className="mt-1 h-4 w-4 text-blue-600 accent-primary"
                       />
                       <div className="ml-3">
-                        <span className="font-medium text-text-primary">Group selected applicants</span>
+                        <span className="font-medium text-text-primary">{t("Group selected applicants")}</span>
                         <p className="text-sm text-gray-600 mt-1">
-                          Keep selected applicants together on one policy, separate others
+                          {t("Keep selected applicants together on one policy, separate others")}
                         </p>
                       </div>
                     </label>
@@ -300,8 +291,8 @@ export const PolicySplitModal: React.FC<PolicySplitModalProps> = ({
                 <div>
                   <h3 className="text-lg font-semibold mb-4">
                     {splitMode === 'individual' 
-                      ? 'Insured Persons (each will become a separate policy)'
-                      : 'Select applicants to keep together'}
+                      ? t('Insured Persons (each will become a separate policy)')
+                      : t('Select applicants to keep together')}
                   </h3>
 
                   <div className="space-y-3">
@@ -337,36 +328,36 @@ export const PolicySplitModal: React.FC<PolicySplitModalProps> = ({
                                 </h4>
                                 {applicant.isPrimary && (
                                   <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded">
-                                    Primary
+                                    {t("Primary")}
                                   </span>
                                 )}
                               </div>
 
                               <div className="mt-2 grid grid-cols-2 gap-2 text-sm">
                                 <div>
-                                  <span className="text-text-secondary">DOB:</span>
-                                  <span className="ml-2 text-text-primary">{formatDate(applicant.dateOfBirth)}</span>
+                                  <span className="text-text-secondary">{t("DOB:")}</span>
+                                  <span className="ml-2 text-text-primary">{new Date(applicant.dateOfBirth).toLocaleDateString('en-CA')}</span>
                                 </div>
                                 <div>
-                                  <span className="text-text-secondary">Relation:</span>
+                                  <span className="text-text-secondary">{t("Relation:")}</span>
                                   <span className="ml-2 text-text-primary">
-                                    {applicant.relation || 'Primary'}
+                                    {t(applicant.relation || 'Primary')}
                                   </span>
                                 </div>
                                 <div>
-                                  <span className="text-text-secondary">Coverage:</span>
+                                  <span className="text-text-secondary">{t("Coverage:")}</span>
                                   <span className="ml-2 text-text-primary">
-                                    {formatDate(applicant.effectiveDate)} - {formatDate(applicant.expiryDate)}
+                                    {new Date(applicant.effectiveDate).toLocaleDateString('en-CA')} - {new Date(applicant.expiryDate).toLocaleDateString('en-CA')}
                                   </span>
                                 </div>
                                 <div>
-                                  <span className="text-text-secondary">Days:</span>
-                                  <span className="ml-2 text-text-primary font-medium">{days} days</span>
+                                  <span className="text-text-secondary">{t("Days:")}</span>
+                                  <span className="ml-2 text-text-primary font-medium">{days} {t("days")}</span>
                                 </div>
                                 <div>
-                                  <span className="text-text-secondary">Pre-Med:</span>
+                                  <span className="text-text-secondary">{t("Pre-Med:")}</span>
                                   <span className="ml-2 text-text-primary">
-                                    {applicant.preMedCoverage === 'yes' ? 'Yes' : 'No'}
+                                    {applicant.preMedCoverage === 'yes' ? t('Yes') : t('No')}
                                   </span>
                                 </div>
                               </div>
@@ -377,7 +368,7 @@ export const PolicySplitModal: React.FC<PolicySplitModalProps> = ({
                                applicant.expiryDate !== allApplicants[0].expiryDate && (
                                 <div className="mt-3 p-2 bg-yellow-50 border border-yellow-200 rounded">
                                   <p className="text-yellow-800 text-sm">
-                                    ⚠️ Different expiry date from other selected applicants
+                                    ⚠️ {t("Different expiry date from other selected applicants")}
                                   </p>
                                 </div>
                               )}
@@ -395,14 +386,14 @@ export const PolicySplitModal: React.FC<PolicySplitModalProps> = ({
                     onClick={onClose}
                     className="py-2 px-4 border border-inputBorder hover:border-gray-400 cursor-pointer transition delay-100"
                   >
-                    Cancel
+                    {t("Cancel")}
                   </button>
                   <button
                     onClick={handlePreview}
                     disabled={loading}
                     className="btn-primary"
                   >
-                    {loading ? 'Loading...' : 'Preview Split'}
+                    {loading ? t('Loading...') : t('Preview Split')}
                   </button>
                 </div>
               </div>
@@ -413,43 +404,43 @@ export const PolicySplitModal: React.FC<PolicySplitModalProps> = ({
               <div>
                 {/* Original Policy Summary */}
                 <div className="mb-6 p-4 bg-gray-50/30 border border-inputBorder">
-                  <h3 className="font-semibold text-gray-900 mb-2">Original Policy</h3>
+                  <h3 className="font-semibold text-gray-900 mb-2">{t("Original Policy")}</h3>
                   <div className="grid grid-cols-3 gap-4 text-sm">
                     <div>
-                      <span className="text-gray-600">Policy Number:</span>
+                      <span className="text-gray-600">{t("Policy Number:")}</span>
                       <span className="ml-2 font-medium">{preview.original.policyNumber}</span>
                     </div>
                     <div>
-                      <span className="text-gray-600">Total Premium:</span>
+                      <span className="text-gray-600">{t("Total Premium:")}</span>
                       <span className="ml-2 font-medium">${preview.original.totalPremium.toFixed(2)}</span>
                     </div>
                     <div>
-                      <span className="text-gray-600">Payment:</span>
-                      <span className="ml-2 font-medium capitalize">{preview.original.paymentOption}</span>
+                      <span className="text-gray-600">{t("Payment:")}</span>
+                      <span className="ml-2 font-medium capitalize">{t(preview.original.paymentOption)}</span>
                     </div>
                   </div>
                   <p className="mt-3 text-sm text-gray-700">
-                    → Status will change to: <span className="font-semibold text-yellow-700">PAUSED</span>
+                    → {t("Status will change to:")} <span className="font-semibold text-yellow-700">{t("PAUSED")}</span>
                   </p>
                 </div>
 
                 {/* New Split Policies */}
-                <h3 className="font-semibold text-text-primary mb-4">New Policies After Split:</h3>
+                <h3 className="font-semibold text-text-primary mb-4">{t("New Policies After Split:")}</h3>
                 <div className="space-y-4">
                   {preview.splitPolicies.map((policy, idx) => (
                     <div key={idx} className="border border-green-200 bg-green-50/30 p-4">
                       <div className="flex items-center justify-between mb-3">
                         <h4 className="font-semibold text-green-900">
-                          Policy {String.fromCharCode(65 + idx)}: {policy.newPolicyNumber}
+                          {t("Policy")} {String.fromCharCode(65 + idx)}: {policy.newPolicyNumber}
                         </h4>
                         <span className="px-3 py-1 bg-green-600 text-white text-sm font-medium">
-                          ACTIVE
+                          {t("ACTIVE")}
                         </span>
                       </div>
 
                       {/* Applicants in this policy */}
                       <div className="mb-3">
-                        <p className="text-sm font-medium text-gray-700 mb-1">Insured Persons:</p>
+                        <p className="text-sm font-medium text-gray-700 mb-1">{t("Insured Persons:")}</p>
                         <ul className="text-sm text-gray-900">
                           {policy.applicants.map((app: any, i: number) => (
                             <li key={i}>• {app.firstName} {app.lastName}</li>
@@ -460,14 +451,14 @@ export const PolicySplitModal: React.FC<PolicySplitModalProps> = ({
                       {/* Coverage & Premium Details */}
                       <div className="grid grid-cols-2 gap-4 text-sm">
                         <div>
-                          <span className="text-gray-700">Coverage Period:</span>
+                          <span className="text-gray-700">{t("Coverage Period:")}</span>
                           <p className="font-medium text-gray-900">
-                            {formatDate(policy.coveragePeriod.effectiveDate)} - {formatDate(policy.coveragePeriod.expiryDate)}
+                            {new Date(policy.coveragePeriod.effectiveDate).toLocaleDateString('en-CA')} - {new Date(policy.coveragePeriod.expiryDate).toLocaleDateString('en-CA')}
                           </p>
-                          <p className="text-gray-600">({policy.coveragePeriod.days} days)</p>
+                          <p className="text-gray-600">({policy.coveragePeriod.days} {t("days")})</p>
                         </div>
                         <div>
-                          <span className="text-gray-700">Premium:</span>
+                          <span className="text-gray-700">{t("Premium:")}</span>
                           <p className="font-medium text-gray-900 text-lg">
                             ${policy.premium.total.toFixed(2)}
                           </p>
@@ -479,7 +470,7 @@ export const PolicySplitModal: React.FC<PolicySplitModalProps> = ({
                         </div>
                         {policy.premium.policyFeeAllocation > 0 && (
                           <div className="col-span-2">
-                            <span className="text-gray-700">Policy Fee Allocation:</span>
+                            <span className="text-gray-700">{t("Policy Fee Allocation:")}</span>
                             <span className="ml-2 font-medium text-gray-900">
                               ${policy.premium.policyFeeAllocation.toFixed(2)}
                             </span>
@@ -491,7 +482,7 @@ export const PolicySplitModal: React.FC<PolicySplitModalProps> = ({
                       {policy.payment.refundDue > 0 && (
                         <div className="mt-3 p-2 bg-blue-50 border border-blue-200 rounded">
                           <p className="text-blue-900 text-sm">
-                            💰 Refund: ${policy.payment.refundDue.toFixed(2)} will be processed
+                            💰 {t("Refund:")} ${policy.payment.refundDue.toFixed(2)} {t("will be processed")}
                           </p>
                         </div>
                       )}
@@ -521,10 +512,10 @@ export const PolicySplitModal: React.FC<PolicySplitModalProps> = ({
                 {/* Warnings */}
                 {preview.warnings && preview.warnings.length > 0 && (
                   <div className="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-                    <p className="font-semibold text-yellow-900 mb-2">⚠️ Warnings:</p>
+                    <p className="font-semibold text-yellow-900 mb-2">⚠️ {t("Warnings:")}</p>
                     <ul className="list-disc list-inside text-yellow-800 text-sm space-y-1">
                       {preview.warnings.map((warning, idx) => (
-                        <li key={idx}>{warning}</li>
+                        <li key={idx}>{t(warning)}</li>
                       ))}
                     </ul>
                   </div>
@@ -536,13 +527,13 @@ export const PolicySplitModal: React.FC<PolicySplitModalProps> = ({
                     onClick={() => setCurrentStep('select')}
                     className="py-2 px-4 border border-inputBorder hover:border-gray-400 cursor-pointer transition delay-100"
                   >
-                    Back
+                    {t("Back")}
                   </button>
                   <button
                     onClick={() => setCurrentStep('confirm')}
                     className="btn-primary"
                   >
-                    Continue to Confirm
+                    {t("Continue to Confirm")}
                   </button>
                 </div>
               </div>
@@ -552,40 +543,40 @@ export const PolicySplitModal: React.FC<PolicySplitModalProps> = ({
             {currentStep === 'confirm' && (
               <div>
                 <div className="mb-6 p-4 bg-red-50/30 border border-red-200">
-                  <p className="font-semibold text-red-900 mb-2">⚠️ Important: This action cannot be easily undone</p>
+                  <p className="font-semibold text-red-900 mb-2">⚠️ {t("Important: This action cannot be easily undone")}</p>
                   <p className="text-red-800 text-sm">
-                    After confirmation, the original policy will be PAUSED and new policies will be created. 
-                    You will have a 5-minute window to undo this action if needed.
+                    {t("After confirmation, the original policy will be PAUSED and new policies will be created.")} 
+                    {t("You will have a 5-minute window to undo this action if needed.")}
                   </p>
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-text-secondary mb-2">
-                    Admin Notes (Required) <span className="text-red-600">*</span>
+                    {t("Admin Notes (Required)")} <span className="text-red-600">*</span>
                   </label>
                   <textarea
                     value={adminNotes}
                     onChange={(e) => setAdminNotes(e.target.value)}
-                    placeholder="e.g., Person B returning home early due to family emergency"
+                    placeholder={t("e.g., Person B returning home early due to family emergency")}
                     rows={4}
                     className="input-primary"
                   />
                   <p className="mt-1 text-sm text-gray-600">
-                    Explain the reason for splitting this policy. This will be logged in the policy activity.
+                    {t("Explain the reason for splitting this policy. This will be logged in the policy activity.")}
                   </p>
                 </div>
 
                 <div className="mt-6 p-4 bg-gray-50/30 border border-inputBorder">
-                  <h4 className="font-semibold text-gray-900 mb-2">What happens next:</h4>
+                  <h4 className="font-semibold text-gray-900 mb-2">{t("What happens next:")}</h4>
                   <ol className="list-decimal list-inside text-sm text-gray-700 space-y-1">
-                    <li>Original policy {policyNumber} will be set to PAUSED status</li>
-                    <li>{preview?.splitPolicies.length} new policies will be created (ACTIVE status)</li>
+                    <li>{t("Original policy")} {policyNumber} {t("will be set to PAUSED status")}</li>
+                    <li>{preview?.splitPolicies.length} {t("new policies will be created (ACTIVE status)")}</li>
                     {paymentOption === 'monthly' && (
-                      <li>Original Stripe subscription will be cancelled, new subscriptions created</li>
+                      <li>{t("Original Stripe subscription will be cancelled, new subscriptions created")}</li>
                     )}
-                    <li>All documents and notes will be cloned to new policies</li>
-                    <li>Email notifications will be sent to all insured persons and the agent</li>
-                    <li className="text-text-secondary">Refunds (if any) will be processed to the original payment method</li>
+                    <li>{t("All documents and notes will be cloned to new policies")}</li>
+                    <li>{t("Email notifications will be sent to all insured persons and the agent")}</li>
+                    <li className="text-text-secondary">{t("Refunds (if any) will be processed to the original payment method")}</li>
                   </ol>
                 </div>
 
@@ -594,14 +585,14 @@ export const PolicySplitModal: React.FC<PolicySplitModalProps> = ({
                     onClick={() => setCurrentStep('preview')}
                     className="py-2 px-4 border border-inputBorder hover:border-gray-400 cursor-pointer transition delay-100"
                   >
-                    Back
+                    {t("Back")}
                   </button>
                   <button
                     onClick={handleConfirmSplit}
                     disabled={loading || !adminNotes.trim()}
-                    className="bg-red-600 text-white py-2 sm:py-3 px-5 font-semibold hover:bg-red-700 transition-all duration-200 cursor-pointer disabled:cursor-default disabled:opacity-70 flex gap-1 items-center text-nowrap w-fit cursor-pointer"
+                    className="bg-red-600 text-white py-2 sm:py-3 px-5 font-semibold hover:bg-red-700 transition-all duration-200 cursor-pointer disabled:cursor-default disabled:opacity-70 flex gap-1 items-center text-nowrap w-fit"
                   >
-                    {loading ? 'Processing...' : 'Confirm Split Policy'}
+                    {loading ? t('Processing...') : t('Confirm Split Policy')}
                   </button>
                 </div>
               </div>

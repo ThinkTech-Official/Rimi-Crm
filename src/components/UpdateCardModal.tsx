@@ -8,6 +8,7 @@ import {
 } from '@stripe/react-stripe-js';
 import { useUpdatePaymentMethod } from '../hooks/useUpdatePaymentMethod';
 import { MdClose, MdCreditCard, MdErrorOutline, MdInfoOutline } from 'react-icons/md';
+import { useLanguage } from '../context/LanguageContext';
 
 // Initialize Stripe (replace with your publishable key)
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || 'pk_test_...');
@@ -27,6 +28,7 @@ const UpdateCardForm: React.FC<{
   onSuccess: () => void;
   onClose: () => void;
 }> = ({ policyId, policyNumber, onSuccess, onClose }) => {
+  const { t } = useLanguage();
   const stripe = useStripe();
   const elements = useElements();
   const { updatePaymentMethod, loading, error } = useUpdatePaymentMethod();
@@ -48,7 +50,7 @@ const UpdateCardForm: React.FC<{
       const { error: submitError } = await elements.submit();
       
       if (submitError) {
-        setFormError(submitError.message || 'Failed to validate card details');
+        setFormError(submitError.message || t('Failed to validate card details'));
         setProcessing(false);
         return;
       }
@@ -59,13 +61,13 @@ const UpdateCardForm: React.FC<{
       });
 
       if (pmError) {
-        setFormError(pmError.message || 'Failed to process card');
+        setFormError(pmError.message || t('Failed to process card'));
         setProcessing(false);
         return;
       }
 
       if (!paymentMethod) {
-        setFormError('No payment method created');
+        setFormError(t('No payment method created'));
         setProcessing(false);
         return;
       }
@@ -77,10 +79,10 @@ const UpdateCardForm: React.FC<{
         onSuccess();
         onClose();
       } else {
-        setFormError(error || 'Failed to update payment method');
+        setFormError(error || t('Failed to update payment method'));
       }
     } catch (err: any) {
-      setFormError(err.message || 'An error occurred');
+      setFormError(err.message || t('An error occurred'));
     } finally {
       setProcessing(false);
     }
@@ -93,18 +95,18 @@ const UpdateCardForm: React.FC<{
         <MdInfoOutline className="text-blue-500 text-lg shrink-0 mt-0.5" />
         <div>
           <p className="text-sm font-bold text-blue-900">
-            Policy #{policyNumber}
+            {t("Policy")} #{policyNumber}
           </p>
         <p className="text-xs text-blue-600 mt-1">
-          Updating the payment method will affect all future recurring payments for this policy.
+          {t("Updating the payment method will affect all future recurring payments for this policy.")}
           </p>
         </div>
       </div>
 
       <div>
-        <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest my-2 flex items-center gap-1.5">
+        <label className="text-xs font-bold text-gray-500 uppercase tracking-widest my-2 flex items-center gap-1.5">
           <MdCreditCard className="text-base text-primary" />
-          New Card Details
+          {t("New Card Details")}
         </label>
         <div>
           <PaymentElement />
@@ -125,7 +127,7 @@ const UpdateCardForm: React.FC<{
           disabled={processing || loading}
           className="py-2 px-4 border border-inputBorder hover:border-gray-400 cursor-pointer transition delay-100"
         >
-          Cancel
+          {t("Cancel")}
         </button>
         <button
           type="submit"
@@ -135,10 +137,10 @@ const UpdateCardForm: React.FC<{
           {processing || loading ? (
             <>
               <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-              Updating...
+              {t("Updating...")}
             </>
           ) : (
-            'Update Card'
+            t('Update Card')
           )}
         </button>
       </div>
@@ -154,6 +156,7 @@ export const UpdateCardModal: React.FC<UpdateCardModalProps> = ({
   policyNumber,
   onSuccess,
 }) => {
+  const { t } = useLanguage();
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden';
@@ -198,7 +201,7 @@ export const UpdateCardModal: React.FC<UpdateCardModalProps> = ({
         {/* Header */}
         <div className="bg-white border-b border-gray-100 px-5 py-3.5 flex justify-between items-center">
           <div>
-            <h2 className="text-lg font-bold text-gray-900 leading-none">Update Card</h2>
+            <h2 className="text-lg font-bold text-gray-900 leading-none">{t("Update Card")}</h2>
             
           </div>
           <button

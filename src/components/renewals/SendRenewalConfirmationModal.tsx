@@ -1,5 +1,6 @@
 import React, { useEffect } from "react";
 import { MdClose, MdSend } from "react-icons/md";
+import { useLanguage } from "../../context/LanguageContext";
 
 interface SendRenewalConfirmationModalProps {
   isOpen: boolean;
@@ -12,6 +13,7 @@ interface SendRenewalConfirmationModalProps {
 const SendRenewalConfirmationModal: React.FC<
   SendRenewalConfirmationModalProps
 > = ({ isOpen, onClose, onConfirm, email, loading = false }) => {
+  const { t } = useLanguage();
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = "hidden";
@@ -32,7 +34,7 @@ const SendRenewalConfirmationModal: React.FC<
         {/* Header */}
         <div className="bg-white border-b border-inputBorder px-6 py-4 flex justify-between items-center">
           <h2 className="text-xl font-semibold text-text-black">
-            Confirm Renewal Notice
+            {t("Confirm Renewal Notice")}
           </h2>
           <button
             onClick={onClose}
@@ -46,14 +48,13 @@ const SendRenewalConfirmationModal: React.FC<
         {/* Content */}
         <div className="p-6">
           <p className="text-gray-700 mb-2">
-            Are you sure you want to send a renewal notice to:
+            {t("Are you sure you want to send a renewal notice to:")}
           </p>
           <div className="input-primary">
             {email}
           </div>
           <p className="text-sm text-gray-500 mt-4 italic">
-            This action will trigger an automated email with the policy renewal
-            details.
+            {t("This action will trigger an automated email with the policy renewal details.")}
           </p>
         </div>
 
@@ -64,7 +65,7 @@ const SendRenewalConfirmationModal: React.FC<
             className="px-4 py-2 border border-inputBorder hover:border-gray-400 font-semibold transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
             disabled={loading}
           >
-            Cancel
+            {t("Cancel")}
           </button>
           <button
             onClick={onConfirm}
@@ -74,12 +75,12 @@ const SendRenewalConfirmationModal: React.FC<
             {loading ? (
               <>
                 <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                Sending...
+                {t("Sending...")}
               </>
             ) : (
               <>
                 <MdSend className="text-lg" />
-                Confirm & Send
+                {t("Confirm & Send")}
               </>
             )}
           </button>

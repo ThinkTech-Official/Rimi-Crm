@@ -1,5 +1,5 @@
-import React from 'react';
 import { MdClose } from 'react-icons/md';
+import { useLanguage } from '../context/LanguageContext';
 
 interface ValidationErrorModalProps {
   isOpen: boolean;
@@ -16,6 +16,7 @@ const ValidationErrorModal: React.FC<ValidationErrorModalProps> = ({
   message,
   type = 'error',
 }) => {
+  const { t } = useLanguage();
   if (!isOpen) return null;
 
   const iconColors = {
@@ -60,7 +61,7 @@ const ValidationErrorModal: React.FC<ValidationErrorModalProps> = ({
         {/* Header */}
         <div className="bg-white border-b border-inputBorder px-6 py-4 flex justify-between items-center">
           <h2 className="text-xl font-semibold text-text-black">
-            {title}
+            {t(title)}
           </h2>
           <button
             onClick={onClose}
@@ -82,7 +83,7 @@ const ValidationErrorModal: React.FC<ValidationErrorModalProps> = ({
             <div className="flex-1">
               <div className={`${bgColors[type]} ${borderColors[type]} border p-3`}>
                 <p className="text-sm text-gray-700">
-                  {message}
+                  {t(message)}
                 </p>
               </div>
             </div>
@@ -95,7 +96,7 @@ const ValidationErrorModal: React.FC<ValidationErrorModalProps> = ({
             onClick={onClose}
             className="btn-primary px-8"
           >
-            OK
+            {t("OK")}
           </button>
         </div>
       </div>

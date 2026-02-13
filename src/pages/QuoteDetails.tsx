@@ -4,13 +4,15 @@ import {
   useQuoteDetail,
   QuoteApplicant,
 } from "../hooks/useQuoteDetail";
+import { useLanguage } from "../context/LanguageContext";
 
 const DetailItem: React.FC<{ label: string; value: string | number | null | undefined; className?: string }> = ({ label, value, className = "" }) => {
+  const { t } = useLanguage();
   if (value === null || value === undefined || value === "" || value === "-") return null;
   return (
     <div className={`min-w-0 ${className}`}>
-      <div className="font-semibold text-base break-words">{label}</div>
-      <div className="text-sm text-[#6F6B7D] break-words">{value}</div>
+      <div className="font-semibold text-base break-words">{t(label)}</div>
+      <div className="text-sm text-[#6F6B7D] break-words">{typeof value === 'string' ? t(value) : value}</div>
     </div>
   );
 };
@@ -18,6 +20,7 @@ const DetailItem: React.FC<{ label: string; value: string | number | null | unde
 export const HealthQuestionnaireSection: React.FC<{
   questionnaire?: { questions: Array<{ question: string; answer: string }> };
 }> = ({ questionnaire }) => {
+  const { t } = useLanguage();
   if (
     !questionnaire ||
     !questionnaire.questions ||
@@ -28,7 +31,7 @@ export const HealthQuestionnaireSection: React.FC<{
   return (
     <div className="mt-6 bg-gray-50/50 p-5 border border-gray-100 max-h-[300px] overflow-y-auto custom-scrollbar-y">
       <h4 className="text-sm font-bold text-primary uppercase tracking-wider mb-4 border-b border-gray-200 pb-2">
-        Medical Declaration
+        {t("Medical Declaration")}
       </h4>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-3">
         {questionnaire.questions.map((q, idx) => (
@@ -59,13 +62,14 @@ export const HealthQuestionnaireSection: React.FC<{
 };
 
 export const QuoteDetailPage: React.FC = () => {
+  const { t } = useLanguage();
   const { id } = useParams<{ id: string }>();
   const { data: quote, loading, error } = useQuoteDetail(id || null);
 
-  if (loading) return <p className="text-center py-10">Loading…</p>;
+  if (loading) return <p className="text-center py-10">{t("Loading...")}</p>;
   if (error)
-    return <p className="text-red-600 text-center py-10">Error: {error}</p>;
-  if (!quote) return <p className="text-center py-10">No quote found.</p>;
+    return <p className="text-red-600 text-center py-10">{t("Error")}: {error}</p>;
+  if (!quote) return <p className="text-center py-10">{t("No quote found.")}</p>;
 
   // format helpers
   const fmtDate = (iso?: string) =>
@@ -100,17 +104,17 @@ export const QuoteDetailPage: React.FC = () => {
           />
         </div>
         <h1 className=" text-2xl text-primary font-semibold mt-10">
-          {quote?.product?.toUpperCase().replace(/_/g, ' ')}
+          {t(quote?.product?.replace(/_/g, ' ') || "")}
         </h1>
         <h3 className=" text-xl text-text-primary font-semibold">
-          Quote Details
+          {t("Quote Details")}
         </h3>
       </div>
       <div className="max-w-5xl p-6 space-y-8 ml-4 md:ml-10 lg:ml-28">
         {/* QUOTE INFORMATION */}
         <div className="flex flex-col gap-4 justify-between w-full border-b border-[#D8D8D8] pb-4">
           <div className="text-primary capitalize font-semibold text-xl">
-            Quote Information
+            {t("Quote Information")}
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 text-sm capitalize w-full">
             <DetailItem label="Quote Number" value={quote.quoteNumber || quote.id} />
@@ -129,15 +133,14 @@ export const QuoteDetailPage: React.FC = () => {
             />
           </div>
           <div className="text-xs italic text-gray-500 mt-2 text-center w-full">
-            Note: Rates are subject to change and will be calculated at the time
-            of purchase.
+            {t("Note: Rates are subject to change and will be calculated at the time of purchase.")}
           </div>
         </div>
 
         {/* MAIN APPLICANTS */}
         <div className="flex flex-col gap-4 justify-between w-full border-b border-[#D8D8D8] pb-4">
           <div className="text-primary capitalize font-semibold text-xl">
-            Main Applicant
+            {t("Main Applicant")}
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 text-sm w-full capitalize">
             <DetailItem label="First Name" value={quote.firstName} />
@@ -175,7 +178,7 @@ export const QuoteDetailPage: React.FC = () => {
               className="flex flex-col gap-4 justify-between w-full border-b border-[#D8D8D8] pb-4"
             >
               <div className="text-primary capitalize font-semibold text-xl">
-                Applicant {app.index + 2}
+                {t("Applicant")} {app.index + 2}
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 text-sm w-full capitalize">
                 <DetailItem label="First Name" value={app.firstName} />
@@ -208,7 +211,7 @@ export const QuoteDetailPage: React.FC = () => {
         {/* COVERAGE / TRIP DETAILS */}
         <div className="flex flex-col gap-4 justify-between w-full border-b border-[#D8D8D8] pb-4">
           <div className="text-primary capitalize font-semibold text-xl">
-            {quote.product?.includes("NON_MEDICAL") ? "Trip Information" : "Coverage Details"}
+            {quote.product?.includes("NON_MEDICAL") ? t("Trip Information") : t("Coverage Details")}
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 text-sm w-full capitalize">
             <DetailItem label="Effective Date" value={fmtDate(quote.effectiveDate || quote.covEffDate)} />

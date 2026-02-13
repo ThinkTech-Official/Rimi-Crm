@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { MdClose } from 'react-icons/md';
+import { useLanguage } from '../context/LanguageContext';
 
 interface RefundModalProps {
   isOpen: boolean;
@@ -22,6 +23,7 @@ const RefundModal: React.FC<RefundModalProps> = ({
   maxRefundable,
   loading = false,
 }) => {
+  const { t } = useLanguage();
   const [transactionFee, setTransactionFee] = useState<string>('');
   const [error, setError] = useState<string>('');
 
@@ -47,17 +49,17 @@ const RefundModal: React.FC<RefundModalProps> = ({
       const feeAmount = parseFloat(value);
       
       if (isNaN(feeAmount)) {
-        setError('Please enter a valid number');
+        setError(t('Please enter a valid number'));
         return;
       }
 
       if (feeAmount < 0) {
-        setError('Transaction fee cannot be negative');
+        setError(t('Transaction fee cannot be negative'));
         return;
       }
 
       if (feeAmount > maxRefundable) {
-        setError('Transaction fee cannot exceed maximum refundable amount');
+        setError(t('Transaction fee cannot exceed maximum refundable amount'));
         return;
       }
     }
@@ -65,19 +67,19 @@ const RefundModal: React.FC<RefundModalProps> = ({
 
   const handleConfirm = () => {
     if (!transactionFee) {
-      setError('Transaction fee is required');
+      setError(t('Transaction fee is required'));
       return;
     }
 
     const feeAmount = parseFloat(transactionFee);
     
     if (isNaN(feeAmount) || feeAmount < 0) {
-      setError('Please enter a valid transaction fee');
+      setError(t('Please enter a valid transaction fee'));
       return;
     }
 
     if (feeAmount > maxRefundable) {
-      setError('Transaction fee cannot exceed maximum refundable amount');
+      setError(t('Transaction fee cannot exceed maximum refundable amount'));
       return;
     }
 
@@ -92,7 +94,7 @@ const RefundModal: React.FC<RefundModalProps> = ({
         {/* Header */}
         <div className="sticky top-0 bg-white border-b border-inputBorder px-6 py-4 flex justify-between items-center z-10">
           <h2 className="text-xl font-semibold text-text-black">
-            Early Return - Refund Processing
+            {t("Early Return - Refund Processing")}
           </h2>
           <button
             onClick={onClose}
@@ -105,26 +107,26 @@ const RefundModal: React.FC<RefundModalProps> = ({
         {/* Content */}
         <div className="px-6 py-6 space-y-6">
           <p className="text-sm text-text-secondary">
-            Policy modified for early return. Please review the refund details below:
+            {t("Policy modified for early return. Please review the refund details below:")}
           </p>
 
           {/* Date Information */}
           <div className="bg-gray-50 rounded p-4 space-y-2 text-sm border border-inputBorder">
             <div className="flex justify-between">
-              <span className="text-gray-600">Original Expiry:</span>
+              <span className="text-gray-600">{t("Original Expiry:")}</span>
               <span className="font-medium">
                 {new Date(originalExpiryDate).toLocaleDateString('en-CA')}
               </span>
             </div>
             <div className="flex justify-between">
-              <span className="text-gray-600">New Expiry:</span>
+              <span className="text-gray-600">{t("New Expiry:")}</span>
               <span className="font-medium">
                 {new Date(newExpiryDate).toLocaleDateString('en-CA')}
               </span>
             </div>
             <div className="flex justify-between">
-              <span className="text-gray-600">Days Reduced:</span>
-              <span className="font-medium">{daysToRefund} days</span>
+              <span className="text-gray-600">{t("Days Reduced:")}</span>
+              <span className="font-medium">{daysToRefund} {t("days")}</span>
             </div>
           </div>
 
@@ -132,7 +134,7 @@ const RefundModal: React.FC<RefundModalProps> = ({
           <div className="space-y-4">
             <div className="flex justify-between items-center">
               <span className="text-sm font-medium text-gray-700">
-                Maximum Refundable:
+                {t("Maximum Refundable:")}
               </span>
               <span className="text-lg font-semibold text-green-600">
                 ${maxRefundable.toFixed(2)}
@@ -142,7 +144,7 @@ const RefundModal: React.FC<RefundModalProps> = ({
             {/* Transaction Fee Input */}
             <div>
               <label className="block text-sm font-medium text-text-secondary mb-1">
-                Transaction Fee <span className="text-red-500">*</span>
+                {t("Transaction Fee")} <span className="text-red-500">*</span>
               </label>
               <div className="relative">
                 <span className="absolute left-3 top-2.5 text-gray-500">$</span>
@@ -169,7 +171,7 @@ const RefundModal: React.FC<RefundModalProps> = ({
             {/* Net Refund Display */}
             <div className="flex justify-between items-center pt-4 border-t border-inputBorder">
               <span className="text-sm font-medium text-gray-700">
-                Net Refund Amount:
+                {t("Net Refund Amount:")}
               </span>
               <span className="text-xl font-bold text-primary">
                 ${netRefund.toFixed(2)}
@@ -181,7 +183,7 @@ const RefundModal: React.FC<RefundModalProps> = ({
           {netRefund === 0 && transactionFee && (
              <div className="bg-yellow-50 border border-yellow-200 rounded p-3">
               <p className="text-sm text-yellow-800">
-                ℹ️ Net refund is $0.00 because the transaction fee equals the refundable amount.
+                ℹ️ {t("Net refund is $0.00 because the transaction fee equals the refundable amount.")}
               </p>
             </div>
           )}
@@ -194,7 +196,7 @@ const RefundModal: React.FC<RefundModalProps> = ({
             disabled={loading}
             className="py-2 px-4 border border-inputBorder hover:border-gray-400 cursor-pointer transition delay-100 rounded text-sm font-medium text-gray-700"
           >
-            Cancel
+            {t("Cancel")}
           </button>
           <button
             onClick={handleConfirm}
@@ -204,10 +206,10 @@ const RefundModal: React.FC<RefundModalProps> = ({
             {loading ? (
               <>
                 <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                <span>Processing...</span>
+                <span>{t("Processing...")}</span>
               </>
             ) : (
-              <span>Process Refund & Save</span>
+              <span>{t("Process Refund & Save")}</span>
             )}
           </button>
         </div>

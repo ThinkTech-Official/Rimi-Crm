@@ -11,6 +11,7 @@ import {
 import { usePolicyNotes } from "../hooks/usePolicyNotes";
 import { usePolicyAttachments } from "../hooks/usePolicyAttachments";
 import { useFulfillment } from "../hooks/useFulfillment";
+import { useLanguage } from "../context/LanguageContext";
 import { usePolicyFeeRefund } from "../hooks/usePolicyFeeRefund";
 import {
   useModifyPolicy,
@@ -74,6 +75,7 @@ function getCoverageLength(
 }
 
 const PolicyDetailsPage: React.FC = () => {
+  const { t } = useLanguage();
   const { triggerNotification, NotificationComponent } = useNotification();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -190,9 +192,9 @@ const PolicyDetailsPage: React.FC = () => {
     }
   }, [p]);
 
-  if (loading) return <p className="text-center py-10">Loading…</p>;
-  if (error) return <p className="text-red-600 text-center py-10">{error}</p>;
-  if (!p) return <p className="text-center py-10">No policy found.</p>;
+  if (loading) return <p className="text-center py-10">{t("Loading...")}</p>;
+  if (error) return <p className="text-red-600 text-center py-10">{t(error)}</p>;
+  if (!p) return <p className="text-center py-10">{t("No policy found.")}</p>;
 
   const history = p.paymentHistory ?? [];
 
@@ -282,8 +284,8 @@ const PolicyDetailsPage: React.FC = () => {
         return {
           valid: false,
           error: {
-            title: "Invalid Effective Date",
-            message: "Effective date cannot be in the past.",
+            title: t("Invalid Effective Date"),
+            message: t("Effective date cannot be in the past."),
           },
         };
       }
@@ -319,9 +321,8 @@ const PolicyDetailsPage: React.FC = () => {
         return {
           valid: false,
           error: {
-            title: "Cannot Extend Coverage",
-            message:
-              "Cannot extend coverage for active policies. Only early return is allowed.",
+            title: t("Cannot Extend Coverage"),
+            message: t("Cannot extend coverage for active policies. Only early return is allowed."),
           },
         };
       }
@@ -482,11 +483,11 @@ const PolicyDetailsPage: React.FC = () => {
 
   const handleRefund = async (paymentHistoryId: string, amount: number) => {
     if (!id) {
-      triggerNotification({ message: "Policy ID not found", type: "warning" });
+      triggerNotification({ message: t("Policy ID not found"), type: "warning" });
       return;
     }
 
-    const confirmMessage = `Are you sure you want to refund the policy fee of ${amount}?\n\nThis action cannot be undone.`;
+    const confirmMessage = `${t("Are you sure you want to refund the policy fee of")} ${amount}?\n\n${t("This action cannot be undone.")}`;
     if (!window.confirm(confirmMessage)) {
       return;
     }
@@ -527,7 +528,7 @@ const PolicyDetailsPage: React.FC = () => {
 
     if (!slug) {
       triggerNotification({
-        message: "Renewal not available for this policy",
+        message: t("Renewal not available for this policy"),
         type: "warning",
       });
       return;
@@ -550,7 +551,7 @@ const PolicyDetailsPage: React.FC = () => {
 
     return (
       <div className="min-w-0">
-        <div className="font-semibold text-base">{label}</div>
+        <div className="font-semibold text-base">{t(label)}</div>
         {isEditMode ? (
           type === "select" ? (
             <select
@@ -562,7 +563,7 @@ const PolicyDetailsPage: React.FC = () => {
             >
               {options?.map((opt) => (
                 <option key={opt} value={opt}>
-                  {opt}
+                  {t(opt)}
                 </option>
               ))}
             </select>
@@ -586,7 +587,7 @@ const PolicyDetailsPage: React.FC = () => {
           )
         ) : (
           <div className="text-sm text-[#6F6B7D] break-words">
-            {type === "date" ? fmtDate(value as string) : (value as string)}
+            {type === "date" ? fmtDate(value as string) : t(value as string)}
           </div>
         )}
       </div>
@@ -607,7 +608,7 @@ const PolicyDetailsPage: React.FC = () => {
       {/* Policy Name */}
       <div className="flex w-full justify-center">
         <h1 className="text-2xl font-semibold text-primary">
-          {p.product?.replace(/_/g, ' ') || 'Policy Details'}
+          {t(p.product?.replace(/_/g, ' ') || 'Policy Details')}
         </h1>
       </div>
 
@@ -621,7 +622,7 @@ const PolicyDetailsPage: React.FC = () => {
                 onClick={() => window.location.reload()}
                 className="px-4 py-2 hover:bg-gray-50/50 border border-gray-300 hover:border-gray-400 cursor-pointer transition-all delay-100"
               >
-                Reload
+                {t("Reload")}
               </button>
 
               {canCancel && (
@@ -629,7 +630,7 @@ const PolicyDetailsPage: React.FC = () => {
                   onClick={() => handleCancelPolicy()}
                   className="px-4 py-2 hover:bg-gray-50/50 border border-gray-300 hover:border-gray-400 cursor-pointer transition-all delay-100"
                 >
-                  Cancel Policy
+                  {t("Cancel Policy")}
                 </button>
               )}
               {/* Split Policy Button */}
@@ -642,7 +643,7 @@ const PolicyDetailsPage: React.FC = () => {
                     onClick={() => setShowSplitModal(true)}
                     className="bg-primary text-white py-2 sm:py-2 px-4 font-semibold hover:bg-[#2309A1] transition-all duration-200 cursor-pointer disabled:cursor-default disabled:opacity-70"
                   >
-                    Split Policy
+                    {t("Split Policy")}
                   </button>
                 )}
               {/* Update Card  */}
@@ -651,7 +652,7 @@ const PolicyDetailsPage: React.FC = () => {
                   onClick={() => setShowUpdateCardConfirmModal(true)}
                   className="bg-primary text-white py-2 sm:py-2 px-4 font-semibold hover:bg-[#2309A1] transition-all duration-200 cursor-pointer disabled:cursor-default disabled:opacity-70"
                 >
-                  Update Card
+                  {t("Update Card")}
                 </button>
               )}
               {canModify && (
@@ -659,7 +660,7 @@ const PolicyDetailsPage: React.FC = () => {
                   onClick={handleModifyClick}
                   className="bg-primary text-white py-2 sm:py-2 px-4 font-semibold hover:bg-[#2309A1] transition-all duration-200 cursor-pointer disabled:cursor-default disabled:opacity-70"
                 >
-                  Modify Policy
+                  {t("Modify Policy")}
                 </button>
               )}
             </>
@@ -670,14 +671,14 @@ const PolicyDetailsPage: React.FC = () => {
                 className="px-4 py-2 hover:bg-gray-50/50 border border-gray-300 hover:border-gray-400 cursor-pointer transition-all delay-100"
                 disabled={modifyLoading}
               >
-                Cancel
+                {t("Cancel")}
               </button>
               <button
                 onClick={handleSaveChanges}
                 className="bg-primary text-white py-2 sm:py-2 px-4 font-semibold hover:bg-[#2309A1] transition-all duration-200 cursor-pointer disabled:cursor-default disabled:opacity-70"
                 disabled={modifyLoading}
               >
-                {modifyLoading ? "Saving..." : "Save Changes"}
+                {modifyLoading ? t("Saving...") : t("Save Changes")}
               </button>
             </>
           )}
@@ -714,21 +715,21 @@ const PolicyDetailsPage: React.FC = () => {
       {/* Policy Information */}
       <div className="flex flex-col gap-4 justify-between w-full border-b border-[#D8D8D8] pb-4">
         <div className="text-primary uppercase font-semibold text-xl">
-          Policy Information
+          {t("Policy Information")}
         </div>
         <div className="grid grid-cols-3 gap-4 text-sm capitalize w-full">
           <div className="min-w-0">
-            <div className="font-semibold text-base">Policy Number</div>
+            <div className="font-semibold text-base">{t("Policy Number")}</div>
             <div className="text-sm text-[#6F6B7D] break-words">{p.policyNumber}</div>
           </div>
           <div className="min-w-0">
-            <div className="font-semibold text-base">Sale Date</div>
+            <div className="font-semibold text-base">{t("Sale Date")}</div>
             <div className="text-sm text-[#6F6B7D] break-words">
               {fmtDate(p.dateIssued)}
             </div>
           </div>
           <div className="min-w-0">
-            <div className="font-semibold text-base">Status</div>
+            <div className="font-semibold text-base">{t("Status")}</div>
             <div
               className={`break-words ${
                 p.status === "CANCELLED"
@@ -736,18 +737,18 @@ const PolicyDetailsPage: React.FC = () => {
                   : "text-sm text-[#6F6B7D]"
               }`}
             >
-              {p.status}
+              {t(p.status || "")}
             </div>
           </div>
           {renderEditableField("Language", "language")}
           <div className="min-w-0">
-            <div className="font-semibold">Sales Channel</div>
+            <div className="font-semibold">{t("Sales Channel")}</div>
             <div className="text-sm text-[#6F6B7D] break-words">
               {p.salesChannel || "-"}
             </div>
           </div>
           <div className="min-w-0">
-            <div className="font-semibold">Agent</div>
+            <div className="font-semibold">{t("Agent")}</div>
             <div className="text-sm text-[#6F6B7D] break-words">{p.agentCode}</div>
           </div>
         </div>
@@ -756,18 +757,18 @@ const PolicyDetailsPage: React.FC = () => {
       {/* Primary Insured */}
       <div className="flex flex-col gap-4 justify-between w-full border-b border-[#D8D8D8] pb-4">
         <div className="text-primary uppercase font-semibold text-xl">
-          Primary Insured Person
+          {t("Primary Insured Person")}
         </div>
         <div className="grid grid-cols-3 gap-4 text-sm w-full capitalize">
           <div className="min-w-0">
-            <div className="font-semibold text-base">Policy Number</div>
+            <div className="font-semibold text-base">{t("Policy Number")}</div>
             <div className="text-sm text-[#6F6B7D] break-words">{p.primaryIndividualNumber}</div>
           </div>
           {renderEditableField("First Name", "firstName")}
           {renderEditableField("Last Name", "lastName")}
           {renderEditableField("Date of Birth", "dateOfBirth", "date")}
           <div className="min-w-0">
-            <div className="font-semibold mt-4">Age on Effective Date</div>
+            <div className="font-semibold mt-4">{t("Age on Effective Date")}</div>
             <div className="text-sm text-[#6F6B7D] break-words">
               {calcAge(
                 editedPolicy.dateOfBirth || p.dateOfBirth?.toString(),
@@ -782,14 +783,14 @@ const PolicyDetailsPage: React.FC = () => {
           ])}
           <div className="col-span-2 mt-4 min-w-0">
             <div className="font-semibold text-base">
-              Include Coverage for Stable Pre-Existing Medical Conditions
+              {t("Include Coverage for Stable Pre-Existing Medical Conditions")}
             </div>
             <div className="text-sm text-[#6F6B7D] break-words">
-              {p.PreExCoverage || "No"}
+              {t(p.PreExCoverage || "No")}
             </div>
           </div>
           <div className="mt-4 min-w-0">
-            <div className="font-semibold text-base">Premium</div>
+            <div className="font-semibold text-base">{t("Premium")}</div>
             <div className="text-sm text-[#6F6B7D] break-words">CAD {p.premium}</div>
           </div>
         </div>
@@ -801,7 +802,7 @@ const PolicyDetailsPage: React.FC = () => {
       {/* Contact Information */}
       <div className="flex flex-col gap-4 justify-between w-full border-b border-[#D8D8D8] pb-4">
         <div className="text-primary uppercase font-semibold text-xl">
-          Contact Information
+          {t("Contact Information")}
         </div>
         <div className="grid grid-cols-3 gap-4 text-sm w-full capitalize">
           {renderEditableField("Email Address", "email", "email")}
@@ -832,15 +833,15 @@ const PolicyDetailsPage: React.FC = () => {
             className="flex flex-col gap-4 justify-between w-full border-b border-[#D8D8D8] pb-4"
           >
             <div className="text-primary uppercase font-semibold text-xl">
-              Insured Person {idx + 2}
+              {t("Insured Person")} {idx + 2}
             </div>
             <div className="grid grid-cols-3 gap-4 text-sm w-full capitalize">
               <div className="min-w-0">
-                <div className="font-semibold text-base">Policy Number</div>
+                <div className="font-semibold text-base">{t("Policy Number")}</div>
                 <div className="text-sm text-[#6F6B7D] break-words">{a.policyNumber}</div>
               </div>
               <div className="min-w-0">
-                <div className="font-semibold text-base">First Name</div>
+                <div className="font-semibold text-base">{t("First Name")}</div>
                 {isEditMode ? (
                   <input
                     type="text"
@@ -855,7 +856,7 @@ const PolicyDetailsPage: React.FC = () => {
                 )}
               </div>
               <div className="min-w-0">
-                <div className="font-semibold text-base">Last Name</div>
+                <div className="font-semibold text-base">{t("Last Name")}</div>
                 {isEditMode ? (
                   <input
                     type="text"
@@ -870,7 +871,7 @@ const PolicyDetailsPage: React.FC = () => {
                 )}
               </div>
               <div className="min-w-0">
-                <div className="font-semibold mt-4">Date of Birth</div>
+                <div className="font-semibold mt-4">{t("Date of Birth")}</div>
                 {isEditMode && p.status === "SOLD" ? (
                   <input
                     type="date"
@@ -887,13 +888,13 @@ const PolicyDetailsPage: React.FC = () => {
                 )}
               </div>
               <div className="min-w-0">
-                <div className="font-semibold mt-4">Age on Effective Date</div>
+                <div className="font-semibold mt-4">{t("Age on Effective Date")}</div>
                 <div className="text-sm text-[#6F6B7D] break-words">
                   {calcAge(a.dateOfBirth, p.effectiveDate?.toString())}
                 </div>
               </div>
               <div className="min-w-0">
-                <div className="font-semibold mt-4">Gender</div>
+                <div className="font-semibold mt-4">{t("Gender")}</div>
                 {isEditMode ? (
                   <select
                     value={a.gender || ""}
@@ -902,17 +903,17 @@ const PolicyDetailsPage: React.FC = () => {
                     }
                     className="input-primary"
                   >
-                    <option value="Male">Male</option>
-                    <option value="Female">Female</option>
-                    <option value="Other">Other</option>
+                    <option value="Male">{t("Male")}</option>
+                    <option value="Female">{t("Female")}</option>
+                    <option value="Other">{t("Other")}</option>
                   </select>
                 ) : (
-                  <div className="text-sm text-[#6F6B7D] break-words">{a.gender}</div>
+                  <div className="text-sm text-[#6F6B7D] break-words">{t(a.gender || "")}</div>
                 )}
               </div>
               <div className="min-w-0">
                 <div className="font-semibold mt-4">
-                  Relationship to Primary Applicant
+                  {t("Relationship to Primary Applicant")}
                 </div>
                 {isEditMode ? (
                   <input
@@ -924,19 +925,19 @@ const PolicyDetailsPage: React.FC = () => {
                     className="input-primary"
                   />
                 ) : (
-                  <div className="text-sm text-[#6F6B7D] break-words">{a.relation}</div>
+                  <div className="text-sm text-[#6F6B7D] break-words">{t(a.relation || "")}</div>
                 )}
               </div>
               <div className="col-span-2 mt-4 min-w-0">
                 <div className="font-semibold text-base">
-                  Include Coverage for Stable Pre-Existing Medical Conditions
+                  {t("Include Coverage for Stable Pre-Existing Medical Conditions")}
                 </div>
                 <div className="text-sm text-[#6F6B7D] break-words">
-                  {a.PreExCoverage || "No"}
+                  {t(a.PreExCoverage || "No")}
                 </div>
               </div>
               <div className="mt-4 min-w-0">
-                <div className="font-semibold text-base">Premium</div>
+                <div className="font-semibold text-base">{t("Premium")}</div>
                 <div className="text-sm text-[#6F6B7D] break-words">
                   {Number(a.premium || 0).toLocaleString("en-CA", {
                     style: "currency",
@@ -954,40 +955,40 @@ const PolicyDetailsPage: React.FC = () => {
       {/* Coverage Details */}
       <div className="flex flex-col gap-4 justify-between w-full border-b border-[#D8D8D8] pb-4">
         <div className="text-primary uppercase font-semibold text-xl">
-          Coverage Details
+          {t("Coverage Details")}
         </div>
         <div className="grid grid-cols-3 gap-4 text-sm w-full capitalize">
           {renderEditableField("Effective Date", "effectiveDate", "date")}
           {renderEditableField("Expiry Date", "expiryDate", "date")}
           <div className="min-w-0">
-            <div className="font-semibold text-base">Coverage Length</div>
+            <div className="font-semibold text-base">{t("Coverage Length")}</div>
             <div className="text-sm text-[#6F6B7D] break-words">
               {calculateDays(
                 editedPolicy.effectiveDate ||
                   fmtDate(p.effectiveDate?.toString()),
                 editedPolicy.expiryDate || fmtDate(p.expiryDate?.toString())
               )}{" "}
-              Days
+              {t("Days")}
             </div>
           </div>
           <div className="min-w-0">
-            <div className="font-semibold mt-4">Policy Type</div>
-            <div className="text-sm text-[#6F6B7D] break-words">{p.policyType}</div>
+            <div className="font-semibold mt-4">{t("Policy Type")}</div>
+            <div className="text-sm text-[#6F6B7D] break-words">{t(p.policyType || "")}</div>
           </div>
           <div className="min-w-0">
-            <div className="font-semibold mt-4">Country of Origin</div>
-            <div className="text-sm text-[#6F6B7D] break-words">{p.countryOfOrigin}</div>
+            <div className="font-semibold mt-4">{t("Country of Origin")}</div>
+            <div className="text-sm text-[#6F6B7D] break-words">{t(p.countryOfOrigin || "")}</div>
           </div>
           {renderEditableField("Destination Province", "destination")}
           <div className="min-w-0">
             <div className="font-semibold mt-4">
-              Are Applicants Currently in Canada?
+              {t("Are Applicants Currently in Canada?")}
             </div>
-            <div className="text-sm text-[#6F6B7D] break-words">{p.applicantInCanada}</div>
+            <div className="text-sm text-[#6F6B7D] break-words">{t(p.applicantInCanada || "")}</div>
           </div>
           <div className="min-w-0">
             <div className="font-semibold mt-4">
-              Are Applicants Travelling on a Super Visa?
+              {t("Are Applicants Travelling on a Super Visa?")}
             </div>
             {isEditMode ? (
               <select
@@ -1001,19 +1002,19 @@ const PolicyDetailsPage: React.FC = () => {
                 }
                 className="input-primary"
               >
-                <option value="">Select</option>
-                <option value="yes">Yes</option>
-                <option value="no">No</option>
+                <option value="">{t("Select")}</option>
+                <option value="yes">{t("Yes")}</option>
+                <option value="no">{t("No")}</option>
               </select>
             ) : (
               <div className="text-sm text-[#6F6B7D] break-words">
-                {p.applicantOnSuperVisa}
+                {t(p.applicantOnSuperVisa || "")}
               </div>
             )}
           </div>
           <div className="min-w-0">
-            <div className="font-semibold mt-4">Coverage</div>
-            <div className="text-sm text-[#6F6B7D] break-words">{p.coverage}</div>
+            <div className="font-semibold mt-4">{t("Coverage")}</div>
+            <div className="text-sm text-[#6F6B7D] break-words">{t(p.coverage || "")}</div>
           </div>
           {renderEditableField("Deductible", "deductible")}
         </div>
@@ -1022,19 +1023,19 @@ const PolicyDetailsPage: React.FC = () => {
       {/* Beneficiary Information */}
       <div className="flex flex-col gap-4 justify-between w-full border-b border-[#D8D8D8] pb-4">
         <div className="text-primary uppercase font-semibold text-xl">
-          Beneficiary Information
+          {t("Beneficiary Information")}
         </div>
         <div className="grid grid-cols-3 gap-4 text-sm w-full capitalize">
           <div className="min-w-0">
-            <div className="font-semibold text-base">Name</div>
+            <div className="font-semibold text-base">{t("Name")}</div>
             <div className="text-sm text-[#6F6B7D] break-words">{p.beneficiaryName}</div>
           </div>
           <div className="min-w-0">
             <div className="font-semibold text-base">
-              Relationship to Insured
+              {t("Relationship to Insured")}
             </div>
             <div className="text-sm text-[#6F6B7D] break-words">
-              {p.beneficiaryRelation}
+              {t(p.beneficiaryRelation || "")}
             </div>
           </div>
         </div>
@@ -1045,12 +1046,12 @@ const PolicyDetailsPage: React.FC = () => {
         (paymentSchedule && paymentSchedule.length > 0)) && (
         <section className="border-b border-inputBorder py-4 space-y-4">
           <div className="uppercase text-primary font-semibold text-lg">
-            Premium / Payment Info
+            {t("Premium / Payment Info")}
           </div>
 
     <div className="grid grid-cols-4 gap-x-4">
       <div className="min-w-0">
-        <div className="font-medium">Premium</div>
+        <div className="font-medium">{t("Premium")}</div>
         <div className="break-words">
           {p?.premium.toLocaleString("en-CA", {
             style: "currency",
@@ -1060,11 +1061,11 @@ const PolicyDetailsPage: React.FC = () => {
         </div>
       </div>
       <div className="min-w-0">
-        <div className="font-medium">Payment Option</div>
+        <div className="font-medium">{t("Payment Option")}</div>
         <div className="break-words">{p.paymentOption || "-"}</div>
       </div>
       <div className="min-w-0">
-        <div className="font-medium">Credit Card</div>
+        <div className="font-medium">{t("Credit Card")}</div>
         {/* <div>{history[0]?.last4 ? `•••• ${history[0].last4}` : "-"}</div> */}
 
 
@@ -1093,7 +1094,7 @@ const PolicyDetailsPage: React.FC = () => {
                 )}
                 {p.currentCardUpdatedAt && (
                   <span className="text-xs text-gray-500">
-                    Updated: {fmtDate(p.currentCardUpdatedAt.toString())}
+                    {t("Updated:")} {fmtDate(p.currentCardUpdatedAt.toString())}
                   </span>
                 )}
               </div>
@@ -1104,7 +1105,7 @@ const PolicyDetailsPage: React.FC = () => {
 
       </div>
       <div className="min-w-0">
-        <div className="font-medium">Date</div>
+        <div className="font-medium">{t("Date")}</div>
         <div className="break-words">{history[0]?.date ? fmtDate(history[0].date) : "-"}</div>
       </div>
     </div>
@@ -1126,7 +1127,7 @@ const PolicyDetailsPage: React.FC = () => {
                 </svg>
                 <div>
                   <p className="text-sm text-blue-700 font-medium">
-                    Split Policy - Payments Covered by Parent Policy
+                    {t("Split Policy - Payments Covered by Parent Policy")}
                   </p>
                   <button
                     onClick={() =>
@@ -1134,7 +1135,7 @@ const PolicyDetailsPage: React.FC = () => {
                     }
                     className="text-xs text-blue-600 hover:text-blue-800 underline mt-1"
                   >
-                    View Original Policy Payment →
+                    {t("View Original Policy Payment →")}
                   </button>
                 </div>
               </div>
@@ -1146,7 +1147,7 @@ const PolicyDetailsPage: React.FC = () => {
             paymentSchedule &&
             paymentSchedule.length > 0 && (
               <div className="mt-6">
-                <h3 className="font-semibold text-sm mb-3">Payment Schedule</h3>
+                <h3 className="font-semibold text-sm mb-3">{t("Payment Schedule")}</h3>
                 <PaymentScheduleTable
                   schedule={paymentSchedule || []}
                   loading={scheduleLoading}
@@ -1164,7 +1165,7 @@ const PolicyDetailsPage: React.FC = () => {
           {/* Payment History Table */}
           {history.length > 0 && (
             <div className="mt-4">
-              <h3 className="font-semibold text-sm mb-3">Payment History</h3>
+              <h3 className="font-semibold text-sm mb-3">{t("Payment History")}</h3>
               <div className="overflow-x-auto custom-scrollbar-x">
                 <table className="min-w-full divide-y divide-gray-200">
                   <thead className="bg-primary text-white text-sm 2xl:text-base capitalize">
@@ -1173,31 +1174,31 @@ const PolicyDetailsPage: React.FC = () => {
                         #
                       </th>
                       <th className="px-2 sm:px-3 py-1 sm:py-3 text-left font-medium text-nowrap">
-                        Method
+                        {t("Method")}
                       </th>
                       <th className="px-2 sm:px-3 py-1 sm:py-3 text-left font-medium text-nowrap">
-                        Name
+                        {t("Name")}
                       </th>
                       <th className="px-2 sm:px-3 py-1 sm:py-3 text-left font-medium text-nowrap">
-                        Brand
+                        {t("Brand")}
                       </th>
                       <th className="px-2 sm:px-3 py-1 sm:py-3 text-left font-medium text-nowrap">
-                        Last 4
+                        {t("Last 4")}
                       </th>
                       <th className="px-2 sm:px-3 py-1 sm:py-3 text-right font-medium text-nowrap">
-                        Amount
+                        {t("Amount")}
                       </th>
                       {/* <th className="px-2 sm:px-3 py-1 sm:py-3 text-right font-medium text-nowrap">
                         Fee
                       </th> */}
                       <th className="px-2 sm:px-3 py-1 sm:py-3 text-left font-medium text-nowrap">
-                        Status
+                        {t("Status")}
                       </th>
                       <th className="px-2 sm:px-3 py-1 sm:py-3 text-left font-medium text-nowrap">
-                        Date
+                        {t("Date")}
                       </th>
                       <th className="px-2 sm:px-3 py-1 sm:py-3 text-left font-medium text-nowrap">
-                        Payment Type
+                        {t("Payment Type")}
                       </th>
                       {/* <th className="px-2 sm:px-3 py-1 sm:py-3 text-center font-medium text-nowrap">
                         Actions
@@ -1377,16 +1378,15 @@ const PolicyDetailsPage: React.FC = () => {
         </section>
       )}
 
-      {/* Fulfillment */}
       <div className="flex flex-col gap-4 justify-between w-full border-b border-[#D8D8D8] pb-4">
         <div className="text-primary uppercase font-semibold text-xl">
-          Fulfillment
+          {t("Fulfillment")}
         </div>
         {fulError && <p className="text-red-600">{fulError}</p>}
 
         <div className="grid grid-cols-3 gap-x-4">
           <div>
-            <label className="font-semibold text-base">To</label>
+            <label className="font-semibold text-base">{t("To")}</label>
             <input
               className="input-primary"
               value={to}
@@ -1405,7 +1405,7 @@ const PolicyDetailsPage: React.FC = () => {
             />
           </div>
           <div>
-            <label className="font-semibold text-base">Agent Email</label>
+            <label className="font-semibold text-base">{t("Agent Email")}</label>
             <input
               className="input-primary"
               value={p.agentEmail ? p.agentEmail : agentEmail}
@@ -1422,14 +1422,14 @@ const PolicyDetailsPage: React.FC = () => {
               disabled={fulLoading}
               className="px-4 py-2 hover:bg-gray-50/50 border border-gray-300 hover:border-gray-400 cursor-pointer transition-all delay-100"
             >
-              Preview Confirmation
+              {t("Preview Confirmation")}
             </button>
             <button
               onClick={() => sendMail(to, cc, agentEmail)}
               disabled={fulLoading}
               className="bg-primary text-white py-2 sm:py-2 px-4 font-semibold hover:bg-[#2309A1] transition-all duration-200 cursor-pointer disabled:cursor-default disabled:opacity-70"
             >
-              Send Confirmation
+              {t("Send Confirmation")}
             </button>
           </div>
         )}
@@ -1445,10 +1445,9 @@ const PolicyDetailsPage: React.FC = () => {
         )}
       </div>
 
-      {/* Renewal */}
       <div className="flex flex-col gap-4 justify-between w-full border-b border-[#D8D8D8] pb-4">
         <div className="text-primary uppercase font-semibold text-xl">
-          Renewal
+          {t("Renewal")}
         </div>
         {!isEditMode && (
           <div className="flex items-center space-x-4">
@@ -1459,44 +1458,43 @@ const PolicyDetailsPage: React.FC = () => {
                 checked
                 readOnly
               />{" "}
-              <span>Auto Renewal Notice</span>
+              <span>{t("Auto Renewal Notice")}</span>
             </div>
             <button
               onClick={handleViewRenewalNotice}
               className="px-4 py-2 hover:bg-gray-50/50 border border-gray-300 hover:border-gray-400 cursor-pointer transition-all delay-100"
             >
-              View Renewal Notice
+              {t("View Renewal Notice")}
             </button>
             <button
               onClick={handleSendRenewalNotice}
               className="bg-primary text-white py-2 sm:py-2 px-4 font-semibold hover:bg-[#2309A1] transition-all duration-200 cursor-pointer disabled:cursor-default disabled:opacity-70"
             >
-              Send Renewal Notice
+              {t("Send Renewal Notice")}
             </button>
             <button
               onClick={handleIssueRelatedPolicy}
               className="px-3 py-2 bg-green-600 text-white cursor-pointer hover:bg-green-700 transition-all duration-200"
             >
-              Issue New Policy
+              {t("Issue New Policy")}
             </button>
           </div>
         )}
       </div>
 
-      {/* History & Notes */}
       <div className="flex flex-col gap-4 justify-between w-full pb-4">
         <div className="flex items-center gap-2 text-primary uppercase font-semibold text-xl">
-          Notes History
+          {t("Notes History")}
         </div>
 
         {notesLoading ? (
-          <p>Loading notes…</p>
+          <p>{t("Loading notes...")}</p>
         ) : notesError ? (
           <p className="text-red-600">{notesError}</p>
         ) : (
           <ul className="space-y-2 max-h-48 overflow-y-auto">
             {notes.length === 0 && (
-              <li className="text-gray-500">No notes yet.</li>
+              <li className="text-gray-500">{t("No notes yet.")}</li>
             )}
             {notes.map((n) => (
               <li key={n.id} className="px-2 py-4 bg-[#F9FAFB]">
@@ -1518,12 +1516,12 @@ const PolicyDetailsPage: React.FC = () => {
         {!isEditMode && (
           <div>
             <label className="font-semibold text-base block mb-1">
-              Add a Note
+              {t("Add a Note")}
             </label>
             <textarea
               value={newNote}
               onChange={(e) => setNewNote(e.target.value)}
-              placeholder="Enter note here"
+              placeholder={t("Enter note here")}
               className="input-primary"
               rows={3}
             />
@@ -1536,16 +1534,15 @@ const PolicyDetailsPage: React.FC = () => {
               disabled={!newNote.trim()}
               className="bg-primary text-white py-2 sm:py-2 px-4 font-semibold hover:bg-[#2309A1] transition-all duration-200 cursor-pointer disabled:cursor-default disabled:opacity-70 mt-2"
             >
-              Add Note
+              {t("Add Note")}
             </button>
           </div>
         )}
       </div>
 
-      {/* Activity History */}
       <div className="flex flex-col gap-4 justify-between w-full pb-4">
         <div className="flex items-center gap-2 text-primary uppercase font-semibold text-xl">
-          Activity History
+          {t("Activity History")}
         </div>
 
         <PolicyActivityTimeline
@@ -1555,20 +1552,19 @@ const PolicyDetailsPage: React.FC = () => {
         />
       </div>
 
-      {/* Attachments */}
       <div className="flex flex-col gap-4 justify-between w-full pb-4">
         <div className="text-primary uppercase font-semibold text-xl">
-          Attachments
+          {t("Attachments")}
         </div>
 
         {attLoading ? (
-          <p>Loading attachments…</p>
+          <p>{t("Loading attachments...")}</p>
         ) : attError ? (
           <p className="text-red-600">{attError}</p>
         ) : (
           <ul className="space-y-2">
             {attachments.length === 0 && (
-              <li className="text-gray-500">No attachments yet.</li>
+              <li className="text-gray-500">{t("No attachments yet.")}</li>
             )}
             {attachments.map((att) => (
               <li key={att.id} className="flex items-center space-x-4">
@@ -1601,7 +1597,7 @@ const PolicyDetailsPage: React.FC = () => {
                 className="input-primary flex items-center justify-center gap-2 cursor-pointer border-2 border-dashed max-w-[200px]"
               >
                 <MdUploadFile size={20} />
-                Choose Files
+                {t("Choose Files")}
                 <input
                   type="file"
                   id="fileUpload"
@@ -1637,7 +1633,7 @@ const PolicyDetailsPage: React.FC = () => {
               )}
             </div>
             <div>
-              <label className="font-medium block mt-2">Description</label>
+              <label className="font-medium block mt-2">{t("Description")}</label>
               <input
                 type="text"
                 value={desc}
@@ -1655,7 +1651,7 @@ const PolicyDetailsPage: React.FC = () => {
               disabled={!file}
               className="bg-primary text-white py-2 sm:py-3 px-4 font-semibold hover:bg-[#2309A1] transition-all duration-200 cursor-pointer disabled:cursor-default disabled:opacity-70 mt-4"
             >
-              Add Attachment
+              {t("Add Attachment")}
             </button>
           </div>
         )}
