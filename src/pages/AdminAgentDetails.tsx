@@ -313,12 +313,14 @@
 import { useState } from "react";
 import { FaUser, FaEdit, FaBan, FaCheckCircle, FaCoins, FaSpinner, FaUndo, FaArrowUp, FaArrowDown, FaCheck } from "react-icons/fa";
 import { useParams } from "react-router-dom";
+import { useLanguage } from "../context/LanguageContext";
 import { useAgentDetails } from "../hooks/admin-dashboard";
 import { PoliciesTable, QuotesTable, CommissionsTable } from "../components/Tables";
 import { useUpdateCommissionStatus, useBulkUpdateCommissionStatus, useMarkCommissionsAsPaid } from "../hooks/admin-dashboard/useCommission";
 
 const AdminAgentDetails = () => {
   const [pPage, setPPage] = useState(1);
+  const { t } = useLanguage();
   const [qPage, setQPage] = useState(1);
   const limit = 10;
   
@@ -339,25 +341,22 @@ const AdminAgentDetails = () => {
   // Handle loading state
   if (isLoading) {
     return (
-      <div className="px-8">
-        <div className="flex justify-center items-center h-64">
-          <FaSpinner className="animate-spin text-4xl text-blue-500" />
-        </div>
+      <div className="px-8 flex flex-col items-center justify-center min-h-[400px]">
+        <FaSpinner className="animate-spin text-4xl text-blue-500 mb-4" />
+        <div className="text-text-secondary">{t("Loading agent details...")}</div>
       </div>
     );
   }
 
-  // Handle error state
   if (error || !agentData) {
     return (
       <div className="px-8">
         <div className="flex justify-center items-center h-64">
-          <div className="text-red-500">Failed to load agent details</div>
+          <div className="text-red-500">{t("Failed to load agent details")}</div>
         </div>
       </div>
     );
   }
-
   // Extract data
   const recentPolicies = agentData.policy || [];
   const recentQuotes = agentData.quotes || [];
@@ -471,31 +470,31 @@ const AdminAgentDetails = () => {
             
             <div className="grid grid-cols-2 gap-x-8 gap-y-2">
               <div className="flex gap-2">
-                <span className="text-text-primary font-semibold">Email:</span>
+                <span className="text-text-primary font-semibold">{t("Email")}:</span>
                 <span className="text-text-secondary">{agentData.email}</span>
               </div>
               
               <div className="flex gap-2">
-                <span className="text-text-primary font-semibold">Agent Code:</span>
+                <span className="text-text-primary font-semibold">{t("Agent Code")}:</span>
                 <span className="text-text-secondary">{agentData.agentCode}</span>
               </div>
               
               <div className="flex gap-2">
-                <span className="text-text-primary font-semibold">Status:</span>
+                <span className="text-text-primary font-semibold">{t("Status")}:</span>
                 <span className={`font-semibold ${
                   agentData.status === 'ACTIVE' ? 'text-green-600' : 'text-red-600'
                 }`}>
-                  {agentData.status}
+                  {t(agentData.status)}
                 </span>
               </div>
               
               <div className="flex gap-2">
-                <span className="text-text-primary font-semibold">Commission:</span>
+                <span className="text-text-primary font-semibold">{t("Commission")}:</span>
                 <span className="text-text-secondary">
                   {isUnderMGA && agentData.mga ? (
                     <>
                       {agentData.mga.commissionPercent}% 
-                      <span className="text-xs text-gray-500"> (MGA rate)</span>
+                      <span className="text-xs text-gray-500"> ({t("MGA rate")})</span>
                     </>
                   ) : (
                     `${agentData.commissionPercent}%`
@@ -504,18 +503,18 @@ const AdminAgentDetails = () => {
               </div>
               
               <div className="flex gap-2">
-                <span className="text-text-primary font-semibold">Joined:</span>
+                <span className="text-text-primary font-semibold">{t("Joined")}:</span>
                 <span className="text-text-secondary">
                   {new Date(agentData.createdAt).toLocaleDateString()}
                 </span>
               </div>
               
               <div className="flex gap-2">
-                <span className="text-text-primary font-semibold">Valid Until:</span>
+                <span className="text-text-primary font-semibold">{t("Valid Until")}:</span>
                 <span className="text-text-secondary">
                   {agentData.validUpto 
                     ? new Date(agentData.validUpto).toLocaleDateString()
-                    : 'N/A'
+                    : t("N/A")
                   }
                 </span>
               </div>
@@ -523,13 +522,13 @@ const AdminAgentDetails = () => {
               {agentData.mga && (
                 <>
                   <div className="flex gap-2 col-span-2">
-                    <span className="text-text-primary font-semibold">MGA:</span>
+                    <span className="text-text-primary font-semibold">{t("MGA")}:</span>
                     <span className="text-text-secondary">
                       {agentData.mga.firstName} {agentData.mga.lastName} ({agentData.mga.agentCode})
                     </span>
                   </div>
                   <div className="flex gap-2 col-span-2">
-                    <span className="text-text-primary font-semibold">MGA Override:</span>
+                    <span className="text-text-primary font-semibold">{t("MGA Override:")}</span>
                     <span className="text-text-secondary">
                       {agentData.mga.mgaOverridePercent}%
                     </span>
@@ -571,7 +570,7 @@ const AdminAgentDetails = () => {
         <div className="flex items-center gap-2 mb-4">
           <FaCoins className="text-2xl text-blue-600" />
           <h3 className="text-xl font-bold text-text-primary">
-            Commission Flow {isUnderMGA && <span className="text-sm text-gray-600">(Agent Share Only)</span>}
+            {t("Commission Flow")} {isUnderMGA && <span className="text-sm text-gray-600">{t("(Agent Share Only)")}</span>}
           </h3>
         </div>
         
@@ -579,49 +578,49 @@ const AdminAgentDetails = () => {
           {/* Total Earned */}
           <div className="bg-white p-4 rounded-lg border-2 border-green-200">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-semibold text-gray-600">Total Earned</span>
+              <span className="text-sm font-semibold text-gray-600">{t("Total Earned")}</span>
               <FaArrowUp className="text-green-600" />
             </div>
             <div className="text-3xl font-bold text-green-600">
               ${totalEarned.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </div>
             <div className="text-xs text-gray-500 mt-1">
-              {positiveCommissions.length} commission{positiveCommissions.length !== 1 ? 's' : ''}
+              {positiveCommissions.length} {positiveCommissions.length !== 1 ? t("commissions") : t("commission")}
             </div>
           </div>
 
           {/* Total Reversed */}
           <div className="bg-white p-4 rounded-lg border-2 border-red-200">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-semibold text-gray-600">Total Reversed</span>
+              <span className="text-sm font-semibold text-gray-600">{t("Total Reversed")}</span>
               <FaArrowDown className="text-red-600" />
             </div>
             <div className="text-3xl font-bold text-red-600">
               -${totalReversed.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </div>
             <div className="text-xs text-gray-500 mt-1">
-              {reversalCommissions.length} reversal{reversalCommissions.length !== 1 ? 's' : ''}
+              {reversalCommissions.length} {reversalCommissions.length !== 1 ? t("reversals") : t("reversal")}
             </div>
           </div>
 
           {/* Net Commissions */}
           <div className="bg-white p-4 rounded-lg border-2 border-purple-200">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-semibold text-gray-600">Net Commission</span>
+              <span className="text-sm font-semibold text-gray-600">{t("Net Commission")}</span>
               <FaCoins className="text-purple-600" />
             </div>
             <div className={`text-3xl font-bold ${netCommissions >= 0 ? 'text-purple-600' : 'text-red-600'}`}>
               ${netCommissions.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </div>
             <div className="text-xs text-gray-500 mt-1">
-              After reversals
+              {t("After reversals")}
             </div>
           </div>
 
           {/* Pending/In Progress */}
           <div className="bg-white p-4 rounded-lg border-2 border-yellow-200">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-semibold text-gray-600">Pending</span>
+              <span className="text-sm font-semibold text-gray-600">{t("Pending")}</span>
               <div className="w-3 h-3 bg-yellow-500 rounded-full animate-pulse"></div>
             </div>
             <div className="text-3xl font-bold text-yellow-600">
@@ -632,28 +631,28 @@ const AdminAgentDetails = () => {
               ).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </div>
             <div className="text-xs text-gray-500 mt-1">
-              Awaiting payment
+              {t("Awaiting payment")}
             </div>
           </div>
         </div>
 
         {/*  MGA Split Breakdown (if agent under MGA) */}
-        {isUnderMGA && agentData.mga && (
+         {isUnderMGA && agentData.mga && (
           <div className="mt-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
             <div className="text-sm font-semibold text-blue-900 mb-2">
-              💼 MGA Commission Split Structure
+              💼 {t("MGA Commission Split Structure")}
             </div>
             <div className="grid grid-cols-3 gap-4 text-sm">
               <div>
-                <span className="text-gray-600">Total Commission Rate:</span>
+                <span className="text-gray-600">{t("Total Commission Rate:")}</span>
                 <div className="font-bold text-blue-900">{agentData.mga.commissionPercent}%</div>
               </div>
               <div>
-                <span className="text-gray-600">MGA Override:</span>
+                <span className="text-gray-600">{t("MGA Override:")}</span>
                 <div className="font-bold text-purple-700">{agentData.mga.mgaOverridePercent}%</div>
               </div>
               <div>
-                <span className="text-gray-600">Agent Receives:</span>
+                <span className="text-gray-600">{t("Agent Receives:")}</span>
                 <div className="font-bold text-green-700">
                   {(agentData.mga.commissionPercent * (1 - agentData.mga.mgaOverridePercent / 100)).toFixed(1)}%
                 </div>
@@ -769,7 +768,7 @@ const AdminAgentDetails = () => {
               onChange={() => toggleTableFilter("Policies")}
               className="form-radio cursor-pointer checked:accent-primary"
             />
-            <span className="ml-2 capitalize">Policies ({recentPolicies.length})</span>
+            <span className="ml-2 capitalize">{t("Policies")} ({recentPolicies.length})</span>
           </label>
           <label className="inline-flex items-center text-text-secondary">
             <input
@@ -779,7 +778,7 @@ const AdminAgentDetails = () => {
               onChange={() => toggleTableFilter("Quotes")}
               className="form-radio cursor-pointer checked:accent-primary"
             />
-            <span className="ml-2 capitalize">Quotes ({recentQuotes.length})</span>
+            <span className="ml-2 capitalize">{t("Quotes")} ({recentQuotes.length})</span>
           </label>
           <label className="inline-flex items-center ml-4 text-text-secondary">
             <input
@@ -789,7 +788,7 @@ const AdminAgentDetails = () => {
               onChange={() => toggleTableFilter("Commissions")}
               className="form-radio cursor-pointer checked:accent-primary"
             />
-            <span className="ml-2 capitalize">Commissions ({commissions.length})</span>
+            <span className="ml-2 capitalize">{t("Commissions")} ({commissions.length})</span>
           </label>
         </div>
       </div>
@@ -798,7 +797,7 @@ const AdminAgentDetails = () => {
       <div className="mt-12">
         {filter === "Policies" && (
           <div>
-            <h3 className="text-lg font-semibold mb-3">Recent Policies</h3>
+            <h3 className="text-lg font-semibold mb-3">{t("Recent Policies")}</h3>
             <PoliciesTable
               data={recentPolicies}
               loading={false}
@@ -809,7 +808,7 @@ const AdminAgentDetails = () => {
         
         {filter === "Quotes" && (
           <div>
-            <h3 className="text-lg font-semibold mb-3">Recent Quotes</h3>
+            <h3 className="text-lg font-semibold mb-3">{t("Recent Quotes")}</h3>
             <QuotesTable
               data={recentQuotes}
               loading={false}
@@ -821,13 +820,13 @@ const AdminAgentDetails = () => {
         {filter === "Commissions" && (
           <div>
             <div className="flex justify-between items-center mb-3">
-              <h3 className="text-lg font-semibold">Commission History</h3>
+              <h3 className="text-lg font-semibold">{t("Commission History")}</h3>
               
               {/* ✅ Bulk Actions */}
               {selectedCommissionIds.length > 0 && (
                 <div className="flex gap-2 items-center bg-violet-50 px-4 py-2 mt-5 border border-violet-200">
                   <span className="text-sm font-semibold">
-                    {selectedCommissionIds.length} selected (${selectedCommissionsTotal.toFixed(2)})
+                    {selectedCommissionIds.length} {t("selected")} (${selectedCommissionsTotal.toFixed(2)})
                   </span>
                   <button
                     onClick={handleBulkApprove}
@@ -839,7 +838,7 @@ const AdminAgentDetails = () => {
                     ) : (
                       <FaCheck />
                     )}
-                    Approve
+                    {t("Approve")}
                   </button>
                   <button
                     onClick={handleMarkAsPaid}
@@ -851,13 +850,13 @@ const AdminAgentDetails = () => {
                     ) : (
                       <FaCheck />
                     )}
-                    Mark Paid
+                    {t("Mark Paid")}
                   </button>
                   <button
                     onClick={() => setSelectedCommissionIds([])}
                     className="px-3 py-1 bg-gray-500 text-white text-sm hover:bg-gray-600 cursor-pointer transition-all duration-200"
                   >
-                    Clear
+                    {t("Clear")}
                   </button>
                 </div>
               )}
