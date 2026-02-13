@@ -62,6 +62,9 @@ import ApplySecureTravelVisitorsToCanada from "./pages/apply/ApplySecureTravelVi
 import ApplySecureStudyInternationalStudents from "./pages/apply/ApplySecureStudyInternationalStudents/ApplySecureStudyInternationalStudents.tsx";
 import ApplyCanuckVoyageTravelMedical from "./pages/apply/ApplyCanuckVoyageTravelMedical/ApplyCanuckVoyageTravelMedical.tsx";
 import ApplyCanuckVoyageNonMedical from "./pages/apply/ApplyCanuckVoyageNonMedical/ApplyCanuckVoyageNonMedical.tsx";
+import NotFound from "./pages/NotFound.tsx";
+import { AuthSyncListener } from "./components/protection/AuthSyncListener.tsx";
+
 import MGAContracting from "./pages/MGAContracting.tsx";
 import Commissions from "./pages/Commissions.tsx";
 
@@ -230,8 +233,11 @@ const router = createBrowserRouter(
       {/* Routes outside of dashboard layout */}
       <Route path="/test-dash" element={<TestUi />} />
       <Route path="/agent-dashboard" element={<AgentDashboard />} />
-    </Route>,
-  ),
+
+      <Route path="*" element={<NotFound />} />
+      
+    </Route>
+  )
 );
 
 createRoot(document.getElementById("root")!).render(
@@ -242,6 +248,7 @@ createRoot(document.getElementById("root")!).render(
           {/* <I18nextProvider i18n={i18n}> */}
           {/* <LangContextProvider> */}
           <LanguageProvider>
+            <AuthSyncListener />
             <RouterProvider router={router} />
           </LanguageProvider>
           {/* </LangContextProvider> */}

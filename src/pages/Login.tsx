@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { EyeIcon, EyeSlashIcon } from "@heroicons/react/16/solid";
-import { useNavigate } from "react-router-dom";
+// import useAdmin from '../hooks/useAdmin';
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 import rimilogo from "../assets/rimi_en.png";
 import { useAuth } from "../hooks/useAuth";
@@ -15,7 +16,10 @@ interface LoginFormInputs {
 
 const Login = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { t } = useLanguage();
+  const [show, setShow] = useState(false);
+  const [errMsg, setErrMsg] = useState("");
   const [signInClicked, setSignInClicked] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const { triggerNotification, NotificationComponent } = useNotification();
@@ -32,7 +36,8 @@ const Login = () => {
     const result = await login(data.email, data.password);
     
     if (result.type === "auth/loginUser/fulfilled") {
-      navigate("/");
+      const returnUrl = searchParams.get("returnUrl") || "/";
+      navigate(returnUrl, { replace: true });
     } else if (result.type === "auth/loginUser/rejected") {
       setSignInClicked(false);
       triggerNotification({
@@ -108,6 +113,13 @@ const Login = () => {
               <p className="text-[#969696] text-sm font-normal font-[inter]">
                 {t("Please login to continue to your account.")}
               </p>
+              {searchParams.get("sessionExpired") === "true" && (
+                <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-md">
+                  <p className="text-sm text-yellow-800 text-center">
+                    Your session expired. Please log in again.
+                  </p>
+                </div>
+              )}
             </div>
 
             <form
