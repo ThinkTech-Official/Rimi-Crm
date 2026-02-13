@@ -473,5 +473,21 @@
   "Language": "Langue",
   "Payment": "Paiement",
   "MGA Share": "Part MGA",
-  "Agent Share": "Part Agent"
+  "Agent Share": "Part Agent",
+  "MODIFY USER": "MODIFIER L'UTILISATEUR",
+  "VIEW USER": "VOIR L'UTILISATEUR",
+  "User Information": "Informations sur l'utilisateur",
+  "User Permissions": "Autorisations de l'utilisateur",
+  "ASSIGNED AGENT CODES": "CODES D'AGENT ATTRIBUÉS",
+  "Modify User": "Modifier l'utilisateur",
+  "Save Changes": "Enregistrer les modifications",
+  "Discard Changes": "Abandonner les modifications",
+  "Enter document type...": "Saisir le type de document...",
+  "No document attached": "Aucun document joint",
+  "Update Document": "Mettre à jour le document",
+  "Modify Policies": "Modifier les polices",
+  "View Policies": "Voir les polices",
+  "Manage Users": "Gérer les utilisateurs",
+  "Bulk Enrollment": "Inscription en masse",
+  "Passwords don't match": "Les mots de passe ne correspondent pas"
 }

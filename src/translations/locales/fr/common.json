@@ -343,11 +343,12 @@
   "fr": "Français",
   "EN": "Anglais",
   "FR": "Français",
-  "Search": "Rechercher",
-  "Date": "Date",
   "Policy #": "N° de police",
   "Type": "Type",
   "Loading commissions...": "Chargement des commissions...",
-  "No commissions found": "Aucune commission trouvée"
+  "No commissions found": "Aucune commission trouvée",
+  "Save failed": "Échec de l'enregistrement",
+  "Status is required": "Le statut est requis",
+  "Re-enter Password": "Saisir à nouveau le mot de passe"
 }
 

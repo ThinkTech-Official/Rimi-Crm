@@ -7,6 +7,7 @@ import { API_BASE } from "../utils/urls";
 import Spinner from "../components/Spinner";
 import { MdCancel } from "react-icons/md";
 import { useForm, Controller } from "react-hook-form";
+import { useLanguage } from "../context/LanguageContext";
 
 // Interface for the form data
 export interface UserFormData {
@@ -74,6 +75,7 @@ const PERMISSIONS_MAP: Record<string, typeof adminPermission> = {
 
 export default function UserDetails() {
   const { id } = useParams<{ id: string }>();
+  const { t } = useLanguage();
   const navigate = useNavigate();
   const token = useSelector((state: any) => state.auth.token) as string | null;
   const currentUserType = useSelector(
@@ -128,7 +130,7 @@ export default function UserDetails() {
       await save(data as UserFormData, files);
       setIsEditing(false);
     } catch {
-      alert(saveError || "Save failed");
+      alert(saveError || t("Save failed"));
     }
   };
 
@@ -144,10 +146,10 @@ export default function UserDetails() {
     return (
       <div className="flex flex-col justify-center items-center gap-3 fixed top-1/2 left-1/2">
         <Spinner className="w-10 h-10" />
-        <p>Loading...</p>
+        <p>{t("Loading...")}</p>
       </div>
     );
-  if (error) return <p className="text-red-500">Error: {error}</p>;
+  if (error) return <p className="text-red-500">{t("Error")}: {error}</p>;
 
   const formData = watch();
 
@@ -190,18 +192,17 @@ export default function UserDetails() {
   return (
     <div className="max-w-5xl mx-auto px-2 py-6 sm:p-6 bg-greyBg">
       <h2 className="text-xl font-semibold text-center text-[#3a17c5] mb-4">
-        {isEditing ? "MODIFY USER" : "VIEW USER"}
+        {isEditing ? t("MODIFY USER") : t("VIEW USER")}
       </h2>
       <div className="bg-white text-center text-text-secondary py-2 mb-4">
-        ** Changes to User Type will restore User Permissions to default
-        settings **
+        {t("** Changes to User Type will restore User Permissions to default settings **")}
       </div>
 
       <div className="flex justify-center sm:justify-end space-x-2 mb-4">
         {isEditing ? (
           <>
             <button onClick={handleSubmit(onSubmit)} className="btn-primary">
-              Save Changes
+              {t("Save Changes")}
             </button>
             <button
               onClick={() => {
@@ -214,12 +215,12 @@ export default function UserDetails() {
               }}
               className="px-4 py-2 bg-white border border-inputBorder text-gray-700 hover:border-gray-600 transition cursor-pointer"
             >
-              Discard Changes
+              {t("Discard Changes")}
             </button>
           </>
         ) : (
           <button onClick={() => setIsEditing(true)} className="btn-primary">
-            Modify User
+            {t("Modify User")}
           </button>
         )}
       </div>
@@ -232,16 +233,16 @@ export default function UserDetails() {
           </span>
         </div>
         <h3 className="text-primary font-semibold mb-2 capitalize text-lg">
-          User Information
+          {t("User Information")}
         </h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-gray-700">
           <div className="flex flex-col gap-1">
             <label htmlFor="firstName" className="text-sm">
-              First Name
+              {t("First Name")}
             </label>
             <input
               {...register("firstName", {
-                required: "First name is required",
+                required: t("First name is required"),
                 setValueAs: (value) => value?.trim() || "",
               })}
               disabled={!isEditing}
@@ -256,11 +257,11 @@ export default function UserDetails() {
 
           <div className="flex flex-col gap-1">
             <label htmlFor="lastName" className="text-sm">
-              Last Name
+              {t("Last Name")}
             </label>
             <input
               {...register("lastName", {
-                required: "Last name is required",
+                required: t("Last name is required"),
                 setValueAs: (value) => value?.trim() || "",
               })}
               disabled={!isEditing}
@@ -275,11 +276,11 @@ export default function UserDetails() {
 
           <div className="flex flex-col gap-1">
             <label htmlFor="agentCode" className="text-sm">
-              Agent Code
+              {t("Agent Code")}
             </label>
             <input
               {...register("agentCode", {
-                required: "Agent code is required",
+                required: t("Agent code is required"),
                 setValueAs: (value) => value?.trim() || "",
               })}
               disabled={!isEditing}
@@ -294,15 +295,15 @@ export default function UserDetails() {
 
           <div className="flex flex-col gap-1">
             <label htmlFor="email" className="text-sm">
-              Email
+              {t("Email")}
             </label>
             <input
               {...register("email", {
                 setValueAs: (value) => value?.trim()?.toLowerCase() || "",
-                required: "Email is required",
+                required: t("Email is required"),
                 pattern: {
                   value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                  message: "Invalid email address",
+                  message: t("Invalid email address"),
                 },
               })}
               disabled={!isEditing}
@@ -317,11 +318,11 @@ export default function UserDetails() {
 
           <div className="flex flex-col gap-1">
             <label htmlFor="company" className="text-sm">
-              Company
+              {t("Company")}
             </label>
             <input
               {...register("company", {
-                required: "Company is required",
+                required: t("Company name is required"),
                 setValueAs: (value) => value?.trim() || "",
               })}
               disabled={!isEditing}
@@ -336,7 +337,7 @@ export default function UserDetails() {
 
           <div className="flex flex-col gap-1">
             <label htmlFor="phoneNumber" className="text-sm">
-              Phone Number
+              {t("Phone Number")}
             </label>
             <input
               {...register("phoneNumber", {
@@ -349,19 +350,19 @@ export default function UserDetails() {
 
           <div className="flex flex-col gap-1">
             <label htmlFor="userType" className="text-sm">
-              User Type
+              {t("User Type")}
             </label>
             <select
               {...register("userType", {
-                required: "User type is required",
+                required: t("User type is required"),
               })}
               disabled={!isEditing}
               className="input-primary"
             >
-              <option value="ADMIN">Admin</option>
-              <option value="AGENT">Agent</option>
-              <option value="MGA">MGA</option>
-              <option value="READONLY">Read Only</option>
+              <option value="ADMIN">{t("Admin")}</option>
+              <option value="AGENT">{t("Agent")}</option>
+              <option value="MGA">{t("MGA")}</option>
+              <option value="READONLY">{t("Read Only")}</option>
             </select>
             {errors.userType && (
               <span className="text-red-500 text-xs">
@@ -372,27 +373,27 @@ export default function UserDetails() {
           {isEditing && (
             <div className="flex flex-col gap-1 w-full">
               <label htmlFor="newPwd" className="text-sm">
-                Password
+                {t("Password")}
               </label>
               <input
                 {...register("newPwd", {
                   minLength: {
                     value: 6,
-                    message: "Password must be at least 6 characters",
+                    message: t("Minimum length is 6"),
                   },
                   validate: {
                     hasLetter: (value) =>
                       !value ||
                       /[A-Za-z]/.test(value) ||
-                      "Password must contain at least one letter",
+                      t("Password must contain at least one letter"),
                     hasNumber: (value) =>
                       !value ||
                       /\d/.test(value) ||
-                      "Password must contain at least one number",
+                      t("Password must contain at least one number"),
                   },
                 })}
                 type="password"
-                placeholder="New Password"
+                placeholder={t("New Password")}
                 className="input-primary"
               />
               {errors.newPwd && (
@@ -405,17 +406,17 @@ export default function UserDetails() {
           {isEditing && (
             <div className="flex flex-col gap-1 w-full">
               <label htmlFor="confirmPwd" className="text-sm">
-                Confirm Password
+                {t("Confirm Password")}
               </label>
               <input
                 {...register("confirmPwd", {
                   validate: (value) =>
                     !watch("newPwd") ||
                     value === watch("newPwd") ||
-                    "Passwords don't match",
+                    t("Passwords don't match"),
                 })}
                 type="password"
-                placeholder="Re-enter Password"
+                placeholder={t("Re-enter Password")}
                 className="input-primary"
               />
               {errors.confirmPwd && (
@@ -427,7 +428,7 @@ export default function UserDetails() {
           )}
           <div className="flex flex-col gap-1">
             <label htmlFor="allowBulkUpload" className="text-sm">
-              Allow Bulk Upload
+              {t("Allow Bulk Upload")}
             </label>
             <div>
               <Controller
@@ -443,7 +444,7 @@ export default function UserDetails() {
                         onChange={() => field.onChange(true)}
                         className="mr-1"
                       />
-                      Yes
+                      {t("Yes")}
                     </label>
                     <label>
                       <input
@@ -453,7 +454,7 @@ export default function UserDetails() {
                         onChange={() => field.onChange(false)}
                         className="mr-1"
                       />
-                      No
+                      {t("No")}
                     </label>
                   </>
                 )}
@@ -467,13 +468,13 @@ export default function UserDetails() {
           </div>
           <div className="flex flex-col gap-1">
             <label htmlFor="status" className="text-sm">
-              Status
+              {t("Status")}
             </label>
             <div>
               <Controller
                 name="status"
                 control={control}
-                rules={{ required: "Status is required" }}
+                rules={{ required: t("Status is required") }}
                 render={({ field }) => (
                   <>
                     <label className="mr-4">
@@ -485,7 +486,7 @@ export default function UserDetails() {
                         onChange={() => field.onChange("ACTIVE")}
                         className="mr-1"
                       />
-                      Active
+                      {t("Active")}
                     </label>
                     <label>
                       <input
@@ -496,7 +497,7 @@ export default function UserDetails() {
                         onChange={() => field.onChange("INACTIVE")}
                         className="mr-1"
                       />
-                      Inactive
+                      {t("Inactive")}
                     </label>
                   </>
                 )}
@@ -514,15 +515,15 @@ export default function UserDetails() {
       {/* Permissions */}
       <div className="border border-inputBorder bg-white p-4 mb-4">
         <h3 className="text-primary font-semibold mb-2 capitalize text-lg">
-          User Permissions
+          {t("User Permissions")}
         </h3>
         <div className="text-gray-700 space-y-2">
           {Object.entries(currentUserPermissions).map(([k, v]) => (
             <label key={k} className="block">
               <input type="checkbox" checked={v} disabled className="mr-2" />
-              {k
+              {t(k
                 .replace(/([A-Z])/g, " $1")
-                .replace(/^./, (s) => s.toUpperCase())}
+                .replace(/^./, (s) => s.toUpperCase()))}
             </label>
           ))}
         </div>
@@ -532,7 +533,7 @@ export default function UserDetails() {
       {formData.agentCodes?.length! > 0 && (
         <div className="border border-inputBorder bg-white p-4 mb-4">
           <h3 className="text-primary font-semibold mb-2 capitalize text-lg">
-            ASSIGNED AGENT CODES
+            {t("ASSIGNED AGENT CODES")}
           </h3>
           <ul className="list-disc list-inside text-gray-700">
             {formData.agentCodes!.map((c) => (
@@ -544,21 +545,14 @@ export default function UserDetails() {
 
       <div className="border border-inputBorder bg-white p-4 mb-4">
         <h3 className="text-primary font-semibold mb-2 capitalize text-lg">
-          Documents
+          {t("Documents")}
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {documentFields.map((doc) => (
             <div key={doc.key} className="flex flex-col gap-2">
                   <label className="text-sm font-medium text-gray-700">
-                    {doc.label}
+                    {t(doc.label)}
                   </label>
-                  {isEditing && (
-                    <input
-                      {...register(doc.typeKey)}
-                      placeholder="Enter document type..."
-                      className="input-primary !py-1 !text-xs mb-1"
-                    />
-                  )}
                   {doc.link ? (
                 <div className="flex items-center gap-2">
                   <a
@@ -572,7 +566,7 @@ export default function UserDetails() {
                   </a>
                 </div>
               ) : (
-                <p className="text-gray-400 text-sm">No document attached</p>
+                <p className="text-gray-400 text-sm">{t("No document attached")}</p>
               )}
 
               {isEditing && (
@@ -591,7 +585,7 @@ export default function UserDetails() {
                         />
                       </div>
                     ) : (
-                      "Update Document"
+                      t("Update Document")
                     )}
                     <input
                       name={doc.key}
