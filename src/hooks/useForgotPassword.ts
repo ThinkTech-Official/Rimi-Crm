@@ -1,6 +1,6 @@
-// src/hooks/useForgotPassword.ts
 import { useState } from 'react';
 import { axiosInstance } from '../utils/axiosInstance';
+import { useLanguage } from '../context/LanguageContext';
 
 
 interface ForgotPasswordResult {
@@ -9,6 +9,7 @@ interface ForgotPasswordResult {
 }
 
 export const useForgotPassword = () => {
+  const { t } = useLanguage();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<ForgotPasswordResult | null>(null);
@@ -29,7 +30,7 @@ export const useForgotPassword = () => {
       const errorMessage =
         err.response?.data?.message ||
         err.message ||
-        'Failed to send reset link. Please try again.';
+        t('Failed to send reset link. Please try again.');
       setError(errorMessage);
       setResult({
         success: false,

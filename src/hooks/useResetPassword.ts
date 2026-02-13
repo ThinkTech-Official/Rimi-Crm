@@ -1,6 +1,6 @@
-// src/hooks/useResetPassword.ts
 import { useState } from 'react';
 import { axiosInstance } from '../utils/axiosInstance';
+import { useLanguage } from '../context/LanguageContext';
 
 
 interface ResetPasswordResult {
@@ -9,6 +9,7 @@ interface ResetPasswordResult {
 }
 
 export const useResetPassword = () => {
+  const { t } = useLanguage();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<ResetPasswordResult | null>(null);
@@ -24,7 +25,7 @@ export const useResetPassword = () => {
       const errorMessage =
         err.response?.data?.message ||
         err.message ||
-        'Invalid or expired reset token';
+        t('Invalid or expired reset token');
       setError(errorMessage);
       return { valid: false, message: errorMessage };
     } finally {
@@ -56,7 +57,7 @@ export const useResetPassword = () => {
       const errorMessage =
         err.response?.data?.message ||
         err.message ||
-        'Failed to reset password. Please try again.';
+        t('Failed to reset password. Please try again.');
       setError(errorMessage);
       setResult({
         success: false,

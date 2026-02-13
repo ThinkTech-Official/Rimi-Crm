@@ -10,7 +10,7 @@ import {
 } from "@heroicons/react/24/outline";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import rimilogo from "../assets/rimi_en.png";
-import { LangContext } from "../context/LangContext";
+import { useLanguage } from "../context/LanguageContext";
 import { useResetPassword } from "../hooks/useResetPassword";
 
 interface ResetFormInputs {
@@ -30,7 +30,7 @@ const ResetPassword: React.FC = () => {
   const [searchParams] = useSearchParams();
   const token = searchParams.get("token");
   
-  const { langauge } = useContext(LangContext);
+  const { t } = useLanguage();
   const {
     verifyToken,
     resetPassword,
@@ -65,7 +65,7 @@ const ResetPassword: React.FC = () => {
       if (!token) {
         setToast({
           type: "error",
-          message: "Invalid reset link. Please request a new one.",
+          message: t("Invalid reset link. Please request a new one."),
           show: true,
         });
         setTokenValid(false);
@@ -79,7 +79,7 @@ const ResetPassword: React.FC = () => {
       if (!result.valid) {
         setToast({
           type: "error",
-          message: result.message || "Invalid or expired reset token",
+          message: result.message || t("Invalid or expired reset token"),
           show: true,
         });
       }
@@ -127,7 +127,7 @@ const ResetPassword: React.FC = () => {
     if (!token) {
       setToast({
         type: "error",
-        message: "Invalid reset token",
+        message: t("Invalid reset token"),
         show: true,
       });
       return;
@@ -141,7 +141,7 @@ const ResetPassword: React.FC = () => {
       <div className="flex h-screen items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#4340DA] mx-auto"></div>
-          <p className="mt-4 text-gray-600">Verifying reset link...</p>
+          <p className="mt-4 text-gray-600">{t("Verifying reset link...")}</p>
         </div>
       </div>
     );
@@ -154,16 +154,16 @@ const ResetPassword: React.FC = () => {
           <div className="bg-white rounded-lg shadow-lg p-8 text-center">
             <XCircleIcon className="h-16 w-16 text-red-500 mx-auto mb-4" />
             <h2 className="text-2xl font-bold text-gray-900 mb-2">
-              Invalid Reset Link
+              {t("Invalid Reset Link")}
             </h2>
             <p className="text-gray-600 mb-6">
-              This password reset link is invalid or has expired. Please request a new one.
+              {t("This password reset link is invalid or has expired. Please request a new one.")}
             </p>
             <button
               onClick={() => navigate("/forgot-password")}
               className="btn-primary"
             >
-              Request New Link
+              {t("Request New Link")}
             </button>
           </div>
         </div>
@@ -185,12 +185,10 @@ const ResetPassword: React.FC = () => {
                 />
               </a>
               <h2 className="mt-8 text-2xl sm:text-3xl font-bold font-[inter] sm:leading-9 text-text-primary">
-                {langauge === "En" ? "Reset Password" : "Réinitialiser le mot de passe"}
+                {t("Reset Password")}
               </h2>
               <p className="mt-2 text-sm text-gray-600 text-center">
-                {langauge === "En"
-                  ? "Enter your new password below"
-                  : "Entrez votre nouveau mot de passe ci-dessous"}
+                {t("Enter your new password below")}
               </p>
             </div>
 
@@ -205,7 +203,7 @@ const ResetPassword: React.FC = () => {
                   htmlFor="password"
                   className="block text-sm font-medium leading-6 text-gray-700 mb-2"
                 >
-                  {langauge === "En" ? "New Password" : "Nouveau mot de passe"}
+                  {t("New Password")}
                 </label>
                 <div className="relative">
                   <input
@@ -213,19 +211,18 @@ const ResetPassword: React.FC = () => {
                     type={showPassword ? "text" : "password"}
                     autoComplete="new-password"
                     {...register("password", {
-                      required: "Password is required",
+                      required: t("Password is required") as string,
                       minLength: {
                         value: 6,
-                        message: "Password must be at least 6 characters",
+                        message: t("Password must be at least 6 characters") as string,
                       },
                       pattern: {
                         value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
-                        message:
-                          "Password must contain uppercase, lowercase, and number",
+                        message: t("Password must contain uppercase, lowercase, and number") as string,
                       },
                     })}
                     className="input-primary pr-10"
-                    placeholder="Enter new password"
+                    placeholder={t("Enter new password")}
                   />
                   <button
                     type="button"
@@ -252,9 +249,7 @@ const ResetPassword: React.FC = () => {
                   htmlFor="confirmPassword"
                   className="block text-sm font-medium leading-6 text-gray-700 mb-2"
                 >
-                  {langauge === "En"
-                    ? "Confirm Password"
-                    : "Confirmer le mot de passe"}
+                    {t("Confirm Password")}
                 </label>
                 <div className="relative">
                   <input
@@ -262,12 +257,12 @@ const ResetPassword: React.FC = () => {
                     type={showConfirmPassword ? "text" : "password"}
                     autoComplete="new-password"
                     {...register("confirmPassword", {
-                      required: "Please confirm your password",
+                      required: t("Please confirm your password") as string,
                       validate: (value) =>
-                        value === password || "Passwords do not match",
+                        value === password || t("Passwords do not match") as string,
                     })}
                     className="input-primary pr-10"
-                    placeholder="Confirm new password"
+                    placeholder={t("Confirm new password")}
                   />
                   <button
                     type="button"
@@ -294,13 +289,9 @@ const ResetPassword: React.FC = () => {
                   disabled={loading || isSubmitting}
                   className="btn-primary"
                 >
-                  {loading || isSubmitting
-                    ? langauge === "En"
-                      ? "Resetting..."
-                      : "Réinitialisation..."
-                    : langauge === "En"
-                    ? "Reset Password"
-                    : "Réinitialiser"}
+                    {loading || isSubmitting
+                      ? t("Resetting...")
+                      : t("Reset Password")}
                 </button>
 
                 <button
@@ -308,7 +299,7 @@ const ResetPassword: React.FC = () => {
                   onClick={() => navigate("/")}
                   className="flex w-full justify-center p-1 mt-1 text-sm font-semibold font-[inter] leading-6 text-[#4340DA] hover:text-[#2B00B7] cursor-pointer"
                 >
-                  {langauge === "En" ? "Back to Login" : "Retour à la connexion"}
+                  {t("Back to Login")}
                 </button>
               </div>
             </form>
@@ -349,7 +340,7 @@ const ResetPassword: React.FC = () => {
                 </div>
                 <div className="ml-3 w-0 flex-1 pt-0.5">
                   <p className="text-sm font-medium text-gray-900">
-                    {toast.type === "error" ? "Error" : "Success"}
+                    {toast.type === "error" ? t("Error") : t("Success")}
                   </p>
                   <p className="mt-1 text-sm text-gray-500">{toast.message}</p>
                 </div>

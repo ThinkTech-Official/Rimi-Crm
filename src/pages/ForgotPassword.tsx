@@ -1,23 +1,17 @@
 // src/components/ForgotPassword.tsx
-import { useState, useContext, useEffect } from "react";
+import { useEffect } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import rimilogo from "../assets/rimi_en.png";
 // import { LangContext } from "../context/LangContext";
 import { useForgotPassword } from "../hooks/useForgotPassword";
 import useNotification from "../hooks/useNotification";
-import { useTranslation } from "react-i18next";
+import { useLanguage } from "../context/LanguageContext";
 
 interface ForgotFormInputs {
   email: string;
 }
 
-type ToastType = "error" | "success";
-interface Toast {
-  type: ToastType;
-  message: string;
-  show: boolean;
-}
 
 const ForgotPassword: React.FC = () => {
   const navigate = useNavigate();
@@ -35,7 +29,7 @@ const ForgotPassword: React.FC = () => {
     formState: { errors, isSubmitting },
   } = useForm<ForgotFormInputs>();
   const { NotificationComponent, triggerNotification } = useNotification();
-  const { t } = useTranslation();
+  const { t } = useLanguage();
   // Show error toast when hookError changes
   useEffect(() => {
     if (hookError) {
@@ -68,13 +62,13 @@ const ForgotPassword: React.FC = () => {
             />
           </div>
           <h1 className="text-center text-2xl font-bold text-neutral-800 mb-6 capitalize">
-            Reset Password
+            {t("Reset Password")}
           </h1>
           {/* Login Form */}
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
             <div>
               <label htmlFor="email" className="sr-only">
-                Username/email
+                {t("Username/email")}
               </label>
               <input
                 id="email"
@@ -82,13 +76,13 @@ const ForgotPassword: React.FC = () => {
                 autoComplete="email"
                 {...register("email", {
                   setValueAs: (value) => value.trim().toLowerCase(),
-                  required: "Email is required",
+                  required: t("Email is required") as string,
                   pattern: {
                     value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                    message: "Invalid email address",
+                    message: t("Invalid email address") as string,
                   },
                 })}
-                placeholder="Email"
+                placeholder={t("Email")}
                 className="w-full px-4 py-3 border border-zinc-300 focus:outline-none focus:ring-1 focus:ring-primary"
               />
               {errors.email && (
@@ -103,7 +97,7 @@ const ForgotPassword: React.FC = () => {
                 disabled={loading || isSubmitting}
                 className={`btn-primary`}
               >
-                Send Reset Link
+                {t("Send Reset Link")}
               </button>
 
               <button
@@ -111,7 +105,7 @@ const ForgotPassword: React.FC = () => {
                 onClick={() => navigate("/")}
                 className="flex w-full justify-center p-1 text-sm font-[inter] leading-6 text-primary hover:underline cursor-pointer"
               >
-                Back to Login
+                {t("Back to Login")}
               </button>
             </div>
           </form>
