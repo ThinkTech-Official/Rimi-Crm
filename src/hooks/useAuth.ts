@@ -3,7 +3,7 @@ import { loginUser, logout } from '../features/authSlice';
 
 export const useAuth = () => {
   const dispatch = useAppDispatch();
-  const { token, loading, error } = useAppSelector((state) => state.auth);
+  const { token, loading, error, userType, fullName, agentCode } = useAppSelector((state) => state.auth);
 
   const login = (email: string, password: string) => {
     return dispatch(loginUser({ email, password }));
@@ -11,6 +11,9 @@ export const useAuth = () => {
 
   return {
     token,
+    userType,
+    fullName,
+    agentCode,
     loading,
     error,
     login,
