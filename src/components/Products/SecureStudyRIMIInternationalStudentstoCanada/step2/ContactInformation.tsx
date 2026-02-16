@@ -160,6 +160,7 @@ export default function ContactInformation({
             type="text"
             placeholder={t("Additional Email Address")}
             {...register("contactInfo.additionalEmail", {
+              setValueAs: (value) => value?.trim()?.toLowerCase() || "",
               maxLength: {
                 value: 100,
                 message: t("Additional email cannot exceed 100 characters"),
@@ -188,6 +189,7 @@ export default function ContactInformation({
             type="text"
             placeholder={t("Phone Number")}
             {...register("contactInfo.phoneNumber", {
+              setValueAs: (value) => value?.trim() || "",
               required: t("Phone number is required"),
               pattern: {
                 value: /^[0-9]*$/,
@@ -227,6 +229,7 @@ export default function ContactInformation({
             type="text"
             placeholder={t("Legal Guardian Name")}
             {...register("contactInfo.legalGuardianName", {
+              setValueAs: (value) => value?.trim() || "",
               required: t("Legal guardian name is required"),
               maxLength: {
                 value: 60,

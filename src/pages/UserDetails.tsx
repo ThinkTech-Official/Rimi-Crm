@@ -377,6 +377,7 @@ export default function UserDetails() {
               </label>
               <input
                 {...register("newPwd", {
+                  setValueAs: (value) => value?.trim() || "",
                   minLength: {
                     value: 6,
                     message: t("Minimum length is 6"),
@@ -410,6 +411,7 @@ export default function UserDetails() {
               </label>
               <input
                 {...register("confirmPwd", {
+                  setValueAs: (value) => value?.trim() || "",
                   validate: (value) =>
                     !watch("newPwd") ||
                     value === watch("newPwd") ||

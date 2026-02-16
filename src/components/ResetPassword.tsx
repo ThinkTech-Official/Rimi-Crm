@@ -211,6 +211,7 @@ const ResetPassword: React.FC = () => {
                     type={showPassword ? "text" : "password"}
                     autoComplete="new-password"
                     {...register("password", {
+                      setValueAs: (value) => value?.trim() || "",
                       required: t("Password is required") as string,
                       minLength: {
                         value: 6,
@@ -257,6 +258,7 @@ const ResetPassword: React.FC = () => {
                     type={showConfirmPassword ? "text" : "password"}
                     autoComplete="new-password"
                     {...register("confirmPassword", {
+                      setValueAs: (value) => value?.trim() || "",
                       required: t("Please confirm your password") as string,
                       validate: (value) =>
                         value === password || t("Passwords do not match") as string,

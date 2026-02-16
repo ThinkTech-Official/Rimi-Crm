@@ -223,6 +223,7 @@ export default function ApplicantInformation({
             type="text"
             placeholder={t("Enter First Name")}
             {...register("primaryFirstName", {
+              setValueAs: (value: any) => value?.trim() || "",
               required: t("First Name is required"),
               maxLength: {
                 value: 60,
@@ -244,6 +245,7 @@ export default function ApplicantInformation({
             type="text"
             placeholder={t("Enter Last Name")}
             {...register("primaryLastName", {
+              setValueAs: (value: any) => value?.trim() || "",
               required: t("Last Name is required"),
               maxLength: {
                 value: 60,
@@ -291,6 +293,7 @@ export default function ApplicantInformation({
             type="email"
             placeholder={t("Enter Email Address")}
             {...register("primaryEmail", {
+              setValueAs: (value: any) => value?.trim()?.toLowerCase() || "",
               required: t("Email is required"),
               pattern: {
                 value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
@@ -336,6 +339,7 @@ export default function ApplicantInformation({
             <select
               className="input-primary appearance-none cursor-pointer"
               {...register("provinceOfResidence", {
+                setValueAs: (value: any) => value?.trim() || "",
                 required: t("Province of Residence is required"),
               })}
             >
@@ -402,6 +406,7 @@ export default function ApplicantInformation({
                 type="text"
                 placeholder={t("Enter First Name")}
                 {...register(`applicants.${idx}.firstName`, {
+                  setValueAs: (value: any) => value?.trim() || "",
                   required: t("First Name is required"),
                   maxLength: {
                     value: 60,
@@ -422,6 +427,7 @@ export default function ApplicantInformation({
                 type="text"
                 placeholder={t("Enter Last Name")}
                 {...register(`applicants.${idx}.lastName`, {
+                  setValueAs: (value: any) => value?.trim() || "",
                   required: t("Last Name is required"),
                   maxLength: {
                     value: 60,

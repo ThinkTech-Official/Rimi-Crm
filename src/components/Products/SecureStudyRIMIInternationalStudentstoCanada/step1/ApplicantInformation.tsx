@@ -581,6 +581,7 @@ export default function ApplicantInformation({
             type="text"
             placeholder={t("Enter First Name")}
             {...register("primaryFirstName", {
+              setValueAs: (value: any) => value?.trim() || "",
               required: t("First Name is required"),
               maxLength: {
                 value: 60,
@@ -603,6 +604,7 @@ export default function ApplicantInformation({
             type="text"
             placeholder={t("Enter Last Name")}
             {...register("primaryLastName", {
+              setValueAs: (value: any) => value?.trim() || "",
               required: t("Last Name is required"),
               maxLength: {
                 value: 60,
@@ -656,7 +658,7 @@ export default function ApplicantInformation({
                 value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
                 message: t("Invalid email address"),
               },
-              setValueAs: (v) => v.trim().toLowerCase(),
+              setValueAs: (v: any) => v?.trim()?.toLowerCase() || "",
             })}
           />
           {errors.primaryEmail && (
@@ -743,6 +745,7 @@ export default function ApplicantInformation({
                 type="text"
                 placeholder={t("Enter First Name")}
                 {...register(`applicants.${idx}.firstName`, {
+                  setValueAs: (value: any) => value?.trim() || "",
                   required: t("First Name is required"),
                   maxLength: {
                     value: 60,
@@ -763,6 +766,7 @@ export default function ApplicantInformation({
                 type="text"
                 placeholder={t("Enter Last Name")}
                 {...register(`applicants.${idx}.lastName`, {
+                  setValueAs: (value: any) => value?.trim() || "",
                   required: t("Last Name is required"),
                   maxLength: {
                     value: 60,

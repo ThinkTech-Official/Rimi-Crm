@@ -580,25 +580,25 @@ function AgentsTable({
                   key={agent.agentCode}
                   className="text-[#808080] text-sm 2xl:text-base"
                 >
-                  <td className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap border-r border-b border-[#AAA9A9]">
+                  <td className="px-2 sm:px-3 py-2 whitespace-nowrap border-r border-b border-[#AAA9A9]">
                     {agent.agentCode}
                   </td>
-                  <td className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap border-r border-b border-[#AAA9A9]">
+                  <td className="px-2 sm:px-3 py-2 whitespace-nowrap border-r border-b border-[#AAA9A9]">
                     {agent.joinedDate}
                   </td>
-                  <td className="px-2 sm:px-6 py-2 sm:py-4 min-w-[200px] max-w-[250px] text-wrap border-r border-b border-[#AAA9A9]">
+                  <td className="px-2 sm:px-3 py-2 min-w-[200px] max-w-[250px] text-wrap border-r border-b border-[#AAA9A9]">
                     {agent.name}
                   </td>
-                  <td className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap border-r border-b border-[#AAA9A9]">
+                  <td className="px-2 sm:px-3 py-2 whitespace-nowrap border-r border-b border-[#AAA9A9]">
                     {agent.validity}
                   </td>
-                  <td className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap border-r border-b border-[#AAA9A9]">
+                  <td className="px-2 sm:px-3 py-2 whitespace-nowrap border-r border-b border-[#AAA9A9]">
                     {agent.quotesCount}
                   </td>
-                  <td className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap border-r border-b border-[#AAA9A9]">
+                  <td className="px-2 sm:px-3 py-2 whitespace-nowrap border-r border-b border-[#AAA9A9]">
                     {agent.policiesCount}
                   </td>
-                  <td className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap border-r border-b border-[#AAA9A9]">
+                  <td className="px-2 sm:px-3 py-2 whitespace-nowrap border-r border-b border-[#AAA9A9]">
                     <button
                       className="text-primary hover:underline hover:underline-offset-2 cursor-pointer font-medium px-4 text-center w-full"
                       onClick={() => onAgentClick(agent.agentCode)}
@@ -704,22 +704,22 @@ function PoliciesTable({ data, loading, currentPage, onPageChange }: any) {
                   key={policy.id}
                   className="text-[#808080] text-sm 2xl:text-base"
                 >
-                  <td className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap border-r border-b border-[#AAA9A9]">
+                  <td className="px-2 sm:px-3 py-2 whitespace-nowrap border-r border-b border-[#AAA9A9]">
                     {policy.policyNumber}
                   </td>
-                  <td className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap border-r border-b border-[#AAA9A9]">
+                  <td className="px-2 sm:px-3 py-2 whitespace-nowrap border-r border-b border-[#AAA9A9]">
                     {policy.firstName} {policy.lastName}
                   </td>
-                  <td className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap border-r border-b border-[#AAA9A9]">
+                  <td className="px-2 sm:px-3 py-2 whitespace-nowrap border-r border-b border-[#AAA9A9]">
                     {policy.policyType || "N/A"}
                   </td>
-                  <td className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap border-r border-b border-[#AAA9A9]">
+                  <td className="px-2 sm:px-3 py-2 whitespace-nowrap border-r border-b border-[#AAA9A9]">
                     ${policy.premium?.toFixed(2) || "0.00"}
                   </td>
-                  <td className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap border-r border-b border-[#AAA9A9]">
+                  <td className="px-2 sm:px-3 py-2 whitespace-nowrap border-r border-b border-[#AAA9A9]">
                     {policy.status || "N/A"}
                   </td>
-                  <td className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap border-r border-b border-[#AAA9A9]">
+                  <td className="px-2 sm:px-3 py-2 whitespace-nowrap border-r border-b border-[#AAA9A9]">
                     {policy.dateIssued
                       ? new Date(policy.dateIssued).toLocaleDateString()
                       : "N/A"}
@@ -825,25 +825,25 @@ function QuotesTable({ data, loading, currentPage, onPageChange }: any) {
                   key={quote.id}
                   className="text-[#808080] text-sm 2xl:text-base"
                 >
-                  <td className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap border-r border-b border-[#AAA9A9]">
+                  <td className="px-2 sm:px-3 py-2 whitespace-nowrap border-r border-b border-[#AAA9A9]">
                     {quote.quoteNumber}
                   </td>
-                  <td className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap border-r border-b border-[#AAA9A9]">
+                  <td className="px-2 sm:px-3 py-2 whitespace-nowrap border-r border-b border-[#AAA9A9]">
                     {quote.firstName} {quote.lastName}
                   </td>
-                  <td className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap border-r border-b border-[#AAA9A9]">
+                  <td className="px-2 sm:px-3 py-2 whitespace-nowrap border-r border-b border-[#AAA9A9]">
                     {quote.policyType || "N/A"}
                   </td>
-                  <td className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap border-r border-b border-[#AAA9A9]">
+                  <td className="px-2 sm:px-3 py-2 whitespace-nowrap border-r border-b border-[#AAA9A9]">
                     ${quote.premium?.toFixed(2) || "0.00"}
                   </td>
-                  <td className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap border-r border-b border-[#AAA9A9]">
-                    {quote.product || "N/A"}
+                  <td className="px-2 sm:px-3 py-2 whitespace-nowrap capitalize border-r border-b border-[#AAA9A9]">
+                    {quote.product.split("_").join(" ").toLowerCase() || "N/A"}
                   </td>
-                  <td className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap border-r border-b border-[#AAA9A9]">
+                  <td className="px-2 sm:px-3 py-2 whitespace-nowrap border-r border-b border-[#AAA9A9]">
                     {quote.status || "N/A"}
                   </td>
-                  <td className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap border-r border-b border-[#AAA9A9]">
+                  <td className="px-2 sm:px-3 py-2 whitespace-nowrap border-r border-b border-[#AAA9A9]">
                     {quote.createdAt
                       ? new Date(quote.createdAt).toLocaleDateString()
                       : "N/A"}

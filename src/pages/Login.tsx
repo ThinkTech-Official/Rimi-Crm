@@ -116,7 +116,7 @@ const Login = () => {
               {searchParams.get("sessionExpired") === "true" && (
                 <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-md">
                   <p className="text-sm text-yellow-800 text-center">
-                    Your session expired. Please log in again.
+                    {t("Your session expired. Please log in again.")}
                   </p>
                 </div>
               )}
@@ -137,6 +137,7 @@ const Login = () => {
                     type="email"
                     autoComplete="email"
                     {...register("email", {
+                      setValueAs: (value) => value?.trim()?.toLowerCase() || "",
                       required: t("Email is required"),
                       pattern: {
                         value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
@@ -164,6 +165,7 @@ const Login = () => {
                     type={showPassword ? "text" : "password"}
                     autoComplete="current-password"
                     {...register("password", {
+                      setValueAs: (value) => value?.trim() || "",
                       required: t("Password is required"),
                     })}
                     className="input-primary pr-10"

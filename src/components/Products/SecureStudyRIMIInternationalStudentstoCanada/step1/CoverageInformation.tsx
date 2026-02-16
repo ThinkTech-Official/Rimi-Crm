@@ -189,6 +189,7 @@ export default function CoverageInformation({
             <input
               type="text"
               {...register("countryOfOrigin", {
+                setValueAs: (v: any) => v?.trim() || "",
                 required: t("Country of origin is required"),
               })}
               className="input-primary"

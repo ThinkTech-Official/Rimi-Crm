@@ -535,8 +535,8 @@ export default function Profile() {
       // CASE 2: Only password is being updated (no documents)
       if (passwords.password && !hasDocuments) {
         const pwdPayload = new FormData();
-        pwdPayload.append("password", passwords.password);
-        pwdPayload.append("confirmPassword", passwords.confirmPassword);
+        pwdPayload.append("password", passwords.password.trim());
+        pwdPayload.append("confirmPassword", passwords.confirmPassword.trim());
 
         await updateProfile(pwdPayload);
       }
@@ -544,8 +544,8 @@ export default function Profile() {
       // CASE 3: Both documents AND password (need to call both)
       if (hasDocuments && passwords.password) {
         const pwdPayload = new FormData();
-        pwdPayload.append("password", passwords.password);
-        pwdPayload.append("confirmPassword", passwords.confirmPassword);
+        pwdPayload.append("password", passwords.password.trim());
+        pwdPayload.append("confirmPassword", passwords.confirmPassword.trim());
 
         await updateProfile(pwdPayload);
       }

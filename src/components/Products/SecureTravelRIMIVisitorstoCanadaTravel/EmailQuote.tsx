@@ -51,7 +51,7 @@ const EmailQuote = ({
             placeholder={t("Enter email address")}
             className="input-primary w-full"
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={(e) => setEmail(e.target.value.trim().toLowerCase())}
           />
         </div>
 

@@ -201,6 +201,7 @@ const Reporting: React.FC = () => {
             <input
               placeholder={t("Email")}
               {...register("emailTo", {
+                setValueAs: (value) => value?.trim()?.toLowerCase() || "",
                 required: t("Recipient email is required"),
                 pattern: {
                   value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
@@ -225,6 +226,7 @@ const Reporting: React.FC = () => {
             <input
               placeholder={t("CC email address")}
               {...register("emailCc", {
+                setValueAs: (value) => value?.trim()?.toLowerCase() || "",
                 pattern: {
                   value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
                   message: t("Invalid CC email address"),

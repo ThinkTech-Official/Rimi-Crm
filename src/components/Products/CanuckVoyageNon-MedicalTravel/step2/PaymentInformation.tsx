@@ -17,17 +17,7 @@
 //   );
 // }
 
-
-
-
-
-
-
-
-
-
 // ===================================================
-
 
 import { CardElement, useStripe, useElements } from "@stripe/react-stripe-js";
 import { FormEvent, useState } from "react";
@@ -70,7 +60,6 @@ export default function PaymentInformation({
   quoteNumber,
   description,
   shipping,
-  contactInfo,
   submittingStage2,
   triggerNotification,
 }: Props) {
@@ -81,18 +70,21 @@ export default function PaymentInformation({
   const [cardholderName, setCardholderName] = useState("");
   const [stripeError, setStripeError] = useState<string | null>(null);
 
-  const { createPaymentIntent, loading: intentLoading, error: intentError } =
-    useCreatePaymentIntent(
-      stripeCustomerId,
-      quoteNumber!,
-      description,
-      cardholderName,
-      shipping,
-      "lump-sum", // Product 4 is lump-sum only
-      undefined,
-      undefined,
-      undefined
-    );
+  const {
+    createPaymentIntent,
+    loading: intentLoading,
+    error: intentError,
+  } = useCreatePaymentIntent(
+    stripeCustomerId,
+    quoteNumber!,
+    description,
+    cardholderName,
+    shipping,
+    "lump-sum", // Product 4 is lump-sum only
+    undefined,
+    undefined,
+    undefined,
+  );
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -118,7 +110,7 @@ export default function PaymentInformation({
           message: t("Card input not ready"),
           type: "error",
         });
-         window.scrollTo({ top: 0, behavior: "smooth" });
+        window.scrollTo({ top: 0, behavior: "smooth" });
         return;
       }
 
@@ -128,11 +120,11 @@ export default function PaymentInformation({
         {
           payment_method: {
             card: cardElement,
-            billing_details: { 
+            billing_details: {
               name: cardholderName,
-             },
+            },
           },
-        }
+        },
       );
 
       if (error) {
@@ -191,7 +183,8 @@ export default function PaymentInformation({
           id="cardholder-name"
           type="text"
           value={cardholderName}
-          onChange={(e) => setCardholderName(e.target.value)}
+          onChange={(e) => setCardholderName(e.target.value.trimStart())}
+          onBlur={(e) => setCardholderName(e.target.value.trim())}
           required
           className="input-primary"
         />

@@ -374,6 +374,7 @@ export default function BeneficiaryInCaseOfDeath({
             type="text"
             placeholder={t("Beneficiary Name")}
             {...register("beneficiary.beneficiaryName", {
+              setValueAs: (value) => value?.trim() || "",
               required: t("Beneficiary Name is required"),
               maxLength: {
                 value: 100,
@@ -405,6 +406,7 @@ export default function BeneficiaryInCaseOfDeath({
               type="text"
               placeholder={t("Relationship (e.g. Spouse)")}
               {...register("beneficiary.relationshipToInsured", {
+                setValueAs: (value) => value?.trim() || "",
                 required: t("Relationship to Insured is required"),
                 maxLength: { value: 60, message: t("Max 60 characters") },
               })}
@@ -436,6 +438,7 @@ export default function BeneficiaryInCaseOfDeath({
             type="text"
             placeholder={t("Address")}
             {...register("beneficiary.address", {
+              setValueAs: (value) => value?.trim() || "",
               required: t("Address is required"),
               maxLength: {
                 value: 100,
@@ -458,6 +461,7 @@ export default function BeneficiaryInCaseOfDeath({
             type="text"
             placeholder={t("City")}
             {...register("beneficiary.city", {
+              setValueAs: (value) => value?.trim() || "",
               required: t("City is required"),
               maxLength: {
                 value: 100,

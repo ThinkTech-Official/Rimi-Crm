@@ -848,7 +848,10 @@ const CreateUser: React.FC = () => {
           <label className="text-sm">{t("First Name")}</label>
           <input
             type="text"
-            {...register("firstName", { required: t("First name is required") })}
+            {...register("firstName", { 
+              setValueAs: (value: any) => value?.trim() || "",
+              required: t("First name is required") 
+            })}
             className="input-primary"
             placeholder={t("First Name")}
           />
@@ -861,7 +864,10 @@ const CreateUser: React.FC = () => {
         <div className="flex flex-col col-span-3 sm:col-span-1">
           <label className="text-sm">{t("Last Name")}</label>
           <input
-            {...register("lastName", { required: t("Last name is required") })}
+            {...register("lastName", { 
+              setValueAs: (value: any) => value?.trim() || "",
+              required: t("Last name is required") 
+            })}
             className="input-primary"
             placeholder={t("Last Name")}
           />
@@ -876,6 +882,7 @@ const CreateUser: React.FC = () => {
           <input
             type="email"
             {...register("email", {
+              setValueAs: (value: any) => value?.trim()?.toLowerCase() || "",
               required: t("Email is required"),
               pattern: {
                 value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
@@ -898,6 +905,7 @@ const CreateUser: React.FC = () => {
           <input
             type="tel"
             {...register("phoneNumber", {
+              setValueAs: (value: any) => value?.trim() || "",
               required: t("Phone number is required"),
             })}
             className={`input-primary ${
@@ -936,6 +944,7 @@ const CreateUser: React.FC = () => {
             </label>
             <input
               {...register("agentCode", { 
+                setValueAs: (value: any) => value?.trim() || "",
                 required: t("Agent code is required"),
                 onChange: () => setLastCheckedCode("")
               })}
@@ -992,7 +1001,10 @@ const CreateUser: React.FC = () => {
         <div className="flex flex-col col-span-3 sm:col-span-1">
           <label className="text-sm">{t("Company")}</label>
           <input
-            {...register("company", { required: t("Company name is required") })}
+            {...register("company", { 
+              setValueAs: (value: any) => value?.trim() || "",
+              required: t("Company name is required") 
+            })}
             className="input-primary"
             placeholder={t("Company")}
           />
@@ -1221,6 +1233,7 @@ const CreateUser: React.FC = () => {
               type={passwordVisible ? "text" : "password"}
               placeholder={t("New Password")}
               {...register("password", {
+                setValueAs: (value: any) => value?.trim() || "",
                 required: t("Password is required"),
                 minLength: { value: 6, message: t("Minimum length is 6") },
               })}
@@ -1246,6 +1259,7 @@ const CreateUser: React.FC = () => {
             <input
               type={confirmPasswordVisible ? "text" : "password"}
               {...register("confirmPassword", {
+                setValueAs: (value: any) => value?.trim() || "",
                 required: t("Please confirm password"),
                 validate: (value) =>
                   value === watch("password") || t("Passwords do not match"),

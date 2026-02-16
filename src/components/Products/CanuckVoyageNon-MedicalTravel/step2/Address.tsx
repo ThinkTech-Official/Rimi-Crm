@@ -356,6 +356,7 @@ export default function Address({ methods }: AddressProps) {
             className="input-primary"
             placeholder={t("Address Line 1")}
             {...register("address.addressLine1", {
+              setValueAs: (value) => value?.trim() || "",
               required: t("Address Line 1 is required"),
               maxLength: {
                 value: 100,
@@ -378,6 +379,7 @@ export default function Address({ methods }: AddressProps) {
             className="input-primary"
             placeholder={t("Address Line 2")}
             {...register("address.addressLine2", {
+              setValueAs: (value) => value?.trim() || "",
               maxLength: {
                 value: 100,
                 message: t("Address Line 2 cannot exceed 100 characters"),
@@ -394,6 +396,7 @@ export default function Address({ methods }: AddressProps) {
             className="input-primary"
             placeholder={t("City")}
             {...register("address.city", {
+              setValueAs: (value) => value?.trim() || "",
               required: t("City is required"),
             })}
           />
@@ -412,6 +415,7 @@ export default function Address({ methods }: AddressProps) {
             className="input-primary"
             placeholder={t("Postal Code")}
             {...register("address.postalCode", {
+              setValueAs: (value) => value?.trim() || "",
               required: t("Postal Code is required"),
               maxLength: {
                 value: 20,
@@ -465,6 +469,7 @@ export default function Address({ methods }: AddressProps) {
             className="input-primary"
             placeholder={t("Province/State")}
             {...register("address.province", {
+              setValueAs: (value) => value?.trim() || "",
               required: t("Province/State is required"),
               maxLength: {
                 value: 60,

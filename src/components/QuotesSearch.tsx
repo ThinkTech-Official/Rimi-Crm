@@ -462,7 +462,7 @@ const QuotesSearch: React.FC = () => {
             </label>
             <input
               {...register("quoteNumber", {
-                setValueAs: (value) => value.trim(),
+                setValueAs: (value) => value?.trim() || "",
               })}
               type="text"
               className="input-primary"
@@ -475,7 +475,7 @@ const QuotesSearch: React.FC = () => {
             </label>
             <input
               {...register("quoteDate", {
-                setValueAs: (value) => value.trim(),
+                setValueAs: (value) => value?.trim() || "",
               })}
               className="input-primary"
               type="date"
@@ -487,7 +487,7 @@ const QuotesSearch: React.FC = () => {
             </label>
             <input
               {...register("firstName", {
-                setValueAs: (value) => value.trim(),
+                setValueAs: (value) => value?.trim() || "",
               })}
               className="input-primary"
               placeholder="Enter First Name"
@@ -499,7 +499,7 @@ const QuotesSearch: React.FC = () => {
             </label>
             <input
               {...register("lastName", {
-                setValueAs: (value) => value.trim(),
+                setValueAs: (value) => value?.trim() || "",
               })}
               className="input-primary"
               placeholder="Enter Last Name"
@@ -519,7 +519,7 @@ const QuotesSearch: React.FC = () => {
             <label className="text-sm 2xl:text-base">{t("Email")}</label>
             <input
               {...register("email", {
-                setValueAs: (value) => value.trim().toLowerCase(),
+                setValueAs: (value) => value?.trim()?.toLowerCase() || "",
                 pattern: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
               })}
               className="input-primary"
@@ -553,7 +553,7 @@ const QuotesSearch: React.FC = () => {
               </label>
               <input
                 {...register("agent", {
-                  setValueAs: (value) => value.trim(),
+                  setValueAs: (value) => value?.trim() || "",
                 })}
                 className="input-primary"
                 placeholder="Agent Code"
@@ -667,43 +667,23 @@ const QuotesSearch: React.FC = () => {
                     className="text-[#808080] text-sm 2xl:text-base"
                   >
                     <td
-                      className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
-                      style={{
-                        borderWidth: "0px 1px 1px 0px",
-                        borderStyle: "solid",
-                        borderColor: "#AAA9A9",
-                      }}
+                      className="px-2 sm:px-3 py-2 whitespace-nowrap border-r border-b border-[#AAA9A9]"
                     >
                       {u.quoteNumber}
                     </td>
 
                     <td
-                      className="px-2 sm:px-6 py-2 sm:py-4 max-w-[250px] break-words"
-                      style={{
-                        borderWidth: "0px 1px 1px 0px",
-                        borderStyle: "solid",
-                        borderColor: "#AAA9A9",
-                      }}
+                      className="px-2 sm:px-3 py-2 whitespace-nowrap border-r border-b border-[#AAA9A9] max-w-[250px] break-words"
                     >
                       {u.firstName + " " + u.lastName}
                     </td>
                     <td
-                      className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
-                      style={{
-                        borderWidth: "0px 1px 1px 0px",
-                        borderStyle: "solid",
-                        borderColor: "#AAA9A9",
-                      }}
+                      className="px-2 sm:px-3 py-2 whitespace-nowrap border-r border-b border-[#AAA9A9]"
                     >
                       {t(u.status)}
                     </td>
                     {/* <td
-                      className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
-                      style={{
-                        borderWidth: "0px 1px 1px 0px",
-                        borderStyle: "solid",
-                        borderColor: "#AAA9A9",
-                      }}
+                      className="px-2 sm:px-3 py-2 whitespace-nowrap border-r border-b border-[#AAA9A9]"
                     >
                       {u.dateOfBirth
                         ? new Date(u.dateOfBirth).toLocaleDateString(
@@ -713,12 +693,7 @@ const QuotesSearch: React.FC = () => {
                         : "-"}
                     </td> */}
                     <td
-                      className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
-                      style={{
-                        borderWidth: "0px 1px 1px 0px",
-                        borderStyle: "solid",
-                        borderColor: "#AAA9A9",
-                      }}
+                      className="px-2 sm:px-3 py-2 whitespace-nowrap border-r border-b border-[#AAA9A9]"
                     >
                       {u.dateIssued
                         ? new Date(u.dateIssued).toLocaleDateString(
@@ -728,22 +703,12 @@ const QuotesSearch: React.FC = () => {
                         : "-"}
                     </td>
                     <td
-                      className="px-2 sm:px-6 py-2 sm:py-4 capitalize text-nowrap"
-                      style={{
-                        borderWidth: "0px 1px 1px 0px",
-                        borderStyle: "solid",
-                        borderColor: "#AAA9A9",
-                      }}
+                      className="px-2 sm:px-3 py-2 whitespace-nowrap capitalize border-r border-b border-[#AAA9A9]"
                     >
                       {u.product.split("_").join(" ").toLowerCase()}
                     </td>
                     <td
-                      className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
-                      style={{
-                        borderWidth: "0px 1px 1px 0px",
-                        borderStyle: "solid",
-                        borderColor: "#AAA9A9",
-                      }}
+                      className="px-2 sm:px-3 py-2 whitespace-nowrap border-r border-b border-[#AAA9A9]"
                     >
                       <Link
                         // onClick={() => navigate(``)}

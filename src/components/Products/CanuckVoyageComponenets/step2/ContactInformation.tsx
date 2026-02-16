@@ -98,7 +98,11 @@ export default function ContactInformation({
           <label className="text-sm">{t("Email Address")}</label>
           <p className="input-primary break-words h-auto">{email}</p>
           {/* Hidden field to register email with form */}
-          <input type="hidden" {...register("contactInfo.email")} value={email || ""} />
+          <input
+            type="hidden"
+            {...register("contactInfo.email")}
+            value={email || ""}
+          />
         </div>
 
         <div className="col-span-2 sm:col-span-1 flex flex-col">
@@ -114,14 +118,24 @@ export default function ContactInformation({
             className="input-primary break-words h-auto"
             type="email"
             placeholder={t("Additional Email Address")}
-            {...register("contactInfo.additionalEmail")}
+            {...register("contactInfo.additionalEmail", {
+              setValueAs: (value) => value?.trim()?.toLowerCase() || "",
+            })}
           />
         </div>
 
         {displayInfoAddEmail && (
           <div className="col-span-2 flex flex-col items-start mt-2 mb-4 border border-inputBorder shadow-sm p-4 font-[inter] text-sm text-[#4B4B4B] bg-white">
-            <p>{t("Enter up to 5 email addresses, separated with a semicolon \";\"")}</p>
-            <p>{t("Example: parent@email.com; school@email.com; agent@email.com")}</p>
+            <p>
+              {t(
+                'Enter up to 5 email addresses, separated with a semicolon ";"',
+              )}
+            </p>
+            <p>
+              {t(
+                "Example: parent@email.com; school@email.com; agent@email.com",
+              )}
+            </p>
           </div>
         )}
 
@@ -132,6 +146,7 @@ export default function ContactInformation({
             type="tel"
             placeholder={t("Phone Number")}
             {...register("contactInfo.phoneNumber", {
+              setValueAs: (value) => value?.trim() || "",
               required: t("Phone number is required"),
               pattern: {
                 value: /^[0-9]*$/,

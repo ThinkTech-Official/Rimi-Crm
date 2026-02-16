@@ -85,13 +85,13 @@ const Users: React.FC = () => {
               <input
                 type={type || "text"}
                 {...register(key as keyof SearchCriteria, {
-                  setValueAs: (value) => value.trim(),
+                  setValueAs: (value) => value?.trim() || "",
                   ...(key === "email" && {
                     pattern: {
                       value: /^\S+@\S+\.\S+$/,
                       message: t("Invalid email format"),
                     },
-                    setValueAs: (value) => value.trim().toLowerCase(),
+                    setValueAs: (value) => value?.trim()?.toLowerCase() || "",
                   }),
                 })}
                 className="input-primary"

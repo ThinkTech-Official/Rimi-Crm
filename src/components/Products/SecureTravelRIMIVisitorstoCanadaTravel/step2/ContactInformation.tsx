@@ -45,7 +45,9 @@ const ContactInformation: FC<ContactInfoProps> = ({ methods, email }) => {
             className="input-primary break-words h-auto"
             type="text"
             placeholder={t("Additional Email Address")}
-            {...register("contactInfo.additionalEmail")}
+            {...register("contactInfo.additionalEmail", {
+              setValueAs: (value: any) => value?.trim()?.toLowerCase() || "",
+            })}
           />
           {(errors.contactInfo as any)?.additionalEmail && (
             <p className="text-red-500 text-sm mt-1">
@@ -74,6 +76,7 @@ const ContactInformation: FC<ContactInfoProps> = ({ methods, email }) => {
             type="text"
             placeholder={t("Phone Number")}
             {...register("contactInfo.phoneNumber", {
+              setValueAs: (value: any) => value?.trim() || "",
               required: t("Phone Number is required"),
               minLength: { value: 10, message: t("Min 10 digits") },
               maxLength: { value: 15, message: t("Max 15 digits") },

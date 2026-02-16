@@ -120,7 +120,9 @@ export default function ContactInformation({
             className="input-primary break-words h-auto"
             type="email"
             placeholder={t("Additional Email Address")}
-            {...register("contactInfo.additionalEmail")}
+            {...register("contactInfo.additionalEmail", {
+              setValueAs: (value) => value?.trim()?.toLowerCase() || "",
+            })}
           />
         </div>
 
@@ -147,6 +149,7 @@ export default function ContactInformation({
             type="tel"
             placeholder={t("Phone Number")}
             {...register("contactInfo.phoneNumber", {
+              setValueAs: (value) => value?.trim() || "",
               required: t("Phone number is required"),
               pattern: {
                 value: /^[0-9]*$/,

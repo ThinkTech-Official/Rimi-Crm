@@ -118,7 +118,10 @@ const TripCalculator: React.FC = () => {
             <input
               type="date"
               className="input-primary"
-              {...register("startDate", { required: t("Start Date is required") })}
+              {...register("startDate", { 
+                setValueAs: (value: any) => value?.trim() || "",
+                required: t("Start Date is required") 
+              })}
             />
             {errors.startDate && (
               <p className="text-red-500 text-sm">{errors.startDate.message}</p>
@@ -134,7 +137,10 @@ const TripCalculator: React.FC = () => {
               <input
                 type="date"
                 className="input-primary"
-                {...register("endDate", { required: t("End Date is required") })}
+                {...register("endDate", { 
+                  setValueAs: (value: any) => value?.trim() || "",
+                  required: t("End Date is required") 
+                })}
               />
               {errors.endDate && (
                 <p className="text-red-500 text-sm">{errors.endDate.message}</p>
@@ -164,7 +170,9 @@ const TripCalculator: React.FC = () => {
                     type="number"
                     placeholder="0"
                     className="input-primary"
-                    {...register(field as keyof TripCalculatorFormInputs)}
+                    {...register(field as keyof TripCalculatorFormInputs, {
+                      setValueAs: (value: any) => value?.trim() || "",
+                    })}
                   />
                 </div>
               ))}
@@ -182,7 +190,9 @@ const TripCalculator: React.FC = () => {
               type="number"
               placeholder="0"
               className="input-primary"
-              {...register("daysInput")}
+              {...register("daysInput", {
+                setValueAs: (value: any) => value?.trim() || "",
+              })}
             />
           </div>
         )}

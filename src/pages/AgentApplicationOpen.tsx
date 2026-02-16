@@ -254,6 +254,7 @@ const AgentApplicationOpen: React.FC = () => {
                       <input
                         type="text"
                         {...register("firstName", {
+                          setValueAs: (value: any) => value?.trim() || "",
                           required: t("First name is required"),
                         })}
                         className={`input-primary ${
@@ -276,6 +277,7 @@ const AgentApplicationOpen: React.FC = () => {
                       <input
                         type="text"
                         {...register("lastName", {
+                          setValueAs: (value: any) => value?.trim() || "",
                           required: t("Last name is required"),
                         })}
                         className={`input-primary ${
@@ -298,6 +300,7 @@ const AgentApplicationOpen: React.FC = () => {
                       <input
                         type="email"
                         {...register("email", {
+                          setValueAs: (value: any) => value?.trim()?.toLowerCase() || "",
                           required: t("Email is required"),
                           pattern: {
                             value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
@@ -325,6 +328,7 @@ const AgentApplicationOpen: React.FC = () => {
                       <input
                         type="tel"
                         {...register("phoneNumber", {
+                          setValueAs: (value: any) => value?.trim() || "",
                           required: t("Phone number is required"),
                           pattern: {
                             value:
@@ -354,6 +358,7 @@ const AgentApplicationOpen: React.FC = () => {
                         <input
                           type="text"
                           {...register("wfgCode", {
+                            setValueAs: (value: any) => value?.trim() || "",
                             required: showWfgCodeField
                               ? t("WFG Code is required")
                               : false,
@@ -387,6 +392,7 @@ const AgentApplicationOpen: React.FC = () => {
                         <input
                           type="text"
                           {...register("company", {
+                            setValueAs: (value: any) => value?.trim() || "",
                             required:
                               applicantType === "under_mga"
                                 ? t("Company name is required")
@@ -414,6 +420,7 @@ const AgentApplicationOpen: React.FC = () => {
                         <input
                           type={passwordVisible ? "text" : "password"}
                           {...register("password", {
+                            setValueAs: (value: any) => value?.trim() || "",
                             required: t("Password is required"),
                             minLength: {
                               value: 6,
@@ -453,6 +460,7 @@ const AgentApplicationOpen: React.FC = () => {
                         <input
                           type={confirmPasswordVisible ? "text" : "password"}
                           {...register("confirmPassword", {
+                            setValueAs: (value: any) => value?.trim() || "",
                             required: t("Please confirm password"),
                             validate: (value) =>
                               value === password || t("Passwords do not match"),

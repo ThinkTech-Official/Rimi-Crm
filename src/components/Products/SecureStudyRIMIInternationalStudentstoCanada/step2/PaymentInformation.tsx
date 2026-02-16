@@ -1,11 +1,7 @@
-import {
-  CardElement,
-  useStripe,
-  useElements,
-} from '@stripe/react-stripe-js';
-import { FormEvent, useState } from 'react';
-import { useCreatePaymentIntent } from '../../../../hooks/useCreatePaymentIntent';
-import { useLanguage } from '../../../../context/LanguageContext';
+import { CardElement, useStripe, useElements } from "@stripe/react-stripe-js";
+import { FormEvent, useState } from "react";
+import { useCreatePaymentIntent } from "../../../../hooks/useCreatePaymentIntent";
+import { useLanguage } from "../../../../context/LanguageContext";
 
 export interface Shipping {
   addressLine1: string;
@@ -28,7 +24,7 @@ interface PaymentInformationProps {
 }
 
 // TODO: Replace with actual customer ID from your system
-const stripeCustomerId = 'cus_85525845666';
+const stripeCustomerId = "cus_85525845666";
 
 export default function PaymentInformation({
   quoteNumber,
@@ -43,24 +39,27 @@ export default function PaymentInformation({
   const stripe = useStripe();
   const elements = useElements();
 
-  const [cardholderName, setCardholderName] = useState('');
+  const [cardholderName, setCardholderName] = useState("");
   const [stripeError, setStripeError] = useState<string | null>(null);
 
   // Product 2 is lump-sum only, so no monthly installments
   const paymentOption = "lump-sum";
 
-  const { createPaymentIntent, loading: intentLoading, error: intentError } =
-    useCreatePaymentIntent(
-      stripeCustomerId,
-      quoteNumber,
-      description,
-      cardholderName,
-      shipping,
-      paymentOption,
-      undefined, // monthlyAmount - N/A for lump-sum
-      undefined, // remainingInstallments - N/A for lump-sum
-      undefined  // stripeProductId - N/A for lump-sum
-    );
+  const {
+    createPaymentIntent,
+    loading: intentLoading,
+    error: intentError,
+  } = useCreatePaymentIntent(
+    stripeCustomerId,
+    quoteNumber,
+    description,
+    cardholderName,
+    shipping,
+    paymentOption,
+    undefined, // monthlyAmount - N/A for lump-sum
+    undefined, // remainingInstallments - N/A for lump-sum
+    undefined, // stripeProductId - N/A for lump-sum
+  );
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -75,13 +74,13 @@ export default function PaymentInformation({
 
       // 1️⃣ Create PaymentIntent on backend
       const clientSecret = await createPaymentIntent(
-        Math.round(amount * 100) // Convert to cents
+        Math.round(amount * 100), // Convert to cents
       );
 
       // 2️⃣ Grab the mounted CardElement
       const cardElement = elements.getElement(CardElement);
       if (!cardElement) {
-        setStripeError(t('Card input not ready'));
+        setStripeError(t("Card input not ready"));
         return;
       }
 
@@ -95,12 +94,12 @@ export default function PaymentInformation({
               name: cardholderName,
             },
           },
-        }
+        },
       );
 
       if (error) {
         setStripeError(error.message!);
-      } else if (paymentIntent?.status === 'succeeded') {
+      } else if (paymentIntent?.status === "succeeded") {
         onPaymentSuccess();
       }
     } catch (err: any) {
@@ -146,14 +145,15 @@ export default function PaymentInformation({
           id="cardholder-name"
           type="text"
           value={cardholderName}
-          onChange={(e) => setCardholderName(e.target.value)}
+          onChange={(e) => setCardholderName(e.target.value.trimStart())}
+          onBlur={(e) => setCardholderName(e.target.value.trim())}
           required
           className="input-primary"
         />
       </div>
 
       {/* 3. The Stripe CardElement */}
-     <div>
+      <div>
         <label className="block text-sm font-medium text-gray-700">
           {t("Card Details")}
         </label>
@@ -162,11 +162,11 @@ export default function PaymentInformation({
             options={{
               style: {
                 base: {
-                  fontSize: '16px',
-                  color: '#32325d',
-                  '::placeholder': { color: '#a0aec0' },
+                  fontSize: "16px",
+                  color: "#32325d",
+                  "::placeholder": { color: "#a0aec0" },
                 },
-                invalid: { color: '#e53e3e' },
+                invalid: { color: "#e53e3e" },
               },
             }}
           />
@@ -183,11 +183,11 @@ export default function PaymentInformation({
         disabled={!stripe || intentLoading || submittingStage2}
         className={`
           btn-primary w-full
-          ${intentLoading || submittingStage2 ? 'opacity-50 cursor-wait' : 'hover:bg-indigo-700'}
+          ${intentLoading || submittingStage2 ? "opacity-50 cursor-wait" : "hover:bg-indigo-700"}
         `}
       >
         {intentLoading || submittingStage2
-          ? t('Processing…')
+          ? t("Processing…")
           : `${t("Pay")} $${amount.toFixed(2)}`}
       </button>
     </form>

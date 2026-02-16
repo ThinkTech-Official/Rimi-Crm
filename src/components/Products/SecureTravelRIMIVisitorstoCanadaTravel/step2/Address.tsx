@@ -41,6 +41,7 @@ const Address: FC<AddressProps> = ({ methods }) => {
             className="input-primary"
             placeholder={t("Address Line 1")}
             {...register("address.addressLine1", {
+              setValueAs: (value: any) => value?.trim() || "",
               required: t("Address Line 1 is required"),
               maxLength: { value: 100, message: t("Max 100 characters") },
             })}
@@ -59,6 +60,7 @@ const Address: FC<AddressProps> = ({ methods }) => {
             className="input-primary"
             placeholder={t("Address Line 2")}
             {...register("address.addressLine2", {
+              setValueAs: (value: any) => value?.trim() || "",
               maxLength: { value: 100, message: t("Max 100 characters") },
             })}
           />
@@ -71,6 +73,7 @@ const Address: FC<AddressProps> = ({ methods }) => {
             className="input-primary"
             placeholder={t("City")}
             {...register("address.city", {
+              setValueAs: (value: any) => value?.trim() || "",
               required: t("City is required"),
               maxLength: { value: 60, message: t("Max 60 characters") },
             })}
@@ -89,6 +92,7 @@ const Address: FC<AddressProps> = ({ methods }) => {
             className="input-primary"
             placeholder={t("Postal Code")}
             {...register("address.postalCode", {
+              setValueAs: (value: any) => value?.trim() || "",
               required: t("Postal Code is required"),
               maxLength: { value: 20, message: t("Max 20 characters") },
             })}
@@ -103,7 +107,9 @@ const Address: FC<AddressProps> = ({ methods }) => {
           <Dropdown
             label={t("Country")}
             options={Countries}
-            {...register("address.country", { required: t("Country is required") })}
+            {...register("address.country", {
+              required: t("Country is required"),
+            })}
           />
           {(errors.address as any)?.country && (
             <p className="text-red-500 text-sm mt-1">
@@ -119,6 +125,7 @@ const Address: FC<AddressProps> = ({ methods }) => {
             className="input-primary"
             placeholder={t("Province/State")}
             {...register("address.province", {
+              setValueAs: (value: any) => value?.trim() || "",
               required: t("Province is required"),
               maxLength: { value: 60, message: t("Max 60 characters") },
             })}

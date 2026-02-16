@@ -584,6 +584,7 @@ const Step1STRVCT = ({
                 type="text"
                 placeholder={t("Enter First Name")}
                 {...register("primaryFirstName", {
+                  setValueAs: (value) => value?.trim() || "",
                   required: t("First Name is required"),
                   maxLength: { value: 60, message: t("Max 60 characters") },
                 })}
@@ -601,6 +602,7 @@ const Step1STRVCT = ({
                 type="text"
                 placeholder={t("Enter Last Name")}
                 {...register("primaryLastName", {
+                  setValueAs: (value) => value?.trim() || "",
                   required: t("Last Name is required"),
                   maxLength: { value: 60, message: t("Max 60 characters") },
                 })}
@@ -642,6 +644,7 @@ const Step1STRVCT = ({
                 type="email"
                 placeholder={t("Enter Email")}
                 {...register("primaryEmail", {
+                  setValueAs: (value) => value?.trim()?.toLowerCase() || "",
                   required: t("Email is required"),
                   maxLength: { value: 100, message: t("Max 100 characters") },
                   pattern: {
@@ -806,6 +809,7 @@ const Step1STRVCT = ({
                       type="text"
                       placeholder={t("Enter First Name")}
                       {...register(`applicants.${idx}.firstName`, {
+                        setValueAs: (value: any) => value?.trim() || "",
                         required: t("First Name is required"),
                         maxLength: { value: 60, message: t("Max 60 characters") },
                       })}
@@ -823,6 +827,7 @@ const Step1STRVCT = ({
                       type="text"
                       placeholder={t("Enter Last Name")}
                       {...register(`applicants.${idx}.lastName`, {
+                        setValueAs: (value: any) => value?.trim() || "",
                         required: t("Last Name is required"),
                         maxLength: { value: 60, message: t("Max 60 characters") },
                       })}
@@ -869,6 +874,7 @@ const Step1STRVCT = ({
                       type="email"
                       placeholder={t("Enter Email")}
                       {...register(`applicants.${idx}.email`, {
+                        setValueAs: (value: any) => value?.trim()?.toLowerCase() || "",
                         required: t("Email is required"),
                         pattern: {
                           value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,

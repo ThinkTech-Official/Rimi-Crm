@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 // import { LangContext } from "../context/LangContext";
 import { useLanguage } from "../context/LanguageContext";
 import {
@@ -181,6 +181,7 @@ const allProducts = [
             <input
               type="email"
               {...register("email", {
+                setValueAs: (value) => value?.trim()?.toLowerCase() || "",
                 pattern: {
                   value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
                   message: t("Invalid email address"),
@@ -241,7 +242,9 @@ const allProducts = [
           <div className="flex flex-col">
             <label className="text-sm 2xl:text-base">{t("Agent Code")}</label>
             <input
-              {...register("agent")}
+              {...register("agent",{
+                setValueAs: (value) => value.trim(),
+              })}
               className="input-primary"
               placeholder={t("Agent Code")}
             />

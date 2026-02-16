@@ -17,19 +17,7 @@
 //   );
 // }
 
-
-
-
-
-
-
-
-
-
-
 // ================================================
-
-
 
 import { CardElement, useStripe, useElements } from "@stripe/react-stripe-js";
 import { FormEvent, useState } from "react";
@@ -73,7 +61,6 @@ export default function PaymentInformation({
   description,
   shipping,
   submittingStage2,
-  contactInfo,
   triggerNotification,
 }: Props) {
   const { t } = useLanguage();
@@ -83,18 +70,21 @@ export default function PaymentInformation({
   const [cardholderName, setCardholderName] = useState("");
   const [stripeError, setStripeError] = useState<string | null>(null);
 
-  const { createPaymentIntent, loading: intentLoading, error: intentError } =
-    useCreatePaymentIntent(
-      stripeCustomerId,
-      quoteNumber!,
-      description,
-      cardholderName,
-      shipping,
-      "lump-sum", // Product 3 is lump-sum only
-      undefined,
-      undefined,
-      undefined
-    );
+  const {
+    createPaymentIntent,
+    loading: intentLoading,
+    error: intentError,
+  } = useCreatePaymentIntent(
+    stripeCustomerId,
+    quoteNumber!,
+    description,
+    cardholderName,
+    shipping,
+    "lump-sum", // Product 3 is lump-sum only
+    undefined,
+    undefined,
+    undefined,
+  );
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -116,7 +106,10 @@ export default function PaymentInformation({
       const cardElement = elements.getElement(CardElement);
       if (!cardElement) {
         setStripeError(t("Card input not ready"));
-        triggerNotification({ message: t("Card input not ready"), type: "error" });
+        triggerNotification({
+          message: t("Card input not ready"),
+          type: "error",
+        });
         return;
       }
 
@@ -128,7 +121,7 @@ export default function PaymentInformation({
             card: cardElement,
             billing_details: { name: cardholderName },
           },
-        }
+        },
       );
 
       if (error) {
@@ -149,7 +142,6 @@ export default function PaymentInformation({
       onSubmit={handleSubmit}
       className="bg-greyBg p-3 sm:p-6 space-y-6 mt-6"
     >
-
       <h3 className="text-lg font-bold text-left text-[#1B1B1B]">
         {t("Payment Information")}
       </h3>
@@ -182,7 +174,8 @@ export default function PaymentInformation({
           id="cardholder-name"
           type="text"
           value={cardholderName}
-          onChange={(e) => setCardholderName(e.target.value)}
+          onChange={(e) => setCardholderName(e.target.value.trimStart())}
+          onBlur={(e) => setCardholderName(e.target.value.trim())}
           required
           className="input-primary"
         />
@@ -229,7 +222,6 @@ export default function PaymentInformation({
         {intentLoading || submittingStage2
           ? t("Processing…")
           : `${t("Pay")} $${amount.toFixed(2)} ${t("CAD")}`}
-      
       </button>
     </form>
   );

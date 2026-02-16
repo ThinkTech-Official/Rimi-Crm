@@ -310,10 +310,8 @@
 
 // ================================================
 
-import { ChevronDownIcon } from "@heroicons/react/24/outline";
 import { Controller, UseFormReturn } from "react-hook-form";
 import { StudentsToCanadaCountries } from "../../SecureTravelRIMIVisitorstoCanadaTravel/step1/Constants";
-import { useEffect } from "react";
 import Dropdown from "../../../DropDown";
 import { useLanguage } from "../../../../context/LanguageContext";
 
@@ -355,6 +353,7 @@ export default function Address({ methods }: AddressProps) {
             className="input-primary"
             placeholder={t("Address Line 1")}
             {...register("address.addressLine1", {
+              setValueAs: (value) => value?.trim() || "",
               required: t("Address Line 1 is required"),
               maxLength: {
                 value: 100,
@@ -377,6 +376,7 @@ export default function Address({ methods }: AddressProps) {
             className="input-primary"
             placeholder={t("Address Line 2")}
             {...register("address.addressLine2", {
+              setValueAs: (value) => value?.trim() || "",
               required: t("Address Line 2 is required"),
               maxLength: {
                 value: 100,
@@ -399,6 +399,7 @@ export default function Address({ methods }: AddressProps) {
             className="input-primary"
             placeholder={t("City")}
             {...register("address.city", {
+              setValueAs: (value) => value?.trim() || "",
               required: t("City is required"),
               maxLength: {
                 value: 60,
@@ -421,6 +422,7 @@ export default function Address({ methods }: AddressProps) {
             className="input-primary"
             placeholder={t("Postal Code")}
             {...register("address.postalCode", {
+              setValueAs: (value) => value?.trim() || "",
               required: t("Postal Code is required"),
               maxLength: {
                 value: 20,
@@ -472,6 +474,7 @@ export default function Address({ methods }: AddressProps) {
             className="input-primary"
             placeholder={t("Province/State")}
             {...register("address.province", {
+              setValueAs: (value) => value?.trim() || "",
               required: t("Province/State is required"),
               maxLength: {
                 value: 60,

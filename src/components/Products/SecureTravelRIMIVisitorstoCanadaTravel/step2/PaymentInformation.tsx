@@ -163,7 +163,8 @@ export default function PaymentInformation({
           id="cardholder-name"
           type="text"
           value={cardholderName}
-          onChange={(e) => setCardholderName(e.target.value)}
+          onChange={(e) => setCardholderName(e.target.value.trimStart())}
+          onBlur={(e) => setCardholderName(e.target.value.trim())}
           required
           className="input-primary"
         />
