@@ -117,10 +117,8 @@ export function useSearchQuotes(defaultLimit: number = 10) {
       const payload: SearchCriteria = { ...criteria, page, limit };
       const response = await fetch(`${baseUrl}/quotes/search`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
+        headers: {'Content-Type': 'application/json'},
+        credentials: 'include',
         body: JSON.stringify(payload),
       });
 
