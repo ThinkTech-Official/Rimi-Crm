@@ -77,7 +77,6 @@
 
 // =========================
 
-// src/hooks/useSearchUsers.ts
 import { useState, useCallback } from "react";
 import { useSelector } from "react-redux";
 import { API_BASE } from "../utils/urls";
@@ -148,10 +147,8 @@ export function useSearchUsers(): UseSearchUsersResult {
       try {
         const res = await fetch(`${API_BASE}/auth/users`, {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { "Content-Type": "application/json" },
+          credentials: 'include', 
           body: JSON.stringify(criteria),
         });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -197,3 +194,6 @@ export function useSearchUsers(): UseSearchUsersResult {
     search,
   };
 }
+
+
+// ==================================
