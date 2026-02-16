@@ -49,7 +49,12 @@ const TripCalculator: React.FC = () => {
       const end = new Date(endDate);
       const diffTime = end.getTime() - start.getTime();
       const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
-      setResult(`${diffDays} ${t("Days")}`);
+      
+      if (diffDays <= 0) {
+        setResult(t("End date must be after start date"));
+      } else {
+        setResult(`${diffDays} ${t("Days")}`);
+      }
     } else if (calculationType === "newDate" && startDate) {
       let newDate = new Date(startDate);
       const op = operation === "subtract" ? -1 : 1;

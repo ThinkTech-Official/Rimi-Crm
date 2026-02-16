@@ -426,6 +426,7 @@ const Step1STRVCT = ({
       deductible,
       primaryDateOfBirth,
       paymentOption,
+      applicants,
     ],
   );
 
