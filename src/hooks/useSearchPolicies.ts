@@ -82,3 +82,6 @@ export function useSearchPolicies(defaultLimit: number = 10) {
 
   return { search, loading, error, data };
 }
+
+
+
