@@ -159,7 +159,7 @@ export const QuoteDetailPage: React.FC = () => {
             <DetailItem label="Additional Email" value={quote.additionalEmail} />
             <DetailItem label="Legal Guardian" value={quote.legalGuardianName} />
             <DetailItem label="Beneficiary Name" value={quote.beneficiaryName} />
-            <DetailItem label="Beneficiary Relation" value={quote.relationshipToInsured} />
+            <DetailItem label="Beneficiary Relation" value={quote.beneficiaryRelation || quote.relationshipToInsured} />
             <DetailItem 
               label="Pre-existing Medical Coverage" 
               value={quote.coverageForPreMedCon || quote.preExMedCov} 

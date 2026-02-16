@@ -22,6 +22,7 @@ export interface QuoteApplicant {
   legalGuardianName?: string;
   beneficiaryName?: string;
   relationshipToInsured?: string;
+  beneficiaryRelation?: string;
   healthQuestionnaire?: {
     questions: Array<{
       question: string;
@@ -90,6 +91,7 @@ export interface QuoteDetail {
   legalGuardianName?: string;
   beneficiaryName?: string;
   relationshipToInsured?: string;
+  beneficiaryRelation?: string;
 
   agentCode: string;
   createdAt: string;
