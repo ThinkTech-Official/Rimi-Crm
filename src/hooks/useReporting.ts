@@ -84,6 +84,7 @@ export function useReporting() {
       const res = await fetch(`${API_BASE}/reporting`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify(payload),
       });
 
