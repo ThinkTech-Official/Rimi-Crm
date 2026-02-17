@@ -1,7 +1,5 @@
-import { useState } from 'react';
-import axios from 'axios';
-import { API_BASE } from '../../utils/urls';
-
+import { useState } from "react";
+import { axiosInstance } from "../../utils/axiosInstance";
 
 interface FileUpload {
   file: File;
@@ -19,17 +17,17 @@ export const useUploadDocuments = () => {
     try {
       const uploadPromises = files.map(async ({ file, category }) => {
         const formData = new FormData();
-        formData.append('file', file);
-        formData.append('category', category);
+        formData.append("file", file);
+        formData.append("category", category);
 
-        const response = await axios.post(
-          `${API_BASE}/documents/upload`,
+        const response = await axiosInstance.post(
+          `/documents/upload`,
           formData,
           {
             headers: {
-              'Content-Type': 'multipart/form-data',
+              "Content-Type": "multipart/form-data",
             },
-          }
+          },
         );
 
         return response.data;
@@ -38,8 +36,9 @@ export const useUploadDocuments = () => {
       const results = await Promise.all(uploadPromises);
       return results;
     } catch (err: any) {
-      console.error('Upload error:', err.response?.data || err.message);
-      const errorMessage = err.response?.data?.message || err.message || 'Upload failed';
+      console.error("Upload error:", err.response?.data || err.message);
+      const errorMessage =
+        err.response?.data?.message || err.message || "Upload failed";
       setError(errorMessage);
       throw err;
     } finally {

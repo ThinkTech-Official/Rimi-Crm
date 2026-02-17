@@ -74,12 +74,11 @@
 //   return { users, loading, error, search };
 // }
 
-
 // =========================
 
 import { useState, useCallback } from "react";
-import { useSelector } from "react-redux";
-import { API_BASE } from "../utils/urls";
+
+import { axiosInstance } from "../utils/axiosInstance";
 
 export interface User {
   id: string;
@@ -120,7 +119,7 @@ interface UseSearchUsersResult {
 }
 
 export function useSearchUsers(): UseSearchUsersResult {
-  const token = useSelector((state: any) => state.auth.token) as string | null;
+
 
   const [users, setUsers] = useState<User[] | null>(null);
   const [loading, setLoading] = useState(false);
@@ -136,24 +135,14 @@ export function useSearchUsers(): UseSearchUsersResult {
 
   const search = useCallback(
     async (criteria: SearchCriteria) => {
-      if (!token) {
-        setError("No auth token");
-        return;
-      }
 
       setLoading(true);
       setError(null);
 
       try {
-        const res = await fetch(`${API_BASE}/auth/users`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          credentials: 'include', 
-          body: JSON.stringify(criteria),
-        });
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const res = await axiosInstance.post("/auth/users", criteria);
 
-        const json = await res.json();
+        const json = res.data;
         // Destructure the full pagination payload
         const {
           data,
@@ -178,7 +167,7 @@ export function useSearchUsers(): UseSearchUsersResult {
         setLoading(false);
       }
     },
-    [token]
+    [],
   );
 
   return {
@@ -194,6 +183,5 @@ export function useSearchUsers(): UseSearchUsersResult {
     search,
   };
 }
-
 
 // ==================================

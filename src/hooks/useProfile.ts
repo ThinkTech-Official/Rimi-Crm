@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
-import { useSelector } from "react-redux";
 import { ProfileData } from "../utils/types";
-import { API_BASE } from "../utils/urls";
+import { axiosInstance } from "../utils/axiosInstance";
 
 interface UseProfileResult {
   profile: ProfileData | null;
@@ -11,38 +10,27 @@ interface UseProfileResult {
 }
 
 export function useProfile(): UseProfileResult {
-  const token = useSelector((state: any) => state.auth.token) as string | null;
+  // const token = useSelector((state: any) => state.auth.token) as string | null;
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!token) { setError("No auth token"); setLoading(false); return; }
+    // if (!token) { setError("No auth token"); setLoading(false); return; }
     setLoading(true);
-    fetch(`${API_BASE}/auth/profile`, {
-      credentials: "include",
-      headers: { "Authorization": `Bearer ${token}` }
-    })
-      .then(res => { if (!res.ok) throw new Error(`Status ${res.status}`); return res.json(); })
-      .then((data: ProfileData) =>{
-        setProfile(data)
-        console.log('fetching from server profile data', data)
-      } )
+    axiosInstance.get('/auth/profile')
+      .then(res => {
+        setProfile(res.data)
+        console.log('fetching from server profile data', res.data)
+      })
       .catch(err => setError(err.message))
       .finally(() => setLoading(false));
-  }, [token]);
+  }, []);
 
   const updateProfile = async (data: FormData): Promise<ProfileData> => {
-    if (!token) throw new Error("No auth token");
-    const res = await fetch(`${API_BASE}/auth/update`, {
-      method: "PUT",
-      credentials: "include",
-      headers: { "Authorization": `Bearer ${token}` },
-      body: data
-    });
-    if (!res.ok) throw new Error(`Status ${res.status}`);
-    const updated = await res.json();
-    console.log('from fetch data on update',updated.user)
+    const res = await axiosInstance.put('/auth/update', data);
+    const updated = res.data;
+    console.log('from fetch data on update', updated.user)
     setProfile(updated.user);
     return updated;
   };

@@ -193,7 +193,7 @@
 // =================================
 
 import { useState } from 'react';
-import { API_BASE } from '../../utils/urls'; // Assuming this provides the base API URL
+import { axiosInstance } from '../../utils/axiosInstance';
 
 // --- Interfaces for Request/Response/Data ---
 
@@ -290,22 +290,11 @@ export function usePolicyCancellation(policyId: string | null) {
         cancellationFee: cancellationFee.toString(),
       });
 
-      const response = await fetch(
-        `${API_BASE}/policies/${policyId}/refund-preview?${params.toString()}`,
-        {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        }
+      const response = await axiosInstance.get(
+        `/policies/${policyId}/refund-preview`,
+        { params }
       );
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message || 'Failed to fetch refund preview');
-      }
-
-      const data: RefundPreview = await response.json();
+      const data: RefundPreview = response.data;
       setPreview(data);
       return data;
     } catch (err: any) {
@@ -332,20 +321,8 @@ export function usePolicyCancellation(policyId: string | null) {
     setError(null);
 
     try {
-      const response = await fetch(`${API_BASE}/policies/${policyId}/cancel`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(request),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message || 'Failed to cancel policy');
-      }
-
-      const data: CancelPolicyResponse = await response.json();
+      const response = await axiosInstance.post(`/policies/${policyId}/cancel`, request);
+      const data: CancelPolicyResponse = response.data;
       return data;
     } catch (err: any) {
       const errorMsg = err.message || 'Error cancelling policy';
@@ -371,23 +348,8 @@ export function usePolicyCancellation(policyId: string | null) {
     setError(null);
 
     try {
-      const response = await fetch(
-        `${API_BASE}/policies/${policyId}/refund-admin-fee`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(request),
-        }
-      );
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message || 'Failed to refund admin fee');
-      }
-
-      const data: RefundAdminFeeResponse = await response.json();
+      const response = await axiosInstance.post(`/policies/${policyId}/refund-admin-fee`, request);
+      const data: RefundAdminFeeResponse = response.data;
       return data;
     } catch (err: any) {
       const errorMsg = err.message || 'Error refunding admin fee';
@@ -416,29 +378,16 @@ export function usePolicyCancellation(policyId: string | null) {
     setError(null);
 
     try {
-      const response = await fetch(
-        `${API_BASE}/policies/${policyId}/refund-policy-fee`,
+      const response = await axiosInstance.post(
+        `/policies/${policyId}/refund-policy-fee`,
         {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            paymentHistoryId,
-            notes,
-            processedBy,
-          }),
+          paymentHistoryId,
+          notes,
+          processedBy,
         }
       );
 
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message || 'Failed to refund policy fee');
-      }
-
-      // Assuming a simple response structure for this new endpoint
-      const data: RefundPolicyFeeResponse = await response.json(); 
-      return data;
+      const data: RefundPolicyFeeResponse = response.data;       return data;
     } catch (err: any) {
       const errorMsg = err.message || 'Error refunding policy fee';
       setError(errorMsg);

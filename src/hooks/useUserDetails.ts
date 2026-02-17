@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
-import { useSelector } from "react-redux";
-import { API_BASE } from "../utils/urls";
+
+import { axiosInstance } from "../utils/axiosInstance";
 import { UserFormData } from "../pages/UserDetails";
 
 interface UseUserDetailsResult {
@@ -9,14 +9,14 @@ interface UseUserDetailsResult {
   error: string | null;
   save: (
     formData: UserFormData,
-    files: { [key: string]: File | null }
+    files: { [key: string]: File | null },
   ) => Promise<void>;
   saving: boolean;
   saveError: string | null;
 }
 
 export function useUserDetails(id: string): UseUserDetailsResult {
-  const token = useSelector((state: any) => state.auth.token) as string | null;
+
   const [user, setUser] = useState<UserFormData | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -26,35 +26,21 @@ export function useUserDetails(id: string): UseUserDetailsResult {
   // Fetch user on mount or id change
   useEffect(() => {
     if (!id) return;
-    if (!token) {
-      setError("No auth token");
-      return;
-    }
+
     setLoading(true);
     setError(null);
 
-    fetch(`${API_BASE}/auth/users/${id}`, {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-    })
-      .then((res) => {
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        return res.json();
-      })
-      .then((data: UserFormData) => setUser(data))
+    axiosInstance
+      .get<UserFormData>(`/auth/users/${id}`)
+      .then((res) => setUser(res.data))
       .catch((err: any) => setError(err.message))
       .finally(() => setLoading(false));
-  }, [id, token]);
+  }, [id]);
 
   // Save (update) user
   const save = useCallback(
     async (formData: UserFormData, files: { [key: string]: File | null }) => {
-      if (!token) {
-        setSaveError("No auth token");
-        return;
-      }
+
       console.log("data", formData);
       setSaving(true);
       setSaveError(null);
@@ -62,7 +48,7 @@ export function useUserDetails(id: string): UseUserDetailsResult {
       const fd = new FormData();
       Object.entries(formData).forEach(([key, value]) => {
         fd.append(key, String(value));
-      })
+      });
       // Append form fields except metadata and passwords
       // Object.entries(formData).forEach(([key, value]) => {
       //   if (["createdAt", "updatedAt", "agentCodes", "password", "confirmPassword"].includes(key)) return;
@@ -73,21 +59,18 @@ export function useUserDetails(id: string): UseUserDetailsResult {
         if (file) fd.append("documents", file);
       });
       for (const [key, value] of fd.entries()) {
-  if (value instanceof File) {
-    console.log(`${key}: File(name=${value.name}, size=${value.size}, type=${value.type})`);
-  } else {
-    console.log(`${key}: ${value}`);
-  }
-}
+        if (value instanceof File) {
+          console.log(
+            `${key}: File(name=${value.name}, size=${value.size}, type=${value.type})`,
+          );
+        } else {
+          console.log(`${key}: ${value}`);
+        }
+      }
 
       try {
-        const res = await fetch(`${API_BASE}/auth/update-user/${id}`, {
-          method: "PUT",
-          headers: { Authorization: `Bearer ${token}` },
-          body: fd,
-        });
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const updated = await res.json();
+        const res = await axiosInstance.put(`/auth/update-user/${id}`, fd);
+        const updated = res.data;
         setUser(updated.user);
       } catch (err: any) {
         setSaveError(err.message);
@@ -96,11 +79,10 @@ export function useUserDetails(id: string): UseUserDetailsResult {
         setSaving(false);
       }
     },
-    [id, token]
+    [id],
   );
 
   return { user, loading, error, save, saving, saveError };
 }
-
 
 // ============================

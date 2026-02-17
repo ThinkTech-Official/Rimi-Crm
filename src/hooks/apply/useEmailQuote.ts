@@ -1,6 +1,5 @@
 import { useState } from 'react';
-import axios from 'axios';
-import { API_BASE } from '../../utils/urls';
+import { axiosInstance } from '../../utils/axiosInstance';
 
 
 
@@ -17,12 +16,9 @@ export const useEmailQuote = () => {
 
       console.log('Sending quote email for:', quoteNumber);
 
-      const response = await axios.post(
-        `${API_BASE}/quotes/send-quote-email`,
-        { quoteNumber },
-        {
-          withCredentials: true, 
-        }
+      const response = await axiosInstance.post(
+        `/quotes/send-quote-email`,
+        { quoteNumber }
       );
 
       console.log('Quote email sent:', response.data);

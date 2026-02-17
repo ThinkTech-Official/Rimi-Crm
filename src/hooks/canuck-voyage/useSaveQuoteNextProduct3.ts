@@ -94,8 +94,7 @@
 
 
 import { useState } from 'react';
-import { API_BASE } from '../../utils/urls';
-import { useSelector } from 'react-redux';
+import { axiosInstance } from '../../utils/axiosInstance';
 
 interface Applicant {
   index: string;
@@ -154,38 +153,20 @@ export function useSaveQuoteNextProduct3() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const token = useSelector((state: any) => state.auth.token) as string | null;
-
   const saveQuoteNext = async (payload: Stage1Payload): Promise<Stage1Response> => {
     setLoading(true);
     setError(null);
 
     try {
-      const endpoint = payload.quoteNumber
-        ? `${API_BASE}/quotes/product3/stage1/${payload.quoteNumber}`
-        : `${API_BASE}/quotes/product3/stage1`;
+      const url = payload.quoteNumber
+        ? `/quotes/product3/stage1/${payload.quoteNumber}`
+        : `/quotes/product3/stage1`;
 
-      const method = payload.quoteNumber ? 'PUT' : 'POST';
+      const method = payload.quoteNumber ? 'put' : 'post';
 
-      const response = await fetch(endpoint, {
-        method,
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        credentials: 'include', // ✅ Sends cookies (JWT)
-        body: JSON.stringify(payload),
-      });
+      const response = await axiosInstance[method]<Stage1Response>(url, payload);
 
-      if (!response.ok) {
-        // Handle HTTP errors
-        const errorData = await response.json().catch(() => ({
-          message: `HTTP error! status: ${response.status}`,
-        }));
-        throw new Error(errorData.message || 'Failed to save quote');
-      }
-
-      const data: Stage1Response = await response.json();
+      const data: Stage1Response = response.data;
       return data;
     } catch (err: any) {
       const message = err.message || 'Failed to save quote';

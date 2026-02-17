@@ -1,6 +1,5 @@
-import { useState } from 'react';
-import axios from 'axios';
-import { API_BASE } from '../../utils/urls';
+import { useState } from "react";
+import { axiosInstance } from "../../utils/axiosInstance";
 
 interface Applicant {
   firstName: string;
@@ -42,21 +41,22 @@ export function useCreateQuoteProduct3() {
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<SaveQuoteResponse | null>(null);
 
-  const saveQuote = async (payload: SaveQuotePayload): Promise<SaveQuoteResponse> => {
+  const saveQuote = async (
+    payload: SaveQuotePayload,
+  ): Promise<SaveQuoteResponse> => {
     setLoading(true);
     setError(null);
 
     try {
-      const response = await axios.post<SaveQuoteResponse>(
-        `${API_BASE}/quotes/product3/save`,
+      const response = await axiosInstance.post<SaveQuoteResponse>(
+        `/quotes/product3/save`,
         payload,
-        { withCredentials: true }
       );
 
       setResult(response.data);
       return response.data;
     } catch (err: any) {
-      const message = err.response?.data?.message || 'Failed to save quote';
+      const message = err.response?.data?.message || "Failed to save quote";
       setError(message);
       throw new Error(message);
     } finally {

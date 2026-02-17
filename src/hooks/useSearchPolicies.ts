@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { API_BASE } from '../utils/urls';
+import { axiosInstance } from '../utils/axiosInstance';
 
 export interface SearchPoliciesCriteria {
   firstName?: string;
@@ -43,7 +43,7 @@ export interface PaginatedPolicies<T> {
   totalPages: number;
 }
 
-const baseUrl = `${API_BASE}`;
+
 
 export function useSearchPolicies(defaultLimit: number = 10) {
   const [loading, setLoading] = useState(false);
@@ -60,21 +60,13 @@ export function useSearchPolicies(defaultLimit: number = 10) {
     // setData(null);
     try {
       const payload = { ...criteria, page, limit };
-      const res = await fetch(`${baseUrl}/policies/search`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify(payload),
-      });
-      if (!res.ok) {
-        const txt = await res.text();
-        throw new Error(txt || 'Search failed');
-      }
-      const result = (await res.json()) ;
+      const res = await axiosInstance.post('/policies/search', payload);
+
+      const result = res.data;
       setData(result);
       console.log('from use Search Policy',result)
     } catch (err: any) {
-      setError(err.message);
+      setError(err.response?.data?.message || err.message);
     } finally {
       setLoading(false);
     }

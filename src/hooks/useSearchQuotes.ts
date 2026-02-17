@@ -55,8 +55,7 @@
 
 
 import { useState } from 'react';
-import { useSelector } from 'react-redux';
-import { API_BASE } from '../utils/urls';
+import { axiosInstance } from '../utils/axiosInstance';
 
 // Extend the search criteria to include pagination
 export interface SearchCriteria {
@@ -89,7 +88,7 @@ export interface PaginatedQuotes<T> {
   totalPages: number;
 }
 
-const baseUrl = `${API_BASE}`;
+
 
 /**
  * Hook to search quotes with pagination
@@ -97,7 +96,6 @@ const baseUrl = `${API_BASE}`;
  */
 export function useSearchQuotes(defaultLimit: number = 10) {
 
-  const token = useSelector((state: any) => state.auth.token) as string | null;
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [data, setData] = useState<PaginatedQuotes<QuoteRecord> | null>(null);
@@ -115,23 +113,15 @@ export function useSearchQuotes(defaultLimit: number = 10) {
     // setData(null);
     try {
       const payload: SearchCriteria = { ...criteria, page, limit };
-      const response = await fetch(`${baseUrl}/quotes/search`, {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        credentials: 'include',
-        body: JSON.stringify(payload),
-      });
+      
+      const response = await axiosInstance.post('/quotes/search', payload);
 
-      if (!response.ok) {
-        const text = await response.text();
-        throw new Error(text || 'Search failed');
-      }
-
-      const result = (await response.json()) as PaginatedQuotes<QuoteRecord>;
-      setData(result);
-      console.log('From useSearch quotes',result)
+      setData(response.data);
+      console.log('From useSearch quotes', response.data);
     } catch (err: any) {
-      setError(err.message);
+      console.error('Search quotes error:', err);
+      const errorMessage = err.response?.data?.message || err.message || 'Search failed';
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }

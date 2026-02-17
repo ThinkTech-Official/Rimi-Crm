@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { API_BASE } from "../../utils/urls";
-import { useSelector } from "react-redux";
+import { axiosInstance } from "../../utils/axiosInstance";
+// import { useSelector } from "react-redux";
 
 interface ApplicantProduct2 {
   index: string;
@@ -38,7 +38,7 @@ export function useCreateQuoteProduct2() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const token = useSelector((state: any) => state.auth.token) as string | null;
+  // const token = useSelector((state: any) => state.auth.token) as string | null;
 
   const createQuote = async (
     payload: CreateQuotePayloadProduct2
@@ -49,24 +49,9 @@ export function useCreateQuoteProduct2() {
     try {
       console.log("💾 Saving Product 2 quote (Inactive status):", payload);
 
-      const response = await fetch(`${API_BASE}/quotes/product2/save`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        credentials: "include", // 🔑 Send JWT cookie
-        body: JSON.stringify(payload),
-      });
+      const response = await axiosInstance.post<CreateQuoteResponseProduct2>('/quotes/product2/save', payload);
 
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({
-          message: `HTTP error! status: ${response.status}`,
-        }));
-        throw new Error(errorData.message || "Failed to save quote");
-      }
-
-      const result: CreateQuoteResponseProduct2 = await response.json();
+      const result: CreateQuoteResponseProduct2 = response.data;
       console.log("✅ Product 2 quote saved successfully:", result.quote);
 
       return result;

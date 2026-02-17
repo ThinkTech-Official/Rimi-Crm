@@ -1,12 +1,10 @@
-import { useState } from 'react';
-import { API_BASE } from '../utils/urls';
+import { useState } from "react";
+import { axiosInstance } from "../utils/axiosInstance";
 
 export interface ImportResult {
   message: string;
   errors: { row: number; error: string }[];
 }
-
-const baseUrl = `${API_BASE}`
 
 export function useImportPolicies() {
   const [loading, setLoading] = useState(false);
@@ -20,19 +18,13 @@ export function useImportPolicies() {
 
     try {
       const formData = new FormData();
-      formData.append('file', file);
+      formData.append("file", file);
 
-      const response = await fetch(`${baseUrl}/policies/import`, {
-        method: 'POST',
-        body: formData,
+      const response = await axiosInstance.post("/policies/import", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
       });
 
-      if (!response.ok) {
-        const errText = await response.text();
-        throw new Error(errText || 'Upload failed');
-      }
-
-      const result: ImportResult = await response.json();
+      const result: ImportResult = response.data;
       setData(result);
     } catch (err: any) {
       setError(err.message);

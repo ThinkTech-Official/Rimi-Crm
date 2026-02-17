@@ -1,9 +1,8 @@
 
 
 import { useState, useCallback } from 'react';
-import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { API_BASE } from '../../utils/urls';
+import { axiosInstance } from '../../utils/axiosInstance';
 
 
 interface UploadDocumentsResponse {
@@ -17,7 +16,6 @@ export function useUploadDocuments() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   
-  const token = useSelector((state: any) => state.auth.token);
   const navigate = useNavigate();
 
   const uploadDocuments = useCallback(async (formData: FormData) => {
@@ -26,27 +24,8 @@ export function useUploadDocuments() {
     setSuccess(false);
 
     try {
-      const response = await fetch(`${API_BASE}/auth/upload-documents`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          // Don't set Content-Type for FormData - browser will set it with boundary
-        },
-        credentials: 'include',
-        body: formData,
-      });
-
-      if (response.status === 401) {
-        navigate('/login');
-        throw new Error('Unauthorized');
-      }
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to upload documents');
-      }
-
-      const result = await response.json();
+      const response = await axiosInstance.post(`/auth/upload-documents`, formData);
+      const result = response.data;
       setData(result);
       setSuccess(true);
       alert('Documents uploaded successfully! Waiting for admin verification.');
@@ -59,7 +38,7 @@ export function useUploadDocuments() {
     } finally {
       setLoading(false);
     }
-  }, [token, navigate]);
+  }, [navigate]);
 
   return { data, loading, error, success, uploadDocuments };
 }

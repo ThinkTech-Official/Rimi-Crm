@@ -1,8 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
-import axios from 'axios';
-import { API_BASE } from '../utils/urls';
+import { axiosInstance } from '../utils/axiosInstance';
 
-const baseUrl = API_BASE;
+
 
 export interface Attachment {
   id: string;
@@ -20,7 +19,7 @@ export function usePolicyAttachments(policyId: string) {
   const fetch = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await axios.get<Attachment[]>(`${baseUrl}/policies/${policyId}/attachments`);
+      const res = await axiosInstance.get<Attachment[]>(`/policies/${policyId}/attachments`);
       setItems(res.data);
     } catch (e: any) {
       setError(e.message || 'Cannot load attachments');
@@ -35,8 +34,8 @@ export function usePolicyAttachments(policyId: string) {
     if (description) form.append('description', description);
 
     try {
-      const res = await axios.post<Attachment>(
-        `${baseUrl}/policies/${policyId}/attachments`,
+      const res = await axiosInstance.post<Attachment>(
+        `/policies/${policyId}/attachments`,
         form,
         { headers: { 'Content-Type': 'multipart/form-data' } }
       );

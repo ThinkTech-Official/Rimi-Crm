@@ -1,13 +1,10 @@
-import { API_BASE } from "../utils/urls";
+import { axiosInstance } from "../utils/axiosInstance";
 
 export const useDeleteDocument = () => {
   const deleteDocument = async (id: string) => {
     try {
-      const response = await fetch(`${API_BASE}/documents/${id}`, {
-        method: "DELETE",
-      });
-      const data = await response.json();
-      return data;
+      const response = await axiosInstance.delete(`/documents/${id}`);
+      return response.data;
     } catch (error) {
       console.error("Error deleting document:", error);
       throw error;

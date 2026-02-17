@@ -1,7 +1,5 @@
 import { useState, useEffect } from "react";
-import { API_BASE } from "../utils/urls";
-
-const baseUrl = `${API_BASE}`;
+import { axiosInstance } from "../utils/axiosInstance";
 
 export interface QuoteApplicant {
   index: number;
@@ -123,14 +121,9 @@ export function useQuoteDetail(id: string | null) {
     setLoading(true);
     setError(null);
 
-    fetch(`${baseUrl}/quotes/search/${id}`)
-      .then(async (res) => {
-        if (!res.ok) {
-          throw new Error((await res.text()) || res.statusText);
-        }
-        return res.json() as Promise<QuoteDetail>;
-      })
-      .then((quote) => {
+    axiosInstance.get<QuoteDetail>(`/quotes/search/${id}`)
+      .then((response) => {
+        const quote = response.data;
         console.log(quote);
         setData(quote);
       })

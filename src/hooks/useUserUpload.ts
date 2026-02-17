@@ -1,7 +1,5 @@
-
-import { useState } from 'react';
-import axios from 'axios';
-import { API_BASE } from '../utils/urls';
+import { useState } from "react";
+import { axiosInstance } from "../utils/axiosInstance";
 
 export type UploadResult = {
   loading: boolean;
@@ -9,37 +7,35 @@ export type UploadResult = {
   error: string;
 };
 
-const baseUrl = `${API_BASE}`
-
 export function useUserUpload(): [
   (file: File | null) => Promise<void>,
-  UploadResult
+  UploadResult,
 ] {
   const [loading, setLoading] = useState<boolean>(false);
-  const [message, setMessage] = useState<string>('');
-  const [error, setError] = useState<string>('');
+  const [message, setMessage] = useState<string>("");
+  const [error, setError] = useState<string>("");
 
   const upload = async (file: File | null) => {
-    setMessage('');
-    setError('');
+    setMessage("");
+    setError("");
 
     if (!file) {
-      setError('Please select a file first.');
+      setError("Please select a file first.");
       return;
     }
 
     const formData = new FormData();
-    formData.append('file', file);
+    formData.append("file", file);
 
     try {
       setLoading(true);
-      const response = await axios.post(`${baseUrl}/users/import`, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
+      const response = await axiosInstance.post(`/users/import`, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
       });
-      setMessage(response.data.message || 'Import successful');
+      setMessage(response.data.message || "Import successful");
     } catch (err: any) {
       console.error(err);
-      setError(err.response?.data?.message || 'Import failed');
+      setError(err.response?.data?.message || "Import failed");
     } finally {
       setLoading(false);
     }
@@ -49,4 +45,3 @@ export function useUserUpload(): [
 }
 
 // ================================
-

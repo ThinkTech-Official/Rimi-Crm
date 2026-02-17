@@ -329,11 +329,7 @@ export function useCreateUser(): UseCreateUserResult {
         console.log(key, value);
       }
 
-      const response = await axiosInstance.post("/auth/register", formDataToSend, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
+      const response = await axiosInstance.post("/auth/register", formDataToSend);
 
       setSuccess(true);
       console.log("User created successfully:", response.data);

@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
-import axios from 'axios';
-import { API_BASE } from '../../utils/urls';
+import { useState, useEffect } from "react";
+import axios from "axios";
+import { axiosInstance } from "../../utils/axiosInstance";
 
 interface PremiumCalculationData {
   policyType: string;
@@ -27,10 +27,12 @@ interface PremiumResponse {
 
 export function usePremiumCalculationProduct3(
   data: PremiumCalculationData,
-  shouldCalculate: boolean
+  shouldCalculate: boolean,
 ) {
   const [totalPremium, setTotalPremium] = useState<number>(0);
-  const [breakdown, setBreakdown] = useState<PremiumResponse['breakdown'] | null>(null);
+  const [breakdown, setBreakdown] = useState<
+    PremiumResponse["breakdown"] | null
+  >(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -47,24 +49,24 @@ export function usePremiumCalculationProduct3(
       setError(null);
 
       try {
-        const response = await axios.post<PremiumResponse>(
-          `${API_BASE}/premium/product3/calculate`,
+        const response = await axiosInstance.post<PremiumResponse>(
+          `/premium/product3/calculate`,
           data,
           {
             signal: controller.signal,
-            withCredentials: true,
-          }
+          },
         );
 
         setTotalPremium(response.data.totalPremium);
         setBreakdown(response.data.breakdown);
       } catch (err: any) {
         if (axios.isCancel(err)) {
-          console.log('Request cancelled');
+          console.log("Request cancelled");
         } else {
-          const message = err.response?.data?.message || 'Failed to calculate premium';
+          const message =
+            err.response?.data?.message || "Failed to calculate premium";
           setError(message);
-          console.error('Premium calculation error:', err);
+          console.error("Premium calculation error:", err);
         }
       } finally {
         setLoading(false);

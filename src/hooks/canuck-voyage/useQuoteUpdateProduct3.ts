@@ -1,6 +1,5 @@
-import { useState } from 'react';
-import axios from 'axios';
-import { API_BASE } from '../../utils/urls';
+import { useState } from "react";
+import { axiosInstance } from "../../utils/axiosInstance";
 
 interface AddressInfo {
   addressLine1: string;
@@ -35,21 +34,23 @@ export function useQuoteUpdateProduct3() {
   const [error, setError] = useState<string | null>(null);
   const [data, setData] = useState<Stage2Response | null>(null);
 
-  const completeApplication = async (payload: Stage2Payload): Promise<Stage2Response> => {
+  const completeApplication = async (
+    payload: Stage2Payload,
+  ): Promise<Stage2Response> => {
     setLoading(true);
     setError(null);
 
     try {
-      const response = await axios.post<Stage2Response>(
-        `${API_BASE}/quotes/product3/stage2`,
+      const response = await axiosInstance.post<Stage2Response>(
+        `/quotes/product3/stage2`,
         payload,
-        { withCredentials: true }
       );
 
       setData(response.data);
       return response.data;
     } catch (err: any) {
-      const message = err.response?.data?.message || 'Failed to complete application';
+      const message =
+        err.response?.data?.message || "Failed to complete application";
       setError(message);
       throw new Error(message);
     } finally {

@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
-import { API_BASE } from '../../utils/urls';
+import { axiosInstance } from '../../utils/axiosInstance';
 
 
 
@@ -79,11 +78,8 @@ export const useQuoteByNumber = (quoteNumber: string | null) => {
 
         console.log('Fetching quote data:', quoteNumber);
 
-        const response = await axios.get(
-          `${API_BASE}/quotes/by-quote-number/${quoteNumber}`,
-          {
-            withCredentials: true, 
-          }
+        const response = await axiosInstance.get(
+          `/quotes/by-quote-number/${quoteNumber}`
         );
         
         console.log('Quote data loaded:', response.data);

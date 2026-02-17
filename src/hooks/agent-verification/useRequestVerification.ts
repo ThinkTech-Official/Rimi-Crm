@@ -66,10 +66,9 @@
 // hooks/agent-verification/useRequestVerification.ts
 
 import { useState, useCallback } from 'react';
-import { useSelector } from 'react-redux';
+// import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { API_BASE } from '../../utils/urls';
-
+import { axiosInstance } from '../../utils/axiosInstance';
 interface RequestVerificationResponse {
   message: string;
   user: any;
@@ -80,7 +79,7 @@ export function useRequestVerification() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   
-  const token = useSelector((state: any) => state.auth.token);
+  // const token = useSelector((state: any) => state.auth.token);
   const navigate = useNavigate();
 
   const requestVerification = useCallback(async () => {
@@ -89,25 +88,8 @@ export function useRequestVerification() {
     setSuccess(false);
 
     try {
-      const response = await fetch(`${API_BASE}/auth/request-verification`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-      });
-
-      if (response.status === 401) {
-        navigate('/login');
-        throw new Error('Unauthorized - please login again');
-      }
-
-      const result = await response.json();
-
-      if (!response.ok) {
-        throw new Error(result.message || 'Failed to request verification');
-      }
+      const response = await axiosInstance.post(`/auth/request-verification`);
+      const result = response.data;
 
       setSuccess(true);
       return result;
@@ -118,7 +100,7 @@ export function useRequestVerification() {
     } finally {
       setLoading(false);
     }
-  }, [token, navigate]);
+  }, [navigate]);
 
   return { 
     loading, 

@@ -1,19 +1,18 @@
 import { useState, useCallback } from 'react';
-import axios from 'axios';
-import { API_BASE } from '../utils/urls';
+import { axiosInstance } from '../utils/axiosInstance';
 
 export function useFulfillment(policyId: string) {
   const [preview, setPreview] = useState<{ subject: string; html: string } | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError]     = useState<string|null>(null);
 
-  const baseUrl = API_BASE;
+
 
   const fetchPreview = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await axios.get<{ subject: string; html: string }>(
-        `${baseUrl}/policies/${policyId}/fulfillment/preview`
+      const res = await axiosInstance.get<{ subject: string; html: string }>(
+        `/policies/${policyId}/fulfillment/preview`
       );
       setPreview(res.data);
     } catch (e: any) {
@@ -27,7 +26,7 @@ export function useFulfillment(policyId: string) {
     async (to: string, cc: string, agentEmail: string) => {
       setLoading(true);
       try {
-        await axios.post(`${baseUrl}/policies/${policyId}/fulfillment/send`, {
+        await axiosInstance.post(`/policies/${policyId}/fulfillment/send`, {
           to, cc, agentEmail,
         });
         alert('Email sent!');

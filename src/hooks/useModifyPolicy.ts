@@ -1,6 +1,6 @@
-import { useState } from 'react';
-import { API_BASE } from '../utils/urls';
-import { PolicyDetail } from './usePolicyDetail';
+import { useState } from "react";
+import { axiosInstance } from "../utils/axiosInstance";
+import { PolicyDetail } from "./usePolicyDetail";
 
 export interface ModifyApplicant {
   id: string;
@@ -61,32 +61,25 @@ export const useModifyPolicy = () => {
 
   const modifyPolicy = async (
     policyId: string,
-    data: ModifyPolicyData
-  ): Promise<{ success: boolean; message: string; refundProcessed: boolean; refundAmount?: number; policy?: PolicyDetail } | null> => {
+    data: ModifyPolicyData,
+  ): Promise<{
+    success: boolean;
+    message: string;
+    refundProcessed: boolean;
+    refundAmount?: number;
+    policy?: PolicyDetail;
+  } | null> => {
     setLoading(true);
     setError(null);
 
     try {
-      const token = localStorage.getItem('token');
-      
-      const response = await fetch(`${API_BASE}/policies/${policyId}/modify`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(data),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to modify policy');
-      }
-
-      const result = await response.json();
-      return result;
+      const response = await axiosInstance.put(
+        `/policies/${policyId}/modify`,
+        data,
+      );
+      return response.data;
     } catch (err: any) {
-      setError(err.message || 'An error occurred while modifying policy');
+      setError(err.message || "An error occurred while modifying policy");
       return null;
     } finally {
       setLoading(false);
@@ -98,40 +91,34 @@ export const useModifyPolicy = () => {
     originalExpiryDate: string,
     newExpiryDate: string,
     originalPremium: number,
-    originalCoverageLength: number
-  ): Promise<{ daysToRefund: number; premiumPerDay: number; maxRefundable: number } | null> => {
+    originalCoverageLength: number,
+  ): Promise<{
+    daysToRefund: number;
+    premiumPerDay: number;
+    maxRefundable: number;
+  } | null> => {
     setLoading(true);
     setError(null);
 
     try {
-      const token = localStorage.getItem('token');
-      
-      const response = await fetch(`${API_BASE}/policies/${policyId}/calculate-refund`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
+      const response = await axiosInstance.post(
+        `/policies/${policyId}/calculate-refund`,
+        {
           originalExpiryDate,
           newExpiryDate,
           originalPremium,
           originalCoverageLength,
-        }),
-      });
+        },
+      );
 
-      if (!response.ok) {
-        throw new Error('Failed to calculate refund');
-      }
-
-      const result = await response.json();
+      const result = response.data;
       return {
         daysToRefund: result.daysToRefund,
         premiumPerDay: result.premiumPerDay,
         maxRefundable: result.maxRefundable,
       };
     } catch (err: any) {
-      setError(err.message || 'An error occurred while calculating refund');
+      setError(err.message || "An error occurred while calculating refund");
       return null;
     } finally {
       setLoading(false);

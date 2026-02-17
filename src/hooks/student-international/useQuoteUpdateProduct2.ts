@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { API_BASE } from "../../utils/urls";
+import { axiosInstance } from "../../utils/axiosInstance";
 
 export interface Stage2PayloadProduct2 {
   quoteNumber: string;
@@ -36,11 +36,11 @@ export function useQuoteUpdateProduct2() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [data, setData] = useState<CompleteApplicationResponseProduct2 | null>(
-    null
+    null,
   );
 
   const completeApplication = async (
-    payload: Stage2PayloadProduct2
+    payload: Stage2PayloadProduct2,
   ): Promise<CompleteApplicationResponseProduct2> => {
     setLoading(true);
     setError(null);
@@ -49,21 +49,13 @@ export function useQuoteUpdateProduct2() {
       console.log("Completing Product 2 application with payload:", payload);
 
       // 🔥 Call backend API with cookie credentials
-      const response = await fetch(`${API_BASE}/quotes/product2/stage2`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include', // 🔑 This sends the HTTP-only cookie
-        body: JSON.stringify(payload),
-      });
+      const response =
+        await axiosInstance.post<CompleteApplicationResponseProduct2>(
+          `/quotes/product2/stage2`,
+          payload,
+        );
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to complete application');
-      }
-
-      const result: CompleteApplicationResponseProduct2 = await response.json();
+      const result: CompleteApplicationResponseProduct2 = response.data;
       console.log("Product 2 application completed successfully:", result);
 
       setData(result);

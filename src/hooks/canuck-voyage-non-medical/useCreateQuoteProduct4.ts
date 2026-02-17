@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { API_BASE } from '../../utils/urls';
+import { axiosInstance } from '../../utils/axiosInstance';
 
 interface Applicant {
   firstName: string;
@@ -45,23 +45,8 @@ export function useCreateQuoteProduct4() {
     setError(null);
 
     try {
-      const response = await fetch(`${API_BASE}/quotes/product4/save`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify(payload),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({
-          message: `HTTP error! status: ${response.status}`,
-        }));
-        throw new Error(errorData.message || 'Failed to save quote');
-      }
-
-      const data: SaveQuoteResponse = await response.json();
+      const response = await axiosInstance.post<SaveQuoteResponse>(`/quotes/product4/save`, payload);
+      const data: SaveQuoteResponse = response.data;
       setResult(data);
       return data;
     } catch (err: any) {

@@ -52,7 +52,7 @@
 
 
 import { useState } from 'react';
-import { API_BASE } from '../utils/urls';
+import { axiosInstance } from '../utils/axiosInstance';
 
 export interface ReportingPayload {
   product: string;
@@ -81,28 +81,12 @@ export function useReporting() {
         endDate: new Date(data.endDate + 'T23:59:59').toISOString(), // End of day
       };
 
-      const res = await fetch(`${API_BASE}/reporting`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify(payload),
-      });
+      const res = await axiosInstance.post('/reporting', payload);
 
-      // Handle non-OK responses
-      if (!res.ok) {
-        const errorData = await res.json().catch(() => ({}));
-        const errorMessage = 
-          errorData.message || 
-          errorData.error || 
-          `Failed to generate report (Status: ${res.status})`;
-        throw new Error(errorMessage);
-      }
-
-      const json = await res.json();
-      setResult(json);
-      return json;
+      setResult(res.data);
+      return res.data;
     } catch (err: any) {
-      const errorMsg = err.message || 'An unexpected error occurred';
+      const errorMsg = err.response?.data?.message || err.message || 'An unexpected error occurred';
       setError(errorMsg);
       console.error('Reporting error:', err);
     } finally {

@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import axios from 'axios';
-import { API_BASE } from '../utils/urls';
+import { axiosInstance } from '../utils/axiosInstance';
 
 // Activity types
 export type ActivityType = 
@@ -24,31 +23,7 @@ export interface PolicyActivity {
 }
 
 
-const getCookie = (name: string): string | null => {
-  const value = `; ${document.cookie}`;
-  const parts = value.split(`; ${name}=`);
-  
-  if (parts.length === 2) {
-    const cookieValue = parts.pop()?.split(';').shift();
-    return cookieValue || null;
-  }
-  
-  return null;
-};
 
-
-const getAuthHeaders = () => {
-  const token = getCookie('token'); 
-  
-  if (!token) {
-    console.warn('No token found in cookies');
-    return {};
-  }
-
-  return {
-    Authorization: `Bearer ${token}`,
-  };
-};
 
 
 export function usePolicyActivity(policyId: string | null) {
@@ -71,12 +46,8 @@ export function usePolicyActivity(policyId: string | null) {
     try {
       console.log(`Fetching activities for policy: ${policyId}`);
       
-      const response = await axios.get(
-        `${API_BASE}/policies/${policyId}/activities`,
-        {
-          headers: getAuthHeaders(),
-          withCredentials: true, 
-        }
+      const response = await axiosInstance.get(
+        `/policies/${policyId}/activities`
       );
 
       setActivities(response.data);
@@ -106,16 +77,12 @@ export function usePolicyActivity(policyId: string | null) {
       try {
         console.log(`Adding activity: ${activityType} for policy ${policyId}`);
 
-        const response = await axios.post(
-          `${API_BASE}/policies/${policyId}/activities`,
+        const response = await axiosInstance.post(
+          `/policies/${policyId}/activities`,
           {
             activityType,
             description,
             metadata,
-          },
-          {
-            headers: getAuthHeaders(),
-            withCredentials: true,
           }
         );
 

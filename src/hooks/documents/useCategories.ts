@@ -1,7 +1,5 @@
-
-import { useState, useEffect, useCallback } from 'react';
-import axios from 'axios';
-import { API_BASE } from '../../utils/urls';
+import { useState, useEffect, useCallback } from "react";
+import { axiosInstance } from "../../utils/axiosInstance";
 
 export interface Category {
   id: string;
@@ -18,32 +16,42 @@ export const useCategories = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await axios.get(`${API_BASE}/categories`);
+      const response = await axiosInstance.get(`/categories`);
       setCategories(response.data);
     } catch (err: any) {
-      console.error('Fetch categories error:', err);
-      setError(err.response?.data?.message || err.message || 'Failed to fetch categories');
+      console.error("Fetch categories error:", err);
+      setError(
+        err.response?.data?.message ||
+          err.message ||
+          "Failed to fetch categories",
+      );
     } finally {
       setLoading(false);
     }
   }, []);
 
-  const addCategory = useCallback(async (name: string) => {
-    setLoading(true);
-    setError(null);
-    try {
-      const response = await axios.post(`${API_BASE}/categories`, { name });
-      await fetchCategories(); // Refresh list
-      return response.data;
-    } catch (err: any) {
-      console.error('Add category error:', err);
-      const errorMsg = err.response?.data?.message || err.message || 'Failed to add category';
-      setError(errorMsg);
-      throw new Error(errorMsg);
-    } finally {
-      setLoading(false);
-    }
-  }, [fetchCategories]);
+  const addCategory = useCallback(
+    async (name: string) => {
+      setLoading(true);
+      setError(null);
+      try {
+        const response = await axiosInstance.post(`/categories`, { name });
+        await fetchCategories(); // Refresh list
+        return response.data;
+      } catch (err: any) {
+        console.error("Add category error:", err);
+        const errorMsg =
+          err.response?.data?.message ||
+          err.message ||
+          "Failed to add category";
+        setError(errorMsg);
+        throw new Error(errorMsg);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [fetchCategories],
+  );
 
   useEffect(() => {
     fetchCategories();

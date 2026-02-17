@@ -1,6 +1,5 @@
 import { useState } from 'react';
-import axios from 'axios';
-import { API_BASE } from '../../utils/urls';
+import { axiosInstance } from '../../utils/axiosInstance';
 
 interface RenewalNoticeResponse {
   success: boolean;
@@ -18,8 +17,8 @@ export const useRenewalNotice = () => {
     setSuccess(false);
 
     try {
-      const response = await axios.post<RenewalNoticeResponse>(
-        `${API_BASE}/policies/${policyId}/renewal-notice/send`
+      const response = await axiosInstance.post<RenewalNoticeResponse>(
+        `/policies/${policyId}/renewal-notice/send`
       );
 
       setSuccess(true);

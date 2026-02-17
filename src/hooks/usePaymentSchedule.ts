@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
-import { API_BASE } from '../utils/urls';
+import { axiosInstance } from '../utils/axiosInstance';
 
 export interface PaymentScheduleItem {
   id: string;
@@ -37,8 +36,8 @@ export function usePaymentSchedule(policyId: string | null) {
     setLoading(true);
     setError(null);
 
-    axios
-      .get<PaymentScheduleItem[]>(`${API_BASE}/policies/${policyId}/payment-schedule`)
+    axiosInstance
+      .get<PaymentScheduleItem[]>(`/policies/${policyId}/payment-schedule`)
       .then((response) => {
         console.log('Payment schedule loaded:', response.data);
         setData(response.data);

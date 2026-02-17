@@ -46,11 +46,8 @@
 // src/hooks/useCreatePaymentIntent.ts
 
 import { useState, useCallback } from 'react';
-import axios from 'axios';
+import { axiosInstance } from '../utils/axiosInstance';
 import { Shipping } from '../components/Products/SecureTravelRIMIVisitorstoCanadaTravel/step2/PaymentInformation';
-import { API_BASE } from '../utils/urls';
-
-const localAddress = API_BASE
 
 export function useCreatePaymentIntent(
   stripeCustomerId: string,
@@ -94,8 +91,8 @@ export function useCreatePaymentIntent(
           testClockCustomerId
         });
 
-        const { data } = await axios.post(
-          `${localAddress}/payments/create-payment/${quoteNumber}`,
+        const { data } = await axiosInstance.post(
+          `/payments/create-payment/${quoteNumber}`,
           {
             amount: amountInDollars,
             quoteNumber,

@@ -1,11 +1,10 @@
 import { useState } from "react";
-import { API_BASE } from "../utils/urls";
+import { axiosInstance } from "../utils/axiosInstance";
 
 export function useUploadDocuments() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [documents, setDocuments] = useState<any>(null);
-  const localAddress = `${API_BASE}`;
 
   const uploadDocuments = async (files: { file: File; category: string }[]) => {
     setLoading(true);
@@ -19,11 +18,8 @@ export function useUploadDocuments() {
         formData.append(`files[${index}]`, item.file);
         formData.append(`categories[${index}]`, item.category);
       });
-      const res = await fetch(`${localAddress}/documents/upload`, {
-        method: "POST",
-        body: formData,
-      });
-      const json = await res.json();
+      const res = await axiosInstance.post("/documents/upload", formData);
+      const json = res.data;
       setDocuments(json);
       return json;
     } catch (err: any) {
@@ -39,8 +35,8 @@ export function useUploadDocuments() {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch(`${localAddress}/documents`);
-      const json = await res.json();
+      const res = await axiosInstance.get("/documents");
+      const json = res.data;
       setDocuments(json);
       return json;
     } catch (err: any) {

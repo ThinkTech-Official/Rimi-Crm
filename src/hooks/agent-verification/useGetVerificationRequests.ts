@@ -1,9 +1,9 @@
 
 
 import { useState, useCallback } from 'react';
-import { useSelector } from 'react-redux';
+// import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { API_BASE } from '../../utils/urls';
+import { axiosInstance } from '../../utils/axiosInstance';
 
 
 
@@ -89,7 +89,7 @@ export function useGetVerificationRequests() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   
-  const token = useSelector((state: any) => state.auth.token);
+  // const token = useSelector((state: any) => state.auth.token);
   const navigate = useNavigate();
 
   const fetchRequests = useCallback(async (
@@ -101,27 +101,8 @@ export function useGetVerificationRequests() {
     setError(null);
 
     try {
-      const response = await fetch(`${API_BASE}/auth/verification-requests`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify({ status, page, limit }),
-      });
-
-      if (response.status === 401) {
-        navigate('/login');
-        throw new Error('Unauthorized');
-      }
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to fetch verification requests');
-      }
-
-      const result = await response.json();
+      const response = await axiosInstance.post(`/auth/verification-requests`, { status, page, limit });
+      const result = response.data;
       console.log('Verification requests fetched successfully:', result);
       setData(result);
       console.log('from use get verification request',result)
@@ -133,7 +114,7 @@ export function useGetVerificationRequests() {
     } finally {
       setLoading(false);
     }
-  }, [token, navigate]);
+  }, [navigate]);
 
   return { data, loading, error, fetchRequests };
 }

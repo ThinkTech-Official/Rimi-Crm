@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
-import { API_BASE } from '../utils/urls';
+import { axiosInstance } from '../utils/axiosInstance';
 
 export interface PolicyApplicant {
   id: string;
@@ -118,7 +117,7 @@ export function usePolicyDetail(id: string | null) {
     if (!id) return;
     setLoading(true);
 
-    axios.get<PolicyDetail>(`${API_BASE}/policies/${id}`)
+    axiosInstance.get<PolicyDetail>(`/policies/${id}`)
       .then(response => {
         console.log("Response from backend:", response.data);
         setData(response.data);

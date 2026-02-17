@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { API_BASE } from '../../utils/urls';
+import { useState, useEffect } from "react";
+import { axiosInstance } from "../../utils/axiosInstance";
 
 interface PremiumCalculationData {
   tripCost: number;
@@ -19,10 +19,12 @@ interface PremiumResponse {
 
 export function usePremiumCalculationProduct4(
   data: PremiumCalculationData,
-  shouldCalculate: boolean
+  shouldCalculate: boolean,
 ) {
   const [totalPremium, setTotalPremium] = useState<number>(0);
-  const [breakdown, setBreakdown] = useState<PremiumResponse['breakdown'] | null>(null);
+  const [breakdown, setBreakdown] = useState<
+    PremiumResponse["breakdown"] | null
+  >(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -39,33 +41,24 @@ export function usePremiumCalculationProduct4(
       setError(null);
 
       try {
-        const response = await fetch(`${API_BASE}/premium/product4/calculate`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
+        const response = await axiosInstance.post<PremiumResponse>(
+          `/premium/product4/calculate`,
+          data,
+          {
+            signal: controller.signal,
           },
-          credentials: 'include',
-          signal: controller.signal,
-          body: JSON.stringify(data),
-        });
+        );
 
-        if (!response.ok) {
-          const errorData = await response.json().catch(() => ({
-            message: `HTTP error! status: ${response.status}`,
-          }));
-          throw new Error(errorData.message || 'Failed to calculate premium');
-        }
-
-        const result: PremiumResponse = await response.json();
+        const result: PremiumResponse = response.data;
         setTotalPremium(result.totalPremium);
         setBreakdown(result.breakdown);
       } catch (err: any) {
-        if (err.name === 'AbortError') {
-          console.log('Request cancelled');
+        if (err.name === "AbortError") {
+          console.log("Request cancelled");
         } else {
-          const message = err.message || 'Failed to calculate premium';
+          const message = err.message || "Failed to calculate premium";
           setError(message);
-          console.error('Premium calculation error:', err);
+          console.error("Premium calculation error:", err);
         }
       } finally {
         setLoading(false);

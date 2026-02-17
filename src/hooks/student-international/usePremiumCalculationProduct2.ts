@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { API_BASE } from "../../utils/urls";
+import { axiosInstance } from "../../utils/axiosInstance";
 
 interface PremiumCalculationParams {
   policyType: string;
@@ -73,20 +73,9 @@ export function usePremiumCalculationProduct2(params: PremiumCalculationParams) 
           applicants: params.applicants,
         };
 
-        const response = await fetch(`${API_BASE}/premium/product2/calculate`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          credentials: 'include',
-          body: JSON.stringify(payload),
-        });
+        const response = await axiosInstance.post<PremiumResult>('/premium/product2/calculate', payload);
 
-        if (!response.ok) {
-          throw new Error('Failed to calculate premium');
-        }
-
-        const result: PremiumResult = await response.json();
+        const result: PremiumResult = response.data;
         console.log("✅ Premium calculated:", result.totalPremium);
 
         setTotalPremium(result.totalPremium);

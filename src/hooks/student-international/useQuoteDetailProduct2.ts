@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { API_BASE } from "../../utils/urls";
+import { axiosInstance } from "../../utils/axiosInstance";
 
 export interface QuoteDetailProduct2 {
   quoteId: string;
@@ -50,19 +50,9 @@ export function useQuoteDetailProduct2(quoteId: string | null) {
         console.log("Fetching Product 2 quote detail for ID:", quoteId);
 
         // 🔥 Call backend with cookie credentials
-        const response = await fetch(`${API_BASE}/quotes/search/${quoteId}`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          credentials: 'include', // 🔑 This sends the HTTP-only cookie
-        });
+        const response = await axiosInstance.get<QuoteDetailProduct2>(`/quotes/search/${quoteId}`);
 
-        if (!response.ok) {
-          throw new Error('Failed to fetch quote details');
-        }
-
-        const result: QuoteDetailProduct2 = await response.json();
+        const result: QuoteDetailProduct2 = response.data;
         console.log("Product 2 quote details fetched:", result);
 
         setData(result);

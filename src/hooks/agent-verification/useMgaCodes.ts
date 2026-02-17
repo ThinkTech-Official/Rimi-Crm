@@ -78,9 +78,9 @@
 
 
 import { useState, useEffect, useCallback } from 'react';
-import { useSelector } from 'react-redux';
+// import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { API_BASE } from '../../utils/urls';
+import { axiosInstance } from '../../utils/axiosInstance';
 
 // ✅ NEW: Return full MGA objects, not just codes
 export interface MgaOption {
@@ -102,7 +102,7 @@ export function useMgaCodes(search: string): UseMgaCodesReturn {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   
-  const token = useSelector((state: any) => state.auth.token);
+  // const token = useSelector((state: any) => state.auth.token);
   const navigate = useNavigate();
 
   const fetchMgaCodes = useCallback(async (searchTerm: string) => {
@@ -115,29 +115,10 @@ export function useMgaCodes(search: string): UseMgaCodesReturn {
     setError(null);
 
     try {
-      const response = await fetch(
-        `${API_BASE}/auth/mga-codes?search=${encodeURIComponent(searchTerm)}`,
-        {
-          method: 'GET',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
-          credentials: 'include',
-        }
+      const response = await axiosInstance.get(
+        `/auth/mga-codes?search=${encodeURIComponent(searchTerm)}`
       );
-
-      if (response.status === 401) {
-        navigate('/login');
-        throw new Error('Unauthorized');
-      }
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to fetch MGA codes');
-      }
-
-      const result = await response.json();
+      const result = response.data;
       
       // ✅ Result should now be an array of objects with id, agentCode, firstName, lastName
       setMgas(result);
@@ -148,7 +129,7 @@ export function useMgaCodes(search: string): UseMgaCodesReturn {
     } finally {
       setLoading(false);
     }
-  }, [token, navigate]);
+  }, [navigate]);
 
   // Debounce search
   useEffect(() => {

@@ -3,9 +3,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { PremiumCalculationData } from '../components/Products/SecureTravelRIMIVisitorstoCanadaTravel/step1/Step1STRVCT';
-import { API_BASE } from '../utils/urls';
-
-const baseUrl = `${API_BASE}`;
+import { axiosInstance } from '../utils/axiosInstance';
 
 interface PaymentScheduleItem {
   label: string;
@@ -38,16 +36,9 @@ export function usePremiumCalculate(
     setLoading(true);
     setError(null);
 
-    fetch(`${baseUrl}/premium/calculate`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(premiumCalculationData),
-    })
-      .then(async res => {
-        if (!res.ok) throw new Error(await res.text());
-        return res.json();
-      })
-      .then(data => {
+    axiosInstance.post('/premium/calculate', premiumCalculationData)
+      .then(response => {
+        const data = response.data;
         console.log("Premium calculation response:", data); 
         setQuoteResponse(data);
       })

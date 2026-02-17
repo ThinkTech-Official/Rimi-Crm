@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { API_BASE } from '../../utils/urls';
+import { axiosInstance } from '../../utils/axiosInstance';
 
 
 interface SplitGroup {
@@ -58,21 +58,8 @@ export function usePolicySplit(policyId: string) {
     setError(null);
 
     try {
-      const response = await fetch(`${API_BASE}/policies/${policyId}/split/preview`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify({ splitGroups }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to preview split');
-      }
-
-      const data = await response.json();
+      const response = await axiosInstance.post(`/policies/${policyId}/split/preview`, { splitGroups });
+      const data = response.data;
       setPreview(data);
       return data;
     } catch (err: any) {
@@ -91,21 +78,8 @@ export function usePolicySplit(policyId: string) {
     setError(null);
 
     try {
-      const response = await fetch(`${API_BASE}/policies/${policyId}/split`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify({ splitGroups, adminNotes }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to execute split');
-      }
-
-      const data = await response.json();
+      const response = await axiosInstance.post(`/policies/${policyId}/split`, { splitGroups, adminNotes });
+      const data = response.data;
       return data;
     } catch (err: any) {
       setError(err.message);
@@ -123,20 +97,8 @@ export function usePolicySplit(policyId: string) {
     setError(null);
 
     try {
-      const response = await fetch(`${API_BASE}/policies/${policyId}/split/undo`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to undo split');
-      }
-
-      const data = await response.json();
+      const response = await axiosInstance.post(`/policies/${policyId}/split/undo`);
+      const data = response.data;
       return data;
     } catch (err: any) {
       setError(err.message);

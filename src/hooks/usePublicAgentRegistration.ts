@@ -241,7 +241,7 @@
 
 
 import { useState } from 'react';
-import { API_BASE } from '../utils/urls';
+import { axiosInstance } from '../utils/axiosInstance';
 
 export interface PublicAgentFormData {
   firstName: string;
@@ -339,22 +339,13 @@ export function usePublicAgentRegistration(): UsePublicAgentRegistrationReturn {
       }
 
       // Make API call (no authentication required)
-      const response = await fetch(`${API_BASE}/auth/register-public`, {
-        method: 'POST',
-        body: data,
-      });
-
-      const result = await response.json();
-
-      if (!response.ok) {
-        throw new Error(result.message || 'Failed to submit application');
-      }
+      const response = await axiosInstance.post('/auth/register-public', data);
 
       setSuccess(true);
       setError(null);
       return true;
     } catch (err: any) {
-      const errorMessage = err.message || 'An error occurred while submitting your application';
+      const errorMessage = err.response?.data?.message || err.message || 'An error occurred while submitting your application';
       setError(errorMessage);
       setSuccess(false);
       return false;

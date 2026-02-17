@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import axios from 'axios';
-import { API_BASE } from '../../utils/urls';
+import { axiosInstance } from '../../utils/axiosInstance';
 
 export interface DocumentItem {
   id: string;
@@ -16,30 +15,30 @@ export interface CategorizedDocuments {
 }
 
 export const useDocuments = () => {
-  const [documents, setDocuments] = useState<DocumentItem[]>([]);
+  // const [documents, setDocuments] = useState<DocumentItem[]>([]);
   const [categorizedDocuments, setCategorizedDocuments] = useState<CategorizedDocuments>({});
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchDocuments = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const response = await axios.get(`${API_BASE}/documents`);
-      setDocuments(response.data);
-    } catch (err: any) {
-      console.error('Fetch documents error:', err);
-      setError(err.response?.data?.message || err.message || 'An error occurred');
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+  // const fetchDocuments = useCallback(async () => {
+  //   setLoading(true);
+  //   setError(null);
+  //   try {
+  //     const response = await axiosInstance.get(`/documents`);
+  //     setDocuments(response.data);
+  //   } catch (err: any) {
+  //     console.error('Fetch documents error:', err);
+  //     setError(err.response?.data?.message || err.message || 'An error occurred');
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // }, []);
 
   const fetchCategorizedDocuments = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await axios.get(`${API_BASE}/documents/categorized`);
+      const response = await axiosInstance.get(`/documents/categorized`);
       setCategorizedDocuments(response.data);
     } catch (err: any) {
       console.error('Fetch categorized documents error:', err);
@@ -57,8 +56,8 @@ export const useDocuments = () => {
       formData.append('file', file);
       formData.append('category', category);
 
-      const response = await axios.post(
-        `${API_BASE}/documents/upload`,
+      const response = await axiosInstance.post(
+        `/documents/upload`,
         formData,
         {
           headers: {
@@ -87,8 +86,8 @@ export const useDocuments = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await axios.patch(
-        `${API_BASE}/documents/${id}`,
+      const response = await axiosInstance.patch(
+        `/documents/${id}`,
         updateData,
         {
           headers: {
@@ -114,7 +113,7 @@ export const useDocuments = () => {
     setLoading(true);
     setError(null);
     try {
-      await axios.delete(`${API_BASE}/documents/${id}`);
+      await axiosInstance.delete(`/documents/${id}`);
       
       // Refresh documents after deletion
       await fetchCategorizedDocuments();
@@ -132,7 +131,7 @@ export const useDocuments = () => {
   }, [fetchCategorizedDocuments]);
 
   return {
-    documents,
+    // documents,
     categorizedDocuments,
     loading,
     error,

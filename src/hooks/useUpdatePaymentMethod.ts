@@ -1,6 +1,5 @@
-import { useState } from 'react';
-import axios from 'axios';
-import { API_BASE } from '../utils/urls';
+import { useState } from "react";
+import { axiosInstance } from "../utils/axiosInstance";
 
 interface UpdatePaymentMethodResult {
   success: boolean;
@@ -18,23 +17,25 @@ export function useUpdatePaymentMethod() {
 
   const updatePaymentMethod = async (
     policyId: string,
-    paymentMethodId: string
+    paymentMethodId: string,
   ): Promise<UpdatePaymentMethodResult | null> => {
     setLoading(true);
     setError(null);
 
     try {
-      const response = await axios.put<UpdatePaymentMethodResult>(
-        `${API_BASE}/policies/${policyId}/update-payment-method`,
+      const response = await axiosInstance.put<UpdatePaymentMethodResult>(
+        `/policies/${policyId}/update-payment-method`,
         { paymentMethodId },
-        { withCredentials: true }
       );
 
       return response.data;
     } catch (err: any) {
-      const errorMessage = err.response?.data?.message || err.message || 'Failed to update payment method';
+      const errorMessage =
+        err.response?.data?.message ||
+        err.message ||
+        "Failed to update payment method";
       setError(errorMessage);
-      console.error('Error updating payment method:', err);
+      console.error("Error updating payment method:", err);
       return null;
     } finally {
       setLoading(false);
@@ -43,6 +44,5 @@ export function useUpdatePaymentMethod() {
 
   return { updatePaymentMethod, loading, error };
 }
-
 
 // ============================

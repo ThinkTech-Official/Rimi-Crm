@@ -77,9 +77,8 @@
 
 // hooks/agent-verification/useVerifyAgent.ts
 import { useState, useCallback } from 'react';
-import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { API_BASE } from '../../utils/urls';
+import { axiosInstance } from '../../utils/axiosInstance';
 
 interface VerifyAgentPayload {
   agentId: string;
@@ -102,7 +101,6 @@ export function useVerifyAgent() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   
-  const token = useSelector((state: any) => state.auth.token);
   const navigate = useNavigate();
 
   /**
@@ -115,27 +113,8 @@ export function useVerifyAgent() {
     setSuccess(false);
 
     try {
-      const response = await fetch(`${API_BASE}/auth/verify-agent`, {
-        method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify(payload),
-      });
-
-      if (response.status === 401) {
-        navigate('/login');
-        throw new Error('Unauthorized');
-      }
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to verify agent');
-      }
-
-      const result = await response.json();
+      const response = await axiosInstance.put(`/auth/verify-agent`, payload);
+      const result = response.data;
       setData(result);
       setSuccess(true);
       
@@ -147,7 +126,7 @@ export function useVerifyAgent() {
     } finally {
       setLoading(false);
     }
-  }, [token, navigate]);
+  }, [navigate]);
 
   return { data, loading, error, success, verifyAgent };
 }
