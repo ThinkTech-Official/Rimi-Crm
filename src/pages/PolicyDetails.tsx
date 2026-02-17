@@ -37,8 +37,11 @@ import UpdatePaymentMethodConfirmationModal from "../components/policy/UpdatePay
 import { MdClose, MdUploadFile } from "react-icons/md";
 import { HealthQuestionnaireSection } from "./QuoteDetails";
 
-const fmtDate = (iso?: string) =>
-  iso ? new Date(iso).toLocaleDateString("en-CA") : "-";
+const fmtDate = (iso?: string) => {
+    if (!iso) return "-";
+  const datePart = iso.split("T")[0]; 
+  return datePart;
+}
 
 const calcAge = (dob?: string, ref?: string) => {
   if (!dob || !ref) return "-";
