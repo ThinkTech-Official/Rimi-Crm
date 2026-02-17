@@ -270,7 +270,7 @@ export default function ApplicantInformation({
                 <DatePicker
                   label={t("Date of Birth")}
                   value={field.value}
-                  onChange={(date) => {
+                  onChange={(date: string) => {
                     field.onChange(date);
                   }}
                   maxDate={new Date()}
@@ -449,7 +449,7 @@ export default function ApplicantInformation({
                 <DatePicker
                   label={t("Date of Birth")}
                   value={field.value}
-                  onChange={(date: Date) => {
+                  onChange={(date: string) => {
                     field.onChange(date);
                   }}
                   maxDate={new Date()}
@@ -562,25 +562,32 @@ export default function ApplicantInformation({
             </p>
             <ol className="list-decimal pl-5 mt-2 text-gray-700 space-y-2">
               <li>
-                {t("Be at least 15 days of age and less than 86 years of age traveling for no more than 90 days; and")}
+                {t("Be a visitor to Canada or a person in Canada under a valid work or student visa, a Canadian or an immigrant not eligible for benefits under a government health insurance plan; and")}
+              </li>
+              <li>{t("Be at least 15 days of age and less than 90 years of age; and")}</li>
+              <li>
+                {t("Not be travelling against the advice of a physician and/or have not been diagnosed with a terminal illness; and")}
               </li>
               <li>
-                {t("Be a member in good standing of an association or organization, or a client of a tour operator, that has agreed to participate in this insurance plan, or be the spouse or dependent child of a member insured under the same policy; and")}
+                {t("Not be experiencing new or undiagnosed signs or symptoms and/or know of any reason to seek medical attention; and")}
               </li>
               <li>
-                {t("Purchase coverage within 10 days of the initial deposit for your trip or prior to any cancellation penalties being applicable; and")}
+                {t("Not require assistance with the activities of daily living (eating, bathing, dressing, functional mobility, using the toilet).")}
               </li>
               <li>
-                {t("Purchase coverage for the full value of the non-refundable, pre-paid travel arrangements; and")}
+                {t("Have not been diagnosed or treated for pancreatic, liver, lung, brain or any kind of metastasized cancer.")}
               </li>
               <li>
-                {t("Purchase coverage for the entire duration of your trip; and")}
+                {t("Have not been diagnosed or treated for kidney condition requiring dialysis within the last 24 months.")}
               </li>
               <li>
-                {t("For traveling Canadians, purchase coverage prior to the date of departure from your province or territory of residence or Canada or; for visitors to Canada, purchase coverage prior to the date of departure from your home country; and")}
+                {t("Have not been diagnosed or treated for bone marrow or organ transplant within the last 24 months.")}
               </li>
               <li>
-                {t("Know of no reason that you, an immediate family member, a travel companion, a travel companion's immediate family member, or business partner would be unable to start or complete the trip as booked.")}
+                {t("Have not been diagnosed for terminal sickness with less than 2 years to live.")}
+              </li>
+              <li>
+                {t("Have not taken home oxygen in the past 12 months prior to the effective date.")}
               </li>
             </ol>
           </div>

@@ -46,14 +46,14 @@ export default function ConfirmEligibilityModal({
 
   return (
     <div className="fixed inset-0 bg-black/20 flex items-center justify-center z-50">
-      <div className="bg-white p-6 shadow-md w-full max-w-lg overflow-auto m-2">
+      <div className="bg-white p-6 shadow-md w-full max-w-xl overflow-auto m-2">
         <div className="border-b border-inputBorder pb-2 text-lg font-semibold">
           {t("Please read the following conditions before proceeding:")}
         </div>
 
         <ul
           ref={listRef}
-          className="text-sm sm:text-base list-decimal pl-5 mt-2 text-text-secondary space-y-2 max-h-[350px] overflow-auto custom-scrollbar3 my-5"
+          className="text-sm sm:text-base list-decimal pl-8 mt-2 text-text-secondary space-y-2 max-h-[360px] overflow-auto custom-scrollbar3 my-5"
         >
           <li>
             {t("Be a visitor to Canada or a person in Canada under a valid work or student visa, a Canadian or an immigrant not eligible for benefits under a government health insurance plan; and")}

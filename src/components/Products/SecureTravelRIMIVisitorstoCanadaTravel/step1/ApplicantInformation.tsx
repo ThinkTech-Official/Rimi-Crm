@@ -8,25 +8,29 @@ import { useLanguage } from "../../../../context/LanguageContext";
 export default function ApplicantInformation() {
   const [displayInfoApplicantConfirm, setDisplayInfoApplicantConfirm] =
     useState(false);
-    const { t } = useLanguage();
+  const { t } = useLanguage();
 
   const [coverageForPreMedCon, setCoverageForPreMedCon] = useState(false);
-  const [applicantNumber,setApplicantNumber] = useState(0)
+  const [applicantNumber, setApplicantNumber] = useState(0);
 
   const [showInfocoverageForPreMedCon, setShowInfocoverageForPreMedCon] =
     useState(false);
 
-    const [showInfocoverageForPreMedConIndiually, setShowInfocoverageForPreMedConIndiually] =
-    useState<Record<number, boolean>>({});
+  const [
+    showInfocoverageForPreMedConIndiually,
+    setShowInfocoverageForPreMedConIndiually,
+  ] = useState<Record<number, boolean>>({});
 
   // whether the info panel is showing
   const [showInfo, setShowInfo] = useState(false);
   // whether user haveve confirmed
   const [isConfirmed, setIsConfirmed] = useState(false);
 
-  
-
-  const toggleInfo = (idx: number) => setShowInfocoverageForPreMedConIndiually((prev) => ({...prev, [idx]: !prev[idx]}))
+  const toggleInfo = (idx: number) =>
+    setShowInfocoverageForPreMedConIndiually((prev) => ({
+      ...prev,
+      [idx]: !prev[idx],
+    }));
 
   const handleIconClick = () => {
     setShowInfo((prev) => !prev);
@@ -39,7 +43,7 @@ export default function ApplicantInformation() {
     }
     // ask the confirm dialog
     const ok = window.confirm(
-      "Have you read and understood the eligibility instructions above?"
+      "Have you read and understood the eligibility instructions above?",
     );
     if (ok) {
       // toggle the checked state
@@ -116,23 +120,24 @@ export default function ApplicantInformation() {
         {/* // */}
 
         {/* <div className="grid grid-cols-2 gap-x-36 gap-y-4 mt-6 text-gray-700"> */}
-          <div className="flex flex-col gap-2">
-            <label className="font-[inter]">
-              {t("Number of Additional Applicants")}
-            </label>
-            <select 
+        <div className="flex flex-col gap-2">
+          <label className="font-[inter]">
+            {t("Number of Additional Applicants")}
+          </label>
+          <select
             value={applicantNumber}
-            onChange={e => setApplicantNumber(Number(e.target.value))}
-            className="p-2 border border-[#DBDADE] font-[inter]">
-              <option value="0">0</option>
-              <option value="1">1</option>
-              <option value="2">2</option>
-              <option value="3">3</option>
-              <option value="4">4</option>
-              <option value="5">5</option>
-            </select>
-            {/* </div> */}
-          </div>
+            onChange={(e) => setApplicantNumber(Number(e.target.value))}
+            className="p-2 border border-[#DBDADE] font-[inter]"
+          >
+            <option value="0">0</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+          </select>
+          {/* </div> */}
+        </div>
 
         {/* // */}
       </div>
@@ -175,119 +180,121 @@ export default function ApplicantInformation() {
         </div>
       )}
 
-
       {/* Addition applicant Information  */}
 
       {Array.from({ length: applicantNumber }).map((_, idx) => (
         <>
-        <h1 className=" text-md font-semibold text-left text-[#1B1B1B] mt-6 font-[inter]">APPLICANT {idx+ 1}</h1>
-        <div
-          key={idx}
-          className="grid grid-cols-2 gap-x-36 gap-y-4 text-gray-700 mt-6"
-        >
-          
-          <div className="flex flex-col gap-2">
-            <label className="font-[inter]">{t("First Name")}</label>
-            <input
-              className="p-2 border border-[#DBDADE] placeholder-[#00000080] font-[inter]"
-              type="text"
-              placeholder={t("Enter First Name")}
-            />
-          </div>
-          <div className="flex flex-col gap-2">
-            <label className="font-[inter]">{t("Last Name")}</label>
-            <input
-              className="p-2 border border-[#DBDADE] placeholder-[#00000080] font-[inter]"
-              type="text"
-              placeholder={t("Enter Last Name")}
-            />
-          </div>
-          <div className="flex flex-col gap-2">
-            <label className="font-[inter]">{t("Date of Birth")}</label>
-            <input
-              className="p-2 border border-[#DBDADE] placeholder-[#00000080] font-[inter]"
-              type="date"
-            />
-          </div>
-          <div className="flex flex-col gap-2">
-            <label className="font-[inter]">
-              {t("Relationship to Primary Applicant")}
-            </label>
-            <div className="relative">
-              <select className="p-2 border border-[#DBDADE] placeholder-[#00000080] font-[inter] w-full appearance-none cursor-pointer">
-                <option value="">Please select</option>
-                <option value="Spouse">Spouse</option>
-                <option value="Dependent Child">Dependent Child</option>
-                <option value="Travelling Companion">
-                  Travelling Companion
-                </option>
-              </select>
-              <div className="pointer-events-none absolute inset-y-0 right-2 flex items-center text-gray-500">
-                <ChevronDownIcon className="h-5 w-5" aria-hidden="true" />
+          <h1 className=" text-md font-semibold text-left text-[#1B1B1B] mt-6 font-[inter]">
+            APPLICANT {idx + 1}
+          </h1>
+          <div
+            key={idx}
+            className="grid grid-cols-2 gap-x-36 gap-y-4 text-gray-700 mt-6"
+          >
+            <div className="flex flex-col gap-2">
+              <label className="font-[inter]">{t("First Name")}</label>
+              <input
+                className="p-2 border border-[#DBDADE] placeholder-[#00000080] font-[inter]"
+                type="text"
+                placeholder={t("Enter First Name")}
+              />
+            </div>
+            <div className="flex flex-col gap-2">
+              <label className="font-[inter]">{t("Last Name")}</label>
+              <input
+                className="p-2 border border-[#DBDADE] placeholder-[#00000080] font-[inter]"
+                type="text"
+                placeholder={t("Enter Last Name")}
+              />
+            </div>
+            <div className="flex flex-col gap-2">
+              <label className="font-[inter]">{t("Date of Birth")}</label>
+              <input
+                className="p-2 border border-[#DBDADE] placeholder-[#00000080] font-[inter]"
+                type="date"
+              />
+            </div>
+            <div className="flex flex-col gap-2">
+              <label className="font-[inter]">
+                {t("Relationship to Primary Applicant")}
+              </label>
+              <div className="relative">
+                <select className="p-2 border border-[#DBDADE] placeholder-[#00000080] font-[inter] w-full appearance-none cursor-pointer">
+                  <option value="">Please select</option>
+                  <option value="Spouse">Spouse</option>
+                  <option value="Dependent Child">Dependent Child</option>
+                  <option value="Travelling Companion">
+                    Travelling Companion
+                  </option>
+                </select>
+                <div className="pointer-events-none absolute inset-y-0 right-2 flex items-center text-gray-500">
+                  <ChevronDownIcon className="h-5 w-5" aria-hidden="true" />
+                </div>
               </div>
             </div>
-          </div>
 
-          <div className="flex flex-col gap-2 ">
-          <label className="font-[inter] flex items-center gap-2">
-            <InformationCircleIcon
-              onClick={() => toggleInfo(idx)}
-              className="h-5 w-5 text-[#3a17c5] cursor-pointer"
-              aria-hidden="true"
-            />
-            {t("Include coverage for stable pre-existing medical conditions")}
-          </label>
-          <select
-            className="p-2 border border-[#DBDADE] font-[inter] w-full max-w-xs"
-            onChange={(e) => setCoverageForPreMedCon(e.target.value === "yes")}
-          >
-            <option value="">Select an option</option>
-            <option value="yes">Yes</option>
-            <option value="no">No</option>
-          </select>
-        </div>
-        
-        </div>
-         {showInfocoverageForPreMedConIndiually[idx] && (
-        <div className="border rounded-lg shadow-sm p-4 mt-4 bg-white font-[inter]">
-          <div className="border-b pb-2 text-lg font-semibold">
-            Coverage for stable pre-existing medical conditions
+            <div className="flex flex-col gap-2 ">
+              <label className="font-[inter] flex items-center gap-2">
+                <InformationCircleIcon
+                  onClick={() => toggleInfo(idx)}
+                  className="h-5 w-5 text-[#3a17c5] cursor-pointer"
+                  aria-hidden="true"
+                />
+                {t(
+                  "Include coverage for stable pre-existing medical conditions",
+                )}
+              </label>
+              <select
+                className="p-2 border border-[#DBDADE] font-[inter] w-full max-w-xs"
+                onChange={(e) =>
+                  setCoverageForPreMedCon(e.target.value === "yes")
+                }
+              >
+                <option value="">Select an option</option>
+                <option value="yes">Yes</option>
+                <option value="no">No</option>
+              </select>
+            </div>
           </div>
-          <div className="text-gray-700 mt-2 space-y-2">
-            <p>
-              Any sickness, injury or medical condition that existed prior to
-              the effective date will be excluded from coverage if you have
-              selected "No" and paid for Plan 1 as indicated on your
-              Confirmation of Insurance.
-            </p>
-            <p>
-              If you have selected "Yes" and paid for Plan 2 as indicated on
-              your Confirmation of Insurance, there is no coverage for any
-              sickness, injury or medical condition that existed prior to the
-              effective date, other than:
-            </p>
-            <ul className="list-disc pl-6">
-              <li>
-                <strong>Up to Age 69:</strong> Any sickness, injury or medical
-                condition that was stable in the 90 days prior to the effective
-                date.
-              </li>
-              <li>
-                <strong>Age 70-84:</strong> Any sickness, injury or medical
-                condition that was stable in the 180 days prior to the effective
-                date provided you have accurately answered no to all questions
-                on the medical declaration. If any question on the medical
-                declaration is answered yes, there is no coverage for any
-                sickness, injury or medical condition that existed prior to the
-                effective date, whether or not stable.
-              </li>
-            </ul>
-          </div>
-        </div>
-      )}
+          {showInfocoverageForPreMedConIndiually[idx] && (
+            <div className="border rounded-lg shadow-sm p-4 mt-4 bg-white font-[inter]">
+              <div className="border-b pb-2 text-lg font-semibold">
+                Coverage for stable pre-existing medical conditions
+              </div>
+              <div className="text-gray-700 mt-2 space-y-2">
+                <p>
+                  Any sickness, injury or medical condition that existed prior
+                  to the effective date will be excluded from coverage if you
+                  have selected "No" and paid for Plan 1 as indicated on your
+                  Confirmation of Insurance.
+                </p>
+                <p>
+                  If you have selected "Yes" and paid for Plan 2 as indicated on
+                  your Confirmation of Insurance, there is no coverage for any
+                  sickness, injury or medical condition that existed prior to
+                  the effective date, other than:
+                </p>
+                <ul className="list-disc pl-6">
+                  <li>
+                    <strong>Up to Age 69:</strong> Any sickness, injury or
+                    medical condition that was stable in the 90 days prior to
+                    the effective date.
+                  </li>
+                  <li>
+                    <strong>Age 70-84:</strong> Any sickness, injury or medical
+                    condition that was stable in the 180 days prior to the
+                    effective date provided you have accurately answered no to
+                    all questions on the medical declaration. If any question on
+                    the medical declaration is answered yes, there is no
+                    coverage for any sickness, injury or medical condition that
+                    existed prior to the effective date, whether or not stable.
+                  </li>
+                </ul>
+              </div>
+            </div>
+          )}
         </>
       ))}
-
 
       {/* // */}
 
@@ -320,45 +327,54 @@ export default function ApplicantInformation() {
             </div>
             <ul className="list-decimal pl-5 mt-2 text-gray-700 space-y-2">
               <li>
-                Be a visitor to Canada or a person in Canada under a valid work
-                or student visa, a Canadian or an immigrant not eligible for
-                benefits under a government health insurance plan; and
+                {t(
+                  "Be a visitor to Canada or a person in Canada under a valid work or student visa, a Canadian or an immigrant not eligible for benefits under a government health insurance plan; and",
+                )}
               </li>
               <li>
-                Be at least 15 days of age and less than 90 years of age; and
+                {t(
+                  "Be at least 15 days of age and less than 90 years of age; and",
+                )}
               </li>
               <li>
-                Not be travelling against the advice of a physician and/or have
-                not been diagnosed with a terminal illness; and
+                {t(
+                  "Not be travelling against the advice of a physician and/or have not been diagnosed with a terminal illness; and",
+                )}
               </li>
               <li>
-                Not be experiencing new or undiagnosed signs or symptoms and/or
-                know of any reason to seek medical attention; and
+                {t(
+                  "Not be experiencing new or undiagnosed signs or symptoms and/or know of any reason to seek medical attention; and",
+                )}
               </li>
               <li>
-                Not require assistance with the activities of daily living
-                (eating, bathing, dressing, functional mobility, using the
-                toilet).
+                {t(
+                  "Not require assistance with the activities of daily living (eating, bathing, dressing, functional mobility, using the toilet).",
+                )}
               </li>
               <li>
-                Have not been diagnosed or treated for pancreatic, liver, lung,
-                brain or any kind of metastasized cancer.
+                {t(
+                  "Have not been diagnosed or treated for pancreatic, liver, lung, brain or any kind of metastasized cancer.",
+                )}
               </li>
               <li>
-                Have not been diagnosed or treated for kidney condition
-                requiring dialysis within the last 24 months.
+                {t(
+                  "Have not been diagnosed or treated for kidney condition requiring dialysis within the last 24 months.",
+                )}
               </li>
               <li>
-                Have not been diagnosed or treated for bone marrow or organ
-                transplant within the last 24 months.
+                {t(
+                  "Have not been diagnosed or treated for bone marrow or organ transplant within the last 24 months.",
+                )}
               </li>
               <li>
-                Have not been diagnosed for terminal sickness with less than 2
-                years to live.
+                {t(
+                  "Have not been diagnosed for terminal sickness with less than 2 years to live.",
+                )}
               </li>
               <li>
-                Have not taken home oxygen in the past 12 months prior to the
-                effective date.
+                {t(
+                  "Have not taken home oxygen in the past 12 months prior to the effective date.",
+                )}
               </li>
             </ul>
           </div>
