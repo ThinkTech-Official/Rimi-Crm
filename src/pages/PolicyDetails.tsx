@@ -27,8 +27,11 @@ import { useRenewalNotice } from "../hooks/renewals/useRenewalNotice";
 import RenewalNoticeModal from "../components/renewals/RenewalNoticeModal";
 import SuccessModal from "../components/renewals/SuccessModal";
 
-const fmtDate = (iso?: string) =>
-  iso ? new Date(iso).toLocaleDateString("en-CA") : "-";
+const fmtDate = (iso?: string) => {
+    if (!iso) return "-";
+  const datePart = iso.split("T")[0]; 
+  return datePart;
+}
 
 const calcAge = (dob?: string, ref?: string) => {
   if (!dob || !ref) return "-";
