@@ -12,7 +12,7 @@ export interface PolicyApplicant {
   province?: string;
   policyNumber?: string;
   gender?: string;
-  premium?: string;
+  premium?: number; 
   PreExCoverage?: string;
   relation?: string;
 }
@@ -34,6 +34,7 @@ export interface PolicyDetail {
   expiryDate?: string;
   gender?: string;
   premium: number;
+  primaryPremium?: number;
   planDetails?: string;
   PreExCoverage?: string;
 
