@@ -502,15 +502,6 @@ const navigation = [
     url: "/commissions",
   },
   {
-    name: "Verification Requests",
-    href: "#",
-    icon: ShieldCheckIcon,
-    current: false,
-    slug: "verification-requests",
-    allowedRoles: ["ADMIN"],
-    url: "/verification-requests",
-  },
-  {
     name: "Reporting",
     href: "#",
     icon: CalendarIcon,
@@ -554,6 +545,15 @@ const navigation = [
     slug: "trip-calculator",
     allowedRoles: ["ADMIN"],
     url: "/trip-calculator",
+  },
+  {
+    name: "Verification Requests",
+    href: "#",
+    icon: ShieldCheckIcon,
+    current: false,
+    slug: "verification-requests",
+    allowedRoles: ["ADMIN"],
+    url: "/verification-requests",
   },
   {
     name: "Migrations",

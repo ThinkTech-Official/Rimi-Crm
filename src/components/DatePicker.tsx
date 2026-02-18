@@ -2,11 +2,12 @@ import { useRef, useState, useEffect, ChangeEvent, forwardRef, ComponentProps } 
 import Calendar from "react-calendar";
 import { AiOutlineCalendar } from "react-icons/ai";
 import "react-calendar/dist/Calendar.css";
+import { toLocalIsoDate } from "../utils/dateUtils";
 import { useOnClickOutside } from "../hooks/useOnClickOutside";
 
 interface DatePickerProps extends Omit<ComponentProps<"input">, "value" | "onChange"> {
   label: string;
-  value: string | Date;
+  value: string | Date | null;
   onChange: (value: any) => void;
   maxDate?: Date;
   minDate?: Date;
@@ -121,7 +122,7 @@ const DatePicker = forwardRef<HTMLInputElement, DatePickerProps>(({
          if (minDate && newDate < minDate) return; 
          if (maxDate && newDate > maxDate) return;
 
-         onChange(newDate);
+         onChange(toLocalIsoDate(newDate));
       }
     }
   };
@@ -153,7 +154,7 @@ const DatePicker = forwardRef<HTMLInputElement, DatePickerProps>(({
         <div className="absolute top-full mt-1 z-50 bg-white shadow-md rounded-lg">
           <Calendar
             onChange={(date) => {
-              onChange(date as Date);
+              onChange(toLocalIsoDate(date as Date));
               setShowCalendar(false);
             }}
             value={dateValue}
