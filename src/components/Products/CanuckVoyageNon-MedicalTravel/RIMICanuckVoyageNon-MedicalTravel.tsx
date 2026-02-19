@@ -263,6 +263,7 @@ import Summary from "./step3/Summary";
 import { FormProvider, useForm } from "react-hook-form";
 import useNotification from "../../../hooks/useNotification";
 import { useLanguage } from "../../../context/LanguageContext";
+import TestFillButton from "../../common/TestFillButton";
 
 interface Applicant {
   index: string;
@@ -299,20 +300,9 @@ interface QuoteStage1Response {
   applicants: Applicant[];
 }
 
-interface AddressInfo {
-  addressLine1: string;
-  addressLine2: string;
-  city: string;
-  postalCode: string;
-  country: string;
-  province: string;
-}
 
-interface ContactInfo {
-  email: string;
-  additionalEmail: string;
-  phoneNumber: string;
-}
+
+
 
 export interface Step1Payload extends Stage1Payload {
   isConfirmed: boolean;
@@ -334,7 +324,7 @@ const RIMICanuckVoyageNonMedicalTravel: React.FC = () => {
   const [formStep, setFormStep] = useState(1);
 
   // ========== APPLICANT INFORMATION ==========
-  const [primaryFirstName, setPrimaryFirstName] = useState("");
+
 
   // ========== QUOTE & PREMIUM ==========
   const [quoteNumber, setQuoteNumber] = useState<string | null>(null);
@@ -355,11 +345,7 @@ const RIMICanuckVoyageNonMedicalTravel: React.FC = () => {
   //   country: "",
   //   province: "",
   // });
-  const [contactInfo, setContactInfo] = useState<ContactInfo>({
-    email: "",
-    additionalEmail: "",
-    phoneNumber: "",
-  });
+
 
   // ========== VALIDATION ==========
   const [isStepOneFilled, setIsStepOneFilled] = useState(false);
@@ -369,7 +355,6 @@ const RIMICanuckVoyageNonMedicalTravel: React.FC = () => {
   const {
     completeApplication,
     loading: submittingStage2,
-    error: submitError,
   } = useQuoteUpdateProduct4();
 
   const step1Methods = useForm<Step1Payload>({
@@ -655,6 +640,7 @@ const RIMICanuckVoyageNonMedicalTravel: React.FC = () => {
       {steps[0].status === "current" && (
         <FormProvider {...step1Methods}>
           <form onSubmit={step1Methods.handleSubmit(handleNext)}>
+            <TestFillButton productName={productName} />
             <ApplicantInformation methods={step1Methods} />
 
             <TripInformation
@@ -701,6 +687,11 @@ const RIMICanuckVoyageNonMedicalTravel: React.FC = () => {
               {t("CAD")}
             </h3>
           </div>
+
+          <TestFillButton
+            productName={productName}
+            methods={[contactInfoMethods, addressMethods]}
+          />
 
           <QuoteSummary step1ResponseData={step1ResponseData} />
           <ApplicantInformationFinished

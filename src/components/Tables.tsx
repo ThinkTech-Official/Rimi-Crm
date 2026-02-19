@@ -49,7 +49,7 @@ export function PoliciesTable({
             {loading ? (
               <tr>
                 <td className="p-2 text-primary text-center h-40" colSpan={6}>
-                  {t("Loading...")}
+                  {t("Loading Policies...")}
                 </td>
               </tr>
             ) : pError ? (
@@ -191,7 +191,7 @@ export function QuotesTable({
             {loading ? (
               <tr>
                 <td className="p-2 text-primary text-center h-40" colSpan={7}>
-                  {t("Loading...")}
+                  {t("Loading Quotes...")}
                 </td>
               </tr>
             ) : qError ? (

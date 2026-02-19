@@ -91,7 +91,7 @@ export default function Commissions() {
           {t("Commissions")}
         </h1>
 
-        <div className="flex flex-col gap-1">
+        <div className="flex flex-col gap-1 pb-2">
           <label className="text-sm font-medium text-text-primary">
             {t("Agent Code")}
           </label>
@@ -101,7 +101,7 @@ export default function Commissions() {
             onChange={(e) => setAgentCodeInput(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && handleSearch()}
             placeholder="e.g. AGT001"
-            className="border border-inputBorder px-3 py-2 text-sm focus:outline-none focus:border-primary w-44"
+            className="input-primary max-w-44"
           />
         </div>
 
@@ -147,7 +147,7 @@ export default function Commissions() {
             <button
               disabled={page === 1}
               onClick={() => handlePageChange(page - 1)}
-              className={`px-2 py-[10px] rounded ${
+              className={`px-2 py-3 ${
                 page === 1
                   ? "bg-gray-100 text-gray-400 cursor-not-allowed"
                   : "bg-gray-200 text-gray-600 hover:bg-gray-300 cursor-pointer"
@@ -165,7 +165,7 @@ export default function Commissions() {
             <button
               disabled={page === totalPages}
               onClick={() => handlePageChange(page + 1)}
-              className={`px-2 py-[10px] rounded ${
+              className={`px-2 py-3 ${
                 page === totalPages
                   ? "bg-gray-100 text-gray-400 cursor-not-allowed"
                   : "bg-gray-200 text-gray-600 hover:bg-gray-300 cursor-pointer"

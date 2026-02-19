@@ -311,7 +311,7 @@
 
 
 import { useState } from "react";
-import { FaUser, FaEdit, FaBan, FaCheckCircle, FaCoins, FaSpinner, FaUndo, FaArrowUp, FaArrowDown, FaCheck } from "react-icons/fa";
+import { FaUser, FaCoins, FaSpinner, FaArrowUp, FaArrowDown, FaCheck } from "react-icons/fa";
 import { useParams } from "react-router-dom";
 import { useLanguage } from "../context/LanguageContext";
 import { useAgentCommissions, useAgentDetails, useAgentPolicies, useAgentQuotes } from "../hooks/admin-dashboard";
@@ -319,39 +319,8 @@ import { PoliciesTable, QuotesTable } from "../components/Tables";
 import { useUpdateCommissionStatus, useBulkUpdateCommissionStatus, useMarkCommissionsAsPaid } from "../hooks/admin-dashboard/useCommission";
 import { CommissionsTable } from "../components/CommissionsTable";
 import Spinner from "../components/Spinner";
-
-
-const PaginationRow = ({
-  page,
-  totalPages,
-  onPageChange,
-}: {
-  page: number;
-  totalPages: number;
-  onPageChange: (p: number) => void;
-}) => (
-  <div className="flex items-center justify-center gap-3 mt-4 py-3">
-    <button
-      onClick={() => onPageChange(page - 1)}
-      disabled={page === 1}
-      className="px-3 py-1 cursor-pointer"
-    >
-      Prev
-    </button>
-    <span className="text-sm">
-      Page {page} of {totalPages}
-    </span>
-    <button
-      onClick={() => onPageChange(page + 1)}
-      disabled={page >= totalPages}
-      className="px-3 py-1 cursor-pointer"
-    >
-      Next
-    </button>
-  </div>
-);
-
-
+import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
+import { RenderPageNumbers } from "../components/RenderPageNumbers";
 
 const AdminAgentDetails = () => {
   const [pPage, setPPage] = useState(1);
@@ -359,16 +328,18 @@ const AdminAgentDetails = () => {
   const [qPage, setQPage] = useState(1);
 
   const [cPage, setCPage] = useState(1);
-
-  const limit = 10;
   
   const { agentCode } = useParams<{ agentCode: string }>();
   
   const { data: agentData, isLoading, error, refetch } = useAgentDetails(agentCode || "");
   
-  const { data: policiesData, isLoading: pLoading } = useAgentPolicies(agentCode || "", pPage);
-const { data: quotesData, isLoading: qLoading } = useAgentQuotes(agentCode || "", qPage);
-const { data: commissionsData, isLoading: cLoading } = useAgentCommissions(agentCode || "", cPage);
+  const { data: policiesData, isLoading: pIsLoading, isFetching: pIsFetching } = useAgentPolicies(agentCode || "", pPage);
+  const { data: quotesData, isLoading: qIsLoading, isFetching: qIsFetching } = useAgentQuotes(agentCode || "", qPage);
+  const { data: commissionsData, isLoading: cIsLoading, isFetching: cIsFetching } = useAgentCommissions(agentCode || "", cPage);
+
+  const pLoading = pIsLoading || pIsFetching;
+  const qLoading = qIsLoading || qIsFetching;
+  const cLoading = cIsLoading || cIsFetching;
 
 
 
@@ -378,7 +349,7 @@ const { data: commissionsData, isLoading: cLoading } = useAgentCommissions(agent
   
   const toggleTableFilter = (option: string) => setFilter(option);
 
-  const updateCommissionStatus = useUpdateCommissionStatus();
+  // const updateCommissionStatus = useUpdateCommissionStatus();
   const bulkUpdateStatus = useBulkUpdateCommissionStatus();
   const markAsPaid = useMarkCommissionsAsPaid();
 
@@ -443,23 +414,23 @@ const commissions = commissionsData?.data || [];
   }, {});
 
   // ✅ Helper functions for commission management
-  const handleSelectAllCommissions = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.checked) {
-      // Only select commissions that can be acted upon
-      const actionableCommissions = commissions
-        .filter((c: any) => !['reversed', 'partially_reversed', 'paid', 'paid_to_agent'].includes(c.status))
-        .map((c: any) => c.id);
-      setSelectedCommissionIds(actionableCommissions);
-    } else {
-      setSelectedCommissionIds([]);
-    }
-  };
+  // const handleSelectAllCommissions = (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   if (e.target.checked) {
+  //     // Only select commissions that can be acted upon
+  //     const actionableCommissions = commissions
+  //       .filter((c: any) => !['reversed', 'partially_reversed', 'paid', 'paid_to_agent'].includes(c.status))
+  //       .map((c: any) => c.id);
+  //     setSelectedCommissionIds(actionableCommissions);
+  //   } else {
+  //     setSelectedCommissionIds([]);
+  //   }
+  // };
 
-  const handleSelectCommission = (id: string) => {
-    setSelectedCommissionIds(prev =>
-      prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
-    );
-  };
+  // const handleSelectCommission = (id: string) => {
+  //   setSelectedCommissionIds(prev =>
+  //     prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
+  //   );
+  // };
 
   const selectedCommissionsTotal = commissions
     .filter((c: any) => selectedCommissionIds.includes(c.id))
@@ -490,16 +461,16 @@ const commissions = commissionsData?.data || [];
     );
   };
 
-  const handleUpdateStatus = (commissionId: string, newStatus: string) => {
-    updateCommissionStatus.mutate(
-      { commissionId, newStatus },
-      {
-        onSuccess: () => {
-          refetch();
-        }
-      }
-    );
-  };
+  // const handleUpdateStatus = (commissionId: string, newStatus: string) => {
+  //   updateCommissionStatus.mutate(
+  //     { commissionId, newStatus },
+  //     {
+  //       onSuccess: () => {
+  //         refetch();
+  //       }
+  //     }
+  //   );
+  // };
 
   return (
     <div className="px-8">
@@ -844,13 +815,34 @@ const commissions = commissionsData?.data || [];
             <PoliciesTable
               data={recentPolicies}
               loading={pLoading}
-              pError={null}
+              pError={undefined}
             />
-             <PaginationRow
-              page={pPage}
-              totalPages={policiesData?.totalPages || 1}
-              onPageChange={setPPage}
+            <div
+              className="flex items-center justify-center p-4 space-x-2"
+              role="pagination"
+            >
+              <button
+                disabled={pPage === 1}
+                onClick={() => setPPage(pPage - 1)}
+                className="px-2 py-[10px] bg-[#CCCCCC] text-[#6F6B7D] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                title={t("Previous")}
+              >
+                <ChevronLeftIcon className="h-5 w-5" />
+              </button>
+              <RenderPageNumbers
+                onPageChange={setPPage}
+                totalPages={policiesData?.totalPages || 1}
+                page={pPage}
               />
+              <button
+                disabled={pPage >= (policiesData?.totalPages || 1)}
+                onClick={() => setPPage(pPage + 1)}
+                className="px-2 py-[10px] bg-[#CCCCCC] text-[#6F6B7D] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                title={t("Next")}
+              >
+                <ChevronRightIcon className="h-5 w-5" />
+              </button>
+            </div>
           </div>
         )}
         
@@ -859,13 +851,34 @@ const commissions = commissionsData?.data || [];
             <QuotesTable
               data={recentQuotes}
               loading={qLoading}
-              qError={null}
+              qError={undefined}
             />
-            <PaginationRow
-              page={qPage}
-              totalPages={quotesData?.totalPages || 1}
-              onPageChange={setQPage}
+            <div
+              className="flex items-center justify-center p-4 space-x-2"
+              role="pagination"
+            >
+              <button
+                disabled={qPage === 1}
+                onClick={() => setQPage(qPage - 1)}
+                className="px-2 py-[10px] bg-[#CCCCCC] text-[#6F6B7D] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                title={t("Previous")}
+              >
+                <ChevronLeftIcon className="h-5 w-5" />
+              </button>
+              <RenderPageNumbers
+                onPageChange={setQPage}
+                totalPages={quotesData?.totalPages || 1}
+                page={qPage}
               />
+              <button
+                disabled={qPage >= (quotesData?.totalPages || 1)}
+                onClick={() => setQPage(qPage + 1)}
+                className="px-2 py-[10px] bg-[#CCCCCC] text-[#6F6B7D] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                title={t("Next")}
+              >
+                <ChevronRightIcon className="h-5 w-5" />
+              </button>
+            </div>
           </div>
         )}
 
@@ -919,11 +932,32 @@ const commissions = commissionsData?.data || [];
               loading={cLoading}
               showCustomer = {false}
             />
-            <PaginationRow
-              page={cPage}
-              totalPages={commissionsData?.totalPages || 1}
-              onPageChange={setCPage}
+            <div
+              className="flex items-center justify-center p-4 space-x-2"
+              role="pagination"
+            >
+              <button
+                disabled={cPage === 1}
+                onClick={() => setCPage(cPage - 1)}
+                className="px-2 py-[10px] bg-[#CCCCCC] text-[#6F6B7D] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                title={t("Previous")}
+              >
+                <ChevronLeftIcon className="h-5 w-5" />
+              </button>
+              <RenderPageNumbers
+                onPageChange={setCPage}
+                totalPages={commissionsData?.totalPages || 1}
+                page={cPage}
               />
+              <button
+                disabled={cPage >= (commissionsData?.totalPages || 1)}
+                onClick={() => setCPage(cPage + 1)}
+                className="px-2 py-[10px] bg-[#CCCCCC] text-[#6F6B7D] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                title={t("Next")}
+              >
+                <ChevronRightIcon className="h-5 w-5" />
+              </button>
+            </div>
           </div>
         )}
       </div>
