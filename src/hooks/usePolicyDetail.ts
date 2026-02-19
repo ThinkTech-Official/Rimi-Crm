@@ -42,6 +42,7 @@ export interface PolicyDetail {
   premium: number;
   planDetails?: string;
   PreExCoverage?: string;
+  primaryPremium?: string;
 
   email?: string;
   additionalEmail?: string;
