@@ -78,7 +78,7 @@ function getCoverageLength(
 }
 
 const PolicyDetailsPage: React.FC = () => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const { triggerNotification, NotificationComponent } = useNotification();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -743,11 +743,16 @@ const PolicyDetailsPage: React.FC = () => {
               {t(p.status || "")}
             </div>
           </div>
-          {renderEditableField("Language", "language")}
+          <div className="min-w-0">
+            <div className="font-semibold">{t("Language")}</div>
+            <div className="text-sm text-[#6F6B7D] break-words">
+              {language}
+            </div>
+          </div>
           <div className="min-w-0">
             <div className="font-semibold">{t("Sales Channel")}</div>
             <div className="text-sm text-[#6F6B7D] break-words">
-              {p.salesChannel || "-"}
+              {p.salesChannel || "Online"}
             </div>
           </div>
           <div className="min-w-0">
@@ -794,7 +799,7 @@ const PolicyDetailsPage: React.FC = () => {
           </div>
           <div className="mt-4 min-w-0">
             <div className="font-semibold text-base">{t("Premium")}</div>
-            <div className="text-sm text-[#6F6B7D] break-words">CAD {p.premium}</div>
+            <div className="text-sm text-[#6F6B7D] break-words">CAD {p.primaryPremium}</div>
           </div>
         </div>
       </div>
