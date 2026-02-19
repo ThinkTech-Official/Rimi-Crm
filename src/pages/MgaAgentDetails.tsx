@@ -2,78 +2,82 @@ import { useState } from "react";
 import { FaUser } from "react-icons/fa";
 import { useParams, useNavigate } from "react-router-dom";
 import { useLanguage } from "../context/LanguageContext";
-import { 
-  useMgaAgentDetails, 
-  useMgaAgentPolicies, 
+import {
+  useMgaAgentDetails,
+  useMgaAgentPolicies,
   useMgaAgentQuotes,
   useMgaAgentStatusUpdate,
-  useMgaAgentCommissions  
+  useMgaAgentCommissions,
 } from "../hooks/mga-dashboard";
 import { PoliciesTable, QuotesTable } from "../components/Tables";
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
 import Spinner from "../components/Spinner";
 import { CommissionsTable } from "../components/CommissionsTable";
 import DatePicker from "../components/DatePicker";
+import { RenderPageNumbers } from "../components/RenderPageNumbers";
 
 const MGAAgentDetails = () => {
   const navigate = useNavigate();
   const { t } = useLanguage();
   const { agentCode } = useParams<{ agentCode: string }>();
-  
+
   // State for tab filtering and pagination
   const [filter, setFilter] = useState("Policies");
   const [policiesPage, setPoliciesPage] = useState(1);
   const [quotesPage, setQuotesPage] = useState(1);
   const limit = 10;
 
-    const [commissionsPage, setCommissionsPage] = useState(1);
+  const [commissionsPage, setCommissionsPage] = useState(1);
 
-    const [dateFrom, setDateFrom] = useState<string>('');
-    const [dateTo, setDateTo] = useState<string>('');
+  const [dateFrom, setDateFrom] = useState<string>("");
+  const [dateTo, setDateTo] = useState<string>("");
 
   // Fetch agent details using existing hook
-  const { data: agentData, loading: detailsLoading, error: detailsError } = useMgaAgentDetails(agentCode || "");
-  
+  const {
+    data: agentData,
+    loading: detailsLoading,
+    error: detailsError,
+  } = useMgaAgentDetails(agentCode || "");
+
   // Fetch policies (only when Policies tab is active)
   const { data: policiesData, loading: policiesLoading } = useMgaAgentPolicies(
-    agentCode || "", 
-    policiesPage, 
-    limit
+    agentCode || "",
+    policiesPage,
+    limit,
   );
-  
+
   // Fetch quotes (only when Quotes tab is active)
   const { data: quotesData, loading: quotesLoading } = useMgaAgentQuotes(
-    agentCode || "", 
-    quotesPage, 
-    limit
+    agentCode || "",
+    quotesPage,
+    limit,
   );
 
   // Status update hook
-  const { updateAgentStatus, loading: statusLoading } = useMgaAgentStatusUpdate();
+  const { updateAgentStatus, loading: statusLoading } =
+    useMgaAgentStatusUpdate();
   const [statusSuccess, setStatusSuccess] = useState(false);
 
-
-  const { data: commissionsData, loading: commissionsLoading } = useMgaAgentCommissions(
-  agentCode || "",
-  commissionsPage,
-  limit,
-  dateFrom,
-  dateTo
-);
-
-
+  const { data: commissionsData, loading: commissionsLoading } =
+    useMgaAgentCommissions(
+      agentCode || "",
+      commissionsPage,
+      limit,
+      dateFrom,
+      dateTo,
+    );
 
   const toggleTableFilter = (option: string) => setFilter(option);
 
   // Handle status toggle
   const handleStatusToggle = async () => {
     if (!agentData) return;
-    
-    const newStatus = agentData.status === 'ACTIVE' ? 'INACTIVE' : 'ACTIVE';
+
+    const newStatus = agentData.status === "ACTIVE" ? "INACTIVE" : "ACTIVE";
     const confirmed = window.confirm(
-      `Are you sure you want to ${newStatus === 'ACTIVE' ? 'activate' : 'suspend'} this agent?`
+      `Are you sure you want to ${newStatus === "ACTIVE" ? "activate" : "suspend"} this agent?`,
     );
-    
+
     if (confirmed) {
       const result = await updateAgentStatus(agentData.agentCode, newStatus);
       if (result) {
@@ -82,25 +86,6 @@ const MGAAgentDetails = () => {
         setTimeout(() => window.location.reload(), 1500);
       }
     }
-  };
-
-  // Pagination helpers
-  const generatePageNumbers = (currentPage: number, totalPages: number) => {
-    const pages = [];
-    const maxVisiblePages = 5;
-    
-    let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
-    let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
-    
-    if (endPage - startPage < maxVisiblePages - 1) {
-      startPage = Math.max(1, endPage - maxVisiblePages + 1);
-    }
-    
-    for (let i = startPage; i <= endPage; i++) {
-      pages.push(i);
-    }
-    
-    return pages;
   };
 
   // Handle loading state
@@ -121,8 +106,8 @@ const MGAAgentDetails = () => {
           <div className="text-red-500 text-lg">
             {t("Failed to load agent details")}
           </div>
-          <button 
-            onClick={() => navigate('/mga/dashboard')}
+          <button
+            onClick={() => navigate("/mga/dashboard")}
             className="px-4 py-2 bg-primary text-white rounded hover:bg-primary/90"
           >
             {t("Back to Dashboard")}
@@ -136,7 +121,7 @@ const MGAAgentDetails = () => {
     <div className="px-8 pb-8">
       {/* Back button */}
       <button
-        onClick={() => navigate('/mga/dashboard')}
+        onClick={() => navigate("/mga/dashboard")}
         className="mb-4 text-primary flex items-center gap-2 cursor-pointer"
       >
         <ChevronLeftIcon className="w-4 h-4" /> {t("Back to Dashboard")}
@@ -152,47 +137,73 @@ const MGAAgentDetails = () => {
             <h1 className="text-2xl font-bold text-text-primary">
               {agentData.firstName} {agentData.lastName}
             </h1>
-            
+
             <div className="grid grid-cols-2 gap-x-8 gap-y-2">
               <div className="flex gap-2">
-                <span className="text-text-primary font-semibold">{t("Email")}:</span>
+                <span className="text-text-primary font-semibold">
+                  {t("Email")}:
+                </span>
                 <span className="text-text-secondary">{agentData.email}</span>
               </div>
-              
+
               <div className="flex gap-2">
-                <span className="text-text-primary font-semibold">{t("Agent Code")}:</span>
-                <span className="text-text-secondary font-mono">{agentData.agentCode}</span>
+                <span className="text-text-primary font-semibold">
+                  {t("Agent Code")}:
+                </span>
+                <span className="text-text-secondary font-mono">
+                  {agentData.agentCode}
+                </span>
               </div>
-              
+
               <div className="flex gap-2">
-                <span className="text-text-primary font-semibold">{t("Status")}:</span>
-                <span className={`font-semibold px-2 py-0.5 rounded text-sm ${
-                  agentData.status === 'ACTIVE' 
-                    ? 'bg-green-100 text-green-800' 
-                    : 'bg-red-100 text-red-800'
-                }`}>
+                <span className="text-text-primary font-semibold">
+                  {t("Status")}:
+                </span>
+                <span
+                  className={`font-semibold px-2 py-0.5 rounded text-sm ${
+                    agentData.status === "ACTIVE"
+                      ? "bg-green-100 text-green-800"
+                      : "bg-red-100 text-red-800"
+                  }`}
+                >
                   {t(agentData.status)}
                 </span>
               </div>
-              
+
               <div className="flex gap-2">
-                <span className="text-text-primary font-semibold">{t("Commission")}:</span>
-                <span className="text-text-secondary font-semibold">{agentData.commissionPercent}%</span>
+                <span className="text-text-primary font-semibold">
+                  {t("Commission")}:
+                </span>
+                <span className="text-text-secondary font-semibold">
+                  {agentData.commissionPercent}%
+                </span>
               </div>
-              
+
               <div className="flex gap-2">
-                <span className="text-text-primary font-semibold">{t("Company")}:</span>
-                <span className="text-text-secondary">{agentData.company || t("N/A")}</span>
+                <span className="text-text-primary font-semibold">
+                  {t("Company")}:
+                </span>
+                <span className="text-text-secondary">
+                  {agentData.company || t("N/A")}
+                </span>
               </div>
-              
+
               <div className="flex gap-2">
-                <span className="text-text-primary font-semibold">{t("Joined")}:</span>
-                <span className="text-text-secondary">{agentData.joinedDate}</span>
+                <span className="text-text-primary font-semibold">
+                  {t("Joined")}:
+                </span>
+                <span className="text-text-secondary">
+                  {agentData.joinedDate}
+                </span>
               </div>
-              
+
               <div className="flex gap-2">
-                <span className="text-text-primary font-semibold">{t("Valid Until")}:</span>
-                <span className="text-text-secondary">{agentData.validity}</span>
+                <span className="text-text-primary font-semibold">
+                  {t("Valid Until")}:
+                </span>
+                <span className="text-text-secondary">
+                  {agentData.validity}
+                </span>
               </div>
             </div>
           </div>
@@ -261,390 +272,277 @@ const MGAAgentDetails = () => {
       {/* Tabs */}
       <div className="relative mt-8">
         <div className="flex gap-6 border-b border-gray-200">
-            <button
-              onClick={() => toggleTableFilter("Policies")}
-              className={`pb-3 px-1 font-medium cursor-pointer transition-colors relative ${
-                filter === "Policies"
-                  ? "text-primary border-b-2 border-primary"
-                  : "text-gray-500 hover:text-gray-700"
-              }`}
-            >
-              {t("Policies")} ({policiesData?.total || 0})
-            </button>
-            <button
-              onClick={() => toggleTableFilter("Quotes")}
-              className={`pb-3 px-1 font-medium cursor-pointer transition-colors relative ${
-                filter === "Quotes"
-                  ? "text-primary border-b-2 border-primary"
-                  : "text-gray-500 hover:text-gray-700"
-              }`}
-            >
-              {t("Quotes")} ({quotesData?.total || 0})
-            </button>
-            <button
-              onClick={() => toggleTableFilter("Commissions")}
-              className={`pb-3 px-1 font-medium cursor-pointer transition-colors relative ${
-                filter === "Commissions"
-                  ? "text-primary border-b-2 border-primary"
-                  : "text-gray-500 hover:text-gray-700"
-              }`}
-            >
-              {t("Commissions")} ({commissionsData?.total || 0})
-            </button>
+          <button
+            onClick={() => toggleTableFilter("Policies")}
+            className={`pb-3 px-1 font-medium cursor-pointer transition-colors relative ${
+              filter === "Policies"
+                ? "text-primary border-b-2 border-primary"
+                : "text-gray-500 hover:text-gray-700"
+            }`}
+          >
+            {t("Policies")} ({policiesData?.total || 0})
+          </button>
+          <button
+            onClick={() => toggleTableFilter("Quotes")}
+            className={`pb-3 px-1 font-medium cursor-pointer transition-colors relative ${
+              filter === "Quotes"
+                ? "text-primary border-b-2 border-primary"
+                : "text-gray-500 hover:text-gray-700"
+            }`}
+          >
+            {t("Quotes")} ({quotesData?.total || 0})
+          </button>
+          <button
+            onClick={() => toggleTableFilter("Commissions")}
+            className={`pb-3 px-1 font-medium cursor-pointer transition-colors relative ${
+              filter === "Commissions"
+                ? "text-primary border-b-2 border-primary"
+                : "text-gray-500 hover:text-gray-700"
+            }`}
+          >
+            {t("Commissions")} ({commissionsData?.total || 0})
+          </button>
         </div>
       </div>
 
-
       {/* Commission Search  */}
-
-      
-
-
-
-
-
-
-
 
       {/* Tables with Pagination */}
       <div className="mt-6">
         {filter === "Policies" && (
           <div>
-            {policiesLoading ? (
-              <div className="flex justify-center items-center py-20">
-                <Spinner className="w-8 h-8" />
-              </div>
-            ) : (
-              <>
-                <PoliciesTable
-                  data={policiesData?.items || []}
-                  loading={false}
-                  pError={null}
-                />
-                
-                {/* Pagination */}
-                {policiesData && policiesData.totalPages > 1 && (
-                  <div className="flex items-center justify-center p-4 space-x-2">
-                    <button
-                      disabled={policiesPage === 1}
-                      onClick={() => setPoliciesPage(policiesPage - 1)}
-                      className={`px-2 py-[10px] rounded ${
-                        policiesPage === 1 
-                          ? "bg-[#F5F5F5] text-[#CCCCCC] cursor-not-allowed" 
-                          : "bg-[#CCCCCC] text-[#6F6B7D] cursor-pointer hover:bg-[#BBBBBB]"
-                      }`}
-                    >
-                      <ChevronLeftIcon className="h-5 w-5" />
-                    </button>
-                    
-                    {generatePageNumbers(policiesPage, policiesData.totalPages).map((pageNum) => (
-                      <button
-                        key={pageNum}
-                        onClick={() => setPoliciesPage(pageNum)}
-                        className={`px-3 py-2 cursor-pointer rounded ${
-                          policiesPage === pageNum
-                            ? "bg-primary text-white"
-                            : "bg-[#F1F0F2] text-[#808080] hover:bg-[#E1E0E2]"
-                        }`}
-                      >
-                        {pageNum}
-                      </button>
-                    ))}
-                    
-                    <button
-                      disabled={policiesPage === policiesData.totalPages}
-                      onClick={() => setPoliciesPage(policiesPage + 1)}
-                      className={`px-2 py-[10px] rounded ${
-                        policiesPage === policiesData.totalPages
-                          ? "bg-[#F5F5F5] text-[#CCCCCC] cursor-not-allowed"
-                          : "bg-[#CCCCCC] text-[#6F6B7D] cursor-pointer hover:bg-[#BBBBBB]"
-                      }`}
-                    >
-                      <ChevronRightIcon className="h-5 w-5" />
-                    </button>
-                  </div>
-                )}
-              </>
-            )}
+            <PoliciesTable
+              data={policiesData?.items || []}
+              loading={policiesLoading}
+              pError={undefined}
+            />
+
+            {/* Pagination */}
+            <div className="flex items-center justify-center p-4 space-x-2">
+              <button
+                disabled={policiesPage === 1}
+                onClick={() => setPoliciesPage(policiesPage - 1)}
+                className="px-2 py-[10px] bg-[#CCCCCC] text-[#6F6B7D] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                title={t("Previous")}
+              >
+                <ChevronLeftIcon className="h-5 w-5" />
+              </button>
+
+              <RenderPageNumbers
+                onPageChange={setPoliciesPage}
+                totalPages={policiesData?.totalPages || 1}
+                page={policiesPage}
+              />
+
+              <button
+                disabled={policiesPage >= (policiesData?.totalPages || 1)}
+                onClick={() => setPoliciesPage(policiesPage + 1)}
+                className="px-2 py-[10px] bg-[#CCCCCC] text-[#6F6B7D] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                title={t("Next")}
+              >
+                <ChevronRightIcon className="h-5 w-5" />
+              </button>
+            </div>
           </div>
         )}
-        
+
         {filter === "Quotes" && (
           <div>
-            {quotesLoading ? (
-              <div className="flex justify-center items-center py-20">
-                <Spinner className="w-8 h-8" />
-              </div>
-            ) : (
-              <>
-                <QuotesTable
-                  data={quotesData?.items || []}
-                  loading={false}
-                  qError={null}
-                />
-                
-                {/* Pagination */}
-                {quotesData && quotesData.totalPages > 1 && (
-                  <div className="flex items-center justify-center p-4 space-x-2">
-                    <button
-                      disabled={quotesPage === 1}
-                      onClick={() => setQuotesPage(quotesPage - 1)}
-                      className={`px-2 py-[10px] rounded ${
-                        quotesPage === 1 
-                          ? "bg-[#F5F5F5] text-[#CCCCCC] cursor-not-allowed" 
-                          : "bg-[#CCCCCC] text-[#6F6B7D] cursor-pointer hover:bg-[#BBBBBB]"
-                      }`}
-                    >
-                      <ChevronLeftIcon className="h-5 w-5" />
-                    </button>
-                    
-                    {generatePageNumbers(quotesPage, quotesData.totalPages).map((pageNum) => (
-                      <button
-                        key={pageNum}
-                        onClick={() => setQuotesPage(pageNum)}
-                        className={`px-3 py-2 cursor-pointer rounded ${
-                          quotesPage === pageNum
-                            ? "bg-primary text-white"
-                            : "bg-[#F1F0F2] text-[#808080] hover:bg-[#E1E0E2]"
-                        }`}
-                      >
-                        {pageNum}
-                      </button>
-                    ))}
-                    
-                    <button
-                      disabled={quotesPage === quotesData.totalPages}
-                      onClick={() => setQuotesPage(quotesPage + 1)}
-                      className={`px-2 py-[10px] rounded ${
-                        quotesPage === quotesData.totalPages
-                          ? "bg-[#F5F5F5] text-[#CCCCCC] cursor-not-allowed"
-                          : "bg-[#CCCCCC] text-[#6F6B7D] cursor-pointer hover:bg-[#BBBBBB]"
-                      }`}
-                    >
-                      <ChevronRightIcon className="h-5 w-5" />
-                    </button>
-                  </div>
-                )}
-              </>
-            )}
+            <QuotesTable
+              data={quotesData?.items || []}
+              loading={quotesLoading}
+              qError={undefined}
+            />
+
+            {/* Pagination */}
+            <div className="flex items-center justify-center p-4 space-x-2">
+              <button
+                disabled={quotesPage === 1}
+                onClick={() => setQuotesPage(quotesPage - 1)}
+                className="px-2 py-[10px] bg-[#CCCCCC] text-[#6F6B7D] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                title={t("Previous")}
+              >
+                <ChevronLeftIcon className="h-5 w-5" />
+              </button>
+
+              <RenderPageNumbers
+                onPageChange={setQuotesPage}
+                totalPages={quotesData?.totalPages || 1}
+                page={quotesPage}
+              />
+
+              <button
+                disabled={quotesPage >= (quotesData?.totalPages || 1)}
+                onClick={() => setQuotesPage(quotesPage + 1)}
+                className="px-2 py-[10px] bg-[#CCCCCC] text-[#6F6B7D] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                title={t("Next")}
+              >
+                <ChevronRightIcon className="h-5 w-5" />
+              </button>
+            </div>
           </div>
         )}
-
-
 
         {filter === "Commissions" && (
-  <div>
-
- <div className="mb-4 p-4 rounded-lg">
-      <div className="flex flex-wrap items-end gap-4">
-        <div className="flex-1 min-w-[200px] max-w-[350px]">
-          <DatePicker
-            label={t("From Date")}
-            value={dateFrom}
-            onChange={(date: Date) => {
-              if (date) {
-               // Convert Date object to YYYY-MM-DD string
-               const year = date.getFullYear();
-               const month = String(date.getMonth() + 1).padStart(2, '0');
-               const day = String(date.getDate()).padStart(2, '0');
-               setDateFrom(`${year}-${month}-${day}`);
-              } else {
-                setDateFrom('');
-              }
-              setCommissionsPage(1); 
-            }}
-          />
-        </div>
-        
-        <div className="flex-1 min-w-[200px] max-w-[350px]">
-          <DatePicker
-            label={t("To Date")}
-            value={dateTo}
-            onChange={(date: Date) => {
-              if (date) {
-               // Convert Date object to YYYY-MM-DD string
-               const year = date.getFullYear();
-               const month = String(date.getMonth() + 1).padStart(2, '0');
-               const day = String(date.getDate()).padStart(2, '0');
-               setDateTo(`${year}-${month}-${day}`);
-              } else {
-                setDateTo('');
-              }
-              setCommissionsPage(1); 
-            }}
-          />
-        </div>
-        
-        <button
-          onClick={() => {
-            setDateFrom('');
-            setDateTo('');
-            setCommissionsPage(1);
-          }}
-          disabled={!dateFrom && !dateTo}
-          className="btn-primary"
-        >
-          {t("Clear Filters")}
-        </button>
-      </div>
-      
-      {/* Show active filter info */}
-      {(dateFrom || dateTo) && (
-        <div className="mt-2 text-sm text-gray-600">
-          {t("Showing commissions")} 
-          {dateFrom && ` ${t("from")} ${new Date(dateFrom).toLocaleDateString()}`}
-          {dateTo && ` ${t("to")} ${new Date(dateTo).toLocaleDateString()}`}
-        </div>
-      )}
-    </div>
-
-
-
-
-
-
-    {commissionsLoading ? (
-      <div className="flex justify-center items-center py-20">
-        <Spinner className="w-8 h-8" />
-      </div>
-    ) : (
-      <>
-        {/* Summary Stats */}
-        {/* {commissionsData?.summary && (
-          <div className="mb-6 grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
-              <div className="text-sm text-blue-600 font-medium">Total Commissions</div>
-              <div className="text-2xl font-bold text-blue-900">
-                {commissionsData.summary.totalCommissions}
-              </div>
-            </div>
-            <div className="bg-purple-50 p-4 rounded-lg border border-purple-200">
-              <div className="text-sm text-purple-600 font-medium">Total Amount</div>
-              <div className="text-2xl font-bold text-purple-900">
-                ${commissionsData.summary.totalAmount.toFixed(2)}
-              </div>
-            </div>
-            <div className="bg-green-50 p-4 rounded-lg border border-green-200">
-              <div className="text-sm text-green-600 font-medium">Agent Share</div>
-              <div className="text-2xl font-bold text-green-900">
-                ${commissionsData.summary.totalAgentShare.toFixed(2)}
-              </div>
-            </div>
-            <div className="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
-              <div className="text-sm text-yellow-600 font-medium">MGA Share</div>
-              <div className="text-2xl font-bold text-yellow-900">
-                ${commissionsData.summary.totalMgaShare.toFixed(2)}
-              </div>
-            </div>
-          </div>
-        )} */}
-
-        <CommissionsTable
-          data={commissionsData?.items || []}
-          loading={false}
-          error={null}
-        />
-
-
-
-          {commissionsData?.summary && (
-          <div className="mt-4 p-6 bg-blue-50">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-blue-900">
-                {t("Commission Summary")}
-              </h3>
-              <span className="text-sm text-gray-600">
-                {dateFrom || dateTo 
-                  ? t("Filtered Period")
-                  : t("All Time")
-                }
-              </span>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="bg-white p-4 border border-blue-200">
-                <div className="text-sm text-text-secondary mb-1">{t("Total Commissions")}</div>
-                <div className="text-2xl font-bold text-primary">
-                  {commissionsData.summary.totalCommissions}
+          <div>
+            <div className="mb-4 p-4 rounded-lg">
+              <div className="flex flex-wrap items-end gap-4">
+                <div className="flex-1 min-w-[200px] max-w-[350px]">
+                  <DatePicker
+                    label={t("From Date")}
+                    value={dateFrom}
+                    onChange={(date: Date) => {
+                      if (date) {
+                        // Convert Date object to YYYY-MM-DD string
+                        const year = date.getFullYear();
+                        const month = String(date.getMonth() + 1).padStart(
+                          2,
+                          "0",
+                        );
+                        const day = String(date.getDate()).padStart(2, "0");
+                        setDateFrom(`${year}-${month}-${day}`);
+                      } else {
+                        setDateFrom("");
+                      }
+                      setCommissionsPage(1);
+                    }}
+                  />
                 </div>
-                <div className="text-xs text-gray-500 mt-1">
-                  {t("Total")}: ${commissionsData.summary.totalAmount.toFixed(2)}
+
+                <div className="flex-1 min-w-[200px] max-w-[350px]">
+                  <DatePicker
+                    label={t("To Date")}
+                    value={dateTo}
+                    onChange={(date: Date) => {
+                      if (date) {
+                        // Convert Date object to YYYY-MM-DD string
+                        const year = date.getFullYear();
+                        const month = String(date.getMonth() + 1).padStart(
+                          2,
+                          "0",
+                        );
+                        const day = String(date.getDate()).padStart(2, "0");
+                        setDateTo(`${year}-${month}-${day}`);
+                      } else {
+                        setDateTo("");
+                      }
+                      setCommissionsPage(1);
+                    }}
+                  />
+                </div>
+
+                <button
+                  onClick={() => {
+                    setDateFrom("");
+                    setDateTo("");
+                    setCommissionsPage(1);
+                  }}
+                  disabled={!dateFrom && !dateTo}
+                  className="btn-primary"
+                >
+                  {t("Clear Filters")}
+                </button>
+              </div>
+
+              {/* Show active filter info */}
+              {(dateFrom || dateTo) && (
+                <div className="mt-2 text-sm text-gray-600">
+                  {t("Showing commissions")}
+                  {dateFrom &&
+                    ` ${t("from")} ${new Date(dateFrom).toLocaleDateString()}`}
+                  {dateTo &&
+                    ` ${t("to")} ${new Date(dateTo).toLocaleDateString()}`}
+                </div>
+              )}
+            </div>
+
+            <CommissionsTable
+              data={commissionsData?.items || []}
+              loading={commissionsLoading}
+              error={undefined}
+            />
+
+            {/* Summary Stats */}
+            {commissionsData?.summary && (
+              <div className="mt-4 p-6 bg-blue-50">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-semibold text-blue-900">
+                    {t("Commission Summary")}
+                  </h3>
+                  <span className="text-sm text-gray-600">
+                    {dateFrom || dateTo ? t("Filtered Period") : t("All Time")}
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="bg-white p-4 border border-blue-200">
+                    <div className="text-sm text-text-secondary mb-1">
+                      {t("Total Commissions")}
+                    </div>
+                    <div className="text-2xl font-bold text-primary">
+                      {commissionsData.summary.totalCommissions}
+                    </div>
+                    <div className="text-xs text-gray-500 mt-1">
+                      {t("Total")}: $
+                      {commissionsData.summary.totalAmount.toFixed(2)}
+                    </div>
+                  </div>
+
+                  <div className="bg-white p-4 border border-blue-200">
+                    <div className="text-sm text-text-secondary mb-1">
+                      {t("MGA Override Share")}
+                    </div>
+                    <div className="text-2xl font-bold text-primary">
+                      ${commissionsData.summary.totalMgaShare.toFixed(2)}
+                    </div>
+                    <div className="text-xs text-gray-500 mt-1">
+                      {t("Your earnings from this agent")}
+                    </div>
+                  </div>
+
+                  <div className="bg-white p-4 border border-blue-200">
+                    <div className="text-sm text-text-secondary mb-1">
+                      {t("Agent Share")}
+                    </div>
+                    <div className="text-2xl font-bold text-green-700">
+                      ${commissionsData.summary.totalAgentShare.toFixed(2)}
+                    </div>
+                    <div className="text-xs text-gray-500 mt-1">
+                      {t("Amount payable to agent")}
+                    </div>
+                  </div>
                 </div>
               </div>
-              
-              <div className="bg-white p-4 border border-blue-200">
-                <div className="text-sm text-text-secondary mb-1">{t("MGA Override Share")}</div>
-                <div className="text-2xl font-bold text-primary">
-                  ${commissionsData.summary.totalMgaShare.toFixed(2)}
-                </div>
-                <div className="text-xs text-gray-500 mt-1">
-                  {t("Your earnings from this agent")}
-                </div>
-              </div>
-              
-              <div className="bg-white p-4 border border-blue-200">
-                <div className="text-sm text-text-secondary mb-1">{t("Agent Share")}</div>
-                <div className="text-2xl font-bold text-green-700">
-                  ${commissionsData.summary.totalAgentShare.toFixed(2)}
-                </div>
-                <div className="text-xs text-gray-500 mt-1">
-                  {t("Amount payable to agent")}
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
+            )}
 
-
-
-        {/* Pagination */}
-        {commissionsData && commissionsData.totalPages > 1 && (
-          <div className="flex items-center justify-center p-4 space-x-2">
-            <button
-              disabled={commissionsPage === 1}
-              onClick={() => setCommissionsPage(commissionsPage - 1)}
-              className={`px-2 py-[10px] rounded ${
-                commissionsPage === 1 
-                  ? "bg-[#F5F5F5] text-[#CCCCCC] cursor-not-allowed" 
-                  : "bg-[#CCCCCC] text-[#6F6B7D] cursor-pointer hover:bg-[#BBBBBB]"
-              }`}
-            >
-              <ChevronLeftIcon className="h-5 w-5" />
-            </button>
-            
-            {generatePageNumbers(commissionsPage, commissionsData.totalPages).map((pageNum) => (
+            {/* Pagination */}
+            <div className="flex items-center justify-center p-4 space-x-2">
               <button
-                key={pageNum}
-                onClick={() => setCommissionsPage(pageNum)}
-                className={`px-3 py-2 cursor-pointer rounded ${
-                  commissionsPage === pageNum
-                    ? "bg-primary text-white"
-                    : "bg-[#F1F0F2] text-[#808080] hover:bg-[#E1E0E2]"
-                }`}
+                disabled={commissionsPage === 1}
+                onClick={() => setCommissionsPage(commissionsPage - 1)}
+                className="px-2 py-[10px] bg-[#CCCCCC] text-[#6F6B7D] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                title={t("Previous")}
               >
-                {pageNum}
+                <ChevronLeftIcon className="h-5 w-5" />
               </button>
-            ))}
-            
-            <button
-              disabled={commissionsPage === commissionsData.totalPages}
-              onClick={() => setCommissionsPage(commissionsPage + 1)}
-              className={`px-2 py-[10px] rounded ${
-                commissionsPage === commissionsData.totalPages
-                  ? "bg-[#F5F5F5] text-[#CCCCCC] cursor-not-allowed"
-                  : "bg-[#CCCCCC] text-[#6F6B7D] cursor-pointer hover:bg-[#BBBBBB]"
-              }`}
-            >
-              <ChevronRightIcon className="h-5 w-5" />
-            </button>
+
+              <RenderPageNumbers
+                onPageChange={setCommissionsPage}
+                totalPages={commissionsData?.totalPages || 1}
+                page={commissionsPage}
+              />
+
+              <button
+                disabled={commissionsPage >= (commissionsData?.totalPages || 1)}
+                onClick={() => setCommissionsPage(commissionsPage + 1)}
+                className="px-2 py-[10px] bg-[#CCCCCC] text-[#6F6B7D] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                title={t("Next")}
+              >
+                <ChevronRightIcon className="h-5 w-5" />
+              </button>
+            </div>
           </div>
         )}
-      </>
-    )}
-  </div>
-)}
-
-
       </div>
     </div>
   );

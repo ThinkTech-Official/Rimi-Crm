@@ -17,6 +17,7 @@ import useNotification from "../../../hooks/useNotification";
 import { FormProvider, useForm } from "react-hook-form";
 import YourQuoteSummary from "./step2/YourQuoteSummary";
 import { useLanguage } from "../../../context/LanguageContext";
+import TestFillButton from "../../common/TestFillButton";
 
 type SuperVisaOption = "" | "yes" | "no";
 type SuperVisaYears = "" | "1";
@@ -45,7 +46,7 @@ interface Applicant {
 export interface Step1Payload {
   primaryFirstName: string;
   primaryLastName: string;
-  primaryDateOfBirth: string | Date; // DatePicker handles Dates, but API might expect string
+  primaryDateOfBirth: string;
   primaryEmail: string;
   primaryApplicantGender: string;
   applicantNumber: number;
@@ -57,8 +58,8 @@ export interface Step1Payload {
   superVisa: SuperVisaOption;
   superVisaYears: SuperVisaYears;
   destinationProvince: string;
-  effectiveDate: string | Date;
-  expiryDate: string | Date;
+  effectiveDate: string;
+  expiryDate: string;
   coverageLength: string;
   policyType: string;
   coverageOption: string;
@@ -281,19 +282,10 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
         product: productName,
         quoteNumber: quoteNumber,
         status: "Inactive",
-        // Ensure dates are strings or formatted as expected by backend if they are Date objects
-        primaryDateOfBirth:
-          formValues.primaryDateOfBirth instanceof Date
-            ? formValues.primaryDateOfBirth.toISOString()
-            : formValues.primaryDateOfBirth,
-        effectiveDate:
-          formValues.effectiveDate instanceof Date
-            ? formValues.effectiveDate.toISOString()
-            : formValues.effectiveDate,
-        expiryDate:
-          formValues.expiryDate instanceof Date
-            ? formValues.expiryDate.toISOString()
-            : formValues.expiryDate,
+        // Ensure dates are strings as expected by backend
+        primaryDateOfBirth: formValues.primaryDateOfBirth as string,
+        effectiveDate: formValues.effectiveDate as string,
+        expiryDate: formValues.expiryDate as string,
       };
 
       const response = await saveQuoteNext(stage1Payload);
@@ -462,6 +454,7 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
       {steps[0].status === "current" && (
         <div>
           <FormProvider {...step1Methods}>
+            <TestFillButton productName={productName} />
             <Step1STRVCT
               onValidityChange={setIsStepOneFilled}
               quoteNumber={quoteNumber}
@@ -497,6 +490,11 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
               </span>
             </h3>
           </div>
+
+          <TestFillButton 
+            productName={productName} 
+            methods={[contactInfoMethods, addressMethods, beneficiaryMethods]} 
+          />
           <YourQuoteSummary step1ResponseData={step1ResponseData} />
           <ApplicantInformationFinished
             dateOfBirth={step1ResponseData?.dateOfBirth ?? ""}

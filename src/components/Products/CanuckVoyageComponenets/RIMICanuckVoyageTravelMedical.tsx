@@ -293,6 +293,7 @@ import PaymentInformation from "./step2/PaymentInformation";
 import Summary from "./step3/Summary";
 import { FormProvider, useForm, useWatch } from "react-hook-form";
 import useNotification from "../../../hooks/useNotification";
+import TestFillButton from "../../common/TestFillButton";
 
 interface Applicant {
   index: string;
@@ -336,7 +337,12 @@ const RIMICanuckVoyageTravelMedical: React.FC = () => {
   // ========== STEP MANAGEMENT ==========
   const [steps, setSteps] = useState([
     { id: "01", name: t("Get Quote"), href: "#", status: "current" },
-    { id: "02", name: t("Complete Application"), href: "#", status: "upcoming" },
+    {
+      id: "02",
+      name: t("Complete Application"),
+      href: "#",
+      status: "upcoming",
+    },
     { id: "03", name: t("Confirmation"), href: "#", status: "upcoming" },
   ]);
   const [formStep, setFormStep] = useState(1);
@@ -653,6 +659,7 @@ const RIMICanuckVoyageTravelMedical: React.FC = () => {
       {steps[0].status === "current" && (
         <FormProvider {...step1Methods}>
           <form onSubmit={step1Methods.handleSubmit(handleNext)}>
+            <TestFillButton productName={productName} />
             <ApplicantInformation methods={step1Methods} />
 
             <CoverageInformation
@@ -697,9 +704,15 @@ const RIMICanuckVoyageTravelMedical: React.FC = () => {
         <div>
           <div className="w-full h-2 mt-8 flex items-center justify-center font-[inter]">
             <h3 className="text-base sm:text-lg">
-              {t("Your Quote")}: ${step1ResponseData?.quoteAmount.toFixed(2)} {t("CAD")}
+              {t("Your Quote")}: ${step1ResponseData?.quoteAmount.toFixed(2)}{" "}
+              {t("CAD")}
             </h3>
           </div>
+
+          <TestFillButton
+            productName={productName}
+            methods={[contactInfoMethods, addressMethods]}
+          />
 
           <QuoteSummary step1ResponseData={step1ResponseData} />
           <ApplicantInformationFinished

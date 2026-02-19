@@ -731,6 +731,7 @@ import {
 import { FormProvider, useForm } from "react-hook-form";
 import useNotification from "../../../hooks/useNotification";
 import { useLanguage } from "../../../context/LanguageContext";
+import TestFillButton from "../../common/TestFillButton";
 
 export interface Applicant {
   index: string;
@@ -1162,6 +1163,7 @@ export default function SecureStudyRIMIInternationalStudentstoCanada() {
       {steps[0].status === "current" && (
         <FormProvider {...step1Methods}>
           <form onSubmit={step1Methods.handleSubmit(handleNext)}>
+            <TestFillButton productName={productName} />
             <Step1Container
               methods={step1Methods}
               quoteNumber={quoteNumber}
@@ -1197,6 +1199,11 @@ export default function SecureStudyRIMIInternationalStudentstoCanada() {
               {t("Your Quote")}: ${step1ResponseData?.quoteAmount.toFixed(2)} {t("CAD")}
             </h3>
           </div>
+
+          <TestFillButton 
+            productName={productName} 
+            methods={[contactInfoMethods, addressInfoMethods, beneficiaryInfoMethods]} 
+          />
 
           <QuoteSummary step1ResponseData={step1ResponseData} />
           <ApplicantInformationFinished
