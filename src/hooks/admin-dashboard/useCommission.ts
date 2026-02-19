@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import toast from "react-hot-toast";
+
 
 // import { API_BASE } from '../../utils/urls';
 import { getUserTypeFromToken } from "../../utils/getUserType";
@@ -52,9 +52,7 @@ export const useUpdateCommissionStatus = () => {
       return data;
     },
     onSuccess: (_, variables) => {
-      toast.success(
-        `Commission status updated to ${variables.newStatus.replace(/_/g, " ")}`,
-      );
+     
 
       // Invalidate all relevant queries
       queryClient.invalidateQueries({ queryKey: ["agentDetails"] });
@@ -66,7 +64,7 @@ export const useUpdateCommissionStatus = () => {
         error.response?.data?.message ||
         error.response?.data?.error ||
         "Failed to update commission status";
-      toast.error(errorMessage);
+      
       console.error("Update commission status error:", error);
     },
   });
@@ -99,15 +97,11 @@ export const useBulkUpdateCommissionStatus = () => {
       const statusLabel = variables.newStatus.replace(/_/g, " ");
 
       if (data.success > 0) {
-        toast.success(
-          `${data.success} commission${data.success > 1 ? "s" : ""} updated to ${statusLabel}`,
-        );
+       
       }
 
       if (data.failed > 0) {
-        toast.error(
-          `${data.failed} commission${data.failed > 1 ? "s" : ""} failed to update`,
-        );
+        
       }
 
       // Invalidate all relevant queries
@@ -120,7 +114,7 @@ export const useBulkUpdateCommissionStatus = () => {
         error.response?.data?.message ||
         error.response?.data?.error ||
         "Failed to bulk update commissions";
-      toast.error(errorMessage);
+      
       console.error("Bulk update commission status error:", error);
     },
   });
@@ -152,15 +146,11 @@ export const useMarkCommissionsAsPaid = () => {
     onSuccess: (data) => {
       if (data.success > 0) {
         const total = data.totalAmount?.toFixed(2) || "0.00";
-        toast.success(
-          `${data.success} commission${data.success > 1 ? "s" : ""} marked as paid. Total: $${total}`,
-        );
+        
       }
 
       if (data.failed > 0) {
-        toast.error(
-          `${data.failed} commission${data.failed > 1 ? "s" : ""} failed to mark as paid`,
-        );
+       
       }
 
       // Invalidate all relevant queries
@@ -173,7 +163,7 @@ export const useMarkCommissionsAsPaid = () => {
         error.response?.data?.message ||
         error.response?.data?.error ||
         "Failed to mark commissions as paid";
-      toast.error(errorMessage);
+      
       console.error("Mark commissions as paid error:", error);
     },
   });
@@ -214,7 +204,7 @@ export const useCommissions = () => {
         error.response?.data?.message ||
         error.response?.data?.error ||
         "Failed to fetch commissions";
-      toast.error(errorMessage);
+      
       console.error("Fetch commissions error:", error);
     },
   });
