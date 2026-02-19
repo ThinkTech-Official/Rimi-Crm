@@ -1,4 +1,4 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 
 // import { API_BASE } from '../../utils/urls';
@@ -172,40 +172,68 @@ export const useMarkCommissionsAsPaid = () => {
 /**
  * Hook to get all commissions with filters (for future use)
  */
-export const useCommissions = () => {
-  const queryClient = useQueryClient();
+// export const useCommissions = () => {
+//   const queryClient = useQueryClient();
 
-  return useMutation({
-    mutationFn: async (filters?: {
-      status?: string;
-      agentCode?: string;
-      dateFrom?: string;
-      dateTo?: string;
-      page?: number;
-      limit?: number;
-    }) => {
+//   return useMutation({
+//     mutationFn: async (filters?: {
+//       status?: string;
+//       agentCode?: string;
+//       dateFrom?: string;
+//       dateTo?: string;
+//       page?: number;
+//       limit?: number;
+//     }) => {
+//       const params = new URLSearchParams();
+
+//       if (filters?.status) params.append("status", filters.status);
+//       if (filters?.agentCode) params.append("agentCode", filters.agentCode);
+//       if (filters?.dateFrom) params.append("dateFrom", filters.dateFrom);
+//       if (filters?.dateTo) params.append("dateTo", filters.dateTo);
+//       if (filters?.page) params.append("page", filters.page.toString());
+//       if (filters?.limit) params.append("limit", filters.limit.toString());
+
+//       const { data } = await axiosInstance.get(
+//         `/admin/commissions?${params.toString()}`,
+//       );
+//       console.log("commission data ", data);
+//       return data;
+//     },
+//     onError: (error: any) => {
+//       const errorMessage =
+//         error.response?.data?.message ||
+//         error.response?.data?.error ||
+//         "Failed to fetch commissions";
+      
+//       console.error("Fetch commissions error:", error);
+//     },
+//   });
+// };
+
+export const useCommissions = (filters: {
+  status?: string;
+  agentCode?: string;
+  dateFrom?: string;
+  dateTo?: string;
+  page?: number;
+  limit?: number;
+}) => {
+  return useQuery({
+    queryKey: ["commissions", filters],
+    queryFn: async () => {
       const params = new URLSearchParams();
+      if (filters.status) params.append("status", filters.status);
+      if (filters.agentCode) params.append("agentCode", filters.agentCode);
+      if (filters.dateFrom) params.append("dateFrom", filters.dateFrom);
+      if (filters.dateTo) params.append("dateTo", filters.dateTo);
+      if (filters.page) params.append("page", filters.page.toString());
+      if (filters.limit) params.append("limit", filters.limit.toString());
 
-      if (filters?.status) params.append("status", filters.status);
-      if (filters?.agentCode) params.append("agentCode", filters.agentCode);
-      if (filters?.dateFrom) params.append("dateFrom", filters.dateFrom);
-      if (filters?.dateTo) params.append("dateTo", filters.dateTo);
-      if (filters?.page) params.append("page", filters.page.toString());
-      if (filters?.limit) params.append("limit", filters.limit.toString());
-
-      const { data } = await axiosInstance.get(
-        `/admin/commissions?${params.toString()}`,
-      );
-      console.log("commission data ", data);
+      const { data } = await axiosInstance.get(`/admin/commissions?${params.toString()}`);
       return data;
     },
-    onError: (error: any) => {
-      const errorMessage =
-        error.response?.data?.message ||
-        error.response?.data?.error ||
-        "Failed to fetch commissions";
-      
-      console.error("Fetch commissions error:", error);
-    },
+    placeholderData: keepPreviousData, 
   });
 };
+
+

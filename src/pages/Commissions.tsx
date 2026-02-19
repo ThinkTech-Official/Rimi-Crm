@@ -23,18 +23,25 @@ export default function Commissions() {
   const [agentCodeInput, setAgentCodeInput] = useState("");
   const limit = 10;
 
-  const { mutate: fetchCommissions, data, isPending, error } = useCommissions();
+  // const { mutate: fetchCommissions, data, isPending, error } = useCommissions();
+  const { data, isLoading: isPending, error } = useCommissions({
+  page,
+  limit,
+  ...appliedFilters,
+});
   const { mutate: updateStatus, isPending: isUpdating } =
     useUpdateCommissionStatus();
 
   // Initial fetch and fetch on appliedFilters/page change
-  useEffect(() => {
-    fetchCommissions({
-      page,
-      limit,
-      ...appliedFilters,
-    });
-  }, [page, appliedFilters ]);
+  // useEffect(() => {
+  //   fetchCommissions({
+  //     page,
+  //     limit,
+  //     ...appliedFilters,
+  //   });
+  // }, [page, appliedFilters ]);
+
+ 
 
   const handlePageChange = (newPage: number) => {
     setPage(Math.max(1, newPage));
