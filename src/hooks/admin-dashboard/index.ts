@@ -284,5 +284,48 @@ export const useAgentDetails = (agentCode: string) => {
   });
 };
 
+
+export const useAgentPolicies = (agentCode: string, page: number, limit = 10) => {
+  return useQuery({
+    queryKey: ['agent-policies', agentCode, page],
+    queryFn: async () => {
+      const response = await axiosInstance.get(
+        `/admin/agents/${agentCode}/policies?page=${page}&limit=${limit}`
+      );
+      return response.data;
+    },
+    enabled: !!agentCode,
+    placeholderData: keepPreviousData,
+  });
+};
+
+export const useAgentQuotes = (agentCode: string, page: number, limit = 10) => {
+  return useQuery({
+    queryKey: ['agent-quotes', agentCode, page],
+    queryFn: async () => {
+      const response = await axiosInstance.get(
+        `/admin/agents/${agentCode}/quotes?page=${page}&limit=${limit}`
+      );
+      return response.data;
+    },
+    enabled: !!agentCode,
+    placeholderData: keepPreviousData,
+  });
+};
+
+export const useAgentCommissions = (agentCode: string, page: number, limit = 10) => {
+  return useQuery({
+    queryKey: ['agent-commissions', agentCode, page],
+    queryFn: async () => {
+      const response = await axiosInstance.get(
+        `/admin/agents/${agentCode}/commissions?page=${page}&limit=${limit}`
+      );
+      return response.data;
+    },
+    enabled: !!agentCode,
+    placeholderData: keepPreviousData,
+  });
+};
+
 // Export types for use in components
 export type { AdminStats, ChartData, PaginatedResponse, Agent, Policy, Quote };

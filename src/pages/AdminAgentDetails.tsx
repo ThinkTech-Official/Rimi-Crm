@@ -314,28 +314,70 @@ import { useState } from "react";
 import { FaUser, FaEdit, FaBan, FaCheckCircle, FaCoins, FaSpinner, FaUndo, FaArrowUp, FaArrowDown, FaCheck } from "react-icons/fa";
 import { useParams } from "react-router-dom";
 import { useLanguage } from "../context/LanguageContext";
-import { useAgentDetails } from "../hooks/admin-dashboard";
+import { useAgentCommissions, useAgentDetails, useAgentPolicies, useAgentQuotes } from "../hooks/admin-dashboard";
 import { PoliciesTable, QuotesTable } from "../components/Tables";
 import { useUpdateCommissionStatus, useBulkUpdateCommissionStatus, useMarkCommissionsAsPaid } from "../hooks/admin-dashboard/useCommission";
 import { CommissionsTable } from "../components/CommissionsTable";
 import Spinner from "../components/Spinner";
 
+
+const PaginationRow = ({
+  page,
+  totalPages,
+  onPageChange,
+}: {
+  page: number;
+  totalPages: number;
+  onPageChange: (p: number) => void;
+}) => (
+  <div className="flex items-center justify-center gap-3 mt-4 py-3">
+    <button
+      onClick={() => onPageChange(page - 1)}
+      disabled={page === 1}
+      className="px-3 py-1 cursor-pointer"
+    >
+      Prev
+    </button>
+    <span className="text-sm">
+      Page {page} of {totalPages}
+    </span>
+    <button
+      onClick={() => onPageChange(page + 1)}
+      disabled={page >= totalPages}
+      className="px-3 py-1 cursor-pointer"
+    >
+      Next
+    </button>
+  </div>
+);
+
+
+
 const AdminAgentDetails = () => {
   const [pPage, setPPage] = useState(1);
   const { t } = useLanguage();
   const [qPage, setQPage] = useState(1);
+
+  const [cPage, setCPage] = useState(1);
+
   const limit = 10;
   
   const { agentCode } = useParams<{ agentCode: string }>();
   
   const { data: agentData, isLoading, error, refetch } = useAgentDetails(agentCode || "");
   
+  const { data: policiesData, isLoading: pLoading } = useAgentPolicies(agentCode || "", pPage);
+const { data: quotesData, isLoading: qLoading } = useAgentQuotes(agentCode || "", qPage);
+const { data: commissionsData, isLoading: cLoading } = useAgentCommissions(agentCode || "", cPage);
+
+
+
+
   const [filter, setFilter] = useState("Policies");
   const [selectedCommissionIds, setSelectedCommissionIds] = useState<string[]>([]);
   
   const toggleTableFilter = (option: string) => setFilter(option);
 
-  // ✅ Use custom hooks
   const updateCommissionStatus = useUpdateCommissionStatus();
   const bulkUpdateStatus = useBulkUpdateCommissionStatus();
   const markAsPaid = useMarkCommissionsAsPaid();
@@ -359,12 +401,12 @@ const AdminAgentDetails = () => {
       </div>
     );
   }
-  // Extract data
-  const recentPolicies = agentData.policy || [];
-  const recentQuotes = agentData.quotes || [];
-  const commissions = agentData.agentCommissions || [];
+
+const recentPolicies = policiesData?.data || [];
+const recentQuotes = quotesData?.data || [];
+const commissions = commissionsData?.data || [];
   
-  // ✅ Calculate commission metrics
+  
   const isUnderMGA = !!agentData.mgaId;
   
   const positiveCommissions = commissions.filter(
@@ -770,7 +812,7 @@ const AdminAgentDetails = () => {
                   : "text-gray-500 hover:text-gray-700"
               }`}
             >
-              {t("Policies")} ({recentPolicies.length})
+              {t("Policies")} ({policiesData?.total ?? 0})
             </button>
             <button
               onClick={() => toggleTableFilter("Quotes")}
@@ -780,7 +822,7 @@ const AdminAgentDetails = () => {
                   : "text-gray-500 hover:text-gray-700"
               }`}
             >
-              {t("Quotes")} ({recentQuotes.length})
+              {t("Quotes")} ({quotesData?.total ?? 0})
             </button>
             <button
               onClick={() => toggleTableFilter("Commissions")}
@@ -790,7 +832,7 @@ const AdminAgentDetails = () => {
                   : "text-gray-500 hover:text-gray-700"
               }`}
             >
-              {t("Commissions")} ({commissions.length})
+              {t("Commissions")} ({commissionsData?.total ?? 0})
             </button>
         </div>
       </div>
@@ -801,9 +843,14 @@ const AdminAgentDetails = () => {
           <div>
             <PoliciesTable
               data={recentPolicies}
-              loading={false}
+              loading={pLoading}
               pError={null}
             />
+             <PaginationRow
+              page={pPage}
+              totalPages={policiesData?.totalPages || 1}
+              onPageChange={setPPage}
+              />
           </div>
         )}
         
@@ -811,9 +858,14 @@ const AdminAgentDetails = () => {
           <div>
             <QuotesTable
               data={recentQuotes}
-              loading={false}
+              loading={qLoading}
               qError={null}
             />
+            <PaginationRow
+              page={qPage}
+              totalPages={quotesData?.totalPages || 1}
+              onPageChange={setQPage}
+              />
           </div>
         )}
 
@@ -864,9 +916,14 @@ const AdminAgentDetails = () => {
             
             <CommissionsTable
               data={commissions}
-              loading={isLoading}
+              loading={cLoading}
               showCustomer = {false}
             />
+            <PaginationRow
+              page={cPage}
+              totalPages={commissionsData?.totalPages || 1}
+              onPageChange={setCPage}
+              />
           </div>
         )}
       </div>
