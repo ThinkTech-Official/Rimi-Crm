@@ -38,7 +38,7 @@ const Summary: React.FC<SummaryProps> = ({ quoteId }) => {
 
   const quoteSummaryRows: [string, React.ReactNode][] = [
     [t("Quote Number"), maybe(data.quoteNumber)],
-    [t("Product"), maybe(data.product)],
+    [t("Product"), maybe(data.product.split("_").join(" "))],
     [t("Status"), t(maybe(data.status))],
     [t("Effective Date"), maybe(data.effectiveDate)],
     [t("Expiry Date"), maybe(data.expiryDate)],

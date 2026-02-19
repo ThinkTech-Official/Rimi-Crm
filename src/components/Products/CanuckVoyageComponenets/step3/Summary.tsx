@@ -165,7 +165,7 @@ const Summary: React.FC<SummaryProps> = ({ quoteId }) => {
   // Build quote rows with conditional entries
   const quoteRows: [string, React.ReactNode][] = [
     [t("Quote Number"), maybe(data.quoteNumber)],
-    [t("Product"), maybe(data.product)],
+    [t("Product"), maybe(data.product?.split("_").join(" "))],
     [
       t("Status"),
       <span key="status" className="inline-block px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm font-semibold">

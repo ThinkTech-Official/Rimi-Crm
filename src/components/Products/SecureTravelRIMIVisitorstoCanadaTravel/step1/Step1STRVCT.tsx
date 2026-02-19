@@ -42,6 +42,8 @@ export interface PremiumCalculationData {
   coverageForPreMedCon?: boolean;
   applicants?: any[];
   plan?: number;
+  primaryDateOfBirth?: string;
+  paymentOption?: string;
 }
 
 type Props = {
@@ -410,7 +412,10 @@ const Step1STRVCT = ({
         : "",
       paymentOption,
       plan: 1,
-      applicants: applicants,
+      applicants: (applicants || []).map((app: any) => ({
+        ...app,
+        dob: app.dob ? new Date(app.dob).toISOString() : "",
+      })),
     }),
     [
       countryOfOrigin,
