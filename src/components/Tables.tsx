@@ -394,7 +394,7 @@ export function CommissionsTable({
                   <tr
                     key={commission.id}
                     className={`hover:bg-gray-30 ${
-                      isReversal ? "bg-red-50" : ""
+                      isReversal ? "bg-red-50 text-red-700" : ""
                     }`}
                   >
                     <td
