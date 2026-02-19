@@ -66,9 +66,9 @@ export function PoliciesTable({
               </tr>
             ) : (
               data?.map((p: PolicyRow, i) => (
-                <tr key={i} className="text-[#808080] text-sm 2xl:text-xl">
+                <tr key={i} className="text-[#808080] text-base 2xl:text-lg">
                   <td
-                    className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
+                    className="px-2 sm:px-3 py-2 whitespace-nowrap border-r border-b border-[#AAA9A9]"
                     style={{
                       borderWidth: "0px 1px 1px 0px",
                       borderStyle: "solid",
@@ -79,7 +79,7 @@ export function PoliciesTable({
                     {p.policyNumber}
                   </td>
                   <td
-                    className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
+                    className="px-2 sm:px-3 py-2 whitespace-nowrap border-r border-b border-[#AAA9A9]"
                     style={{
                       borderWidth: "0px 1px 1px 0px",
                       borderStyle: "solid",
@@ -90,7 +90,7 @@ export function PoliciesTable({
                     {p.firstName} {p.lastName}
                   </td>
                   <td
-                    className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
+                    className="px-2 sm:px-3 py-2 whitespace-nowrap border-r border-b border-[#AAA9A9] capitalize"
                     style={{
                       borderWidth: "0px 1px 1px 0px",
                       borderStyle: "solid",
@@ -101,7 +101,7 @@ export function PoliciesTable({
                     {p.policyType}
                   </td>
                   <td
-                    className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
+                    className="px-2 sm:px-3 py-2 whitespace-nowrap border-r border-b border-[#AAA9A9]"
                     style={{
                       borderWidth: "0px 1px 1px 0px",
                       borderStyle: "solid",
@@ -112,7 +112,7 @@ export function PoliciesTable({
                     {p.premium != null ? p.premium.toFixed(2) : "-"}
                   </td>
                   <td
-                    className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
+                    className="px-2 sm:px-3 py-2 whitespace-nowrap border-r border-b border-[#AAA9A9]"
                     style={{
                       borderWidth: "0px 1px 1px 0px",
                       borderStyle: "solid",
@@ -123,7 +123,7 @@ export function PoliciesTable({
                     {p.status}
                   </td>
                   <td
-                    className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
+                    className="px-2 sm:px-3 py-2 whitespace-nowrap border-r border-b border-[#AAA9A9]"
                     style={{
                       borderWidth: "0px 1px 1px 0px",
                       borderStyle: "solid",
@@ -208,9 +208,9 @@ export function QuotesTable({
               </tr>
             ) : (
               data?.map((q: QuoteRow, i) => (
-                <tr key={i} className="text-[#808080] text-sm 2xl:text-xl">
+                <tr key={i} className="text-[#808080] text-base 2xl:text-lg">
                   <td
-                    className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
+                    className="px-2 sm:px-3 py-2 whitespace-nowrap border-r border-b border-[#AAA9A9]"
                     style={{
                       borderWidth: "0px 1px 1px 0px",
                       borderStyle: "solid",
@@ -221,7 +221,7 @@ export function QuotesTable({
                     {q.quoteNumber}
                   </td>
                   <td
-                    className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
+                    className="px-2 sm:px-3 py-2 whitespace-nowrap border-r border-b border-[#AAA9A9]"
                     style={{
                       borderWidth: "0px 1px 1px 0px",
                       borderStyle: "solid",
@@ -232,7 +232,7 @@ export function QuotesTable({
                     {q.firstName} {q.lastName}
                   </td>
                   <td
-                    className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
+                    className="px-2 sm:px-3 py-2 whitespace-nowrap border-r border-b border-[#AAA9A9]"
                     style={{
                       borderWidth: "0px 1px 1px 0px",
                       borderStyle: "solid",
@@ -243,7 +243,7 @@ export function QuotesTable({
                     {q.policyType}
                   </td>
                   <td
-                    className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
+                    className="px-2 sm:px-3 py-2 whitespace-nowrap border-r border-b border-[#AAA9A9]"
                     style={{
                       borderWidth: "0px 1px 1px 0px",
                       borderStyle: "solid",
@@ -254,7 +254,7 @@ export function QuotesTable({
                     {q.premium != null ? q.premium.toFixed(2) : "-"}
                   </td>
                   <td
-                    className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
+                    className="px-2 sm:px-3 py-2 whitespace-nowrap border-r border-b border-[#AAA9A9] capitalize"
                     style={{
                       borderWidth: "0px 1px 1px 0px",
                       borderStyle: "solid",
@@ -262,10 +262,10 @@ export function QuotesTable({
                     }}
                   >
                     {" "}
-                    {q.product}
+                    {q.product?.split("_").join(" ").toLocaleLowerCase()}
                   </td>
                   <td
-                    className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
+                    className="px-2 sm:px-3 py-2 whitespace-nowrap border-r border-b border-[#AAA9A9]"
                     style={{
                       borderWidth: "0px 1px 1px 0px",
                       borderStyle: "solid",
@@ -276,7 +276,7 @@ export function QuotesTable({
                     {q.status}
                   </td>
                   <td
-                    className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
+                    className="px-2 sm:px-3 py-2 whitespace-nowrap border-r border-b border-[#AAA9A9]"
                     style={{
                       borderWidth: "0px 1px 1px 0px",
                       borderStyle: "solid",
@@ -302,11 +302,6 @@ export function CommissionsTable({
   data,
   loading,
   isUnderMGA,
-  selectedIds,
-  onSelect,
-  onSelectAll,
-  onUpdateStatus,
-  isPending,
 }: {
   data: any[];
   loading?: boolean;
@@ -318,42 +313,57 @@ export function CommissionsTable({
   isPending: boolean;
 }) {
   const { t } = useLanguage();
-  const getNextStatus = (currentStatus: string, isUnderMGA: boolean): string | null => {
-    const transitions: Record<string, string> = {
-      pending: "approved",
-      verified: "approved",
-      approved: isUnderMGA ? "paid_to_mga" : "paid",
-    };
-    return transitions[currentStatus] || null;
-  };
+  // const getNextStatus = (
+  //   currentStatus: string,
+  //   isUnderMGA: boolean,
+  // ): string | null => {
+  //   const transitions: Record<string, string> = {
+  //     pending: "approved",
+  //     verified: "approved",
+  //     approved: isUnderMGA ? "paid_to_mga" : "paid",
+  //   };
+  //   return transitions[currentStatus] || null;
+  // };
 
   return (
     <div className="mt-6 space-y-2">
-      <div className="bg-white  border border-inputBorder overflow-hidden">
+      <div className="bg-white  border border-inputBorder overflow-auto custom-scrollbar-x">
         <table className="min-w-full">
           <thead className="bg-primary text-white text-base capitalize text-nowrap">
             <tr>
               <th className="px-4 py-3 text-left font-medium">{t("Date")}</th>
-              <th className="px-4 py-3 text-left font-medium">{t("Policy #")}</th>
+              <th className="px-4 py-3 text-left font-medium">
+                {t("Policy #")}
+              </th>
               <th className="px-4 py-3 text-left font-medium">{t("Type")}</th>
-              <th className="px-4 py-3 text-left font-medium">{t("Payment")}</th>
-              {isUnderMGA && (
-                <>
-                  <th className="px-4 py-3 text-right font-medium text-nowrap">
-                    {t("MGA Share")}
-                  </th>
-                  <th className="px-4 py-3 text-right font-medium text-nowrap">
-                    {t("Agent Share")}
-                  </th>
-                </>
-              )}
+              <th className="px-4 py-3 text-left font-medium">
+                {t("Agent Code")}
+              </th>
+              <th className="px-4 py-3 text-left font-medium">
+                {t("MGA Code")}
+              </th>
+              <th className="px-4 py-3 text-left font-medium">
+                {t("Gross Amount")}
+              </th>
+              <th className="px-4 py-3 text-left font-medium">
+                {t("Comm. Amount")}
+              </th>
+              <th className="px-4 py-3 text-left font-medium">
+                {t("MGA Override %")}
+              </th>
+              <th className="px-4 py-3 text-left font-medium">
+                {t("Agent Share")}
+              </th>
+              <th className="px-4 py-3 text-left font-medium">
+                {t("MGA Share")}
+              </th>
             </tr>
           </thead>
           <tbody className="bg-white text-[#808080]">
             {loading ? (
               <tr>
                 <td
-                  colSpan={isUnderMGA ? 6 : 4}
+                  colSpan={12}
                   className="p-8 text-center bg-white h-40"
                 >
                   <div className="flex justify-center flex-col items-center gap-2">
@@ -367,7 +377,7 @@ export function CommissionsTable({
             ) : data.length === 0 ? (
               <tr>
                 <td
-                  colSpan={isUnderMGA ? 6 : 4}
+                  colSpan={12}
                   className="px-4 py-3 text-center"
                 >
                   {t("No commissions found")}
@@ -377,14 +387,8 @@ export function CommissionsTable({
               data.map((commission: any) => {
                 const isReversal =
                   ["reversed", "partially_reversed"].includes(
-                    commission.status
+                    commission.status,
                   ) || commission.reversalOf;
-                
-                const cellStyle = {
-                  borderWidth: "0px 1px 1px 0px",
-                  borderStyle: "solid" as const,
-                  borderColor: "#AAA9A9",
-                };
 
                 return (
                   <tr
@@ -394,68 +398,60 @@ export function CommissionsTable({
                     }`}
                   >
                     <td
-                      className="px-4 py-3 text-nowrap text-sm"
-                      style={cellStyle}
+                      className="px-2 sm:px-3 py-2 whitespace-nowrap border-r border-b border-[#AAA9A9]"
                     >
                       {new Date(commission.createdAt).toLocaleDateString()}
                     </td>
                     <td
-                      className="px-4 py-3 font-medium text-primary text-nowrap"
-                      style={cellStyle}
+                       className="px-2 sm:px-3 py-2 whitespace-nowrap border-r border-b border-[#AAA9A9]"
                     >
                       {commission.policy?.policyNumber || t("N/A")}
                     </td>
-                    <td className="px-4 py-3" style={cellStyle}>
+                    <td  className="px-2 sm:px-3 py-2 whitespace-nowrap border-r border-b border-[#AAA9A9]">
                       <span className="text-[10px] px-2 py-1 bg-gray-100 text-text-primary capitalize text-nowrap">
-                        {t(commission.paymentHistory?.paymentType?.replace(
-                          /-/g,
-                          " "
-                        ) || "N/A")}
+                        {t(
+                          commission.paymentHistory?.paymentType?.replace(
+                            /-/g,
+                            " ",
+                          ) || "N/A",
+                        )}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-nowrap" style={cellStyle}>
-                      $
-                      {commission.paymentHistory?.amount?.toLocaleString() ||
-                        "0"}
+                    <td
+                       className="px-2 sm:px-3 py-2 whitespace-nowrap border-r border-b border-[#AAA9A9]"
+                    >
+                      {commission.agentCode}
                     </td>
-                    {isUnderMGA && (
-                      <>
-                        <td
-                          className="px-4 py-3 text-right text-nowrap"
-                          style={cellStyle}
-                        >
-                          <span className={isReversal ? "text-red-600" : ""}>
-                            {isReversal && "-"}
-                            $
-                            {Math.abs(
-                              commission.mgaShare || 0
-                            ).toLocaleString("en-US", {
-                              minimumFractionDigits: 2,
-                              maximumFractionDigits: 2,
-                            })}
-                          </span>
-                        </td>
-                        <td
-                          className="px-4 py-3 text-right font-semibold text-nowrap"
-                          style={cellStyle}
-                        >
-                          <span
-                            className={
-                              isReversal ? "text-red-600" : "text-green-600"
-                            }
-                          >
-                            {isReversal && "-"}
-                            $
-                            {Math.abs(
-                              commission.agentShare || 0
-                            ).toLocaleString("en-US", {
-                              minimumFractionDigits: 2,
-                              maximumFractionDigits: 2,
-                            })}
-                          </span>
-                        </td>
-                      </>
-                    )}
+                    <td
+                       className="px-2 sm:px-3 py-2 whitespace-nowrap border-r border-b border-[#AAA9A9]"
+                    >
+                      {commission.mgaCode || "N/A"}
+                    </td>
+                    <td
+                       className="px-2 sm:px-3 py-2 whitespace-nowrap border-r border-b border-[#AAA9A9]"
+                    >
+                      {commission.grossAmount}
+                    </td>
+                    <td
+                       className="px-2 sm:px-3 py-2 whitespace-nowrap border-r border-b border-[#AAA9A9]"
+                    >
+                      {commission.commissionAmount}
+                    </td>
+                    <td
+                       className="px-2 sm:px-3 py-2 whitespace-nowrap border-r border-b border-[#AAA9A9]"
+                    >
+                      {commission.mgaOverridePercent}
+                    </td>
+                    <td
+                       className="px-2 sm:px-3 py-2 whitespace-nowrap border-r border-b border-[#AAA9A9]"
+                    >
+                      {commission.agentShare}
+                    </td>
+                    <td
+                       className="px-2 sm:px-3 py-2 whitespace-nowrap border-r border-b border-[#AAA9A9]"
+                    >
+                      {commission.mgaShare || "-"}
+                    </td>
                   </tr>
                 );
               })

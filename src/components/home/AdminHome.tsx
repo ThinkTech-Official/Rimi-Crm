@@ -278,14 +278,14 @@ export default function AdminHome() {
     //   label: "Avg Commission Rate",
     //   value: `${stats?.commissionPercent?.toFixed(2) || 0}%`,
     // },
-    {
-      label: t("Total Commissions"),
-      value: `$${(stats?.totalCommissions || 0).toLocaleString()}`,
-    },
-    {
-      label: t("Current Month Commissions"),
-      value: `$${(stats?.currentMonthCommissions || 0).toLocaleString()}`,
-    },
+    // {
+    //   label: t("Total Commissions"),
+    //   value: `$${(stats?.totalCommissions || 0).toLocaleString()}`,
+    // },
+    // {
+    //   label: t("Current Month Commissions"),
+    //   value: `$${(stats?.currentMonthCommissions || 0).toLocaleString()}`,
+    // },
     {
       label: t("Monthly Premiums"),
       value: stats?.monthlyPremiums || 0,
@@ -307,7 +307,7 @@ export default function AdminHome() {
     <div className="w-full flex flex-col gap-4 pb-4">
       {/* Stats Cards */}
       <div
-        className="grid grid-cols-2 lg:grid-cols-4 gap-4 xl:gap-8 w-full"
+        className="grid grid-cols-2 lg:grid-cols-3 gap-4 xl:gap-8 w-full"
         role="stats"
       >
         {statsCards.map((stat, index) => (

@@ -77,7 +77,7 @@
 //       'monthly-installment': 'Monthly',
 //       'policy-issue-fee': 'Policy Fee',
 //     };
-    
+
 //     return (
 //       <span className="text-xs text-gray-600">
 //         {labels[type] || type}
@@ -145,9 +145,7 @@
 
 // =============================
 
-
-import React from 'react';
-import { useLanguage } from '../context/LanguageContext';
+import { useLanguage } from "../context/LanguageContext";
 
 interface CommissionRow {
   id: string;
@@ -178,17 +176,25 @@ interface CommissionRow {
 interface CommissionsTableProps {
   data: CommissionRow[];
   loading: boolean;
-  error: any;
+  error?: any;
+  showCustomer?: boolean;
 }
 
-export function CommissionsTable({ data, loading, error }: CommissionsTableProps) {
+export function CommissionsTable({
+  data,
+  loading,
+  error,
+  showCustomer = true,
+}: CommissionsTableProps) {
   const { t } = useLanguage();
   if (loading) {
     return (
       <div className="mt-6 p-8 text-center bg-white border border-inputBorder h-40">
         <div className="flex justify-center flex-col items-center gap-2">
           <div className="spinner w-8 h-8"></div>
-          <p className="text-primary font-medium">{t("Loading commissions...")}</p>
+          <p className="text-primary font-medium">
+            {t("Loading commissions...")}
+          </p>
         </div>
       </div>
     );
@@ -221,51 +227,109 @@ export function CommissionsTable({ data, loading, error }: CommissionsTableProps
       <table className="min-w-full divide-y divide-gray-200">
         <thead className="bg-primary text-white text-base 2xl:text-xl capitalize text-nowrap">
           <tr>
-            <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium">{t("Date")}</th>
-            <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium">{t("Policy")}</th>
-            <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium">{t("Customer")}</th>
-            <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium">{t("Payment Type")}</th>
-            <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium">{t("Gross Amount")}</th>
-            <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium">{t("Comm. %")}</th>
-            <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium">{t("Comm. Amount")}</th>
-            <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium">{t("MGA Override %")}</th>
-            <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium">{t("MGA Share")}</th>
-            <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium">{t("Agent Share")}</th>
+            <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium">
+              {t("Date")}
+            </th>
+            <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium">
+              {t("Policy")}
+            </th>
+            {showCustomer && (
+              <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium">
+                {t("Customer")}
+              </th>
+            )}
+            <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium">
+              {t("Payment Type")}
+            </th>
+            <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium">
+              {t("Gross Amount")}
+            </th>
+            <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium">
+              {t("Comm. %")}
+            </th>
+            <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium">
+              {t("Comm. Amount")}
+            </th>
+            <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium">
+              {t("MGA Override %")}
+            </th>
+            <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium">
+              {t("MGA Share")}
+            </th>
+            <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium">
+              {t("Agent Share")}
+            </th>
           </tr>
         </thead>
         <tbody className="bg-white">
           {data.map((commission) => (
-            <tr key={commission.id} className="text-[#808080] text-sm 2xl:text-xl">
-              <td className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap" style={cellStyle}>
+            <tr
+              key={commission.id}
+              className="text-[#808080] text-base 2xl:text-lg"
+            >
+              <td
+                className="px-2 sm:px-3 py-2 whitespace-nowrap border-r border-b border-[#AAA9A9]"
+                style={cellStyle}
+              >
                 {new Date(commission.paymentHistory.date).toLocaleDateString()}
               </td>
-              <td className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap font-medium text-primary" style={cellStyle}>
+              <td
+                className="px-2 sm:px-3 py-2 whitespace-nowrap border-r border-b border-[#AAA9A9] font-medium text-primary"
+                style={cellStyle}
+              >
                 {commission.policy.policyNumber || t("N/A")}
               </td>
-              <td className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap" style={cellStyle}>
-                {commission.policy.firstName} {commission.policy.lastName}
-              </td>
-              <td className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap" style={cellStyle}>
+              {showCustomer && (
+                <td
+                  className="px-2 sm:px-3 py-2 whitespace-nowrap border-r border-b border-[#AAA9A9]"
+                  style={cellStyle}
+                >
+                  {commission.policy.firstName} {commission.policy.lastName}
+                </td>
+              )}
+              <td
+                className="px-2 sm:px-3 py-2 whitespace-nowrap border-r border-b border-[#AAA9A9]"
+                style={cellStyle}
+              >
                 <span className="text-[10px] px-2 py-1 bg-gray-100 text-text-primary capitalize">
-                  {commission.paymentHistory.paymentType?.replace(/-/g, ' ') || t("N/A")}
+                  {commission.paymentHistory.paymentType?.replace(/-/g, " ") ||
+                    t("N/A")}
                 </span>
               </td>
-              <td className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap" style={cellStyle}>
-                ${commission.grossAmount?.toFixed(2) || '0.00'}
+              <td
+                className="px-2 sm:px-3 py-2 whitespace-nowrap border-r border-b border-[#AAA9A9]"
+                style={cellStyle}
+              >
+                ${commission.grossAmount?.toFixed(2) || "0.00"}
               </td>
-              <td className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap" style={cellStyle}>
+              <td
+                className="px-2 sm:px-3 py-2 whitespace-nowrap border-r border-b border-[#AAA9A9]"
+                style={cellStyle}
+              >
                 {commission.ratePercent}%
               </td>
-              <td className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap font-semibold" style={cellStyle}>
-                ${commission.commissionAmount?.toFixed(2) || '0.00'}
+              <td
+                className="px-2 sm:px-3 py-2 whitespace-nowrap border-r border-b border-[#AAA9A9] font-semibold"
+                style={cellStyle}
+              >
+                ${commission.commissionAmount?.toFixed(2) || "0.00"}
               </td>
-              <td className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap" style={cellStyle}>
+              <td
+                className="px-2 sm:px-3 py-2 whitespace-nowrap border-r border-b border-[#AAA9A9]"
+                style={cellStyle}
+              >
                 {(commission.mgaOverridePercent || 0).toFixed(2)}%
               </td>
-              <td className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap" style={cellStyle}>
+              <td
+                className="px-2 sm:px-3 py-2 whitespace-nowrap border-r border-b border-[#AAA9A9]"
+                style={cellStyle}
+              >
                 ${(commission.mgaShare || 0).toFixed(2)}
               </td>
-              <td className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap font-semibold" style={cellStyle}>
+              <td
+                className="px-2 sm:px-3 py-2 whitespace-nowrap border-r border-b border-[#AAA9A9] font-semibold"
+                style={cellStyle}
+              >
                 ${(commission.agentShare || 0).toFixed(2)}
               </td>
             </tr>

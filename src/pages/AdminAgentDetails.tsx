@@ -315,8 +315,10 @@ import { FaUser, FaEdit, FaBan, FaCheckCircle, FaCoins, FaSpinner, FaUndo, FaArr
 import { useParams } from "react-router-dom";
 import { useLanguage } from "../context/LanguageContext";
 import { useAgentDetails } from "../hooks/admin-dashboard";
-import { PoliciesTable, QuotesTable, CommissionsTable } from "../components/Tables";
+import { PoliciesTable, QuotesTable } from "../components/Tables";
 import { useUpdateCommissionStatus, useBulkUpdateCommissionStatus, useMarkCommissionsAsPaid } from "../hooks/admin-dashboard/useCommission";
+import { CommissionsTable } from "../components/CommissionsTable";
+import Spinner from "../components/Spinner";
 
 const AdminAgentDetails = () => {
   const [pPage, setPPage] = useState(1);
@@ -342,7 +344,7 @@ const AdminAgentDetails = () => {
   if (isLoading) {
     return (
       <div className="px-8 flex flex-col items-center justify-center min-h-[400px]">
-        <FaSpinner className="animate-spin text-4xl text-blue-500 mb-4" />
+        <Spinner className="w-8 h-8 mx-auto mb-2" />
         <div className="text-text-secondary">{t("Loading agent details...")}</div>
       </div>
     );
@@ -863,12 +865,7 @@ const AdminAgentDetails = () => {
             <CommissionsTable
               data={commissions}
               loading={isLoading}
-              isUnderMGA={isUnderMGA}
-              selectedIds={selectedCommissionIds}
-              onSelect={handleSelectCommission}
-              onSelectAll={handleSelectAllCommissions}
-              onUpdateStatus={handleUpdateStatus}
-              isPending={updateCommissionStatus.isPending}
+              showCustomer = {false}
             />
           </div>
         )}
