@@ -62,7 +62,7 @@ const Summary: React.FC<SummaryProps> = ({ quoteId }) => {
 
   const quoteRows: [string, React.ReactNode][] = [
     [t("Quote Number"), maybe(data.quoteNumber)],
-    [t("Product"), maybe(data.product)],
+    [t("Product"), maybe(data.product?.split("_").join(" "))],
     [
       t("Status"),
       <span className="inline-block px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm font-semibold">
