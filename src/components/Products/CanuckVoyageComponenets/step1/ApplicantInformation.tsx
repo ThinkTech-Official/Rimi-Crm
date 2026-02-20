@@ -264,7 +264,33 @@ export default function ApplicantInformation({
           <Controller
             name="primaryDateOfBirth"
             control={control}
-            rules={{ required: t("Date of Birth is required") }}
+            rules={{
+              required: t("Date of Birth is required"),
+              validate: (value) => {
+                const effectiveDate = methods.getValues("effectiveDate");
+                if (!effectiveDate || !value) return true;
+
+                const eff = new Date(effectiveDate);
+                const dob = new Date(value);
+                
+                // Calculate age in days
+                const diffTime = eff.getTime() - dob.getTime();
+                const diffDays = diffTime / (1000 * 60 * 60 * 24);
+
+                if (diffDays < 15) {
+                  return t("Age must be between 15 days to 90 years according to the effective date.");
+                }
+
+                // Check 90 years
+                const ninetyYearsLater = new Date(dob);
+                ninetyYearsLater.setFullYear(dob.getFullYear() + 90);
+                if (eff >= ninetyYearsLater) {
+                  return t("Age must be between 15 days to 90 years according to the effective date.");
+                }
+
+                return true;
+              }
+            }}
             render={({ field }) => (
               <div className="flex flex-col">
                 <DatePicker
@@ -444,7 +470,31 @@ export default function ApplicantInformation({
             <Controller
               name={`applicants.${idx}.dob`}
               control={control}
-              rules={{ required: t("Date of Birth is required") }}
+              rules={{ 
+                required: t("Date of Birth is required"),
+                validate: (value) => {
+                  const effectiveDate = methods.getValues("effectiveDate");
+                  if (!effectiveDate || !value) return true;
+
+                  const eff = new Date(effectiveDate);
+                  const dob = new Date(value);
+                  
+                  const diffTime = eff.getTime() - dob.getTime();
+                  const diffDays = diffTime / (1000 * 60 * 60 * 24);
+
+                  if (diffDays < 15) {
+                    return t("Age must be between 15 days to 90 years according to the effective date.");
+                  }
+
+                  const ninetyYearsLater = new Date(dob);
+                  ninetyYearsLater.setFullYear(dob.getFullYear() + 90);
+                  if (eff >= ninetyYearsLater) {
+                    return t("Age must be between 15 days to 90 years according to the effective date.");
+                  }
+
+                  return true;
+                }
+              }}
               render={({ field }) => (
                 <DatePicker
                   label={t("Date of Birth")}

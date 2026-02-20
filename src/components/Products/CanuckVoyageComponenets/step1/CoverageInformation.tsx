@@ -513,15 +513,6 @@ import { useLanguage } from "../../../../context/LanguageContext";
 const today = new Date().toISOString().slice(0, 10);
 const msPerDay = 1000 * 60 * 60 * 24;
 
-interface Applicant {
-  index: string;
-  firstName: string;
-  lastName: string;
-  dob: string;
-  relationship: string;
-  gender: string;
-}
-
 interface CoverageInformationProps {
   methods: UseFormReturn<Step1Payload>;
   totalPremium: number;
@@ -1008,13 +999,20 @@ export default function CoverageInformation({
             {...register("usTravelDays", {
               required:
                 travelingThroughUS === "yes"
-                  ? t("Number of US travel days is required")
-                  : false,
+                   ? t("Number of US travel days is required")
+                   : false,
               valueAsNumber: true,
               min: {
                 value: 1,
                 message: t("Must be at least 1 day"),
               },
+              validate: (value) => {
+                const val = Number(value);
+                if (travelingThroughUS === "yes" && !isNaN(val) && val > coverageLength) {
+                  return t("US travel days cannot exceed the total coverage length.");
+                }
+                return true;
+              }
             })}
           />
           {errors.usTravelDays && (
