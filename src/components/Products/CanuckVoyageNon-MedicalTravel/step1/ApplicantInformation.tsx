@@ -435,7 +435,7 @@ import { Controller, UseFormReturn } from "react-hook-form";
 import { useLanguage } from "../../../../context/LanguageContext";
 import { Step1Payload } from "../RIMICanuckVoyageNon-MedicalTravel";
 import DatePicker from "../../../DatePicker";
-import ConfirmEligibilityModal from "../../SecureTravelRIMIVisitorstoCanadaTravel/step1/ConfirmEligibility";
+import ConfirmEligibilityNonMedical from "./ConfirmEligibilityNonMedical";
 import { NonMedTravelCountries } from "../../SecureTravelRIMIVisitorstoCanadaTravel/step1/Constants";
 
 interface Applicant {
@@ -566,7 +566,26 @@ export default function ApplicantInformation({
           <Controller
             name="primaryDateOfBirth"
             control={control}
-            rules={{ required: t("Date of Birth is required") }}
+            rules={{ 
+              required: t("Date of Birth is required"),
+              validate: (value) => {
+                const effectiveDate = methods.getValues("effectiveDate");
+                if (!value || !effectiveDate) return true;
+                
+                const dobDate = new Date(value);
+                const effDate = new Date(effectiveDate);
+                
+                const ageDiffMs = effDate.getTime() - dobDate.getTime();
+                const ageDate = new Date(ageDiffMs);
+                const years = Math.abs(ageDate.getUTCFullYear() - 1970);
+                const days = Math.floor(ageDiffMs / (1000 * 60 * 60 * 24));
+                
+                if (days < 15 || years >= 86) {
+                  return t("Age must be at least 15 days and less than 86 years according to the effective date.");
+                }
+                return true;
+              }
+            }}
             render={({ field }) => (
               <div className="flex flex-col">
                 <DatePicker
@@ -788,7 +807,26 @@ export default function ApplicantInformation({
               <Controller
                 name={`applicants.${idx}.dob`}
                 control={control}
-                rules={{ required: t("Date of Birth is required") }}
+                rules={{ 
+                  required: t("Date of Birth is required"),
+                  validate: (value) => {
+                    const effectiveDate = methods.getValues("effectiveDate");
+                    if (!value || !effectiveDate) return true;
+                    
+                    const dobDate = new Date(value);
+                    const effDate = new Date(effectiveDate);
+                    
+                    const ageDiffMs = effDate.getTime() - dobDate.getTime();
+                    const ageDate = new Date(ageDiffMs);
+                    const years = Math.abs(ageDate.getUTCFullYear() - 1970);
+                    const days = Math.floor(ageDiffMs / (1000 * 60 * 60 * 24));
+                    
+                    if (days < 15 || years >= 86) {
+                      return t("Age must be at least 15 days and less than 86 years according to the effective date.");
+                    }
+                    return true;
+                  }
+                }}
                 render={({ field }) => (
                   <div className="flex flex-col">
                     <DatePicker
@@ -908,39 +946,32 @@ export default function ApplicantInformation({
             </p>
             <ol className="list-decimal pl-5 mt-2 text-gray-700 space-y-2">
               <li>
-                {t("Be a visitor to Canada or a person in Canada under a valid work or student visa, a Canadian or an immigrant not eligible for benefits under a government health insurance plan; and")}
-              </li>
-              <li>{t("Be at least 15 days of age and less than 90 years of age; and")}</li>
-              <li>
-                {t("Not be travelling against the advice of a physician and/or have not been diagnosed with a terminal illness; and")}
+                {t("Be at least 15 days of age and less than 86 years of age traveling for no more than 90 days; and")}
               </li>
               <li>
-                {t("Not be experiencing new or undiagnosed signs or symptoms and/or know of any reason to seek medical attention; and")}
+                {t("Be a member in good standing of an association or organization, or a client of a tour operator, that has agreed to participate in this insurance plan, or be the spouse or dependent child of a member insured under the same policy; and")}
               </li>
               <li>
-                {t("Not require assistance with the activities of daily living (eating, bathing, dressing, functional mobility, using the toilet).")}
+                {t("Purchase coverage within 10 days of the initial deposit for your trip or prior to any cancellation penalties being applicable; and")}
               </li>
               <li>
-                {t("Have not been diagnosed or treated for pancreatic, liver, lung, brain or any kind of metastasized cancer.")}
+                {t("Purchase coverage for the full value of the non-refundable, pre-paid travel arrangements; and")}
               </li>
               <li>
-                {t("Have not been diagnosed or treated for kidney condition requiring dialysis within the last 24 months.")}
+                {t("Purchase coverage for the entire duration of your trip; and")}
               </li>
               <li>
-                {t("Have not been diagnosed or treated for bone marrow or organ transplant within the last 24 months.")}
+                {t("For traveling Canadians, purchase coverage prior to the date of departure from your province or territory of residence or Canada or; for visitors to Canada, purchase coverage prior to the date of departure from your home country; and")}
               </li>
               <li>
-                {t("Have not been diagnosed for terminal sickness with less than 2 years to live.")}
-              </li>
-              <li>
-                {t("Have not taken home oxygen in the past 12 months prior to the effective date.")}
+                {t("Know of no reason that you, an immediate family member, a travel companion, a travel companion’s immediate family member, or business partner would be unable to start or complete the trip as booked.")}
               </li>
             </ol>
           </div>
         )}
       </div>
       {showConfirmEligibility && (
-        <ConfirmEligibilityModal
+        <ConfirmEligibilityNonMedical
           confirmEligibility={showConfirmEligibility}
           setShowConfirmEligibility={setShowConfirmEligibility}
           setIsConfirmed={setIsConfirmed}

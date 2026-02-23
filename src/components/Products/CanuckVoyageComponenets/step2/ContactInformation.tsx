@@ -116,12 +116,34 @@ export default function ContactInformation({
           </label>
           <input
             className="input-primary break-words h-auto"
-            type="email"
+            type="text"
             placeholder={t("Additional Email Address")}
             {...register("contactInfo.additionalEmail", {
               setValueAs: (value) => value?.trim()?.toLowerCase() || "",
+              validate: (value) => {
+                if (!value) return true;
+                const emails = value
+                  .split(";")
+                  .map((e: string) => e.trim())
+                  .filter((e: string) => e !== "");
+                if (emails.length > 5) {
+                  return t("Maximum 5 email addresses allowed");
+                }
+                const emailRegex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
+                for (const email of emails) {
+                  if (!emailRegex.test(email)) {
+                    return t("Invalid email format: {{email}}", { email });
+                  }
+                }
+                return true;
+              },
             })}
           />
+          {errors.contactInfo?.additionalEmail && (
+            <p className="text-red-500 text-sm mt-1">
+              {errors.contactInfo.additionalEmail.message}
+            </p>
+          )}
         </div>
 
         {displayInfoAddEmail && (

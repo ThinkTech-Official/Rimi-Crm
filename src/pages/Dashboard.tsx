@@ -566,6 +566,7 @@ const navigation = [
     children: [
       { name: "Quote Migration", url: "/migrations/quotes", slug: "quote-migration" },
       { name: "Policy Migration", url: "/migrations/policies", slug: "policy-migration" },
+      { name: "Users Migration", url: "/migrations/users", slug: "users-migration" },
     ]
   },
 ];
