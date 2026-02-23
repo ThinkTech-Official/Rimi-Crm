@@ -269,7 +269,7 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
     step1Methods.reset({
       primaryFirstName: policyData.firstName || "",
       primaryLastName: policyData.lastName || "",
-      primaryDateOfBirth: policyData.dateOfBirth || "",
+      primaryDateOfBirth: policyData.dateOfBirth?.split("T")[0] || "",
       primaryEmail: policyData.email || "",
       primaryApplicantGender: policyData.gender || "",
       applicantNumber: policyData.applicants ? policyData.applicants.length : 0,
@@ -279,7 +279,7 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
             index: String(idx + 1),
             firstName: a.firstName,
             lastName: a.lastName,
-            dob: a.dateOfBirth,
+            dob: a.dateOfBirth?.split("T")[0] || "",
             relationship: a.relation || "",
             preMedCoverage: a.PreExCoverage === "Yes",
             gender: a.gender,
@@ -398,16 +398,16 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
         quoteNumber: quoteNumber,
         status: "Inactive",
         primaryDateOfBirth:
-          formValues.primaryDateOfBirth instanceof Date
-            ? formValues.primaryDateOfBirth.toISOString()
+          (formValues.primaryDateOfBirth as any) instanceof Date
+            ? (formValues.primaryDateOfBirth as any).toISOString()
             : formValues.primaryDateOfBirth,
         effectiveDate:
-          formValues.effectiveDate instanceof Date
-            ? formValues.effectiveDate.toISOString()
+          (formValues.effectiveDate as any) instanceof Date
+            ? (formValues.effectiveDate as any).toISOString()
             : formValues.effectiveDate,
         expiryDate:
-          formValues.expiryDate instanceof Date
-            ? formValues.expiryDate.toISOString()
+          (formValues.expiryDate as any) instanceof Date
+            ? (formValues.expiryDate as any).toISOString()
             : formValues.expiryDate,
       };
 

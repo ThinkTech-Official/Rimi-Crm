@@ -26,6 +26,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { useQuoteByNumber } from "../../../hooks/apply/useQuoteByNumber";
 import { FormProvider, useForm } from "react-hook-form";
 import useNotification from "../../../hooks/useNotification";
+import { useLanguage } from "../../../context/LanguageContext";
 
 export interface Applicant {
   index: string;
@@ -80,6 +81,7 @@ export interface Stage2FormValues {
 const productName = "RIMI_CANUCK_VOYAGE_TRAVEL_MEDICAL";
 
 const RIMICanuckVoyageTravelMedical: React.FC = () => {
+  const { t } = useLanguage();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
 
@@ -152,9 +154,9 @@ const RIMICanuckVoyageTravelMedical: React.FC = () => {
 
   // ========== STEP MANAGEMENT ==========
   const [steps, setSteps] = useState([
-    { id: "01", name: "Get Quote", href: "#", status: "current" },
-    { id: "02", name: "Complete Application", href: "#", status: "upcoming" },
-    { id: "03", name: "Confirmation", href: "#", status: "upcoming" },
+    { id: "01", name: t("Get Quote"), href: "#", status: "current" },
+    { id: "02", name: t("Complete Application"), href: "#", status: "upcoming" },
+    { id: "03", name: t("Confirmation"), href: "#", status: "upcoming" },
   ]);
   const [formStep, setFormStep] = useState(1);
 
@@ -287,7 +289,7 @@ const RIMICanuckVoyageTravelMedical: React.FC = () => {
     } catch (err: any) {
       console.error("❌ Stage 1 failed:", err);
       triggerNotification({
-        message: "Failed to save quote.",
+        message: t("Failed to save quote."),
         type: "error",
       });
     }
@@ -300,7 +302,7 @@ const RIMICanuckVoyageTravelMedical: React.FC = () => {
     if (!isValid) {
       triggerNotification({
         type: "warning",
-        message: "Please fill all required fields and confirm eligibility",
+        message: t("Please fill all required fields and confirm eligibility"),
       });
       return false;
     }
@@ -324,14 +326,14 @@ const RIMICanuckVoyageTravelMedical: React.FC = () => {
       setQuoteNumber(response.quote);
       triggerNotification({
         type: "success",
-        message: `Quote saved successfully!\n\nQuote Number: ${response.quote}`,
+        message: t("Quote saved successfully!\n\nQuote Number: {{quote}}", { quote: response.quote }),
       });
       return true;
     } catch (err: any) {
       console.error("Failed to save quote:", err);
       triggerNotification({
         type: "error",
-        message: `Failed to save quote: ${err.message || "Please try again"}`,
+        message: t("Failed to save quote: {{error}}", { error: err.message || t("Please try again") }),
       });
       return false;
     }
@@ -359,7 +361,7 @@ const RIMICanuckVoyageTravelMedical: React.FC = () => {
 
   // ========== PAYMENT SUCCESS ==========
   const handlePaymentSuccess = () => {
-    triggerNotification({ type: "success", message: "Payment successful!" });
+    triggerNotification({ type: "success", message: t("Payment successful!") });
     handleFormStepChange("forward");
   };
 
@@ -370,7 +372,7 @@ const RIMICanuckVoyageTravelMedical: React.FC = () => {
         <div className="flex items-center justify-center h-64">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#2B00B7] mx-auto mb-4"></div>
-            <p className="text-lg text-gray-600">Loading your quote...</p>
+            <p className="text-lg text-gray-600">{t("Loading your quote...")}</p>
           </div>
         </div>
       </div>
@@ -383,11 +385,11 @@ const RIMICanuckVoyageTravelMedical: React.FC = () => {
       <div className="max-w-5xl mx-auto px-2 py-4 sm:p-6">
         <div className="bg-red-50 border border-red-200 p-6 text-center">
           <h3 className="text-lg font-semibold text-red-800 mb-2">
-            Error Loading Quote
+            {t("Error Loading Quote")}
           </h3>
           <p className="text-red-600 mb-4">{quoteError}</p>
           <button onClick={() => navigate("/products")} className="btn-primary">
-            Go to Products
+            {t("Go to Products")}
           </button>
         </div>
       </div>
@@ -413,8 +415,7 @@ const RIMICanuckVoyageTravelMedical: React.FC = () => {
           </div>
           <div className="ml-3">
             <p className="text-sm text-blue-700">
-              <strong>Quote #{quoteNumber}</strong> - Your quote details have
-              been pre-filled. Review and proceed to payment.
+              <strong>{t("Quote #")} {quoteNumber}</strong> - {t("Your quote details have been pre-filled. Review and proceed to payment.")}
             </p>
           </div>
         </div>
@@ -522,8 +523,8 @@ const RIMICanuckVoyageTravelMedical: React.FC = () => {
             <div className="w-full h-2 mt-5 flex items-center justify-center font-[inter]">
               <h3 className="text-base sm:text-lg">
                 {loading
-                  ? "Calculating..."
-                  : `Your Quote: $${totalPremium.toFixed(2)} CAD`}
+                  ? t("Calculating...")
+                  : t("Your Quote: ${{total}} CAD", { total: totalPremium.toFixed(2) })}
               </h3>
             </div>
             {formStep === 1 && (
@@ -534,7 +535,7 @@ const RIMICanuckVoyageTravelMedical: React.FC = () => {
                   savingStage1 ? "opacity-50 cursor-wait" : ""
                 }`}
               >
-                {savingStage1 ? "Saving…" : "Next"}
+                {savingStage1 ? t("Saving…") : t("Next")}
               </button>
             )}
           </form>
@@ -546,7 +547,7 @@ const RIMICanuckVoyageTravelMedical: React.FC = () => {
         <FormProvider {...step2Methods}>
           <div className="w-full h-2 mt-8 flex items-center justify-center font-[inter]">
             <h3 className="text-base sm:text-lg">
-              Your Quote: ${step1ResponseData?.quoteAmount.toFixed(2)} CAD
+              {t("Your Quote:")} {step1ResponseData?.quoteAmount.toFixed(2)}
             </h3>
           </div>
 
@@ -566,16 +567,16 @@ const RIMICanuckVoyageTravelMedical: React.FC = () => {
 
           <div className="max-w-5xl mx-auto mt-6 p-3 sm:p-6 bg-[#F9F9F9]">
             <h3 className="text-lg font-bold text-left text-[#1B1B1B] mb-5">
-              Payment Summary
+              {t("Payment Summary")}
             </h3>
             <div className="flex justify-between items-center">
-              <span>Total Premium:</span>
+              <span>{t("Total Premium:")}</span>
               <span className="text-xl font-bold text-primary">
                 ${totalPremium.toFixed(2)} CAD
               </span>
             </div>
             <div className="text-sm text-gray-600 mt-1">
-              One-time payment • No additional fees
+              {t("One-time payment • No additional fees")}
             </div>
           </div>
 
@@ -607,7 +608,7 @@ const RIMICanuckVoyageTravelMedical: React.FC = () => {
             onClick={() => handleFormStepChange("back")}
             className="w-[200px] mt-6 bg-white border border-[#2B00B7] text-[#2B00B7] p-3 hover:bg-[#2209a1] hover:text-white transition flex justify-center items-center"
           >
-            Previous
+            {t("Previous")}
           </button>
         )}
 

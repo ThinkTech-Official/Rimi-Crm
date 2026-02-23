@@ -223,7 +223,7 @@ export default function SecureStudyRIMIInternationalStudentstoCanada() {
     step1Methods.reset({
       primaryFirstName: policyData.firstName || "",
       primaryLastName: policyData.lastName || "",
-      primaryDateOfBirth: policyData.dateOfBirth || "",
+      primaryDateOfBirth: policyData.dateOfBirth?.split("T")[0] || "",
       primaryEmail: policyData.email || "",
       primaryApplicantGender: policyData.gender || "",
       countryOfOrigin: policyData.countryOfOrigin || "",
@@ -235,7 +235,7 @@ export default function SecureStudyRIMIInternationalStudentstoCanada() {
             index: String(idx + 1),
             firstName: a.firstName,
             lastName: a.lastName,
-            dob: a.dateOfBirth,
+            dob: a.dateOfBirth?.split("T")[0] || "",
             relationship: a.relation || "",
             gender: a.gender,
           }))

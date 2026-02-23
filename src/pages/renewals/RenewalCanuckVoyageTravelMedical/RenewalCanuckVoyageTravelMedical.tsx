@@ -13,6 +13,7 @@ import { Elements } from "@stripe/react-stripe-js";
 import { stripePromise } from "../../../utils/stripe";
 import { useForm, FormProvider } from "react-hook-form";
 import useNotification from "../../../hooks/useNotification";
+import { useLanguage } from "../../../context/LanguageContext";
 
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useRenewalPolicyData } from "../../../hooks/renewals/useRenewalPolicyData";
@@ -102,6 +103,7 @@ export interface Stage2FormValues {
 const productName = "RIMI_CANUCK_VOYAGE_TRAVEL_MEDICAL";
 
 const RIMICanuckVoyageTravelMedical: React.FC = () => {
+  const { t } = useLanguage();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
@@ -119,9 +121,9 @@ const RIMICanuckVoyageTravelMedical: React.FC = () => {
 
   // ========== STEP MANAGEMENT ==========
   const [steps, setSteps] = useState([
-    { id: "01", name: "Review & Update", href: "#", status: "current" },
-    { id: "02", name: "Complete Application", href: "#", status: "upcoming" },
-    { id: "03", name: "Confirmation", href: "#", status: "upcoming" },
+    { id: "01", name: t("Review & Update"), href: "#", status: "current" },
+    { id: "02", name: t("Complete Application"), href: "#", status: "upcoming" },
+    { id: "03", name: t("Confirmation"), href: "#", status: "upcoming" },
   ]);
   const [formStep, setFormStep] = useState(1);
 
@@ -294,7 +296,7 @@ const RIMICanuckVoyageTravelMedical: React.FC = () => {
     step1Methods.reset({
       primaryFirstName: policyData.firstName || "",
       primaryLastName: policyData.lastName || "",
-      primaryDateOfBirth: policyData.dateOfBirth || "",
+      primaryDateOfBirth: policyData.dateOfBirth?.split("T")[0] || "",
       primaryEmail: policyData.email || "",
       primaryApplicantGender: policyData.gender || "",
       provinceOfResidence: policyData.province || "",
@@ -310,7 +312,7 @@ const RIMICanuckVoyageTravelMedical: React.FC = () => {
             index: String(idx + 1),
             firstName: a.firstName,
             lastName: a.lastName,
-            dob: a.dateOfBirth,
+            dob: a.dateOfBirth?.split("T")[0] || "",
             relationship: a.relation || "",
             gender: a.gender,
           }))
@@ -404,7 +406,7 @@ const RIMICanuckVoyageTravelMedical: React.FC = () => {
     } catch (err) {
       console.error("❌ Stage 1 failed:", err);
       triggerNotification({
-        message: "Failed to save quote.",
+        message: t("Failed to save quote."),
         type: "error",
       });
     }
@@ -432,7 +434,7 @@ const RIMICanuckVoyageTravelMedical: React.FC = () => {
 
   // ========== PAYMENT SUCCESS ==========
   const handlePaymentSuccess = () => {
-    triggerNotification({ type: "success", message: "Payment successful!" });
+    triggerNotification({ type: "success", message: t("Payment successful!") });
     handleFormStepChange("forward");
   };
 
@@ -441,7 +443,7 @@ const RIMICanuckVoyageTravelMedical: React.FC = () => {
       <div className="flex justify-center items-center min-h-[400px]">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading policy data...</p>
+          <p className="mt-4 text-gray-600">{t("Loading policy data...")}</p>
         </div>
       </div>
     );
@@ -452,14 +454,14 @@ const RIMICanuckVoyageTravelMedical: React.FC = () => {
       <div className="max-w-2xl mx-auto p-6">
         <div className="bg-red-50 border border-red-200 rounded-lg p-6">
           <h3 className="text-lg font-semibold text-red-900">
-            Error Loading Policy
+            {t("Error Loading Policy")}
           </h3>
           <p className="text-red-700 mt-2">{policyError}</p>
           <button
             onClick={() => navigate(`/policies/${policyId}`)}
             className="mt-4 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
           >
-            Return to Policy
+            {t("Return to Policy")}
           </button>
         </div>
       </div>
@@ -471,16 +473,16 @@ const RIMICanuckVoyageTravelMedical: React.FC = () => {
       <div className="max-w-2xl mx-auto p-6">
         <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6">
           <h3 className="text-lg font-semibold text-yellow-900">
-            No Policy Data
+            {t("No Policy Data")}
           </h3>
           <p className="text-yellow-700 mt-2">
-            Could not load policy information.
+            {t("Could not load policy information.")}
           </p>
           <button
             onClick={() => navigate("/policies")}
             className="mt-4 px-4 py-2 bg-yellow-600 text-white rounded hover:bg-yellow-700"
           >
-            Back to Policies
+            {t("Back to Policies")}
           </button>
         </div>
       </div>
@@ -495,7 +497,7 @@ const RIMICanuckVoyageTravelMedical: React.FC = () => {
           className="underline underline-offset-2 cursor-pointer text-sm text-primary font-medium"
           onClick={() => navigate("/policies")}
         >
-          Policies
+          {t("Policies")}
         </span>
         <ChevronRightIcon className="w-4 h-4" />
         <span
@@ -505,7 +507,7 @@ const RIMICanuckVoyageTravelMedical: React.FC = () => {
           {policyId?.substring(0, 8)}...
         </span>
         <ChevronRightIcon className="w-4 h-4" />
-        <span className="text-sm text-primary font-medium">Renewal</span>
+        <span className="text-sm text-primary font-medium">{t("Renewal")}</span>
       </div>
 
       {/* Info Banner */}
@@ -518,12 +520,10 @@ const RIMICanuckVoyageTravelMedical: React.FC = () => {
               clipRule="evenodd"
             />
           </svg>
-          Creating New Policy
+          {t("Creating New Policy")}
         </h3>
         <p className="text-sm text-blue-700 mt-1">
-          Review the pre-filled information from the original policy. You can
-          update any fields as needed. Premium will be recalculated based on
-          current rates and coverage dates.
+          {t("Review the pre-filled information from the original policy. You can update any fields as needed. Premium will be recalculated based on current rates and coverage dates.")}
         </p>
       </div>
 
@@ -622,11 +622,11 @@ const RIMICanuckVoyageTravelMedical: React.FC = () => {
           </div>
           <div className="ml-3">
             <p className="text-sm text-amber-700">
-              <strong className="font-semibold">Original Policy:</strong>{" "}
+              <strong className="font-semibold">{t("Original Policy:")}</strong>{" "}
               {policyData.policyNumber}
               <br />
               <span className="text-xs">
-                Original Coverage:{" "}
+                {t("Original Coverage:")}{" "}
                 {new Date(policyData.effectiveDate).toLocaleDateString()} to{" "}
                 {new Date(policyData.expiryDate).toLocaleDateString()}
               </span>
@@ -659,8 +659,8 @@ const RIMICanuckVoyageTravelMedical: React.FC = () => {
           <div className="w-full h-2 mt-5 flex items-center justify-center font-[inter]">
             <h3 className="text-base sm:text-lg">
               {loading
-                ? "Calculating..."
-                : `Your Quote: $${totalPremium.toFixed(2)} CAD`}
+                ? t("Calculating...")
+                : t("Your Quote: ${{total}} CAD", { total: totalPremium.toFixed(2) })}
             </h3>
           </div>
         </FormProvider>
@@ -671,7 +671,7 @@ const RIMICanuckVoyageTravelMedical: React.FC = () => {
         <FormProvider {...step2Methods}>
           <div className="w-full h-2 mt-8 flex items-center justify-center font-[inter]">
             <h3 className="text-base sm:text-lg">
-              Your Quote: ${step1ResponseData?.quoteAmount.toFixed(2)} CAD
+              {t("Your Quote:")} {step1ResponseData?.quoteAmount.toFixed(2)}
             </h3>
           </div>
 
@@ -691,16 +691,16 @@ const RIMICanuckVoyageTravelMedical: React.FC = () => {
 
           <div className="max-w-5xl mx-auto mt-6 p-3 sm:p-6 bg-[#F9F9F9]">
             <h3 className="text-lg font-bold text-left text-[#1B1B1B] mb-5">
-              Payment Summary
+              {t("Payment Summary")}
             </h3>
             <div className="flex justify-between items-center">
-              <span>Total Premium:</span>
+              <span>{t("Total Premium:")}</span>
               <span className="text-xl font-bold text-primary">
                 ${totalPremium.toFixed(2)} CAD
               </span>
             </div>
             <div className="text-sm text-gray-600 mt-1">
-              One-time payment • No additional fees
+              {t("One-time payment • No additional fees")}
             </div>
           </div>
 
@@ -732,7 +732,7 @@ const RIMICanuckVoyageTravelMedical: React.FC = () => {
             onClick={() => handleFormStepChange("back")}
             className="w-[200px] mt-6 bg-white border border-[#2B00B7] text-[#2B00B7] p-3 hover:bg-[#2209a1] hover:text-white transition flex justify-center items-center"
           >
-            Previous
+            {t("Previous")}
           </button>
         )}
 
@@ -744,7 +744,7 @@ const RIMICanuckVoyageTravelMedical: React.FC = () => {
               savingStage1 ? "opacity-50 cursor-wait" : ""
             }`}
           >
-            {savingStage1 ? "Saving…" : "Next"}
+            {savingStage1 ? t("Saving…") : t("Next")}
           </button>
         )}
       </div>
