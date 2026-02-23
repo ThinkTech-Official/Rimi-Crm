@@ -1271,13 +1271,9 @@ const Step1STRVCT = ({
                       { value: "", label: t("Please select...") },
                       { value: "1", label: t("1 year") },
                     ]}
-                    value={superVisaYears}
-                    onChange={(e) =>
-                      setValue(
-                        "superVisaYears",
-                        e.target.value as SuperVisaYears,
-                      )
-                    }
+                    {...register("superVisaYears", {
+                      required: t("Super Visa Duration is required"),
+                    })}
                   />
                   {errors.superVisaYears && (
                     <p className="text-red-500 text-sm mt-1">

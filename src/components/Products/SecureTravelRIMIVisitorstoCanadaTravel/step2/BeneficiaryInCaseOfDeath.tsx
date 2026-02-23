@@ -6,72 +6,18 @@ import InfoBox from "../../../InfoBox";
 import { UseFormReturn } from "react-hook-form";
 import { useLanguage } from "../../../../context/LanguageContext";
 
-// Define shape if needed
-export interface BeneficiaryInfo {
-  beneficiaryName: string;
-  relationshipToInsured: string;
-}
-
 interface BeneficiaryInfoProps {
-  methods?: UseFormReturn<any>;
-  // keeping old props for now if needed, but intended to replace
-  beneficiaryInfo?: BeneficiaryInfo;
-  setBeneficiaryInfo?: any;
+  methods: UseFormReturn<any>;
 }
 
-const BeneficiaryInCaseOfDeath: FC<BeneficiaryInfoProps> = ({
-  methods,
-  // Keeping these optional to avoid breaking if parent not fully updated yet,
-  // but logic should rely on methods if provided.
-  beneficiaryInfo,
-  setBeneficiaryInfo,
-}) => {
+const BeneficiaryInCaseOfDeath: FC<BeneficiaryInfoProps> = ({ methods }) => {
   const { t } = useLanguage();
   const [
     displayInfoRelationShipToInsured,
     setDisplayInfoRelationShipToInsured,
   ] = useState(false);
 
-  // If methods are provided, use them. Else fall back or just use them.
-  // The parent `SecureTravelRIMIVisitorstoCanadaTravel.tsx` does NOT yet pass methods to BeneficiaryInCaseOfDeath
-  // for `beneficiary` state. It was using a local state `beneficiary`.
-  // I need to update the parent to use `useForm` for beneficiary as well or pass methods.
-  // In my parent refactor, I kept `beneficiary` as local state:
-  // `const [beneficiary, setBeneficiary] = useState<BeneficiaryInfo>(...)`
-
-  // WAIT. I should update the parent to also manage beneficiary in the form?
-  // or just adapt this component to use methods IF I changed parent.
-
-  // In `RIMICanuckVoyageTravelMedical.tsx` (reference), beneficiary might be part of form?
-  // Actually, let's look at my parent refactor.
-  // I left `const [beneficiary, setBeneficiary] = useState...`
-  // So I should NOT refactor this to use `register` UNLESS I also update the parent to include `beneficiary` in `useForm`.
-  // For consistency, I SHOULD include it in the form.
-
-  // However, `Step1STRVCT` was the main target.
-  // `ContactInformation` and `Address` were refactored because I saw them being used with `methods` in parent.
-  // Wait, did I update parent to pass methods to Contact and Address?
-  // Yes:
-  // `const contactInfoMethods = useForm(...)`
-  // `const addressMethods = useForm(...)`
-  // But for Beneficiary:
-  // `<BeneficiaryInCaseOfDeath beneficiaryInfo={beneficiary} setBeneficiaryInfo={setBeneficiary} />`
-
-  // So I should probably leave this component as is or update Parent + Component.
-  // To be consistent with "Refactor ... to use react-hook-form", I should typically move it to form.
-  // But the instructions said "Step 2 Components ... will also need to be refactored ... similar to reference".
-
-  // Let's UPDATE the component to support `methods` (react-hook-form) AND `beneficiary` (legacy/state)
-  // OR better: Update Parent to use `useForm` for beneficiary too.
-
-  // I'll update the component to use `register` assuming I will update the parent momentarily.
-  // Actually I can just return the component using `register` and rely on `methods` being passed.
-  // The parent needs to be updated to pass `methods`.
-
-  // I will assume `methods` is passed.
-
-  // const register = methods?.register || (() => ({}));
-  const { register, formState: { errors } } = methods || { register: () => ({}), formState: { errors: {} } } as any;
+  const { register, formState: { errors } } = methods;
 
   return (
     <div className="max-w-5xl mx-auto mt-4 p-6 bg-[#F9F9F9]">
@@ -82,32 +28,16 @@ const BeneficiaryInCaseOfDeath: FC<BeneficiaryInfoProps> = ({
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 md:gap-x-16 lg:gap-x-24 gap-y-4 text-text-secondary">
         <div className="flex flex-col">
           <label className="text-sm">{t("Beneficiary Name")}</label>
-          {methods ? (
-            <input
-              className="input-primary"
-              type="text"
-              placeholder=""
-              {...register("beneficiary.beneficiaryName", {
-                setValueAs: (value: any) => value?.trim() || "",
-                required: t("Beneficiary Name is required"),
-                maxLength: { value: 100, message: t("Max 100 characters") },
-              })}
-            />
-          ) : (
-            <input
-              className="input-primary"
-              type="text"
-              placeholder=""
-              value={beneficiaryInfo?.beneficiaryName}
-              onChange={(e) =>
-                setBeneficiaryInfo &&
-                setBeneficiaryInfo((prev: any) => ({
-                  ...prev,
-                  beneficiaryName: e.target.value,
-                }))
-              }
-            />
-          )}
+          <input
+            className="input-primary"
+            type="text"
+            placeholder=""
+            {...register("beneficiary.beneficiaryName", {
+              setValueAs: (value: any) => value?.trim() || "",
+              required: t("Beneficiary Name is required"),
+              maxLength: { value: 100, message: t("Max 100 characters") },
+            })}
+          />
           {(errors as any)?.beneficiary?.beneficiaryName && (
             <p className="text-red-500 text-sm mt-1">
               {(errors as any).beneficiary.beneficiaryName.message}
@@ -127,32 +57,16 @@ const BeneficiaryInCaseOfDeath: FC<BeneficiaryInfoProps> = ({
             {t("Relationship to Insured")}
           </label>
           <div className="relative">
-            {methods ? (
-              <input
-                className="input-primary"
-                type="text"
-                placeholder={t("Relationship (e.g. Spouse)")}
-                {...register("beneficiary.relationshipToInsured", {
-                  setValueAs: (value: any) => value?.trim() || "",
-                  required: t("Relationship is required"),
-                  maxLength: { value: 60, message: t("Max 60 characters") },
-                })}
-              />
-            ) : (
-              <input
-                className="input-primary"
-                type="text"
-                placeholder={t("Relationship (e.g. Spouse)")}
-                value={beneficiaryInfo?.relationshipToInsured}
-                onChange={(e) =>
-                  setBeneficiaryInfo &&
-                  setBeneficiaryInfo((prev: any) => ({
-                    ...prev,
-                    relationshipToInsured: e.target.value,
-                  }))
-                }
-              />
-            )}
+            <input
+              className="input-primary"
+              type="text"
+              placeholder={t("Relationship (e.g. Spouse)")}
+              {...register("beneficiary.relationshipToInsured", {
+                setValueAs: (value: any) => value?.trim() || "",
+                required: t("Relationship is required"),
+                maxLength: { value: 60, message: t("Max 60 characters") },
+              })}
+            />
           </div>
           {(errors as any)?.beneficiary?.relationshipToInsured && (
             <p className="text-red-500 text-sm mt-1">
