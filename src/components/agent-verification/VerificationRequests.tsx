@@ -338,7 +338,7 @@ const handleVerifySubmit = async () => {
 
   const openDocument = (url: string | null) => {
     if (url) {
-      window.open(`${API_BASE}${url}`, '_blank');
+      window.open(url, '_blank');
     }
   };
 
@@ -577,7 +577,7 @@ const handleVerifySubmit = async () => {
                           <div className="flex flex-col gap-3 pt-3 border-t border-gray-100">
                             <div className="flex flex-col gap-3">
                               <div>
-                                <p className="text-xs text-text-secondary mb-0.5">{t("Uploaded")}</p>
+                                <p className="text-xs text-text-secondary mb-0.5">{t("Document Upload Status")}</p>
                                 <p className="text-sm font-medium text-gray-700">
                                   {agent.documentsUploadedAt
                                     ? format(new Date(agent.documentsUploadedAt), "MMM dd, yyyy")
@@ -707,7 +707,7 @@ const handleVerifySubmit = async () => {
                           {/* Right Section - Actions */}
                           <div className="flex flex-col items-end gap-3 flex-shrink-0">
                             <div className="text-right">
-                              <p className="text-xs text-text-secondary mb-1">{t("Uploaded")}</p>
+                              <p className="text-xs text-text-secondary mb-1">{t("Document Upload Status")}</p>
                               <p className="text-sm font-medium text-gray-700">
                                 {agent.documentsUploadedAt
                                   ? format(new Date(agent.documentsUploadedAt), "MMM dd, yyyy")
