@@ -120,7 +120,7 @@ import {
 } from "@heroicons/react/24/outline";
 import { Step1Payload } from "../RIMICanuckVoyageTravelMedical";
 import { Controller, UseFormReturn, useFieldArray } from "react-hook-form";
-import ConfirmEligibilityModal from "../../SecureTravelRIMIVisitorstoCanadaTravel/step1/ConfirmEligibility";
+import ConfirmEligibilityMedical from "./ConfirmEligibilityMedical";
 import DatePicker from "../../../DatePicker";
 import { useLanguage } from "../../../../context/LanguageContext";
 
@@ -278,14 +278,14 @@ export default function ApplicantInformation({
                 const diffDays = diffTime / (1000 * 60 * 60 * 24);
 
                 if (diffDays < 15) {
-                  return t("Age must be between 15 days to 90 years according to the effective date.");
+                  return t("Age must be at least 15 days and less than 80 years according to the effective date.");
                 }
 
-                // Check 90 years
-                const ninetyYearsLater = new Date(dob);
-                ninetyYearsLater.setFullYear(dob.getFullYear() + 90);
-                if (eff >= ninetyYearsLater) {
-                  return t("Age must be between 15 days to 90 years according to the effective date.");
+                // Check 80 years
+                const eightyYearsLater = new Date(dob);
+                eightyYearsLater.setFullYear(dob.getFullYear() + 80);
+                if (eff >= eightyYearsLater) {
+                  return t("Age must be at least 15 days and less than 80 years according to the effective date.");
                 }
 
                 return true;
@@ -483,13 +483,13 @@ export default function ApplicantInformation({
                   const diffDays = diffTime / (1000 * 60 * 60 * 24);
 
                   if (diffDays < 15) {
-                    return t("Age must be between 15 days to 90 years according to the effective date.");
+                    return t("Age must be at least 15 days and less than 80 years according to the effective date.");
                   }
 
-                  const ninetyYearsLater = new Date(dob);
-                  ninetyYearsLater.setFullYear(dob.getFullYear() + 90);
-                  if (eff >= ninetyYearsLater) {
-                    return t("Age must be between 15 days to 90 years according to the effective date.");
+                  const eightyYearsLater = new Date(dob);
+                  eightyYearsLater.setFullYear(dob.getFullYear() + 80);
+                  if (eff >= eightyYearsLater) {
+                    return t("Age must be at least 15 days and less than 80 years according to the effective date.");
                   }
 
                   return true;
@@ -612,39 +612,26 @@ export default function ApplicantInformation({
             </p>
             <ol className="list-decimal pl-5 mt-2 text-gray-700 space-y-2">
               <li>
-                {t("Be a visitor to Canada or a person in Canada under a valid work or student visa, a Canadian or an immigrant not eligible for benefits under a government health insurance plan; and")}
-              </li>
-              <li>{t("Be at least 15 days of age and less than 90 years of age; and")}</li>
-              <li>
-                {t("Not be travelling against the advice of a physician and/or have not been diagnosed with a terminal illness; and")}
+                {t("Be a Canadian resident travelling outside their home province;")}
               </li>
               <li>
-                {t("Not be experiencing new or undiagnosed signs or symptoms and/or know of any reason to seek medical attention; and")}
+                {t("Be at least 15 days of age and less than 80 years of age;")}
+              </li>
+              <li>
+                {t("Not be travelling against the advice of a physician and/or have not been diagnosed with a terminal illness;")}
+              </li>
+              <li>
+                {t("Not be experiencing new or undiagnosed signs or symptoms and/or know of any reason to seek medical attention;")}
               </li>
               <li>
                 {t("Not require assistance with the activities of daily living (eating, bathing, dressing, functional mobility, using the toilet).")}
-              </li>
-              <li>
-                {t("Have not been diagnosed or treated for pancreatic, liver, lung, brain or any kind of metastasized cancer.")}
-              </li>
-              <li>
-                {t("Have not been diagnosed or treated for kidney condition requiring dialysis within the last 24 months.")}
-              </li>
-              <li>
-                {t("Have not been diagnosed or treated for bone marrow or organ transplant within the last 24 months.")}
-              </li>
-              <li>
-                {t("Have not been diagnosed for terminal sickness with less than 2 years to live.")}
-              </li>
-              <li>
-                {t("Have not taken home oxygen in the past 12 months prior to the effective date.")}
               </li>
             </ol>
           </div>
         )}
       </div>
       {showConfirmEligibility && (
-        <ConfirmEligibilityModal
+        <ConfirmEligibilityMedical
           confirmEligibility={showConfirmEligibility}
           setShowConfirmEligibility={setShowConfirmEligibility}
           setIsConfirmed={setIsConfirmed}

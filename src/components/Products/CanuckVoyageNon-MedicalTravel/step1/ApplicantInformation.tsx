@@ -581,7 +581,7 @@ export default function ApplicantInformation({
                 const days = Math.floor(ageDiffMs / (1000 * 60 * 60 * 24));
                 
                 if (days < 15 || years >= 86) {
-                  return t("Age must be between 15 days to 85 years according to the effective date.");
+                  return t("Age must be at least 15 days and less than 86 years according to the effective date.");
                 }
                 return true;
               }
@@ -822,7 +822,7 @@ export default function ApplicantInformation({
                     const days = Math.floor(ageDiffMs / (1000 * 60 * 60 * 24));
                     
                     if (days < 15 || years >= 86) {
-                      return t("Age must be between 15 days to 85 years according to the effective date.");
+                      return t("Age must be at least 15 days and less than 86 years according to the effective date.");
                     }
                     return true;
                   }
