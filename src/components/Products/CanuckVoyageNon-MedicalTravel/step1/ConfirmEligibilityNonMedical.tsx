@@ -28,10 +28,13 @@ export default function ConfirmEligibilityNonMedical({
     if (!el) return;
 
     const handleScroll = () => {
+      // If content is not scrollable, it's considered scrolled to end
+      const isNotScrollable = el.scrollHeight <= el.clientHeight;
       const isAtBottom = el.scrollTop + el.clientHeight >= el.scrollHeight - 10;
-      setScrolledToEnd(isAtBottom);
+      setScrolledToEnd(isNotScrollable || isAtBottom);
     };
 
+    setTimeout(handleScroll, 100); // Initial check with small delay
     el.addEventListener("scroll", handleScroll);
     return () => el.removeEventListener("scroll", handleScroll);
   }, []);

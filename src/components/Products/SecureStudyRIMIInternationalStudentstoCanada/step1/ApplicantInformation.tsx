@@ -460,7 +460,7 @@ import {
   Applicant,
   Step1FormData,
 } from "../SecureStudyRIMIInternationalStudentstoCanada";
-import ConfirmEligibilityModal from "../../SecureTravelRIMIVisitorstoCanadaTravel/step1/ConfirmEligibility";
+import ConfirmEligibilityStudents from "./ConfirmEligibilityStudents";
 import DatePicker from "../../../DatePicker";
 import { useLanguage } from "../../../../context/LanguageContext";
 
@@ -542,20 +542,14 @@ export default function ApplicantInformation({
     setValue("applicants", newApplicants);
   };
 
-  const setApplicants = (value: Applicant[]) => {
-    setValue("applicants", value);
-  };
+
 
   const setIsConfirmed = (value: boolean) => {
     setValue("isConfirmed", value, { shouldValidate: true, shouldDirty: true });
   };
-  const setPrimaryDateOfBirth = (value: Date) => {
-    setValue("primaryDateOfBirth", value.toDateString());
-  };
 
-  const handlePrimaryDOBChange = (e: Date) => {
-    setPrimaryDateOfBirth(e);
-  };
+
+
   const handleAdditionalApplicantsDateChange = (idx: number, e: Date) => {
     // Update the date field
     const currentApplicants = applicants || [];
@@ -624,7 +618,25 @@ export default function ApplicantInformation({
           <Controller
             name="primaryDateOfBirth"
             control={control}
-            rules={{ required: t("Date of Birth is required") }}
+            rules={{ 
+              required: t("Date of Birth is required"),
+              validate: (value) => {
+                const effectiveDate = methods.getValues("effectiveDate");
+                if (!value || !effectiveDate) return true;
+                
+                const dobDate = new Date(value);
+                const effDate = new Date(effectiveDate);
+                const ageDiffMs = effDate.getTime() - dobDate.getTime();
+                const ageDate = new Date(ageDiffMs);
+                const years = Math.abs(ageDate.getUTCFullYear() - 1970);
+                const days = Math.floor(ageDiffMs / (1000 * 60 * 60 * 24));
+                
+                if (days < 15 || years >= 65) {
+                  return t("Age must be at least 15 days and less than 65 years according to the effective date.");
+                }
+                return true;
+              }
+            }}
             render={({ field }) => (
               <div className="flex flex-col">
                 <DatePicker
@@ -784,7 +796,25 @@ export default function ApplicantInformation({
               <Controller
                 name={`applicants.${idx}.dob`}
                 control={control}
-                rules={{ required: t("Date of Birth is required") }}
+                rules={{ 
+                  required: t("Date of Birth is required"),
+                  validate: (value) => {
+                    const effectiveDate = methods.getValues("effectiveDate");
+                    if (!value || !effectiveDate) return true;
+                    
+                    const dobDate = new Date(value);
+                    const effDate = new Date(effectiveDate);
+                    const ageDiffMs = effDate.getTime() - dobDate.getTime();
+                    const ageDate = new Date(ageDiffMs);
+                    const years = Math.abs(ageDate.getUTCFullYear() - 1970);
+                    const days = Math.floor(ageDiffMs / (1000 * 60 * 60 * 24));
+                    
+                    if (days < 15 || years >= 65) {
+                      return t("Age must be at least 15 days and less than 65 years according to the effective date.");
+                    }
+                    return true;
+                  }
+                }}
                 render={({ field }) => (
                   <DatePicker
                     label={t("Date of Birth")}
@@ -897,67 +927,27 @@ export default function ApplicantInformation({
           <div className="border-b pb-2 text-lg font-semibold">
             {t("Eligibility")}
           </div>
-          <ul className="list-decimal pl-5 mt-2 text-text-secondary space-y-2 text-sm sm:text-base">
+          <ol className="list-decimal pl-5 mt-2 text-text-secondary space-y-2 text-sm sm:text-base">
+            <li>{t("At least 15 days old and less than 65 years of age; and")}</li>
+            <li>{t("Ineligible for benefits under a government health insurance plan; and")}</li>
+            <li>{t("Residing in Canada on a temporary basis; and")}</li>
             <li>
-              {t(
-                "Be a visitor to Canada or a person in Canada under a valid work or student visa, a Canadian or an immigrant not eligible for benefits under a government health insurance plan; and",
-              )}
+              {t("One of the following:")}
+              <ul className="list-[lower-alpha] pl-6 mt-2 space-y-1">
+                <li>{t("A student attending classes on a full-time basis at a recognized Canadian institution of learning; or")}</li>
+                <li>{t("A student completing post-doctorate research in a recognized Canadian institution of learning; or")}</li>
+                <li>{t("The spouse or dependent child of the insured student and residing with them on a full-time basis; or")}</li>
+                <li>{t("The parent, legal guardian, teacher or chaperone of the insured student.")}</li>
+              </ul>
             </li>
-            <li>
-              {t(
-                "Be at least 15 days of age and less than 90 years of age; and",
-              )}
-            </li>
-            <li>
-              {t(
-                "Not be travelling against the advice of a physician and/or have not been diagnosed with a terminal illness; and",
-              )}
-            </li>
-            <li>
-              {t(
-                "Not be experiencing new or undiagnosed signs or symptoms and/or know of any reason to seek medical attention; and",
-              )}
-            </li>
-            <li>
-              {t(
-                "Not require assistance with the activities of daily living (eating, bathing, dressing, functional mobility, using the toilet).",
-              )}
-            </li>
-            <li>
-              {t(
-                "Have not been diagnosed or treated for pancreatic, liver, lung, brain or any kind of metastasized cancer.",
-              )}
-            </li>
-            <li>
-              {t(
-                "Have not been diagnosed or treated for kidney condition requiring dialysis within the last 24 months.",
-              )}
-            </li>
-            <li>
-              {t(
-                "Have not been diagnosed or treated for bone marrow or organ transplant within the last 24 months.",
-              )}
-            </li>
-            <li>
-              {t(
-                "Have not been diagnosed for terminal sickness with less than 2 years to live.",
-              )}
-            </li>
-            <li>
-              {t(
-                "Have not taken home oxygen in the past 12 months prior to the effective date.",
-              )}
-            </li>
-          </ul>
+          </ol>
         </div>
       )}
-      {showConfirmEligibility && (
-        <ConfirmEligibilityModal
+        <ConfirmEligibilityStudents
           confirmEligibility={showConfirmEligibility}
           setShowConfirmEligibility={setShowConfirmEligibility}
           setIsConfirmed={setIsConfirmed}
         />
-      )}
     </div>
   );
 }
