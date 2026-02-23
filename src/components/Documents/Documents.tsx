@@ -443,7 +443,7 @@ export default function Documents() {
                     className="flex justify-between items-center gap-3 hover:bg-gray-50 p-2 rounded transition"
                   >
                     <a
-                      href={`${API_BASE}${item.url}`}
+                      href={item.url}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-gray-700 hover:text-primary hover:underline max-w-[70%] break-words"
@@ -453,7 +453,7 @@ export default function Documents() {
                     
                     <div className="flex gap-2 items-center">
                       <a
-                        href={`${API_BASE}${item.url}`}
+                        href={item.url}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-primary hover:underline"
