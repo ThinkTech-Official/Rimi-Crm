@@ -44,7 +44,8 @@ const allProducts = [
   const [selectedProducts, setSelectedProducts] = useState<string[]>(["All"]);
   const [page, setPage] = useState(1);
   const limit = 10;
-  const { search, loading, error, data } = useSearchPolicies(limit);
+  // const { search, loading, error, data } = useSearchPolicies(limit);
+   const { search, exportCsv, exporting, exportError, loading, error, data } = useSearchPolicies(limit);
   const totalPages = data?.totalPages || 0;
   const {
     register,
@@ -329,13 +330,48 @@ const allProducts = [
 
       {data && (
         <div className="w-full overflow-x-auto custom-scrollbar pb-2">
-          <div className="mt-4">
+          {/* <div className="mt-4">
             {!loading && (
               <p className="mb-1 text-text-primary">
                 {t("Found")} {data.total} {t("policies.")}
               </p>
             )}
-          </div>
+          </div> */}
+
+          <div className="mt-4">
+          {!loading && (
+            <div className="mb-1 flex items-center justify-between flex-wrap gap-2">
+              <p className="text-text-primary">
+                {t("Found")} {data.total} {t("policies.")}
+              </p>
+              <div className="flex flex-col items-end gap-1">
+                <button
+                    onClick={() => exportCsv(searchData)}
+                  disabled={exporting}
+                  className="btn-secondary text-sm flex items-center gap-2 px-3 py-2"
+                >
+                  {exporting ? (
+                    <>
+                      <span className="animate-spin inline-block w-4 h-4 border-2 border-current border-t-transparent rounded-full" />
+                      {t("Exporting...")}
+                    </>
+                  ) : (
+                    <>
+                      
+                      {t("Download CSV")}
+                    </>
+                  )}
+                </button>
+                {exportError && (
+                  <p className="text-sm text-red-600 max-w-xs text-right">
+                    {exportError}
+                  </p>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-primary text-white text-base 2xl:text-xl capitalize">
               <tr>
