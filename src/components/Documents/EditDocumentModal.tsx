@@ -1,6 +1,12 @@
 import { useState } from "react";
 import { MdClose } from "react-icons/md";
-import { API_BASE } from "../../utils/urls";
+import { useDocuments } from "../../hooks/documents/useDocuments";
+import { NotificationProps } from "../Notification";
+
+interface Category {
+  id: string;
+  name: string;
+}
 
 interface EditDocumentModalProps {
   document: {
@@ -9,25 +15,33 @@ interface EditDocumentModalProps {
     category: string;
   };
   onClose: () => void;
+  categories: Category[];
+  triggerNotification: (props: Omit<NotificationProps, "onClose" | "animation"> & { duration?: number; animation?: any }) => void;
 }
 
-const EditDocumentModal = ({ document, onClose }: EditDocumentModalProps) => {
+const EditDocumentModal = ({
+  document,
+  onClose,
+  categories,
+  triggerNotification,
+}: EditDocumentModalProps) => {
   const [filename, setFilename] = useState(document.filename);
   const [category, setCategory] = useState(document.category);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { updateDocument } = useDocuments();
 
-  const categories = [
-    "Travel Medical Claims",
-    "Policy Documents",
-    "Application Forms",
-    "General",
-    "Invoice",
-    "Contract",
-    "Report",
-    "Presentation",
-    "Other",
-  ];
+  // const categories = [
+  //   "Travel Medical Claims",
+  //   "Policy Documents",
+  //   "Application Forms",
+  //   "General",
+  //   "Invoice",
+  //   "Contract",
+  //   "Report",
+  //   "Presentation",
+  //   "Other",
+  // ];
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -35,26 +49,52 @@ const EditDocumentModal = ({ document, onClose }: EditDocumentModalProps) => {
     setError(null);
 
     try {
-      const response = await fetch(`${API_BASE}/documents/${document.id}`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-        body: JSON.stringify({ filename, category }),
-      });
+      await updateDocument(document.id, { filename, category });
 
-      if (!response.ok) {
-        throw new Error("Failed to update document");
-      }
+      triggerNotification({
+        type: "success",
+        message: "Document updated successfully",
+      });
 
       onClose();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Update failed");
+      const message = err instanceof Error ? err.message : "Update failed";
+      setError(message);
+      triggerNotification({
+        type: "error",
+        message: message,
+      });
     } finally {
       setLoading(false);
     }
   };
+
+  // const handleSubmit = async (e: React.FormEvent) => {
+  //   e.preventDefault();
+  //   setLoading(true);
+  //   setError(null);
+
+  //   try {
+  //     const response = await fetch(`${API_BASE}/documents/${document.id}`, {
+  //       method: "PATCH",
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //         Authorization: `Bearer ${localStorage.getItem("token")}`,
+  //       },
+  //       body: JSON.stringify({ filename, category }),
+  //     });
+
+  //     if (!response.ok) {
+  //       throw new Error("Failed to update document");
+  //     }
+
+  //     onClose();
+  //   } catch (err) {
+  //     setError(err instanceof Error ? err.message : "Update failed");
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
 
   return (
     <div className="fixed inset-0 flex justify-center items-center z-50 bg-black/30">
@@ -98,8 +138,8 @@ const EditDocumentModal = ({ document, onClose }: EditDocumentModalProps) => {
               required
             >
               {categories.map((cat) => (
-                <option key={cat} value={cat}>
-                  {cat}
+                <option key={cat.id} value={cat.name}>
+                  {cat.name}
                 </option>
               ))}
             </select>
