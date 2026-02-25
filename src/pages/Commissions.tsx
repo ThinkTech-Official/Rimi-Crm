@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import {
   useCommissions,
   useUpdateCommissionStatus,
+  useExportCommissions
 } from "../hooks/admin-dashboard/useCommission";
 import { CommissionsTable } from "../components/Tables";
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
@@ -31,6 +32,8 @@ export default function Commissions() {
 });
   const { mutate: updateStatus, isPending: isUpdating } =
     useUpdateCommissionStatus();
+
+    const { exportCsv, exporting, exportError } = useExportCommissions();
 
   // Initial fetch and fetch on appliedFilters/page change
   // useEffect(() => {
@@ -125,6 +128,46 @@ export default function Commissions() {
           <button onClick={handleSearch} className="btn-primary">
             {t("Search")}
           </button>
+
+          {data?.items?.length > 0 && (
+            <div className="flex flex-col items-start gap-1">
+              <button
+                onClick={() =>
+                  exportCsv({
+                    agentCode: agentCodeInput.trim() || undefined,
+                    dateFrom: dateFrom
+                      ? new Date(dateFrom).toISOString().split('T')[0]
+                      : undefined,
+                    dateTo: dateTo
+                      ? new Date(dateTo).toISOString().split('T')[0]
+                      : undefined,
+                  })
+                }
+                disabled={exporting}
+                className="btn-secondary text-sm flex items-center gap-2 px-3 py-2"
+              >
+                {exporting ? (
+                  <>
+                    <span className="animate-spin inline-block w-4 h-4 border-2 border-current border-t-transparent rounded-full" />
+                    {t("Exporting...")}
+                  </>
+                ) : (
+                  <>
+                    
+                    {t("Download CSV")}
+                  </>
+                )}
+              </button>
+              {exportError && (
+                <p className="text-sm text-red-600 max-w-xs">
+                  {exportError}
+                </p>
+              )}
+            </div>
+          )}
+
+
+
         </div>
       </div>
 

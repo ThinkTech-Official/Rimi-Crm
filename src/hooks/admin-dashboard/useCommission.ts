@@ -4,6 +4,7 @@ import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tansta
 // import { API_BASE } from '../../utils/urls';
 import { getUserTypeFromToken } from "../../utils/getUserType";
 import { axiosInstance } from "../../utils/axiosInstance";
+import { useState } from "react";
 
 interface UpdateCommissionStatusParams {
   commissionId: string;
@@ -234,6 +235,64 @@ export const useCommissions = (filters: {
     },
     placeholderData: keepPreviousData, 
   });
+};
+
+
+
+export const useExportCommissions = () => {
+  const [exporting, setExporting]     = useState(false);
+  const [exportError, setExportError] = useState<string | null>(null);
+
+  const exportCsv = async (filters: {
+    agentCode?: string;
+    status?: string;
+    dateFrom?: string;
+    dateTo?: string;
+  }) => {
+    setExporting(true);
+    setExportError(null);
+    try {
+      const params = new URLSearchParams();
+      if (filters.agentCode) params.append('agentCode', filters.agentCode);
+      if (filters.status)    params.append('status',    filters.status);
+      if (filters.dateFrom)  params.append('dateFrom',  filters.dateFrom);
+      if (filters.dateTo)    params.append('dateTo',    filters.dateTo);
+
+      const res = await axiosInstance.get(
+        `/admin/commissions/export?${params.toString()}`,
+        { responseType: 'blob' }
+      );
+
+      const url = window.URL.createObjectURL(new Blob([res.data], { type: 'text/csv' }));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute(
+        'download',
+        `commissions_${new Date().toISOString().split('T')[0]}.csv`
+      );
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (err: any) {
+      // responseType blob means error body is also a blob — parse it back
+      if (err.response?.data instanceof Blob) {
+        const text = await err.response.data.text();
+        try {
+          const parsed = JSON.parse(text);
+          setExportError(parsed.message || 'Export failed. Please try again.');
+        } catch {
+          setExportError('Export failed. Please try again.');
+        }
+      } else {
+        setExportError(err.response?.data?.message || 'Export failed. Please try again.');
+      }
+    } finally {
+      setExporting(false);
+    }
+  };
+
+  return { exportCsv, exporting, exportError };
 };
 
 
