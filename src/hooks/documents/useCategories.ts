@@ -17,13 +17,14 @@ export const useCategories = () => {
     setError(null);
     try {
       const response = await axiosInstance.get(`/categories`);
+      console.log(response.data);
       setCategories(response.data);
     } catch (err: any) {
       console.error("Fetch categories error:", err);
       setError(
         err.response?.data?.message ||
-          err.message ||
-          "Failed to fetch categories",
+        err.message ||
+        "Failed to fetch categories",
       );
     } finally {
       setLoading(false);
@@ -53,6 +54,52 @@ export const useCategories = () => {
     [fetchCategories],
   );
 
+  const updateCategory = useCallback(
+    async (id: string, name: string) => {
+      setLoading(true);
+      setError(null);
+      try {
+        const response = await axiosInstance.patch(`/categories/${id}`, { name });
+        await fetchCategories();
+        return response.data;
+      } catch (err: any) {
+        console.error("Update category error:", err);
+        const errorMsg =
+          err.response?.data?.message ||
+          err.message ||
+          "Failed to update category";
+        setError(errorMsg);
+        throw new Error(errorMsg);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [fetchCategories],
+  );
+
+  const deleteCategory = useCallback(
+    async (id: string) => {
+      setLoading(true);
+      setError(null);
+      try {
+        const response = await axiosInstance.delete(`/categories/${id}`);
+        await fetchCategories();
+        return response.data;
+      } catch (err: any) {
+        console.error("Delete category error:", err);
+        const errorMsg =
+          err.response?.data?.message ||
+          err.message ||
+          "Failed to delete category";
+        setError(errorMsg);
+        throw new Error(errorMsg);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [fetchCategories],
+  );
+
   useEffect(() => {
     fetchCategories();
   }, [fetchCategories]);
@@ -62,6 +109,8 @@ export const useCategories = () => {
     loading,
     error,
     addCategory,
+    updateCategory,
+    deleteCategory,
     refetch: fetchCategories,
   };
 };

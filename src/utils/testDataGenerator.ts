@@ -22,7 +22,10 @@ export const generateTestData = (productName?: string) => {
   const additionalFirstName = firstNames[Math.floor(Math.random() * firstNames.length)];
   const additionalEmail = `${additionalFirstName.toLowerCase()}.${lastName.toLowerCase()}@example.com`;
 
-  const coverageDays = 21; // Custom variable for coverage duration (e.g., 7, 14, 21)
+  const isVisitors = productName === "SECURE_TRAVEL_RIMI_VISITORS_TO_CANADA_TRAVEL" || productName === "Secure Travel RIMI Visitors to Canada Travel";
+  const isSuperVisa = isVisitors; // Defaulting visitors to super visa as requested for testing
+
+  const coverageDays = isSuperVisa ? 365 : 21; // Super visa is typically 1 year
   const daysFromToday = 2; // Custom variable for start date offset (e.g., today + 2 days)
   const addressCountry = commonCountries[Math.floor(Math.random() * commonCountries.length)];
 
@@ -31,28 +34,28 @@ export const generateTestData = (productName?: string) => {
 
   // Effective date logic
   let effectiveDate = addDays(new Date(), 1 + Math.floor(Math.random() * 10));
-  
+
   // Specific override for Visitors product as requested
-  if (productName === "SECURE_TRAVEL_RIMI_VISITORS_TO_CANADA_TRAVEL" || productName === "Secure Travel RIMI Visitors to Canada Travel") {
+  if (isVisitors) {
     effectiveDate = addDays(new Date(), daysFromToday);
   }
-  
+
   const effectiveDateStr = toLocalIsoDate(effectiveDate);
 
   // Expiry date: effective + coverageDays (or random 30-365 days for other products)
   let expiryDate: Date;
-  if (productName === "SECURE_TRAVEL_RIMI_VISITORS_TO_CANADA_TRAVEL" || productName === "Secure Travel RIMI Visitors to Canada Travel") {
+  if (isVisitors) {
     expiryDate = addDays(effectiveDate, coverageDays - 1);
   } else {
     expiryDate = addDays(effectiveDate, 30 + Math.floor(Math.random() * 335));
   }
-  
+
   const expiryDateStr = toLocalIsoDate(expiryDate);
 
   const coverageLength = String(Math.floor((expiryDate.getTime() - effectiveDate.getTime()) / (1000 * 60 * 60 * 24)) + 1);
 
   let policyType = "Single";
-  if (productName === "Secure Travel RIMI Visitors to Canada Travel" || productName === "SECURE_TRAVEL_RIMI_VISITORS_TO_CANADA_TRAVEL") {
+  if (isVisitors) {
     policyType = Math.random() > 0.5 ? "standard" : "enhanced";
   } else if (productName?.includes("Canuck Voyage")) {
     policyType = "Single Trip";
@@ -111,7 +114,9 @@ export const generateTestData = (productName?: string) => {
     data.coverageOption = "100000";
     data.deductible = "0";
     data.inCanada = "no";
-    data.superVisa = "no";
+    data.superVisa = "yes";
+    data.superVisaYears = "1";
+    data.paymentOption = "monthly-installments";
   }
 
   if (productName === "RIMI_CANUCK_VOYAGE_NON_MEDICAL_TRAVEL") {

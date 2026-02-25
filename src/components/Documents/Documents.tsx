@@ -166,7 +166,7 @@
 //   { id: "1", filename: "RIMI Canuck Voyage Travel Medical - Claim Form (EN)", category: "Travel Medical Claims" },
 //   { id: "2", filename: "RIMI Canuck Voyage Travel Medical - Claim Form (FR)", category: "Travel Medical Claims" },
 //   { id: "3", filename: "Emergency Medical Assistance Guidelines", category: "Travel Medical Claims" },
-  
+
 //   // Policy Documents
 //   {
 //     id: "4",
@@ -180,7 +180,7 @@
 //   },
 //   { id: "6", filename: "Terms and Conditions - Travel Insurance", category: "Policy Documents" },
 //   { id: "7", filename: "Coverage Details and Exclusions", category: "Policy Documents" },
-  
+
 //   // Application Forms
 //   { id: "8", filename: "New Student Application Form", category: "Application Forms" },
 //   { id: "9", filename: "Policy Renewal Application", category: "Application Forms" },
@@ -240,7 +240,7 @@
 //         <h2 className="text-xl font-bold text-left text-[#1B1B1B]">
 //           {langauge === "En" ? "Documents" : "Documents"}
 //         </h2>
-        
+
 //         {userType === "ADMIN" && (
 //           <button
 //             onClick={() => setShowAddDocument(true)}
@@ -335,15 +335,19 @@ import {
   PencilSquareIcon,
   TrashIcon,
   FolderPlusIcon,
+  Cog6ToothIcon,
 } from "@heroicons/react/24/outline";
 import { useContext, useEffect, useState } from "react";
 import { LangContext } from "../../context/LangContext";
 import { getUserTypeFromToken } from "../../utils/getUserType";
 import { useDocuments } from "../../hooks/documents/useDocuments";
-import { API_BASE } from "../../utils/urls";
 import AddDocument from "./AddDocument";
 import { FaExternalLinkAlt } from "react-icons/fa";
 import EditDocumentModal from "./EditDocumentModal";
+import { useCategories } from "../../hooks/documents/useCategories";
+import useNotification from "../../hooks/useNotification";
+import DeleteDocumentModal from "./DeleteDocumentModal";
+import ManageCategoriesModal from "./ManageCategoriesModal";
 
 export default function Documents() {
   const { langauge } = useContext(LangContext);
@@ -354,6 +358,14 @@ export default function Documents() {
     filename: string;
     category: string;
   } | null>(null);
+  const [deletingDocument, setDeletingDocument] = useState<{
+    id: string;
+    filename: string;
+  } | null>(null);
+  const [showManageCategories, setShowManageCategories] = useState<boolean>(false);
+
+  const { triggerNotification, NotificationComponent } = useNotification();
+  const { categories } = useCategories();
 
   const {
     categorizedDocuments,
@@ -368,12 +380,26 @@ export default function Documents() {
     if (type) setUserType(type.userType);
   }, []);
 
-  const handleDelete = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this document?")) return;
+  const handleDeleteClick = (doc: { id: string; filename: string }) => {
+    setDeletingDocument(doc);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!deletingDocument) return;
+
     try {
-      await deleteDocument(id);
+      await deleteDocument(deletingDocument.id);
+      triggerNotification({
+        type: "success",
+        message: "Document deleted successfully",
+      });
+      setDeletingDocument(null);
     } catch (err) {
       console.error("Delete failed:", err);
+      triggerNotification({
+        type: "error",
+        message: "Failed to delete document",
+      });
     }
   };
 
@@ -408,19 +434,28 @@ export default function Documents() {
 
   return (
     <div className="w-full mx-auto mt-4 px-2 py-4 sm:py-6 sm:px-10 bg-[#F9F9F9]">
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-xl font-bold text-left text-[#1B1B1B]">
+      <div className="flex sm:flex-row flex-col justify-between sm:items-center items-start mb-6">
+        <h2 className="text-xl font-bold text-left text-[#1B1B1B] mb-3 sm:mb-0">
           {langauge === "En" ? "Documents" : "Documents"}
         </h2>
-        
+
         {userType === "ADMIN" && (
-          <button
-            onClick={() => setShowAddDocument(true)}
-            className="btn-primary flex items-center gap-2"
-          >
-            <FolderPlusIcon className="h-5 w-5" />
-            Add Document
-          </button>
+          <div className="flex gap-3">
+            <button
+              onClick={() => setShowManageCategories(true)}
+              className="py-2 px-4 border border-inputBorder hover:border-gray-500 transition flex items-center gap-2 cursor-pointer"
+            >
+              <Cog6ToothIcon className="h-5 w-5" />
+              Manage Categories
+            </button>
+            <button
+              onClick={() => setShowAddDocument(true)}
+              className="btn-primary flex items-center gap-2"
+            >
+              <FolderPlusIcon className="h-5 w-5" />
+              Add Document
+            </button>
+          </div>
         )}
       </div>
 
@@ -450,7 +485,7 @@ export default function Documents() {
                     >
                       {item.filename}
                     </a>
-                    
+
                     <div className="flex gap-2 items-center">
                       <a
                         href={item.url}
@@ -460,7 +495,7 @@ export default function Documents() {
                       >
                         <FaExternalLinkAlt className="h-4 w-4 text-primary hover:text-primary-dark" />
                       </a>
-                      
+
                       {userType === "ADMIN" && (
                         <>
                           <button
@@ -474,7 +509,10 @@ export default function Documents() {
                             <PencilSquareIcon className="h-5 w-5 text-primary cursor-pointer hover:text-primary-dark" />
                           </button>
                           <button
-                            onClick={() => handleDelete(item.id)}
+                            onClick={() => handleDeleteClick({
+                              id: item.id,
+                              filename: item.filename,
+                            })}
                             className="py-2 flex"
                           >
                             <TrashIcon className="h-5 w-5 text-red-500 cursor-pointer hover:text-red-600" />
@@ -494,6 +532,7 @@ export default function Documents() {
         <AddDocument
           setShowAddDocument={setShowAddDocument}
           onSuccess={refetch}
+          triggerNotification={triggerNotification}
         />
       )}
 
@@ -501,8 +540,28 @@ export default function Documents() {
         <EditDocumentModal
           document={editingDocument}
           onClose={handleCloseEdit}
+          categories={categories}
+          triggerNotification={triggerNotification}
         />
       )}
+
+      {deletingDocument && (
+        <DeleteDocumentModal
+          document={deletingDocument}
+          onClose={() => setDeletingDocument(null)}
+          onConfirm={handleConfirmDelete}
+          loading={loading}
+        />
+      )}
+
+      {showManageCategories && (
+        <ManageCategoriesModal
+          onClose={() => setShowManageCategories(false)}
+          triggerNotification={triggerNotification}
+        />
+      )}
+
+      {NotificationComponent}
     </div>
   );
 }

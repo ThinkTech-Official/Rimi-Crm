@@ -3,6 +3,7 @@ import { useState } from "react";
 import { MdClose, MdUploadFile, MdInsertDriveFile } from "react-icons/md";
 import { useUploadDocuments } from "../../hooks/documents/useUploadDocuments";
 import { useCategories } from "../../hooks/documents/useCategories";
+import { NotificationProps } from "../Notification";
 
 interface FileItem {
   id: string;
@@ -12,21 +13,19 @@ interface FileItem {
   category: string;
 }
 
-type TabType = "document" | "category";
-
 const AddDocument = ({
   setShowAddDocument,
   onSuccess,
+  triggerNotification,
 }: {
   setShowAddDocument: (val: boolean) => void;
   onSuccess?: () => void;
+  triggerNotification: (props: Omit<NotificationProps, "onClose" | "animation"> & { duration?: number; animation?: any }) => void;
 }) => {
-  const [activeTab, setActiveTab] = useState<TabType>("document");
   const [files, setFiles] = useState<FileItem[]>([]);
-  const [categoryName, setCategoryName] = useState("");
-  
+
   const { uploadDocuments, loading: uploadLoading, error: uploadError } = useUploadDocuments();
-  const { categories, addCategory, loading: categoryLoading, error: categoryError } = useCategories();
+  const { categories, loading: categoryLoading, error: categoryError } = useCategories();
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;
@@ -36,7 +35,7 @@ const AddDocument = ({
       file: file,
       name: file.name,
       size: (file.size / 1024).toFixed(2) + " KB",
-      category: categories.length > 0 ? categories[0].name : "General", // Use first available category
+      category: categories.length > 0 ? categories[0].name : "General",
     }));
     setFiles((prev) => [...prev, ...newFiles]);
   };
@@ -51,25 +50,6 @@ const AddDocument = ({
     );
   };
 
-  const handleAddCategory = async () => {
-    if (!categoryName.trim()) {
-      return;
-    }
-
-    try {
-      await addCategory(categoryName.trim());
-      setCategoryName("");
-      setActiveTab("document"); // Switch back to document tab
-    } catch (err) {
-      console.error("Failed to add category:", err);
-    }
-  };
-
-  const handleCancelCategory = () => {
-    setCategoryName("");
-    handleClose();
-  };
-
   const handleClose = () => {
     setShowAddDocument(false);
   };
@@ -80,16 +60,26 @@ const AddDocument = ({
         file: item.file,
         category: item.category
       }));
-      
+
+
       await uploadDocuments(filesToUpload);
-      
+
+      triggerNotification({
+        type: "success",
+        message: `${files.length} document(s) uploaded successfully`,
+      });
+
       setFiles([]);
       if (onSuccess) {
         onSuccess();
       }
       handleClose();
-    } catch (err) {
+    } catch (err: any) {
       console.error("Upload failed:", err);
+      triggerNotification({
+        type: "error",
+        message: err.message || "Upload failed",
+      });
     }
   };
 
@@ -98,87 +88,64 @@ const AddDocument = ({
 
   return (
     <div className="fixed inset-0 flex justify-center items-center z-50 bg-black/30">
-      <div className="bg-white p-6 pt-10 max-w-xl w-full max-h-[90vh] overflow-hidden flex flex-col shadow-lg relative">
+      <div className="bg-white p-6 pt-4 max-w-xl w-full max-h-[70vh] overflow-hidden flex flex-col shadow-lg relative m-4">
         <MdClose
           size={24}
           onClick={handleClose}
           className="text-text-secondary absolute top-4 right-4 cursor-pointer"
         />
 
-        {/* Tabs */}
-        <div className="flex mb-6 mx-auto">
-          <button
-            onClick={() => setActiveTab("document")}
-            className={`py-2 px-4 font-medium transition-color border cursor-pointer ${
-              activeTab === "document"
-                ? "text-white bg-primary border-primary"
-                : "text-text-secondary border-inputBorder"
-            }`}
+        <h2 className="text-xl font-bold mb-6">Add Document</h2>
+
+        <div className="flex-1 flex flex-col overflow-hidden">
+          {error && (
+            <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 text-sm">
+              {error}
+            </div>
+          )}
+
+          <label
+            htmlFor="fileUpload"
+            className="input-primary flex items-center justify-center gap-2 cursor-pointer border-2 border-dashed"
           >
-            Add Document
-          </button>
-          <button
-            onClick={() => setActiveTab("category")}
-            className={`py-2 px-4 font-medium transition-color border cursor-pointer ${
-              activeTab === "category"
-                ? "text-white bg-primary border-primary"
-                : "text-text-secondary border-inputBorder"
-            }`}
-          >
-            Add Category
-          </button>
-        </div>
+            <MdUploadFile size={20} />
+            Choose Files
+            <input
+              type="file"
+              id="fileUpload"
+              multiple
+              className="hidden"
+              onChange={handleFileChange}
+              disabled={loading}
+            />
+          </label>
 
-        {/* Document Tab Content */}
-        {activeTab === "document" && (
-          <>
-            {error && (
-              <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 text-sm">
-                {error}
-              </div>
-            )}
-
-            <label
-              htmlFor="fileUpload"
-              className="input-primary flex items-center justify-center gap-2 cursor-pointer border-2 border-dashed"
-            >
-              <MdUploadFile size={20} />
-              Choose Files
-              <input
-                type="file"
-                id="fileUpload"
-                multiple
-                className="hidden"
-                onChange={handleFileChange}
-                disabled={loading}
-              />
-            </label>
-
-            {files.length > 0 && (
-              <div className="flex-1 overflow-y-auto custom-scrollbar3 space-y-3 mt-5">
-                {files.map((file) => (
-                  <div key={file.id} className="flex items-center gap-3 py-2">
+          {files.length > 0 && (
+            <div className="flex-1 overflow-y-auto custom-scrollbar3 space-y-3 mt-5">
+              {files.map((file) => (
+                <div key={file.id} className="flex flex-col sm:flex-row sm:items-center gap-3 py-3 border-b border-gray-50 last:border-0">
+                  <div className="flex items-center gap-3 flex-1 min-w-0">
                     <MdInsertDriveFile
                       size={24}
                       className="text-text-secondary flex-shrink-0"
                     />
-
-                    <div className="flex-1 min-w-0">
+                    <div className="min-w-0">
                       <p className="font-medium text-gray-800 truncate" title={file.name}>
                         {file.name}
                       </p>
                       <p className="text-sm text-gray-500">{file.size}</p>
                     </div>
+                  </div>
 
+                  <div className="flex items-center gap-2 w-full sm:w-auto">
                     <select
                       value={file.category}
                       onChange={(e) =>
                         handleCategoryChange(file.id, e.target.value)
                       }
-                      className="px-3 py-2 border border-inputBorder"
+                      className="input-primary flex-1 sm:w-52"
                       disabled={loading}
                     >
-                      {/* Categories from database - NO hardcoded array */}
                       {categories.map((cat) => (
                         <option key={cat.id} value={cat.name}>
                           {cat.name}
@@ -188,97 +155,47 @@ const AddDocument = ({
 
                     <button
                       onClick={() => handleDelete(file.id)}
-                      className="p-2 text-red-600 cursor-pointer"
+                      className="p-2 text-red-600 cursor-pointer flex-shrink-0"
                       aria-label="Delete file"
                       disabled={loading}
                     >
                       <MdClose size={20} />
                     </button>
                   </div>
-                ))}
-              </div>
-            )}
-
-            {files.length === 0 && (
-              <div className="text-center py-12 text-gray-400">
-                <MdUploadFile size={48} className="mx-auto mb-3 opacity-50" />
-                <p>No files selected</p>
-              </div>
-            )}
-
-            {files.length > 0 && (
-              <div className="mt-6 pt-4 flex justify-end gap-3">
-                <button
-                  onClick={() => {
-                    setFiles([]);
-                    handleClose();
-                  }}
-                  className="py-2 px-4 border border-inputBorder hover:border-gray-700 cursor-pointer transition delay-100 w-36"
-                  disabled={loading}
-                >
-                  Close
-                </button>
-                <button 
-                  className="btn-primary w-36" 
-                  onClick={handleUploadDocuments}
-                  disabled={loading}
-                >
-                  {loading ? "Uploading..." : `Upload ${files.length} File${files.length === 1 ? "" : "s"}`}
-                </button>
-              </div>
-            )}
-          </>
-        )}
-
-        {/* Category Tab Content */}
-        {activeTab === "category" && (
-          <div className="flex-1 flex flex-col">
-            {error && (
-              <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 text-sm">
-                {error}
-              </div>
-            )}
-            
-            <div className="mb-6">
-              <label className="block mb-2 text-sm font-medium text-gray-700">
-                Category Name
-              </label>
-              <input
-                type="text"
-                value={categoryName}
-                onChange={(e) => setCategoryName(e.target.value)}
-                placeholder="Enter category name"
-                className="input-primary w-full"
-                disabled={loading}
-                onKeyPress={(e) => {
-                  if (e.key === 'Enter' && categoryName.trim()) {
-                    handleAddCategory();
-                  }
-                }}
-              />
-              <p className="mt-2 text-xs text-gray-500">
-                Add new categories here. They will be available in the dropdown when uploading documents.
-              </p>
+                </div>
+              ))}
             </div>
+          )}
 
-            <div className="mt-auto pt-4 flex justify-end gap-3">
+          {files.length === 0 && (
+            <div className="text-center py-12 text-gray-400">
+              <MdUploadFile size={48} className="mx-auto mb-3 opacity-50" />
+              <p>No files selected</p>
+            </div>
+          )}
+
+          {files.length > 0 && (
+            <div className="mt-6 pt-4 flex justify-end gap-3">
               <button
-                onClick={handleCancelCategory}
-                className="py-2 px-4 border border-inputBorder hover:border-gray-700 cursor-pointer transition delay-100 w-36"
+                onClick={() => {
+                  setFiles([]);
+                  handleClose();
+                }}
+                className="py-2 px-4 border border-inputBorder hover:border-gray-500 cursor-pointer transition delay-100 w-36"
                 disabled={loading}
               >
-                Cancel
+                Close
               </button>
-              <button 
-                onClick={handleAddCategory} 
+              <button
                 className="btn-primary w-36"
-                disabled={loading || !categoryName.trim()}
+                onClick={handleUploadDocuments}
+                disabled={loading}
               >
-                {loading ? "Adding..." : "Add Category"}
+                {loading ? "Uploading..." : `Upload ${files.length} File${files.length === 1 ? "" : "s"}`}
               </button>
             </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </div>
   );
