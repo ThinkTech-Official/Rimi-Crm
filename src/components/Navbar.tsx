@@ -9,7 +9,7 @@ import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 // import Cookies from "js-cookie";
 import { useSelector } from "react-redux";
-import { logout } from "../features/authSlice";
+import { logout, logoutUser } from "../features/authSlice";
 import { getUserTypeFromToken } from "../utils/getUserType";
 // import { useTranslation } from "react-i18next";
 import { FaUserCircle } from "react-icons/fa";
@@ -51,10 +51,10 @@ export default function Navbar() {
     setIsProfileMenuOpen(false);
   });
 
-  const handleLogout = () => {
-    dispatch(logout());
-    navigate("/login");
+  const handleLogout = async () => {
     toggleProfileMenu();
+  await dispatch(logoutUser() as any);  
+  navigate("/login");
   };
 
   const handleShowClick = () => {

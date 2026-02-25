@@ -340,6 +340,194 @@
 
 
 
+// import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
+// import axios from "axios";
+// import { jwtDecode } from "jwt-decode";
+// import { API_BASE } from "../utils/urls";
+
+// interface DecodedToken {
+//   sub: string;
+//   userType: string;
+//   fullName: string;
+//   agentCode: string;
+//   iat: number;
+//   exp: number;
+// }
+
+// interface AuthState {
+//   token: string | null;
+//   userType: string | null;
+//   agentCode: string | null;
+//   fullName: string | null;
+//   loading: boolean;
+//   error: string | null;
+//   initialized: boolean;
+// }
+
+
+// const initialState: AuthState = {
+//   token: null,
+//   userType: null,
+//   agentCode: null,
+//   fullName: null,
+//   loading: false,
+//   error: null,
+//   initialized: false, 
+// };
+
+
+// export const initializeAuth = createAsyncThunk(
+//   "auth/initialize",
+//   async (_, { rejectWithValue }) => {
+//     try {
+//       const response = await axios.get(
+//         `${API_BASE}/auth/me`,
+//         { withCredentials: true }
+//       );
+      
+//       return {
+//         userType: response.data.userType,
+//         fullName: response.data.fullName,
+//         agentCode: response.data.agentCode,
+//       };
+//     } catch (err: any) {
+     
+//       return rejectWithValue('No active session');
+
+//     }
+//   }
+// );
+
+// export const loginUser = createAsyncThunk(
+//   "auth/loginUser",
+//   async (
+//     credentials: { email: string; password: string },
+//     { rejectWithValue }
+//   ) => {
+//     try {
+//       const response = await axios.post(
+//         `${API_BASE}/auth/login`,
+//         credentials,
+//         { withCredentials: true }
+//       );
+      
+//       const token = response.data.accessToken;
+//       const decoded: DecodedToken = jwtDecode(token);
+
+//       return {
+//         token,
+//         userType: decoded.userType,
+//         fullName: decoded.fullName,
+//         agentCode: decoded.agentCode,
+//       };
+//     } catch (err: any) {
+//       return rejectWithValue(err.response?.data?.message || "Login failed");
+//     }
+//   }
+// );
+
+
+// export const logoutUser = createAsyncThunk(
+//   'auth/logout',
+//   async () => {
+//     try {
+//       await axios.post(`${API_BASE}/auth/logout`, {}, { withCredentials: true });
+//     } catch (error) {
+//       console.error('Backend logout error:', error);
+      
+//     }
+//   }
+// );
+
+// const authSlice = createSlice({
+//   name: "auth",
+//   initialState,
+//   reducers: {
+    
+//     logout: (state) => {
+//       state.token = null;
+//       state.userType = null;
+//       state.fullName = null;
+//       state.agentCode = null;
+      
+      
+//       localStorage.setItem('logout-event', Date.now().toString());
+//       localStorage.removeItem('logout-event');
+      
+      
+//       axios.post(`${API_BASE}/auth/logout`, {}, { withCredentials: true })
+//         .catch(err => console.error('Backend logout error:', err));
+//     },
+    
+//     setAccessToken: (state, action: PayloadAction<string>) => {
+//       try {
+//         const decoded: DecodedToken = jwtDecode(action.payload);
+//         state.token = action.payload;
+//         state.userType = decoded.userType;
+//         state.fullName = decoded.fullName;
+//         state.agentCode = decoded.agentCode;
+//       } catch (error) {
+//         console.error('Failed to decode refreshed token:', error);
+//       }
+//     },
+//   },
+//   extraReducers: (builder) => {
+//     builder
+      
+//       .addCase(initializeAuth.pending, (state) => {
+//         state.loading = true;
+//       })
+//       .addCase(initializeAuth.fulfilled, (state, action) => {
+//         state.loading = false;
+//         state.token = 'authenticated'; 
+//         state.userType = action.payload.userType;
+//         state.fullName = action.payload.fullName;
+//         state.agentCode = action.payload.agentCode;
+//         state.initialized = true;
+//       })
+//       .addCase(initializeAuth.rejected, (state) => {
+//         state.loading = false;
+//         state.initialized = true; 
+//       })
+      
+//       .addCase(loginUser.pending, (state) => {
+//         state.loading = true;
+//         state.error = null;
+//       })
+//       .addCase(loginUser.fulfilled, (state, action) => {
+//         state.loading = false;
+//         state.token = action.payload.token;
+//         state.userType = action.payload.userType;
+//         state.fullName = action.payload.fullName;
+//         state.agentCode = action.payload.agentCode;
+//         state.initialized = true;
+//       })
+//       .addCase(loginUser.rejected, (state, action) => {
+//         state.loading = false;
+//         state.error = action.payload as string;
+//       })
+      
+//       .addCase(logoutUser.fulfilled, (state) => {
+//         state.token = null;
+//         state.userType = null;
+//         state.fullName = null;
+//         state.agentCode = null;
+        
+        
+//         localStorage.setItem('logout-event', Date.now().toString());
+//         localStorage.removeItem('logout-event');
+//       });
+//   },
+// });
+
+// export const { logout, setAccessToken } = authSlice.actions;
+// export default authSlice.reducer;
+
+
+
+// ===================================
+
+
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
@@ -364,7 +552,6 @@ interface AuthState {
   initialized: boolean;
 }
 
-
 const initialState: AuthState = {
   token: null,
   userType: null,
@@ -372,28 +559,23 @@ const initialState: AuthState = {
   fullName: null,
   loading: false,
   error: null,
-  initialized: false, 
+  initialized: false,
 };
-
 
 export const initializeAuth = createAsyncThunk(
   "auth/initialize",
   async (_, { rejectWithValue }) => {
     try {
-      const response = await axios.get(
-        `${API_BASE}/auth/me`,
-        { withCredentials: true }
-      );
-      
+      const response = await axios.get(`${API_BASE}/auth/me`, {
+        withCredentials: true,
+      });
       return {
         userType: response.data.userType,
         fullName: response.data.fullName,
         agentCode: response.data.agentCode,
       };
     } catch (err: any) {
-     
-      return rejectWithValue('No active session');
-
+      return rejectWithValue("No active session");
     }
   }
 );
@@ -410,10 +592,8 @@ export const loginUser = createAsyncThunk(
         credentials,
         { withCredentials: true }
       );
-      
       const token = response.data.accessToken;
       const decoded: DecodedToken = jwtDecode(token);
-
       return {
         token,
         userType: decoded.userType,
@@ -428,14 +608,25 @@ export const loginUser = createAsyncThunk(
 
 
 export const logoutUser = createAsyncThunk(
-  'auth/logout',
+  "auth/logout",
   async () => {
+    
     try {
-      await axios.post(`${API_BASE}/auth/logout`, {}, { withCredentials: true });
+      await axios.post(
+        `${API_BASE}/auth/logout`,
+        {},
+        { withCredentials: true }
+      );
     } catch (error) {
-      console.error('Backend logout error:', error);
       
+      console.error("Backend logout error:", error);
     }
+
+    
+    try {
+      localStorage.setItem("logout-event", Date.now().toString());
+      localStorage.removeItem("logout-event");
+    } catch {}
   }
 );
 
@@ -449,16 +640,8 @@ const authSlice = createSlice({
       state.userType = null;
       state.fullName = null;
       state.agentCode = null;
-      
-      
-      localStorage.setItem('logout-event', Date.now().toString());
-      localStorage.removeItem('logout-event');
-      
-      
-      axios.post(`${API_BASE}/auth/logout`, {}, { withCredentials: true })
-        .catch(err => console.error('Backend logout error:', err));
     },
-    
+
     setAccessToken: (state, action: PayloadAction<string>) => {
       try {
         const decoded: DecodedToken = jwtDecode(action.payload);
@@ -467,19 +650,18 @@ const authSlice = createSlice({
         state.fullName = decoded.fullName;
         state.agentCode = decoded.agentCode;
       } catch (error) {
-        console.error('Failed to decode refreshed token:', error);
+        console.error("Failed to decode refreshed token:", error);
       }
     },
   },
   extraReducers: (builder) => {
     builder
-      
       .addCase(initializeAuth.pending, (state) => {
         state.loading = true;
       })
       .addCase(initializeAuth.fulfilled, (state, action) => {
         state.loading = false;
-        state.token = 'authenticated'; 
+        state.token = "authenticated";
         state.userType = action.payload.userType;
         state.fullName = action.payload.fullName;
         state.agentCode = action.payload.agentCode;
@@ -487,9 +669,8 @@ const authSlice = createSlice({
       })
       .addCase(initializeAuth.rejected, (state) => {
         state.loading = false;
-        state.initialized = true; 
+        state.initialized = true;
       })
-      
       .addCase(loginUser.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -506,16 +687,12 @@ const authSlice = createSlice({
         state.loading = false;
         state.error = action.payload as string;
       })
-      
+     
       .addCase(logoutUser.fulfilled, (state) => {
         state.token = null;
         state.userType = null;
         state.fullName = null;
         state.agentCode = null;
-        
-        
-        localStorage.setItem('logout-event', Date.now().toString());
-        localStorage.removeItem('logout-event');
       });
   },
 });
