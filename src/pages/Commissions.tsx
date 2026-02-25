@@ -149,10 +149,10 @@ export default function Commissions() {
                 className="py-2 px-4 border border-inputBorder hover:border-gray-500 transition cursor-pointer mb-2 text-sm"
               >
                 {exporting ? (
-                  <>
+                  <div className="flex items-center gap-2">
                     <span className="animate-spin inline-block w-4 h-4 border-2 border-current border-t-transparent rounded-full" />
                     {t("Exporting...")}
-                  </>
+                  </div>
                 ) : (
                   <>
                     
