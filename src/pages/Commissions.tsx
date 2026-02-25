@@ -146,7 +146,7 @@ export default function Commissions() {
                   })
                 }
                 disabled={exporting}
-                className="btn-secondary text-sm flex items-center gap-2 px-3 py-2"
+                className="py-2 px-4 border border-inputBorder hover:border-gray-500 transition cursor-pointer mb-2 text-sm"
               >
                 {exporting ? (
                   <>
