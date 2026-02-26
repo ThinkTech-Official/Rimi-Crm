@@ -633,7 +633,7 @@ export default function Dashboard() {
       
       fetchPendingCount();
       // Refresh count every 30 seconds
-      const interval = setInterval(fetchPendingCount, 30000);
+      const interval = setInterval(fetchPendingCount, 60000);
       return () => clearInterval(interval);
     }
   }, [userType, fetchCount, dispatch]);
