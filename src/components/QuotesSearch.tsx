@@ -328,14 +328,17 @@
 
 // src/components/QuotesSearch.tsx
 import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 // import { LangContext } from "../context/LangContext";
 import { useLanguage } from "../context/LanguageContext";
 import { getUserTypeFromToken } from "../utils/getUserType";
 import { useSearchQuotes, SearchCriteria } from "../hooks/useSearchQuotes";
-import { Link } from "react-router-dom";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
 import { RenderPageNumbers } from "./RenderPageNumbers";
+import DatePicker from "./DatePicker";
+import { isAfterDate } from "../utils/dateUtils";
+import useNotification from "../hooks/useNotification";
 
 const QuotesSearch: React.FC = () => {
   // const { langauge } = useContext(LangContext);
@@ -351,10 +354,12 @@ const QuotesSearch: React.FC = () => {
   const limit = 10;
   // const { search, loading, error, data } = useSearchQuotes(limit);
   const { search, exportCsv, exporting, exportError, loading, error, data } = useSearchQuotes(limit);
+  const { triggerNotification, NotificationComponent } = useNotification();
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    control,
+    formState: { },
   } = useForm<SearchCriteria>({
     defaultValues: {
       products: ["All"],
@@ -415,8 +420,6 @@ const QuotesSearch: React.FC = () => {
   };
 
   const onSearch = (formData: SearchCriteria) => {
-    if (errors.email) return;
-
     const filteredData = Object.fromEntries(
       Object.entries(formData).filter(([_, v]) => {
         if (v === undefined || v === null) return false;
@@ -430,6 +433,17 @@ const QuotesSearch: React.FC = () => {
       ...filteredData,
       products: selectedProducts,
     };
+
+    if (finalData.effectiveDate && finalData.expiryDate) {
+      if (isAfterDate(finalData.effectiveDate, finalData.expiryDate)) {
+        triggerNotification({
+          message: t("Effective Date must be before Expiry Date"),
+          type: "error",
+        });
+        return;
+      }
+    }
+
     setSearchData(finalData);
 
     console.log("finalData", finalData);
@@ -471,15 +485,15 @@ const QuotesSearch: React.FC = () => {
             />
           </div>
           <div className="flex flex-col">
-            <label className="text-sm 2xl:text-base">
-              {t("Quote Date")}
-            </label>
-            <input
-              {...register("quoteDate", {
-                setValueAs: (value) => value?.trim() || "",
-              })}
-              className="input-primary"
-              type="date"
+            <Controller
+              name="quoteDate"
+              control={control}
+              render={({ field }) => (
+                <DatePicker
+                  {...field}
+                  label={t("Quote Date")}
+                />
+              )}
             />
           </div>
           <div className="flex flex-col">
@@ -507,13 +521,15 @@ const QuotesSearch: React.FC = () => {
             />
           </div>
           <div className="flex flex-col">
-            <label className="text-sm 2xl:text-base">
-              {t("Date of Birth")}
-            </label>
-            <input
-              className="input-primary"
-              type="date"
-              {...register("dateOfBirth")}
+            <Controller
+              name="dateOfBirth"
+              control={control}
+              render={({ field }) => (
+                <DatePicker
+                  {...field}
+                  label={t("Date of Birth")}
+                />
+              )}
             />
           </div>
           <div className="flex flex-col">
@@ -528,23 +544,27 @@ const QuotesSearch: React.FC = () => {
             />
           </div>
           <div className="flex flex-col">
-            <label className="text-sm 2xl:text-base">
-              {t("Effective Date")}
-            </label>
-            <input
-              className="input-primary"
-              type="date"
-              {...register("effectiveDate")}
+            <Controller
+              name="effectiveDate"
+              control={control}
+              render={({ field }) => (
+                <DatePicker
+                  {...field}
+                  label={t("Effective Date")}
+                />
+              )}
             />
           </div>
           <div className="flex flex-col">
-            <label className="text-sm 2xl:text-base">
-              {t("Expiry Date")}
-            </label>
-            <input
-              {...register("expiryDate")}
-              className="input-primary"
-              type="date"
+            <Controller
+              name="expiryDate"
+              control={control}
+              render={({ field }) => (
+                <DatePicker
+                  {...field}
+                  label={t("Expiry Date")}
+                />
+              )}
             />
           </div>
           {userType === "ADMIN" && (
@@ -605,9 +625,7 @@ const QuotesSearch: React.FC = () => {
         </button>
       </div>
 
-      {/* Search Error DIsplay  */}
-      {error && <p className="text-red-600 mt-2">{error}</p>}
-
+      {/* Search Error Display  */}
       {/* Result Table  */}
       {data && (
         <div className="w-full overflow-x-auto custom-scrollbar pb-2">
@@ -630,7 +648,7 @@ const QuotesSearch: React.FC = () => {
                       </div>
                     ) : (
                       <>
-                        
+
                         {t("Download CSV")}
                       </>
                     )}
@@ -722,12 +740,7 @@ const QuotesSearch: React.FC = () => {
                     <td
                       className="px-2 sm:px-3 py-2 whitespace-nowrap border-r border-b border-[#AAA9A9]"
                     >
-                      {u.dateIssued
-                        ? new Date(u.dateIssued).toLocaleDateString(
-                            undefined,
-                            { year: "numeric", month: "short", day: "numeric" }
-                          )
-                        : "-"}
+                      {u.dateIssued?.split("T")[0] || "-"}
                     </td>
                     <td
                       className="px-2 sm:px-3 py-2 whitespace-nowrap capitalize border-r border-b border-[#AAA9A9]"
@@ -779,6 +792,7 @@ const QuotesSearch: React.FC = () => {
           </button>
         </div>
       )}
+      {NotificationComponent}
     </div>
   );
 };

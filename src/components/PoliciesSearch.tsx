@@ -7,32 +7,35 @@ import {
 } from "../hooks/useSearchPolicies";
 import { Link } from "react-router-dom";
 import { FaAngleDown } from "react-icons/fa";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
 import { RenderPageNumbers } from "./RenderPageNumbers";
+import DatePicker from "./DatePicker";
+import { isAfterDate } from "../utils/dateUtils";
+import useNotification from "../hooks/useNotification";
 
 const PoliciesSearch: React.FC = () => {
   // const { langauge } = useContext(LangContext);
   const { t } = useLanguage();
 
-const allProducts = [
-  {
-    label: "RIMI Canuck Voyage Travel Medical",
-    value: "RIMI_CANUCK_VOYAGE_TRAVEL_MEDICAL",
-  },
-  {
-    label: "RIMI Canuck Voyage Non-Medical Travel",
-    value: "RIMI_CANUCK_VOYAGE_NON_MEDICAL_TRAVEL",
-  },
-  {
-    label: "Secure Study RIMI International Students to Canada",
-    value: "SECURE_STUDY_RIMI_INTERNATIONAL_STUDENTS_TO_CANADA",
-  },
-  {
-    label: "Secure Travel RIMI Visitors to Canada Travel",
-    value: "SECURE_TRAVEL_RIMI_VISITORS_TO_CANADA_TRAVEL",
-  },
-];
+  const allProducts = [
+    {
+      label: "RIMI Canuck Voyage Travel Medical",
+      value: "RIMI_CANUCK_VOYAGE_TRAVEL_MEDICAL",
+    },
+    {
+      label: "RIMI Canuck Voyage Non-Medical Travel",
+      value: "RIMI_CANUCK_VOYAGE_NON_MEDICAL_TRAVEL",
+    },
+    {
+      label: "Secure Study RIMI International Students to Canada",
+      value: "SECURE_STUDY_RIMI_INTERNATIONAL_STUDENTS_TO_CANADA",
+    },
+    {
+      label: "Secure Travel RIMI Visitors to Canada Travel",
+      value: "SECURE_TRAVEL_RIMI_VISITORS_TO_CANADA_TRAVEL",
+    },
+  ];
 
   const status = ["All", "Active", "Sold", "Cancelled", "Expired"];
 
@@ -45,13 +48,15 @@ const allProducts = [
   const [page, setPage] = useState(1);
   const limit = 10;
   // const { search, loading, error, data } = useSearchPolicies(limit);
-   const { search, exportCsv, exporting, exportError, loading, error, data } = useSearchPolicies(limit);
+  const { search, exportCsv, exporting, exportError, loading, error, data } = useSearchPolicies(limit);
+  const { triggerNotification, NotificationComponent } = useNotification();
   const totalPages = data?.totalPages || 0;
   const {
     register,
     setValue,
     handleSubmit,
-    formState: { errors },
+    control,
+    formState: { },
   } = useForm<SearchPoliciesCriteria>({
     defaultValues: {
       products: ["All"],
@@ -78,7 +83,6 @@ const allProducts = [
   };
 
   const onSearch = (formData: SearchPoliciesCriteria) => {
-    if (errors.email) return;
     const filteredData = Object.fromEntries(
       Object.entries(formData).filter(([_, v]) => {
         if (v === undefined || v === null) return false;
@@ -93,6 +97,27 @@ const allProducts = [
       products: selectedProducts,
       status: selectedStatus,
     };
+
+    if (finalData.saleDateFrom && finalData.saleDateTo) {
+      if (isAfterDate(finalData.saleDateFrom, finalData.saleDateTo)) {
+        triggerNotification({
+          message: t("Sale Date From must be before Sale Date To"),
+          type: "error",
+        });
+        return;
+      }
+    }
+
+    if (finalData.effectiveDateFrom && finalData.effectiveDateTo) {
+      if (isAfterDate(finalData.effectiveDateFrom, finalData.effectiveDateTo)) {
+        triggerNotification({
+          message: t("Effective Date From must be before Effective Date To"),
+          type: "error",
+        });
+        return;
+      }
+    }
+
     setSearchData(finalData);
 
     console.log("finalData", finalData);
@@ -146,12 +171,15 @@ const allProducts = [
           </div>
           {/* Date of Birth */}
           <div className="flex flex-col">
-            <label className="text-sm 2xl:text-base">{t("Date of Birth")}</label>
-            <input
-              type="date"
-              {...register("dateOfBirth")}
-              className="input-primary"
-              placeholder={t("Date of Birth")}
+            <Controller
+              name="dateOfBirth"
+              control={control}
+              render={({ field }) => (
+                <DatePicker
+                  {...field}
+                  label={t("Date of Birth")}
+                />
+              )}
             />
           </div>
           {/* Policy Number */}
@@ -194,38 +222,54 @@ const allProducts = [
           </div>
           {/* Sale Date From */}
           <div className="flex flex-col">
-            <label className="text-sm 2xl:text-base">{t("Sale Date From")}</label>
-            <input
-              type="date"
-              {...register("saleDateFrom")}
-              className="input-primary"
+            <Controller
+              name="saleDateFrom"
+              control={control}
+              render={({ field }) => (
+                <DatePicker
+                  {...field}
+                  label={t("Sale Date From")}
+                />
+              )}
             />
           </div>
           {/* Sale Date To */}
           <div className="flex flex-col">
-            <label className="text-sm 2xl:text-base">{t("Sale Date To")}</label>
-            <input
-              type="date"
-              {...register("saleDateTo")}
-              className="input-primary"
+            <Controller
+              name="saleDateTo"
+              control={control}
+              render={({ field }) => (
+                <DatePicker
+                  {...field}
+                  label={t("Sale Date To")}
+                />
+              )}
             />
           </div>
           {/* Effective Date From */}
           <div className="flex flex-col">
-            <label className="text-sm 2xl:text-base">{t("Effective Date From")}</label>
-            <input
-              type="date"
-              {...register("effectiveDateFrom")}
-              className="input-primary"
+            <Controller
+              name="effectiveDateFrom"
+              control={control}
+              render={({ field }) => (
+                <DatePicker
+                  {...field}
+                  label={t("Effective Date From")}
+                />
+              )}
             />
           </div>
           {/* Effective Date To */}
           <div className="flex flex-col">
-            <label className="text-sm 2xl:text-base">{t("Effective Date To")}</label>
-            <input
-              type="date"
-              {...register("effectiveDateTo")}
-              className="input-primary"
+            <Controller
+              name="effectiveDateTo"
+              control={control}
+              render={({ field }) => (
+                <DatePicker
+                  {...field}
+                  label={t("Effective Date To")}
+                />
+              )}
             />
           </div>
           {/* Application ID */}
@@ -243,7 +287,7 @@ const allProducts = [
           <div className="flex flex-col">
             <label className="text-sm 2xl:text-base">{t("Agent Code")}</label>
             <input
-              {...register("agent",{
+              {...register("agent", {
                 setValueAs: (value) => value.trim(),
               })}
               className="input-primary"
@@ -261,9 +305,8 @@ const allProducts = [
               >
                 <span className="capitalize">{t(selectedStatus) || t("All")}</span>
                 <FaAngleDown
-                  className={`ml-2 cusor-pointer transition-transform ${
-                    isSelectStatusOpen ? "rotate-180" : ""
-                  }`}
+                  className={`ml-2 cusor-pointer transition-transform ${isSelectStatusOpen ? "rotate-180" : ""
+                    }`}
                 />
               </button>
 
@@ -272,11 +315,10 @@ const allProducts = [
                   {status.map((s, i) => (
                     <div
                       key={i}
-                      className={`px-4 py-2 hover:bg-gray-200 text-text-light cursor-pointer capitalize ${
-                        selectedStatus === s
-                          ? "bg-primary text-white hover:bg-gray-200 hover:text-text-light"
-                          : ""
-                      }`}
+                      className={`px-4 py-2 hover:bg-gray-200 text-text-light cursor-pointer capitalize ${selectedStatus === s
+                        ? "bg-primary text-white hover:bg-gray-200 hover:text-text-light"
+                        : ""
+                        }`}
                       onClick={() => {
                         handleStatusChange(s);
                         setValue("status", s, { shouldValidate: true });
@@ -326,8 +368,7 @@ const allProducts = [
         </div>
       </form>
 
-      {error && <p className="text-red-600">{error}</p>}
-
+      {/* Result list display */}
       {data && (
         <div className="w-full overflow-x-auto custom-scrollbar pb-2">
           {/* <div className="mt-4">
@@ -339,38 +380,38 @@ const allProducts = [
           </div> */}
 
           <div className="mt-4">
-          {!loading && (
-            <div className="mb-1 flex items-center justify-between flex-wrap gap-2">
-              <p className="text-text-primary">
-                {t("Found")} {data.total} {t("policies.")}
-              </p>
-              <div className="flex flex-col items-end gap-1">
-                <button
+            {!loading && (
+              <div className="mb-1 flex items-center justify-between flex-wrap gap-2">
+                <p className="text-text-primary">
+                  {t("Found")} {data.total} {t("policies.")}
+                </p>
+                <div className="flex flex-col items-end gap-1">
+                  <button
                     onClick={() => exportCsv(searchData)}
-                  disabled={exporting}
-                  className="py-2 px-4 border border-inputBorder hover:border-gray-500 transition cursor-pointer mb-2 text-sm"
-                >
-                  {exporting ? (
-                    <div className="flex items-center gap-2">
-                      <span className="animate-spin inline-block w-4 h-4 border-2 border-current border-t-transparent rounded-full" />
-                      {t("Exporting...")}
-                    </div>
-                  ) : (
-                    <>
-                      
-                      {t("Download CSV")}
-                    </>
+                    disabled={exporting}
+                    className="py-2 px-4 border border-inputBorder hover:border-gray-500 transition cursor-pointer mb-2 text-sm"
+                  >
+                    {exporting ? (
+                      <div className="flex items-center gap-2">
+                        <span className="animate-spin inline-block w-4 h-4 border-2 border-current border-t-transparent rounded-full" />
+                        {t("Exporting...")}
+                      </div>
+                    ) : (
+                      <>
+
+                        {t("Download CSV")}
+                      </>
+                    )}
+                  </button>
+                  {exportError && (
+                    <p className="text-sm text-red-600 max-w-xs text-right">
+                      {exportError}
+                    </p>
                   )}
-                </button>
-                {exportError && (
-                  <p className="text-sm text-red-600 max-w-xs text-right">
-                    {exportError}
-                  </p>
-                )}
+                </div>
               </div>
-            </div>
-          )}
-        </div>
+            )}
+          </div>
 
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-primary text-white text-base 2xl:text-xl capitalize">
@@ -485,7 +526,7 @@ const allProducts = [
                         borderColor: "#AAA9A9",
                       }}
                     >
-                      {p.effectiveDate?.split("T")[0]}
+                      {p.effectiveDate?.split("T")[0] || "-"}
                     </td>
                     <td
                       className="px-2 sm:px-3 py-2 sm:py-3 whitespace-nowrap"
@@ -495,7 +536,7 @@ const allProducts = [
                         borderColor: "#AAA9A9",
                       }}
                     >
-                      {p.expiryDate?.split("T")[0]}
+                      {p.expiryDate?.split("T")[0] || "-"}
                     </td>
                     <td
                       className="px-2 sm:px-3 py-2 sm:py-3 capitalize min-w-[250px] text-nowrap"
@@ -556,6 +597,7 @@ const allProducts = [
           </button>
         </div>
       )}
+      {NotificationComponent}
     </div>
   );
 };

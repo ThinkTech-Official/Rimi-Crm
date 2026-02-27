@@ -7,7 +7,7 @@ import { useOnClickOutside } from "../hooks/useOnClickOutside";
 
 interface DatePickerProps extends Omit<ComponentProps<"input">, "value" | "onChange"> {
   label: string;
-  value: string | Date | null;
+  value: string | Date | null | undefined;
   onChange: (value: any) => void;
   maxDate?: Date;
   minDate?: Date;
@@ -26,7 +26,7 @@ const DatePicker = forwardRef<HTMLInputElement, DatePickerProps>(({
 }, ref) => {
   const [showCalendar, setShowCalendar] = useState(false);
   const dateValue = value ? new Date(value) : null;
-  
+
   const formatDate = (date: Date) => {
     const day = String(date.getDate()).padStart(2, "0");
     const month = String(date.getMonth() + 1).padStart(2, "0");
@@ -50,62 +50,31 @@ const DatePicker = forwardRef<HTMLInputElement, DatePickerProps>(({
   });
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
-    let val = e.target.value;
-    const isDeleting = (e.nativeEvent as any).inputType === "deleteContentBackward";
-    
-    if (isDeleting) {
-      setInputValue(val);
-      return;
+    const val = e.target.value;
+
+    // Clean input: extract only digits up to 8
+    const digits = val.replace(/\D/g, "").substring(0, 8);
+
+    // Apply robust mask: dd-mm-yyyy
+    let formatted = digits;
+    if (digits.length > 2) {
+      formatted = `${digits.substring(0, 2)}-${digits.substring(2)}`;
+    }
+    if (digits.length > 4) {
+      formatted = `${digits.substring(0, 2)}-${digits.substring(2, 4)}-${digits.substring(4)}`;
     }
 
-    // Remove all non-numeric characters for processing
-    const digits = val.replace(/\D/g, "");
-    
-    let formatted = "";
-    let i = 0;
+    // Determine if we should apply the mask or just show what the user typed
+    // (helps with deleting separators)
+    const isDeleting = (e.nativeEvent as any)?.inputType?.includes("delete") || false;
 
-    // Smart Day segment
-    if (i < digits.length) {
-      let char = digits[i];
-      if (parseInt(char) > 3) {
-        formatted += "0" + char + "-";
-        i++;
-      } else {
-        formatted += char;
-        i++;
-        if (i < digits.length) {
-          formatted += digits[i] + "-";
-          i++;
-        }
-      }
-    }
+    // Use formatted value if not deleting, otherwise respect the user's deletion
+    const nextValue = isDeleting ? val : formatted;
+    setInputValue(nextValue);
 
-    // Smart Month segment
-    if (i < digits.length) {
-      let char = digits[i];
-      if (parseInt(char) > 1) {
-        formatted += "0" + char + "-";
-        i++;
-      } else {
-        formatted += char;
-        i++;
-        if (i < digits.length) {
-          formatted += digits[i] + "-";
-          i++;
-        }
-      }
-    }
-
-    // Year segment (up to 4 digits)
-    if (i < digits.length) {
-      formatted += digits.substring(i, i + 4);
-    }
-    
-    setInputValue(formatted);
-
-    // Strict regex for dd-mm-yyyy with simple limits (01-31, 01-12, 1900-2099)
-    const regex = /^(\d{2})-(\d{2})-(\d{4})$/;
-    const match = formatted.match(regex);
+    // Validate the date only if we have a full dd-mm-yyyy string
+    const dateRegex = /^(\d{2})-(\d{2})-(\d{4})$/;
+    const match = nextValue.match(dateRegex);
 
     if (match) {
       const day = parseInt(match[1], 10);
@@ -114,16 +83,19 @@ const DatePicker = forwardRef<HTMLInputElement, DatePickerProps>(({
 
       const newDate = new Date(year, month - 1, day);
 
+      // Check if the date is actually valid (e.g., not Feb 30)
       if (
         newDate.getFullYear() === year &&
         newDate.getMonth() === month - 1 &&
         newDate.getDate() === day
       ) {
-         if (minDate && newDate < minDate) return; 
-         if (maxDate && newDate > maxDate) return;
+        if (minDate && newDate < minDate) return;
+        if (maxDate && newDate > maxDate) return;
 
-         onChange(toLocalIsoDate(newDate));
+        onChange(toLocalIsoDate(newDate));
       }
+    } else if (nextValue === "") {
+      onChange(null);
     }
   };
 
@@ -142,6 +114,7 @@ const DatePicker = forwardRef<HTMLInputElement, DatePickerProps>(({
           onChange={handleInputChange}
           onClick={() => setShowCalendar(!showCalendar)}
           autoComplete="off"
+          maxLength={10}
         />
         <AiOutlineCalendar
           className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 cursor-pointer"
