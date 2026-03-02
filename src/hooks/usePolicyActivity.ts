@@ -8,7 +8,10 @@ export type ActivityType =
   | 'policy_modified'
   | 'policy_cancelled'
   | 'refund_processed'
-  | 'email_sent';
+  | 'email_sent'
+  | 'policy_split'
+  | 'renewal_notice_sent'
+  | 'payment_method_updated';
 
 // Activity interface
 export interface PolicyActivity {
@@ -51,6 +54,7 @@ export function usePolicyActivity(policyId: string | null) {
       );
 
       setActivities(response.data);
+      console.log('Activities fetched ', response.data)
       console.log(`Fetched ${response.data.length} activities`);
     } catch (err: any) {
       const errorMessage = err.response?.data?.message || 'Failed to load activity history';
