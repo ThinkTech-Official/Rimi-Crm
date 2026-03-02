@@ -20,6 +20,7 @@ import Summary from "../../../components/Products/SecureTravelRIMIVisitorstoCana
 import { FormProvider, useForm } from "react-hook-form";
 import { Step1Payload } from "../../../components/Products/SecureTravelRIMIVisitorstoCanadaTravel/SecureTravelRIMIVisitorstoCanadaTravel";
 import useNotification from "../../../hooks/useNotification";
+import { useLanguage } from "../../../context/LanguageContext";
 
 import { useRenewalPolicyData } from "../../../hooks/renewals/useRenewalPolicyData";
 
@@ -62,6 +63,7 @@ interface QuoteStage1Response {
 const productName = "SECURE_TRAVEL_RIMI_VISITORS_TO_CANADA_TRAVEL";
 
 export default function SecureTravelRIMIVisitorstoCanadaTravel() {
+  const { t } = useLanguage();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
@@ -243,9 +245,9 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
   //   ]);
 
   const [steps, setSteps] = useState([
-    { id: "01", name: "Review & Update", href: "#", status: "current" },
-    { id: "02", name: "Complete Application", href: "#", status: "upcoming" },
-    { id: "03", name: "Confirmation", href: "#", status: "upcoming" },
+    { id: "01", name: t("Review & Update"), href: "#", status: "current" },
+    { id: "02", name: t("Complete Application"), href: "#", status: "upcoming" },
+    { id: "03", name: t("Confirmation"), href: "#", status: "upcoming" },
   ]);
 
   const [formStep, setFormStep] = useState(1);
@@ -276,15 +278,15 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
       coverageForPreMedCon: policyData.PreExCoverage === "Yes",
       applicants: policyData.applicants
         ? policyData.applicants.map((a, idx) => ({
-            index: String(idx + 1),
-            firstName: a.firstName,
-            lastName: a.lastName,
-            dob: a.dateOfBirth?.split("T")[0] || "",
-            relationship: a.relation || "",
-            preMedCoverage: a.PreExCoverage === "Yes",
-            gender: a.gender,
-            healthQuestionnaire: { questions: [] },
-          }))
+          index: String(idx + 1),
+          firstName: a.firstName,
+          lastName: a.lastName,
+          dob: a.dateOfBirth?.split("T")[0] || "",
+          relationship: a.relation || "",
+          preMedCoverage: a.PreExCoverage === "Yes",
+          gender: a.gender,
+          healthQuestionnaire: { questions: [] },
+        }))
         : [],
       countryOfOrigin: policyData.countryOfOrigin || "",
       inCanada: (policyData.applicantInCanada as YesNo) || "",
@@ -384,7 +386,9 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
   // your new handler which first saves, then advances the wizard
   const handleNext = async () => {
     // Validate form
-    const isValid = await step1Methods.trigger();
+    const isValid = await step1Methods.trigger(undefined, {
+      shouldFocus: true,
+    });
     if (!isValid) return;
 
     if (savingStage1) return;
@@ -438,7 +442,7 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
     } catch (err) {
       console.error("saveQuoteNext failed", err);
       triggerNotification({
-        message: "Failed to save quote.",
+        message: t("Failed to save quote."),
         type: "error",
       });
       // show saveNextError to the user here
@@ -449,9 +453,15 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
   const handleBuyNow = async (): Promise<boolean> => {
     if (!quoteNumber || submittingStage2) return false;
 
-    const validContact = await contactInfoMethods.trigger();
-    const validAddress = await addressMethods.trigger();
-    const validBeneficiary = await beneficiaryMethods.trigger();
+    const validContact = await contactInfoMethods.trigger(undefined, {
+      shouldFocus: true,
+    });
+    const validAddress = await addressMethods.trigger(undefined, {
+      shouldFocus: true,
+    });
+    const validBeneficiary = await beneficiaryMethods.trigger(undefined, {
+      shouldFocus: true,
+    });
 
     if (!validContact || !validAddress || !validBeneficiary) return false;
 
@@ -476,7 +486,7 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
   };
 
   const handlePaymentSuccess = () => {
-    triggerNotification({ type: "success", message: "payment successfull" });
+    triggerNotification({ type: "success", message: t("payment successfull") });
     handleFormStepChange("forward");
   };
 
@@ -491,7 +501,7 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
       <div className="flex justify-center items-center min-h-[400px]">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading policy data...</p>
+          <p className="mt-4 text-gray-600">{t("Loading policy data...")}</p>
         </div>
       </div>
     );
@@ -502,14 +512,14 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
       <div className="max-w-2xl mx-auto p-6">
         <div className="bg-red-50 border border-red-200 rounded-lg p-6">
           <h3 className="text-lg font-semibold text-red-900">
-            Error Loading Policy
+            {t("Error Loading Policy")}
           </h3>
-          <p className="text-red-700 mt-2">{policyError}</p>
+          <p className="text-red-700 mt-2">{t(policyError)}</p>
           <button
             onClick={() => navigate(`/policies/${policyId}`)}
             className="mt-4 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
           >
-            Return to Policy
+            {t("Return to Policy")}
           </button>
         </div>
       </div>
@@ -521,16 +531,16 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
       <div className="max-w-2xl mx-auto p-6">
         <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6">
           <h3 className="text-lg font-semibold text-yellow-900">
-            No Policy Data
+            {t("No Policy Data")}
           </h3>
           <p className="text-yellow-700 mt-2">
-            Could not load policy information.
+            {t("Could not load policy information.")}
           </p>
           <button
             onClick={() => navigate("/policies")}
             className="mt-4 px-4 py-2 bg-yellow-600 text-white rounded hover:bg-yellow-700"
           >
-            Back to Policies
+            {t("Back to Policies")}
           </button>
         </div>
       </div>
@@ -545,7 +555,7 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
           className="underline underline-offset-2 cursor-pointer text-sm text-primary font-medium"
           onClick={() => navigate("/policies")}
         >
-          Policies
+          {t("Policies")}
         </span>
         <ChevronRightIcon className="w-4 h-4" />
         <span
@@ -555,7 +565,7 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
           {policyId?.substring(0, 8)}...
         </span>
         <ChevronRightIcon className="w-4 h-4" />
-        <span className="text-sm text-primary font-medium">Renewal</span>
+        <span className="text-sm text-primary font-medium">{t("Renewal")}</span>
       </div>
 
       {/* ✅ Info Banner */}
@@ -568,12 +578,10 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
               clipRule="evenodd"
             />
           </svg>
-          Creating New Policy
+          {t("Creating New Policy")}
         </h3>
         <p className="text-sm text-blue-700 mt-1">
-          Review the pre-filled information from the original policy. You can
-          update any fields as needed. Premium will be recalculated based on
-          current rates and coverage dates.
+          {t("Review the pre-filled information from the original policy. You can update any fields as needed. Premium will be recalculated based on current rates and coverage dates.")}
         </p>
       </div>
 
@@ -674,11 +682,11 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
           </div>
           <div className="ml-3">
             <p className="text-sm text-amber-700">
-              <strong className="font-semibold">Original Policy:</strong>{" "}
+              <strong className="font-semibold">{t("Original Policy")}:</strong>{" "}
               {policyData.policyNumber}
               <br />
               <span className="text-xs">
-                Original Coverage:{" "}
+                {t("Original Coverage")}:{" "}
                 {new Date(policyData.effectiveDate).toLocaleDateString()} to{" "}
                 {new Date(policyData.expiryDate).toLocaleDateString()}
               </span>
@@ -720,9 +728,14 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
 
       {steps[1].status === "current" && quoteNumber && (
         <div>
-          <div className="w-full h-2 mt-8 flex items-center justify-center">
-            <h3 className="text-lg">
-              Your Quote: ${step1ResponseData?.quoteAmount}
+          <div className="w-full h-2 mt-8 flex items-center justify-center mb-5">
+            <h3 className="text-xl">
+              <span className="text-text-primary font-semibold">
+                {t("Your Quote")}:
+              </span>{" "}
+              <span className="text-text-secondary">
+                ${step1ResponseData?.quoteAmount}
+              </span>
             </h3>
           </div>
           <YourQuoteSummary step1ResponseData={step1ResponseData} />
@@ -742,6 +755,88 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
           <Address methods={addressMethods} />
           {/* beneficiary, setBeneficiary */}
           <BeneficiaryInCaseOfDeath methods={beneficiaryMethods} />
+
+          
+
+          {/* visual payment summary */}
+
+          {watchedPaymentOption === "monthly-installments" &&
+            schedule.length > 0 && (
+              <div className="mx-auto mb-6 mt-4 bg-greyBg p-4">
+                <h3 className="text-lg font-bold text-left text-[#1B1B1B] mb-5">
+                  {t("Payment Plan Summary")}
+                </h3>
+
+                <div className="bg-white p-3 border border-inputBorder mb-3">
+                  <div className="flex justify-between items-center">
+                    <span className="font-medium text-text-primary text-lg">
+                      {t("Due Today")}:
+                    </span>
+                    <span className="text-xl font-bold text-primary">
+                      ${firstPaymentAmount.toFixed(2)}
+                    </span>
+                  </div>
+                  <div className="text-sm mt-1 text-text-secondary">
+                    {t("Includes: $120 policy fee + $")}
+                    {(firstPaymentAmount - 120).toFixed(2)} {t("(first 2 months)")}
+                  </div>
+                </div>
+
+                <div className="space-y-2 p-4 bg-white border border-inputBorder">
+                  <div className="flex justify-between">
+                    <span className="text-text-primary font-medium">
+                      {t("Monthly Payment")}:
+                    </span>
+                    <span className="font-semibold">
+                      ${monthlyAmount?.toFixed(2)}
+                    </span>
+                  </div>
+                  <div className="flex justify-between text-sm text-text-secondary">
+                    <span>{t("Remaining Payments")}:</span>
+                    <span>{remainingInstallments} {t("months")}</span>
+                  </div>
+                  <div className="flex justify-between text-sm pt-2 border-t border-inputBorder text-text-secondary">
+                    <span>{t("Total Premium")}:</span>
+                    <span className="font-semibold">
+                      ${totalPremium.toFixed(2)}
+                    </span>
+                  </div>
+                  <div className="flex justify-between text-sm text-text-secondary">
+                    <span>{t("Policy Fee (one-time)")}:</span>
+                    <span className="font-semibold">$120.00</span>
+                  </div>
+                  <div className="flex justify-between text-text-primary font-bold text-base pt-2 border-t border-inputBorder">
+                    <span>{t("Grand Total")}:</span>
+                    <span>${(totalPremium + 120).toFixed(2)}</span>
+                  </div>
+                </div>
+
+                <div className="text-xs text-text-secondary mt-3">
+                  {t("Your card will be charged")} ${firstPaymentAmount.toFixed(2)}{" "}
+                  {t("today, then")} ${monthlyAmount?.toFixed(2)}{t("/month for")}{" "}
+                  {remainingInstallments} {t("months")}
+                </div>
+              </div>
+            )}
+
+          {watchedPaymentOption === "lump-sum" && (
+            <div className="mx-auto mb-6 mt-4 bg-greyBg p-4">
+              <h3 className="text-lg font-bold text-left text-[#1B1B1B] mb-5">
+                {t("Payment Summary")}
+              </h3>
+              <div className="flex justify-between items-center">
+                <span className="text-text-primary font-medium text-lg">
+                  {t("Total Premium")}:
+                </span>
+                <span className="text-xl font-bold text-primary">
+                  ${totalPremium.toFixed(2)}
+                </span>
+              </div>
+              <div className="text-sm text-text-secondary mt-2">
+                {t("One-time payment • No additional fees")}
+              </div>
+            </div>
+          )}
 
           {/* Payment Stripe   */}
           <Elements stripe={stripePromise}>
@@ -771,86 +866,6 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
               }
             />
           </Elements>
-
-          {/* visual payment summary */}
-
-          {watchedPaymentOption === "monthly-installments" &&
-            schedule.length > 0 && (
-              <div className="mx-auto mb-6 mt-4 bg-greyBg p-4">
-                <h3 className="text-lg font-bold text-left text-[#1B1B1B] mb-5">
-                  Payment Plan Summary
-                </h3>
-
-                <div className="bg-white p-3 border border-inputBorder mb-3">
-                  <div className="flex justify-between items-center">
-                    <span className="font-medium text-text-primary text-lg">
-                      Due Today:
-                    </span>
-                    <span className="text-xl font-bold text-primary">
-                      ${firstPaymentAmount.toFixed(2)}
-                    </span>
-                  </div>
-                  <div className="text-sm mt-1 text-text-secondary">
-                    Includes: $120 policy fee + $
-                    {(firstPaymentAmount - 120).toFixed(2)} (first 2 months)
-                  </div>
-                </div>
-
-                <div className="space-y-2 p-4 bg-white border border-inputBorder">
-                  <div className="flex justify-between">
-                    <span className="text-text-primary font-medium">
-                      Monthly Payment:
-                    </span>
-                    <span className="font-semibold">
-                      ${monthlyAmount?.toFixed(2)}
-                    </span>
-                  </div>
-                  <div className="flex justify-between text-sm text-text-secondary">
-                    <span>Remaining Payments:</span>
-                    <span>{remainingInstallments} months</span>
-                  </div>
-                  <div className="flex justify-between text-sm pt-2 border-t border-inputBorder text-text-secondary">
-                    <span>Total Premium:</span>
-                    <span className="font-semibold">
-                      ${totalPremium.toFixed(2)}
-                    </span>
-                  </div>
-                  <div className="flex justify-between text-sm text-text-secondary">
-                    <span>Policy Fee (one-time):</span>
-                    <span className="font-semibold">$120.00</span>
-                  </div>
-                  <div className="flex justify-between text-text-primary font-bold text-base pt-2 border-t border-inputBorder">
-                    <span>Grand Total:</span>
-                    <span>${(totalPremium + 120).toFixed(2)}</span>
-                  </div>
-                </div>
-
-                <div className="text-xs text-text-secondary mt-3">
-                  Your card will be charged ${firstPaymentAmount.toFixed(2)}{" "}
-                  today, then ${monthlyAmount?.toFixed(2)}/month for{" "}
-                  {remainingInstallments} months
-                </div>
-              </div>
-            )}
-
-          {watchedPaymentOption === "lump-sum" && (
-            <div className="mx-auto mb-6 mt-4 bg-greyBg p-4">
-              <h3 className="text-lg font-bold text-left text-[#1B1B1B] mb-5">
-                Payment Summary
-              </h3>
-              <div className="flex justify-between items-center">
-                <span className="text-text-primary font-medium text-lg">
-                  Total Premium:
-                </span>
-                <span className="text-xl font-bold text-primary">
-                  ${totalPremium.toFixed(2)}
-                </span>
-              </div>
-              <div className="text-sm text-text-secondary mt-2">
-                One-time payment • No additional fees
-              </div>
-            </div>
-          )}
 
           {/*  */}
         </div>
@@ -900,21 +915,20 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
         {formStep === 2 && (
           <button
             onClick={() => handleFormStepChange("back")}
-            className=" btn-outline"
+            className=" btn-primary"
           >
-            Previous
+            {t("Previous")}
           </button>
         )}
 
         {formStep === 1 && (
           <button
             onClick={handleNext}
-            disabled={!isStepOneFilled || savingStage1}
-            className={`w-[200px] mt-6 bg-[#2B00B7] text-white p-3  hover:bg-[#2309A1] transition flex justify-center items-center cursor-pointer duration-200 ${
-              savingStage1 ? "opacity-50 cursor-wait" : ""
-            }`}
+            disabled={savingStage1}
+            className={`w-[200px] mt-6 bg-[#2B00B7] text-white p-3  hover:bg-[#2309A1] transition flex justify-center items-center cursor-pointer duration-200 ${savingStage1 ? "opacity-50 cursor-wait" : ""
+              }`}
           >
-            {savingStage1 ? "Saving…" : "Next"}
+            {savingStage1 ? t("Saving…") : t("Next")}
           </button>
         )}
 
