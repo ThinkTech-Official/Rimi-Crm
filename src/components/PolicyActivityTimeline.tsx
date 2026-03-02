@@ -172,6 +172,22 @@ export const PolicyActivityTimeline: React.FC<ActivityTimelineProps> = ({
                       {Object.entries(activity.metadata).map(([key, value]) => {
                         // Special handling for changedFields
                         if (key === "changedFields" && typeof value === "object" && value !== null) {
+                          const filteredChanges = Object.entries(value as Record<string, any>)
+                            .filter(([_, fieldValue]) => {
+                              const oldValue = fieldValue?.old;
+                              const newValue = fieldValue?.new;
+                              if(!newValue) return false;
+                              if(oldValue === newValue) return false;
+
+                              // Filter out if both are effectively empty
+                              const isEmpty = (v: any) => v === null || v === undefined || v === "";
+                              if (isEmpty(newValue)) return false;
+
+                              return true;
+                            });
+
+                          if (filteredChanges.length === 0) return null;
+
                           return (
                             <div key={key} className="space-y-2">
                               <span className="text-[10px] uppercase font-bold text-gray-400 tracking-wider">
@@ -182,18 +198,16 @@ export const PolicyActivityTimeline: React.FC<ActivityTimelineProps> = ({
                                   <thead className="bg-gray-50 border-b border-gray-200">
                                     <tr>
                                       <th className="px-3 py-2 text-left text-xs font-semibold text-gray-600">Field</th>
-                                      <th className="px-3 py-2 text-left text-xs font-semibold text-gray-600">Old Value</th>
                                       <th className="px-3 py-2 text-left text-xs font-semibold text-gray-600">New Value</th>
                                     </tr>
                                   </thead>
                                   <tbody className="divide-y divide-gray-100">
-                                    {Object.entries(value as Record<string, any>).map(([fieldName, fieldValue]) => {
-                                      const oldValue = fieldValue?.old;
+                                    {filteredChanges.map(([fieldName, fieldValue]) => { 
                                       const newValue = fieldValue?.new;
-                                      
+
                                       // Format date values
                                       const formatValue = (val: any) => {
-                                        if (val === null || val === undefined) return "—";
+                                        if (val === null || val === undefined) return "-";
                                         if (val === "") return "(empty)";
                                         // Check if it's a date string
                                         if (typeof val === "string" && val.match(/^\d{4}-\d{2}-\d{2}T/)) {
@@ -210,9 +224,6 @@ export const PolicyActivityTimeline: React.FC<ActivityTimelineProps> = ({
                                         <tr key={fieldName} className="hover:bg-gray-50">
                                           <td className="px-3 py-2 font-medium text-gray-700 capitalize">
                                             {fieldName.replace(/([A-Z])/g, " $1").trim()}
-                                          </td>
-                                          <td className="px-3 py-2 text-gray-600">
-                                            {formatValue(oldValue)}
                                           </td>
                                           <td className="px-3 py-2 text-gray-900 font-medium">
                                             {formatValue(newValue)}
@@ -235,8 +246,8 @@ export const PolicyActivityTimeline: React.FC<ActivityTimelineProps> = ({
                             </span>
                             <div className="text-sm text-gray-800 font-medium break-all">
                               {typeof value === "object" ? (
-                                <pre className="text-xs bg-white p-2 rounded border border-gray-200 overflow-x-auto">
-                                  {JSON.stringify(value, null, 2)}
+                                <pre className="overflow-x-auto">
+                                  {Array.isArray(value) ? value.join(", ") : JSON.stringify(value, null, 2)}
                                 </pre>
                               ) : (
                                 String(value)
