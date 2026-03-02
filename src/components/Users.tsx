@@ -9,8 +9,11 @@ import {
   ChevronLeftIcon,
   ChevronRightIcon,
 } from "@heroicons/react/24/outline";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { RenderPageNumbers } from "./RenderPageNumbers";
+import DatePicker from "./DatePicker";
+import { isAfterDate } from "../utils/dateUtils";
+import useNotification from "../hooks/useNotification";
 
 const Users: React.FC = () => {
   // const { langauge } = useContext(LangContext);
@@ -28,26 +31,40 @@ const Users: React.FC = () => {
     userType: "",
     status: "",
     page: 1,
-    limit: 20,
+    limit: 10,
   });
 
   const {
     users,
     loading,
     error,
-    // total,
+    total,
     page,
     // limit,
     totalPages,
     search,
   } = useSearchUsers();
 
-  const { register, handleSubmit, setValue } = useForm<SearchCriteria>({});
+  const { triggerNotification, NotificationComponent } = useNotification();
+  const { register, handleSubmit, control } = useForm<SearchCriteria>({
+    defaultValues: criteria
+  });
 
   // trigger search with current criteria
-  const onSearch = (user: SearchCriteria) => {
-    console.log(".............", user);
-    const updated = { ...user, page: 1 };
+  const onSearch = (formData: SearchCriteria) => {
+    console.log(".............", formData);
+
+    if (formData.createdAfter && formData.createdBefore) {
+      if (isAfterDate(formData.createdAfter, formData.createdBefore)) {
+        triggerNotification({
+          message: t("Created After date must be before Created Before date"),
+          type: "error",
+        });
+        return;
+      }
+    }
+
+    const updated = { ...formData, page: 1 };
     setCriteria(updated);
     search(updated);
   };
@@ -71,49 +88,98 @@ const Users: React.FC = () => {
       {/* ── Search Form ───────────────────────────────────────── */}
       <form onSubmit={handleSubmit(onSearch)}>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 md:gap-x-16 lg:gap-x-24 gap-y-4 text-text-secondary">
-          {[
-            { label: t("First Name"), key: "firstName" },
-            { label: t("Last Name"), key: "lastName" },
-            { label: t("Email"), key: "email" },
-            { label: t("Agent Code"), key: "agentCode" },
-            { label: t("Created After"), key: "createdAfter", type: "date" },
-            { label: t("Created Before"), key: "createdBefore", type: "date" },
-            { label: t("Company"), key: "company" },
-          ].map(({ label, key, type }) => (
-            <div key={key}>
-              <label className="text-sm 2xl:text-base">{label}</label>
-              <input
-                type={type || "text"}
-                {...register(key as keyof SearchCriteria, {
-                  setValueAs: (value) => value?.trim() || "",
-                  ...(key === "email" && {
-                    pattern: {
-                      value: /^\S+@\S+\.\S+$/,
-                      message: t("Invalid email format"),
-                    },
-                    setValueAs: (value) => value?.trim()?.toLowerCase() || "",
-                  }),
-                })}
-                className="input-primary"
-              />
+          <div className="flex flex-col">
+            <label className="text-sm 2xl:text-base">{t("First Name")}</label>
+            <input
+              {...register("firstName", {
+                setValueAs: (value) => value?.trim() || "",
+              })}
+              className="input-primary"
+              placeholder={t("First Name")}
+            />
+          </div>
 
-              {/* {errors[key as keyof SearchCriteria] && (
-                <p className="text-red-500 text-sm mt-1">
-                  {(errors[key as keyof SearchCriteria]?.message as string) ||
-                    ""}
-                </p>
-              )} */}
-            </div>
-          ))}
+          <div className="flex flex-col">
+            <label className="text-sm 2xl:text-base">{t("Last Name")}</label>
+            <input
+              {...register("lastName", {
+                setValueAs: (value) => value?.trim() || "",
+              })}
+              className="input-primary"
+              placeholder={t("Last Name")}
+            />
+          </div>
 
-          <div>
+          <div className="flex flex-col">
+            <label className="text-sm 2xl:text-base">{t("Email")}</label>
+            <input
+              {...register("email", {
+                setValueAs: (value) => value?.trim()?.toLowerCase() || "",
+                pattern: {
+                  value: /^\S+@\S+\.\S+$/,
+                  message: t("Invalid email format"),
+                },
+              })}
+              className="input-primary"
+              placeholder={t("Email")}
+            />
+          </div>
+
+          <div className="flex flex-col">
+            <label className="text-sm 2xl:text-base">{t("Agent Code")}</label>
+            <input
+              {...register("agentCode", {
+                setValueAs: (value) => value?.trim() || "",
+              })}
+              className="input-primary"
+              placeholder={t("Agent Code")}
+            />
+          </div>
+
+          <div className="flex flex-col">
+            <Controller
+              name="createdAfter"
+              control={control}
+              render={({ field }) => (
+                <DatePicker
+                  {...field}
+                  label={t("Created After")}
+                />
+              )}
+            />
+          </div>
+
+          <div className="flex flex-col">
+            <Controller
+              name="createdBefore"
+              control={control}
+              render={({ field }) => (
+                <DatePicker
+                  {...field}
+                  label={t("Created Before")}
+                />
+              )}
+            />
+          </div>
+
+          <div className="flex flex-col">
+            <label className="text-sm 2xl:text-base">{t("Company")}</label>
+            <input
+              {...register("company", {
+                setValueAs: (value) => value?.trim() || "",
+              })}
+              className="input-primary"
+              placeholder={t("Company")}
+            />
+          </div>
+
+          <div className="flex flex-col">
             <label className="text-sm">
               {t("User Type")}
             </label>
             <div className="relative">
               <select
                 {...register("userType")}
-                onChange={(e) => setValue("userType", e.target.value)}
                 className="input-primary appearance-none cursor-pointer"
               >
                 <option value="">{t("All")}</option>
@@ -128,14 +194,13 @@ const Users: React.FC = () => {
             </div>
           </div>
 
-          <div>
+          <div className="flex flex-col">
             <label className="text-sm">
               {t("Status")}
             </label>
             <div className="relative">
               <select
                 {...register("status")}
-                onChange={(e) => setValue("status", e.target.value)}
                 className="input-primary appearance-none cursor-pointer"
               >
                 <option value="">{t("All")}</option>
@@ -151,16 +216,23 @@ const Users: React.FC = () => {
       </form>
 
       <div className="flex justify-center mb-6 mt-8">
-        <button onClick={handleSubmit(onSearch)} className="btn-primary">
+        <button onClick={handleSubmit(onSearch)} disabled={loading} className="btn-primary">
           {loading
             ? t("Searching...")
-            : t("SEARCH")}
+            : t("Search Users")}
         </button>
       </div>
       {error && <p className="text-red-500">{error}</p>}
 
       {users && (
         <div className="w-full overflow-x-auto custom-scrollbar pb-2">
+          <div className="mt-4">
+            {!loading && (
+              <p className="mb-1 text-text-primary">
+                {t("Found")} {total} {t("users.")}
+              </p>
+            )}
+          </div>
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-primary text-white text-base 2xl:text-xl capitalize">
               <tr>
@@ -175,7 +247,7 @@ const Users: React.FC = () => {
                 ].map((h) => (
                   <th
                     key={h}
-                    className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium text-nowrap"
+                    className="px-2 sm:px-3 py-1 sm:py-3 text-left font-medium text-nowrap"
                   >
                     {h}
                   </th>
@@ -214,82 +286,42 @@ const Users: React.FC = () => {
                     className="text-[#808080] text-sm 2xl:text-base"
                   >
                     <td
-                      className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
-                      style={{
-                        borderWidth: "0px 1px 1px 0px",
-                        borderStyle: "solid",
-                        borderColor: "#AAA9A9",
-                      }}
+                      className="px-2 sm:px-3 py-2 whitespace-nowrap border-r border-b border-[#AAA9A9]"
                     >
                       {u.agentCode}
                     </td>
                     <td
-                      className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
-                      style={{
-                        borderWidth: "0px 1px 1px 0px",
-                        borderStyle: "solid",
-                        borderColor: "#AAA9A9",
-                      }}
+                      className="px-2 sm:px-3 py-2 whitespace-nowrap border-r border-b border-[#AAA9A9]"
                     >
                       {u.firstName + " " + u.lastName}
                     </td>
                     {/* <td
-                      className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
-                      style={{
-                        borderWidth: "0px 1px 1px 0px",
-                        borderStyle: "solid",
-                        borderColor: "#AAA9A9",
-                      }}
+                      className="px-2 sm:px-3 py-2 whitespace-nowrap border-r border-b border-[#AAA9A9]"
                     >
                       {u.lastName}
                     </td> */}
                     <td
-                      className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
-                      style={{
-                        borderWidth: "0px 1px 1px 0px",
-                        borderStyle: "solid",
-                        borderColor: "#AAA9A9",
-                      }}
+                      className="px-2 sm:px-3 py-2 whitespace-nowrap border-r border-b border-[#AAA9A9]"
                     >
                       {u.email}
                     </td>
                     <td
-                      className="px-2 sm:px-4 py-2 sm:py-4 max-w-[180px] break-words"
-                      style={{
-                        borderWidth: "0px 1px 1px 0px",
-                        borderStyle: "solid",
-                        borderColor: "#AAA9A9",
-                      }}
+                      className="px-2 sm:px-3 py-2 max-w-[180px] break-words border-r border-b border-[#AAA9A9]"
                     >
                       {u.company}
                     </td>
                     <td
-                      className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
-                      style={{
-                        borderWidth: "0px 1px 1px 0px",
-                        borderStyle: "solid",
-                        borderColor: "#AAA9A9",
-                      }}
+                      className="px-2 sm:px-3 py-2 whitespace-nowrap border-r border-b border-[#AAA9A9]"
                     >
                       {u.userType}
                     </td>
                     <td
-                      className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
-                      style={{
-                        borderWidth: "0px 1px 1px 0px",
-                        borderStyle: "solid",
-                        borderColor: "#AAA9A9",
-                      }}
+                      className="px-2 sm:px-3 py-2 whitespace-nowrap border-r border-b border-[#AAA9A9]"
                     >
                       {u.status}
                     </td>
                     <td
-                      className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
-                      style={{
-                        borderWidth: "0px 1px 1px 0px",
-                        borderStyle: "solid",
-                        borderColor: "#AAA9A9",
-                      }}
+                      className="px-2 sm:px-3 py-2 whitespace-nowrap border-r border-b border-[#AAA9A9]"
                     >
                       <Link
                         target="_blank"
@@ -332,6 +364,7 @@ const Users: React.FC = () => {
           </button>
         </div>
       )}
+      {NotificationComponent}
     </div>
   );
 };
