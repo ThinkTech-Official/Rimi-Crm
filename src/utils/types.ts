@@ -73,8 +73,14 @@ export interface ProfileForm {
   docLink1?: string | null;  // was: string | undefined
   docLink2?: string | null;  // was: string | undefined
   docLink3?: string | null;  // was: string | undefined
+  docLink4?: string | null;
   validUpto?: string | null;
   validUpto2?: string | null;
+  
+docType1?: string | null;
+docType2?: string | null;
+docType3?: string | null;
+docType4?: string | null;
   
   createdAt: string;
   updatedAt: string;
