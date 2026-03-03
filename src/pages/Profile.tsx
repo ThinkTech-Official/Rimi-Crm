@@ -424,6 +424,7 @@ export default function Profile() {
     doc1: null,
     doc2: null,
     doc3: null,
+    doc4: null,
   });
   const [passwords, setPasswords] = useState({
     password: "",
@@ -462,16 +463,6 @@ export default function Profile() {
     setShowRequestButton(!!canRequestVerification); // FIXED: Double negation ensures boolean
   }, [profile]);
 
-  useEffect(() => {
-    if (!profile) return;
-    console.log(
-      "inside profile component checking updated data structure",
-      profile
-    );
-    setFormData(profile);
-    setPasswords({ password: "", confirmPassword: "" });
-    setFiles({ doc1: null, doc2: null, doc3: null });
-  }, [profile]);
 
   // handler for request verification button
   const handleRequestVerification = () => {
@@ -512,12 +503,12 @@ export default function Profile() {
         });
 
         // Add validity dates if they exist
-        if (formData.validUpto) {
-          docPayload.append("validUpto", formData.validUpto);
-        }
-        if (formData.validUpto2) {
-          docPayload.append("validUpto2", formData.validUpto2);
-        }
+        // if (formData.validUpto) {
+        //   docPayload.append("validUpto", formData.validUpto);
+        // }
+        // if (formData.validUpto2) {
+        //   docPayload.append("validUpto2", formData.validUpto2);
+        // }
 
         // Use the dedicated upload-documents endpoint
         // This properly sets documentsUploadedAt and verificationStatus to 'DRAFT'
@@ -940,7 +931,7 @@ export default function Profile() {
             </div>
           )}
 
-          <div className="border border-inputBorder bg-white p-4 mb-4">
+          {/* <div className="border border-inputBorder bg-white p-4 mb-4" id="document-upload-section">
             <h3 className="text-primary font-semibold mb-2 capitalize text-lg">
               {t("Documents")}
             </h3>
@@ -1085,7 +1076,85 @@ export default function Profile() {
             ) : (
               <p className="text-gray-500">{t("No documents attached")}</p>
             )}
-          </div>
+          </div> */}
+
+
+            <div className="border border-inputBorder bg-white p-4 mb-4" id="document-upload-section">
+  <h3 className="text-primary font-semibold mb-2 capitalize text-lg">
+    {t("Documents")}
+  </h3>
+
+  {/* Show existing uploaded documents */}
+  {docs.length > 0 && (
+    <ul className="space-y-2 mb-4">
+      {[
+        { link: formData.docLink1, type: formData.docType1, label: 'Insurance License' },
+        { link: formData.docLink2, type: formData.docType2, label: 'E&O Insurance' },
+        { link: formData.docLink3, type: formData.docType3, label: 'Bank Details' },
+        { link: formData.docLink4, type: formData.docType4, label: 'Agency Agreement' },
+      ].map(({ link, type, label }, idx) => {
+        if (!link) return null;
+        const filename = link.split("/").pop();
+        return (
+          <li key={idx}>
+            <a
+              href={link}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 text-text-secondary hover:underline"
+            >
+              <DocumentIcon className="h-5 w-5 text-text-primary" />
+              <span>{label}: {filename}</span>
+            </a>
+          </li>
+        );
+      })}
+    </ul>
+  )}
+
+  {!docs.length && !isEditing && (
+    <p className="text-gray-500">{t("No documents attached")}</p>
+  )}
+
+  {/* Upload inputs — show in edit mode for AGENT/MGA */}
+  {isEditing && showVerificationTab && (
+    <div className="flex flex-col gap-3 mt-2">
+      {[
+        { key: 'doc1', label: 'Insurance License' },
+        { key: 'doc2', label: 'E&O Insurance' },
+        { key: 'doc3', label: 'Bank Details / Void Cheque' },
+        { key: 'doc4', label: 'Signed Agency Agreement' },
+      ].map(({ key, label }) => (
+        <div key={key} className="flex flex-col gap-1 w-full">
+          <label className="text-sm font-medium">{t(label)}</label>
+          <label className="input-primary cursor-pointer">
+            {t("Choose File")}
+            <input
+              name={key}
+              type="file"
+              onChange={handleFileChange}
+              className="hidden"
+            />
+          </label>
+          {files[key] && (
+            <div className="flex gap-2 items-center">
+              <p className="text-sm">
+                {files[key]!.name} — {handleFileSize(files[key]!)} MB
+              </p>
+              <MdCancel
+                size={18}
+                className="text-text-primary cursor-pointer"
+                onClick={() => handleRemoveFile(key)}
+              />
+            </div>
+          )}
+        </div>
+      ))}
+    </div>
+  )}
+</div>
+
+
         </>
       )}
 

@@ -9,6 +9,9 @@ import {
   MdEmail,
   MdInfo,
   MdPerson,
+  MdCallSplit,
+  MdAutorenew,
+  MdCreditCard,
 } from "react-icons/md";
 
 interface ActivityTimelineProps {
@@ -63,6 +66,24 @@ export const PolicyActivityTimeline: React.FC<ActivityTimelineProps> = ({
           color: "bg-indigo-100 text-indigo-600 border-indigo-200",
           dotColor: "bg-indigo-500",
         };
+        case "policy_split":
+  return {
+    icon: <MdCallSplit className="text-xl" />,
+    color: "bg-teal-100 text-teal-600 border-teal-200",
+    dotColor: "bg-teal-500",
+  };
+case "renewal_notice_sent":
+  return {
+    icon: <MdAutorenew className="text-xl" />,
+    color: "bg-green-100 text-green-600 border-green-200",
+    dotColor: "bg-green-500",
+  };
+case "payment_method_updated":
+  return {
+    icon: <MdCreditCard className="text-xl" />,
+    color: "bg-sky-100 text-sky-600 border-sky-200",
+    dotColor: "bg-sky-500",
+  };
       default:
         return {
           icon: <MdInfo className="text-xl" />,
