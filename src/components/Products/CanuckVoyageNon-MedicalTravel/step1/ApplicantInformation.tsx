@@ -924,7 +924,7 @@ export default function ApplicantInformation({
             {t("Confirm that all applicants are eligible for this insurance")}
           </span>
         </div>
-        {errors.isConfirmed && isSubmitted && (
+        {errors.isConfirmed && (
           <p className="text-red-500 text-sm mt-1 text-center font-[inter]">
             {errors.isConfirmed!.message}
           </p>

@@ -211,7 +211,6 @@ const RIMICanuckVoyageTravelMedical: React.FC = () => {
     useState<QuoteStage1Response | null>(null);
 
   // ========== VALIDATION ==========
-  const [isStepOneFilled, setIsStepOneFilled] = useState(false);
 
   // ========== HOOKS ==========
   const { saveQuoteNext, loading: savingStage1 } = useSaveQuoteNextProduct3();
@@ -309,13 +308,13 @@ const RIMICanuckVoyageTravelMedical: React.FC = () => {
       applicantNumber: policyData.applicants?.length || 0,
       applicants: policyData.applicants
         ? policyData.applicants.map((a, idx) => ({
-            index: String(idx + 1),
-            firstName: a.firstName,
-            lastName: a.lastName,
-            dob: a.dateOfBirth?.split("T")[0] || "",
-            relationship: a.relation || "",
-            gender: a.gender,
-          }))
+          index: String(idx + 1),
+          firstName: a.firstName,
+          lastName: a.lastName,
+          dob: a.dateOfBirth?.split("T")[0] || "",
+          relationship: a.relation || "",
+          gender: a.gender,
+        }))
         : [],
       isConfirmed: false,
       effectiveDate: "",
@@ -371,7 +370,10 @@ const RIMICanuckVoyageTravelMedical: React.FC = () => {
 
   // ========== STAGE 1: NEXT BUTTON ==========
   const handleNext = async () => {
-    if (!isStepOneFilled || savingStage1) return;
+    const isValid = await step1Methods.trigger();
+    if (!isValid) return;
+
+    if (savingStage1) return;
 
     try {
       const stage1Payload = {
@@ -383,6 +385,7 @@ const RIMICanuckVoyageTravelMedical: React.FC = () => {
         provinceOfResidence,
         applicantNumber,
         applicants,
+        isConfirmed,
         policyType,
         effectiveDate,
         expiryDate,
@@ -739,10 +742,9 @@ const RIMICanuckVoyageTravelMedical: React.FC = () => {
         {formStep === 1 && (
           <button
             onClick={handleNext}
-            disabled={!isStepOneFilled || savingStage1}
-            className={`w-[200px] mt-6 bg-[#2B00B7] text-white p-3 hover:bg-[#2309A1] transition flex justify-center items-center cursor-pointer duration-200 ${
-              savingStage1 ? "opacity-50 cursor-wait" : ""
-            }`}
+            disabled={savingStage1}
+            className={`w-[200px] mt-6 bg-[#2B00B7] text-white p-3 hover:bg-[#2309A1] transition flex justify-center items-center cursor-pointer duration-200 ${savingStage1 ? "opacity-50 cursor-wait" : ""
+              }`}
           >
             {savingStage1 ? t("Saving…") : t("Next")}
           </button>

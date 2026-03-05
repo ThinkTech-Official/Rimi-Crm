@@ -183,6 +183,7 @@ const RIMICanuckVoyageNonMedicalTravel: React.FC = () => {
     provinceStateResidence,
     applicantNumber,
     applicants,
+    isConfirmed,
     tripCost,
     dateBooked,
     effectiveDate,
@@ -364,7 +365,10 @@ const RIMICanuckVoyageNonMedicalTravel: React.FC = () => {
 
   // ========== STAGE 1: NEXT BUTTON ==========
   const handleNext = async () => {
-    if (!isStepOneFilled || savingStage1) return;
+    const isValid = await step1Methods.trigger();
+    if (!isValid) return;
+
+    if (savingStage1) return;
 
     try {
       const stage1Payload = {
@@ -377,6 +381,7 @@ const RIMICanuckVoyageNonMedicalTravel: React.FC = () => {
         provinceStateResidence,
         applicantNumber,
         applicants,
+        isConfirmed,
         tripCost,
         dateBooked,
         effectiveDate,
@@ -738,7 +743,7 @@ const RIMICanuckVoyageNonMedicalTravel: React.FC = () => {
         {formStep === 1 && (
           <button
             onClick={handleNext}
-            disabled={!isStepOneFilled || savingStage1}
+            disabled={savingStage1}
             className={`w-[200px] mt-6 bg-[#2B00B7] text-white p-3 hover:bg-[#2309A1] transition flex justify-center items-center cursor-pointer duration-200 ${
               savingStage1 ? "opacity-50 cursor-wait" : ""
             }`}

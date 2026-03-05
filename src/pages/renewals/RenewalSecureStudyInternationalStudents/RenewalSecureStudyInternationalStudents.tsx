@@ -13,6 +13,7 @@ import PaymentInformation from "../../../components/Products/SecureStudyRIMIInte
 import Summary from "../../../components/Products/SecureStudyRIMIInternationalStudentstoCanada/step3/Summary";
 import { FormProvider, useForm } from "react-hook-form";
 import useNotification from "../../../hooks/useNotification";
+import { useLanguage } from "../../../context/LanguageContext";
 
 // Hooks
 import { useSaveQuoteNextProduct2 } from "../../../hooks/student-international/useSaveQuoteNextProduct2";
@@ -85,6 +86,7 @@ interface QuoteStage1ResponseProduct2 {
 const productName = "SECURE_STUDY_RIMI_INTERNATIONAL_STUDENTS_TO_CANADA";
 
 export default function SecureStudyRIMIInternationalStudentstoCanada() {
+  const { t } = useLanguage();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
@@ -232,13 +234,13 @@ export default function SecureStudyRIMIInternationalStudentstoCanada() {
       applicantNumber: policyData.applicants?.length || 0,
       applicants: policyData.applicants
         ? policyData.applicants.map((a, idx) => ({
-            index: String(idx + 1),
-            firstName: a.firstName,
-            lastName: a.lastName,
-            dob: a.dateOfBirth?.split("T")[0] || "",
-            relationship: a.relation || "",
-            gender: a.gender,
-          }))
+          index: String(idx + 1),
+          firstName: a.firstName,
+          lastName: a.lastName,
+          dob: a.dateOfBirth?.split("T")[0] || "",
+          relationship: a.relation || "",
+          gender: a.gender,
+        }))
         : [],
       isConfirmed: false,
       effectiveDate: "",
@@ -352,7 +354,10 @@ export default function SecureStudyRIMIInternationalStudentstoCanada() {
   };
 
   const handleNext = async () => {
-    if (!isStepOneFilled || savingStage1) return;
+    const isValid = await step1Methods.trigger();
+    if (!isValid) return;
+
+    if (savingStage1) return;
 
     const stage1Payload = {
       primaryFirstName,
@@ -362,6 +367,7 @@ export default function SecureStudyRIMIInternationalStudentstoCanada() {
       primaryApplicantGender,
       applicantNumber,
       applicants,
+      isConfirmed: _isConfirmed,
       countryOfOrigin,
       policyType,
       destinationProvince,
@@ -720,12 +726,11 @@ export default function SecureStudyRIMIInternationalStudentstoCanada() {
         {formStep === 1 && (
           <button
             onClick={handleNext}
-            disabled={!isStepOneFilled || savingStage1}
-            className={`w-[200px] mt-6 bg-[#2B00B7] text-white p-3 hover:bg-[#2309A1] transition flex justify-center items-center cursor-pointer duration-200 ${
-              savingStage1 ? "opacity-50 cursor-wait" : ""
-            }`}
+            disabled={savingStage1}
+            className={`w-[200px] mt-6 bg-[#2B00B7] text-white p-3 hover:bg-[#2309A1] transition flex justify-center items-center cursor-pointer duration-200 ${savingStage1 ? "opacity-50 cursor-wait" : ""
+              }`}
           >
-            {savingStage1 ? "Saving…" : "Next"}
+            {savingStage1 ? t("Saving…") : t("Next")}
           </button>
         )}
       </div>

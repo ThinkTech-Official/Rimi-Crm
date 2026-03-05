@@ -125,8 +125,7 @@ const Step1STRVCT = ({
     setValue,
     getValues,
     watch,
-    trigger,
-    formState: { errors, isSubmitted },
+    formState: { errors },
   } = useFormContext<Step1Payload>();
 
   // Use watch to subscribe to form updates for logic
@@ -303,9 +302,10 @@ const Step1STRVCT = ({
   };
 
   const handleCheckboxChange = () => {
-    if (isConfirmed) {
-      setValue("isConfirmed", false);
-    } else {
+    const newValue = !isConfirmed;
+    setValue("isConfirmed", newValue, { shouldValidate: true });
+
+    if (newValue) {
       setShowConfirmEligibility(true);
     }
 
@@ -1069,7 +1069,7 @@ const Step1STRVCT = ({
                 {t("Confirm that all applicants are eligible for this insurance")}
               </span>
             </div>
-            {errors.isConfirmed && isSubmitted && (
+            {errors.isConfirmed && (
               <p className="text-red-500 text-sm mt-1 text-center">
                 {errors.isConfirmed.message}
               </p>
@@ -1333,7 +1333,7 @@ const Step1STRVCT = ({
                             Math.round(
                               (new Date(date).getTime() -
                                 new Date(effectiveDate).getTime()) /
-                                msPerDay,
+                              msPerDay,
                             ) + 1;
                           setValue("coverageLength", String(diff), {
                             shouldValidate: true,
@@ -1368,7 +1368,7 @@ const Step1STRVCT = ({
                       if (effectiveDate && val) {
                         const exp = new Date(
                           new Date(effectiveDate).getTime() +
-                            (Number(val) - 1) * msPerDay,
+                          (Number(val) - 1) * msPerDay,
                         );
                         setValue("expiryDate", exp.toISOString().slice(0, 10), {
                           shouldValidate: true,
@@ -1547,7 +1547,7 @@ const Step1STRVCT = ({
                             : item.label}
                         </span>
                         <span className="text-text-secondary">
-                          ${item.amount.toFixed(2)} CAD
+                          ${item.amount?.toFixed(2)} CAD
                         </span>
                       </div>
                     ))}
@@ -1594,12 +1594,12 @@ const Step1STRVCT = ({
             applicantsToShow={[
               ...(primaryNeedsQuestionnaire
                 ? [
-                    {
-                      firstName: primaryFirstName,
-                      lastName: primaryLastName,
-                      index: -1,
-                    },
-                  ]
+                  {
+                    firstName: primaryFirstName,
+                    lastName: primaryLastName,
+                    index: -1,
+                  },
+                ]
                 : []),
               ...applicantsNeedingQuestionnaire.map(
                 (app: any, originalIdx: number) => ({

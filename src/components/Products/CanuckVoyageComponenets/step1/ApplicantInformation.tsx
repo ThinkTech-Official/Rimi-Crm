@@ -124,14 +124,14 @@ import ConfirmEligibilityMedical from "./ConfirmEligibilityMedical";
 import DatePicker from "../../../DatePicker";
 import { useLanguage } from "../../../../context/LanguageContext";
 
-interface Applicant {
-  index: string;
-  firstName: string;
-  lastName: string;
-  dob: string;
-  relationship: string;
-  gender: string;
-}
+// interface Applicant {
+//   index: string;
+//   firstName: string;
+//   lastName: string;
+//   dob: string;
+//   relationship: string;
+//   gender: string;
+// }
 
 interface ApplicantInformationProps {
   methods: UseFormReturn<Step1Payload>;
@@ -146,7 +146,7 @@ export default function ApplicantInformation({
     watch,
     setValue,
     control,
-    formState: { errors, isSubmitted },
+    formState: { errors },
   } = methods;
 
   // useFieldArray for additional applicants
@@ -159,8 +159,6 @@ export default function ApplicantInformation({
   const formValues = watch();
   const { applicantNumber, isConfirmed } = formValues;
 
-  const [displayInfoCountryOfOrigin, setDisplayInfoCountryOfOrigin] =
-    useState(false);
   const [displayInfoApplicantConfirm, setDisplayInfoApplicantConfirm] =
     useState(false);
   const [showConfirmEligibility, setShowConfirmEligibility] = useState(false);
@@ -272,7 +270,7 @@ export default function ApplicantInformation({
 
                 const eff = new Date(effectiveDate);
                 const dob = new Date(value);
-                
+
                 // Calculate age in days
                 const diffTime = eff.getTime() - dob.getTime();
                 const diffDays = diffTime / (1000 * 60 * 60 * 24);
@@ -470,7 +468,7 @@ export default function ApplicantInformation({
             <Controller
               name={`applicants.${idx}.dob`}
               control={control}
-              rules={{ 
+              rules={{
                 required: t("Date of Birth is required"),
                 validate: (value) => {
                   const effectiveDate = methods.getValues("effectiveDate");
@@ -478,7 +476,7 @@ export default function ApplicantInformation({
 
                   const eff = new Date(effectiveDate);
                   const dob = new Date(value);
-                  
+
                   const diffTime = eff.getTime() - dob.getTime();
                   const diffDays = diffTime / (1000 * 60 * 60 * 24);
 
@@ -590,7 +588,7 @@ export default function ApplicantInformation({
             {t("Confirm that all applicants are eligible for this insurance")}
           </span>
         </div>
-        {errors.isConfirmed && isSubmitted && (
+        {errors.isConfirmed && (
           <p className="text-red-500 text-sm mt-1 text-center">
             {errors.isConfirmed.message}
           </p>
