@@ -50,7 +50,7 @@ export default function PaymentInformation({
     loading: intentLoading,
     error: intentError,
   } = useCreatePaymentIntent(
-    stripeCustomerId,
+    // stripeCustomerId,
     quoteNumber,
     description,
     cardholderName,
