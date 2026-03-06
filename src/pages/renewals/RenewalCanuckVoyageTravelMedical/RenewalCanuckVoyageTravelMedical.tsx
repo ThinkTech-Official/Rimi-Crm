@@ -663,7 +663,7 @@ const RIMICanuckVoyageTravelMedical: React.FC = () => {
             <h3 className="text-base sm:text-lg">
               {loading
                 ? t("Calculating...")
-                : t("Your Quote: ${{total}} CAD", { total: totalPremium.toFixed(2) })}
+                : t("Your Quote: {{total}} CAD", { total: totalPremium.toFixed(2) })}
             </h3>
           </div>
         </FormProvider>
@@ -699,7 +699,7 @@ const RIMICanuckVoyageTravelMedical: React.FC = () => {
             <div className="flex justify-between items-center">
               <span>{t("Total Premium:")}</span>
               <span className="text-xl font-bold text-primary">
-                ${totalPremium.toFixed(2)} CAD
+                {totalPremium.toFixed(2)} CAD
               </span>
             </div>
             <div className="text-sm text-gray-600 mt-1">
