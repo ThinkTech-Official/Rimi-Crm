@@ -68,14 +68,14 @@ const PremiumChangeModal: React.FC<PremiumChangeModalProps> = ({
             <div className="flex justify-between items-center">
               <span className="text-sm text-gray-600">{t("Original Premium:")}</span>
               <span className="text-lg font-semibold text-gray-900">
-                ${originalPremium.toFixed(2)}
+                {originalPremium.toFixed(2)} CAD
               </span>
             </div>
-            
+
             <div className="flex justify-between items-center">
               <span className="text-sm text-gray-600">{t("New Premium:")}</span>
               <span className="text-lg font-semibold text-gray-900">
-                ${newPremium.toFixed(2)}
+                {newPremium.toFixed(2)} CAD
               </span>
             </div>
 
@@ -83,10 +83,9 @@ const PremiumChangeModal: React.FC<PremiumChangeModalProps> = ({
               <span className="text-sm font-medium text-gray-700">
                 {isIncrease ? t('Additional Payment Due:') : t('Refund Due:')}
               </span>
-              <span className={`text-xl font-bold ${
-                isIncrease ? 'text-red-600' : 'text-green-600'
-              }`}>
-                {isIncrease ? '+' : '-'}${Math.abs(premiumDifference).toFixed(2)}
+              <span className={`text-xl font-bold ${isIncrease ? 'text-red-600' : 'text-green-600'
+                }`}>
+                {isIncrease ? '+' : '-'}{Math.abs(premiumDifference).toFixed(2)} CAD
               </span>
             </div>
           </div>
@@ -105,7 +104,7 @@ const PremiumChangeModal: React.FC<PremiumChangeModalProps> = ({
 
           {/* Note */}
           <p className="text-xs text-gray-500 italic">
-            {t("Note:")} {isIncrease 
+            {t("Note:")} {isIncrease
               ? t('Additional payment will need to be collected separately after saving these changes.')
               : t('The refund will be processed automatically when you save these changes.')
             }

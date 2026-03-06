@@ -47,7 +47,7 @@ const RefundModal: React.FC<RefundModalProps> = ({
     // Validate
     if (value) {
       const feeAmount = parseFloat(value);
-      
+
       if (isNaN(feeAmount)) {
         setError(t('Please enter a valid number'));
         return;
@@ -72,7 +72,7 @@ const RefundModal: React.FC<RefundModalProps> = ({
     }
 
     const feeAmount = parseFloat(transactionFee);
-    
+
     if (isNaN(feeAmount) || feeAmount < 0) {
       setError(t('Please enter a valid transaction fee'));
       return;
@@ -137,7 +137,7 @@ const RefundModal: React.FC<RefundModalProps> = ({
                 {t("Maximum Refundable:")}
               </span>
               <span className="text-lg font-semibold text-green-600">
-                ${maxRefundable.toFixed(2)}
+                {maxRefundable.toFixed(2)} CAD
               </span>
             </div>
 
@@ -155,9 +155,8 @@ const RefundModal: React.FC<RefundModalProps> = ({
                   max={maxRefundable}
                   value={transactionFee}
                   onChange={handleTransactionFeeChange}
-                  className={`input-primary pl-7 ${
-                    error ? 'border-red-500' : ''
-                  }`}
+                  className={`input-primary pl-7 ${error ? 'border-red-500' : ''
+                    }`}
                   placeholder="0.00"
                   disabled={loading}
                 />
@@ -174,16 +173,16 @@ const RefundModal: React.FC<RefundModalProps> = ({
                 {t("Net Refund Amount:")}
               </span>
               <span className="text-xl font-bold text-primary">
-                ${netRefund.toFixed(2)}
+                {netRefund.toFixed(2)} CAD
               </span>
             </div>
           </div>
 
           {/* Warning if net refund is $0 */}
           {netRefund === 0 && transactionFee && (
-             <div className="bg-yellow-50 border border-yellow-200 rounded p-3">
+            <div className="bg-yellow-50 border border-yellow-200 rounded p-3">
               <p className="text-sm text-yellow-800">
-                ℹ️ {t("Net refund is $0.00 because the transaction fee equals the refundable amount.")}
+                ℹ️ {t("Net refund is 0.00 CAD because the transaction fee equals the refundable amount.")}
               </p>
             </div>
           )}

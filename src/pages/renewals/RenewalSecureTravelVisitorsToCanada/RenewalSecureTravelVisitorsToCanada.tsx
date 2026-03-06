@@ -734,7 +734,7 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
                 {t("Your Quote")}:
               </span>{" "}
               <span className="text-text-secondary">
-                ${step1ResponseData?.quoteAmount}
+                {step1ResponseData?.quoteAmount} CAD
               </span>
             </h3>
           </div>
@@ -756,7 +756,7 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
           {/* beneficiary, setBeneficiary */}
           <BeneficiaryInCaseOfDeath methods={beneficiaryMethods} />
 
-          
+
 
           {/* visual payment summary */}
 
@@ -773,12 +773,12 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
                       {t("Due Today")}:
                     </span>
                     <span className="text-xl font-bold text-primary">
-                      ${firstPaymentAmount.toFixed(2)}
+                      {firstPaymentAmount.toFixed(2)} CAD
                     </span>
                   </div>
                   <div className="text-sm mt-1 text-text-secondary">
-                    {t("Includes: $120 policy fee + $")}
-                    {(firstPaymentAmount - 120).toFixed(2)} {t("(first 2 months)")}
+                    {t("Includes: 120 CAD policy fee + ")}
+                    {(firstPaymentAmount - 120).toFixed(2)} CAD {t("(first 2 months)")}
                   </div>
                 </div>
 
@@ -788,7 +788,7 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
                       {t("Monthly Payment")}:
                     </span>
                     <span className="font-semibold">
-                      ${monthlyAmount?.toFixed(2)}
+                      {monthlyAmount?.toFixed(2)} CAD
                     </span>
                   </div>
                   <div className="flex justify-between text-sm text-text-secondary">
@@ -798,22 +798,22 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
                   <div className="flex justify-between text-sm pt-2 border-t border-inputBorder text-text-secondary">
                     <span>{t("Total Premium")}:</span>
                     <span className="font-semibold">
-                      ${totalPremium.toFixed(2)}
+                      {totalPremium.toFixed(2)} CAD
                     </span>
                   </div>
                   <div className="flex justify-between text-sm text-text-secondary">
                     <span>{t("Policy Fee (one-time)")}:</span>
-                    <span className="font-semibold">$120.00</span>
+                    <span className="font-semibold">120.00 CAD</span>
                   </div>
                   <div className="flex justify-between text-text-primary font-bold text-base pt-2 border-t border-inputBorder">
                     <span>{t("Grand Total")}:</span>
-                    <span>${(totalPremium + 120).toFixed(2)}</span>
+                    <span>{(totalPremium + 120).toFixed(2)} CAD</span>
                   </div>
                 </div>
 
                 <div className="text-xs text-text-secondary mt-3">
-                  {t("Your card will be charged")} ${firstPaymentAmount.toFixed(2)}{" "}
-                  {t("today, then")} ${monthlyAmount?.toFixed(2)}{t("/month for")}{" "}
+                  {t("Your card will be charged")} {firstPaymentAmount.toFixed(2)} CAD{" "}
+                  {t("today, then")} {monthlyAmount?.toFixed(2)} CAD{t("/month for")}{" "}
                   {remainingInstallments} {t("months")}
                 </div>
               </div>
@@ -829,7 +829,7 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
                   {t("Total Premium")}:
                 </span>
                 <span className="text-xl font-bold text-primary">
-                  ${totalPremium.toFixed(2)}
+                  {totalPremium.toFixed(2)} CAD
                 </span>
               </div>
               <div className="text-sm text-text-secondary mt-2">

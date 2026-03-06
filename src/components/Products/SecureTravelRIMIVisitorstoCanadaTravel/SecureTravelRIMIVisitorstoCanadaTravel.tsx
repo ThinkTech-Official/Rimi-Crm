@@ -253,8 +253,8 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
           step.id === newStep.toString().padStart(2, "0")
             ? "current"
             : step.id < newStep.toString().padStart(2, "0")
-            ? "complete"
-            : "upcoming",
+              ? "complete"
+              : "upcoming",
       }));
 
       setSteps(updatedSteps);
@@ -486,14 +486,14 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
                 {t("Your Quote")}:
               </span>{" "}
               <span className="text-text-secondary">
-                ${step1ResponseData?.quoteAmount}
+                {step1ResponseData?.quoteAmount} CAD
               </span>
             </h3>
           </div>
 
-          <TestFillButton 
-            productName={productName} 
-            methods={[contactInfoMethods, addressMethods, beneficiaryMethods]} 
+          <TestFillButton
+            productName={productName}
+            methods={[contactInfoMethods, addressMethods, beneficiaryMethods]}
           />
           <YourQuoteSummary step1ResponseData={step1ResponseData} />
           <ApplicantInformationFinished
@@ -526,11 +526,11 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
                       {t("Due Today")}:
                     </span>
                     <span className="text-xl font-bold text-primary">
-                      ${firstPaymentAmount.toFixed(2)}
+                      {firstPaymentAmount.toFixed(2)} CAD
                     </span>
                   </div>
                   <div className="text-sm mt-1 text-text-secondary">
-                    {t("Includes: $120 policy fee + $")}{(firstPaymentAmount - 120).toFixed(2)} {t("(first 2 months)")}
+                    {t("Includes: 120 CAD policy fee + ")}{(firstPaymentAmount - 120).toFixed(2)} CAD {t("(first 2 months)")}
                   </div>
                 </div>
 
@@ -540,7 +540,7 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
                       {t("Monthly Payment")}:
                     </span>
                     <span className="font-semibold">
-                      ${monthlyAmount?.toFixed(2)}
+                      {monthlyAmount?.toFixed(2)} CAD
                     </span>
                   </div>
                   <div className="flex justify-between text-sm text-text-secondary">
@@ -550,22 +550,22 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
                   <div className="flex justify-between text-sm pt-2 border-t border-inputBorder text-text-secondary">
                     <span>{t("Total Premium")}:</span>
                     <span className="font-semibold">
-                      ${totalPremium.toFixed(2)}
+                      {totalPremium.toFixed(2)} CAD
                     </span>
                   </div>
                   <div className="flex justify-between text-sm text-text-secondary">
                     <span>{t("Policy Fee (one-time)")}:</span>
-                    <span className="font-semibold">$120.00</span>
+                    <span className="font-semibold">120.00 CAD</span>
                   </div>
                   <div className="flex justify-between text-text-primary font-bold text-base pt-2 border-t border-inputBorder">
                     <span>{t("Grand Total")}:</span>
-                    <span>${(totalPremium + 120).toFixed(2)}</span>
+                    <span>{(totalPremium + 120).toFixed(2)} CAD</span>
                   </div>
                 </div>
 
                 <div className="text-xs text-text-secondary mt-3">
-                  {t("Your card will be charged")} ${firstPaymentAmount.toFixed(2)}{" "}
-                  {t("today, then")} ${monthlyAmount?.toFixed(2)}{t("/month for")}{" "}
+                  {t("Your card will be charged")} {firstPaymentAmount.toFixed(2)} CAD{" "}
+                  {t("today, then")} {monthlyAmount?.toFixed(2)} CAD{t("/month for")}{" "}
                   {remainingInstallments} {t("months")}
                 </div>
               </div>
@@ -581,7 +581,7 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
                   {t("Total Premium")}:
                 </span>
                 <span className="text-xl font-bold text-primary">
-                  ${totalPremium.toFixed(2)}
+                  {totalPremium.toFixed(2)} CAD
                 </span>
               </div>
               <div className="text-sm text-text-secondary mt-2">
@@ -638,10 +638,9 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
           <button
             onClick={handleNext}
             disabled={savingStage1}
-            className={`w-[200px] mt-6 bg-[#2B00B7] text-white p-3  hover:bg-[#2309A1] transition flex justify-center items-center cursor-pointer duration-200 ${
-              savingStage1 ? "opacity-50 cursor-wait" : ""
-            }`}
-           >
+            className={`w-[200px] mt-6 bg-[#2B00B7] text-white p-3  hover:bg-[#2309A1] transition flex justify-center items-center cursor-pointer duration-200 ${savingStage1 ? "opacity-50 cursor-wait" : ""
+              }`}
+          >
             {savingStage1 ? t("Saving…") : t("Next")}
           </button>
         )}

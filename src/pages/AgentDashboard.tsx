@@ -25,8 +25,8 @@ export default function AgentDashboard() {
         <Kpi title="Total Policies" value={summary?.totalPolicies ?? (sLoading ? '…' : 0)} />
         <Kpi title="Total Quotes" value={summary?.totalQuotes ?? (sLoading ? '…' : 0)} />
         <Kpi title="Commission %" value={summary ? `${summary.commissionPercent}%` : (sLoading ? '…' : '0%')} />
-        <Kpi title="Total Commissions" value={summary ? `$${(summary.totalCommissions).toFixed(2)}` : (sLoading ? '…' : '$0.00')} />
-        <Kpi title="This Month Commissions" value={summary ? `$${(summary.currentMonthCommissions).toFixed(2)}` : (sLoading ? '…' : '$0.00')} />
+        <Kpi title="Total Commissions" value={summary ? `${(summary.totalCommissions).toFixed(2)} CAD` : (sLoading ? '…' : '0.00 CAD')} />
+        <Kpi title="This Month Commissions" value={summary ? `${(summary.currentMonthCommissions).toFixed(2)} CAD` : (sLoading ? '…' : '0.00 CAD')} />
         <Kpi title="Months in Data" value={summary?.monthlyPremiums.length ?? (sLoading ? '…' : 0)} />
       </div>
 

@@ -23,8 +23,8 @@ interface CancellationModalProps {
   policyNumber: string;
   paymentHistory: PaymentRecord[];
   onClose: () => void;
-  effectiveDate: string; 
-  paymentOption: string; 
+  effectiveDate: string;
+  paymentOption: string;
   onSuccess: (message: string) => void;
   isSuperVisa?: string | undefined;
 }
@@ -35,8 +35,8 @@ export default function CancellationModal({
   policyId,
   policyNumber,
   paymentHistory,
-  effectiveDate, 
-  paymentOption, 
+  effectiveDate,
+  paymentOption,
   onSuccess,
   isSuperVisa
 }: CancellationModalProps) {
@@ -56,7 +56,7 @@ export default function CancellationModal({
     cancelPolicy,
   } = usePolicyCancellation(policyId);
 
-  
+
   const policyHasStarted = new Date() >= new Date(effectiveDate);
   const isMonthly = paymentOption === 'monthly-installments';
   const noRefundsWillBeIssued = isMonthly && policyHasStarted;
@@ -64,12 +64,12 @@ export default function CancellationModal({
   const calculateSimpleRefund = () => {
     // If policy has started and is monthly, no refunds
     if (noRefundsWillBeIssued) {
-      return { 
-        totalPaid: paymentHistory.reduce((sum, p) => sum + p.amount, 0), 
-        refundable: 0 
+      return {
+        totalPaid: paymentHistory.reduce((sum, p) => sum + p.amount, 0),
+        refundable: 0
       };
     }
-  
+
     const totalPaid = paymentHistory.reduce((sum, p) => sum + p.amount, 0);
     const refundable = totalPaid - cancellationFee;
     return {
@@ -136,7 +136,7 @@ export default function CancellationModal({
             onClick={onClose}
             className="text-gray-500 hover:text-gray-700 text-2xl leading-none cursor-pointer"
           >
-            <MdClose/>
+            <MdClose />
           </button>
         </div>
 
@@ -150,17 +150,17 @@ export default function CancellationModal({
 
           {step === 'preview' && (
             <>
-              
+
               {noRefundsWillBeIssued ? (
                 <div className="bg-blue-50 border border-blue-200 p-4">
                   <div className="flex items-start">
-                    <FaInfo className='text-blue-600 text-xl mr-3 mt-1 bg-blue-200 rounded-full p-1'/>
+                    <FaInfo className='text-blue-600 text-xl mr-3 mt-1 bg-blue-200 rounded-full p-1' />
                     <div>
                       <h3 className="font-semibold text-blue-800 mb-2">
                         {t("Policy Already Started - No Refunds")}
                       </h3>
                       <p className="text-sm text-blue-700 mb-2">
-                        {t("This policy has already started (Effective:")} {new Date(effectiveDate).toLocaleDateString('en-CA')}). 
+                        {t("This policy has already started (Effective:")} {new Date(effectiveDate).toLocaleDateString('en-CA')}).
                         {t("Cancelling will:")}
                       </p>
                       <ul className="list-disc list-inside text-sm text-blue-700 space-y-1">
@@ -218,15 +218,14 @@ export default function CancellationModal({
                           <td className="px-3 py-2 text-right" style={{ borderWidth: "0px 1px 1px 0px", borderStyle: "solid", borderColor: "#AAA9A9" }}>
                             {payment.fee != null
                               ? payment.fee.toLocaleString('en-CA', {
-                                  style: 'currency',
-                                  currency: payment.currency,
-                                  currencyDisplay: 'code'
-                                })
+                                style: 'currency',
+                                currency: payment.currency,
+                                currencyDisplay: 'code'
+                              })
                               : 'N/A'}
                           </td>
-                          <td className={`px-3 py-2 capitalize ${
-                            payment.status === 'succeeded' ? 'text-green-600' : ''
-                          }`} style={{ borderWidth: "0px 1px 1px 0px", borderStyle: "solid", borderColor: "#AAA9A9" }}>
+                          <td className={`px-3 py-2 capitalize ${payment.status === 'succeeded' ? 'text-green-600' : ''
+                            }`} style={{ borderWidth: "0px 1px 1px 0px", borderStyle: "solid", borderColor: "#AAA9A9" }}>
                             {t(payment.status)}
                           </td>
                           <td className="px-3 py-2" style={{ borderWidth: "0px 1px 1px 0px", borderStyle: "solid", borderColor: "#AAA9A9" }}>
@@ -250,8 +249,8 @@ export default function CancellationModal({
                   >
                     <option value="visitors">{t("Visitors Insurance")}</option>
                     <option value="visa-refusal">{t("Visa Refusal (No Fee)")}</option>
-                    <option value="super-visa">{t("Super Visa ($150 Fee)")}</option>
-                    <option value="early-return">{t("Early Return ($50 Fee)")}</option>
+                    <option value="super-visa">{t("Super Visa (150 CAD Fee)")}</option>
+                    <option value="early-return">{t("Early Return (50 CAD Fee)")}</option>
                     <option value="other">{t("Other")}</option>
                   </select>
                 </div>
@@ -268,32 +267,32 @@ export default function CancellationModal({
                     />
                   </div>
                 )}
-              {!noRefundsWillBeIssued && (
-                <div>
-                  <label className="block font-medium mb-2">
-                    {t("Cancellation Fee (CAD)")}
-                    {cancellationType === 'visa-refusal' && (
-                      <span className="text-sm text-gray-500 ml-2">({t("No fee for visa refusal")})</span>
-                    )}
-                    {cancellationType === 'super-visa' && (
-                      <span className="text-sm text-gray-500 ml-2">({t("$150 fee for super visa")})</span>
-                    )}
-                    {cancellationType === 'early-return' && (
-                      <span className="text-sm text-gray-500 ml-2">({t("$50 fee for early return")})</span>
-                    )}
-                  </label>
-                  <input
-                    type="number"
-                    value={cancellationFee}
-                    onChange={(e) => setCancellationFee(Number(e.target.value))}
-                    className="input-primary"
-                    min="0"
-                    step="10"
-                    disabled={cancellationType === 'visa-refusal'}
-                    readOnly={cancellationType === 'visa-refusal'}
-                  />
-                </div>
-              )}
+                {!noRefundsWillBeIssued && (
+                  <div>
+                    <label className="block font-medium mb-2">
+                      {t("Cancellation Fee (CAD)")}
+                      {cancellationType === 'visa-refusal' && (
+                        <span className="text-sm text-gray-500 ml-2">({t("No fee for visa refusal")})</span>
+                      )}
+                      {cancellationType === 'super-visa' && (
+                        <span className="text-sm text-gray-500 ml-2">({t("150 CAD fee for super visa")})</span>
+                      )}
+                      {cancellationType === 'early-return' && (
+                        <span className="text-sm text-gray-500 ml-2">({t("50 CAD fee for early return")})</span>
+                      )}
+                    </label>
+                    <input
+                      type="number"
+                      value={cancellationFee}
+                      onChange={(e) => setCancellationFee(Number(e.target.value))}
+                      className="input-primary"
+                      min="0"
+                      step="10"
+                      disabled={cancellationType === 'visa-refusal'}
+                      readOnly={cancellationType === 'visa-refusal'}
+                    />
+                  </div>
+                )}
                 {/* Quick Refund Calculation */}
                 {/* <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                   <div className="grid grid-cols-2 gap-4 text-sm">
@@ -357,7 +356,7 @@ export default function CancellationModal({
               ) : preview ? (
                 <div className="bg-gray-50 rounded-lg p-6 space-y-4">
                   <h3 className="font-semibold text-lg" style={{ color: '#2309a1' }}>{t("Refund Preview")}</h3>
-                  
+
                   <div className="grid grid-cols-2 gap-4 text-sm">
                     <div>
                       <div className="text-gray-600">{t("Payment Option")}</div>
@@ -369,11 +368,11 @@ export default function CancellationModal({
                     </div>
                     <div>
                       <div className="text-gray-600">{t("Cancellation Fee")}</div>
-                      <div className="font-medium">CAD ${preview.cancellationFee.toFixed(2)}</div>
+                      <div className="font-medium">{preview.cancellationFee.toFixed(2)} CAD</div>
                     </div>
                     <div>
                       <div className="text-gray-600">{t("Admin Fee Refundable")}</div>
-                      <div className="font-medium">CAD ${preview.adminFeeRefundable.toFixed(2)}</div>
+                      <div className="font-medium">{preview.adminFeeRefundable.toFixed(2)} CAD</div>
                     </div>
                   </div>
 
@@ -381,7 +380,7 @@ export default function CancellationModal({
                     <div className="flex justify-between items-center">
                       <span className="text-lg font-semibold">{t("Total Refundable")}</span>
                       <span className="text-2xl font-bold text-green-600">
-                        CAD ${preview.totalRefundable.toFixed(2)}
+                        {preview.totalRefundable.toFixed(2)} CAD
                       </span>
                     </div>
                     {noRefundsWillBeIssued && (
@@ -412,10 +411,10 @@ export default function CancellationModal({
                                   {item.chargeId.slice(-14)}
                                 </td>
                                 <td className="px-3 py-2 text-right" style={{ borderWidth: "0px 1px 1px 0px", borderStyle: "solid", borderColor: "#AAA9A9" }}>
-                                  ${item.amount.toFixed(2)}
+                                  {item.amount.toFixed(2)} CAD
                                 </td>
                                 <td className="px-3 py-2 text-right font-medium text-green-600" style={{ borderWidth: "0px 1px 1px 0px", borderStyle: "solid", borderColor: "#AAA9A9" }}>
-                                  ${item.willRefund.toFixed(2)}
+                                  {item.willRefund.toFixed(2)} CAD
                                 </td>
                                 <td className="px-3 py-2" style={{ borderWidth: "0px 1px 1px 0px", borderStyle: "solid", borderColor: "#AAA9A9" }}>
                                   {new Date(item.date).toLocaleDateString('en-CA')}
@@ -432,19 +431,19 @@ export default function CancellationModal({
 
               {/* Action Buttons */}
               <div className="flex justify-end space-x-3 pt-4 border-t border-inputBorder">
-                  <button
-                    onClick={onClose}
-                    className="py-2 px-4 border border-inputBorder hover:border-gray-400 cursor-pointer transition delay-100"
-                  >
-                    {t("NO, GO BACK")}
-                  </button>
-                  <button
-                    onClick={() => setStep('confirm')}
-                    disabled={!preview || loading}
-                    className="btn-primary"
-                  >
-                    {noRefundsWillBeIssued ? t('PROCEED TO CANCEL') : t('PREVIEW REFUND')}
-                  </button>
+                <button
+                  onClick={onClose}
+                  className="py-2 px-4 border border-inputBorder hover:border-gray-400 cursor-pointer transition delay-100"
+                >
+                  {t("NO, GO BACK")}
+                </button>
+                <button
+                  onClick={() => setStep('confirm')}
+                  disabled={!preview || loading}
+                  className="btn-primary"
+                >
+                  {noRefundsWillBeIssued ? t('PROCEED TO CANCEL') : t('PREVIEW REFUND')}
+                </button>
               </div>
             </>
           )}
@@ -479,7 +478,7 @@ export default function CancellationModal({
                   <div className="flex justify-between items-center">
                     <span className="font-medium">{noRefundsWillBeIssued ? t('Total refund:') : t('Total to be refunded:')}</span>
                     <span className="text-2xl font-bold text-green-600">
-                      CAD ${preview.totalRefundable.toFixed(2)}
+                      {preview.totalRefundable.toFixed(2)} CAD
                     </span>
                   </div>
                   {noRefundsWillBeIssued && (

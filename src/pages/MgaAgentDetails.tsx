@@ -164,7 +164,7 @@ const MGAAgentDetails = () => {
                     agentData.status === "ACTIVE"
                       ? "bg-green-100 text-green-800"
                       : "bg-red-100 text-red-800"
-                  }`}
+                    }`}
                 >
                   {t(agentData.status)}
                 </span>
@@ -274,31 +274,28 @@ const MGAAgentDetails = () => {
         <div className="flex gap-6 border-b border-gray-200">
           <button
             onClick={() => toggleTableFilter("Policies")}
-            className={`pb-3 px-1 font-medium cursor-pointer transition-colors relative ${
-              filter === "Policies"
+            className={`pb-3 px-1 font-medium cursor-pointer transition-colors relative ${filter === "Policies"
                 ? "text-primary border-b-2 border-primary"
                 : "text-gray-500 hover:text-gray-700"
-            }`}
+              }`}
           >
             {t("Policies")} ({policiesData?.total || 0})
           </button>
           <button
             onClick={() => toggleTableFilter("Quotes")}
-            className={`pb-3 px-1 font-medium cursor-pointer transition-colors relative ${
-              filter === "Quotes"
+            className={`pb-3 px-1 font-medium cursor-pointer transition-colors relative ${filter === "Quotes"
                 ? "text-primary border-b-2 border-primary"
                 : "text-gray-500 hover:text-gray-700"
-            }`}
+              }`}
           >
             {t("Quotes")} ({quotesData?.total || 0})
           </button>
           <button
             onClick={() => toggleTableFilter("Commissions")}
-            className={`pb-3 px-1 font-medium cursor-pointer transition-colors relative ${
-              filter === "Commissions"
+            className={`pb-3 px-1 font-medium cursor-pointer transition-colors relative ${filter === "Commissions"
                 ? "text-primary border-b-2 border-primary"
                 : "text-gray-500 hover:text-gray-700"
-            }`}
+              }`}
           >
             {t("Commissions")} ({commissionsData?.total || 0})
           </button>
@@ -483,8 +480,7 @@ const MGAAgentDetails = () => {
                       {commissionsData.summary.totalCommissions}
                     </div>
                     <div className="text-xs text-gray-500 mt-1">
-                      {t("Total")}: $
-                      {commissionsData.summary.totalAmount.toFixed(2)}
+                      {t("Total")}: {commissionsData.summary.totalAmount.toFixed(2)} CAD
                     </div>
                   </div>
 
@@ -493,7 +489,7 @@ const MGAAgentDetails = () => {
                       {t("MGA Override Share")}
                     </div>
                     <div className="text-2xl font-bold text-primary">
-                      ${commissionsData.summary.totalMgaShare.toFixed(2)}
+                      {commissionsData.summary.totalMgaShare.toFixed(2)} CAD
                     </div>
                     <div className="text-xs text-gray-500 mt-1">
                       {t("Your earnings from this agent")}
@@ -505,7 +501,7 @@ const MGAAgentDetails = () => {
                       {t("Agent Share")}
                     </div>
                     <div className="text-2xl font-bold text-green-700">
-                      ${commissionsData.summary.totalAgentShare.toFixed(2)}
+                      {commissionsData.summary.totalAgentShare.toFixed(2)} CAD
                     </div>
                     <div className="text-xs text-gray-500 mt-1">
                       {t("Amount payable to agent")}

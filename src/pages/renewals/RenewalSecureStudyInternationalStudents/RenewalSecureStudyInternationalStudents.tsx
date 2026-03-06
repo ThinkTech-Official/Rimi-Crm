@@ -658,7 +658,7 @@ export default function SecureStudyRIMIInternationalStudentstoCanada() {
         <FormProvider {...step2Methods}>
           <div className="w-full h-2 mt-8 flex items-center justify-center">
             <h3 className="text-lg">
-              Your Quote: ${step1ResponseData?.quoteAmount}
+              Your Quote: {step1ResponseData?.quoteAmount} CAD
             </h3>
           </div>
           <QuoteSummary step1ResponseData={step1ResponseData} />
@@ -684,7 +684,7 @@ export default function SecureStudyRIMIInternationalStudentstoCanada() {
             <div className="flex justify-between items-center">
               <span>Total Premium:</span>
               <span className="text-xl font-bold text-primary">
-                ${totalPremium.toFixed(2)} CAD
+                {totalPremium.toFixed(2)} CAD
               </span>
             </div>
             <div className="text-sm text-gray-600 mt-1">

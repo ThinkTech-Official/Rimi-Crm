@@ -411,15 +411,15 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
         applicants:
           quoteData.applicants && quoteData.applicants.length > 0
             ? quoteData.applicants.map((app) => ({
-                index: app.index,
-                firstName: app.firstName,
-                lastName: app.lastName,
-                dob: app.dob.split("T")[0],
-                relationship: app.relationship,
-                preMedCoverage: app.preMedCoverage,
-                gender: app.gender,
-                healthQuestionnaire: { questions: [] },
-              }))
+              index: app.index,
+              firstName: app.firstName,
+              lastName: app.lastName,
+              dob: app.dob.split("T")[0],
+              relationship: app.relationship,
+              preMedCoverage: app.preMedCoverage,
+              gender: app.gender,
+              healthQuestionnaire: { questions: [] },
+            }))
             : [],
         countryOfOrigin: quoteData.countryOfOrigin || "",
         inCanada: quoteData.inCanada ? "yes" : "no",
@@ -512,18 +512,9 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
       const formValues = step1Methods.getValues();
       const stage1Payload = {
         ...formValues,
-        primaryDateOfBirth:
-          formValues.primaryDateOfBirth instanceof Date
-            ? formValues.primaryDateOfBirth.toISOString()
-            : formValues.primaryDateOfBirth,
-        effectiveDate:
-          formValues.effectiveDate instanceof Date
-            ? formValues.effectiveDate.toISOString()
-            : formValues.effectiveDate,
-        expiryDate:
-          formValues.expiryDate instanceof Date
-            ? formValues.expiryDate.toISOString()
-            : formValues.expiryDate,
+       primaryDateOfBirth: formValues.primaryDateOfBirth?.split("T")[0] || "",
+       effectiveDate: formValues.effectiveDate?.split("T")[0] || "",
+       expiryDate: formValues.expiryDate?.split("T")[0] || "",
         agentCode: agentCode!,
         // product: "Secure Travel RIMI Visitors to Canada Travel",
         product: productName,
@@ -768,9 +759,8 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
                 <button
                   type="submit"
                   disabled={!isStepOneFilled || savingStage1}
-                  className={`w-[200px] mt-6 bg-[#2B00B7] text-white p-3 hover:bg-[#2309A1] transition flex justify-center items-center cursor-pointer duration-200 ${
-                    savingStage1 ? "opacity-50 cursor-wait" : ""
-                  }`}
+                  className={`w-[200px] mt-6 bg-[#2B00B7] text-white p-3 hover:bg-[#2309A1] transition flex justify-center items-center cursor-pointer duration-200 ${savingStage1 ? "opacity-50 cursor-wait" : ""
+                    }`}
                 >
                   {savingStage1 ? t("Saving…") : t("Next")}
                 </button>
@@ -784,7 +774,7 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
         <div>
           <div className="w-full h-2 mt-8 flex items-center justify-center">
             <h3 className="text-lg">
-              {t("Your Quote")}: ${step1ResponseData?.quoteAmount}
+              {t("Your Quote")}: {step1ResponseData?.quoteAmount} CAD
             </h3>
           </div>
           <YourQuoteSummary step1ResponseData={step1ResponseData} />
@@ -823,12 +813,11 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
                       Due Today:
                     </span>
                     <span className="text-xl font-bold text-primary">
-                      ${firstPaymentAmount.toFixed(2)}
+                      {firstPaymentAmount.toFixed(2)} CAD
                     </span>
                   </div>
                   <div className="text-sm mt-1 text-text-secondary">
-                    Includes: $120 policy fee + $
-                    {(firstPaymentAmount - 120).toFixed(2)} (first 2 months)
+                    Includes: 120 CAD policy fee + {(firstPaymentAmount - 120).toFixed(2)} CAD (first 2 months)
                   </div>
                 </div>
 
@@ -838,7 +827,7 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
                       Monthly Payment:
                     </span>
                     <span className="font-semibold">
-                      ${monthlyAmount?.toFixed(2)}
+                      {monthlyAmount?.toFixed(2)} CAD
                     </span>
                   </div>
                   <div className="flex justify-between text-sm text-text-secondary">
@@ -848,22 +837,22 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
                   <div className="flex justify-between text-sm pt-2 border-t border-inputBorder text-text-secondary">
                     <span>Total Premium:</span>
                     <span className="font-semibold">
-                      ${totalPremium.toFixed(2)}
+                      {totalPremium.toFixed(2)} CAD
                     </span>
                   </div>
                   <div className="flex justify-between text-sm text-text-secondary">
                     <span>Policy Fee (one-time):</span>
-                    <span className="font-semibold">$120.00</span>
+                    <span className="font-semibold">120.00 CAD</span>
                   </div>
                   <div className="flex justify-between text-text-primary font-bold text-base pt-2 border-t border-inputBorder">
                     <span>Grand Total:</span>
-                    <span>${(totalPremium + 120).toFixed(2)}</span>
+                    <span>{(totalPremium + 120).toFixed(2)} CAD</span>
                   </div>
                 </div>
 
                 <div className="text-xs text-text-secondary mt-3">
-                  Your card will be charged ${firstPaymentAmount.toFixed(2)}{" "}
-                  today, then ${monthlyAmount?.toFixed(2)}/month for{" "}
+                  Your card will be charged {firstPaymentAmount.toFixed(2)} CAD{" "}
+                  today, then {monthlyAmount?.toFixed(2)} CAD/month for{" "}
                   {remainingInstallments} months
                 </div>
               </div>
@@ -879,7 +868,7 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
                   Total Premium:
                 </span>
                 <span className="text-xl font-bold text-primary">
-                  ${totalPremium.toFixed(2)}
+                  {totalPremium.toFixed(2)} CAD
                 </span>
               </div>
               <div className="text-sm text-text-secondary mt-2">

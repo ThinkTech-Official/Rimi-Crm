@@ -20,10 +20,10 @@ export const UserQuoteDetails: React.FC = () => {
   const fmtDate = (iso?: string) =>
     iso
       ? new Date(iso).toLocaleDateString("en-CA", {
-          year: "numeric",
-          month: "2-digit",
-          day: "2-digit",
-        })
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+      })
       : "-";
 
   const fmtDatePlusOneMonth = (iso?: string) => {
@@ -111,7 +111,7 @@ export const UserQuoteDetails: React.FC = () => {
               <div className="font-semibold text-base">Quoted Premium</div>
               <div className="text-sm text-[#6F6B7D]">
                 {quote.premium != null
-                  ? `$${quote.premium.toFixed(2)} CAD`
+                  ? `${quote.premium.toFixed(2)} CAD`
                   : "-"}
               </div>
             </div>

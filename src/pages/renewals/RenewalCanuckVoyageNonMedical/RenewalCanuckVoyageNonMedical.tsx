@@ -302,13 +302,13 @@ const RIMICanuckVoyageNonMedicalTravel: React.FC = () => {
       applicantNumber: policyData.applicants?.length || 0,
       applicants: policyData.applicants
         ? policyData.applicants.map((a, idx) => ({
-            index: String(idx + 1),
-            firstName: a.firstName,
-            lastName: a.lastName,
-            dob: a.dateOfBirth?.split("T")[0] || "",
-            relationship: a.relation || "",
-            gender: a.gender,
-          }))
+          index: String(idx + 1),
+          firstName: a.firstName,
+          lastName: a.lastName,
+          dob: a.dateOfBirth?.split("T")[0] || "",
+          relationship: a.relation || "",
+          gender: a.gender,
+        }))
         : [],
       isConfirmed: false,
       effectiveDate: "",
@@ -664,7 +664,7 @@ const RIMICanuckVoyageNonMedicalTravel: React.FC = () => {
             <h3 className="text-base sm:text-lg">
               {loading
                 ? t("Calculating...")
-                : t("Your Quote: ${{total}} CAD", { total: totalPremium.toFixed(2) })}
+                : t("Your Quote: {{total}} CAD", { total: totalPremium.toFixed(2) })}
             </h3>
           </div>
         </FormProvider>
@@ -700,7 +700,7 @@ const RIMICanuckVoyageNonMedicalTravel: React.FC = () => {
             <div className="flex justify-between items-center">
               <span>{t("Total Premium:")}</span>
               <span className="text-xl font-bold text-primary">
-                ${totalPremium.toFixed(2)} CAD
+                {totalPremium.toFixed(2)} CAD
               </span>
             </div>
             <div className="text-sm text-gray-600 mt-1">
@@ -744,9 +744,8 @@ const RIMICanuckVoyageNonMedicalTravel: React.FC = () => {
           <button
             onClick={handleNext}
             disabled={savingStage1}
-            className={`w-[200px] mt-6 bg-[#2B00B7] text-white p-3 hover:bg-[#2309A1] transition flex justify-center items-center cursor-pointer duration-200 ${
-              savingStage1 ? "opacity-50 cursor-wait" : ""
-            }`}
+            className={`w-[200px] mt-6 bg-[#2B00B7] text-white p-3 hover:bg-[#2309A1] transition flex justify-center items-center cursor-pointer duration-200 ${savingStage1 ? "opacity-50 cursor-wait" : ""
+              }`}
           >
             {savingStage1 ? t("Saving…") : t("Next")}
           </button>

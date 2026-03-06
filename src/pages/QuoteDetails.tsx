@@ -46,11 +46,10 @@ export const HealthQuestionnaireSection: React.FC<{
               {q.question}
             </span>
             <span
-              className={`text-[11px] font-bold px-2.5 py-1 rounded-full uppercase tracking-tighter shrink-0 ${
-                q.answer.toLowerCase() === "yes"
+              className={`text-[11px] font-bold px-2.5 py-1 rounded-full uppercase tracking-tighter shrink-0 ${q.answer.toLowerCase() === "yes"
                   ? "bg-red-50 text-red-600 border border-red-100"
                   : "bg-green-50 text-green-600 border border-green-100"
-              }`}
+                }`}
             >
               {q.answer}
             </span>
@@ -75,10 +74,10 @@ export const QuoteDetailPage: React.FC = () => {
   const fmtDate = (iso?: string) =>
     iso
       ? new Date(iso).toLocaleDateString("en-CA", {
-          year: "numeric",
-          month: "2-digit",
-          day: "2-digit",
-        })
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+      })
       : "-";
 
   const fmtDatePlusOneMonth = (iso?: string) => {
@@ -125,11 +124,11 @@ export const QuoteDetailPage: React.FC = () => {
             <DetailItem label="Agent Code" value={quote.agentCode} />
             <DetailItem
               label="Quoted Premium"
-              value={quote.premium != null ? `$${quote.premium.toFixed(2)} CAD` : null}
+              value={quote.premium != null ? `${quote.premium.toFixed(2)} CAD` : null}
             />
             <DetailItem
               label="Paid Premium"
-              value={quote.paidPremium != null ? `$${quote.paidPremium.toFixed(2)} CAD` : null}
+              value={quote.paidPremium != null ? `${quote.paidPremium.toFixed(2)} CAD` : null}
             />
           </div>
           <div className="text-xs italic text-gray-500 mt-2 text-center w-full">
@@ -160,9 +159,9 @@ export const QuoteDetailPage: React.FC = () => {
             <DetailItem label="Legal Guardian" value={quote.legalGuardianName} />
             <DetailItem label="Beneficiary Name" value={quote.beneficiaryName} />
             <DetailItem label="Beneficiary Relation" value={quote.beneficiaryRelation || quote.relationshipToInsured} />
-            <DetailItem 
-              label="Pre-existing Medical Coverage" 
-              value={quote.coverageForPreMedCon || quote.preExMedCov} 
+            <DetailItem
+              label="Pre-existing Medical Coverage"
+              value={quote.coverageForPreMedCon || quote.preExMedCov}
             />
           </div>
 
@@ -197,9 +196,9 @@ export const QuoteDetailPage: React.FC = () => {
                 <DetailItem label="Legal Guardian" value={app.legalGuardianName} />
                 <DetailItem label="Beneficiary Name" value={app.beneficiaryName} />
                 <DetailItem label="Beneficiary Relation" value={app.relationshipToInsured} />
-                <DetailItem 
-                  label="Pre-existing Medical Coverage" 
-                  value={app.PreExCoverage} 
+                <DetailItem
+                  label="Pre-existing Medical Coverage"
+                  value={app.PreExCoverage}
                 />
               </div>
 
@@ -228,15 +227,15 @@ export const QuoteDetailPage: React.FC = () => {
               value={quote.applicantOnSuperVisa || quote.superVisa}
             />
             <DetailItem label="Super Visa Years" value={quote.superVisaYears} />
-            <DetailItem 
-              label="Are Applicants Traveling Through The US" 
-              value={quote.applicantTravelThroughUs || quote.travelingThroughUS} 
+            <DetailItem
+              label="Are Applicants Traveling Through The US"
+              value={quote.applicantTravelThroughUs || quote.travelingThroughUS}
             />
             <DetailItem label="US Travel Days" value={quote.usTravelDays} />
             <DetailItem label="Days Per Trip" value={quote.numberOfDaysPerTrip} />
             <DetailItem label="Coverage" value={quote.coverageOption || quote.coverage || quote.coverageLimit} />
             <DetailItem label="Deductible" value={quote.deductible} />
-            <DetailItem label="Trip Cost" value={quote.tripCost != null ? `$${quote.tripCost.toFixed(2)} CAD` : null} />
+            <DetailItem label="Trip Cost" value={quote.tripCost != null ? `${quote.tripCost.toFixed(2)} CAD` : null} />
             <DetailItem label="Date Booked" value={fmtDate(quote.dateBooked)} />
             <DetailItem label="Trip Cancellation Deluxe" value={quote.tripCancellationDeluxe ? "Yes" : "No"} />
             <DetailItem label="Payment Option" value={quote.paymentOption} />
