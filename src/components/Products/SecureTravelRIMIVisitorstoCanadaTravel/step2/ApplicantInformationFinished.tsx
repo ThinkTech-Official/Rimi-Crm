@@ -101,7 +101,7 @@ const ApplicantInformationFinished: React.FC<ApplicantFinishedProps> = ({
                   {t("Relationship to Primary Applicant")}
                 </label>
                 <p className="input-primary break-words h-auto">
-                  {t(app.relationship)}
+                  {t(app.relation)}
                 </p>
               </div>
 
