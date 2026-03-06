@@ -6,7 +6,6 @@ import {
   Stage1Payload,
   useSaveQuoteNextProduct3,
 } from "../../../hooks/canuck-voyage/useSaveQuoteNextProduct3";
-import { useCreateQuoteProduct3 } from "../../../hooks/canuck-voyage/useCreateQuoteProduct3";
 import {
   useQuoteUpdateProduct3,
   Stage2Payload,
@@ -198,13 +197,13 @@ const RIMICanuckVoyageTravelMedical: React.FC = () => {
         applicantNumber: quoteData.applicantNumber || 0,
         applicants: quoteData.applicants
           ? quoteData.applicants.map((app) => ({
-              index: app.index,
-              firstName: app.firstName,
-              lastName: app.lastName,
-              dob: app.dob.split("T")[0],
-              relationship: app.relationship,
-              gender: app.gender,
-            }))
+            index: app.index,
+            firstName: app.firstName,
+            lastName: app.lastName,
+            dob: app.dob.split("T")[0],
+            relationship: app.relationship,
+            gender: app.gender,
+          }))
           : [],
         isConfirmed: true,
         policyType: quoteData.policyType || "",
@@ -270,11 +269,6 @@ const RIMICanuckVoyageTravelMedical: React.FC = () => {
       const formValues = step1Methods.getValues();
       const stage1Payload = {
         ...formValues,
-        coverageLength: Number(formValues.coverageLength),
-        usTravelDays:
-          (formValues.usTravelDays ?? 0) > 0
-            ? formValues.usTravelDays
-            : undefined,
         agentCode: agentCode!,
         product: productName,
         quoteNumber: quoteNumber || undefined,
@@ -289,51 +283,45 @@ const RIMICanuckVoyageTravelMedical: React.FC = () => {
     } catch (err: any) {
       console.error("❌ Stage 1 failed:", err);
       triggerNotification({
-        message: t("Failed to save quote."),
+        message: err.message || t("Failed to save quote."),
         type: "error",
       });
     }
   };
 
-  const { saveQuote } = useCreateQuoteProduct3();
-
   const handleSaveQuote = async (): Promise<boolean> => {
     const isValid = await step1Methods.trigger();
+
     if (!isValid) {
+      console.log("Validation failed", step1Methods.formState.errors);
       triggerNotification({
-        type: "warning",
-        message: t("Please fill all required fields and confirm eligibility"),
+        message: t("Please fill all required fields correctly."),
+        type: "error",
       });
       return false;
     }
-
     const formValues = step1Methods.getValues();
-    const payload = {
+    const stage1Payload = {
       ...formValues,
-      coverageLength: Number(formValues.coverageLength),
-      usTravelDays:
-        (formValues.usTravelDays ?? 0) > 0
-          ? formValues.usTravelDays
-          : undefined,
       agentCode: agentCode!,
       product: productName,
+      quoteNumber: quoteNumber || undefined,
       status: "Inactive",
     };
-
     try {
-      console.log("Saving Product 3 quote as Inactive...");
-      const response = await saveQuote(payload);
-      setQuoteNumber(response.quote);
+      const response = await saveQuoteNext(stage1Payload);
+      setQuoteNumber(response.quoteNumber);
+      console.log("Saved quote number:", response.quoteNumber);
       triggerNotification({
+        message: t("Quote saved successfully!"),
         type: "success",
-        message: t("Quote saved successfully!\n\nQuote Number: {{quote}}", { quote: response.quote }),
       });
       return true;
     } catch (err: any) {
       console.error("Failed to save quote:", err);
       triggerNotification({
+        message: err.message || t("Failed to save quote."),
         type: "error",
-        message: t("Failed to save quote: {{error}}", { error: err.message || t("Please try again") }),
       });
       return false;
     }
@@ -341,7 +329,8 @@ const RIMICanuckVoyageTravelMedical: React.FC = () => {
 
   // ========== STAGE 2: BUY NOW ==========
   const handleBuyNow = async (): Promise<boolean> => {
-    if (!quoteNumber || submittingStage2) return false;
+    const isValid = await step2Methods.trigger(undefined, { shouldFocus: true });
+    if (!isValid || !quoteNumber || submittingStage2) return false;
 
     const formValues = step2Methods.getValues();
     const payload: Stage2Payload = {
@@ -531,9 +520,8 @@ const RIMICanuckVoyageTravelMedical: React.FC = () => {
               <button
                 type="submit"
                 disabled={!isStepOneFilled || savingStage1}
-                className={`w-[200px] mx-auto mt-6 bg-[#2B00B7] text-white p-3 hover:bg-[#2309A1] transition flex justify-center items-center cursor-pointer duration-200 ${
-                  savingStage1 ? "opacity-50 cursor-wait" : ""
-                }`}
+                className={`w-[200px] mx-auto mt-6 bg-[#2B00B7] text-white p-3 hover:bg-[#2309A1] transition flex justify-center items-center cursor-pointer duration-200 ${savingStage1 ? "opacity-50 cursor-wait" : ""
+                  }`}
               >
                 {savingStage1 ? t("Saving…") : t("Next")}
               </button>

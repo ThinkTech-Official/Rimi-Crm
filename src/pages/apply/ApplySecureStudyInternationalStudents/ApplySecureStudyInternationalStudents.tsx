@@ -301,7 +301,7 @@ export default function SecureStudyRIMIInternationalStudentstoCanada() {
   };
 
   const handleNext = async () => {
-    const isValid = await step1Methods.trigger();
+    const isValid = await step1Methods.trigger(undefined, { shouldFocus: true });
     if (!isValid || savingStage1) return;
 
     const formValues = step1Methods.getValues();
@@ -345,7 +345,8 @@ export default function SecureStudyRIMIInternationalStudentstoCanada() {
   };
 
   const handleBuyNow = async (): Promise<boolean> => {
-    if (!quoteNumber || submittingStage2) return false;
+    const isValid = await step1Methods.trigger(undefined, { shouldFocus: true });
+    if (!isValid || !quoteNumber || submittingStage2) return false;
     const payload: Stage2PayloadProduct2 = {
       quoteNumber,
       address,

@@ -204,13 +204,13 @@ const RIMICanuckVoyageNonMedicalTravel: React.FC = () => {
         applicantNumber: quoteData.applicantNumber || 0,
         applicants: quoteData.applicants
           ? quoteData.applicants.map((app) => ({
-              index: app.index,
-              firstName: app.firstName,
-              lastName: app.lastName,
-              dob: app.dob.split("T")[0],
-              relationship: app.relationship,
-              gender: app.gender,
-            }))
+            index: app.index,
+            firstName: app.firstName,
+            lastName: app.lastName,
+            dob: app.dob.split("T")[0],
+            relationship: app.relationship,
+            gender: app.gender,
+          }))
           : [],
         isConfirmed: true,
         tripCost: quoteData.tripCost || 0,
@@ -284,7 +284,7 @@ const RIMICanuckVoyageNonMedicalTravel: React.FC = () => {
 
   // ========== STAGE 1: NEXT BUTTON ==========
   const handleNext = async () => {
-    const isValid = await step1Methods.trigger();
+    const isValid = await step1Methods.trigger(undefined, { shouldFocus: true });
     if (!isValid || savingStage1) return;
 
     try {
@@ -316,7 +316,9 @@ const RIMICanuckVoyageNonMedicalTravel: React.FC = () => {
   const handleBuyNow = async (): Promise<boolean> => {
     if (!quoteNumber || submittingStage2) return false;
 
-    const isValid = await step2Methods.trigger();
+    const isValid = await step2Methods.trigger(undefined, {
+      shouldFocus: true,
+    });
     if (!isValid) return false;
 
     const { address, contactInfo } = step2Methods.getValues();
@@ -343,7 +345,7 @@ const RIMICanuckVoyageNonMedicalTravel: React.FC = () => {
   const { saveQuote } = useCreateQuoteProduct4();
 
   const handleSaveQuote = async (): Promise<boolean> => {
-    const isValid = await step1Methods.trigger();
+    const isValid = await step1Methods.trigger(undefined, { shouldFocus: true });
     if (!isValid) {
       triggerNotification({
         type: "warning",
@@ -554,9 +556,8 @@ const RIMICanuckVoyageNonMedicalTravel: React.FC = () => {
                 <button
                   type="submit"
                   disabled={!isStepOneFilled || savingStage1}
-                  className={`w-[200px] mt-6 bg-[#2B00B7] text-white p-3 hover:bg-[#2309A1] transition flex justify-center items-center cursor-pointer duration-200 ${
-                    savingStage1 ? "opacity-50 cursor-wait" : ""
-                  }`}
+                  className={`w-[200px] mt-6 bg-[#2B00B7] text-white p-3 hover:bg-[#2309A1] transition flex justify-center items-center cursor-pointer duration-200 ${savingStage1 ? "opacity-50 cursor-wait" : ""
+                    }`}
                 >
                   {savingStage1 ? t("Saving…") : t("Next")}
                 </button>
@@ -571,7 +572,7 @@ const RIMICanuckVoyageNonMedicalTravel: React.FC = () => {
         <FormProvider {...step2Methods}>
           <div className="w-full h-2 mt-8 flex items-center justify-center font-[inter]">
             <h3 className="text-base sm:text-lg">
-              {t(`"Your Quote:", ${step1ResponseData?.quoteAmount.toFixed(2)}` )}
+              {t(`Your Quote: ${step1ResponseData?.quoteAmount.toFixed(2)}`)}
             </h3>
           </div>
 
