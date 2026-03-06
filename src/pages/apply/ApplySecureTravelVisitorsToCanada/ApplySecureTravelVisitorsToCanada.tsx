@@ -33,7 +33,7 @@ export interface Applicant {
   firstName: string;
   lastName: string;
   dob: string;
-  relationship: string;
+  relation: string;
   preMedCoverage: boolean;
   gender: string;
   healthQuestionnaire?: { questions: any[] };
