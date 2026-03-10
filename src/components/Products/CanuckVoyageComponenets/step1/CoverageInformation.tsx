@@ -527,6 +527,7 @@ interface CoverageInformationProps {
   agentCode: string;
   handleSaveQuote: () => Promise<boolean>;
   onValidityChange?: (isValid: boolean) => void;
+  saving: boolean;
 }
 
 export default function CoverageInformation({
@@ -538,7 +539,8 @@ export default function CoverageInformation({
   quoteNumber,
   handleSaveQuote,
   premiumBreakdown,
-  onValidityChange
+  onValidityChange,
+  saving,
 }: CoverageInformationProps) {
   const { t } = useLanguage();
   const {
@@ -546,17 +548,15 @@ export default function CoverageInformation({
     watch,
     setValue,
     control,
-    formState: { errors },
+    reset,
+    getValues,
+    formState: { errors, isDirty },
   } = methods;
 
   const [displayInfoDestinationCountry, setDisplayInfoDestinationCountry] =
     useState(false);
   const [displayInfoDeductible, setDisplayInfoDeductible] = useState(false);
   const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
-
-  // Track form changes for re-saving quotes
-  const [savedFormSnapshot, setSavedFormSnapshot] = useState<any>(null);
-  const [hasFormChanged, setHasFormChanged] = useState(false);
 
   // Watch form values
   const formValues = watch();
@@ -692,31 +692,7 @@ export default function CoverageInformation({
     setError(hookError);
   }, [hookError, setError]);
 
-  // Initialize snapshot when quote number exists (e.g., when returning from step 2)
-  useEffect(() => {
-    if (quoteNumber && !savedFormSnapshot) {
-      const snapshot = JSON.stringify(formValues);
-      setSavedFormSnapshot(snapshot);
-      setHasFormChanged(false);
-    }
-  }, [quoteNumber, savedFormSnapshot, formValues]);
-
-  // Detect form changes after quote save
-  useEffect(() => {
-    if (savedFormSnapshot && quoteNumber) {
-      // Compare current form values with saved snapshot
-      const currentSnapshot = JSON.stringify(formValues);
-
-      setHasFormChanged(currentSnapshot !== savedFormSnapshot);
-    }
-  }, [savedFormSnapshot, quoteNumber, formValues]);
-
   // Save Quote functionality
-  const {
-    saveQuote,
-    loading: saving,
-    error: saveError,
-  } = useCreateQuoteProduct3();
 
   // const handleQuoteSave = async () => {
   //   const payload = {
@@ -1352,7 +1328,7 @@ export default function CoverageInformation({
       )}
 
       {/* Save Quote Button */}
-      {quoteNumber && !hasFormChanged ? (
+      {quoteNumber && !isDirty ? (
         <div className="flex flex-col justify-center items-center mt-4 text-xl font-bold text-red-600">
           <span>
             {t("Quote Saved:")}{" "}
@@ -1369,14 +1345,12 @@ export default function CoverageInformation({
         </div>
       ) : (
         <div className="text-center mt-4">
-          <button
+          <button type="button"
             onClick={async () => {
               const success = await handleSaveQuote();
               if (success) {
-                // Save snapshot after successful save
-                const snapshot = JSON.stringify(formValues);
-                setSavedFormSnapshot(snapshot);
-                setHasFormChanged(false);
+                // Reset form to current values to clear isDirty
+                reset(getValues());
               }
             }}
             disabled={saving}

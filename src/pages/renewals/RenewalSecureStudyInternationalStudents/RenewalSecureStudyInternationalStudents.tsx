@@ -335,10 +335,13 @@ export default function SecureStudyRIMIInternationalStudentstoCanada() {
       // Update state with the saved quote number
       setQuoteNumber(response.quote);
 
+      // Reset form to clear isDirty state
+      step1Methods.reset(step1Methods.getValues());
+
       // Show success message
       triggerNotification({
         type: "success",
-        message: `Quote saved successfully!\n\nQuote Number: ${response.quote}\n\nYou can continue later or proceed to the next step.`,
+        message: `Quote saved successfully!\n\nQuote Number: ${response.quote}`,
       });
 
       console.log("Quote saved:", response.quote);
@@ -412,7 +415,8 @@ export default function SecureStudyRIMIInternationalStudentstoCanada() {
   };
 
   const handleBuyNow = async (): Promise<boolean> => {
-    if (!quoteNumber || submittingStage2) return false;
+    const isValid = await step2Methods.trigger(undefined, { shouldFocus: true });
+    if (!isValid || !quoteNumber || submittingStage2) return false;
     const payload: Stage2PayloadProduct2 = {
       quoteNumber,
       address,
@@ -649,6 +653,7 @@ export default function SecureStudyRIMIInternationalStudentstoCanada() {
             onPremiumChange={setTotalPremium}
             onLoadingChange={setLoading}
             onErrorChange={setError}
+            saving={savingStage1}
           />
         </FormProvider>
       )}

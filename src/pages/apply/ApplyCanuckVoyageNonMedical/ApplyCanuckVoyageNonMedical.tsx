@@ -148,8 +148,8 @@ const RIMICanuckVoyageNonMedicalTravel: React.FC = () => {
   });
 
   // Watch values for local logic
-  const watchedStep1 = step1Methods.watch();
-  const { primaryFirstName } = watchedStep1;
+  // const watchedStep1 = step1Methods.watch();
+  // const { primaryFirstName } = watchedStep1;
 
   const watchedStep2 = step2Methods.watch();
   const { address } = watchedStep2;
@@ -180,7 +180,6 @@ const RIMICanuckVoyageNonMedicalTravel: React.FC = () => {
   const {
     completeApplication,
     loading: submittingStage2,
-    error: submitError,
   } = useQuoteUpdateProduct4();
 
   //
@@ -342,7 +341,7 @@ const RIMICanuckVoyageNonMedicalTravel: React.FC = () => {
     }
   };
 
-  const { saveQuote } = useCreateQuoteProduct4();
+  const { saveQuote, loading: savingProduct4 } = useCreateQuoteProduct4();
 
   const handleSaveQuote = async (): Promise<boolean> => {
     const isValid = await step1Methods.trigger(undefined, { shouldFocus: true });
@@ -542,6 +541,7 @@ const RIMICanuckVoyageNonMedicalTravel: React.FC = () => {
               onValidityChange={setIsStepOneFilled}
               quoteNumber={quoteNumber}
               handleSaveQuote={handleSaveQuote}
+              saving={savingProduct4}
             />
 
             <div className="w-full h-2 mt-5 flex items-center justify-center font-[inter]">
@@ -555,7 +555,7 @@ const RIMICanuckVoyageNonMedicalTravel: React.FC = () => {
               <div className="flex justify-center mt-4">
                 <button
                   type="submit"
-                  disabled={!isStepOneFilled || savingStage1}
+                  disabled={savingStage1}
                   className={`w-[200px] mt-6 bg-[#2B00B7] text-white p-3 hover:bg-[#2309A1] transition flex justify-center items-center cursor-pointer duration-200 ${savingStage1 ? "opacity-50 cursor-wait" : ""
                     }`}
                 >

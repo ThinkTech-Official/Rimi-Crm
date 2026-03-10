@@ -1174,6 +1174,7 @@ export default function SecureStudyRIMIInternationalStudentstoCanada() {
               onPremiumChange={setTotalPremium}
               onLoadingChange={setLoading}
               onErrorChange={setError}
+              saving={savingStage1}
             />
 
             {formStep === 1 && (

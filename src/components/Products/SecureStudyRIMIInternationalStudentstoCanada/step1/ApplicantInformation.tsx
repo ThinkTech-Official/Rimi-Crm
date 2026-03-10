@@ -488,7 +488,9 @@ export default function ApplicantInformation({
 
   // Resize applicants array when number changes
   useEffect(() => {
-    const currentApplicants = applicants || [];
+    const currentApplicants = methods.getValues("applicants") || [];
+    if (currentApplicants.length === (applicantNumber || 0)) return;
+
     const newApplicants: Applicant[] = Array.from(
       { length: applicantNumber || 0 },
       (_, i) =>
@@ -502,7 +504,7 @@ export default function ApplicantInformation({
         },
     );
     setValue("applicants", newApplicants);
-  }, [applicantNumber, setValue, applicants, watch]);
+  }, [applicantNumber, setValue, methods]);
 
   const handleCheckboxChange = () => {
     if (isConfirmed) {
@@ -523,23 +525,6 @@ export default function ApplicantInformation({
   };
   const handleApplicantNumberChange = (num: number) => {
     setValue("applicantNumber", num);
-
-    // Initialize or update applicants array
-    const newApplicants: Applicant[] = Array.from({ length: num }, (_, i) => {
-      const existing = applicants?.[i];
-      return (
-        existing || {
-          index: String(i + 1),
-          firstName: "",
-          lastName: "",
-          dob: "",
-          relationship: "",
-          gender: "",
-        }
-      );
-    });
-
-    setValue("applicants", newApplicants);
   };
 
 
@@ -618,19 +603,19 @@ export default function ApplicantInformation({
           <Controller
             name="primaryDateOfBirth"
             control={control}
-            rules={{ 
+            rules={{
               required: t("Date of Birth is required"),
               validate: (value) => {
                 const effectiveDate = methods.getValues("effectiveDate");
                 if (!value || !effectiveDate) return true;
-                
+
                 const dobDate = new Date(value);
                 const effDate = new Date(effectiveDate);
                 const ageDiffMs = effDate.getTime() - dobDate.getTime();
                 const ageDate = new Date(ageDiffMs);
                 const years = Math.abs(ageDate.getUTCFullYear() - 1970);
                 const days = Math.floor(ageDiffMs / (1000 * 60 * 60 * 24));
-                
+
                 if (days < 15 || years >= 65) {
                   return t("Age must be at least 15 days and less than 65 years according to the effective date.");
                 }
@@ -796,19 +781,19 @@ export default function ApplicantInformation({
               <Controller
                 name={`applicants.${idx}.dob`}
                 control={control}
-                rules={{ 
+                rules={{
                   required: t("Date of Birth is required"),
                   validate: (value) => {
                     const effectiveDate = methods.getValues("effectiveDate");
                     if (!value || !effectiveDate) return true;
-                    
+
                     const dobDate = new Date(value);
                     const effDate = new Date(effectiveDate);
                     const ageDiffMs = effDate.getTime() - dobDate.getTime();
                     const ageDate = new Date(ageDiffMs);
                     const years = Math.abs(ageDate.getUTCFullYear() - 1970);
                     const days = Math.floor(ageDiffMs / (1000 * 60 * 60 * 24));
-                    
+
                     if (days < 15 || years >= 65) {
                       return t("Age must be at least 15 days and less than 65 years according to the effective date.");
                     }
@@ -943,11 +928,11 @@ export default function ApplicantInformation({
           </ol>
         </div>
       )}
-        <ConfirmEligibilityStudents
-          confirmEligibility={showConfirmEligibility}
-          setShowConfirmEligibility={setShowConfirmEligibility}
-          setIsConfirmed={setIsConfirmed}
-        />
+      <ConfirmEligibilityStudents
+        confirmEligibility={showConfirmEligibility}
+        setShowConfirmEligibility={setShowConfirmEligibility}
+        setIsConfirmed={setIsConfirmed}
+      />
     </div>
   );
 }

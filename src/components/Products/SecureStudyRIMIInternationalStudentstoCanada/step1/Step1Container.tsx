@@ -277,7 +277,7 @@ import { useEffect, useState } from "react";
 import ApplicantInformation from "./ApplicantInformation";
 import CoverageInformation from "./CoverageInformation";
 import { usePremiumCalculationProduct2 } from "../../../../hooks/student-international/usePremiumCalculationProduct2";
-import { UseFormReturn } from "react-hook-form";
+import { UseFormReturn, useFormContext } from "react-hook-form";
 import { Applicant } from "../SecureStudyRIMIInternationalStudentstoCanada";
 import Spinner from "../../../Spinner";
 import EmailQuoteStudent from "./EmailQuoteStudent";
@@ -310,6 +310,7 @@ interface Step1ContainerProps {
   onPremiumChange?: (premium: number) => void;
   onLoadingChange?: (loading: boolean) => void;
   onErrorChange?: (error: string | null) => void;
+  saving:boolean;
 }
 
 export default function Step1Container({
@@ -322,13 +323,16 @@ export default function Step1Container({
   onPremiumChange,
   onLoadingChange,
   onErrorChange,
+  saving,
 }: Step1ContainerProps) {
   const { t } = useLanguage();
-  // Track form changes for re-saving quotes
-  const [savedFormSnapshot, setSavedFormSnapshot] = useState<any>(null);
-  const [hasFormChanged, setHasFormChanged] = useState(false);
   const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
 
+const {
+    getValues,
+    reset,
+    formState: { errors, isDirty },
+  } = useFormContext<Step1FormData>();
   // Watch all form values using react-hook-form
   const formValues = methods.watch();
 
@@ -375,25 +379,6 @@ export default function Step1Container({
   useEffect(() => {
     if (onErrorChange) onErrorChange(premiumError);
   }, [premiumError, onErrorChange]);
-
-  // Initialize snapshot when quote number exists (e.g., when returning from step 2)
-  useEffect(() => {
-    if (quoteNumber && !savedFormSnapshot) {
-      const snapshot = JSON.stringify(formValues);
-      setSavedFormSnapshot(snapshot);
-      setHasFormChanged(false);
-    }
-  }, [quoteNumber, savedFormSnapshot, formValues]);
-
-  // Detect form changes after quote save
-  useEffect(() => {
-    if (savedFormSnapshot && quoteNumber) {
-      // Compare current form values with saved snapshot
-      const currentSnapshot = JSON.stringify(formValues);
-      
-      setHasFormChanged(currentSnapshot !== savedFormSnapshot);
-    }
-  }, [savedFormSnapshot, quoteNumber, formValues]);
 
   return (
     <div className="max-w-5xl mx-auto mt-4 pb-2">
@@ -462,7 +447,7 @@ export default function Step1Container({
           </div>
 
         {/* Quote Number Display - Show after quote is saved */}
-        {quoteNumber != null && !hasFormChanged ? (
+        {quoteNumber != null && !isDirty ? (
           <div className="flex flex-col justify-center items-center mb-2 gap-2">
             <p className="mt-2 text-xl font-bold text-red-600">
               <span>
@@ -481,20 +466,19 @@ export default function Step1Container({
         ) : (
           <h3 className="  text-center mt-2 cursor-pointer text-[#2b00b7]">
             {isStepOneFilled ? (
-              <p
+              <button
+                type="button"
+                disabled={saving}
                 onClick={async () => {
                   const success = await onSaveQuote();
                   if (success) {
-                    // Save snapshot after successful save
-                    const snapshot = JSON.stringify(formValues);
-                    setSavedFormSnapshot(snapshot);
-                    setHasFormChanged(false);
+                    reset(getValues());
                   }
                 }}
                 className="text-base hover:underline underline-offset-2 cursor-pointer text-[#2b00b7]"
               >
-                {t("Save Quote")}
-              </p>
+                {saving ? t("Saving...") : t("Save Quote")}
+              </button>
             ) : (
               ""
             )}
