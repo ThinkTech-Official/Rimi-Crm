@@ -262,13 +262,15 @@ const RIMICanuckVoyageTravelMedical: React.FC = () => {
 
   // ========== STAGE 1: NEXT BUTTON ==========
   const handleNext = async () => {
-    const isValid = await step1Methods.trigger();
+    const isValid = await step1Methods.trigger(undefined, {shouldFocus: true});
     if (!isValid || savingStage1) return;
 
     try {
       const formValues = step1Methods.getValues();
       const stage1Payload = {
         ...formValues,
+        coverageLength: Number(formValues.coverageLength),
+        usTravelDays: (formValues.usTravelDays ?? 0) > 0 ? formValues.usTravelDays : undefined,
         agentCode: agentCode!,
         product: productName,
         quoteNumber: quoteNumber || undefined,
@@ -303,6 +305,8 @@ const RIMICanuckVoyageTravelMedical: React.FC = () => {
     const formValues = step1Methods.getValues();
     const stage1Payload = {
       ...formValues,
+      coverageLength: Number(formValues.coverageLength),
+      usTravelDays: (formValues.usTravelDays ?? 0) > 0 ? formValues.usTravelDays : undefined,
       agentCode: agentCode!,
       product: productName,
       quoteNumber: quoteNumber || undefined,
@@ -507,6 +511,7 @@ const RIMICanuckVoyageTravelMedical: React.FC = () => {
               quoteNumber={quoteNumber}
               agentCode={agentCode!}
               handleSaveQuote={handleSaveQuote}
+              saving={savingStage1}
             />
 
             <div className="w-full h-2 mt-5 flex items-center justify-center font-[inter]">
@@ -519,7 +524,7 @@ const RIMICanuckVoyageTravelMedical: React.FC = () => {
             {formStep === 1 && (
               <button
                 type="submit"
-                disabled={!isStepOneFilled || savingStage1}
+                disabled={savingStage1}
                 className={`w-[200px] mx-auto mt-6 bg-[#2B00B7] text-white p-3 hover:bg-[#2309A1] transition flex justify-center items-center cursor-pointer duration-200 ${savingStage1 ? "opacity-50 cursor-wait" : ""
                   }`}
               >

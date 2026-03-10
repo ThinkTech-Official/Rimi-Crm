@@ -180,7 +180,6 @@ import {
   ChevronDownIcon,
 } from "@heroicons/react/24/outline";
 import { usePremiumCalculationProduct4 } from "../../../../hooks/canuck-voyage-non-medical/usePremiumCalculationProduct4";
-import { useCreateQuoteProduct4 } from "../../../../hooks/canuck-voyage-non-medical/useCreateQuoteProduct4";
 import { Controller, UseFormReturn } from "react-hook-form";
 import { useLanguage } from "../../../../context/LanguageContext";
 import { Step1Payload } from "../RIMICanuckVoyageNon-MedicalTravel";
@@ -205,6 +204,7 @@ interface TripInformationProps {
   quoteNumber: string | null;
   setTotalPremium: (value: number) => void;
   handleSaveQuote: () => Promise<boolean>;
+  saving?: boolean;
 }
 
 export default function TripInformation({
@@ -217,23 +217,22 @@ export default function TripInformation({
   onValidityChange,
   quoteNumber,
   setTotalPremium,
-  handleSaveQuote
+  handleSaveQuote,
+  saving = false,
 }: TripInformationProps) {
   const { t } = useLanguage();
   const [showTripCost, setShowTripCost] = useState(false);
   const [showTripCancellation, setShowTripCancellation] = useState(false);
   const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
 
-  // Track form changes for re-saving quotes
-  const [savedFormSnapshot, setSavedFormSnapshot] = useState<any>(null);
-  const [hasFormChanged, setHasFormChanged] = useState(false);
-
   const {
     register,
     watch,
     setValue,
     control,
-    formState: { errors },
+    reset,
+    getValues,
+    formState: { errors, isDirty },
   } = methods;
 
   // Watch form values
@@ -355,32 +354,7 @@ export default function TripInformation({
     setError(hookError);
   }, [hookError, setError]);
 
-  // Initialize snapshot when quote number exists (e.g., when returning from step 2)
-  useEffect(() => {
-    if (quoteNumber && !savedFormSnapshot) {
-      const snapshot = JSON.stringify(formValues);
-      setSavedFormSnapshot(snapshot);
-      setHasFormChanged(false);
-    }
-  }, [quoteNumber, savedFormSnapshot, formValues]);
-
-  // Detect form changes after quote save
-  useEffect(() => {
-    if (savedFormSnapshot && quoteNumber) {
-      // Compare current form values with saved snapshot
-      const currentSnapshot = JSON.stringify(formValues);
-      
-      setHasFormChanged(currentSnapshot !== savedFormSnapshot);
-    }
-  }, [savedFormSnapshot, quoteNumber, formValues]);
-
   // Save Quote functionality
-  const { loading: saving } = useCreateQuoteProduct4();
-
-  const handleQuoteSave = async () => {
-    // console.log("Save quote functionality - needs parent state access");
-    // alert("Save Quote feature requires additional implementation");
-  };
 
   return (
     <div>
@@ -458,15 +432,14 @@ export default function TripInformation({
               }}
               render={({ field }) => (
                 <select
-                  className={`input-primary appearance-none cursor-pointer ${
-                    errors.tripCancellationDeluxe ? "border-red-500" : ""
-                  }`}
+                  className={`input-primary appearance-none cursor-pointer ${errors.tripCancellationDeluxe ? "border-red-500" : ""
+                    }`}
                   value={
                     field.value === true
                       ? "yes"
                       : field.value === false
-                      ? "no"
-                      : ""
+                        ? "no"
+                        : ""
                   }
                   onChange={(e) => {
                     const val = e.target.value;
@@ -596,7 +569,7 @@ export default function TripInformation({
             <Controller
               name={`expiryDate`}
               control={control}
-              rules={{ 
+              rules={{
                 required: t("Date of Return is required"),
                 validate: (value) => {
                   if (effectiveDate && value) {
@@ -684,34 +657,31 @@ export default function TripInformation({
           )}
 
           {/* Save Quote Button */}
-          {quoteNumber && !hasFormChanged ? (
+          {quoteNumber && !isDirty ? (
             <div className="flex flex-col justify-center items-center mt-4 text-xl font-bold text-red-600">
               <span>
                 {t("Quote Saved:")}{" "}
               </span>
               <span>{quoteNumber}</span>
 
-              <button className="text-[#2b00b7] cursor-pointer text-base hover:underline underline-offset-2 mt-2" onClick={()=>setIsEmailModalOpen(true)}>
+              <button type="button" className="text-[#2b00b7] cursor-pointer text-base hover:underline underline-offset-2 mt-2" onClick={() => setIsEmailModalOpen(true)}>
                 {t("Email Quote")}
               </button>
             </div>
           ) : (
             isFormFilled && (
               <div className="text-center mt-4">
-                <button
+                <button type="button"
                   onClick={async () => {
                     const success = await handleSaveQuote();
-                    // Save snapshot after successful save
+                    // Reset form to current values to clear isDirty
                     if (success) {
-                      const snapshot = JSON.stringify(formValues);
-                      setSavedFormSnapshot(snapshot);
-                      setHasFormChanged(false);
+                      reset(getValues());
                     }
                   }}
                   disabled={saving}
-                  className={`text-base hover:underline underline-offset-2 cursor-pointer text-primary mt-2 ${
-                    saving ? "opacity-50" : ""
-                  }`}
+                  className={`text-base hover:underline underline-offset-2 cursor-pointer text-primary mt-2 ${saving ? "opacity-50" : ""
+                    }`}
                 >
                   {saving ? t("Saving...") : t("Save Quote")}
                 </button>
@@ -720,7 +690,7 @@ export default function TripInformation({
           )}
         </div>
       )}
-       {isEmailModalOpen && (
+      {isEmailModalOpen && (
         <EmailQuoteNonMed
           quoteNumber={quoteNumber}
           premiumBreakdown={premiumBreakdown}

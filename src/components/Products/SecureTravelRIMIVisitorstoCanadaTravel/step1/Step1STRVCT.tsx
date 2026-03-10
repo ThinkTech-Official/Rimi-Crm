@@ -125,7 +125,8 @@ const Step1STRVCT = ({
     setValue,
     getValues,
     watch,
-    formState: { errors },
+    reset,
+    formState: { errors, isDirty },
   } = useFormContext<Step1Payload>();
 
   // Use watch to subscribe to form updates for logic
@@ -512,6 +513,7 @@ const Step1STRVCT = ({
     try {
       const response = await saveQuote(payload);
       setQuoteNumber(String(response?.quote));
+      reset(getValues());
       triggerNotification({
         message: t("Quote saved successfully!"),
         type: "success",
@@ -930,8 +932,8 @@ const Step1STRVCT = ({
                     <div className="relative">
                       <select
                         className="input-primary appearance-none cursor-pointer"
-                        {...register(`applicants.${idx}.relationship`, {
-                          required: t("Relationship is required"),
+                        {...register(`applicants.${idx}.relation`, {
+                          required: t("Relation is required"),
                         })}
                       >
                         <option value="">{t("Please select")}</option>
@@ -948,9 +950,9 @@ const Step1STRVCT = ({
                         />
                       </div>
                     </div>
-                    {errors.applicants?.[idx]?.relationship && (
+                    {errors.applicants?.[idx]?.relation && (
                       <p className="text-red-500 text-sm mt-1">
-                        {errors.applicants[idx].relationship.message}
+                        {errors.applicants[idx].relation.message}
                       </p>
                     )}
                   </div>
@@ -1560,7 +1562,7 @@ const Step1STRVCT = ({
               </h3>
             </div>
 
-            {quoteNumber != null ? (
+            {quoteNumber != null && !isDirty ? (
               <div className=" flex flex-col justify-center items-center mb-2 gap-2">
                 <p className="mt-2 text-xl font-bold text-red-600">
                   <span>{t("Quote Saved")}: </span>
@@ -1576,12 +1578,14 @@ const Step1STRVCT = ({
             ) : (
               <h3 className=" text-center mt-2 cursor-pointer text-[#2b00b7]">
                 {isFormFilled ? (
-                  <p
+                  <button
+                    type="button"
+                    disabled={saving}
                     onClick={handleQuoteSave}
                     className="text-base hover:underline underline-offset-2 cursor-pointer"
                   >
-                    {t("Save Quote")}
-                  </p>
+                    {saving ? t("Saving...") : t("Save Quote")}
+                  </button>
                 ) : (
                   ""
                 )}

@@ -197,13 +197,13 @@ export default function SecureStudyRIMIInternationalStudentstoCanada() {
         applicantNumber: quoteData.applicantNumber || 0,
         applicants: quoteData.applicants
           ? quoteData.applicants.map((app) => ({
-              index: app.index,
-              firstName: app.firstName,
-              lastName: app.lastName,
-              dob: app.dob.split("T")[0],
-              relationship: app.relationship,
-              gender: app.gender,
-            }))
+            index: app.index,
+            firstName: app.firstName,
+            lastName: app.lastName,
+            dob: app.dob.split("T")[0],
+            relationship: app.relationship,
+            gender: app.gender,
+          }))
           : [],
         isConfirmed: true,
         countryOfOrigin: quoteData.countryOfOrigin || "",
@@ -282,10 +282,13 @@ export default function SecureStudyRIMIInternationalStudentstoCanada() {
       // Update state with the saved quote number
       setQuoteNumber(response.quote);
 
+      // Reset form to clear isDirty state
+      step1Methods.reset(step1Methods.getValues());
+
       // Show success message
       triggerNotification({
         type: "success",
-        message: `Quote saved successfully!\n\nQuote Number: ${response.quote}\n\nYou can continue later or proceed to the next step.`,
+        message: `Quote saved successfully!\n\nQuote Number: ${response.quote}`,
       });
 
       console.log("Quote saved:", response.quote);
@@ -345,7 +348,7 @@ export default function SecureStudyRIMIInternationalStudentstoCanada() {
   };
 
   const handleBuyNow = async (): Promise<boolean> => {
-    const isValid = await step1Methods.trigger(undefined, { shouldFocus: true });
+    const isValid = await step2Methods.trigger(undefined, { shouldFocus: true });
     if (!isValid || !quoteNumber || submittingStage2) return false;
     const payload: Stage2PayloadProduct2 = {
       quoteNumber,
@@ -514,15 +517,15 @@ export default function SecureStudyRIMIInternationalStudentstoCanada() {
               isStepOneFilled={isStepOneFilled}
               totalPremium={totalPremium}
               onPremiumChange={setTotalPremium}
+              saving={savingStage1}
             />
             {formStep === 1 && (
               <div className="flex justify-center mt-4">
                 <button
                   type="submit"
-                  disabled={!isStepOneFilled || savingStage1}
-                  className={`w-[200px] mt-6 bg-[#2B00B7] text-white p-3 hover:bg-[#2309A1] transition flex justify-center items-center cursor-pointer duration-200 ${
-                    savingStage1 ? "opacity-50 cursor-wait" : ""
-                  }`}
+                  disabled={savingStage1}
+                  className={`w-[200px] mt-6 bg-[#2B00B7] text-white p-3 hover:bg-[#2309A1] transition flex justify-center items-center cursor-pointer duration-200 ${savingStage1 ? "opacity-50 cursor-wait" : ""
+                    }`}
                 >
                   {savingStage1 ? "Saving…" : "Next"}
                 </button>

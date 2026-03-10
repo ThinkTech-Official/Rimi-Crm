@@ -44,12 +44,12 @@ export default function AgentHome() {
     { label: t("Total Quotes"), value: summary?.totalQuotes || 0 },
     {
       label: t("Commission Percent"),
-      value: `${summary?.commissionPercent || 0}%`,
+      value: `${summary?.commissionPercent?.toFixed(2) || 0}%`,
     },
-    { label: t("Total Commissions"), value: `$${summary?.totalCommissions || 0}` },
+    { label: t("Total Commissions"), value: `$${summary?.totalCommissions?.toFixed(2) || 0}` },
     {
       label: t("Current Month Commissions"),
-      value: `$${summary?.currentMonthCommissions || 0}`,
+      value: `$${summary?.currentMonthCommissions?.toFixed(2) || 0}`,
     },
     { label: t("Monthly Premiums Count"), value: summary?.monthlyPremiums?.length || 0 },
   ];

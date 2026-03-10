@@ -172,27 +172,6 @@ const RIMICanuckVoyageNonMedicalTravel: React.FC = () => {
   });
 
   // Watch values for local logic
-  const watchedStep1 = step1Methods.watch();
-  const {
-    primaryFirstName,
-    primaryLastName,
-    primaryDateOfBirth,
-    primaryEmail,
-    primaryApplicantGender,
-    countryOfOrigin,
-    provinceStateResidence,
-    applicantNumber,
-    applicants,
-    isConfirmed,
-    tripCost,
-    dateBooked,
-    effectiveDate,
-    expiryDate,
-    coverageLength,
-    destinationCountry,
-    tripCancellationDeluxe,
-  } = watchedStep1;
-
   const watchedStep2 = step2Methods.watch();
   const { address } = watchedStep2;
 
@@ -214,26 +193,17 @@ const RIMICanuckVoyageNonMedicalTravel: React.FC = () => {
   const { completeApplication, loading: submittingStage2 } =
     useQuoteUpdateProduct4();
 
-  const { saveQuote: createQuote } = useCreateQuoteProduct4();
+  const { saveQuote: createQuote, loading: savingProduct4 } = useCreateQuoteProduct4();
 
   const handleSaveQuote = async (): Promise<boolean> => {
+    const isValid = await step1Methods.trigger(undefined, { shouldFocus: true });
+    if (!isValid) return false;
+
+    const formValues = step1Methods.getValues();
     const payload = {
-      primaryFirstName,
-      primaryLastName,
-      primaryDateOfBirth,
-      primaryEmail,
-      primaryApplicantGender,
-      countryOfOrigin,
-      provinceStateResidence,
-      applicantNumber,
-      applicants,
-      tripCost,
-      dateBooked,
-      effectiveDate,
-      expiryDate,
-      coverageLength: Number(coverageLength),
-      destinationCountry,
-      tripCancellationDeluxe,
+      ...formValues,
+      coverageLength: Number(formValues.coverageLength),
+      tripCancellationDeluxe: !!formValues.tripCancellationDeluxe,
       agentCode: agentCode!,
       product: productName,
       quoteNumber: quoteNumber || undefined,
@@ -250,7 +220,7 @@ const RIMICanuckVoyageNonMedicalTravel: React.FC = () => {
       // Show success message
       triggerNotification({
         type: "success",
-        message: `Quote saved successfully!\n\nQuote Number: ${response.quote}\n\nYou can continue later or proceed to the next step.`,
+        message: `Quote saved successfully!\n\nQuote Number: ${response.quote}`,
       });
 
       console.log("Quote saved:", response.quote);
@@ -371,24 +341,10 @@ const RIMICanuckVoyageNonMedicalTravel: React.FC = () => {
     if (savingStage1) return;
 
     try {
+      const formValues = step1Methods.getValues();
       const stage1Payload = {
-        primaryFirstName,
-        primaryLastName,
-        primaryDateOfBirth,
-        primaryEmail,
-        primaryApplicantGender,
-        countryOfOrigin,
-        provinceStateResidence,
-        applicantNumber,
-        applicants,
-        isConfirmed,
-        tripCost,
-        dateBooked,
-        effectiveDate,
-        expiryDate,
-        coverageLength: Number(coverageLength),
-        destinationCountry,
-        tripCancellationDeluxe,
+        ...formValues,
+        coverageLength: Number(formValues.coverageLength),
         agentCode: agentCode!,
         product: productName,
         quoteNumber: quoteNumber || undefined,
@@ -413,7 +369,7 @@ const RIMICanuckVoyageNonMedicalTravel: React.FC = () => {
   const handleBuyNow = async (): Promise<boolean> => {
     if (!quoteNumber || submittingStage2) return false;
 
-    const isValid = await step2Methods.trigger();
+    const isValid = await step2Methods.trigger(undefined, { shouldFocus: true });
     if (!isValid) return false;
 
     const values = step2Methods.getValues();
@@ -645,28 +601,43 @@ const RIMICanuckVoyageNonMedicalTravel: React.FC = () => {
       {/* ========== STEP 1: GET QUOTE ========== */}
       {steps[0].status === "current" && (
         <FormProvider {...step1Methods}>
-          <ApplicantInformation methods={step1Methods as any} />
+          <form onSubmit={step1Methods.handleSubmit(handleNext)}>
+            <ApplicantInformation methods={step1Methods as any} />
 
-          <TripInformation
-            methods={step1Methods as any}
-            premiumBreakdown={premiumBreakdown}
-            setPremiumBreakdown={setPremiumBreakdown}
-            setLoading={setLoading}
-            error={error}
-            setError={setError}
-            onValidityChange={setIsStepOneFilled}
-            quoteNumber={quoteNumber}
-            setTotalPremium={setTotalPremium}
-            handleSaveQuote={handleSaveQuote}
-          />
+            <TripInformation
+              methods={step1Methods as any}
+              premiumBreakdown={premiumBreakdown}
+              setPremiumBreakdown={setPremiumBreakdown}
+              setLoading={setLoading}
+              error={error}
+              setError={setError}
+              onValidityChange={setIsStepOneFilled}
+              quoteNumber={quoteNumber}
+              setTotalPremium={setTotalPremium}
+              handleSaveQuote={handleSaveQuote}
+              saving={savingProduct4}
+            />
 
-          <div className="w-full h-2 mt-5 flex items-center justify-center font-[inter]">
-            <h3 className="text-base sm:text-lg">
-              {loading
-                ? t("Calculating...")
-                : t("Your Quote: {{total}} CAD", { total: totalPremium.toFixed(2) })}
-            </h3>
-          </div>
+            <div className="w-full h-2 mt-5 flex items-center justify-center font-[inter]">
+              <h3 className="text-base sm:text-lg">
+                {loading
+                  ? t("Calculating...")
+                  : t("Your Quote: {{total}} CAD", { total: totalPremium.toFixed(2) })}
+              </h3>
+            </div>
+            {formStep === 1 && (
+              <div className="flex justify-center mt-4">
+                <button
+                  type="submit"
+                  disabled={savingStage1}
+                  className={`w-[200px] mt-6 bg-[#2B00B7] text-white p-3 hover:bg-[#2309A1] transition flex justify-center items-center cursor-pointer duration-200 ${savingStage1 ? "opacity-50 cursor-wait" : ""
+                    }`}
+                >
+                  {savingStage1 ? t("Saving…") : t("Next")}
+                </button>
+              </div>
+            )}
+          </form>
         </FormProvider>
       )}
 
@@ -737,17 +708,6 @@ const RIMICanuckVoyageNonMedicalTravel: React.FC = () => {
             className="w-[200px] mt-6 bg-white border border-[#2B00B7] text-[#2B00B7] p-3 hover:bg-[#2209a1] hover:text-white transition flex justify-center items-center"
           >
             {t("Previous")}
-          </button>
-        )}
-
-        {formStep === 1 && (
-          <button
-            onClick={handleNext}
-            disabled={savingStage1}
-            className={`w-[200px] mt-6 bg-[#2B00B7] text-white p-3 hover:bg-[#2309A1] transition flex justify-center items-center cursor-pointer duration-200 ${savingStage1 ? "opacity-50 cursor-wait" : ""
-              }`}
-          >
-            {savingStage1 ? t("Saving…") : t("Next")}
           </button>
         )}
       </div>

@@ -192,10 +192,12 @@
 // components/AdminHome.tsx
 import { useRef, useState, useEffect } from "react";
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
-import { MdKeyboardArrowRight } from "react-icons/md";
+import { MdKeyboardArrowRight, MdDownload } from "react-icons/md";
 import { useNavigate } from "react-router-dom";
 import Spinner from "../Spinner";
 import { useLanguage } from "../../context/LanguageContext";
+import html2canvas from "html2canvas";
+import { jsPDF } from "jspdf";
 import {
   useAdminStats,
   useQuotesAnalysis,
@@ -251,6 +253,82 @@ export default function AdminHome() {
   });
   const options = ["Agent data", "Policy data", "Quotes data"];
 
+  const targetRef = useRef<HTMLDivElement>(null);
+  const [isDownloading, setIsDownloading] = useState(false);
+
+  const handleDownloadPDF = async () => {
+    console.log("Downloading PDF...");
+    if (!targetRef.current || isDownloading) return;
+    setIsDownloading(true);
+    try {
+      const pdf = new jsPDF({
+        orientation: "portrait",
+        unit: "pt",
+        format: "a4",
+      });
+      // The dimensions of A4 format in points
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = pdf.internal.pageSize.getHeight();
+
+      const paddingX = 20; // ~14mm padding left and right
+      const paddingY = 20; // ~14mm padding top and bottom
+
+      const usableWidth = pdfWidth - paddingX * 2;
+      const usableHeight = pdfHeight - paddingY * 2;
+
+      // Find all the individual page wrappers inside the targetRef
+      const pages = targetRef.current.querySelectorAll('.pdf-page');
+
+      for (let p = 0; p < pages.length; p++) {
+        const pageEl = pages[p] as HTMLElement;
+        const pageCanvas = await html2canvas(pageEl, {
+          scale: 3,
+          useCORS: true,
+          logging: false,
+          onclone: (documentClone) => {
+            const elts = documentClone.getElementsByTagName("*");
+            for (let i = 0; i < elts.length; i++) {
+              const el = elts[i] as HTMLElement;
+              const style = window.getComputedStyle(el);
+              if (style.backgroundColor && (style.backgroundColor.includes("oklch") || style.backgroundColor.includes("oklab"))) {
+                el.style.backgroundColor = "transparent";
+              }
+              if (style.color && (style.color.includes("oklch") || style.color.includes("oklab"))) {
+                el.style.color = "#000000";
+              }
+              if (style.borderColor && (style.borderColor.includes("oklch") || style.borderColor.includes("oklab"))) {
+                el.style.borderColor = "transparent";
+              }
+            }
+          }
+        });
+
+        const imgData = pageCanvas.toDataURL("image/png");
+
+        // Scale the canvas image down to fit the usable width
+        const ratio = usableWidth / pageCanvas.width;
+        let scaledCanvasHeight = pageCanvas.height * ratio;
+
+        // Ensure we don't exceed the max usable height for a single page
+        if (scaledCanvasHeight > usableHeight) {
+          scaledCanvasHeight = usableHeight;
+        }
+
+        if (p > 0) {
+          pdf.addPage();
+        }
+
+        pdf.addImage(imgData, "PNG", paddingX, paddingY, usableWidth, scaledCanvasHeight);
+      }
+
+      pdf.save("admin_dashboard.pdf");
+    } catch (error) {
+      console.error("Failed to generate PDF:", error);
+    } finally {
+      setIsDownloading(false);
+    }
+  };
+
   const toggleTableFilter = (option: string) => {
     setFilter(option);
     setIsFilterDropdownOpen(false);
@@ -304,138 +382,163 @@ export default function AdminHome() {
   ];
 
   return (
-    <div className="w-full flex flex-col gap-4 pb-4">
-      {/* Stats Cards */}
-      <div
-        className="grid grid-cols-2 lg:grid-cols-4 gap-4 xl:gap-8 w-full"
-        role="stats"
-      >
-        {statsCards.map((stat, index) => (
-          <div
-            key={stat.label}
-            data-testid="stat-card"
-            className="p-2 sm:p-6 sm:h-24 rounded-lg transition-all duration-200 hover:shadow-md"
-            style={{
-              backgroundColor: pastelColors[index],
-              boxShadow: "0px 4px 6.7px 0px rgba(0, 0, 0, 0.04)",
-              border: "1px solid rgba(235, 235, 235, 1)",
-            }}
-          >
-            <div className="text-lg 2xl:text-2xl leading-6 font-bold text-[#232323]">
-              {stat.value}
-            </div>
-            <div className="text-sm 2xl:text-lg leading-[20px] text-[#6F6B7D] mt-1">
-              {stat.label}
-            </div>
-          </div>
-        ))}
+    <div className="w-full relative">
+      <div className="flex justify-end mb-4">
+        <button
+          onClick={handleDownloadPDF}
+          disabled={isDownloading}
+          className={`flex gap-2 items-center -mt-4 btn-primary ${isDownloading ? "opacity-90 cursor-not-allowed" : "cursor-pointer"}`}
+        >
+          {isDownloading ? (
+            <Spinner className="w-5 h-5 text-white" />
+          ) : (
+            <MdDownload className="h-5 w-5" />
+          )}
+          {isDownloading ? t("Generating PDF...") : t("Download PDF")}
+        </button>
       </div>
+      <div className="w-full flex flex-col gap-8 pb-4 bg-white" ref={targetRef}>
 
-      {/* Quotes Statistics */}
-      <section className="mt-6">
-        <h2 className="text-lg font-bold text-text-primary mb-4">
-          {t("Quotes Statistics")}
-        </h2>
-        <QuotesAnalysisChart />
-      </section>
-
-      {/* Policy Statistics */}
-      <section className="mt-6">
-        <h2 className="text-lg font-bold text-text-primary mb-4">
-          {t("Policy Statistics")}
-        </h2>
-        <PolicyAnalysisChart />
-      </section>
-
-      {/* Quotes vs Policies */}
-      <section className="mt-6">
-        <h2 className="text-lg font-bold text-text-primary mb-4">
-          {t("Quotes vs Policies Conversion")}
-        </h2>
-        <QuotesVsPolicyConversionChart />
-      </section>
-
-      {/* Agent Types Per Month */}
-      <section className="mt-6">
-        <h2 className="text-lg font-bold text-text-primary mb-4">
-          {t("Agent Types Joined Per Month")}
-        </h2>
-        <AgentTypesMonthlyChart />
-      </section>
-
-      {/* Policy Sales */}
-      <section className="mt-6">
-        <div>
-          <h2 className="text-lg font-bold text-text-primary">{t("Policy Sales")}</h2>
-          <p className="text-base text-text-secondary">{t("Current Month")}</p>
-        </div>
-        <PolicySalesChart />
-      </section>
-
-      {/* Table Section */}
-      <section className="mt-6">
-        <div className="relative" ref={tableDropDownRef}>
-          <div className="flex gap-2 items-center absolute top-0 right-0">
-            <span className="text-text-light">{t("Show")}</span>
-            <div className="relative">
-              <button
-                className="flex items-center gap-2 text-text-secondary border border-[#e5e5e6] p-2 text-[16px] 2xl:text-xl font-medium relative cursor-pointer"
-                onClick={() => setIsFilterDropdownOpen(!isFilterDropdownOpen)}
+        {/* ================= PAGE 1 ================= */}
+        <div className="flex flex-col gap-6 pdf-page">
+          {/* Stats Cards */}
+          <div
+            className="grid grid-cols-2 lg:grid-cols-4 gap-4 xl:gap-8 w-full"
+            role="stats"
+          >
+            {statsCards.map((stat, index) => (
+              <div
+                key={stat.label}
+                data-testid="stat-card"
+                className="p-2 sm:p-6 sm:h-24 rounded-lg transition-all duration-200 hover:shadow-md"
+                style={{
+                  backgroundColor: pastelColors[index],
+                  boxShadow: "0px 4px 6.7px 0px rgba(0, 0, 0, 0.04)",
+                  border: "1px solid rgba(235, 235, 235, 1)",
+                }}
               >
-                {t(filter)}
-                <MdKeyboardArrowRight
-                  className={`h-4 w-4 2xl:w-6 2xl:h-6 transform transition ${
-                    isFilterDropdownOpen ? "rotate-90" : ""
-                  }`}
-                />
-              </button>
-              {isFilterDropdownOpen && (
-                <div className="absolute mt-1 w-full shadow-lg bg-white border border-[#e5e5e6] z-10">
-                  <ul className="py-1 2xl:text-lg text-gray-700">
-                    {options.map((option) => (
-                      <li
-                        key={option}
-                        onClick={() => toggleTableFilter(option)}
-                        className={`px-2 py-2 cursor-pointer hover:bg-primary hover:text-white`}
-                      >
-                        {t(option)}
-                      </li>
-                    ))}
-                  </ul>
+                <div className="text-lg 2xl:text-2xl leading-6 font-bold text-[#232323]">
+                  {stat.value}
                 </div>
-              )}
+                <div className="text-sm 2xl:text-lg leading-[20px] text-[#6F6B7D] mt-1">
+                  {stat.label}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Quotes Statistics */}
+          <section className="mt-2">
+            <h2 className="text-lg font-bold text-text-primary mb-4">
+              {t("Quotes Statistics")}
+            </h2>
+            <QuotesAnalysisChart />
+          </section>
+        </div>
+
+        {/* ================= PAGE 2 ================= */}
+        <div className="flex flex-col gap-6 pdf-page">
+
+          {/* Policy Statistics */}
+          <section>
+            <h2 className="text-lg font-bold text-text-primary mb-4">
+              {t("Policy Statistics")}
+            </h2>
+            <PolicyAnalysisChart />
+          </section>
+          {/* Quotes vs Policies */}
+          <section className="mt-2">
+            <h2 className="text-lg font-bold text-text-primary mb-4">
+              {t("Quotes vs Policies Conversion")}
+            </h2>
+            <QuotesVsPolicyConversionChart />
+          </section>
+        </div>
+
+        {/* ================= PAGE 3 ================= */}
+        <div className="flex flex-col gap-6 pdf-page">
+          {/* Agent Types Per Month */}
+          <section>
+            <h2 className="text-lg font-bold text-text-primary mb-4">
+              {t("Agent Types Joined Per Month")}
+            </h2>
+            <AgentTypesMonthlyChart />
+          </section>
+
+          {/* Policy Sales */}
+          <section className="mt-4">
+            <div>
+              <h2 className="text-lg font-bold text-text-primary">{t("Policy Sales")}</h2>
+              <p className="text-base text-text-secondary">{t("Current Month")}</p>
+            </div>
+            <PolicySalesChart />
+          </section>
+        </div>
+
+        {/* Table Section (Ignored in PDF) */}
+        <section className="mt-8 pt-8 border-t border-gray-200" data-html2canvas-ignore="true">
+          <div className="relative" ref={tableDropDownRef}>
+            <div className="flex gap-2 items-center absolute top-0 right-0">
+              <span className="text-text-light">{t("Show")}</span>
+              <div className="relative">
+                <button
+                  className="flex items-center gap-2 text-text-secondary border border-[#e5e5e6] p-2 text-[16px] 2xl:text-xl font-medium relative cursor-pointer"
+                  onClick={() => setIsFilterDropdownOpen(!isFilterDropdownOpen)}
+                >
+                  {t(filter)}
+                  <MdKeyboardArrowRight
+                    className={`h-4 w-4 2xl:w-6 2xl:h-6 transform transition ${isFilterDropdownOpen ? "rotate-90" : ""
+                      }`}
+                  />
+                </button>
+                {isFilterDropdownOpen && (
+                  <div className="absolute mt-1 w-full shadow-lg bg-white border border-[#e5e5e6] z-10">
+                    <ul className="py-1 2xl:text-lg text-gray-700">
+                      {options.map((option) => (
+                        <li
+                          key={option}
+                          onClick={() => toggleTableFilter(option)}
+                          className={`px-2 py-2 cursor-pointer hover:bg-primary hover:text-white`}
+                        >
+                          {t(option)}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
-        </div>
 
-        <div className="mt-4">
-          {filter === "Agent data" && (
-            <AgentsTable
-              data={agentsData}
-              loading={agentsLoading}
-              currentPage={agentsPage}
-              onPageChange={setAgentsPage}
-              onAgentClick={handleAgentDetails}
-            />
-          )}
-          {filter === "Policy data" && (
-            <PoliciesTable
-              data={policiesData}
-              loading={policiesLoading}
-              currentPage={policiesPage}
-              onPageChange={setPoliciesPage}
-            />
-          )}
-          {filter === "Quotes data" && (
-            <QuotesTable
-              data={quotesData}
-              loading={quotesLoading}
-              currentPage={quotesPage}
-              onPageChange={setQuotesPage}
-            />
-          )}
-        </div>
-      </section>
+          <div className="mt-4">
+            {filter === "Agent data" && (
+              <AgentsTable
+                data={agentsData}
+                loading={agentsLoading}
+                currentPage={agentsPage}
+                onPageChange={setAgentsPage}
+                onAgentClick={handleAgentDetails}
+              />
+            )}
+            {filter === "Policy data" && (
+              <PoliciesTable
+                data={policiesData}
+                loading={policiesLoading}
+                currentPage={policiesPage}
+                onPageChange={setPoliciesPage}
+              />
+            )}
+            {filter === "Quotes data" && (
+              <QuotesTable
+                data={quotesData}
+                loading={quotesLoading}
+                currentPage={quotesPage}
+                onPageChange={setQuotesPage}
+              />
+            )}
+          </div>
+        </section>
+      </div>
     </div>
   );
 }
@@ -621,9 +724,8 @@ function AgentsTable({
         <button
           disabled={currentPage === 1}
           onClick={() => onPageChange(currentPage - 1)}
-          className={`px-2 py-[10px] ${
-            currentPage === 1 ? "bg-gray-300" : "bg-[#CCCCCC] cursor-pointer"
-          } text-[#6F6B7D]`}
+          className={`px-2 py-[10px] ${currentPage === 1 ? "bg-gray-300" : "bg-[#CCCCCC] cursor-pointer"
+            } text-[#6F6B7D]`}
         >
           <ChevronLeftIcon className="h-5 w-5" />
         </button>
@@ -637,11 +739,10 @@ function AgentsTable({
         <button
           disabled={currentPage === totalPages}
           onClick={() => onPageChange(currentPage + 1)}
-          className={`px-2 py-[10px] ${
-            currentPage === totalPages
-              ? "bg-gray-300"
-              : "bg-[#CCCCCC] cursor-pointer"
-          } text-[#6F6B7D]`}
+          className={`px-2 py-[10px] ${currentPage === totalPages
+            ? "bg-gray-300"
+            : "bg-[#CCCCCC] cursor-pointer"
+            } text-[#6F6B7D]`}
         >
           <ChevronRightIcon className="h-5 w-5" />
         </button>
@@ -739,9 +840,8 @@ function PoliciesTable({ data, loading, currentPage, onPageChange }: any) {
         <button
           disabled={currentPage === 1}
           onClick={() => onPageChange(currentPage - 1)}
-          className={`px-2 py-[10px] ${
-            currentPage === 1 ? "bg-gray-300" : "bg-[#CCCCCC] cursor-pointer"
-          } text-[#6F6B7D]`}
+          className={`px-2 py-[10px] ${currentPage === 1 ? "bg-gray-300" : "bg-[#CCCCCC] cursor-pointer"
+            } text-[#6F6B7D]`}
         >
           <ChevronLeftIcon className="h-5 w-5" />
         </button>
@@ -755,11 +855,10 @@ function PoliciesTable({ data, loading, currentPage, onPageChange }: any) {
         <button
           disabled={currentPage === totalPages}
           onClick={() => onPageChange(currentPage + 1)}
-          className={`px-2 py-[10px] ${
-            currentPage === totalPages
-              ? "bg-gray-300"
-              : "bg-[#CCCCCC] cursor-pointer"
-          } text-[#6F6B7D]`}
+          className={`px-2 py-[10px] ${currentPage === totalPages
+            ? "bg-gray-300"
+            : "bg-[#CCCCCC] cursor-pointer"
+            } text-[#6F6B7D]`}
         >
           <ChevronRightIcon className="h-5 w-5" />
         </button>
@@ -863,9 +962,8 @@ function QuotesTable({ data, loading, currentPage, onPageChange }: any) {
         <button
           disabled={currentPage === 1}
           onClick={() => onPageChange(currentPage - 1)}
-          className={`px-2 py-[10px] ${
-            currentPage === 1 ? "bg-gray-300" : "bg-[#CCCCCC] cursor-pointer"
-          } text-[#6F6B7D]`}
+          className={`px-2 py-[10px] ${currentPage === 1 ? "bg-gray-300" : "bg-[#CCCCCC] cursor-pointer"
+            } text-[#6F6B7D]`}
         >
           <ChevronLeftIcon className="h-5 w-5" />
         </button>
@@ -879,11 +977,10 @@ function QuotesTable({ data, loading, currentPage, onPageChange }: any) {
         <button
           disabled={currentPage === totalPages}
           onClick={() => onPageChange(currentPage + 1)}
-          className={`px-2 py-[10px] ${
-            currentPage === totalPages
-              ? "bg-gray-300"
-              : "bg-[#CCCCCC] cursor-pointer"
-          } text-[#6F6B7D]`}
+          className={`px-2 py-[10px] ${currentPage === totalPages
+            ? "bg-gray-300"
+            : "bg-[#CCCCCC] cursor-pointer"
+            } text-[#6F6B7D]`}
         >
           <ChevronRightIcon className="h-5 w-5" />
         </button>
