@@ -22,6 +22,7 @@ export interface PaymentScheduleItem {
     brand: string | null;
     last4: string | null;
     fee: number | null;
+     status: string | null;
   };
 }
 
