@@ -26,6 +26,7 @@ import Summary from "../../../components/Products/SecureStudyRIMIInternationalSt
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useQuoteByNumber } from "../../../hooks/apply/useQuoteByNumber";
 import useNotification from "../../../hooks/useNotification";
+import { useLanguage } from "../../../context/LanguageContext";
 
 export interface Stage2FormValues {
   address: {
@@ -82,6 +83,7 @@ interface QuoteStage1ResponseProduct2 {
 const productName = "SECURE_STUDY_RIMI_INTERNATIONAL_STUDENTS_TO_CANADA";
 
 export default function SecureStudyRIMIInternationalStudentstoCanada() {
+  const { t } = useLanguage();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
 
@@ -162,9 +164,9 @@ export default function SecureStudyRIMIInternationalStudentstoCanada() {
 
   // ==================== WIZARD STATE ====================
   const [steps, setSteps] = useState([
-    { id: "01", name: "Get Quote", href: "#", status: "current" },
-    { id: "02", name: "Complete Application", href: "#", status: "upcoming" },
-    { id: "03", name: "Confirmation", href: "#", status: "upcoming" },
+    { id: "01", name: t("Get Quote"), href: "#", status: "current" },
+    { id: "02", name: t("Complete Application"), href: "#", status: "upcoming" },
+    { id: "03", name: t("Confirmation"), href: "#", status: "upcoming" },
   ]);
 
   const [formStep, setFormStep] = useState(1);
@@ -263,7 +265,7 @@ export default function SecureStudyRIMIInternationalStudentstoCanada() {
     if (!isStepOneFilled) {
       triggerNotification({
         type: "warning",
-        message: "Please fill all required fields and confirm eligibility",
+        message: t("Please fill all required fields and confirm eligibility"),
       });
       return false;
     }
@@ -288,7 +290,7 @@ export default function SecureStudyRIMIInternationalStudentstoCanada() {
       // Show success message
       triggerNotification({
         type: "success",
-        message: `Quote saved successfully!\n\nQuote Number: ${response.quote}`,
+        message: `${t("Quote saved successfully!")}\n\n${t("Quote Number")}: ${response.quote}`,
       });
 
       console.log("Quote saved:", response.quote);
@@ -297,7 +299,7 @@ export default function SecureStudyRIMIInternationalStudentstoCanada() {
       console.error("Failed to save quote:", err);
       triggerNotification({
         type: "error",
-        message: `Failed to save quote: ${err.message || "Please try again"}`,
+        message: `${t("Failed to save quote")}: ${err.message || t("Please try again")}`,
       });
       return false;
     }
@@ -341,7 +343,7 @@ export default function SecureStudyRIMIInternationalStudentstoCanada() {
     } catch (err) {
       console.error("saveQuoteNext failed", err);
       triggerNotification({
-        message: "Failed to save quote.",
+        message: t("Failed to save quote."),
         type: "error",
       });
     }
@@ -367,7 +369,7 @@ export default function SecureStudyRIMIInternationalStudentstoCanada() {
   };
 
   const handlePaymentSuccess = () => {
-    triggerNotification({ type: "success", message: "Payment successful" });
+    triggerNotification({ type: "success", message: t("Payment successful") });
     handleFormStepChange("forward");
   };
 
@@ -378,7 +380,7 @@ export default function SecureStudyRIMIInternationalStudentstoCanada() {
         <div className="flex items-center justify-center h-64">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#2B00B7] mx-auto mb-4"></div>
-            <p className="text-lg text-gray-600">Loading your quote...</p>
+            <p className="text-lg text-gray-600">{t("Loading your quote...")}</p>
           </div>
         </div>
       </div>
@@ -391,11 +393,11 @@ export default function SecureStudyRIMIInternationalStudentstoCanada() {
       <div className="max-w-5xl mx-auto px-2 py-4 sm:p-6">
         <div className="bg-red-50 border border-red-200 p-6 text-center">
           <h3 className="text-lg font-semibold text-red-800 mb-2">
-            Error Loading Quote
+            {t("Error Loading Quote")}
           </h3>
           <p className="text-red-600 mb-4">{quoteError}</p>
           <button onClick={() => navigate("/products")} className="btn-primary">
-            Go to Products
+            {t("Go to Products")}
           </button>
         </div>
       </div>
@@ -421,8 +423,7 @@ export default function SecureStudyRIMIInternationalStudentstoCanada() {
           </div>
           <div className="ml-3">
             <p className="text-sm text-blue-700">
-              <strong>Quote #{quoteNumber}</strong> - Your quote details have
-              been pre-filled. Review and proceed to payment.
+              <strong>{t("Quote")} #{quoteNumber}</strong> - {t("Your quote details have been pre-filled. Review and proceed to payment.")}
             </p>
           </div>
         </div>
@@ -527,7 +528,7 @@ export default function SecureStudyRIMIInternationalStudentstoCanada() {
                   className={`w-[200px] mt-6 bg-[#2B00B7] text-white p-3 hover:bg-[#2309A1] transition flex justify-center items-center cursor-pointer duration-200 ${savingStage1 ? "opacity-50 cursor-wait" : ""
                     }`}
                 >
-                  {savingStage1 ? "Saving…" : "Next"}
+                  {savingStage1 ? t("Saving…") : t("Next")}
                 </button>
               </div>
             )}
@@ -540,7 +541,7 @@ export default function SecureStudyRIMIInternationalStudentstoCanada() {
         <FormProvider {...step2Methods}>
           <div className="w-full h-2 mt-8 flex items-center justify-center">
             <h3 className="text-lg">
-              Your Quote: ${step1ResponseData?.quoteAmount}
+              {t("Your Quote")}: ${step1ResponseData?.quoteAmount}
             </h3>
           </div>
           <QuoteSummary step1ResponseData={step1ResponseData} />
@@ -561,16 +562,16 @@ export default function SecureStudyRIMIInternationalStudentstoCanada() {
           {/* Payment Summary - Lump Sum Only */}
           <div className="max-w-5xl mx-auto mt-6 p-3 sm:p-6 bg-[#F9F9F9]">
             <h3 className="text-lg font-bold text-left text-[#1B1B1B] mb-5">
-              Payment Summary
+              {t("Payment Summary")}
             </h3>
             <div className="flex justify-between items-center">
-              <span>Total Premium:</span>
+              <span>{t("Total Premium:")} </span>
               <span className="text-xl font-bold text-primary">
                 ${totalPremium.toFixed(2)} CAD
               </span>
             </div>
             <div className="text-sm text-gray-600 mt-1">
-              One-time payment • No additional fees
+              {t("One-time payment • No additional fees")}
             </div>
           </div>
 
@@ -599,9 +600,9 @@ export default function SecureStudyRIMIInternationalStudentstoCanada() {
         {formStep === 2 && (
           <button
             onClick={() => handleFormStepChange("back")}
-            className="w-[200px] mt-6 bg-white border border-[#2B00B7] text-[#2B00B7] p-3 hover:bg-[#2209a1] hover:text-white transition flex justify-center items-center"
+            className="btn-primary"
           >
-            Previous
+            {t("Previous")}
           </button>
         )}
       </div>

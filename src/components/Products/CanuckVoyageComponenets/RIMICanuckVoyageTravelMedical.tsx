@@ -675,6 +675,7 @@ const RIMICanuckVoyageTravelMedical: React.FC = () => {
               quoteNumber={quoteNumber}
               agentCode={agentCode!}
               handleSaveQuote={handleSaveQuote}
+              saving={savingStage1}
             />
 
             <div className="w-full h-2 mt-5 flex items-center justify-center font-[inter]">

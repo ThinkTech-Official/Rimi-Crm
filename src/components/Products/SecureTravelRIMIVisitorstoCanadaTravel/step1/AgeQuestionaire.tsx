@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import { IoWarning } from "react-icons/io5";
+import { useLanguage } from "../../../../context/LanguageContext";
 
 const questions = [
   {
@@ -85,6 +86,7 @@ const AgeQuestionaire = ({
   applicants,
   setCoverageForPreMedCon,
 }: Props) => {
+  const { t } = useLanguage();
   // Use stable index (applicant.index) for keys. 
   // Primary applicant is usually -1 or undefined in some contexts, but let's stick to applicant.index
   const [responses, setResponses] = useState<{
@@ -279,22 +281,14 @@ const AgeQuestionaire = ({
         <div className="flex justify-between items-start border-b border-inputBorder pb-3">
           <div>
             <h1 className="text-2xl font-semibold text-gray-900">
-              MEDICAL DECLARATION
+              {t("MEDICAL DECLARATION")}
               </h1>
             <p className="text-sm text-gray-500 mt-2">
-              This Medical Declaration must be completed if you are between 70
-              and 84 years of age as of the effective date of coverage and are
-              applying to purchase coverage for pre-existing medical conditions
-              that have been stable in the 180 days prior to your effective
-              date. Coverage for any pre-existing medical conditions is not
-              available if you are over 84 years of age.
+              {t("This Medical Declaration must be completed if you are between 70 and 84 years of age as of the effective date of coverage and are applying to purchase coverage for pre-existing medical conditions that have been stable in the 180 days prior to your effective date. Coverage for any pre-existing medical conditions is not available if you are over 84 years of age.")}
               <br />
               <br />
               <span className="text-red-600 font-medium">
-                * If you answer "Yes" to any of these questions, you will not be
-                eligible for coverage of stable pre-existing medical conditions
-                and "Include coverage for stable pre-existing medical
-                conditions" will be set to "No" for that applicant.
+                {t('* If you answer "Yes" to any of these questions, you will not be eligible for coverage of stable pre-existing medical conditions and "Include coverage for stable pre-existing medical conditions" will be set to "No" for that applicant.')}
               </span>
             </p>
           </div>
@@ -363,17 +357,10 @@ const AgeQuestionaire = ({
         {/* Footer notice */}
         <div className="mt-6 text-sm text-text-secondary bg-gray-50 p-4">
           <p className="mb-2 font-semibold">
-            If you answered Yes to any of the questions you are not eligible to
-            purchase coverage for pre-existing medical conditions.
+            {t("If you answered Yes to any of the questions you are not eligible to purchase coverage for pre-existing medical conditions.")}
           </p>
           <p>
-            The applicant declares that, to the best of the applicant's
-            knowledge, the statements and answers provided are truthful,
-            complete and accurate. The applicant agrees that the statements and
-            answers form part of the contract and that the insurance shall
-            become effective in accordance with, and subject to, the terms and
-            conditions of the policy. Misrepresentation or failure to disclose
-            any material fact may void the policy at the option of the insurer.
+            {t("The applicant declares that, to the best of the applicant's knowledge, the statements and answers provided are truthful, complete and accurate. The applicant agrees that the statements and answers form part of the contract and that the insurance shall become effective in accordance with, and subject to, the terms and conditions of the policy. Misrepresentation or failure to disclose any material fact may void the policy at the option of the insurer.")}
           </p>
         </div>
 
@@ -382,13 +369,13 @@ const AgeQuestionaire = ({
             onClick={closeModal}
             className="px-6 py-2 border border-inputBorder hover:border-gray-700 transition cursor-pointer delay-100"
           >
-            Cancel
+            {t("Cancel")}
           </button>
           <button
             onClick={handleSubmit}
             className="px-6 py-2 btn-primary cursor-pointer"
           >
-            Save
+            {t("Save")}
           </button>
         </div>
       </div>
@@ -396,15 +383,15 @@ const AgeQuestionaire = ({
       {showIneligibilityModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[60] p-4">
           <div className="bg-white max-w-md w-full p-6 shadow-2xl border border-gray-200">
-            <h2 className="text-2xl font-semibold text-yellow-500 mb-4 flex items-center gap-2"><IoWarning/>Warning</h2>
+            <h2 className="text-2xl font-semibold text-yellow-500 mb-4 flex items-center gap-2"><IoWarning/>{t("Warning")}</h2>
             <p className="text-gray-700 mb-6 leading-relaxed">
-              Based on the answers provided, some applicants are not eligible for coverage of stable pre-existing medical conditions.
+              {t("Based on the answers provided, some applicants are not eligible for coverage of stable pre-existing medical conditions.")}
               <br />
               <br />
               <strong>
-                "Include coverage for stable pre-existing medical conditions"
+                {t('"Include coverage for stable pre-existing medical conditions"')}
               </strong>{" "}
-              will be set to <strong>"No"</strong> for those applicants.
+              {t('will be set to')} <strong>{t('"No"')}</strong> {t('for those applicants.')}
             </p>
             <div className="flex justify-end gap-3">
               <button
@@ -413,13 +400,13 @@ const AgeQuestionaire = ({
                 }}
                 className="px-6 py-2 border border-inputBorder hover:border-gray-700 transition cursor-pointer delay-100"
               >
-                Go Back
+                {t("Go Back")}
               </button>
               <button
                 onClick={handleConfirmIneligibility}
                 className="btn-primary"
               >
-                OK
+                {t("OK")}
               </button>
             </div>
           </div>

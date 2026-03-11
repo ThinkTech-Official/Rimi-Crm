@@ -329,16 +329,14 @@
 
 
 // ====================================================
-
-
 import {
   PencilSquareIcon,
   TrashIcon,
   FolderPlusIcon,
   Cog6ToothIcon,
 } from "@heroicons/react/24/outline";
-import { useContext, useEffect, useState } from "react";
-import { LangContext } from "../../context/LangContext";
+import { useEffect, useState } from "react";
+import { useLanguage } from "../../context/LanguageContext";
 import { getUserTypeFromToken } from "../../utils/getUserType";
 import { useDocuments } from "../../hooks/documents/useDocuments";
 import AddDocument from "./AddDocument";
@@ -350,7 +348,7 @@ import DeleteDocumentModal from "./DeleteDocumentModal";
 import ManageCategoriesModal from "./ManageCategoriesModal";
 
 export default function Documents() {
-  const { langauge } = useContext(LangContext);
+  const { t } = useLanguage();
   const [userType, setUserType] = useState<string | null>(null);
   const [showAddDocument, setShowAddDocument] = useState<boolean>(false);
   const [editingDocument, setEditingDocument] = useState<{
@@ -391,14 +389,14 @@ export default function Documents() {
       await deleteDocument(deletingDocument.id);
       triggerNotification({
         type: "success",
-        message: "Document deleted successfully",
+        message: t("Document deleted successfully"),
       });
       setDeletingDocument(null);
     } catch (err) {
       console.error("Delete failed:", err);
       triggerNotification({
         type: "error",
-        message: "Failed to delete document",
+        message: t("Failed to delete document"),
       });
     }
   };
@@ -416,7 +414,7 @@ export default function Documents() {
     return (
       <div className="w-full mx-auto mt-4 px-2 py-4 sm:py-6 sm:px-10 bg-[#F9F9F9]">
         <div className="flex justify-center items-center h-64">
-          <p className="text-gray-500">Loading documents...</p>
+          <p className="text-gray-500">{t("Loading documents...")}</p>
         </div>
       </div>
     );
@@ -426,7 +424,7 @@ export default function Documents() {
     return (
       <div className="w-full mx-auto mt-4 px-2 py-4 sm:py-6 sm:px-10 bg-[#F9F9F9]">
         <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
-          Error loading documents: {error}
+          {t("Error loading documents")}: {error}
         </div>
       </div>
     );
@@ -436,7 +434,7 @@ export default function Documents() {
     <div className="w-full mx-auto mt-4 px-2 py-4 sm:py-6 sm:px-10 bg-[#F9F9F9]">
       <div className="flex sm:flex-row flex-col justify-between sm:items-center items-start mb-6">
         <h2 className="text-xl font-bold text-left text-[#1B1B1B] mb-3 sm:mb-0">
-          {langauge === "En" ? "Documents" : "Documents"}
+          {t("Documents")}
         </h2>
 
         {userType === "ADMIN" && (
@@ -446,14 +444,14 @@ export default function Documents() {
               className="py-2 px-4 border border-inputBorder hover:border-gray-500 transition flex items-center gap-2 cursor-pointer"
             >
               <Cog6ToothIcon className="h-5 w-5" />
-              Manage Categories
+              {t("Manage Categories")}
             </button>
             <button
               onClick={() => setShowAddDocument(true)}
               className="btn-primary flex items-center gap-2"
             >
               <FolderPlusIcon className="h-5 w-5" />
-              Add Document
+              {t("Add Document")}
             </button>
           </div>
         )}
@@ -462,14 +460,14 @@ export default function Documents() {
       {/* Documents grouped by category */}
       {Object.keys(categorizedDocuments).length === 0 ? (
         <div className="bg-white p-8 shadow-sm text-center">
-          <p className="text-gray-500">No documents found. Upload some documents to get started.</p>
+          <p className="text-gray-500">{t("No documents found. Upload some documents to get started.")}</p>
         </div>
       ) : (
         <div className="w-full space-y-8">
           {Object.entries(categorizedDocuments).map(([category, docs]) => (
             <div key={category} className="bg-white p-4 shadow-sm">
               <h3 className="text-md font-semibold text-primary mb-4 border-b pb-2">
-                {category}
+                {t(category)}
               </h3>
               <div className="space-y-3">
                 {docs.map((item) => (
@@ -564,4 +562,4 @@ export default function Documents() {
       {NotificationComponent}
     </div>
   );
-}
+}

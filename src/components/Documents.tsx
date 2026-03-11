@@ -336,17 +336,17 @@ import {
   TrashIcon,
   FolderPlusIcon,
 } from "@heroicons/react/24/outline";
-import { useContext, useEffect, useState } from "react";
-import { LangContext } from "../context/LangContext";
+import { useEffect, useState } from "react";
+import { useLanguage } from "../context/LanguageContext";
 import { getUserTypeFromToken } from "../utils/getUserType";
 import { API_BASE } from "../utils/urls";
-import AddDocument from "./AddDocument";
+import AddDocument from "./Documents/AddDocument";
 import { FaExternalLinkAlt } from "react-icons/fa";
 import EditDocumentModal from "./Documents/EditDocumentModal";
 import { useDocuments } from "../hooks/documents/useDocuments";
 
 export default function Documents() {
-  const { langauge } = useContext(LangContext);
+  const { t } = useLanguage();
   const [userType, setUserType] = useState<string | null>(null);
   const [showAddDocument, setShowAddDocument] = useState<boolean>(false);
   const [editingDocument, setEditingDocument] = useState<{
@@ -368,8 +368,8 @@ export default function Documents() {
     if (type) setUserType(type.userType);
   }, []);
 
-  const handleDelete = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this document?")) return;
+  const handleDelete = async (id: string, filename: string) => {
+    if (!confirm(`${t("Are you sure you want to delete")} "${filename}"? ${t("This action cannot be undone.")}`)) return;
     try {
       await deleteDocument(id);
     } catch (err) {
@@ -386,11 +386,13 @@ export default function Documents() {
     refetch();
   };
 
+  const triggerNotification = () => {};
+
   if (loading && Object.keys(categorizedDocuments).length === 0) {
     return (
       <div className="w-full mx-auto mt-4 px-2 py-4 sm:py-6 sm:px-10 bg-[#F9F9F9]">
         <div className="flex justify-center items-center h-64">
-          <p className="text-gray-500">Loading documents...</p>
+          <p className="text-gray-500">{t("Loading documents...")}</p>
         </div>
       </div>
     );
@@ -400,7 +402,7 @@ export default function Documents() {
     return (
       <div className="w-full mx-auto mt-4 px-2 py-4 sm:py-6 sm:px-10 bg-[#F9F9F9]">
         <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
-          Error loading documents: {error}
+          {t("Error loading documents")}: {error}
         </div>
       </div>
     );
@@ -410,7 +412,7 @@ export default function Documents() {
     <div className="w-full mx-auto mt-4 px-2 py-4 sm:py-6 sm:px-10 bg-[#F9F9F9]">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-xl font-bold text-left text-[#1B1B1B]">
-          {langauge === "En" ? "Documents" : "Documents"}
+          {t("Documents")}
         </h2>
         
         {userType === "ADMIN" && (
@@ -419,7 +421,7 @@ export default function Documents() {
             className="btn-primary flex items-center gap-2"
           >
             <FolderPlusIcon className="h-5 w-5" />
-            Add Document
+            {t("Add Document")}
           </button>
         )}
       </div>
@@ -427,14 +429,14 @@ export default function Documents() {
       {/* Documents grouped by category */}
       {Object.keys(categorizedDocuments).length === 0 ? (
         <div className="bg-white p-8 shadow-sm text-center">
-          <p className="text-gray-500">No documents found. Upload some documents to get started.</p>
+          <p className="text-gray-500">{t("No documents found. Upload some documents to get started.")}</p>
         </div>
       ) : (
         <div className="w-full space-y-8">
           {Object.entries(categorizedDocuments).map(([category, docs]) => (
             <div key={category} className="bg-white p-4 shadow-sm">
               <h3 className="text-md font-semibold text-primary mb-4 border-b pb-2">
-                {category}
+                {t(category)}
               </h3>
               <div className="space-y-3">
                 {docs.map((item) => (
@@ -474,7 +476,7 @@ export default function Documents() {
                             <PencilSquareIcon className="h-5 w-5 text-primary cursor-pointer hover:text-primary-dark" />
                           </button>
                           <button
-                            onClick={() => handleDelete(item.id)}
+                            onClick={() => handleDelete(item.id, item.filename)}
                             className="py-2 flex"
                           >
                             <TrashIcon className="h-5 w-5 text-red-500 cursor-pointer hover:text-red-600" />
@@ -494,6 +496,7 @@ export default function Documents() {
         <AddDocument
           setShowAddDocument={setShowAddDocument}
           onSuccess={refetch}
+          triggerNotification={triggerNotification}
         />
       )}
 
@@ -501,6 +504,8 @@ export default function Documents() {
         <EditDocumentModal
           document={editingDocument}
           onClose={handleCloseEdit}
+          categories={[]}
+          triggerNotification={triggerNotification}
         />
       )}
     </div>

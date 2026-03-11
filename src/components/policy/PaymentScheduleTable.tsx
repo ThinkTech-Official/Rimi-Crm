@@ -1,5 +1,6 @@
 import React from "react";
 import { PaymentScheduleItem } from "../../hooks/usePaymentSchedule";
+import { useLanguage } from "../../context/LanguageContext";
 
 interface PaymentScheduleTableProps {
   schedule: PaymentScheduleItem[];
@@ -20,11 +21,13 @@ export const PaymentScheduleTable: React.FC<PaymentScheduleTableProps> = ({
   cardLast4,
   cardBrand,
 }) => {
+  const { t } = useLanguage();
+
   if (loading) {
     return (
       <div className="flex justify-center items-center py-8">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-        <span className="ml-3 text-gray-600">Loading payment schedule...</span>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+        <span className="ml-3 text-gray-600">{t("Loading payment schedule...")}</span>
       </div>
     );
   }
@@ -40,7 +43,7 @@ export const PaymentScheduleTable: React.FC<PaymentScheduleTableProps> = ({
   if (!schedule || schedule.length === 0) {
     return (
       <div className="p-4 bg-gray-50 border border-gray-200 rounded-md">
-        <p className="text-gray-500 text-sm">No payment schedule available</p>
+        <p className="text-gray-500 text-sm">{t("No payment schedule available")}</p>
       </div>
     );
   }
@@ -60,19 +63,19 @@ export const PaymentScheduleTable: React.FC<PaymentScheduleTableProps> = ({
           styles[status as keyof typeof styles] || "bg-gray-100 text-gray-800"
         }`}
       >
-        {status.charAt(0).toUpperCase() + status.slice(1)}
+        {t(status.charAt(0).toUpperCase() + status.slice(1))}
       </span>
     );
   };
 
   const getPaymentTypeLabel = (type: string) => {
     const labels: Record<string, string> = {
-      "policy-issue-fee": "Policy Issue Fee",
-      "initial-premium": "Initial Premium",
-      "monthly-installment": "Recurring Premium",
-      "lump-sum": "Lump Sum",
+      "policy-issue-fee": t("Policy Issue Fee"),
+      "initial-premium": t("Initial Premium"),
+      "monthly-installment": t("Recurring Premium"),
+      "lump-sum": t("Lump Sum"),
     };
-    return labels[type] || type;
+    return labels[type] || t(type);
   };
 
   const formatDate = (dateString: string) => {
@@ -103,17 +106,16 @@ export const PaymentScheduleTable: React.FC<PaymentScheduleTableProps> = ({
         <thead className="bg-primary text-white text-sm 2xl:text-base capitalize">
           <tr>
             <th className="px-2 sm:px-3 py-1 sm:py-3 text-left font-medium text-nowrap">#</th>
-            <th className="px-2 sm:px-3 py-1 sm:py-3 text-left font-medium text-nowrap">Method</th>
-            <th className="px-2 sm:px-3 py-1 sm:py-3 text-left font-medium text-nowrap">Cardholder Name</th>
-            <th className="px-2 sm:px-3 py-1 sm:py-3 text-left font-medium text-nowrap">Brand</th>
-            <th className="px-2 sm:px-3 py-1 sm:py-3 text-left font-medium text-nowrap">Last 4</th>
-            <th className="px-2 sm:px-3 py-1 sm:py-3 text-right font-medium text-nowrap">Charged Amount</th>
-            {/* <th className="px-2 sm:px-3 py-1 sm:py-3 text-right font-medium text-nowrap">Transaction Fee</th> */}
-            <th className="px-2 sm:px-3 py-1 sm:py-3 text-left font-medium text-nowrap">Type</th>
-            <th className="px-2 sm:px-3 py-1 sm:py-3 text-left font-medium text-nowrap">Status</th>
-            <th className="px-2 sm:px-3 py-1 sm:py-3 text-left font-medium text-nowrap">Date</th>
+            <th className="px-2 sm:px-3 py-1 sm:py-3 text-left font-medium text-nowrap">{t("Method")}</th>
+            <th className="px-2 sm:px-3 py-1 sm:py-3 text-left font-medium text-nowrap">{t("Cardholder Name")}</th>
+            <th className="px-2 sm:px-3 py-1 sm:py-3 text-left font-medium text-nowrap">{t("Brand")}</th>
+            <th className="px-2 sm:px-3 py-1 sm:py-3 text-left font-medium text-nowrap">{t("Last 4")}</th>
+            <th className="px-2 sm:px-3 py-1 sm:py-3 text-right font-medium text-nowrap">{t("Charged Amount")}</th>
+            <th className="px-2 sm:px-3 py-1 sm:py-3 text-left font-medium text-nowrap">{t("Type")}</th>
+            <th className="px-2 sm:px-3 py-1 sm:py-3 text-left font-medium text-nowrap">{t("Status")}</th>
+            <th className="px-2 sm:px-3 py-1 sm:py-3 text-left font-medium text-nowrap">{t("Date")}</th>
             {onProcessRefund && (
-              <th className="px-2 sm:px-3 py-1 sm:py-3 text-center font-medium w-24 text-nowrap">Select Payment</th>
+              <th className="px-2 sm:px-3 py-1 sm:py-3 text-center font-medium w-24 text-nowrap">{t("Select Payment")}</th>
             )}
           </tr>
         </thead>
@@ -126,39 +128,31 @@ export const PaymentScheduleTable: React.FC<PaymentScheduleTableProps> = ({
               {/* Payment Method */}
               <td className="px-2 sm:px-3 py-2 sm:py-4 whitespace-nowrap" style={cellStyle}>
                 {item.paymentHistory
-                  ? "Credit Card"
+                  ? t("Credit Card")
                   : item.status === "pending"
-                  ? "Card"
-                  : "N/A"}
+                  ? t("Card")
+                  : t("N/A")}
               </td>
 
               {/* Cardholder Name */}
               <td className="px-2 sm:px-3 py-2 sm:py-4 whitespace-nowrap" style={cellStyle}>
-                {cardHolderName || "N/A"}
+                {cardHolderName || t("N/A")}
               </td>
 
               {/* Brand */}
               <td className="px-2 sm:px-3 py-2 sm:py-4 whitespace-nowrap capitalize" style={cellStyle}>
-                {cardBrand || "N/A"}
+                {cardBrand || t("N/A")}
               </td>
 
               {/* Card Last 4 */}
               <td className="px-2 sm:px-3 py-2 sm:py-4 whitespace-nowrap" style={cellStyle}>
-                {cardLast4 || "N/A"}
+                {cardLast4 || t("N/A")}
               </td>
 
               {/* Charged Amount */}
               <td className="px-2 sm:px-3 py-2 sm:py-4 whitespace-nowrap text-right font-medium" style={cellStyle}>
                 {formatCurrency(item.amount, item.currency)}
               </td>
-
-              {/* Transaction Fee */}
-              {/* <td className="px-2 sm:px-3 py-2 sm:py-4 whitespace-nowrap text-right" style={cellStyle}>
-                {item.paymentHistory?.fee !== null &&
-                item.paymentHistory?.fee !== undefined
-                  ? formatCurrency(item.paymentHistory.fee, item.currency)
-                  : "N/A"}
-              </td> */}
 
               {/* Type */}
               <td className="px-2 sm:px-3 py-2 sm:py-4 whitespace-nowrap" style={cellStyle}>
@@ -195,7 +189,7 @@ export const PaymentScheduleTable: React.FC<PaymentScheduleTableProps> = ({
                           )
                         }
                         className="inline-flex items-center justify-center w-7 h-7 bg-red-50 text-red-600 hover:bg-red-600 hover:text-white rounded border border-red-200 transition-all duration-150"
-                        title="Process refund"
+                        title={t("Process refund")}
                       >
                         <svg
                           className="w-4 h-4"

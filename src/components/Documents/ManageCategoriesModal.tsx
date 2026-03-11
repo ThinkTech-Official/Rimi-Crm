@@ -3,6 +3,7 @@ import { MdClose, MdEdit, MdDelete, MdCheck, MdBlock } from "react-icons/md";
 import { useCategories } from "../../hooks/documents/useCategories";
 import { useDocuments } from "../../hooks/documents/useDocuments";
 import { NotificationProps } from "../Notification";
+import { useLanguage } from "../../context/LanguageContext";
 
 interface ManageCategoriesModalProps {
     onClose: () => void;
@@ -13,6 +14,7 @@ const ManageCategoriesModal = ({
     onClose,
     triggerNotification,
 }: ManageCategoriesModalProps) => {
+    const { t } = useLanguage();
     const { categories, addCategory, updateCategory, deleteCategory, loading: categoryLoading } = useCategories();
     const { categorizedDocuments, loading: docsLoading } = useDocuments();
 
@@ -30,13 +32,13 @@ const ManageCategoriesModal = ({
             await addCategory(newCategoryName.trim());
             triggerNotification({
                 type: "success",
-                message: "Category added successfully",
+                message: t("Category added successfully"),
             });
             setNewCategoryName("");
         } catch (err: any) {
             triggerNotification({
                 type: "error",
-                message: err.message || "Failed to add category",
+                message: err.message || t("Failed to add category"),
             });
         }
     };
@@ -47,13 +49,13 @@ const ManageCategoriesModal = ({
             await updateCategory(id, editingName.trim());
             triggerNotification({
                 type: "success",
-                message: "Category updated successfully",
+                message: t("Category updated successfully"),
             });
             setEditingId(null);
         } catch (err: any) {
             triggerNotification({
                 type: "error",
-                message: err.message || "Failed to update category",
+                message: err.message || t("Failed to update category"),
             });
         }
     };
@@ -76,13 +78,13 @@ const ManageCategoriesModal = ({
             await deleteCategory(deletingCategory.id);
             triggerNotification({
                 type: "success",
-                message: "Category deleted successfully",
+                message: t("Category deleted successfully"),
             });
             setDeletingCategory(null);
         } catch (err: any) {
             triggerNotification({
                 type: "error",
-                message: err.message || "Failed to delete category",
+                message: err.message || t("Failed to delete category"),
             });
         }
     };
@@ -103,7 +105,7 @@ const ManageCategoriesModal = ({
                     className="text-text-secondary absolute top-4 right-4 cursor-pointer"
                 />
 
-                <h2 className="text-xl font-bold mb-6">Manage Categories</h2>
+                <h2 className="text-xl font-bold mb-6">{t("Manage Categories")}</h2>
 
                 {/* Add Category Form */}
                 <form onSubmit={handleAdd} className="flex gap-2 mb-6">
@@ -111,7 +113,7 @@ const ManageCategoriesModal = ({
                         type="text"
                         value={newCategoryName}
                         onChange={(e) => setNewCategoryName(e.target.value)}
-                        placeholder="New category name"
+                        placeholder={t("New category name")}
                         className="input-primary flex-1"
                         disabled={loading}
                     />
@@ -120,7 +122,7 @@ const ManageCategoriesModal = ({
                         className="btn-primary px-6"
                         disabled={loading || !newCategoryName.trim()}
                     >
-                        Add
+                        {t("Add")}
                     </button>
                 </form>
 
@@ -157,14 +159,14 @@ const ManageCategoriesModal = ({
                                         <button
                                             onClick={() => startEditing(cat.id, cat.name)}
                                             className="p-1.5 text-primary cursor-pointer"
-                                            title="Edit"
+                                            title={t("Edit")}
                                         >
                                             <MdEdit size={18} />
                                         </button>
                                         <button
                                             onClick={() => handleDeleteClick(cat.id, cat.name)}
                                             className="p-1.5 text-red-500 cursor-pointer"
-                                            title="Delete"
+                                            title={t("Delete")}
                                         >
                                             <MdDelete size={18} />
                                         </button>
@@ -175,7 +177,7 @@ const ManageCategoriesModal = ({
                     ))}
 
                     {categories.length === 0 && !loading && (
-                        <p className="text-center text-gray-400 py-4">No categories found.</p>
+                        <p className="text-center text-gray-400 py-4">{t("No categories found.")}</p>
                     )}
                 </div>
 
@@ -184,7 +186,7 @@ const ManageCategoriesModal = ({
                         onClick={onClose}
                         className="py-2 px-6 border border-inputBorder hover:border-gray-500 transition cursor-pointer"
                     >
-                        Close
+                        {t("Close")}
                     </button>
                 </div>
 
@@ -195,15 +197,15 @@ const ManageCategoriesModal = ({
                             <div className="w-12 h-12 bg-blue-50 text-blue-600 flex items-center justify-center rounded-full mb-4">
                                 <MdBlock size={28} />
                             </div>
-                            <h3 className="text-lg font-bold mb-2">Deletion Blocked</h3>
+                            <h3 className="text-lg font-bold mb-2">{t("Deletion Blocked")}</h3>
                             <p className="text-gray-600 mb-6 sm:text-sm">
-                                The category <strong>&quot;{blockedCategory.name}&quot;</strong> cannot be deleted because it has <strong>{blockedCategory.count}</strong> file(s) associated with it. Please move or delete the files first.
+                                {t("The category")} <strong>&quot;{blockedCategory.name}&quot;</strong> {t("cannot be deleted because it has")} <strong>{blockedCategory.count}</strong> {t("file(s) associated with it. Please move or delete the files first.")}
                             </p>
                             <button
                                 onClick={() => setBlockedCategory(null)}
                                 className="btn-primary w-full py-2.5"
                             >
-                                Understood
+                                {t("Understood")}
                             </button>
                         </div>
                     </div>
@@ -220,22 +222,22 @@ const ManageCategoriesModal = ({
                             <div className="w-12 h-12 bg-red-50 text-red-600 flex items-center justify-center rounded-full mb-4">
                                 <MdDelete size={28} />
                             </div>
-                            <h3 className="text-lg font-bold mb-2 text-text-dark">Delete Category?</h3>
+                            <h3 className="text-lg font-bold mb-2 text-text-dark">{t("Delete Category?")}</h3>
                             <p className="text-gray-600 mb-6 sm:text-sm">
-                                Are you sure you want to delete the category <strong>&quot;{deletingCategory.name}&quot;</strong>? This action cannot be undone.
+                                {t("Are you sure you want to delete the category")} <strong>&quot;{deletingCategory.name}&quot;</strong>? {t("This action cannot be undone.")}
                             </p>
                             <div className="flex gap-3 w-full">
                                 <button
                                     onClick={() => setDeletingCategory(null)}
                                     className="flex-1 py-2 px-4 border border-inputBorder hover:border-gray-500 transition cursor-pointer"
                                 >
-                                    Cancel
+                                    {t("Cancel")}
                                 </button>
                                 <button
                                     onClick={confirmDelete}
                                     className="flex-1 bg-red-500 hover:bg-red-600 text-white py-2 px-4 transition cursor-pointer"
                                 >
-                                    Delete
+                                    {t("Delete")}
                                 </button>
                             </div>
                         </div>
