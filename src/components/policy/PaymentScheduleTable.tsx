@@ -186,7 +186,8 @@ export const PaymentScheduleTable: React.FC<PaymentScheduleTableProps> = ({
                 <td className="px-2 sm:px-3 py-2 sm:py-4 whitespace-nowrap text-center" style={cellStyle}>
                   {item.paymentType === "policy-issue-fee" &&
                     item.status === "paid" &&
-                    item.paymentHistoryId && (
+                    item.paymentHistoryId &&
+                    item.paymentHistory?.status !== "refunded" && (
                       <button
                         onClick={() =>
                           onProcessRefund(
