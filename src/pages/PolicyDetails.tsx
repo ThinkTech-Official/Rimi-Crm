@@ -1876,3 +1876,14 @@ const PolicyDetailsPage: React.FC = () => {
 };
 
 export default PolicyDetailsPage;
+
+
+
+
+
+
+
+
+
+
+
