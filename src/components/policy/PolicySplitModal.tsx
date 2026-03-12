@@ -543,10 +543,10 @@ export const PolicySplitModal: React.FC<PolicySplitModalProps> = ({
             {currentStep === 'confirm' && (
               <div>
                 <div className="mb-6 p-4 bg-red-50/30 border border-red-200">
-                  <p className="font-semibold text-red-900 mb-2">⚠️ {t("Important: This action cannot be easily undone")}</p>
+                  <p className="font-semibold text-red-900 mb-2">⚠️ {t("Important: This action cannot be undone")}</p>
                   <p className="text-red-800 text-sm">
                     {t("After confirmation, the original policy will be PAUSED and new policies will be created.")} 
-                    {t("You will have a 5-minute window to undo this action if needed.")}
+                    {/* {t("You will have a 5-minute window to undo this action if needed.")} */}
                   </p>
                 </div>
 

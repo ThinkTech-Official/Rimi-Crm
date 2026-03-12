@@ -38,10 +38,10 @@ import { MdClose, MdUploadFile } from "react-icons/md";
 import { HealthQuestionnaireSection } from "./QuoteDetails";
 
 const fmtDate = (iso?: string) => {
-    if (!iso) return "-";
-  const datePart = iso.split("T")[0]; 
+  if (!iso) return "-";
+  const datePart = iso.split("T")[0];
   return datePart;
-}
+};
 
 const calcAge = (dob?: string, ref?: string) => {
   if (!dob || !ref) return "-";
@@ -62,7 +62,7 @@ const formatFileSize = (bytes: number): string => {
 
 function getCoverageLength(
   effectiveDate: string,
-  expiryDate: string
+  expiryDate: string,
 ): number | string {
   const start = new Date(effectiveDate);
   const end = new Date(expiryDate);
@@ -144,7 +144,7 @@ const PolicyDetailsPage: React.FC = () => {
   const [isEditMode, setIsEditMode] = useState(false);
   const [editedPolicy, setEditedPolicy] = useState<Partial<PolicyDetail>>({});
   const [editedApplicants, setEditedApplicants] = useState<PolicyApplicant[]>(
-    []
+    [],
   );
 
   const {
@@ -156,7 +156,7 @@ const PolicyDetailsPage: React.FC = () => {
 
   const [showRefundModal, setShowRefundModal] = useState(false);
   const [refundData, setRefundData] = useState<Partial<RefundData> | null>(
-    null
+    null,
   );
 
   const [showPremiumModal, setShowPremiumModal] = useState(false);
@@ -196,7 +196,8 @@ const PolicyDetailsPage: React.FC = () => {
   }, [p]);
 
   if (loading) return <p className="text-center py-10">{t("Loading...")}</p>;
-  if (error) return <p className="text-red-600 text-center py-10">{t(error)}</p>;
+  if (error)
+    return <p className="text-red-600 text-center py-10">{t(error)}</p>;
   if (!p) return <p className="text-center py-10">{t("No policy found.")}</p>;
 
   const history = p.paymentHistory ?? [];
@@ -204,7 +205,7 @@ const PolicyDetailsPage: React.FC = () => {
   // BUTTON VISIBILITY
 
   const canModify = p.status === "SOLD" || p.status === "ACTIVE";
-  const canCancel = p.status !== "CANCELLED";
+  const canCancel = p.status !== "CANCELLED" && p.status !== "PAUSED";
 
   // helper to check if policy can update card
   const canUpdateCard =
@@ -325,7 +326,9 @@ const PolicyDetailsPage: React.FC = () => {
           valid: false,
           error: {
             title: t("Cannot Extend Coverage"),
-            message: t("Cannot extend coverage for active policies. Only early return is allowed."),
+            message: t(
+              "Cannot extend coverage for active policies. Only early return is allowed.",
+            ),
           },
         };
       }
@@ -379,7 +382,7 @@ const PolicyDetailsPage: React.FC = () => {
           originalExpiryDate,
           expiryDate,
           p.premium || 0,
-          parseInt(p.covLen || "365")
+          parseInt(p.covLen || "365"),
         );
 
         if (refundCalc) {
@@ -463,7 +466,7 @@ const PolicyDetailsPage: React.FC = () => {
 
   const handleRefundConfirm = async (
     transactionFee: number,
-    netRefund: number
+    netRefund: number,
   ) => {
     if (!refundData) return;
 
@@ -486,7 +489,10 @@ const PolicyDetailsPage: React.FC = () => {
 
   const handleRefund = async (paymentHistoryId: string, amount: number) => {
     if (!id) {
-      triggerNotification({ message: t("Policy ID not found"), type: "warning" });
+      triggerNotification({
+        message: t("Policy ID not found"),
+        type: "warning",
+      });
       return;
     }
 
@@ -499,7 +505,7 @@ const PolicyDetailsPage: React.FC = () => {
       id,
       paymentHistoryId,
       `Manual refund of policy fee`,
-      "admin"
+      "admin",
     );
 
     if (result) {
@@ -548,7 +554,7 @@ const PolicyDetailsPage: React.FC = () => {
     label: string,
     field: keyof PolicyDetail,
     type: "text" | "email" | "date" | "select" = "text",
-    options?: string[]
+    options?: string[],
   ) => {
     const value = editedPolicy[field] ?? p[field] ?? "";
 
@@ -600,18 +606,18 @@ const PolicyDetailsPage: React.FC = () => {
   return (
     <div className="max-w-5xl mx-auto p-6 space-y-8 bg-white">
       <div className="flex w-full justify-center gap-6">
-          <img src="/rimi_en.png" alt="rimi_logo" className="w-[100px]" />
-          <img
-            src="/securetravel_en.png"
-            alt="securetravel"
-            className="w-[130px]"
-          />
-        </div>
-      
+        <img src="/rimi_en.png" alt="rimi_logo" className="w-[100px]" />
+        <img
+          src="/securetravel_en.png"
+          alt="securetravel"
+          className="w-[130px]"
+        />
+      </div>
+
       {/* Policy Name */}
       <div className="flex w-full justify-center">
         <h1 className="text-2xl font-semibold text-primary">
-          {t(p.product?.replace(/_/g, ' ') || 'Policy Details')}
+          {t(p.product?.replace(/_/g, " ") || "Policy Details")}
         </h1>
       </div>
 
@@ -723,7 +729,9 @@ const PolicyDetailsPage: React.FC = () => {
         <div className="grid grid-cols-3 gap-4 text-sm capitalize w-full">
           <div className="min-w-0">
             <div className="font-semibold text-base">{t("Policy Number")}</div>
-            <div className="text-sm text-[#6F6B7D] break-words">{p.policyNumber}</div>
+            <div className="text-sm text-[#6F6B7D] break-words">
+              {p.policyNumber}
+            </div>
           </div>
           <div className="min-w-0">
             <div className="font-semibold text-base">{t("Sale Date")}</div>
@@ -737,7 +745,9 @@ const PolicyDetailsPage: React.FC = () => {
               className={`break-words ${
                 p.status === "CANCELLED"
                   ? "text-red-600 font-semibold"
-                  : "text-sm text-[#6F6B7D]"
+                  : p.status === "PAUSED"
+                    ? "text-yellow-500 font-semibold"
+                    : "text-sm text-[#6F6B7D]"
               }`}
             >
               {t(p.status || "")}
@@ -745,9 +755,7 @@ const PolicyDetailsPage: React.FC = () => {
           </div>
           <div className="min-w-0">
             <div className="font-semibold">{t("Language")}</div>
-            <div className="text-sm text-[#6F6B7D] break-words">
-              {language}
-            </div>
+            <div className="text-sm text-[#6F6B7D] break-words">{language}</div>
           </div>
           <div className="min-w-0">
             <div className="font-semibold">{t("Sales Channel")}</div>
@@ -757,7 +765,9 @@ const PolicyDetailsPage: React.FC = () => {
           </div>
           <div className="min-w-0">
             <div className="font-semibold">{t("Agent")}</div>
-            <div className="text-sm text-[#6F6B7D] break-words">{p.agentCode}</div>
+            <div className="text-sm text-[#6F6B7D] break-words">
+              {p.agentCode}
+            </div>
           </div>
         </div>
       </div>
@@ -770,17 +780,21 @@ const PolicyDetailsPage: React.FC = () => {
         <div className="grid grid-cols-3 gap-4 text-sm w-full capitalize">
           <div className="min-w-0">
             <div className="font-semibold text-base">{t("Policy Number")}</div>
-            <div className="text-sm text-[#6F6B7D] break-words">{p.primaryIndividualNumber}</div>
+            <div className="text-sm text-[#6F6B7D] break-words">
+              {p.primaryIndividualNumber}
+            </div>
           </div>
           {renderEditableField("First Name", "firstName")}
           {renderEditableField("Last Name", "lastName")}
           {renderEditableField("Date of Birth", "dateOfBirth", "date")}
           <div className="min-w-0">
-            <div className="font-semibold mt-4">{t("Age on Effective Date")}</div>
+            <div className="font-semibold mt-4">
+              {t("Age on Effective Date")}
+            </div>
             <div className="text-sm text-[#6F6B7D] break-words">
               {calcAge(
                 editedPolicy.dateOfBirth || p.dateOfBirth?.toString(),
-                editedPolicy.effectiveDate || p.effectiveDate?.toString()
+                editedPolicy.effectiveDate || p.effectiveDate?.toString(),
               )}
             </div>
           </div>
@@ -799,7 +813,9 @@ const PolicyDetailsPage: React.FC = () => {
           </div>
           <div className="mt-4 min-w-0">
             <div className="font-semibold text-base">{t("Premium")}</div>
-            <div className="text-sm text-[#6F6B7D] break-words">CAD {p.primaryPremium}</div>
+            <div className="text-sm text-[#6F6B7D] break-words">
+               {p.primaryPremium ? `CAD ${p.primaryPremium} `: ` -`}
+            </div>
           </div>
         </div>
       </div>
@@ -817,15 +833,11 @@ const PolicyDetailsPage: React.FC = () => {
           {renderEditableField(
             "Additional Email Address",
             "additionalEmail",
-            "email"
+            "email",
           )}
           {renderEditableField("Phone Number", "phoneNumber")}
-          <div>
-            {renderEditableField("Address Line 1", "street")}
-          </div>
-          <div>
-            {renderEditableField("Address Line 2", "street2")}
-          </div>
+          <div>{renderEditableField("Address Line 1", "street")}</div>
+          <div>{renderEditableField("Address Line 2", "street2")}</div>
           {renderEditableField("City", "city")}
           {renderEditableField("Province", "province")}
           {renderEditableField("Country", "countryCode")}
@@ -845,8 +857,12 @@ const PolicyDetailsPage: React.FC = () => {
             </div>
             <div className="grid grid-cols-3 gap-4 text-sm w-full capitalize">
               <div className="min-w-0">
-                <div className="font-semibold text-base">{t("Policy Number")}</div>
-                <div className="text-sm text-[#6F6B7D] break-words">{a.policyNumber}</div>
+                <div className="font-semibold text-base">
+                  {t("Policy Number")}
+                </div>
+                <div className="text-sm text-[#6F6B7D] break-words">
+                  {a.policyNumber}
+                </div>
               </div>
               <div className="min-w-0">
                 <div className="font-semibold text-base">{t("First Name")}</div>
@@ -860,7 +876,9 @@ const PolicyDetailsPage: React.FC = () => {
                     className="input-primary"
                   />
                 ) : (
-                  <div className="text-sm text-[#6F6B7D] break-words">{a.firstName}</div>
+                  <div className="text-sm text-[#6F6B7D] break-words">
+                    {a.firstName}
+                  </div>
                 )}
               </div>
               <div className="min-w-0">
@@ -875,7 +893,9 @@ const PolicyDetailsPage: React.FC = () => {
                     className="input-primary"
                   />
                 ) : (
-                  <div className="text-sm text-[#6F6B7D] break-words">{a.lastName}</div>
+                  <div className="text-sm text-[#6F6B7D] break-words">
+                    {a.lastName}
+                  </div>
                 )}
               </div>
               <div className="min-w-0">
@@ -896,7 +916,9 @@ const PolicyDetailsPage: React.FC = () => {
                 )}
               </div>
               <div className="min-w-0">
-                <div className="font-semibold mt-4">{t("Age on Effective Date")}</div>
+                <div className="font-semibold mt-4">
+                  {t("Age on Effective Date")}
+                </div>
                 <div className="text-sm text-[#6F6B7D] break-words">
                   {calcAge(a.dateOfBirth, p.effectiveDate?.toString())}
                 </div>
@@ -916,7 +938,9 @@ const PolicyDetailsPage: React.FC = () => {
                     <option value="Other">{t("Other")}</option>
                   </select>
                 ) : (
-                  <div className="text-sm text-[#6F6B7D] break-words">{t(a.gender || "")}</div>
+                  <div className="text-sm text-[#6F6B7D] break-words">
+                    {t(a.gender || "")}
+                  </div>
                 )}
               </div>
               <div className="min-w-0">
@@ -933,12 +957,16 @@ const PolicyDetailsPage: React.FC = () => {
                     className="input-primary"
                   />
                 ) : (
-                  <div className="text-sm text-[#6F6B7D] break-words">{t(a.relation || "")}</div>
+                  <div className="text-sm text-[#6F6B7D] break-words">
+                    {t(a.relation || "")}
+                  </div>
                 )}
               </div>
               <div className="col-span-2 mt-4 min-w-0">
                 <div className="font-semibold text-base">
-                  {t("Include Coverage for Stable Pre-Existing Medical Conditions")}
+                  {t(
+                    "Include Coverage for Stable Pre-Existing Medical Conditions",
+                  )}
                 </div>
                 <div className="text-sm text-[#6F6B7D] break-words">
                   {t(a.PreExCoverage || "No")}
@@ -955,7 +983,9 @@ const PolicyDetailsPage: React.FC = () => {
               </div>
             </div>
             {a.healthQuestionnaire && (
-              <HealthQuestionnaireSection questionnaire={a.healthQuestionnaire} />
+              <HealthQuestionnaireSection
+                questionnaire={a.healthQuestionnaire}
+              />
             )}
           </div>
         ))}
@@ -969,30 +999,47 @@ const PolicyDetailsPage: React.FC = () => {
           {renderEditableField("Effective Date", "effectiveDate", "date")}
           {renderEditableField("Expiry Date", "expiryDate", "date")}
           <div className="min-w-0">
-            <div className="font-semibold text-base">{t("Coverage Length")}</div>
+            <div className="font-semibold text-base">
+              {t("Coverage Length")}
+            </div>
             <div className="text-sm text-[#6F6B7D] break-words">
-              {calculateDays(
+              {/* {calculateDays(
                 editedPolicy.effectiveDate ||
                   fmtDate(p.effectiveDate?.toString()),
                 editedPolicy.expiryDate || fmtDate(p.expiryDate?.toString())
               )}{" "}
+              {t("Days")} */}
+              {isEditMode
+                ? calculateDays(
+                    editedPolicy.effectiveDate ||
+                      fmtDate(p.effectiveDate?.toString()),
+                    editedPolicy.expiryDate ||
+                      fmtDate(p.expiryDate?.toString()),
+                  )
+                : p.covLen}{" "}
               {t("Days")}
             </div>
           </div>
           <div className="min-w-0">
             <div className="font-semibold mt-4">{t("Policy Type")}</div>
-            <div className="text-sm text-[#6F6B7D] break-words">{t(p.policyType || "")}</div>
+            <div className="text-sm text-[#6F6B7D] break-words">
+              {t(p.policyType || "")}
+            </div>
           </div>
           <div className="min-w-0">
             <div className="font-semibold mt-4">{t("Country of Origin")}</div>
-            <div className="text-sm text-[#6F6B7D] break-words">{t(p.countryOfOrigin || "")}</div>
+            <div className="text-sm text-[#6F6B7D] break-words">
+              {t(p.countryOfOrigin || "")}
+            </div>
           </div>
           {renderEditableField("Destination Province", "destination")}
           <div className="min-w-0">
             <div className="font-semibold mt-4">
               {t("Are Applicants Currently in Canada?")}
             </div>
-            <div className="text-sm text-[#6F6B7D] break-words">{t(p.applicantInCanada || "")}</div>
+            <div className="text-sm text-[#6F6B7D] break-words">
+              {t(p.applicantInCanada || "")}
+            </div>
           </div>
           <div className="min-w-0">
             <div className="font-semibold mt-4">
@@ -1022,7 +1069,9 @@ const PolicyDetailsPage: React.FC = () => {
           </div>
           <div className="min-w-0">
             <div className="font-semibold mt-4">{t("Coverage")}</div>
-            <div className="text-sm text-[#6F6B7D] break-words">{t(p.coverage || "")}</div>
+            <div className="text-sm text-[#6F6B7D] break-words">
+              {t(p.coverage || "")}
+            </div>
           </div>
           {renderEditableField("Deductible", "deductible")}
         </div>
@@ -1036,7 +1085,9 @@ const PolicyDetailsPage: React.FC = () => {
         <div className="grid grid-cols-3 gap-4 text-sm w-full capitalize">
           <div className="min-w-0">
             <div className="font-semibold text-base">{t("Name")}</div>
-            <div className="text-sm text-[#6F6B7D] break-words">{p.beneficiaryName}</div>
+            <div className="text-sm text-[#6F6B7D] break-words">
+              {p.beneficiaryName}
+            </div>
           </div>
           <div className="min-w-0">
             <div className="font-semibold text-base">
@@ -1057,66 +1108,69 @@ const PolicyDetailsPage: React.FC = () => {
             {t("Premium / Payment Info")}
           </div>
 
-    <div className="grid grid-cols-4 gap-x-4">
-      <div className="min-w-0">
-        <div className="font-medium">{t("Premium")}</div>
-        <div className="break-words">
-          {p?.premium.toLocaleString("en-CA", {
-            style: "currency",
-            currency: history[0]?.currency || "CAD",
-            currencyDisplay: "code",
-          })}
-        </div>
-      </div>
-      <div className="min-w-0">
-        <div className="font-medium">{t("Payment Option")}</div>
-        <div className="break-words">{p.paymentOption || "-"}</div>
-      </div>
-      <div className="min-w-0">
-        <div className="font-medium">{t("Credit Card")}</div>
-        {/* <div>{history[0]?.last4 ? `•••• ${history[0].last4}` : "-"}</div> */}
-
-
-<div className="min-w-0">
-          {(() => {
-            // Priority: Policy.currentCard -> Most Recent Payment -> First Payment
-            const brand = p.currentCardBrand || 
-                         history[history.length - 1]?.brand || 
-                         history[0]?.brand;
-            const last4 = p.currentCardLast4 || 
-                         history[history.length - 1]?.last4 || 
-                         history[0]?.last4;
-            const name = p.currentCardholderName || 
-                        history[history.length - 1]?.cardholderName || 
-                        history[0]?.cardholderName;
-            
-            if (!last4) return "-";
-            
-            return (
-              <div className="flex flex-col">
-                <span className="font-medium">
-                  {brand?.toUpperCase()} •••• {last4}
-                </span>
-                {name && (
-                  <span className="text-xs text-gray-600">{name}</span>
-                )}
-                {p.currentCardUpdatedAt && (
-                  <span className="text-xs text-gray-500">
-                    {t("Updated:")} {fmtDate(p.currentCardUpdatedAt.toString())}
-                  </span>
-                )}
+          <div className="grid grid-cols-4 gap-x-4">
+            <div className="min-w-0">
+              <div className="font-medium">{t("Premium")}</div>
+              <div className="break-words">
+                {p?.premium.toLocaleString("en-CA", {
+                  style: "currency",
+                  currency: history[0]?.currency || "CAD",
+                  currencyDisplay: "code",
+                })}
               </div>
-            );
-          })()}
-        </div>
+            </div>
+            <div className="min-w-0">
+              <div className="font-medium">{t("Payment Option")}</div>
+              <div className="break-words">{p.paymentOption || "-"}</div>
+            </div>
+            <div className="min-w-0">
+              <div className="font-medium">{t("Credit Card")}</div>
+              {/* <div>{history[0]?.last4 ? `•••• ${history[0].last4}` : "-"}</div> */}
 
+              <div className="min-w-0">
+                {(() => {
+                  // Priority: Policy.currentCard -> Most Recent Payment -> First Payment
+                  const brand =
+                    p.currentCardBrand ||
+                    history[history.length - 1]?.brand ||
+                    history[0]?.brand;
+                  const last4 =
+                    p.currentCardLast4 ||
+                    history[history.length - 1]?.last4 ||
+                    history[0]?.last4;
+                  const name =
+                    p.currentCardholderName ||
+                    history[history.length - 1]?.cardholderName ||
+                    history[0]?.cardholderName;
 
-      </div>
-      <div className="min-w-0">
-        <div className="font-medium">{t("Date")}</div>
-        <div className="break-words">{history[0]?.date ? fmtDate(history[0].date) : "-"}</div>
-      </div>
-    </div>
+                  if (!last4) return "-";
+
+                  return (
+                    <div className="flex flex-col">
+                      <span className="font-medium">
+                        {brand?.toUpperCase()} •••• {last4}
+                      </span>
+                      {name && (
+                        <span className="text-xs text-gray-600">{name}</span>
+                      )}
+                      {p.currentCardUpdatedAt && (
+                        <span className="text-xs text-gray-500">
+                          {t("Updated:")}{" "}
+                          {fmtDate(p.currentCardUpdatedAt.toString())}
+                        </span>
+                      )}
+                    </div>
+                  );
+                })()}
+              </div>
+            </div>
+            <div className="min-w-0">
+              <div className="font-medium">{t("Date")}</div>
+              <div className="break-words">
+                {history[0]?.date ? fmtDate(history[0].date) : "-"}
+              </div>
+            </div>
+          </div>
 
           {/* ✅ ADD THIS: Parent Policy Link for Split Policies */}
           {p.parentPolicyId && (
@@ -1155,7 +1209,9 @@ const PolicyDetailsPage: React.FC = () => {
             paymentSchedule &&
             paymentSchedule.length > 0 && (
               <div className="mt-6">
-                <h3 className="font-semibold text-sm mb-3">{t("Payment Schedule")}</h3>
+                <h3 className="font-semibold text-sm mb-3">
+                  {t("Payment Schedule")}
+                </h3>
                 <PaymentScheduleTable
                   schedule={paymentSchedule || []}
                   loading={scheduleLoading}
@@ -1163,9 +1219,9 @@ const PolicyDetailsPage: React.FC = () => {
                   onProcessRefund={
                     p.status === "CANCELLED" ? handleRefund : undefined
                   }
-                  cardHolderName = {p.currentCardholderName}
-                  cardLast4 = {p.currentCardLast4}
-                  cardBrand = {p.currentCardBrand}
+                  cardHolderName={p.currentCardholderName}
+                  cardLast4={p.currentCardLast4}
+                  cardBrand={p.currentCardBrand}
                 />
               </div>
             )}
@@ -1173,7 +1229,9 @@ const PolicyDetailsPage: React.FC = () => {
           {/* Payment History Table */}
           {history.length > 0 && (
             <div className="mt-4">
-              <h3 className="font-semibold text-sm mb-3">{t("Payment History")}</h3>
+              <h3 className="font-semibold text-sm mb-3">
+                {t("Payment History")}
+              </h3>
               <div className="overflow-x-auto custom-scrollbar-x">
                 <table className="min-w-full divide-y divide-gray-200">
                   <thead className="bg-primary text-white text-sm 2xl:text-base capitalize">
@@ -1299,8 +1357,8 @@ const PolicyDetailsPage: React.FC = () => {
                                 h.status === "succeeded"
                                   ? "text-green-600"
                                   : h.status === "refunded"
-                                  ? "text-orange-600"
-                                  : ""
+                                    ? "text-orange-600"
+                                    : ""
                               }`}
                             >
                               {h.status}
@@ -1413,7 +1471,9 @@ const PolicyDetailsPage: React.FC = () => {
             />
           </div>
           <div>
-            <label className="font-semibold text-base">{t("Agent Email")}</label>
+            <label className="font-semibold text-base">
+              {t("Agent Email")}
+            </label>
             <input
               className="input-primary"
               value={p.agentEmail ? p.agentEmail : agentEmail}
@@ -1506,7 +1566,7 @@ const PolicyDetailsPage: React.FC = () => {
             )}
             {notes.map((n) => (
               <li key={n.id} className="px-2 py-4 bg-[#F9FAFB]">
-                  <div>{n.content}</div>
+                <div>{n.content}</div>
                 <div className="text-xs text-gray-500 mt-1">
                   {new Date(n.createdAt).toLocaleString("en-CA", {
                     year: "numeric",
@@ -1641,7 +1701,9 @@ const PolicyDetailsPage: React.FC = () => {
               )}
             </div>
             <div>
-              <label className="font-medium block mt-2">{t("Description")}</label>
+              <label className="font-medium block mt-2">
+                {t("Description")}
+              </label>
               <input
                 type="text"
                 value={desc}
@@ -1674,7 +1736,7 @@ const PolicyDetailsPage: React.FC = () => {
         paymentHistory={p.paymentHistory || []}
         effectiveDate={p.effectiveDate?.toString() || ""}
         paymentOption={p.paymentOption || ""}
-        isSuperVisa = {p.applicantOnSuperVisa}
+        isSuperVisa={p.applicantOnSuperVisa}
         onSuccess={(message) => {
           triggerNotification({
             message,
