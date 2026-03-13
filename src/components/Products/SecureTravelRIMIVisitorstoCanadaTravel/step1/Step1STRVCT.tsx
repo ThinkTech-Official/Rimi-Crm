@@ -317,18 +317,18 @@ const Step1STRVCT = ({
 
   // --- auto-calculate for Super Visa yes ---
   useEffect(() => {
-    if (superVisa === "yes" && superVisaYears && effectiveDate) {
-      const eff = new Date(effectiveDate);
-      const exp = new Date(eff);
-      exp.setFullYear(eff.getFullYear() + Number(superVisaYears));
-      const days = Math.round((exp.getTime() - eff.getTime()) / msPerDay);
+  if (superVisa === "yes" && superVisaYears && effectiveDate) {
+    const days = Number(superVisaYears) * 365;
+    const exp = new Date(
+      new Date(effectiveDate).getTime() + (days - 1) * msPerDay
+    );
 
-      setValue("expiryDate", exp.toISOString().slice(0, 10), {
-        shouldValidate: true,
-      });
-      setValue("coverageLength", String(days), { shouldValidate: true });
-    }
-  }, [superVisa, superVisaYears, effectiveDate, setValue]);
+    setValue("expiryDate", exp.toISOString().slice(0, 10), {
+      shouldValidate: true,
+    });
+    setValue("coverageLength", String(days), { shouldValidate: true });
+  }
+}, [superVisa, superVisaYears, effectiveDate, setValue]);
 
   const showPaymentOption =
     superVisa === "yes" ||
