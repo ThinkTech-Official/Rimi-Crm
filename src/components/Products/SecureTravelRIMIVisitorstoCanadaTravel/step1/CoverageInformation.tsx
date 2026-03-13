@@ -69,7 +69,7 @@ export default function CoverageInformation() {
       const eff = new Date(effectiveDate);
       const exp = new Date(eff);
       exp.setFullYear(eff.getFullYear() + Number(superVisaYears));
-      const days = Math.round((exp.getTime() - eff.getTime()) / msPerDay) + 1;
+      const days = Math.round((exp.getTime() - eff.getTime()) / msPerDay) ;
 
       setExpiryDate(exp.toISOString().slice(0, 10));
       setCoverageLength(String(days));
