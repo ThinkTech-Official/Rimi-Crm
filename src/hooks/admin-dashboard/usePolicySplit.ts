@@ -63,7 +63,7 @@ export function usePolicySplit(policyId: string) {
       setPreview(data);
       return data;
     } catch (err: any) {
-      setError(err.message);
+      setError(err.response?.data?.errors[0] || err.message || 'An error occurred');
       throw err;
     } finally {
       setLoading(false);
