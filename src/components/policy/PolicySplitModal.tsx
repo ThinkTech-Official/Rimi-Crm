@@ -42,7 +42,7 @@ export const PolicySplitModal: React.FC<PolicySplitModalProps> = ({
   onSuccess,
 }) => {
   const { t } = useLanguage();
-  const { loading, error, preview, getPreview, executeSplit } = usePolicySplit(policyId);
+  const { loading, error, errors: hookErrors, preview, getPreview, executeSplit } = usePolicySplit(policyId);
 
   const [currentStep, setCurrentStep] = useState<WizardStep>('select');
   const [selectedApplicants, setSelectedApplicants] = useState<Set<string>>(new Set());
@@ -230,13 +230,16 @@ export const PolicySplitModal: React.FC<PolicySplitModalProps> = ({
           {/* Content */}
           <div className="p-6">
             {/* Error Display */}
-            {(error || validationErrors.length > 0) && (
+             {(error || validationErrors.length > 0 || hookErrors.length > 0) && (
               <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
                 <p className="text-red-800 font-semibold">{t("Errors:")}</p>
                 <ul className="list-disc list-inside text-red-700 text-sm mt-2">
                   {error && <li>{t(error)}</li>}
+                  {hookErrors.map((err, idx) => (
+                    <li key={`hook-${idx}`}>{t(err)}</li>
+                  ))}
                   {validationErrors.map((err, idx) => (
-                    <li key={idx}>{t(err)}</li>
+                    <li key={`val-${idx}`}>{t(err)}</li>
                   ))}
                 </ul>
               </div>

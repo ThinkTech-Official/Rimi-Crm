@@ -1,6 +1,5 @@
-import { useState } from 'react';
-import { axiosInstance } from '../../utils/axiosInstance';
-
+import { useState } from "react";
+import { axiosInstance } from "../../utils/axiosInstance";
 
 interface SplitGroup {
   applicantIds: string[];
@@ -50,6 +49,8 @@ export function usePolicySplit(policyId: string) {
   const [error, setError] = useState<string | null>(null);
   const [preview, setPreview] = useState<SplitPreviewResponse | null>(null);
 
+  const [errors, setErrors] = useState<string[]>([]);
+
   /**
    * Get split preview
    */
@@ -58,12 +59,18 @@ export function usePolicySplit(policyId: string) {
     setError(null);
 
     try {
-      const response = await axiosInstance.post(`/policies/${policyId}/split/preview`, { splitGroups });
+      const response = await axiosInstance.post(
+        `/policies/${policyId}/split/preview`,
+        { splitGroups },
+      );
       const data = response.data;
       setPreview(data);
       return data;
     } catch (err: any) {
-      setError(err.message);
+      const message = err.response?.data?.message || err.message;
+      const details: string[] = err.response?.data?.errors || [];
+      setError(message);
+      setErrors(details);
       throw err;
     } finally {
       setLoading(false);
@@ -73,16 +80,23 @@ export function usePolicySplit(policyId: string) {
   /**
    * Execute split
    */
-  const executeSplit = async (splitGroups: SplitGroup[], adminNotes: string) => {
+  const executeSplit = async (
+    splitGroups: SplitGroup[],
+    adminNotes: string,
+  ) => {
     setLoading(true);
     setError(null);
 
     try {
-      const response = await axiosInstance.post(`/policies/${policyId}/split`, { splitGroups, adminNotes });
+      const response = await axiosInstance.post(`/policies/${policyId}/split`, {
+        splitGroups,
+        adminNotes,
+      });
       const data = response.data;
       return data;
     } catch (err: any) {
-      setError(err.message);
+      const message = err.response?.data?.message || err.message;
+      setError(message);
       throw err;
     } finally {
       setLoading(false);
@@ -97,7 +111,9 @@ export function usePolicySplit(policyId: string) {
     setError(null);
 
     try {
-      const response = await axiosInstance.post(`/policies/${policyId}/split/undo`);
+      const response = await axiosInstance.post(
+        `/policies/${policyId}/split/undo`,
+      );
       const data = response.data;
       return data;
     } catch (err: any) {
@@ -111,6 +127,7 @@ export function usePolicySplit(policyId: string) {
   return {
     loading,
     error,
+    errors,
     preview,
     getPreview,
     executeSplit,
