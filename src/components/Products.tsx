@@ -2,13 +2,18 @@ import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { getUserTypeFromToken } from "../utils/getUserType";
 import { useNavigate } from "react-router-dom";
-import { PencilSquareIcon, ArrowUpTrayIcon } from "@heroicons/react/24/outline";
+import {
+  PencilSquareIcon,
+  ArrowUpTrayIcon,
+} from "@heroicons/react/24/outline";
+import { useLanguage } from "../context/LanguageContext";
 
 interface Product {
   id: string; // Added ID for easier handling
   name: string;
   nameFr: string;
   description: string; // Added description
+  descriptionFr: string;
   img: string;
   slug: string; // Added slug for routing
 }
@@ -20,7 +25,8 @@ const productList: Product[] = [
     name: "RIMI Canuck Voyage Travel Medical",
     nameFr: "RIMI Canuck Voyage Travel Medical",
     description: "A Comprehensive Guide to Your Insurance Coverage",
-    img:"/RIMI_Travel_Med.jpg",
+    descriptionFr: "Un guide complet sur votre couverture d'assurance",
+    img: "/RIMI_Travel_Med.jpg",
     slug: "canuck-voyage-travel-medical",
   },
   {
@@ -28,7 +34,8 @@ const productList: Product[] = [
     name: "RIMI Canuck Voyage Non-Medical Travel",
     nameFr: "RIMI Assurance voyage non médicale Travel",
     description: "A Comprehensive Guide to Your Insurance Coverage",
-    img:"/RIMI_Travel_Non_Med.png",
+    descriptionFr: "Un guide complet sur votre couverture d'assurance",
+    img: "/RIMI_Travel_Non_Med.png",
     slug: "canuck-voyage-non-medical-travel",
   },
   {
@@ -36,7 +43,8 @@ const productList: Product[] = [
     name: "Secure Travel RIMI Visitors to Canada Travel",
     nameFr: "Secure Travel RIMI Visitors to Canada Travel",
     description: "A Comprehensive Guide to Your Insurance Coverage",
-    img:"/RIMI_Visitors_to_Canada.png",
+    descriptionFr: "Un guide complet sur votre couverture d'assurance",
+    img: "/RIMI_Visitors_to_Canada.png",
     slug: "secure-travel-visitors-to-canada",
   },
   {
@@ -44,12 +52,14 @@ const productList: Product[] = [
     name: "Secure Study RIMI International Students to Canada",
     nameFr: "Secure Study RIMI International Students to Canada",
     description: "A Comprehensive Guide to Your Insurance Coverage",
-    img:"/RIMI_Int_Students.png",
+    descriptionFr: "Un guide complet sur votre couverture d'assurance",
+    img: "/RIMI_Int_Students.png",
     slug: "secure-study-international-students-to-canada",
   },
 ];
 
 const Products: React.FC = () => {
+  const { t, language } = useLanguage();
   const token = useSelector((state: any) => state.auth.token);
   const [userType, setUserType] = useState<string | null>(null);
   const navigate = useNavigate();
@@ -67,7 +77,9 @@ const Products: React.FC = () => {
 
   return (
     <div className="mx-auto px-4 sm:px-4 max-w-7xl">
-      <h1 className="text-lg font-bold mb-4 text-text-primary">Products</h1>
+      <h1 className="text-lg font-bold mb-4 text-text-primary">
+        {t("Products")}
+      </h1>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
         {productList.map((product) => (
           <div
@@ -76,26 +88,32 @@ const Products: React.FC = () => {
           >
             {/* Placeholder Image Header */}
             <div className="bg-gray-200 w-full flex-shrink-0">
-              <img src={product.img} alt={product.name}/>
+              <img src={product.img} alt={language === "fr" ? product.nameFr : product.name} />
             </div>
 
             {/* Card Content */}
             <div className="p-5 flex flex-col flex-1">
               <h3 className="text-gray-900 font-bold text-base mb-2">
-                {product.name}
+                {language === "fr" ? product.nameFr : product.name}
               </h3>
 
               <p className="text-gray-500 text-sm mb-6 flex-1">
-                {product.description}
+                {language === "fr" ? product.descriptionFr : product.description}
               </p>
 
-              <div className={`mt-auto ${product.id === "secure-study-international-students-to-canada" ? "flex flex-wrap lg:flex-nowrap gap-3" : ""}`}>
+              <div
+                className={`mt-auto ${
+                  product.id === "secure-study-international-students-to-canada"
+                    ? "flex flex-wrap lg:flex-nowrap gap-3"
+                    : ""
+                }`}
+              >
                 <button
                   onClick={() => handleApplicationClick(product.slug)}
                   className="btn-primary flex items-center gap-2 w-full justify-center text-nowrap"
                 >
                   <PencilSquareIcon className="h-5 w-5" aria-hidden="true" />
-                  Application Form
+                  {t("Application Form")}
                 </button>
 
                 {/* Secure Study Specific Bulk Upload Button */}
@@ -107,7 +125,7 @@ const Products: React.FC = () => {
                       className="py-2 sm:py-3 px-4 border border-[#bbbbbb] hover:border-[#777777] flex gap-2 cursor-pointer items-center text-text-secondary hover:text-text-primary transition-all duration-200 text-nowrap w-full justify-center h-fit"
                     >
                       <ArrowUpTrayIcon className="h-5 w-5" aria-hidden="true" />{" "}
-                      Bulk upload
+                      {t("Bulk upload")}
                     </button>
                   )}
               </div>

@@ -4,6 +4,7 @@ import { MdClose, MdUploadFile, MdInsertDriveFile } from "react-icons/md";
 import { useUploadDocuments } from "../../hooks/documents/useUploadDocuments";
 import { useCategories } from "../../hooks/documents/useCategories";
 import { NotificationProps } from "../Notification";
+import { useLanguage } from "../../context/LanguageContext";
 
 interface FileItem {
   id: string;
@@ -22,6 +23,7 @@ const AddDocument = ({
   onSuccess?: () => void;
   triggerNotification: (props: Omit<NotificationProps, "onClose" | "animation"> & { duration?: number; animation?: any }) => void;
 }) => {
+  const { t } = useLanguage();
   const [files, setFiles] = useState<FileItem[]>([]);
 
   const { uploadDocuments, loading: uploadLoading, error: uploadError } = useUploadDocuments();
@@ -66,7 +68,7 @@ const AddDocument = ({
 
       triggerNotification({
         type: "success",
-        message: `${files.length} document(s) uploaded successfully`,
+        message: t("document(s) uploaded successfully", { count: files.length.toString() }),
       });
 
       setFiles([]);
@@ -78,7 +80,7 @@ const AddDocument = ({
       console.error("Upload failed:", err);
       triggerNotification({
         type: "error",
-        message: err.message || "Upload failed",
+        message: err.message || t("Upload failed"),
       });
     }
   };
@@ -95,12 +97,12 @@ const AddDocument = ({
           className="text-text-secondary absolute top-4 right-4 cursor-pointer"
         />
 
-        <h2 className="text-xl font-bold mb-6">Add Document</h2>
+        <h2 className="text-xl font-bold mb-6">{t("Add Document")}</h2>
 
         <div className="flex-1 flex flex-col overflow-hidden">
           {error && (
             <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 text-sm">
-              {error}
+              {t(error)}
             </div>
           )}
 
@@ -109,7 +111,7 @@ const AddDocument = ({
             className="input-primary flex items-center justify-center gap-2 cursor-pointer border-2 border-dashed"
           >
             <MdUploadFile size={20} />
-            Choose Files
+            {t("Choose Files")}
             <input
               type="file"
               id="fileUpload"
@@ -148,7 +150,7 @@ const AddDocument = ({
                     >
                       {categories.map((cat) => (
                         <option key={cat.id} value={cat.name}>
-                          {cat.name}
+                          {t(cat.name)}
                         </option>
                       ))}
                     </select>
@@ -156,7 +158,7 @@ const AddDocument = ({
                     <button
                       onClick={() => handleDelete(file.id)}
                       className="p-2 text-red-600 cursor-pointer flex-shrink-0"
-                      aria-label="Delete file"
+                      aria-label={t("Delete file")}
                       disabled={loading}
                     >
                       <MdClose size={20} />
@@ -170,7 +172,7 @@ const AddDocument = ({
           {files.length === 0 && (
             <div className="text-center py-12 text-gray-400">
               <MdUploadFile size={48} className="mx-auto mb-3 opacity-50" />
-              <p>No files selected</p>
+              <p>{t("No files selected")}</p>
             </div>
           )}
 
@@ -184,14 +186,14 @@ const AddDocument = ({
                 className="py-2 px-4 border border-inputBorder hover:border-gray-500 cursor-pointer transition delay-100 w-36"
                 disabled={loading}
               >
-                Close
+                {t("Close")}
               </button>
               <button
                 className="btn-primary w-36"
                 onClick={handleUploadDocuments}
                 disabled={loading}
               >
-                {loading ? "Uploading..." : `Upload ${files.length} File${files.length === 1 ? "" : "s"}`}
+                {loading ? t("Uploading...") : t("Upload")}
               </button>
             </div>
           )}
@@ -201,4 +203,4 @@ const AddDocument = ({
   );
 };
 
-export default AddDocument;
+export default AddDocument;

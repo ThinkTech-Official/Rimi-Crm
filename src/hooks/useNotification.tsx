@@ -22,7 +22,7 @@ const useNotification = (position: Position = "top-center") => {
   };
   const triggerNotification = useCallback(
     ({
-      duration = 3000,
+      duration = 5000,
       animation = "slide-down",
       ...rest
     }: Omit<NotificationProps, "onClose" | "animation"> & { duration?: number;  animation?: any; }) => {

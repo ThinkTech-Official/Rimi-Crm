@@ -387,14 +387,13 @@ export default function AdminHome() {
         <button
           onClick={handleDownloadPDF}
           disabled={isDownloading}
-          className={`flex gap-2 items-center -mt-4 btn-primary ${isDownloading ? "opacity-90 cursor-not-allowed" : "cursor-pointer"}`}
+          className={`flex gap-2 items-center -mt-4 ${isDownloading ? "opacity-90 cursor-not-allowed" : "cursor-pointer"}`}
         >
           {isDownloading ? (
-            <Spinner className="w-5 h-5 text-white" />
+            <Spinner className="w-7 h-7 text-primary" />
           ) : (
-            <MdDownload className="h-5 w-5" />
+            <MdDownload className="h-7 w-7 text-primary" />
           )}
-          {isDownloading ? t("Generating PDF...") : t("Download PDF")}
         </button>
       </div>
       <div className="w-full flex flex-col gap-8 pb-4 bg-white" ref={targetRef}>
