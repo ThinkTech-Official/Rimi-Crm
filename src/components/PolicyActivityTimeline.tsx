@@ -66,24 +66,24 @@ export const PolicyActivityTimeline: React.FC<ActivityTimelineProps> = ({
           color: "bg-indigo-100 text-indigo-600 border-indigo-200",
           dotColor: "bg-indigo-500",
         };
-        case "policy_split":
-  return {
-    icon: <MdCallSplit className="text-xl" />,
-    color: "bg-teal-100 text-teal-600 border-teal-200",
-    dotColor: "bg-teal-500",
-  };
-case "renewal_notice_sent":
-  return {
-    icon: <MdAutorenew className="text-xl" />,
-    color: "bg-green-100 text-green-600 border-green-200",
-    dotColor: "bg-green-500",
-  };
-case "payment_method_updated":
-  return {
-    icon: <MdCreditCard className="text-xl" />,
-    color: "bg-sky-100 text-sky-600 border-sky-200",
-    dotColor: "bg-sky-500",
-  };
+      case "policy_split":
+        return {
+          icon: <MdCallSplit className="text-xl" />,
+          color: "bg-teal-100 text-teal-600 border-teal-200",
+          dotColor: "bg-teal-500",
+        };
+      case "renewal_notice_sent":
+        return {
+          icon: <MdAutorenew className="text-xl" />,
+          color: "bg-green-100 text-green-600 border-green-200",
+          dotColor: "bg-green-500",
+        };
+      case "payment_method_updated":
+        return {
+          icon: <MdCreditCard className="text-xl" />,
+          color: "bg-sky-100 text-sky-600 border-sky-200",
+          dotColor: "bg-sky-500",
+        };
       default:
         return {
           icon: <MdInfo className="text-xl" />,
@@ -192,20 +192,26 @@ case "payment_method_updated":
                     <div className="bg-gray-50/50 rounded-lg p-3 border border-gray-100 space-y-3">
                       {Object.entries(activity.metadata).map(([key, value]) => {
                         // Special handling for changedFields
-                        if (key === "changedFields" && typeof value === "object" && value !== null) {
-                          const filteredChanges = Object.entries(value as Record<string, any>)
-                            .filter(([_, fieldValue]) => {
-                              const oldValue = fieldValue?.old;
-                              const newValue = fieldValue?.new;
-                              if(!newValue) return false;
-                              if(oldValue === newValue) return false;
+                        if (
+                          key === "changedFields" &&
+                          typeof value === "object" &&
+                          value !== null
+                        ) {
+                          const filteredChanges = Object.entries(
+                            value as Record<string, any>,
+                          ).filter(([_, fieldValue]) => {
+                            const oldValue = fieldValue?.old;
+                            const newValue = fieldValue?.new;
+                            if (!newValue) return false;
+                            if (oldValue === newValue) return false;
 
-                              // Filter out if both are effectively empty
-                              const isEmpty = (v: any) => v === null || v === undefined || v === "";
-                              if (isEmpty(newValue)) return false;
+                            // Filter out if both are effectively empty
+                            const isEmpty = (v: any) =>
+                              v === null || v === undefined || v === "";
+                            if (isEmpty(newValue)) return false;
 
-                              return true;
-                            });
+                            return true;
+                          });
 
                           if (filteredChanges.length === 0) return null;
 
@@ -218,40 +224,57 @@ case "payment_method_updated":
                                 <table className="w-full text-sm">
                                   <thead className="bg-gray-50 border-b border-gray-200">
                                     <tr>
-                                      <th className="px-3 py-2 text-left text-xs font-semibold text-gray-600">Field</th>
-                                      <th className="px-3 py-2 text-left text-xs font-semibold text-gray-600">New Value</th>
+                                      <th className="px-3 py-2 text-left text-xs font-semibold text-gray-600">
+                                        Field
+                                      </th>
+                                      <th className="px-3 py-2 text-left text-xs font-semibold text-gray-600">
+                                        New Value
+                                      </th>
                                     </tr>
                                   </thead>
                                   <tbody className="divide-y divide-gray-100">
-                                    {filteredChanges.map(([fieldName, fieldValue]) => { 
-                                      const newValue = fieldValue?.new;
+                                    {filteredChanges.map(
+                                      ([fieldName, fieldValue]) => {
+                                        const newValue = fieldValue?.new;
 
-                                      // Format date values
-                                      const formatValue = (val: any) => {
-                                        if (val === null || val === undefined) return "-";
-                                        if (val === "") return "(empty)";
-                                        // Check if it's a date string
-                                        if (typeof val === "string" && val.match(/^\d{4}-\d{2}-\d{2}T/)) {
-                                          return new Date(val).toLocaleDateString("en-CA", {
-                                            year: "numeric",
-                                            month: "short",
-                                            day: "numeric",
-                                          });
-                                        }
-                                        return String(val);
-                                      };
+                                        // Format date values
+                                        const formatValue = (val: any) => {
+                                          if (val === null || val === undefined)
+                                            return "-";
+                                          if (val === "") return "(empty)";
+                                          // Check if it's a date string
+                                          if (
+                                            typeof val === "string" &&
+                                            val.match(/^\d{4}-\d{2}-\d{2}T/)
+                                          ) {
+                                            return new Date(
+                                              val,
+                                            ).toLocaleDateString("en-CA", {
+                                              year: "numeric",
+                                              month: "short",
+                                              day: "numeric",
+                                            });
+                                          }
+                                          return String(val);
+                                        };
 
-                                      return (
-                                        <tr key={fieldName} className="hover:bg-gray-50">
-                                          <td className="px-3 py-2 font-medium text-gray-700 capitalize">
-                                            {fieldName.replace(/([A-Z])/g, " $1").trim()}
-                                          </td>
-                                          <td className="px-3 py-2 text-gray-900 font-medium">
-                                            {formatValue(newValue)}
-                                          </td>
-                                        </tr>
-                                      );
-                                    })}
+                                        return (
+                                          <tr
+                                            key={fieldName}
+                                            className="hover:bg-gray-50"
+                                          >
+                                            <td className="px-3 py-2 font-medium text-gray-700 capitalize">
+                                              {fieldName
+                                                .replace(/([A-Z])/g, " $1")
+                                                .trim()}
+                                            </td>
+                                            <td className="px-3 py-2 text-gray-900 font-medium">
+                                              {formatValue(newValue)}
+                                            </td>
+                                          </tr>
+                                        );
+                                      },
+                                    )}
                                   </tbody>
                                 </table>
                               </div>
@@ -260,6 +283,226 @@ case "payment_method_updated":
                         }
 
                         // Regular metadata display
+                        // return (
+                        //   <div key={key} className="space-y-1">
+                        //     <span className="text-[10px] uppercase font-bold text-gray-400 tracking-wider">
+                        //       {key.replace(/([A-Z])/g, " $1").trim()}
+                        //     </span>
+                        //     <div className="text-sm text-gray-800 font-medium break-all">
+                        //       {typeof value === "object" ? (
+                        //         <pre className="overflow-x-auto">
+                        //           {Array.isArray(value) ? value.join(", ") : JSON.stringify(value, null, 2)}
+                        //         </pre>
+                        //       ) : (
+                        //         typeof value === "number" ? value.toFixed(2) : String(value)
+                        //       )}
+                        //     </div>
+                        //   </div>
+                        // );
+
+                        // ── commissionReversal ──────────────────────────────
+                        if (
+                          key === "commissionReversal" &&
+                          typeof value === "object" &&
+                          value !== null
+                        ) {
+                          const cr = value as any;
+                          return (
+                            <div key={key} className="space-y-1">
+                              <span className="text-[10px] uppercase font-bold text-gray-400 tracking-wider">
+                                Commission Reversal
+                              </span>
+                              <div className="bg-white border border-gray-200 rounded p-3 grid grid-cols-3 gap-3 text-sm">
+                                <div className="text-center">
+                                  <div className="text-xs text-gray-500 mb-1">
+                                    Reversed
+                                  </div>
+                                  <div className="text-lg font-bold text-gray-900">
+                                    {cr.commissionsReversed ?? 0}
+                                  </div>
+                                </div>
+                                <div className="text-center border-x border-gray-100">
+                                  <div className="text-xs text-gray-500 mb-1">
+                                    Total Amount
+                                  </div>
+                                  <div className="text-lg font-bold text-red-600">
+                                    -$
+                                    {Number(
+                                      cr.totalReversalAmount ?? 0,
+                                    ).toFixed(2)}
+                                  </div>
+                                </div>
+                                <div className="text-center">
+                                  <div className="text-xs text-gray-500 mb-1">
+                                    Agent Balances
+                                  </div>
+                                  <div className="text-sm font-medium text-gray-700">
+                                    {Object.keys(cr.agentBalances ?? {})
+                                      .length === 0
+                                      ? "—"
+                                      : Object.entries(cr.agentBalances).map(
+                                          ([agent, bal]) => (
+                                            <div key={agent}>
+                                              {agent}: ${Number(bal).toFixed(2)}
+                                            </div>
+                                          ),
+                                        )}
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        }
+
+                        // ── currentMonthRefund ──────────────────────────────
+                        if (
+                          key === "currentMonthRefund" &&
+                          typeof value === "object" &&
+                          value !== null
+                        ) {
+                          const cm = value as any;
+                          return (
+                            <div key={key} className="space-y-1">
+                              <span className="text-[10px] uppercase font-bold text-gray-400 tracking-wider">
+                                Current Month Refund
+                              </span>
+                              <div className="bg-white border border-gray-200 rounded p-3 space-y-2 text-sm">
+                                <div className="flex justify-between items-center">
+                                  <span className="text-gray-500">Month</span>
+                                  <span className="font-semibold text-gray-900">
+                                    {cm.monthName}
+                                  </span>
+                                </div>
+                                <div className="flex justify-between items-center">
+                                  <span className="text-gray-500">
+                                    Days Used / Unused
+                                  </span>
+                                  <span className="font-semibold text-gray-900">
+                                    {cm.daysUsed} used · {cm.daysUnused} unused
+                                  </span>
+                                </div>
+                                {/* Progress bar */}
+                                <div className="w-full bg-gray-100 rounded-full h-2">
+                                  <div
+                                    className="bg-orange-400 h-2 rounded-full"
+                                    style={{
+                                      width: `${Math.round(
+                                        (cm.daysUsed /
+                                          (cm.daysUsed + cm.daysUnused)) *
+                                          100,
+                                      )}%`,
+                                    }}
+                                  />
+                                </div>
+                                <div className="flex justify-between items-center pt-1 border-t border-gray-100">
+                                  <span className="text-gray-500">
+                                    Refund Amount
+                                  </span>
+                                  <span className="font-bold text-green-600">
+                                    ${Number(cm.amount).toFixed(2)}
+                                  </span>
+                                </div>
+                                <div className="text-xs text-gray-400 font-mono truncate">
+                                  {cm.chargeId}
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        }
+
+                        // ── prepaidLastMonthRefund ──────────────────────────
+                        if (
+                          key === "prepaidLastMonthRefund" &&
+                          typeof value === "object" &&
+                          value !== null
+                        ) {
+                          const pl = value as any;
+                          return (
+                            <div key={key} className="space-y-1">
+                              <span className="text-[10px] uppercase font-bold text-gray-400 tracking-wider">
+                                Prepaid Last Month Refund
+                              </span>
+                              <div className="bg-white border border-gray-200 rounded p-3 space-y-2 text-sm">
+                                <div className="flex justify-between items-center">
+                                  <span className="text-gray-500">Month</span>
+                                  <span className="font-semibold text-gray-900">
+                                    {pl.monthName}
+                                  </span>
+                                </div>
+                                <div className="flex justify-between items-center border-t border-gray-100 pt-2">
+                                  <span className="text-gray-500">
+                                    Refund Amount
+                                  </span>
+                                  <span className="font-bold text-green-600">
+                                    ${Number(pl.amount).toFixed(2)}
+                                  </span>
+                                </div>
+                                <div className="text-xs text-gray-400 font-mono truncate">
+                                  {pl.chargeId}
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        }
+
+                        // ── feeAllocation ───────────────────────────────────
+                        if (
+                          key === "feeAllocation" &&
+                          typeof value === "object" &&
+                          value !== null
+                        ) {
+                          const fa = value as any;
+                          return (
+                            <div key={key} className="space-y-1">
+                              <span className="text-[10px] uppercase font-bold text-gray-400 tracking-wider">
+                                Fee Allocation
+                              </span>
+                              <div className="bg-white border border-gray-200 rounded p-3 space-y-2 text-sm">
+                                <div className="flex justify-between items-center">
+                                  <span className="text-gray-500">
+                                    Current Month Refund
+                                  </span>
+                                  <span className="font-semibold text-gray-900">
+                                    ${Number(fa.currentMonthRefund).toFixed(2)}
+                                  </span>
+                                </div>
+                                <div className="flex justify-between items-center">
+                                  <span className="text-gray-500">
+                                    Prepaid Last Month Refund
+                                  </span>
+                                  <span className="font-semibold text-gray-900">
+                                    $
+                                    {Number(fa.prepaidLastMonthRefund).toFixed(
+                                      2,
+                                    )}
+                                  </span>
+                                </div>
+                                <div className="flex justify-between items-center text-xs text-gray-400">
+                                  <span>Fee from Current</span>
+                                  <span>
+                                    -${Number(fa.feeFromCurrent).toFixed(2)}
+                                  </span>
+                                </div>
+                                <div className="flex justify-between items-center text-xs text-gray-400">
+                                  <span>Fee from Prepaid</span>
+                                  <span>
+                                    -${Number(fa.feeFromPrepaid).toFixed(2)}
+                                  </span>
+                                </div>
+                                <div className="flex justify-between items-center border-t border-gray-100 pt-2 font-bold">
+                                  <span className="text-gray-700">
+                                    Total Refund
+                                  </span>
+                                  <span className="text-green-600">
+                                    ${Number(fa.totalRefund).toFixed(2)}
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        }
+
+                        // ── default ─────────────────────────────────────────
                         return (
                           <div key={key} className="space-y-1">
                             <span className="text-[10px] uppercase font-bold text-gray-400 tracking-wider">
@@ -268,10 +511,14 @@ case "payment_method_updated":
                             <div className="text-sm text-gray-800 font-medium break-all">
                               {typeof value === "object" ? (
                                 <pre className="overflow-x-auto">
-                                  {Array.isArray(value) ? value.join(", ") : JSON.stringify(value, null, 2)}
+                                  {Array.isArray(value)
+                                    ? value.join(", ")
+                                    : JSON.stringify(value, null, 2)}
                                 </pre>
+                              ) : typeof value === "number" ? (
+                                value.toFixed(2)
                               ) : (
-                                typeof value === "number" ? value.toFixed(2) : String(value)
+                                String(value)
                               )}
                             </div>
                           </div>
