@@ -6,6 +6,9 @@ import {
 import { MdClose } from "react-icons/md";
 import { FaInfo } from "react-icons/fa";
 import { useLanguage } from "../context/LanguageContext";
+import { useSelector } from 'react-redux';
+import { RootState } from "../app/store";
+
 
 interface PaymentRecord {
   id: string;
@@ -51,7 +54,9 @@ export default function CancellationModal({
   const [cancellationFee, setCancellationFee] = useState(50);
   const [otherTypeText, setOtherTypeText] = useState("");
   const [notes, setNotes] = useState("");
-  const [processedBy, setProcessedBy] = useState("");
+  // const [processedBy, setProcessedBy] = useState("");
+
+  const { agentCode, fullName } = useSelector((state: RootState) => state.auth);
 
   const { preview, loading, error, fetchRefundPreview, cancelPolicy } =
     usePolicyCancellation(policyId);
@@ -109,7 +114,7 @@ export default function CancellationModal({
       cancellationFee:
         cancellationType === "visa-refusal" ? 0 : cancellationFee,
       notes,
-      processedBy: processedBy || undefined,
+      processedBy: fullName || agentCode || 'system',
     });
 
     if (result) {
@@ -508,7 +513,7 @@ export default function CancellationModal({
                   />
                 </div>
 
-                <div>
+                {/* <div>
                   <label className="block font-medium mb-2 text-text-secondary">
                     {t("Processed By (Optional)")}
                   </label>
@@ -519,7 +524,7 @@ export default function CancellationModal({
                     className="input-primary"
                     placeholder={t("Your name or ID")}
                   />
-                </div>
+                </div> */}
               </div>
 
               {/* Preview Results */}

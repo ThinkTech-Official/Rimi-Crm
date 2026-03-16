@@ -814,7 +814,7 @@ const PolicyDetailsPage: React.FC = () => {
           <div className="mt-4 min-w-0">
             <div className="font-semibold text-base">{t("Premium")}</div>
             <div className="text-sm text-[#6F6B7D] break-words">
-               {p.primaryPremium ? `CAD ${p.primaryPremium} `: ` -`}
+               {p.primaryPremium ? `CAD ${Number(p.primaryPremium).toFixed(2)}` : `-`}
             </div>
           </div>
         </div>
