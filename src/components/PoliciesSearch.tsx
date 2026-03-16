@@ -8,10 +8,13 @@ import {
 import { Link } from "react-router-dom";
 import { FaAngleDown } from "react-icons/fa";
 import { useForm, Controller } from "react-hook-form";
-import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
+import {
+  ChevronLeftIcon,
+  ChevronRightIcon,
+} from "@heroicons/react/24/outline";
 import { RenderPageNumbers } from "./RenderPageNumbers";
 import DatePicker from "./DatePicker";
-import { isAfterDate } from "../utils/dateUtils";
+import { isAfterDate, formatDateToDDMMYYYY } from "../utils/dateUtils";
 import useNotification from "../hooks/useNotification";
 
 const PoliciesSearch: React.FC = () => {
@@ -20,19 +23,19 @@ const PoliciesSearch: React.FC = () => {
 
   const allProducts = [
     {
-      label: "RIMI Canuck Voyage Travel Medical",
+      label: t("RIMI Canuck Voyage Travel Medical"),
       value: "RIMI_CANUCK_VOYAGE_TRAVEL_MEDICAL",
     },
     {
-      label: "RIMI Canuck Voyage Non-Medical Travel",
+      label: t("RIMI Canuck Voyage Non-Medical Travel"),
       value: "RIMI_CANUCK_VOYAGE_NON_MEDICAL_TRAVEL",
     },
     {
-      label: "Secure Study RIMI International Students to Canada",
+      label: t("Secure Study RIMI International Students to Canada"),
       value: "SECURE_STUDY_RIMI_INTERNATIONAL_STUDENTS_TO_CANADA",
     },
     {
-      label: "Secure Travel RIMI Visitors to Canada Travel",
+      label: t("Secure Travel RIMI Visitors to Canada Travel"),
       value: "SECURE_TRAVEL_RIMI_VISITORS_TO_CANADA_TRAVEL",
     },
   ];
@@ -48,7 +51,8 @@ const PoliciesSearch: React.FC = () => {
   const [page, setPage] = useState(1);
   const limit = 10;
   // const { search, loading, error, data } = useSearchPolicies(limit);
-  const { search, exportCsv, exporting, exportError, loading, error, data } = useSearchPolicies(limit);
+  const { search, exportCsv, exporting, exportError, loading, error, data } =
+    useSearchPolicies(limit);
   const { triggerNotification, NotificationComponent } = useNotification();
   const totalPages = data?.totalPages || 0;
   const {
@@ -56,7 +60,7 @@ const PoliciesSearch: React.FC = () => {
     setValue,
     handleSubmit,
     control,
-    formState: { },
+    formState: {},
   } = useForm<SearchPoliciesCriteria>({
     defaultValues: {
       products: ["All"],
@@ -144,7 +148,6 @@ const PoliciesSearch: React.FC = () => {
         </p>
       </div>
 
-      {/*  */}
       <form onSubmit={handleSubmit(onSearch)}>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 md:gap-x-16 lg:gap-x-24 gap-y-4 text-text-secondary">
           {/* First Name */}
@@ -175,10 +178,7 @@ const PoliciesSearch: React.FC = () => {
               name="dateOfBirth"
               control={control}
               render={({ field }) => (
-                <DatePicker
-                  {...field}
-                  label={t("Date of Birth")}
-                />
+                <DatePicker {...field} label={t("Date of Birth")} />
               )}
             />
           </div>
@@ -226,10 +226,7 @@ const PoliciesSearch: React.FC = () => {
               name="saleDateFrom"
               control={control}
               render={({ field }) => (
-                <DatePicker
-                  {...field}
-                  label={t("Sale Date From")}
-                />
+                <DatePicker {...field} label={t("Sale Date From")} />
               )}
             />
           </div>
@@ -239,10 +236,7 @@ const PoliciesSearch: React.FC = () => {
               name="saleDateTo"
               control={control}
               render={({ field }) => (
-                <DatePicker
-                  {...field}
-                  label={t("Sale Date To")}
-                />
+                <DatePicker {...field} label={t("Sale Date To")} />
               )}
             />
           </div>
@@ -252,10 +246,7 @@ const PoliciesSearch: React.FC = () => {
               name="effectiveDateFrom"
               control={control}
               render={({ field }) => (
-                <DatePicker
-                  {...field}
-                  label={t("Effective Date From")}
-                />
+                <DatePicker {...field} label={t("Effective Date From")} />
               )}
             />
           </div>
@@ -265,10 +256,7 @@ const PoliciesSearch: React.FC = () => {
               name="effectiveDateTo"
               control={control}
               render={({ field }) => (
-                <DatePicker
-                  {...field}
-                  label={t("Effective Date To")}
-                />
+                <DatePicker {...field} label={t("Effective Date To")} />
               )}
             />
           </div>
@@ -303,10 +291,13 @@ const PoliciesSearch: React.FC = () => {
                 className="w-full border border-inputBorder py-2 sm:py-3 px-4 focus:border-0 focus:ring-1 focus:ring-primary capitalize flex items-center justify-between text-left text-text-light cursor-pointer"
                 onClick={() => setIsSelectStatusOpen((prev) => !prev)}
               >
-                <span className="capitalize">{t(selectedStatus) || t("All")}</span>
+                <span className="capitalize">
+                  {t(selectedStatus) || t("All")}
+                </span>
                 <FaAngleDown
-                  className={`ml-2 cusor-pointer transition-transform ${isSelectStatusOpen ? "rotate-180" : ""
-                    }`}
+                  className={`ml-2 cusor-pointer transition-transform ${
+                    isSelectStatusOpen ? "rotate-180" : ""
+                  }`}
                 />
               </button>
 
@@ -315,10 +306,11 @@ const PoliciesSearch: React.FC = () => {
                   {status.map((s, i) => (
                     <div
                       key={i}
-                      className={`px-4 py-2 hover:bg-gray-200 text-text-light cursor-pointer capitalize ${selectedStatus === s
-                        ? "bg-primary text-white hover:bg-gray-200 hover:text-text-light"
-                        : ""
-                        }`}
+                      className={`px-4 py-2 hover:bg-gray-200 text-text-light cursor-pointer capitalize ${
+                        selectedStatus === s
+                          ? "bg-primary text-white hover:bg-gray-200 hover:text-text-light"
+                          : ""
+                      }`}
                       onClick={() => {
                         handleStatusChange(s);
                         setValue("status", s, { shouldValidate: true });
@@ -335,9 +327,7 @@ const PoliciesSearch: React.FC = () => {
         </div>
         {/* Product list */}
         <div className="mt-6">
-          <p className="text-[#1B1B1B]  font-[inter] mb-2">
-            {t("Product")}
-          </p>
+          <p className="text-[#1B1B1B]  font-[inter] mb-2">{t("Product")}</p>
           <div className="border border-[#DBDADE] p-2 bg-[#F9F9F9] overflow-y-auto rounded text-sm font-[inter] text-[#1B1B1B] space-y-2">
             <label className="block">
               <input
@@ -371,14 +361,6 @@ const PoliciesSearch: React.FC = () => {
       {/* Result list display */}
       {data && (
         <div className="w-full overflow-x-auto custom-scrollbar pb-2">
-          {/* <div className="mt-4">
-            {!loading && (
-              <p className="mb-1 text-text-primary">
-                {t("Found")} {data.total} {t("policies.")}
-              </p>
-            )}
-          </div> */}
-
           <div className="mt-4">
             {!loading && (
               <div className="mb-1 flex items-center justify-between flex-wrap gap-2">
@@ -397,10 +379,7 @@ const PoliciesSearch: React.FC = () => {
                         {t("Exporting...")}
                       </div>
                     ) : (
-                      <>
-
-                        {t("Download CSV")}
-                      </>
+                      <>{t("Download CSV")}</>
                     )}
                   </button>
                   {exportError && (
@@ -417,11 +396,9 @@ const PoliciesSearch: React.FC = () => {
             <thead className="bg-primary text-white text-base 2xl:text-xl capitalize">
               <tr>
                 {[
-                  // "ID",
                   t("Policy No."),
                   t("Status"),
                   t("Name"),
-                  // "DOB",
                   t("Eff. Date"),
                   t("Exp. Date"),
                   t("Product"),
@@ -439,13 +416,13 @@ const PoliciesSearch: React.FC = () => {
             <tbody className="bg-white" style={{ border: "1px solid #AAA9A9" }}>
               {loading ? (
                 <tr>
-                  <td className="p-2 text-primary text-center h-40" colSpan={9}>
+                  <td className="p-2 text-primary text-center h-40" colSpan={7}>
                     {t("Loading...")}
                   </td>
                 </tr>
               ) : error ? (
                 <tr>
-                  <td className="p-2 text-red-500" colSpan={9}>
+                  <td className="p-2 text-red-500" colSpan={7}>
                     {error}
                   </td>
                 </tr>
@@ -453,15 +430,17 @@ const PoliciesSearch: React.FC = () => {
                 <tr>
                   <td
                     className="p-2 text-text-secondary text-center"
-                    colSpan={9}
+                    colSpan={7}
                   >
                     {t("No policies found")}
                   </td>
                 </tr>
               ) : (
                 data.items.map((p) => (
-                  <tr key={p.id} className="text-[#808080] text-sm 2xl:text-base">
-                    {/* <td className="px-4 py-2">{p.id}</td> */}
+                  <tr
+                    key={p.id}
+                    className="text-[#808080] text-sm 2xl:text-base"
+                  >
                     <td
                       className="px-2 sm:px-3 py-2 sm:py-3 whitespace-nowrap"
                       style={{
@@ -482,12 +461,6 @@ const PoliciesSearch: React.FC = () => {
                     >
                       {t(p.status || "")}
                     </td>
-                    {/* <td className="px-2 sm:px-3 py-2 sm:py-3 whitespace-nowrap"
-                    style={{
-                      borderWidth: "0px 1px 1px 0px",
-                      borderStyle: "solid",
-                      borderColor: "#AAA9A9",
-                    }}>{p.policyType}</td> */}
                     <td
                       className="px-2 sm:px-3 py-2 sm:py-3 min-w-[250px] break-words"
                       style={{
@@ -498,26 +471,6 @@ const PoliciesSearch: React.FC = () => {
                     >
                       {p.firstName + " " + p.lastName}
                     </td>
-                    {/* <td
-                      className="px-2 sm:px-3 py-2 sm:py-3 whitespace-nowrap"
-                      style={{
-                        borderWidth: "0px 1px 1px 0px",
-                        borderStyle: "solid",
-                        borderColor: "#AAA9A9",
-                      }}
-                    >
-                      {p.lastName}
-                    </td> */}
-                    {/* <td
-                      className="px-2 sm:px-3 py-2 sm:py-3 whitespace-nowrap"
-                      style={{
-                        borderWidth: "0px 1px 1px 0px",
-                        borderStyle: "solid",
-                        borderColor: "#AAA9A9",
-                      }}
-                    >
-                      {p.dateOfBirth?.split("T")[0]}
-                    </td> */}
                     <td
                       className="px-2 sm:px-3 py-2 sm:py-3 whitespace-nowrap"
                       style={{
@@ -526,7 +479,7 @@ const PoliciesSearch: React.FC = () => {
                         borderColor: "#AAA9A9",
                       }}
                     >
-                      {p.effectiveDate?.split("T")[0] || "-"}
+                      {formatDateToDDMMYYYY(p.effectiveDate)}
                     </td>
                     <td
                       className="px-2 sm:px-3 py-2 sm:py-3 whitespace-nowrap"
@@ -536,7 +489,7 @@ const PoliciesSearch: React.FC = () => {
                         borderColor: "#AAA9A9",
                       }}
                     >
-                      {p.expiryDate?.split("T")[0] || "-"}
+                      {formatDateToDDMMYYYY(p.expiryDate)}
                     </td>
                     <td
                       className="px-2 sm:px-3 py-2 sm:py-3 capitalize min-w-[250px] text-nowrap"
@@ -572,6 +525,8 @@ const PoliciesSearch: React.FC = () => {
           </table>
         </div>
       )}
+
+      {/* Pagination Controls */}
       {totalPages > 0 && (
         <div className="flex justify-center items-center space-x-2 mt-4">
           <button
@@ -597,6 +552,7 @@ const PoliciesSearch: React.FC = () => {
           </button>
         </div>
       )}
+
       {NotificationComponent}
     </div>
   );

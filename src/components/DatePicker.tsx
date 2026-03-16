@@ -12,6 +12,7 @@ interface DatePickerProps extends Omit<ComponentProps<"input">, "value" | "onCha
   maxDate?: Date;
   minDate?: Date;
   isDisabled?: boolean;
+  error?: string;
 }
 
 const DatePicker = forwardRef<HTMLInputElement, DatePickerProps>(({
@@ -21,6 +22,7 @@ const DatePicker = forwardRef<HTMLInputElement, DatePickerProps>(({
   maxDate,
   minDate,
   isDisabled = false,
+  error,
   className,
   ...props
 }, ref) => {
@@ -137,6 +139,7 @@ const DatePicker = forwardRef<HTMLInputElement, DatePickerProps>(({
           />
         </div>
       )}
+      {error && <p className="text-red-500 text-xs mt-1">{error}</p>}
     </div>
   );
 });

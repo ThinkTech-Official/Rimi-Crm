@@ -337,7 +337,7 @@ import { Controller, useForm } from "react-hook-form";
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
 import { RenderPageNumbers } from "./RenderPageNumbers";
 import DatePicker from "./DatePicker";
-import { isAfterDate } from "../utils/dateUtils";
+import { formatDateToDDMMYYYY, isAfterDate } from "../utils/dateUtils";
 import useNotification from "../hooks/useNotification";
 
 const QuotesSearch: React.FC = () => {
@@ -349,7 +349,6 @@ const QuotesSearch: React.FC = () => {
     products: ["All"],
   });
   const [selectedProducts, setSelectedProducts] = useState<string[]>(["All"]);
-  const [emailError, setEmailError] = useState<string>("");
   const [page, setPage] = useState(1);
   const limit = 10;
   // const { search, loading, error, data } = useSearchQuotes(limit);
@@ -368,23 +367,19 @@ const QuotesSearch: React.FC = () => {
   const totalPages = data?.totalPages || 0;
   const products = [
     {
-      en: t("RIMI Canuck Voyage Travel Medical"),
-      fr: t("RIMI Canuck Voyage Travel Medical"),
+      label: t("RIMI Canuck Voyage Travel Medical"),
       value: "RIMI_CANUCK_VOYAGE_TRAVEL_MEDICAL",
     },
     {
-      en: t("RIMI Canuck Voyage Non-Medical Travel"),
-      fr: t("RIMI Assurance voyage non médicale Travel"),
+      label: t("RIMI Canuck Voyage Non-Medical Travel"),
       value: "RIMI_CANUCK_VOYAGE_NON_MEDICAL_TRAVEL",
     },
     {
-      en: t("Secure Study RIMI International Students to Canada"),
-      fr: t("Secure Study RIMI International Students to Canada"),
+      label: t("Secure Study RIMI International Students to Canada"),
       value: "SECURE_STUDY_RIMI_INTERNATIONAL_STUDENTS_TO_CANADA",
     },
     {
-      en: t("Secure Travel RIMI Visitors to Canada Travel"),
-      fr: t("Secure Travel RIMI Visitors to Canada Travel"),
+      label: t("Secure Travel RIMI Visitors to Canada Travel"),
       value: "SECURE_TRAVEL_RIMI_VISITORS_TO_CANADA_TRAVEL",
     },
   ];
@@ -481,7 +476,7 @@ const QuotesSearch: React.FC = () => {
               })}
               type="text"
               className="input-primary"
-              placeholder="Enter Quote Number"
+              placeholder={t("Quote Number")}
             />
           </div>
           <div className="flex flex-col">
@@ -505,7 +500,7 @@ const QuotesSearch: React.FC = () => {
                 setValueAs: (value) => value?.trim() || "",
               })}
               className="input-primary"
-              placeholder="Enter First Name"
+              placeholder={t("First Name")}
             />
           </div>
           <div className="flex flex-col">
@@ -517,7 +512,7 @@ const QuotesSearch: React.FC = () => {
                 setValueAs: (value) => value?.trim() || "",
               })}
               className="input-primary"
-              placeholder="Enter Last Name"
+              placeholder={t("Last Name")}
             />
           </div>
           <div className="flex flex-col">
@@ -540,7 +535,7 @@ const QuotesSearch: React.FC = () => {
                 pattern: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
               })}
               className="input-primary"
-              placeholder="Email"
+              placeholder={t("Email")}
             />
           </div>
           <div className="flex flex-col">
@@ -577,7 +572,7 @@ const QuotesSearch: React.FC = () => {
                   setValueAs: (value) => value?.trim() || "",
                 })}
                 className="input-primary"
-                placeholder="Agent Code"
+                placeholder={t("Agent Code")}
               />
             </div>
           )}
@@ -596,7 +591,7 @@ const QuotesSearch: React.FC = () => {
               checked={selectedProducts?.includes("All")}
               onChange={() => handleProductChange("All")}
             />
-            All
+            {t("All")}
           </label>
           {products.map((p) => (
             <label key={p.value} className="block text-[#1B1B1B]">
@@ -606,7 +601,7 @@ const QuotesSearch: React.FC = () => {
                 checked={selectedProducts?.includes(p.value)}
                 onChange={() => handleProductChange(p.value)}
               />
-              {t(p.en)}
+              {p.label}
             </label>
           ))}
         </div>
@@ -647,10 +642,7 @@ const QuotesSearch: React.FC = () => {
                         {t("Exporting...")}
                       </div>
                     ) : (
-                      <>
-
-                        {t("Download CSV")}
-                      </>
+                      <>{t("Download CSV")}</>
                     )}
                   </button>
                   {exportError && (
@@ -732,7 +724,7 @@ const QuotesSearch: React.FC = () => {
                     >
                       {u.dateOfBirth
                         ? new Date(u.dateOfBirth).toLocaleDateString(
-                            langauge === "En" ? "en-CA" : "fr-CA",
+                            language === "fr" ? "fr-CA" : "en-CA",
                             { year: "numeric", month: "short", day: "numeric" }
                           )
                         : "-"}
@@ -740,7 +732,7 @@ const QuotesSearch: React.FC = () => {
                     <td
                       className="px-2 sm:px-3 py-2 whitespace-nowrap border-r border-b border-[#AAA9A9]"
                     >
-                      {u.dateIssued?.split("T")[0] || "-"}
+                      {formatDateToDDMMYYYY(u.dateIssued)}
                     </td>
                     <td
                       className="px-2 sm:px-3 py-2 whitespace-nowrap capitalize border-r border-b border-[#AAA9A9]"
