@@ -527,5 +527,21 @@
   "Gross Amount": "Montant brut",
   "Comm. %": "% Comm.",
   "Comm. Amount": "Montant Comm.",
-  "MGA Override %": "% Dérogation MGA"
+  "MGA Override %": "% Dérogation MGA",
+  "Policy split is only available for \"Secure Travel RIMI Visitors to Canada Travel\" product. Current product: {{product}}": "La division de police n'est disponible que pour le produit « Secure Travel RIMI Visitors to Canada Travel ». Produit actuel : {{product}}",
+  "Policy must be of status ACTIVE or SOLD to split. Current status: {{status}}": "La police doit avoir le statut ACTIF ou VENDU pour être divisée. Statut actuel : {{status}}",
+  "Policy coverage has not started yet (effective {{effectiveDate}}). Splitting is only allowed after coverage begins.": "La couverture de la police n'a pas encore commencé (date d'effet {{effectiveDate}}). La division n'est autorisée qu'après le début de la couverture.",
+  "Cannot split a policy that is already a result of a split": "Impossible de diviser une police qui est déjà le résultat d'une division",
+  "Policy must have at least 2 insured persons to split. Current: {{totalApplicants}}": "La police doit compter au moins 2 personnes assurées pour être divisée. Actuel : {{totalApplicants}}",
+  "Policy has {{failedPaymentsCount}} failed payment(s). All payments must be current before splitting.": "La police présente {{failedPaymentsCount}} échec(s) de paiement. Tous les paiements doivent être à jour avant la division.",
+  "Policy must have at least 15 days remaining. Current: {{daysRemaining}} days": "La police doit avoir au moins 15 jours restants. Actuel : {{daysRemaining}} jours",
+  "Super Visa policies require 365+ days coverage. Continuing policy will have only {{daysRemaining}} days.": "Les polices Super Visa nécessitent une couverture de 365+ jours. La police maintenue n'aura que {{daysRemaining}} jours.",
+  "Must have at least 2 split groups": "Il doit y avoir au moins 2 groupes de division",
+  "Group {{index}} has no applicants assigned": "Le groupe {{index}} n'a aucun demandeur assigné",
+  "Group {{index}} is missing coverage dates": "Les dates de couverture sont manquantes pour le groupe {{index}}",
+  "Same applicant cannot appear in multiple split groups": "Un même demandeur ne peut pas figurer dans plusieurs groupes de division",
+  "Group {{index}} has only {{coverageDays}} days coverage. Minimum is 15 days.": "Le groupe {{index}} n'a que {{coverageDays}} jours de couverture. Le minimum est de 15 jours.",
+  "Group {{index}} has {{totalInGroup}} applicants. Ensure they have identical travel dates.": "Le groupe {{index}} compte {{totalInGroup}} demandeurs. Assurez-vous qu'ils ont des dates de voyage identiques.",
+  "Policy is not eligible for split": "La police n'est pas éligible à la division",
+  "Errors:": "Erreurs :"
 }
