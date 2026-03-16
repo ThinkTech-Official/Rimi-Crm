@@ -95,7 +95,7 @@ export function usePolicySplit(policyId: string) {
       const data = response.data;
       return data;
     } catch (err: any) {
-      const message = err.response?.data?.message || err.message;
+      const message = err.response?.data?.errors[0] || err.message;
       setError(message);
       throw err;
     } finally {

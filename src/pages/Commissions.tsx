@@ -132,7 +132,7 @@ export default function Commissions() {
           {/* new code  */}
 
           {data?.items?.length > 0 && (
-            <div className="flex flex-col items-start gap-1">
+            <div className="flex items-center">
               <button
                 onClick={() =>
                   exportCsv({
@@ -146,7 +146,7 @@ export default function Commissions() {
                   })
                 }
                 disabled={exporting}
-                className="py-2 px-4 border border-inputBorder hover:border-gray-500 transition cursor-pointer mb-2 text-sm"
+                className="btn-primary bg-white"
               >
                 {exporting ? (
                   <div className="flex items-center gap-2">
