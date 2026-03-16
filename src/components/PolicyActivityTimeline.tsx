@@ -271,7 +271,7 @@ case "payment_method_updated":
                                   {Array.isArray(value) ? value.join(", ") : JSON.stringify(value, null, 2)}
                                 </pre>
                               ) : (
-                                String(value)
+                                typeof value === "number" ? value.toFixed(2) : String(value)
                               )}
                             </div>
                           </div>
