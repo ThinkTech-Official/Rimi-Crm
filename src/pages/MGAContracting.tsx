@@ -1,9 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import {
-  MdEmail,
-  MdDescription,
-  MdOutlineMail,
   MdOutlineMailOutline,
 } from "react-icons/md";
 import { useLanguage } from "../context/LanguageContext";
@@ -22,28 +19,30 @@ const MGAContracting: React.FC = () => {
   return (
     <div className="h-[calc(100vh-3.5rem)] bg-white flex overflow-hidden">
       {/* ===== LEFT COLUMN - SIDEBAR ===== */}
-      <div className="hidden lg:flex w-[40%] bg-[#E8EEFB] flex-col p-12 relative overflow-hidden">
-        <div className="relative z-10 mt-12 font-[inter]">
-          <h1 className="text-4xl font-bold text-[#1B1B1B] mb-2">
-            Rimi Insurance
-          </h1>
-          <p className="text-[#4A4A4A] max-w-sm capitalize text-base">
-           welcome to RIMI  travel insurance portal
-          </p>
-        </div>
+      <div className="hidden lg:flex w-[45%] flex-col items-center justify-center relative overflow-hidden">
+        {/* Background Image/Overlay */}
+        <div
+          className="absolute inset-0 z-0"
+          style={{
+            backgroundImage: "url('/loginBg.png')",
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+          }}
+        ></div>
 
-        {/* Umbrella Image */}
-        <div className="absolute bottom-0 left-0 w-full flex justify-center">
-          <img
-            src="/Umbrella.png"
-            alt="Umbrella"
-            className="w-[80%] h-auto object-contain transform translate-y-12"
-          />
+        {/* Outlined Box */}
+        <div className="relative z-10 border border-white/80 min-h-[400px] 2xl:min-h-[430px] px-2 2xl:px-4 max-w-lg flex flex-col items-center justify-center text-center">
+          <h1 className="text-4xl 2xl:text-5xl font-medium text-white mb-6 tracking-wider leading-snug uppercase font-[inter]">
+            Rimi <br /> Insurance
+          </h1>
+          <p className="text-white text-xl 2xl:text-2xl max-w-xs leading-relaxed capitalize px-2">
+            {t("welcome to RIMI travel insurance portal")}
+          </p>
         </div>
       </div>
 
       {/* ===== RIGHT COLUMN - CONTENT AREA ===== */}
-      <div className="flex-1 flex flex-col h-full overflow-y-auto">
+      <div className="flex-1 flex flex-col h-full overflow-y-auto bg-white lg:rounded-l-[40px] relative z-20 lg:-ml-[40px]">
         {/* Top Nav Buttons */}
         <div className="p-6 flex justify-end gap-3">
           <button
@@ -60,7 +59,7 @@ const MGAContracting: React.FC = () => {
           </button>
         </div>
 
-        <div className="w-full flex-1 flex flex-col items-center px-6 py-4 sm:py-10 sm:px-16">
+        <div className="w-full flex-1 flex flex-col items-center px-6 py-4 sm:py-10 sm:px-12">
           <div className="w-full max-w-2xl flex flex-col items-center lg:items-start">
             <img
               src="/rimi_en.png"
