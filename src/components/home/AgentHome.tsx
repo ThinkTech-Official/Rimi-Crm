@@ -9,6 +9,7 @@ import { PoliciesTable, QuotesTable } from "../Tables.tsx";
 import Spinner from "../Spinner.tsx";
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
 import { useLanguage } from "../../context/LanguageContext";
+import { pastelColors } from "../Products/SecureTravelRIMIVisitorstoCanadaTravel/step1/Constants.ts";
 
 export default function AgentHome() {
   const [pPage, setPPage] = useState(1);
@@ -42,15 +43,15 @@ export default function AgentHome() {
   const stats = [
     { label: t("Total Policies"), value: summary?.totalPolicies || 0 },
     { label: t("Total Quotes"), value: summary?.totalQuotes || 0 },
-    {
-      label: t("Commission Percent"),
-      value: `${summary?.commissionPercent?.toFixed(2) || 0}%`,
-    },
-    { label: t("Total Commissions"), value: `$${summary?.totalCommissions?.toFixed(2) || 0}` },
-    {
-      label: t("Current Month Commissions"),
-      value: `$${summary?.currentMonthCommissions?.toFixed(2) || 0}`,
-    },
+    // {
+    //   label: t("Commission Percent"),
+    //   value: `${summary?.commissionPercent?.toFixed(2) || 0}%`,
+    // },
+    // { label: t("Total Commissions"), value: `$${summary?.totalCommissions?.toFixed(2) || 0}` },
+    // {
+    //   label: t("Current Month Commissions"),
+    //   value: `$${summary?.currentMonthCommissions?.toFixed(2) || 0}`,
+    // },
     { label: t("Monthly Premiums Count"), value: summary?.monthlyPremiums?.length || 0 },
   ];
 
@@ -125,12 +126,13 @@ export default function AgentHome() {
           className="grid grid-cols-2 lg:grid-cols-3 gap-4 xl:gap-8 w-full"
           role="stats"
         >
-          {stats?.map((stat) => (
+          {stats?.map((stat,i) => (
             <div
               key={stat.label}
               data-testid="stat-card"
-              className="bg-white p-2 sm:p-6 sm:h-24 rounded-lg"
+              className="p-2 sm:p-6 sm:h-24 rounded-lg"
               style={{
+                backgroundColor: pastelColors[i],
                 boxShadow: "0px 4px 6.7px 0px rgba(0, 0, 0, 0.04)",
                 border: "1px solid rgba(235, 235, 235, 1)",
               }}

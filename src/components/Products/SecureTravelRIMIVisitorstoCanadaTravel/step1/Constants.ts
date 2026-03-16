@@ -765,3 +765,14 @@ export const NonMedTravelCountries = [
   { value: "ZM", label: "Zambia" },
   { value: "ZW", label: "Zimbabwe" },
 ];
+
+export const pastelColors = [
+    '#EBF5FF',
+    '#F5EBFF',
+    '#FFE8EC',
+    '#E8FFF0',
+    '#FFF8E8',
+    '#E8F0FF',
+    '#E8F9FF',
+    '#FFEFE8',
+  ];

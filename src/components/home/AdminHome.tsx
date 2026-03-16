@@ -218,6 +218,7 @@ import QuotesVsPolicyConversion from "../analytics/admin-charts/QuotesVsPolicyCo
 import AdminPolicySalesChart from "../analytics/admin-charts/AdminPolicySalesChart";
 import { RenderPageNumbers } from "../RenderPageNumbers";
 import { useOnClickOutside } from "../../hooks/useOnClickOutside";
+import { pastelColors } from "../Products/SecureTravelRIMIVisitorstoCanadaTravel/step1/Constants";
 
 export default function AdminHome() {
   const navigate = useNavigate();
@@ -368,17 +369,6 @@ export default function AdminHome() {
     //   label: t("Monthly Premiums"),
     //   value: stats?.monthlyPremiums || 0,
     // },
-  ];
-
-  const pastelColors = [
-    '#EBF5FF',
-    '#F5EBFF',
-    '#FFE8EC',
-    '#E8FFF0',
-    '#FFF8E8',
-    '#E8F0FF',
-    '#E8F9FF',
-    '#FFEFE8',
   ];
 
   return (
