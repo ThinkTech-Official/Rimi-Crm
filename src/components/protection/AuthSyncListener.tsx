@@ -46,17 +46,15 @@ export const AuthSyncListener = () => {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === "logout-event") {
-        
-        dispatch(logout());
-        dispatch(clearVerificationData());
-
-        if (!window.location.pathname.startsWith("/login")) {
-          window.location.href = "/login";
-        }
-      }
-    };
+   const handleStorageChange = (e: StorageEvent) => {
+  if (e.key === "logout-event" && e.newValue) { 
+    dispatch(logout());
+    dispatch(clearVerificationData());
+    if (!window.location.pathname.startsWith("/login")) {
+      window.location.href = "/login";
+    }
+  }
+};
 
     window.addEventListener("storage", handleStorageChange);
     return () => window.removeEventListener("storage", handleStorageChange);
