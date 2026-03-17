@@ -1,6 +1,3 @@
-
-
-
 // import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 // import axios from "axios";
 // import Cookies from "js-cookie";
@@ -26,10 +23,9 @@
 //   initialized: boolean;
 // }
 
-
 // const initializeAuthState = (): Omit<AuthState, 'loading' | 'error'> => {
 //   const token = Cookies.get("token");
-  
+
 //   if (!token) {
 //     return {
 //       token: null,
@@ -42,8 +38,7 @@
 
 //   try {
 //     const decoded: DecodedToken = jwtDecode(token);
-    
-  
+
 //     const now = Date.now() / 1000;
 //     if (decoded.exp < now) {
 //       Cookies.remove("token");
@@ -121,9 +116,9 @@
 //       state.userType = null;
 //       state.fullName = null;
 //       state.agentCode = null;
-      
+
 //       Cookies.remove("token");
-      
+
 //       axios.post(`${API_BASE}/auth/logout`, {}, { withCredentials: true })
 //         .catch(err => console.error('Logout error:', err));
 //     },
@@ -152,10 +147,7 @@
 // export const { logout } = authSlice.actions;
 // export default authSlice.reducer;
 
-
 // =====================================
-
-
 
 // import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 // import axios from "axios";
@@ -182,11 +174,9 @@
 //   initialized: boolean;
 // }
 
-
-
 // const initializeAuthState = (): Omit<AuthState, 'loading' | 'error'> => {
 //   const token = Cookies.get("accessToken"); // Changed from "token" to "accessToken"
-  
+
 //   if (!token) {
 //     return {
 //       token: null,
@@ -199,8 +189,7 @@
 
 //   try {
 //     const decoded: DecodedToken = jwtDecode(token);
-    
- 
+
 //     const now = Date.now() / 1000;
 //     if (decoded.exp < now) {
 //       console.log('Access token expired on init');
@@ -242,8 +231,6 @@
 //   error: null,
 // };
 
-
-
 // export const loginUser = createAsyncThunk(
 //   "auth/loginUser",
 //   async (
@@ -256,8 +243,7 @@
 //         credentials,
 //         { withCredentials: true }
 //       );
-      
-      
+
 //       const token = response.data.accessToken;
 //       const decoded: DecodedToken = jwtDecode(token);
 
@@ -273,8 +259,6 @@
 //   }
 // );
 
-
-
 // const authSlice = createSlice({
 //   name: "auth",
 //   initialState,
@@ -284,21 +268,21 @@
 //       state.userType = null;
 //       state.fullName = null;
 //       state.agentCode = null;
-      
+
 //       // Remove cookies
 //       Cookies.remove("accessToken");
 //       Cookies.remove("refreshToken");
-      
+
 //       // Trigger multi-tab logout
 //       localStorage.setItem('logout-event', Date.now().toString());
 //       localStorage.removeItem('logout-event');
-      
+
 //       // Call backend logout to revoke refresh tokens
 //       axios.post(`${API_BASE}/auth/logout`, {}, { withCredentials: true })
 //         .catch(err => console.error('Backend logout error:', err));
 //     },
-    
-//     // 
+
+//     //
 //     setAccessToken: (state, action: PayloadAction<string>) => {
 //       try {
 //         const decoded: DecodedToken = jwtDecode(action.payload);
@@ -335,10 +319,7 @@
 // export const { logout, setAccessToken } = authSlice.actions;
 // export default authSlice.reducer;
 
-
 // ==============================
-
-
 
 // import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 // import axios from "axios";
@@ -364,7 +345,6 @@
 //   initialized: boolean;
 // }
 
-
 // const initialState: AuthState = {
 //   token: null,
 //   userType: null,
@@ -372,9 +352,8 @@
 //   fullName: null,
 //   loading: false,
 //   error: null,
-//   initialized: false, 
+//   initialized: false,
 // };
-
 
 // export const initializeAuth = createAsyncThunk(
 //   "auth/initialize",
@@ -384,14 +363,14 @@
 //         `${API_BASE}/auth/me`,
 //         { withCredentials: true }
 //       );
-      
+
 //       return {
 //         userType: response.data.userType,
 //         fullName: response.data.fullName,
 //         agentCode: response.data.agentCode,
 //       };
 //     } catch (err: any) {
-     
+
 //       return rejectWithValue('No active session');
 
 //     }
@@ -410,7 +389,7 @@
 //         credentials,
 //         { withCredentials: true }
 //       );
-      
+
 //       const token = response.data.accessToken;
 //       const decoded: DecodedToken = jwtDecode(token);
 
@@ -426,7 +405,6 @@
 //   }
 // );
 
-
 // export const logoutUser = createAsyncThunk(
 //   'auth/logout',
 //   async () => {
@@ -434,7 +412,7 @@
 //       await axios.post(`${API_BASE}/auth/logout`, {}, { withCredentials: true });
 //     } catch (error) {
 //       console.error('Backend logout error:', error);
-      
+
 //     }
 //   }
 // );
@@ -443,22 +421,20 @@
 //   name: "auth",
 //   initialState,
 //   reducers: {
-    
+
 //     logout: (state) => {
 //       state.token = null;
 //       state.userType = null;
 //       state.fullName = null;
 //       state.agentCode = null;
-      
-      
+
 //       localStorage.setItem('logout-event', Date.now().toString());
 //       localStorage.removeItem('logout-event');
-      
-      
+
 //       axios.post(`${API_BASE}/auth/logout`, {}, { withCredentials: true })
 //         .catch(err => console.error('Backend logout error:', err));
 //     },
-    
+
 //     setAccessToken: (state, action: PayloadAction<string>) => {
 //       try {
 //         const decoded: DecodedToken = jwtDecode(action.payload);
@@ -473,13 +449,13 @@
 //   },
 //   extraReducers: (builder) => {
 //     builder
-      
+
 //       .addCase(initializeAuth.pending, (state) => {
 //         state.loading = true;
 //       })
 //       .addCase(initializeAuth.fulfilled, (state, action) => {
 //         state.loading = false;
-//         state.token = 'authenticated'; 
+//         state.token = 'authenticated';
 //         state.userType = action.payload.userType;
 //         state.fullName = action.payload.fullName;
 //         state.agentCode = action.payload.agentCode;
@@ -487,9 +463,9 @@
 //       })
 //       .addCase(initializeAuth.rejected, (state) => {
 //         state.loading = false;
-//         state.initialized = true; 
+//         state.initialized = true;
 //       })
-      
+
 //       .addCase(loginUser.pending, (state) => {
 //         state.loading = true;
 //         state.error = null;
@@ -506,14 +482,13 @@
 //         state.loading = false;
 //         state.error = action.payload as string;
 //       })
-      
+
 //       .addCase(logoutUser.fulfilled, (state) => {
 //         state.token = null;
 //         state.userType = null;
 //         state.fullName = null;
 //         state.agentCode = null;
-        
-        
+
 //         localStorage.setItem('logout-event', Date.now().toString());
 //         localStorage.removeItem('logout-event');
 //       });
@@ -523,10 +498,7 @@
 // export const { logout, setAccessToken } = authSlice.actions;
 // export default authSlice.reducer;
 
-
-
 // ===================================
-
 
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import axios from "axios";
@@ -577,64 +549,56 @@ export const initializeAuth = createAsyncThunk(
     } catch (err: any) {
       return rejectWithValue("No active session");
     }
-  }
+  },
 );
 
 export const loginUser = createAsyncThunk(
   "auth/loginUser",
   async (
     credentials: { email: string; password: string },
-    { rejectWithValue }
+    { rejectWithValue },
   ) => {
     try {
-      const response = await axios.post(
-        `${API_BASE}/auth/login`,
-        credentials,
-        { withCredentials: true }
-      );
-      const token = response.data.accessToken;
-      const decoded: DecodedToken = jwtDecode(token);
+      const response = await axios.post(`${API_BASE}/auth/login`, credentials, {
+        withCredentials: true,
+      });
+      // const token = response.data.accessToken;
+      // const decoded: DecodedToken = jwtDecode(token);
+      // return {
+      //   token,
+      //   userType: decoded.userType,
+      //   fullName: decoded.fullName,
+      //   agentCode: decoded.agentCode,
+      // };
       return {
-        token,
-        userType: decoded.userType,
-        fullName: decoded.fullName,
-        agentCode: decoded.agentCode,
+        token: "authenticated" as const,
+        userType: response.data.userType,
+        fullName: response.data.fullName,
+        agentCode: response.data.agentCode,
       };
     } catch (err: any) {
       return rejectWithValue(err.response?.data?.message || "Login failed");
     }
-  }
+  },
 );
 
-
-export const logoutUser = createAsyncThunk(
-  "auth/logout",
-  async () => {
-    
-    try {
-      await axios.post(
-        `${API_BASE}/auth/logout`,
-        {},
-        { withCredentials: true }
-      );
-    } catch (error) {
-      
-      console.error("Backend logout error:", error);
-    }
-
-    
-    try {
-      localStorage.setItem("logout-event", Date.now().toString());
-      localStorage.removeItem("logout-event");
-    } catch {}
+export const logoutUser = createAsyncThunk("auth/logout", async () => {
+  try {
+    await axios.post(`${API_BASE}/auth/logout`, {}, { withCredentials: true });
+  } catch (error) {
+    console.error("Backend logout error:", error);
   }
-);
+
+  try {
+    localStorage.setItem("logout-event", Date.now().toString());
+    localStorage.removeItem("logout-event");
+  } catch {}
+});
 
 const authSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {
-    
     logout: (state) => {
       state.token = null;
       state.userType = null;
@@ -687,7 +651,7 @@ const authSlice = createSlice({
         state.loading = false;
         state.error = action.payload as string;
       })
-     
+
       .addCase(logoutUser.fulfilled, (state) => {
         state.token = null;
         state.userType = null;
