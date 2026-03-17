@@ -138,7 +138,7 @@ const AgentApplicationOpen: React.FC = () => {
       </div>
 
       {/* ===== RIGHT COLUMN - CONTENT AREA ===== */}
-      <div className="flex-1 flex flex-col h-full overflow-y-auto custom-scrollbar3 bg-white lg:rounded-l-[40px] relative z-20 lg:-ml-[40px]">
+      <div className="flex-1 flex flex-col h-full overflow-y-auto custom-scrollbar3 bg-white lg:rounded-l-[20px] relative z-20 lg:-ml-[20px]">
         {/* Nav Buttons (New Layout Element) */}
         <div className="p-6 flex justify-end items-center gap-3">
           {/* Language Selector */}
@@ -158,21 +158,7 @@ const AgentApplicationOpen: React.FC = () => {
           </button>
         </div>
 
-          <button
-            onClick={() => (window.location.href = "/apply-mga")}
-            className="px-6 py-2 border border-[#2B00B7] text-[#2B00B7] font-medium text-sm transition-colors cursor-pointer"
-          >
-            {t("Apply as MGA")}
-          </button>
-          <button
-            onClick={() => (window.location.href = "/login")}
-            className="btn-primary w-[150px] py-2 font-medium text-sm cursor-pointer"
-          >
-            {t("Sign in")}
-          </button>
-        </div>
-
-        <div className="w-full flex flex-col items-center px-6 py-4 md:py-10 md:px-16">
+        <div className="w-full flex-1 flex flex-col items-center px-6 py-4 md:py-10 md:px-16 overflow-y-auto">
           <div className="w-full max-w-2xl flex flex-col items-center lg:items-start">
             <img
               src="/rimi_en.png"
@@ -782,6 +768,7 @@ const AgentApplicationOpen: React.FC = () => {
             {/* ===== FORM END ===== */}
           </div>
         </div>
+      </div>
       {NotificationComponent}
     </div>
   );

@@ -58,7 +58,7 @@ const Login = () => {
 
   return (
     <div className="h-screen flex overflow-hidden">
-      <div className="hidden lg:flex w-[50%] flex-col items-center justify-center relative overflow-hidden">
+      <div className="hidden lg:flex w-[45%] flex-col items-center justify-center relative overflow-hidden">
         {/* Background Image/Overlay */}
         <div
           className="absolute inset-0 z-0"
@@ -82,7 +82,7 @@ const Login = () => {
       </div>
 
       {/* ===== RIGHT COLUMN - CONTENT AREA ===== */}
-      <div className="flex-1 flex flex-col h-full overflow-y-auto bg-white lg:rounded-l-[40px] relative z-20 lg:-ml-[40px]">
+      <div className="flex-1 flex flex-col h-full overflow-y-auto bg-white lg:rounded-l-[20px] relative z-20 lg:-ml-[20px]">
         {/* Top Nav Buttons */}
         <div className="p-6 flex justify-end items-center gap-3">
           {/* Language Selector */}
@@ -102,7 +102,7 @@ const Login = () => {
           </button>
         </div>
 
-        <div className="w-full flex flex-col justify-center flex-1 px-6 py-5 sm:py-10 sm:px-16">
+        <div className="w-full flex flex-col justify-center items-center flex-1 px-6 py-5 sm:py-10 sm:px-16">
           <div className="w-full sm:max-w-md flex flex-col justify-center lg:justify-start">
             <img
               src={rimilogo}
