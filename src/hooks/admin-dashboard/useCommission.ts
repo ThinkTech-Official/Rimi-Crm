@@ -233,6 +233,7 @@ export const useCommissions = (filters: {
       if (filters.limit) params.append("limit", filters.limit.toString());
 
       const { data } = await axiosInstance.get(`/admin/commissions?${params.toString()}`);
+      console.log("data for commision table:", data)
       return data;
     },
     placeholderData: keepPreviousData, 

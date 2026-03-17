@@ -357,15 +357,15 @@ export function CommissionsTable({
               <th className="px-4 py-3 text-left font-medium">
                 {t("MGA Share")}
               </th>
+              <th className="px-4 py-3 text-left font-medium">
+                {t("Agent %")}
+              </th>
             </tr>
           </thead>
           <tbody className="bg-white text-[#808080]">
             {loading ? (
               <tr>
-                <td
-                  colSpan={12}
-                  className="p-8 text-center bg-white h-40"
-                >
+                <td colSpan={13} className="p-8 text-center bg-white h-40">
                   <div className="flex justify-center flex-col items-center gap-2">
                     <div className="spinner w-8 h-8"></div>
                     <p className="text-primary font-medium">
@@ -376,10 +376,7 @@ export function CommissionsTable({
               </tr>
             ) : data.length === 0 ? (
               <tr>
-                <td
-                  colSpan={12}
-                  className="px-4 py-3 text-center"
-                >
+                <td colSpan={13} className="px-4 py-3 text-center">
                   {t("No commissions found")}
                 </td>
               </tr>
@@ -397,17 +394,13 @@ export function CommissionsTable({
                       isReversal ? "bg-red-50 text-red-700" : ""
                     }`}
                   >
-                    <td
-                      className="px-2 sm:px-3 py-2 whitespace-nowrap border-r border-b border-[#AAA9A9]"
-                    >
+                    <td className="px-2 sm:px-3 py-2 whitespace-nowrap border-r border-b border-[#AAA9A9]">
                       {new Date(commission.createdAt).toLocaleDateString()}
                     </td>
-                    <td
-                       className="px-2 sm:px-3 py-2 whitespace-nowrap border-r border-b border-[#AAA9A9]"
-                    >
+                    <td className="px-2 sm:px-3 py-2 whitespace-nowrap border-r border-b border-[#AAA9A9]">
                       {commission.policy?.policyNumber || t("N/A")}
                     </td>
-                    <td  className="px-2 sm:px-3 py-2 whitespace-nowrap border-r border-b border-[#AAA9A9]">
+                    <td className="px-2 sm:px-3 py-2 whitespace-nowrap border-r border-b border-[#AAA9A9]">
                       <span className="text-[10px] px-2 py-1 bg-gray-100 text-text-primary capitalize text-nowrap">
                         {t(
                           commission.paymentHistory?.paymentType?.replace(
@@ -417,40 +410,31 @@ export function CommissionsTable({
                         )}
                       </span>
                     </td>
-                    <td
-                       className="px-2 sm:px-3 py-2 whitespace-nowrap border-r border-b border-[#AAA9A9]"
-                    >
+                    <td className="px-2 sm:px-3 py-2 whitespace-nowrap border-r border-b border-[#AAA9A9]">
                       {commission.agentCode}
                     </td>
-                    <td
-                       className="px-2 sm:px-3 py-2 whitespace-nowrap border-r border-b border-[#AAA9A9]"
-                    >
+                    <td className="px-2 sm:px-3 py-2 whitespace-nowrap border-r border-b border-[#AAA9A9]">
                       {commission.mgaCode || "N/A"}
                     </td>
-                    <td
-                       className="px-2 sm:px-3 py-2 whitespace-nowrap border-r border-b border-[#AAA9A9]"
-                    >
+                    <td className="px-2 sm:px-3 py-2 whitespace-nowrap border-r border-b border-[#AAA9A9]">
                       {commission.grossAmount}
                     </td>
-                    <td
-                       className="px-2 sm:px-3 py-2 whitespace-nowrap border-r border-b border-[#AAA9A9]"
-                    >
+                    <td className="px-2 sm:px-3 py-2 whitespace-nowrap border-r border-b border-[#AAA9A9]">
                       {commission.commissionAmount}
                     </td>
-                    <td
-                       className="px-2 sm:px-3 py-2 whitespace-nowrap border-r border-b border-[#AAA9A9]"
-                    >
+                    <td className="px-2 sm:px-3 py-2 whitespace-nowrap border-r border-b border-[#AAA9A9]">
                       {commission.mgaOverridePercent}
                     </td>
-                    <td
-                       className="px-2 sm:px-3 py-2 whitespace-nowrap border-r border-b border-[#AAA9A9]"
-                    >
+                    <td className="px-2 sm:px-3 py-2 whitespace-nowrap border-r border-b border-[#AAA9A9]">
                       {commission.agentShare}
                     </td>
-                    <td
-                       className="px-2 sm:px-3 py-2 whitespace-nowrap border-r border-b border-[#AAA9A9]"
-                    >
+                    <td className="px-2 sm:px-3 py-2 whitespace-nowrap border-r border-b border-[#AAA9A9]">
                       {commission.mgaShare || "-"}
+                    </td>
+                    <td className="px-2 sm:px-3 py-2 whitespace-nowrap border-r border-b border-[#AAA9A9]">
+                      {commission.ratePercent != null
+                        ? `${commission.ratePercent}%`
+                        : "-"}
                     </td>
                   </tr>
                 );
