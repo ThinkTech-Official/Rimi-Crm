@@ -26,7 +26,34 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     // If language is 'fr', look up in translations.fr. Fallback to key if missing.
     let text = key;
     if (language === 'fr') {
-      text = (translations.fr as any)[key] || key;
+      const fr = translations.fr as Record<string, string>;
+      
+      // 1. Exact match (fast path)
+      if (fr[key]) {
+        text = fr[key];
+      } else {
+        // 2. Template match (fuzzy matching for dynamic strings from backend)
+        // Optimize: only check keys that look like templates
+        for (const tplKey in fr) {
+          if (tplKey.includes('{{')) {
+            // Escape special chars except the placeholders
+            const escapedTpl = tplKey.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+                                     .replace(/\\\{\\\{([a-zA-Z0-9]+)\\\}\\\}/g, '(.+)');
+            
+            const regex = new RegExp(`^${escapedTpl}$`);
+            const match = key.match(regex);
+            
+            if (match) {
+              let translated = fr[tplKey];
+              const varNames = [...tplKey.matchAll(/{{([a-zA-Z0-9]+)}}/g)].map(m => m[1]);
+              varNames.forEach((name, i) => {
+                translated = translated.replace(`{{${name}}}`, match[i+1]);
+              });
+              return translated;
+            }
+          }
+        }
+      }
     }
 
     if (params) {

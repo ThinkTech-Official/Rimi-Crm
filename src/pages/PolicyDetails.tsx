@@ -36,6 +36,7 @@ import SendRenewalConfirmationModal from "../components/renewals/SendRenewalConf
 import UpdatePaymentMethodConfirmationModal from "../components/policy/UpdatePaymentMethodConfirmationModal";
 import { MdClose, MdUploadFile } from "react-icons/md";
 import { HealthQuestionnaireSection } from "./QuoteDetails";
+import Spinner from "../components/Spinner";
 
 const fmtDate = (iso?: string) => {
   if (!iso) return "-";
@@ -195,7 +196,7 @@ const PolicyDetailsPage: React.FC = () => {
     }
   }, [p]);
 
-  if (loading) return <p className="text-center py-10">{t("Loading...")}</p>;
+  if (loading) return <div className="flex flex-col justify-center items-center gap-2 mt-10"><Spinner className="h-8 w-8"/><p className="text-center">{t("Loading...")}</p></div>;
   if (error)
     return <p className="text-red-600 text-center py-10">{t(error)}</p>;
   if (!p) return <p className="text-center py-10">{t("No policy found.")}</p>;

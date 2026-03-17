@@ -7,9 +7,8 @@ import {
 import { useForm } from "react-hook-form";
 import useNotification from "../hooks/useNotification";
 import { useLanguage } from "../context/LanguageContext";
-import { MdArrowLeft } from "react-icons/md";
-import { FaChevronLeft } from "react-icons/fa";
 import { FaArrowLeftLong } from "react-icons/fa6";
+import LanguageDropdown from "../components/LanguageDropdown";
 
 const AgentApplicationOpen: React.FC = () => {
   const [passwordVisible, setPasswordVisible] = useState(false);
@@ -114,7 +113,7 @@ const AgentApplicationOpen: React.FC = () => {
   const handleFileSize = (file: File) => (file.size / (1024 * 1024)).toFixed(2);
 
   return (
-    <div className="h-[calc(100vh-3.5rem)] bg-white flex overflow-hidden">
+    <div className="h-screen bg-white flex overflow-hidden">
       {/* ===== LEFT COLUMN - SIDEBAR (New Layout) ===== */}
       <div className="hidden lg:flex w-[45%] flex-col items-center justify-center relative overflow-hidden">
         {/* Background Image/Overlay */}
@@ -141,7 +140,24 @@ const AgentApplicationOpen: React.FC = () => {
       {/* ===== RIGHT COLUMN - CONTENT AREA ===== */}
       <div className="flex-1 flex flex-col h-full overflow-y-auto custom-scrollbar3 bg-white lg:rounded-l-[40px] relative z-20 lg:-ml-[40px]">
         {/* Nav Buttons (New Layout Element) */}
-        <div className="p-6 flex justify-end gap-3">
+        <div className="p-6 flex justify-end items-center gap-3">
+          {/* Language Selector */}
+          <LanguageDropdown className="mr-4" />
+
+          <button
+            onClick={() => (window.location.href = "/apply-mga")}
+            className="px-6 py-2 border border-[#2B00B7] text-[#2B00B7] font-medium text-sm transition-colors cursor-pointer"
+          >
+            {t("Apply as MGA")}
+          </button>
+          <button
+            onClick={() => (window.location.href = "/login")}
+            className="btn-primary w-[150px] py-2 font-medium text-sm cursor-pointer"
+          >
+            {t("Sign in")}
+          </button>
+        </div>
+
           <button
             onClick={() => (window.location.href = "/apply-mga")}
             className="px-6 py-2 border border-[#2B00B7] text-[#2B00B7] font-medium text-sm transition-colors cursor-pointer"
@@ -766,8 +782,6 @@ const AgentApplicationOpen: React.FC = () => {
             {/* ===== FORM END ===== */}
           </div>
         </div>
-      </div>
-
       {NotificationComponent}
     </div>
   );

@@ -4,6 +4,7 @@ import {
   MdOutlineMailOutline,
 } from "react-icons/md";
 import { useLanguage } from "../context/LanguageContext";
+import LanguageDropdown from "../components/LanguageDropdown";
 
 const MGAContracting: React.FC = () => {
   const navigate = useNavigate();
@@ -17,7 +18,7 @@ const MGAContracting: React.FC = () => {
   ];
 
   return (
-    <div className="h-[calc(100vh-3.5rem)] bg-white flex overflow-hidden">
+    <div className="h-screen bg-white flex overflow-hidden">
       {/* ===== LEFT COLUMN - SIDEBAR ===== */}
       <div className="hidden lg:flex w-[45%] flex-col items-center justify-center relative overflow-hidden">
         {/* Background Image/Overlay */}
@@ -42,20 +43,23 @@ const MGAContracting: React.FC = () => {
       </div>
 
       {/* ===== RIGHT COLUMN - CONTENT AREA ===== */}
-      <div className="flex-1 flex flex-col h-full overflow-y-auto bg-white lg:rounded-l-[40px] relative z-20 lg:-ml-[40px]">
+      <div className="flex-1 flex flex-col h-full overflow-y-auto bg-white lg:rounded-l-[20px] relative z-20 lg:-ml-[20px]">
         {/* Top Nav Buttons */}
-        <div className="p-6 flex justify-end gap-3">
+        <div className="p-6 flex justify-end items-center gap-3">
+          {/* Language Selector */}
+          <LanguageDropdown className="mr-4" />
+
           <button
             onClick={() => navigate("/apply")}
             className="px-6 py-2 border border-[#2B00B7] text-[#2B00B7] font-medium text-sm transition-colors cursor-pointer"
           >
-            Apply as agent
+            {t("Apply as agent")}
           </button>
           <button
             onClick={() => navigate("/login")}
             className="btn-primary w-[150px] py-2 font-medium text-sm cursor-pointer"
           >
-            Sign in
+            {t("Sign in")}
           </button>
         </div>
 

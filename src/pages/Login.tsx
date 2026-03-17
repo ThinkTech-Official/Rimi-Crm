@@ -8,6 +8,7 @@ import rimilogo from "../assets/rimi_en.png";
 import { useAuth } from "../hooks/useAuth";
 import useNotification from "../hooks/useNotification";
 import { useLanguage } from "../context/LanguageContext";
+import LanguageDropdown from "../components/LanguageDropdown";
 
 interface LoginFormInputs {
   email: string;
@@ -18,13 +19,11 @@ const Login = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { t } = useLanguage();
-  const [show, setShow] = useState(false);
-  const [errMsg, setErrMsg] = useState("");
   const [signInClicked, setSignInClicked] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const { triggerNotification, NotificationComponent } = useNotification();
   const { login } = useAuth();
-
+  
   const {
     register,
     handleSubmit,
@@ -58,8 +57,8 @@ const Login = () => {
   };
 
   return (
-    <div className="h-[calc(100vh-3.5rem)]  flex overflow-hidden">
-      <div className="hidden lg:flex w-[50%]  flex-col items-center justify-center relative overflow-hidden">
+    <div className="h-screen flex overflow-hidden">
+      <div className="hidden lg:flex w-[50%] flex-col items-center justify-center relative overflow-hidden">
         {/* Background Image/Overlay */}
         <div
           className="absolute inset-0 z-0"
@@ -85,7 +84,10 @@ const Login = () => {
       {/* ===== RIGHT COLUMN - CONTENT AREA ===== */}
       <div className="flex-1 flex flex-col h-full overflow-y-auto bg-white lg:rounded-l-[40px] relative z-20 lg:-ml-[40px]">
         {/* Top Nav Buttons */}
-        <div className="p-6 flex justify-end gap-3">
+        <div className="p-6 flex justify-end items-center gap-3">
+          {/* Language Selector */}
+          <LanguageDropdown className="mr-4" />
+
           <button
             onClick={() => navigate("/apply-mga")}
             className="px-6 py-2 border border-[#2B00B7] text-[#2B00B7] font-medium text-sm transition-colors cursor-pointer"
