@@ -444,7 +444,7 @@ import {
 } from "@heroicons/react/24/outline";
 import { Disclosure } from "@headlessui/react";
 import { useLanguage } from "../context/LanguageContext";
-import { getUserTypeFromToken } from "../utils/getUserType";
+// import { getUserTypeFromToken } from "../utils/getUserType";
 import { HiOutlineDocumentCurrencyDollar } from "react-icons/hi2";
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import Footer from "../components/Footer";
@@ -454,6 +454,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useGetVerificationStatus } from "../hooks/agent-verification/useGetVerificationStatus";
 import { useGetVerificationCount } from "../hooks/agent-verification/useGetVerificationCount";
 import { setVerificationStatus, setPendingCount, selectPendingCount } from "../features/verificationSlice";
+import { useAppSelector } from "../hooks/useReduxHooks";
 
 const navigation = [
   {
@@ -588,7 +589,7 @@ const bottomNavigation = [
 
 export default function Dashboard() {
   const [selectedComponent, setSelectedComponent] = useState<string>("home");
-  const [userType, setUserType] = useState<string | null>(null);
+  // const [userType, setUserType] = useState<string | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isSidebarCollapsed, setSidebarCollapsed] = useState(true);
   
@@ -601,14 +602,15 @@ export default function Dashboard() {
   const { fetchStatus } = useGetVerificationStatus();
   const { fetchCount } = useGetVerificationCount();
   const pendingCount = useSelector(selectPendingCount);
+  const userType = useAppSelector((state) => state.auth.userType);
 
   // console.log("selectedComponent", selectedComponent);
 
-  useEffect(() => {
-    const type = getUserTypeFromToken();
-    setUserType(type?.userType || null);
-    console.log(type);
-  }, []);
+  // useEffect(() => {
+  //   const type = getUserTypeFromToken();
+  //   setUserType(type?.userType || null);
+  //   console.log(type);
+  // }, []);
 
   // Fetch verification status for AGENT/MGA users
   useEffect(() => {

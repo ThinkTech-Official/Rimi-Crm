@@ -8,11 +8,7 @@
 //   withCredentials: true,
 // });
 
-
 // =========================
-
-
-
 
 // import axios, { AxiosError, InternalAxiosRequestConfig } from "axios";
 // import Cookies from "js-cookie";
@@ -25,9 +21,7 @@
 //   withCredentials: true,
 // });
 
-
-// // TOKEN REFRESH 
-
+// // TOKEN REFRESH
 
 // let isRefreshing = false;
 // let failedQueue: Array<{
@@ -46,15 +40,13 @@
 //   failedQueue = [];
 // };
 
-
 // // RESPONSE INTERCEPTOR
-
 
 // axiosInstance.interceptors.response.use(
 //   (response) => response,
 //   async (error: AxiosError) => {
-//     const originalRequest = error.config as InternalAxiosRequestConfig & { 
-//       _retry?: boolean 
+//     const originalRequest = error.config as InternalAxiosRequestConfig & {
+//       _retry?: boolean
 //     };
 
 //     // If not a 401 error, just reject
@@ -71,12 +63,12 @@
 //     if (originalRequest.url?.includes('/auth/refresh')) {
 //       console.error('Refresh token expired or invalid');
 //       store.dispatch(logout());
-      
+
 //       // Save current path for redirect after re-login
 //       const currentPath = window.location.pathname;
 //       // window.location.href = `/login?returnUrl=${encodeURIComponent(currentPath)}`;
 //       window.location.href = `/login?returnUrl=${encodeURIComponent(currentPath)}&sessionExpired=true`;
-      
+
 //       return Promise.reject(error);
 //     }
 
@@ -99,7 +91,7 @@
 
 //     try {
 //       console.log('Access token expired, refreshing...');
-      
+
 //       // Call refresh endpoint
 //       const { data } = await axios.post(
 //         `${API_BASE}/auth/refresh`,
@@ -119,30 +111,28 @@
 
 //       // Retry original request
 //       return axiosInstance(originalRequest);
-      
+
 //     } catch (refreshError) {
 //       console.error('Token refresh failed:', refreshError);
-      
+
 //       // Refresh failed - logout user
 //       processQueue(refreshError, null);
 //       store.dispatch(logout());
-      
+
 //       // Redirect to login with return URL
 //       const currentPath = window.location.pathname;
 //       // window.location.href = `/login?returnUrl=${encodeURIComponent(currentPath)}`;
 //       window.location.href = `/login?returnUrl=${encodeURIComponent(currentPath)}&sessionExpired=true`;
-      
+
 //       return Promise.reject(refreshError);
-      
+
 //     } finally {
 //       isRefreshing = false;
 //     }
 //   }
 // );
 
-
 // ==============================
-
 
 // import axios, { AxiosError, InternalAxiosRequestConfig } from "axios";
 // import { API_BASE } from "./urls";
@@ -178,49 +168,44 @@
 // axiosInstance.interceptors.response.use(
 //   (response) => response,
 //   async (error: AxiosError) => {
-//     const originalRequest = error.config as InternalAxiosRequestConfig & { 
-//       _retry?: boolean 
+//     const originalRequest = error.config as InternalAxiosRequestConfig & {
+//       _retry?: boolean
 //     };
 
-  
 //     if (error.response?.status !== 401) {
 //       return Promise.reject(error);
 //     }
 
-    
 //     if (originalRequest._retry) {
 //       return Promise.reject(error);
 //     }
 
-  
 //     if (originalRequest.url?.includes('/auth/me')) {
 //       return Promise.reject(error);
 //     }
 
-    
 //     if (originalRequest.url?.includes('/auth/refresh')) {
 //       console.error('Refresh token expired or invalid');
 //       store.dispatch(logout());
-      
+
 //       const currentPath = window.location.pathname;
 //       window.location.href = `/login?returnUrl=${encodeURIComponent(currentPath)}&sessionExpired=true`;
-      
+
 //       return Promise.reject(error);
 //     }
 
-    
 //     if (isRefreshing) {
 //       return new Promise((resolve, reject) => {
-        
+
 //         const timeout = setTimeout(() => {
 //           reject(new Error('Token refresh timeout'));
 //         }, 10000); // 10 second timeout
-        
-//         failedQueue.push({ 
+
+//         failedQueue.push({
 //           resolve: () => {
 //             clearTimeout(timeout);
 //             resolve(axiosInstance(originalRequest));
-//           }, 
+//           },
 //           reject: (err) => {
 //             clearTimeout(timeout);
 //             reject(err);
@@ -229,14 +214,12 @@
 //       });
 //     }
 
-   
 //     originalRequest._retry = true;
 //     isRefreshing = true;
 
 //     try {
 //       console.log('Access token expired, refreshing...');
-      
-     
+
 //       const { data } = await axios.post(
 //         `${API_BASE}/auth/refresh`,
 //         {},
@@ -245,30 +228,25 @@
 
 //       const newAccessToken = data.accessToken;
 
-     
 //       store.dispatch(setAccessToken(newAccessToken));
 
 //       console.log('Access token refreshed successfully');
 
-      
 //       processQueue(null, newAccessToken);
 
-     
 //       return axiosInstance(originalRequest);
-      
+
 //     } catch (refreshError) {
 //       console.error('Token refresh failed:', refreshError);
-      
-      
+
 //       processQueue(refreshError, null);
 //       store.dispatch(logout());
-      
-      
+
 //       const currentPath = window.location.pathname;
 //       window.location.href = `/login?returnUrl=${encodeURIComponent(currentPath)}&sessionExpired=true`;
-      
+
 //       return Promise.reject(refreshError);
-      
+
 //     } finally {
 //       isRefreshing = false;
 //     }
@@ -277,19 +255,17 @@
 
 // ======================================
 
-
 import axios, { AxiosError, InternalAxiosRequestConfig } from "axios";
 import { API_BASE } from "./urls";
 import { store } from "../app/store";
 import { logout, setAccessToken } from "../features/authSlice";
 import { clearVerificationData } from "../features/verificationSlice";
+import { initializeAuth } from "../features/authSlice";
 
 export const axiosInstance = axios.create({
   baseURL: API_BASE,
   withCredentials: true,
 });
-
-
 
 let isRefreshing = false;
 let failedQueue: Array<{
@@ -301,8 +277,6 @@ const processQueue = (error: any) => {
   failedQueue.forEach((p) => (error ? p.reject(error) : p.resolve()));
   failedQueue = [];
 };
-
-
 
 const LAST_REFRESH_KEY = "rimi_last_refresh";
 const REFRESH_FAILED_KEY = "rimi_refresh_failed";
@@ -340,8 +314,6 @@ function recordRefreshFailure() {
   } catch {}
 }
 
-
-
 function withRefreshLock(fn: () => Promise<void>): Promise<void> {
   if (typeof navigator !== "undefined" && "locks" in navigator) {
     return navigator.locks.request<void>("rimi_token_refresh", async (lock) => {
@@ -351,9 +323,8 @@ function withRefreshLock(fn: () => Promise<void>): Promise<void> {
   return fn();
 }
 
-
 function clearAuthState() {
-  store.dispatch(logout());             
+  store.dispatch(logout());
   store.dispatch(clearVerificationData());
 }
 
@@ -363,8 +334,6 @@ function redirectToLogin() {
     window.location.href = `/login?returnUrl=${returnUrl}&sessionExpired=true`;
   }
 }
-
-
 
 axiosInstance.interceptors.response.use(
   (response) => response,
@@ -386,7 +355,6 @@ axiosInstance.interceptors.response.use(
 
     if (originalRequest._retry) return Promise.reject(error);
 
-    
     if (isRefreshing) {
       return new Promise((resolve, reject) => {
         failedQueue.push({
@@ -399,31 +367,36 @@ axiosInstance.interceptors.response.use(
       });
     }
 
-    
     originalRequest._retry = true;
     isRefreshing = true;
 
     try {
       await withRefreshLock(async () => {
+        // if (wasRefreshRecentlySuccessful()) {
+        //   console.log("[Auth] Already refreshed by another tab — skipping");
+        //   return;
+        // }
 
-        
         if (wasRefreshRecentlySuccessful()) {
-          console.log("[Auth] Already refreshed by another tab — skipping");
+          console.log(
+            "[Auth] Already refreshed by another tab — syncing Redux state",
+          );
+          await store.dispatch(initializeAuth());
           return;
         }
 
-        
         if (wasRefreshRecentlyFailed()) {
-          console.log("[Auth] Refresh already failed in another tab — skipping");
+          console.log(
+            "[Auth] Refresh already failed in another tab — skipping",
+          );
           throw new Error("Refresh token expired");
         }
 
-       
         console.log("[Auth] Refreshing access token...");
         const { data } = await axios.post(
           `${API_BASE}/auth/refresh`,
           {},
-          { withCredentials: true }
+          { withCredentials: true },
         );
 
         store.dispatch(setAccessToken(data.accessToken));
@@ -431,23 +404,18 @@ axiosInstance.interceptors.response.use(
         console.log("[Auth] Token refreshed successfully");
       });
 
-      
       processQueue(null);
       return axiosInstance(originalRequest);
-
     } catch (err) {
-      
       recordRefreshFailure();
       processQueue(err);
 
-      
       clearAuthState();
       redirectToLogin();
 
       return Promise.reject(err);
-
     } finally {
       isRefreshing = false;
     }
-  }
+  },
 );
