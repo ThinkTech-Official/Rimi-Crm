@@ -543,7 +543,8 @@ export const initializeAuth = createAsyncThunk(
       });
       return {
         userType: response.data.userType,
-        fullName: response.data.fullName,
+        // fullName: response.data.fullName,
+        fullName: `${response.data.firstName} ${response.data.lastName}`, 
         agentCode: response.data.agentCode,
       };
     } catch (err: any) {

@@ -1,11 +1,5 @@
-
-
 import { useState, useCallback } from 'react';
-// import { useSelector } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
 import { axiosInstance } from '../../utils/axiosInstance';
-
-
 
 interface VerificationCountResponse {
   count: number;
@@ -15,9 +9,6 @@ export function useGetVerificationCount() {
   const [data, setData] = useState<VerificationCountResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  
-  // const token = useSelector((state: any) => state.auth.token);
-  const navigate = useNavigate();
 
   const fetchCount = useCallback(async () => {
     setLoading(true);
@@ -35,7 +26,7 @@ export function useGetVerificationCount() {
     } finally {
       setLoading(false);
     }
-  }, [navigate]);
+  }, []);
 
   return { data, loading, error, fetchCount };
 }
