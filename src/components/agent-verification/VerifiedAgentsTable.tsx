@@ -3,6 +3,7 @@ import { format } from "date-fns";
 import Spinner from "../Spinner";
 import { RenderPageNumbers } from "../RenderPageNumbers";
 import { useLanguage } from "../../context/LanguageContext";
+import { getApplicantTypeBadge } from "../../utils/getApplicantTypeBadge";
 
 type VerifiedAgent = {
   id: string;
@@ -33,26 +34,29 @@ export function VerifiedAgentsTable({
   const { t } = useLanguage();
   return (
     <div className="mt-6 space-y-2 w-full">
-      <div className="w-full overflow-x-auto">
+      <h2 className="text-lg font-bold text-text-primary">
+        {t("Verified Agents")}
+      </h2>
+      <div className="w-full overflow-auto custom-scrollbar-x">
         <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-primary text-white text-base 2xl:text-xl capitalize">
+          <thead className="bg-primary text-white text-base 2xl:text-xl capitalize text-nowrap">
             <tr>
-              <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium text-nowrap">
+              <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium">
                 {t("Agent Code")}
               </th>
-              <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium text-nowrap">
+              <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium">
                 {t("Name")}
               </th>
-              <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium text-nowrap">
+              <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium">
                 {t("Email")}
               </th>
-              <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium text-nowrap">
+              <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium">
                 {t("User Type")}
               </th>
-              <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium text-nowrap">
+              <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium">
                 {t("Verified Date")}
               </th>
-              <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium text-nowrap">
+              <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium">
                 {t("Valid Until")}
               </th>
             </tr>
@@ -60,7 +64,7 @@ export function VerifiedAgentsTable({
           <tbody className="bg-white" style={{ border: "1px solid #AAA9A9" }}>
             {loading ? (
               <tr>
-                <td colSpan={6} className="p-4 text-center">
+                <td colSpan={6} className="p-4 text-center h-40">
                   <Spinner className="w-8 h-8 mx-auto" />
                 </td>
               </tr>
@@ -77,7 +81,7 @@ export function VerifiedAgentsTable({
                   className="text-[#808080] text-sm 2xl:text-xl"
                 >
                   <td
-                    className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap font-mono"
+                    className="px-2 sm:px-3 py-2 whitespace-nowrap border-r border-b border-[#AAA9A9]"
                     style={{
                       borderWidth: "0px 1px 1px 0px",
                       borderStyle: "solid",
@@ -87,7 +91,7 @@ export function VerifiedAgentsTable({
                     {agent.agentCode}
                   </td>
                   <td
-                    className="px-2 sm:px-6 py-2 sm:py-4 min-w-[150px] max-w-[200px] text-wrap capitalize"
+                    className="px-2 sm:px-3 py-2 min-w-[150px] max-w-[200px] text-wrap capitalize border-r border-b border-[#AAA9A9]"
                     style={{
                       borderWidth: "0px 1px 1px 0px",
                       borderStyle: "solid",
@@ -97,7 +101,7 @@ export function VerifiedAgentsTable({
                     {agent.firstName} {agent.lastName}
                   </td>
                   <td
-                    className="px-2 sm:px-6 py-2 sm:py-4 min-w-[200px] max-w-[250px] break-all"
+                    className="px-2 sm:px-3 py-2 min-w-[200px] max-w-[250px] break-all border-r border-b border-[#AAA9A9]"
                     style={{
                       borderWidth: "0px 1px 1px 0px",
                       borderStyle: "solid",
@@ -107,17 +111,19 @@ export function VerifiedAgentsTable({
                     {agent.email}
                   </td>
                   <td
-                    className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
+                    className="px-2 sm:px-3 py-2 whitespace-nowrap border-r border-b border-[#AAA9A9]"
                     style={{
                       borderWidth: "0px 1px 1px 0px",
                       borderStyle: "solid",
                       borderColor: "#AAA9A9",
                     }}
                   >
-                    {agent.userType || "N/A"}
+                    <div className="flex items-center gap-2">
+                      {agent.userType || "N/A"} {getApplicantTypeBadge(agent)}
+                    </div>
                   </td>
                   <td
-                    className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
+                    className="px-2 sm:px-3 py-2 whitespace-nowrap border-r border-b border-[#AAA9A9]"
                     style={{
                       borderWidth: "0px 1px 1px 0px",
                       borderStyle: "solid",
@@ -129,7 +135,7 @@ export function VerifiedAgentsTable({
                       : "N/A"}
                   </td>
                   <td
-                    className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"
+                    className="px-2 sm:px-3 py-2 whitespace-nowrap border-r border-b border-[#AAA9A9]"
                     style={{
                       borderWidth: "0px 1px 1px 0px",
                       borderStyle: "solid",
@@ -137,7 +143,10 @@ export function VerifiedAgentsTable({
                     }}
                   >
                     {agent.verificationValidTill
-                      ? format(new Date(agent.verificationValidTill), "MMM dd, yyyy")
+                      ? format(
+                          new Date(agent.verificationValidTill),
+                          "MMM dd, yyyy"
+                        )
                       : "N/A"}
                   </td>
                 </tr>
@@ -176,4 +185,5 @@ export function VerifiedAgentsTable({
       )}
     </div>
   );
+
 }
