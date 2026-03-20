@@ -530,7 +530,7 @@ export default function Documents() {
         <AddDocument
           setShowAddDocument={setShowAddDocument}
           onSuccess={refetch}
-          triggerNotification={triggerNotification}
+          triggerNotification={triggerNotification} 
         />
       )}
 
@@ -562,4 +562,4 @@ export default function Documents() {
       {NotificationComponent}
     </div>
   );
-}
+}

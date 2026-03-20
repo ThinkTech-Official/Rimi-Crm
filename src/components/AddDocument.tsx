@@ -1,6 +1,11 @@
 import { useState } from "react";
 import { MdClose, MdUploadFile, MdInsertDriveFile } from "react-icons/md";
 import { useUploadDocuments } from "../hooks/useUploadDocuments";
+import useNotification from "../hooks/useNotification";
+
+
+
+type TriggerNotification = ReturnType<typeof useNotification>["triggerNotification"];
 
 interface FileItem {
   id: string;
@@ -15,9 +20,13 @@ type TabType = "document" | "category";
 const AddDocument = ({
   setShowAddDocument,
   onSuccess,
+  triggerNotification,
+  categories = [],
 }: {
   setShowAddDocument: (val: boolean) => void;
   onSuccess?: () => void;
+   triggerNotification?: TriggerNotification;
+  categories?: { id: string; name: string }[];
 }) => {
   const [activeTab, setActiveTab] = useState<TabType>("document");
   const [files, setFiles] = useState<FileItem[]>([]);
@@ -25,14 +34,7 @@ const AddDocument = ({
   
   const { uploadDocuments, loading, error } = useUploadDocuments();
 
-  const categories = [
-    "General",
-    "Invoice",
-    "Contract",
-    "Report",
-    "Presentation",
-    "Other",
-  ];
+ 
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;
@@ -42,7 +44,7 @@ const AddDocument = ({
       file: file,
       name: file.name,
       size: (file.size / 1024).toFixed(2) + " KB",
-      category: "General",
+      category: categories[0]?.name ?? "",
     }));
     setFiles((prev) => [...prev, ...newFiles]);
   };
@@ -82,7 +84,7 @@ const AddDocument = ({
       }));
       
       await uploadDocuments(filesToUpload);
-      
+      onSuccess?.();
       setFiles([]);
       handleClose();
     } catch (err) {
@@ -173,10 +175,10 @@ const AddDocument = ({
                       disabled={loading}
                     >
                       {categories.map((cat) => (
-                        <option key={cat} value={cat}>
-                          {cat}
-                        </option>
-                      ))}
+  <option key={cat.id} value={cat.name}>
+    {cat.name}
+  </option>
+))}
                     </select>
 
                     <button
