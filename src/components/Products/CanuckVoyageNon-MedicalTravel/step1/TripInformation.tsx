@@ -450,7 +450,7 @@ export default function TripInformation({
                   onBlur={field.onBlur}
                 >
                   <option value="">{t("Please select...")}</option>
-                  <option value="yes">{t("Yes (+15% premium)")}</option>
+                  <option value="yes">{t("Yes")}</option>
                   <option value="no">{t("No")}</option>
                 </select>
               )}
@@ -664,7 +664,7 @@ export default function TripInformation({
               </div>
               {premiumBreakdown.deluxePremium && (
                 <div className="flex justify-between text-green-700">
-                  <span>{t("Deluxe Option (+15%):")}</span>
+                  <span>{t("Deluxe Option (+25%):")}</span>
                   <span>+${premiumBreakdown.deluxePremium.toFixed(2)}</span>
                 </div>
               )}
