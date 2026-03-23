@@ -325,6 +325,8 @@ const RIMICanuckVoyageNonMedicalTravel: React.FC = () => {
 
   // ========== APPLICANT INFORMATION ==========
 
+  const [allApplicantDataFilled, setAllApplicantDataFilled] = useState(false);
+
 
   // ========== QUOTE & PREMIUM ==========
   const [quoteNumber, setQuoteNumber] = useState<string | null>(null);
@@ -459,6 +461,7 @@ const RIMICanuckVoyageNonMedicalTravel: React.FC = () => {
       const response = await saveQuoteNext(stage1Payload);
       setQuoteNumber(response.quoteNumber);
       setStep1ResponseData(response);
+      setTotalPremium(response.quoteAmount);
       console.log("✅ Stage 1 response:", response);
       handleFormStepChange("forward");
     } catch (err: any) {
@@ -641,7 +644,10 @@ const RIMICanuckVoyageNonMedicalTravel: React.FC = () => {
         <FormProvider {...step1Methods}>
           <form onSubmit={step1Methods.handleSubmit(handleNext)}>
             <TestFillButton productName={productName} />
-            <ApplicantInformation methods={step1Methods} />
+            <ApplicantInformation 
+            methods={step1Methods}
+            onApplicantDataComplete={setAllApplicantDataFilled}
+            />
 
             <TripInformation
               methods={step1Methods}
@@ -654,6 +660,7 @@ const RIMICanuckVoyageNonMedicalTravel: React.FC = () => {
               onValidityChange={setIsStepOneFilled}
               quoteNumber={quoteNumber}
               handleSaveQuote={handleSaveQuote}
+              allApplicantDataFilled={allApplicantDataFilled}
             />
 
             <div className="w-full h-2 mt-5 flex items-center justify-center font-[inter]">
