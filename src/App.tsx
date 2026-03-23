@@ -23,7 +23,7 @@ function App() {
       {/* <Dashboard /> */}
       {shouldShowNavbar && <Navbar />}
       <main>
-        <AuthSyncListener />
+        {/* <AuthSyncListener /> */}
         <Outlet />
       </main>
       {/* <Footer /> */}
