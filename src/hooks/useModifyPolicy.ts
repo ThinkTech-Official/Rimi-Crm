@@ -49,6 +49,23 @@ export interface ModifyPolicyData {
   destination: string;
   deductible: string;
   applicantOnSuperVisa?: string;
+
+  // New product-specific fields
+  tripCost?: number;
+  dateBooked?: string;
+  tripCancellationDeluxe?: boolean;
+  travelingThroughUS?: string;
+  applicantTravelThroughUs?: string;
+  usTravelDays?: string | number;
+  numberOfDaysPerTrip?: string | number;
+  plan?: string;
+  beneficiaryName?: string;
+  beneficiaryRelation?: string;
+  relationshipToInsured?: string;
+
+  coverage?: string;
+  applicantInCanada?: string;
+
   applicants?: ModifyApplicant[];
   refund?: RefundData;
   premiumRecalculation?: PremiumRecalculation;

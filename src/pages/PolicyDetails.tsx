@@ -37,21 +37,14 @@ import UpdatePaymentMethodConfirmationModal from "../components/policy/UpdatePay
 import { MdClose, MdUploadFile } from "react-icons/md";
 import { HealthQuestionnaireSection } from "./QuoteDetails";
 import Spinner from "../components/Spinner";
+import {
+  fmtDate,
+  calcAge,
+  fmtCurrency,
+  PRODUCT_FIELDS_CONFIG,
+  DEFAULT_FIELDS_CONFIG,
+} from "./PolicyDetailsConfig";
 
-const fmtDate = (iso?: string) => {
-  if (!iso) return "-";
-  const datePart = iso.split("T")[0];
-  return datePart;
-};
-
-const calcAge = (dob?: string, ref?: string) => {
-  if (!dob || !ref) return "-";
-  const d1 = new Date(dob);
-  const d2 = new Date(ref);
-  let age = d2.getFullYear() - d1.getFullYear();
-  if (d2 < new Date(d1.setFullYear(d1.getFullYear() + age))) age--;
-  return age;
-};
 
 const formatFileSize = (bytes: number): string => {
   if (bytes === 0) return "0 Bytes";
@@ -61,25 +54,139 @@ const formatFileSize = (bytes: number): string => {
   return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + " " + sizes[i];
 };
 
-function getCoverageLength(
-  effectiveDate: string,
-  expiryDate: string,
-): number | string {
-  const start = new Date(effectiveDate);
-  const end = new Date(expiryDate);
 
-  if (isNaN(start.getTime()) || isNaN(end.getTime())) {
-    return "-";
-  }
-
-  const msInDay = 24 * 60 * 60 * 1000;
-  const diffMs = end.getTime() - start.getTime();
-
-  return Math.round(diffMs / msInDay);
+interface PolicyFieldProps {
+  label: string;
+  field: keyof PolicyDetail | (keyof PolicyDetail)[];
+  type?: "text" | "email" | "date" | "select" | "number";
+  options?: string[];
+  policy: PolicyDetail;
+  editedPolicy: Partial<PolicyDetail>;
+  isEditMode: boolean;
+  onFieldChange: (field: string, value: any) => void;
+  transform?: (value: any) => React.ReactNode;
 }
 
+const PolicyField: React.FC<PolicyFieldProps> = ({
+  label,
+  field,
+  type = "text",
+  options,
+  policy,
+  editedPolicy,
+  isEditMode,
+  onFieldChange,
+  transform,
+}) => {
+  const { t, language: currentLang } = useLanguage();
+
+  const getActiveKeyAndValue = () => {
+    const fields = Array.isArray(field) ? field : [field];
+    
+    // Find the first field that actually exists in the policy data
+    // We want to keep updating the SAME key throughout the edit session
+    let firstExistingKey = fields[0];
+    for (const f of fields) {
+      if ((policy as any)[f] !== undefined && (policy as any)[f] !== null) {
+        firstExistingKey = f;
+        break;
+      }
+    }
+
+    const value = editedPolicy[firstExistingKey] ?? (policy as any)[firstExistingKey];
+    return { value, key: firstExistingKey as string };
+  };
+
+  let { value: rawValue, key: activeKey } = getActiveKeyAndValue();
+
+  // Handle Default Values
+  if (rawValue === null || rawValue === undefined || rawValue === "") {
+    const fieldArray = Array.isArray(field) ? (field as string[]) : [field as string];
+    if (fieldArray.includes("salesChannel")) {
+      rawValue = "Online";
+    } else if (fieldArray.includes("language")) {
+      rawValue = currentLang;
+    }
+  }
+
+  if (isEditMode) {
+    if (type === "select") {
+      return (
+        <div className="min-w-0">
+          <div className="font-semibold text-base">{t(label)}</div>
+          <select
+            value={(rawValue ?? "") as string}
+            onChange={(e) => onFieldChange(activeKey, e.target.value)}
+            className="input-primary"
+          >
+            {options?.map((opt) => (
+              <option key={opt} value={opt}>
+                {t(opt)}
+              </option>
+            ))}
+          </select>
+        </div>
+      );
+    }
+    return (
+      <div className="min-w-0">
+        <div className="font-semibold text-base">{t(label)}</div>
+        <input
+          type={type}
+          value={
+            type === "date" ? fmtDate((rawValue ?? "") as string) : (rawValue ?? "") as string
+          }
+          onChange={(e) => onFieldChange(activeKey, e.target.value)}
+          className="input-primary"
+          disabled={
+            (activeKey === "effectiveDate" && policy.status === "ACTIVE") ||
+            (activeKey === "dateOfBirth" && policy.status === "ACTIVE")
+          }
+        />
+      </div>
+    );
+  }
+
+  let displayValue: React.ReactNode;
+
+  if (transform) {
+    displayValue = transform(rawValue);
+  } else {
+    // Handle booleans and string booleans
+    const v = String(rawValue ?? "").toLowerCase();
+    if (rawValue === true || v === "true" || v === "yes" || v === "y") {
+      displayValue = t("Yes");
+    } else if (rawValue === false || v === "false" || v === "no" || v === "n") {
+      displayValue = t("No");
+    } else if (typeof rawValue === "string") {
+      displayValue = t(rawValue);
+    } else {
+      displayValue = rawValue;
+    }
+  }
+
+  if (
+    displayValue === null ||
+    displayValue === undefined ||
+    displayValue === "" ||
+    displayValue === "-"
+  ) {
+    displayValue = "-";
+  }
+
+  return (
+    <div className="min-w-0">
+      <div className="font-semibold text-base break-words">{t(label)}</div>
+      <div className="text-sm text-[#6F6B7D] break-words">{displayValue}</div>
+    </div>
+  );
+};
+
+
+
+
 const PolicyDetailsPage: React.FC = () => {
-  const { t, language } = useLanguage();
+  const { t } = useLanguage();
   const { triggerNotification, NotificationComponent } = useNotification();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -123,7 +230,7 @@ const PolicyDetailsPage: React.FC = () => {
   const [showUpdateCardModal, setShowUpdateCardModal] = useState(false);
 
   const {
-    loading: refundLoading,
+    loading: _refundLoading,
     error: refundError,
     refundPolicyFee,
   } = usePolicyFeeRefund();
@@ -161,7 +268,7 @@ const PolicyDetailsPage: React.FC = () => {
   );
 
   const [showPremiumModal, setShowPremiumModal] = useState(false);
-  const [premiumData, setPremiumData] = useState<any>(null);
+  const [premiumData] = useState<any>(null);
 
   const [showValidationModal, setShowValidationModal] = useState(false);
   const [validationMessage, setValidationMessage] = useState({
@@ -255,9 +362,15 @@ const PolicyDetailsPage: React.FC = () => {
     setEditedApplicants([]);
   };
 
-  const handleFieldChange = (field: string, value: any) => {
-    setEditedPolicy((prev) => ({ ...prev, [field]: value }));
-  };
+    const fieldsConfig =
+      p.product &&
+      PRODUCT_FIELDS_CONFIG[p.product as keyof typeof PRODUCT_FIELDS_CONFIG]
+        ? PRODUCT_FIELDS_CONFIG[p.product as keyof typeof PRODUCT_FIELDS_CONFIG]
+        : DEFAULT_FIELDS_CONFIG;
+
+    const handleFieldChange = (field: string, value: any) => {
+      setEditedPolicy((prev) => ({ ...prev, [field]: value }));
+    };
 
   const handleApplicantChange = (index: number, field: string, value: any) => {
     setEditedApplicants((prev) => {
@@ -365,8 +478,6 @@ const PolicyDetailsPage: React.FC = () => {
       return;
     }
 
-    const effectiveDate =
-      editedPolicy.effectiveDate || fmtDate(p.effectiveDate?.toString());
     const expiryDate =
       editedPolicy.expiryDate || fmtDate(p.expiryDate?.toString());
     const originalExpiryDate = fmtDate(p.expiryDate?.toString());
@@ -409,13 +520,10 @@ const PolicyDetailsPage: React.FC = () => {
 
   const performSave = async (refund?: RefundData) => {
     const modifyData: ModifyPolicyData = {
+      // Basic Info (Required)
       language: editedPolicy.language || p.language || "",
       firstName: editedPolicy.firstName || p.firstName || "",
       lastName: editedPolicy.lastName || p.lastName || "",
-      dateOfBirth:
-        p.status === "SOLD"
-          ? editedPolicy.dateOfBirth || fmtDate(p.dateOfBirth?.toString())
-          : undefined,
       gender: editedPolicy.gender || p.gender,
       email: editedPolicy.email || p.email!,
       additionalEmail:
@@ -428,15 +536,38 @@ const PolicyDetailsPage: React.FC = () => {
       province: editedPolicy.province || p.province!,
       countryCode: editedPolicy.countryCode || p.countryCode!,
       postalCode: editedPolicy.postalCode || p.postalCode!,
+      expiryDate: editedPolicy.expiryDate || fmtDate(p.expiryDate?.toString()),
+      destination: editedPolicy.destination || p.destination!,
+      deductible: editedPolicy.deductible || p.deductible!,
+      
+      // Conditional Main Info
+      dateOfBirth:
+        p.status === "SOLD"
+          ? editedPolicy.dateOfBirth || fmtDate(p.dateOfBirth?.toString())
+          : undefined,
       effectiveDate:
         p.status === "SOLD"
           ? editedPolicy.effectiveDate || fmtDate(p.effectiveDate?.toString())
           : undefined,
-      expiryDate: editedPolicy.expiryDate || fmtDate(p.expiryDate?.toString()),
-      destination: editedPolicy.destination || p.destination!,
-      deductible: editedPolicy.deductible || p.deductible!,
-      applicantOnSuperVisa:
-        editedPolicy.applicantOnSuperVisa || p.applicantOnSuperVisa,
+      
+      // Dynamic Product-Specific Fields
+      tripCost: editedPolicy.tripCost ?? p.tripCost,
+      dateBooked: editedPolicy.dateBooked || p.dateBooked,
+      tripCancellationDeluxe: editedPolicy.tripCancellationDeluxe ?? p.tripCancellationDeluxe,
+      applicantOnSuperVisa: editedPolicy.applicantOnSuperVisa || p.applicantOnSuperVisa,
+      travelingThroughUS: editedPolicy.travelingThroughUS || p.travelingThroughUS,
+      applicantTravelThroughUs: editedPolicy.applicantTravelThroughUs || p.applicantTravelThroughUs,
+      usTravelDays: editedPolicy.usTravelDays ?? p.usTravelDays,
+      numberOfDaysPerTrip: editedPolicy.numberOfDaysPerTrip ?? p.numberOfDaysPerTrip,
+      plan: editedPolicy.plan || p.plan,
+      beneficiaryName: editedPolicy.beneficiaryName || p.beneficiaryName,
+      beneficiaryRelation: editedPolicy.beneficiaryRelation || p.beneficiaryRelation,
+      relationshipToInsured: editedPolicy.relationshipToInsured || p.relationshipToInsured,
+
+      coverage: editedPolicy.coverage || p.coverage,
+      applicantInCanada: editedPolicy.applicantInCanada || p.applicantInCanada,
+
+      // Nested/Calculated
       applicants: editedApplicants.map((a) => ({
         id: a.id,
         firstName: a.firstName,
@@ -550,59 +681,6 @@ const PolicyDetailsPage: React.FC = () => {
   //
 
   // RENDER HELPERS
-
-  const renderEditableField = (
-    label: string,
-    field: keyof PolicyDetail,
-    type: "text" | "email" | "date" | "select" = "text",
-    options?: string[],
-  ) => {
-    const value = editedPolicy[field] ?? p[field] ?? "";
-
-    return (
-      <div className="min-w-0">
-        <div className="font-semibold text-base">{t(label)}</div>
-        {isEditMode ? (
-          type === "select" ? (
-            <select
-              value={value as string}
-              onChange={(e) =>
-                handleFieldChange(field as string, e.target.value)
-              }
-              className="input-primary"
-            >
-              {options?.map((opt) => (
-                <option key={opt} value={opt}>
-                  {t(opt)}
-                </option>
-              ))}
-            </select>
-          ) : (
-            <input
-              type={type}
-              value={
-                type === "date" ? fmtDate(value as string) : (value as string)
-              }
-              onChange={(e) =>
-                handleFieldChange(field as string, e.target.value)
-              }
-              className="input-primary"
-              disabled={
-                // Disable effectiveDate for ACTIVE policies
-                (field === "effectiveDate" && p.status === "ACTIVE") ||
-                // Disable dateOfBirth for ACTIVE policies
-                (field === "dateOfBirth" && p.status === "ACTIVE")
-              }
-            />
-          )
-        ) : (
-          <div className="text-sm text-[#6F6B7D] break-words">
-            {type === "date" ? fmtDate(value as string) : t(value as string)}
-          </div>
-        )}
-      </div>
-    );
-  };
 
   return (
     <div className="max-w-5xl mx-auto p-6 space-y-8 bg-white">
@@ -727,49 +805,17 @@ const PolicyDetailsPage: React.FC = () => {
         <div className="text-primary uppercase font-semibold text-xl">
           {t("Policy Information")}
         </div>
-        <div className="grid grid-cols-3 gap-4 text-sm capitalize w-full">
-          <div className="min-w-0">
-            <div className="font-semibold text-base">{t("Policy Number")}</div>
-            <div className="text-sm text-[#6F6B7D] break-words">
-              {p.policyNumber}
-            </div>
-          </div>
-          <div className="min-w-0">
-            <div className="font-semibold text-base">{t("Sale Date")}</div>
-            <div className="text-sm text-[#6F6B7D] break-words">
-              {fmtDate(p.dateIssued)}
-            </div>
-          </div>
-          <div className="min-w-0">
-            <div className="font-semibold text-base">{t("Status")}</div>
-            <div
-              className={`break-words ${
-                p.status === "CANCELLED"
-                  ? "text-red-600 font-semibold"
-                  : p.status === "PAUSED"
-                    ? "text-yellow-500 font-semibold"
-                    : "text-sm text-[#6F6B7D]"
-              }`}
-            >
-              {t(p.status || "")}
-            </div>
-          </div>
-          <div className="min-w-0">
-            <div className="font-semibold">{t("Language")}</div>
-            <div className="text-sm text-[#6F6B7D] break-words">{language}</div>
-          </div>
-          <div className="min-w-0">
-            <div className="font-semibold">{t("Sales Channel")}</div>
-            <div className="text-sm text-[#6F6B7D] break-words">
-              {p.salesChannel || "Online"}
-            </div>
-          </div>
-          <div className="min-w-0">
-            <div className="font-semibold">{t("Agent")}</div>
-            <div className="text-sm text-[#6F6B7D] break-words">
-              {p.agentCode}
-            </div>
-          </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 text-sm capitalize w-full">
+          {fieldsConfig.policyInfo?.map((f) => (
+            <PolicyField
+              key={f.label}
+              {...f}
+              policy={p}
+              editedPolicy={editedPolicy}
+              isEditMode={isEditMode}
+              onFieldChange={handleFieldChange}
+            />
+          ))}
         </div>
       </div>
 
@@ -778,46 +824,44 @@ const PolicyDetailsPage: React.FC = () => {
         <div className="text-primary uppercase font-semibold text-xl">
           {t("Primary Insured Person")}
         </div>
-        <div className="grid grid-cols-3 gap-4 text-sm w-full capitalize">
-          <div className="min-w-0">
-            <div className="font-semibold text-base">{t("Policy Number")}</div>
-            <div className="text-sm text-[#6F6B7D] break-words">
-              {p.primaryIndividualNumber}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 text-sm w-full capitalize">
+          {fieldsConfig.primaryInsured
+            ?.filter((f) => f.label !== "Premium")
+            .map((f) => (
+              <PolicyField
+                key={f.label}
+                {...f}
+                policy={p}
+                editedPolicy={editedPolicy}
+                isEditMode={isEditMode}
+                onFieldChange={handleFieldChange}
+              />
+            ))}
+          {!isEditMode && (
+            <div className="min-w-0">
+              <div className="font-semibold">
+                {t("Age on Effective Date")}
+              </div>
+              <div className="text-sm text-[#6F6B7D] break-words">
+                {calcAge(
+                  editedPolicy.dateOfBirth || p.dateOfBirth?.toString(),
+                  editedPolicy.effectiveDate || p.effectiveDate?.toString()
+                )}
+              </div>
             </div>
-          </div>
-          {renderEditableField("First Name", "firstName")}
-          {renderEditableField("Last Name", "lastName")}
-          {renderEditableField("Date of Birth", "dateOfBirth", "date")}
-          <div className="min-w-0">
-            <div className="font-semibold mt-4">
-              {t("Age on Effective Date")}
-            </div>
-            <div className="text-sm text-[#6F6B7D] break-words">
-              {calcAge(
-                editedPolicy.dateOfBirth || p.dateOfBirth?.toString(),
-                editedPolicy.effectiveDate || p.effectiveDate?.toString(),
-              )}
-            </div>
-          </div>
-          {renderEditableField("Gender", "gender", "select", [
-            "Male",
-            "Female",
-            "Other",
-          ])}
-          <div className="col-span-2 mt-4 min-w-0">
-            <div className="font-semibold text-base">
-              {t("Include Coverage for Stable Pre-Existing Medical Conditions")}
-            </div>
-            <div className="text-sm text-[#6F6B7D] break-words">
-              {t(p.PreExCoverage || "No")}
-            </div>
-          </div>
-          <div className="mt-4 min-w-0">
-            <div className="font-semibold text-base">{t("Premium")}</div>
-            <div className="text-sm text-[#6F6B7D] break-words">
-               {p.primaryPremium ? `CAD ${Number(p.primaryPremium).toFixed(2)}` : `-`}
-            </div>
-          </div>
+          )}
+          {fieldsConfig.primaryInsured
+            ?.filter((f) => f.label === "Premium")
+            .map((f) => (
+              <PolicyField
+                key={f.label}
+                {...f}
+                policy={p}
+                editedPolicy={editedPolicy}
+                isEditMode={isEditMode}
+                onFieldChange={handleFieldChange}
+              />
+            ))}
         </div>
       </div>
       {p.healthQuestionnaire && (
@@ -829,20 +873,17 @@ const PolicyDetailsPage: React.FC = () => {
         <div className="text-primary uppercase font-semibold text-xl">
           {t("Contact Information")}
         </div>
-        <div className="grid grid-cols-3 gap-4 text-sm w-full capitalize">
-          {renderEditableField("Email Address", "email", "email")}
-          {renderEditableField(
-            "Additional Email Address",
-            "additionalEmail",
-            "email",
-          )}
-          {renderEditableField("Phone Number", "phoneNumber")}
-          <div>{renderEditableField("Address Line 1", "street")}</div>
-          <div>{renderEditableField("Address Line 2", "street2")}</div>
-          {renderEditableField("City", "city")}
-          {renderEditableField("Province", "province")}
-          {renderEditableField("Country", "countryCode")}
-          {renderEditableField("Postal Code", "postalCode")}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 text-sm w-full capitalize">
+          {fieldsConfig.contactInfo?.map((f) => (
+            <PolicyField
+              key={f.label}
+              {...f}
+              policy={p}
+              editedPolicy={editedPolicy}
+              isEditMode={isEditMode}
+              onFieldChange={handleFieldChange}
+            />
+          ))}
         </div>
       </div>
 
@@ -856,17 +897,17 @@ const PolicyDetailsPage: React.FC = () => {
             <div className="text-primary uppercase font-semibold text-xl">
               {t("Insured Person")} {idx + 2}
             </div>
-            <div className="grid grid-cols-3 gap-4 text-sm w-full capitalize">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 text-sm w-full capitalize">
+              {/* Individual Policy Number - Full Width */}
               <div className="min-w-0">
-                <div className="font-semibold text-base">
-                  {t("Policy Number")}
-                </div>
+                <div className="font-semibold">{t("Individual Policy Number")}</div>
                 <div className="text-sm text-[#6F6B7D] break-words">
-                  {a.policyNumber}
+                  {a.individualPolicyNumber || a.policyNumber || "-"}
                 </div>
               </div>
+
               <div className="min-w-0">
-                <div className="font-semibold text-base">{t("First Name")}</div>
+                <div className="font-semibold">{t("First Name")}</div>
                 {isEditMode ? (
                   <input
                     type="text"
@@ -874,16 +915,17 @@ const PolicyDetailsPage: React.FC = () => {
                     onChange={(e) =>
                       handleApplicantChange(idx, "firstName", e.target.value)
                     }
-                    className="input-primary"
+                    className="input-primary w-full"
                   />
                 ) : (
                   <div className="text-sm text-[#6F6B7D] break-words">
-                    {a.firstName}
+                    {a.firstName || "-"}
                   </div>
                 )}
               </div>
+
               <div className="min-w-0">
-                <div className="font-semibold text-base">{t("Last Name")}</div>
+                <div className="font-semibold">{t("Last Name")}</div>
                 {isEditMode ? (
                   <input
                     type="text"
@@ -891,16 +933,17 @@ const PolicyDetailsPage: React.FC = () => {
                     onChange={(e) =>
                       handleApplicantChange(idx, "lastName", e.target.value)
                     }
-                    className="input-primary"
+                    className="input-primary w-full"
                   />
                 ) : (
                   <div className="text-sm text-[#6F6B7D] break-words">
-                    {a.lastName}
+                    {a.lastName || "-"}
                   </div>
                 )}
               </div>
+
               <div className="min-w-0">
-                <div className="font-semibold mt-4">{t("Date of Birth")}</div>
+                <div className="font-semibold">{t("Date of Birth")}</div>
                 {isEditMode && p.status === "SOLD" ? (
                   <input
                     type="date"
@@ -908,7 +951,7 @@ const PolicyDetailsPage: React.FC = () => {
                     onChange={(e) =>
                       handleApplicantChange(idx, "dateOfBirth", e.target.value)
                     }
-                    className="input-primary"
+                    className="input-primary w-full"
                   />
                 ) : (
                   <div className="text-sm text-[#6F6B7D] break-words">
@@ -916,23 +959,23 @@ const PolicyDetailsPage: React.FC = () => {
                   </div>
                 )}
               </div>
+
               <div className="min-w-0">
-                <div className="font-semibold mt-4">
-                  {t("Age on Effective Date")}
-                </div>
+                <div className="font-semibold">{t("Age on Effective Date")}</div>
                 <div className="text-sm text-[#6F6B7D] break-words">
                   {calcAge(a.dateOfBirth, p.effectiveDate?.toString())}
                 </div>
               </div>
+
               <div className="min-w-0">
-                <div className="font-semibold mt-4">{t("Gender")}</div>
+                <div className="font-semibold">{t("Gender")}</div>
                 {isEditMode ? (
                   <select
                     value={a.gender || ""}
                     onChange={(e) =>
                       handleApplicantChange(idx, "gender", e.target.value)
                     }
-                    className="input-primary"
+                    className="input-primary w-full"
                   >
                     <option value="Male">{t("Male")}</option>
                     <option value="Female">{t("Female")}</option>
@@ -944,10 +987,9 @@ const PolicyDetailsPage: React.FC = () => {
                   </div>
                 )}
               </div>
+
               <div className="min-w-0">
-                <div className="font-semibold mt-4">
-                  {t("Relationship to Primary Applicant")}
-                </div>
+                <div className="font-semibold">{t("Relationship to Primary Applicant")}</div>
                 {isEditMode ? (
                   <input
                     type="text"
@@ -955,7 +997,7 @@ const PolicyDetailsPage: React.FC = () => {
                     onChange={(e) =>
                       handleApplicantChange(idx, "relation", e.target.value)
                     }
-                    className="input-primary"
+                    className="input-primary w-full"
                   />
                 ) : (
                   <div className="text-sm text-[#6F6B7D] break-words">
@@ -963,23 +1005,29 @@ const PolicyDetailsPage: React.FC = () => {
                   </div>
                 )}
               </div>
-              <div className="col-span-2 mt-4 min-w-0">
-                <div className="font-semibold text-base">
-                  {t(
-                    "Include Coverage for Stable Pre-Existing Medical Conditions",
-                  )}
-                </div>
-                <div className="text-sm text-[#6F6B7D] break-words">
-                  {t(a.PreExCoverage || "No")}
-                </div>
+              <div className="min-w-0">
+                <div className="font-semibold">{t("Coverage for Stable Pre-Existing Medical Condition")}</div>
+                {isEditMode ? (
+                  <select
+                    value={a.PreExCoverage || ""}
+                    onChange={(e) =>
+                      handleApplicantChange(idx, "PreExCoverage", e.target.value)
+                    }
+                    className="input-primary w-full"
+                  >
+                    <option value="">{t("No")}</option>
+                    <option value="yes">{t("Yes")}</option>
+                  </select>
+                ) : (
+                  <div className="text-sm text-[#6F6B7D] break-words">
+                    {a.PreExCoverage === "yes" || String(a.PreExCoverage) === "true" ? t("Yes") : t("No")}
+                  </div>
+                )}
               </div>
-              <div className="mt-4 min-w-0">
-                <div className="font-semibold text-base">{t("Premium")}</div>
-                <div className="text-sm text-[#6F6B7D] break-words">
-                  {Number(a.premium || 0).toLocaleString("en-CA", {
-                    style: "currency",
-                    currency: "CAD",
-                  })}
+              <div className="min-w-0">
+                <div className="font-semibold">{t("Premium")}</div>
+                <div className="text-sm break-words text-[#6F6B7D]">
+                  {fmtCurrency(a.premium)}
                 </div>
               </div>
             </div>
@@ -991,115 +1039,46 @@ const PolicyDetailsPage: React.FC = () => {
           </div>
         ))}
 
-      {/* Coverage Details */}
+      {/* Coverage Details / Trip Information */}
       <div className="flex flex-col gap-4 justify-between w-full border-b border-[#D8D8D8] pb-4">
         <div className="text-primary uppercase font-semibold text-xl">
           {t("Coverage Details")}
         </div>
-        <div className="grid grid-cols-3 gap-4 text-sm w-full capitalize">
-          {renderEditableField("Effective Date", "effectiveDate", "date")}
-          {renderEditableField("Expiry Date", "expiryDate", "date")}
-          <div className="min-w-0">
-            <div className="font-semibold text-base">
-              {t("Coverage Length")}
-            </div>
-            <div className="text-sm text-[#6F6B7D] break-words">
-              {/* {calculateDays(
-                editedPolicy.effectiveDate ||
-                  fmtDate(p.effectiveDate?.toString()),
-                editedPolicy.expiryDate || fmtDate(p.expiryDate?.toString())
-              )}{" "}
-              {t("Days")} */}
-              {isEditMode
-                ? calculateDays(
-                    editedPolicy.effectiveDate ||
-                      fmtDate(p.effectiveDate?.toString()),
-                    editedPolicy.expiryDate ||
-                      fmtDate(p.expiryDate?.toString()),
-                  )
-                : p.covLen}{" "}
-              {t("Days")}
-            </div>
-          </div>
-          <div className="min-w-0">
-            <div className="font-semibold mt-4">{t("Policy Type")}</div>
-            <div className="text-sm text-[#6F6B7D] break-words">
-              {t(p.policyType || "")}
-            </div>
-          </div>
-          <div className="min-w-0">
-            <div className="font-semibold mt-4">{t("Country of Origin")}</div>
-            <div className="text-sm text-[#6F6B7D] break-words">
-              {t(p.countryOfOrigin || "")}
-            </div>
-          </div>
-          {renderEditableField("Destination Province", "destination")}
-          <div className="min-w-0">
-            <div className="font-semibold mt-4">
-              {t("Are Applicants Currently in Canada?")}
-            </div>
-            <div className="text-sm text-[#6F6B7D] break-words">
-              {t(p.applicantInCanada || "")}
-            </div>
-          </div>
-          <div className="min-w-0">
-            <div className="font-semibold mt-4">
-              {t("Are Applicants Travelling on a Super Visa?")}
-            </div>
-            {isEditMode ? (
-              <select
-                value={
-                  editedPolicy.applicantOnSuperVisa ||
-                  p.applicantOnSuperVisa ||
-                  ""
-                }
-                onChange={(e) =>
-                  handleFieldChange("applicantOnSuperVisa", e.target.value)
-                }
-                className="input-primary"
-              >
-                <option value="">{t("Select")}</option>
-                <option value="yes">{t("Yes")}</option>
-                <option value="no">{t("No")}</option>
-              </select>
-            ) : (
-              <div className="text-sm text-[#6F6B7D] break-words">
-                {t(p.applicantOnSuperVisa || "")}
-              </div>
-            )}
-          </div>
-          <div className="min-w-0">
-            <div className="font-semibold mt-4">{t("Coverage")}</div>
-            <div className="text-sm text-[#6F6B7D] break-words">
-              {t(p.coverage || "")}
-            </div>
-          </div>
-          {renderEditableField("Deductible", "deductible")}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 text-sm w-full capitalize">
+          {fieldsConfig.coverageDetails?.map((f) => (
+            <PolicyField
+              key={f.label}
+              {...f}
+              policy={p}
+              editedPolicy={editedPolicy}
+              isEditMode={isEditMode}
+              onFieldChange={handleFieldChange}
+            />
+          ))}
         </div>
       </div>
 
       {/* Beneficiary Information */}
-      <div className="flex flex-col gap-4 justify-between w-full border-b border-[#D8D8D8] pb-4">
-        <div className="text-primary uppercase font-semibold text-xl">
-          {t("Beneficiary Information")}
-        </div>
-        <div className="grid grid-cols-3 gap-4 text-sm w-full capitalize">
-          <div className="min-w-0">
-            <div className="font-semibold text-base">{t("Name")}</div>
-            <div className="text-sm text-[#6F6B7D] break-words">
-              {p.beneficiaryName}
-            </div>
+      {fieldsConfig.beneficiaryInfo && fieldsConfig.beneficiaryInfo.length > 0 && (
+        <div className="flex flex-col gap-4 justify-between w-full border-b border-[#D8D8D8] pb-4">
+          <div className="text-primary uppercase font-semibold text-xl">
+            {t("Beneficiary Information")}
           </div>
-          <div className="min-w-0">
-            <div className="font-semibold text-base">
-              {t("Relationship to Insured")}
-            </div>
-            <div className="text-sm text-[#6F6B7D] break-words">
-              {t(p.beneficiaryRelation || "")}
-            </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 text-sm w-full capitalize">
+            {fieldsConfig.beneficiaryInfo?.map((f) => (
+              <PolicyField
+                key={f.label}
+                {...f}
+                policy={p}
+                editedPolicy={editedPolicy}
+                isEditMode={isEditMode}
+                onFieldChange={handleFieldChange}
+              />
+            ))}
           </div>
         </div>
-      </div>
+      )}
+
 
       {/* Premium / Payment Info */}
       {(history?.length > 0 ||
@@ -1113,11 +1092,7 @@ const PolicyDetailsPage: React.FC = () => {
             <div className="min-w-0">
               <div className="font-medium">{t("Premium")}</div>
               <div className="break-words">
-                {p?.premium.toLocaleString("en-CA", {
-                  style: "currency",
-                  currency: history[0]?.currency || "CAD",
-                  currencyDisplay: "code",
-                })}
+                {fmtCurrency(p?.premiumTotal || p?.premium)}
               </div>
             </div>
             <div className="min-w-0">
@@ -1877,14 +1852,3 @@ const PolicyDetailsPage: React.FC = () => {
 };
 
 export default PolicyDetailsPage;
-
-
-
-
-
-
-
-
-
-
-

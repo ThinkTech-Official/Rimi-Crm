@@ -105,7 +105,7 @@ export const PaymentScheduleTable: React.FC<PaymentScheduleTableProps> = ({
       <table className="min-w-full divide-y divide-gray-200">
         <thead className="bg-primary text-white text-sm 2xl:text-base capitalize">
           <tr>
-            <th className="px-2 sm:px-3 py-1 sm:py-3 text-left font-medium text-nowrap">#</th>
+            <th className="px-2 sm:px-3 py-1 sm:py-3 text-left font-medium text-nowrap">{t("S.No.")}</th>
             <th className="px-2 sm:px-3 py-1 sm:py-3 text-left font-medium text-nowrap">{t("Method")}</th>
             <th className="px-2 sm:px-3 py-1 sm:py-3 text-left font-medium text-nowrap">{t("Cardholder Name")}</th>
             <th className="px-2 sm:px-3 py-1 sm:py-3 text-left font-medium text-nowrap">{t("Brand")}</th>
