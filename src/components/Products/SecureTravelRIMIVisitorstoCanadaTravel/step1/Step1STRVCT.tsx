@@ -164,6 +164,62 @@ const Step1STRVCT = ({
     setShowInfocoverageForPreMedConIndiually,
   ] = useState<Record<number, boolean>>({});
   const [showInfo, setShowInfo] = useState(false);
+  const [lastModified, setLastModified] = useState<
+    "effectiveDate" | "expiryDate" | "coverageLength" | null
+  >(null);
+
+  const calculateDaysBetween = (start: string, end: string): number => {
+    if (!start || !end) return 0;
+    const startDate = new Date(start);
+    const endDate = new Date(end);
+    const diffTime = endDate.getTime() - startDate.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+    return diffDays > 0 ? diffDays : 0;
+  };
+
+  const addDaysToDate = (dateString: string, days: number): string => {
+    if (!dateString || days <= 0) return "";
+    const date = new Date(dateString);
+    date.setDate(date.getDate() + days - 1); // -1 because it's inclusive
+    return date.toISOString().split("T")[0];
+  };
+
+  // date calculation sync effects
+  useEffect(() => {
+    if (
+      effectiveDate &&
+      expiryDate &&
+      lastModified !== "coverageLength" &&
+      superVisa !== "yes"
+    ) {
+      const diffDays = calculateDaysBetween(effectiveDate, expiryDate);
+      setValue("coverageLength", String(diffDays), { shouldValidate: true });
+    }
+  }, [effectiveDate, expiryDate, lastModified, setValue, superVisa]);
+
+  useEffect(() => {
+    if (
+      effectiveDate &&
+      coverageLength &&
+      lastModified === "coverageLength" &&
+      superVisa !== "yes"
+    ) {
+      const newExpiry = addDaysToDate(effectiveDate, Number(coverageLength));
+      setValue("expiryDate", newExpiry, { shouldValidate: true });
+    }
+  }, [coverageLength, effectiveDate, lastModified, setValue, superVisa]);
+
+  useEffect(() => {
+    if (
+      expiryDate &&
+      coverageLength &&
+      lastModified === "expiryDate" &&
+      superVisa !== "yes"
+    ) {
+      const diffDays = calculateDaysBetween(effectiveDate, expiryDate);
+      setValue("coverageLength", String(diffDays), { shouldValidate: true });
+    }
+  }, [expiryDate, coverageLength, effectiveDate, lastModified, setValue, superVisa]);
 
   // Modals / Info boxes
   const [showInfoCountryOfOrigin, setShowInfoCountryOfOrigin] = useState(false);
@@ -304,7 +360,7 @@ const Step1STRVCT = ({
 
   const handleCheckboxChange = () => {
     const newValue = !isConfirmed;
-    setValue("isConfirmed", newValue, { shouldValidate: true });
+    setValue("isConfirmed", newValue, { shouldValidate: true, shouldDirty: true });
 
     if (newValue) {
       setShowConfirmEligibility(true);
@@ -317,18 +373,16 @@ const Step1STRVCT = ({
 
   // --- auto-calculate for Super Visa yes ---
   useEffect(() => {
-  if (superVisa === "yes" && superVisaYears && effectiveDate) {
-    const days = Number(superVisaYears) * 365;
-    const exp = new Date(
-      new Date(effectiveDate).getTime() + (days - 1) * msPerDay
-    );
+    if (superVisa === "yes" && superVisaYears && effectiveDate) {
+      const days = Number(superVisaYears) * 365;
+      const exp = addDaysToDate(effectiveDate, days);
 
-    setValue("expiryDate", exp.toISOString().slice(0, 10), {
-      shouldValidate: true,
-    });
-    setValue("coverageLength", String(days), { shouldValidate: true });
-  }
-}, [superVisa, superVisaYears, effectiveDate, setValue]);
+      setValue("expiryDate", exp, {
+        shouldValidate: true,
+      });
+      setValue("coverageLength", String(days), { shouldValidate: true });
+    }
+  }, [superVisa, superVisaYears, effectiveDate, setValue]);
 
   const showPaymentOption =
     superVisa === "yes" ||
@@ -625,7 +679,20 @@ const Step1STRVCT = ({
               <Controller
                 control={control}
                 name="primaryDateOfBirth"
-                rules={{ required: t("Date of Birth is required") }}
+                rules={{
+                  required: t("Date of Birth is required"),
+                  validate: (value) => {
+                    if (!value) return true;
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0);
+                    const dob = new Date(value);
+                    dob.setHours(0, 0, 0, 0);
+                    return (
+                      dob.getTime() <= today.getTime() ||
+                      t("Date of birth cannot be in the future")
+                    );
+                  },
+                }}
                 render={({ field }) => (
                   <DatePicker
                     label={t("Date of Birth")}
@@ -850,7 +917,20 @@ const Step1STRVCT = ({
                     <Controller
                       control={control}
                       name={`applicants.${idx}.dob`}
-                      rules={{ required: t("Date of Birth is required") }}
+                      rules={{
+                    required: t("Date of Birth is required"),
+                    validate: (value) => {
+                      if (!value) return true;
+                      const today = new Date();
+                      today.setHours(0, 0, 0, 0);
+                      const dob = new Date(value);
+                      dob.setHours(0, 0, 0, 0);
+                      return (
+                        dob.getTime() <= today.getTime() ||
+                        t("Date of birth cannot be in the future")
+                      );
+                    },
+                  }}
                       render={({ field }) => (
                         <DatePicker
                           label={t("Date of Birth")}
@@ -1292,12 +1372,29 @@ const Step1STRVCT = ({
                 <Controller
                   control={control}
                   name="effectiveDate"
-                  rules={{ required: t("Effective Date is required") }}
+                  rules={{
+                    required: t("Effective Date is required"),
+                    validate: (value) => {
+                      if (!value) return true;
+                      const today = new Date();
+                      today.setHours(0, 0, 0, 0);
+                      const selDate = new Date(value);
+                      selDate.setHours(0, 0, 0, 0);
+                      return (
+                        selDate.getTime() >= today.getTime() ||
+                        t("Effective date cannot be in the past")
+                      );
+                    },
+                  }}
                   render={({ field }) => (
                     <DatePicker
                       label={t("Effective Date")}
                       {...field}
                       value={field.value !== undefined ? field.value : ""}
+                      onChange={(date) => {
+                        field.onChange(date);
+                        setLastModified("effectiveDate");
+                      }}
                       minDate={new Date()}
                     />
                   )}
@@ -1315,9 +1412,13 @@ const Step1STRVCT = ({
                   rules={{
                     required: t("Expiry Date is required"),
                     validate: (value) => {
-                      if (!effectiveDate) return true;
+                      if (!effectiveDate || !value) return true;
+                      const eff = new Date(effectiveDate);
+                      eff.setHours(0, 0, 0, 0);
+                      const exp = new Date(value);
+                      exp.setHours(0, 0, 0, 0);
                       return (
-                        new Date(value) >= new Date(effectiveDate) ||
+                        exp.getTime() >= eff.getTime() ||
                         t("Expiry date cannot be before effective date")
                       );
                     },
@@ -1330,17 +1431,7 @@ const Step1STRVCT = ({
                       isDisabled={superVisa === "yes"}
                       onChange={(date) => {
                         field.onChange(date);
-                        if (effectiveDate) {
-                          const diff =
-                            Math.round(
-                              (new Date(date).getTime() -
-                                new Date(effectiveDate).getTime()) /
-                              msPerDay,
-                            ) + 1;
-                          setValue("coverageLength", String(diff), {
-                            shouldValidate: true,
-                          });
-                        }
+                        setLastModified("expiryDate");
                       }}
                       minDate={
                         effectiveDate ? new Date(effectiveDate) : new Date()
@@ -1366,16 +1457,7 @@ const Step1STRVCT = ({
                   {...register("coverageLength", {
                     required: t("Coverage Length is required"),
                     onChange: (e) => {
-                      const val = e.target.value;
-                      if (effectiveDate && val) {
-                        const exp = new Date(
-                          new Date(effectiveDate).getTime() +
-                          (Number(val) - 1) * msPerDay,
-                        );
-                        setValue("expiryDate", exp.toISOString().slice(0, 10), {
-                          shouldValidate: true,
-                        });
-                      }
+                      setLastModified("coverageLength");
                     },
                   })}
                 />
@@ -1627,7 +1709,7 @@ const Step1STRVCT = ({
           <ConfirmEligibilityModal
             confirmEligibility={showConfirmEligibility}
             setShowConfirmEligibility={setShowConfirmEligibility}
-            setIsConfirmed={(val: boolean) => setValue("isConfirmed", val)}
+            setIsConfirmed={(val: boolean) => setValue("isConfirmed", val, { shouldValidate: true, shouldDirty: true })}
           />
         )}
         {isEmailModalOpen && (

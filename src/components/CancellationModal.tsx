@@ -237,9 +237,6 @@ export default function CancellationModal({
                         <th className="px-3 py-2 text-right font-medium">
                           {t("Charged Amount")}
                         </th>
-                        <th className="px-3 py-2 text-right font-medium">
-                          {t("Transaction Fee")}
-                        </th>
                         <th className="px-3 py-2 text-left font-medium">
                           {t("Status")}
                         </th>
@@ -317,22 +314,6 @@ export default function CancellationModal({
                               currency: payment.currency,
                               currencyDisplay: "code",
                             })}
-                          </td>
-                          <td
-                            className="px-3 py-2 text-right"
-                            style={{
-                              borderWidth: "0px 1px 1px 0px",
-                              borderStyle: "solid",
-                              borderColor: "#AAA9A9",
-                            }}
-                          >
-                            {payment.fee != null
-                              ? payment.fee.toLocaleString("en-CA", {
-                                  style: "currency",
-                                  currency: payment.currency,
-                                  currencyDisplay: "code",
-                                })
-                              : "N/A"}
                           </td>
                           <td
                             className={`px-3 py-2 capitalize ${

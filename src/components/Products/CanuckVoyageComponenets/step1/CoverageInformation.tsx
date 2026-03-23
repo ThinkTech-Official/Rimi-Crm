@@ -504,13 +504,11 @@ import {
 } from "@heroicons/react/24/outline";
 import { Controller, UseFormReturn } from "react-hook-form";
 import { usePremiumCalculationProduct3 } from "../../../../hooks/canuck-voyage/usePremiumCalculationProduct3";
-import { useCreateQuoteProduct3 } from "../../../../hooks/canuck-voyage/useCreateQuoteProduct3";
 import { Step1Payload } from "../RIMICanuckVoyageTravelMedical";
 import DatePicker from "../../../DatePicker";
 import EmailQuoteMedical from "./EmailQuoteMedical";
 import { useLanguage } from "../../../../context/LanguageContext";
 
-const today = new Date().toISOString().slice(0, 10);
 const msPerDay = 1000 * 60 * 60 * 24;
 
 interface CoverageInformationProps {
@@ -567,7 +565,6 @@ export default function CoverageInformation({
     coverageLength,
     destinationCountry,
     travelingThroughUS,
-    usTravelDays,
     numberOfDaysPerTrip,
     deductible,
     primaryDateOfBirth,
@@ -771,12 +768,24 @@ export default function CoverageInformation({
           )}
         </div>
 
-        {/* Effective Date */}
         <div>
           <Controller
             name={`effectiveDate`}
             control={control}
-            rules={{ required: t("Effective Date is required") }}
+            rules={{
+              required: t("Effective Date is required"),
+              validate: (value) => {
+                if (!value) return true;
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                const selDate = new Date(value);
+                selDate.setHours(0, 0, 0, 0);
+                return (
+                  selDate.getTime() >= today.getTime() ||
+                  t("Effective date cannot be in the past")
+                );
+              },
+            }}
             render={({ field }) => (
               <DatePicker
                 label={t("Effective Date")}
@@ -805,8 +814,10 @@ export default function CoverageInformation({
               validate: (value) => {
                 if (effectiveDate && value) {
                   const eff = new Date(effectiveDate);
+                  eff.setHours(0, 0, 0, 0);
                   const exp = new Date(value);
-                  if (exp <= eff) {
+                  exp.setHours(0, 0, 0, 0);
+                  if (exp < eff) {
                     return t("Expiry date must be after effective date");
                   }
                 }
@@ -895,7 +906,7 @@ export default function CoverageInformation({
                 required: t("Destination Country is required"),
               })}
             >
-              <option>Please select</option>
+              <option value="">Please select</option>
               <option value="AF">Afghanistan</option>
               <option value="AX">Åland Islands</option>
               <option value="AL">Albania</option>

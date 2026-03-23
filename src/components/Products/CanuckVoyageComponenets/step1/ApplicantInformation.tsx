@@ -163,7 +163,7 @@ export default function ApplicantInformation({
     useState(false);
   const [showConfirmEligibility, setShowConfirmEligibility] = useState(false);
   const setIsConfirmed = (value: boolean) => {
-    setValue("isConfirmed", value);
+    setValue("isConfirmed", value, { shouldValidate: true, shouldDirty: true });
   };
 
   // Sync fields with applicantNumber
@@ -193,7 +193,7 @@ export default function ApplicantInformation({
 
   const handleCheckboxChange = () => {
     if (isConfirmed) {
-      return setValue("isConfirmed", false);
+      return setValue("isConfirmed", false, { shouldValidate: true, shouldDirty: true });
     }
     if (!isConfirmed) {
       setShowConfirmEligibility(true);
@@ -265,8 +265,14 @@ export default function ApplicantInformation({
             rules={{
               required: t("Date of Birth is required"),
               validate: (value) => {
+                if (!value) return true;
+                const dobDate = new Date(value);
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                if (dobDate > today) return t("Date of birth cannot be in the future");
+
                 const effectiveDate = methods.getValues("effectiveDate");
-                if (!effectiveDate || !value) return true;
+                if (!effectiveDate) return true;
 
                 const eff = new Date(effectiveDate);
                 const dob = new Date(value);
@@ -471,8 +477,14 @@ export default function ApplicantInformation({
               rules={{
                 required: t("Date of Birth is required"),
                 validate: (value) => {
+                  if (!value) return true;
+                  const dobDate = new Date(value);
+                  const today = new Date();
+                  today.setHours(0, 0, 0, 0);
+                  if (dobDate > today) return t("Date of birth cannot be in the future");
+
                   const effectiveDate = methods.getValues("effectiveDate");
-                  if (!effectiveDate || !value) return true;
+                  if (!effectiveDate) return true;
 
                   const eff = new Date(effectiveDate);
                   const dob = new Date(value);

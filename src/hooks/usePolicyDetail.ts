@@ -10,6 +10,7 @@ export interface PolicyApplicant {
   email?: string;
   province?: string;
   policyNumber?: string;
+  individualPolicyNumber?: string;
   gender?: string;
   premium?: string;
   PreExCoverage?: string;
@@ -40,6 +41,7 @@ export interface PolicyDetail {
   expiryDate?: string;
   gender?: string;
   premium: number;
+  plan?: string;
   planDetails?: string;
   PreExCoverage?: string;
   primaryPremium?: string;
@@ -72,9 +74,30 @@ export interface PolicyDetail {
   countryCode: string;
 
   product?: string;
+  umr?: string;
+  provinceStateResidence?: string;
+  legalGuardianName?: string;
 
+  dateBooked?: string;
+  tripCost?: number;
+  tripCancellationDeluxe?: boolean;
+  applicantTravelThroughUs?: string;
+  travelingThroughUS?: string;
+  usTravelDays?: string | number;
+  numberOfDaysPerTrip?: string | number;
+  coverageOption?: string;
+  coverageLimit?: string;
   beneficiaryName?: string;
   beneficiaryRelation?: string;
+  relationshipToInsured?: string;
+  individualPolicyNumber?: string;
+
+  // Fallback fields
+  coverageLength?: number | string;
+  destinationProvince?: string;
+  inCanada?: string;
+  superVisa?: string;
+  destinationCountry?: string;
 
   premiumTotal?: number;
   paymentOption?: string;
@@ -88,19 +111,17 @@ export interface PolicyDetail {
     }>;
   };
 
-
   createdAt?: string;
   updatedAt?: string;
 
   stripeSubscriptionScheduleId: any;
 
-   currentCardBrand?: string;
+  currentCardBrand?: string;
   currentCardLast4?: string;
   currentCardholderName?: string;
   currentCardUpdatedAt?: Date | string;
 
-
-    // SPLIT POLICY 
+  // SPLIT POLICY 
   parentPolicyId?: string | null;  // Required for banner to show
   splitAt?: string | null;         
   splitBy?: string | null;       

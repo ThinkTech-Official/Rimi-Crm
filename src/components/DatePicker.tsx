@@ -37,25 +37,64 @@ const DatePicker = forwardRef<HTMLInputElement, DatePickerProps>(({
   };
 
   const [inputValue, setInputValue] = useState("");
+  const dateWrapperRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (dateValue) {
       setInputValue(formatDate(dateValue));
     } else {
-      setInputValue("");
+      if (!dateWrapperRef.current?.contains(document.activeElement)) {
+        setInputValue("");
+      }
     }
   }, [value]);
 
-  const dateWrapperRef = useRef<HTMLDivElement>(null);
   useOnClickOutside(dateWrapperRef as React.RefObject<HTMLElement>, () => {
     setShowCalendar(false);
   });
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
+    const isDeleting =
+      (e.nativeEvent as any)?.inputType?.includes("delete") || false;
 
     // Clean input: extract only digits up to 8
-    const digits = val.replace(/\D/g, "").substring(0, 8);
+    let digits = val.replace(/\D/g, "").substring(0, 8);
+
+    // Smart Validation & Auto-correction (only when not deleting)
+    if (!isDeleting) {
+      // Day validation
+      if (digits.length >= 1) {
+        const firstDayDigit = parseInt(digits[0], 10);
+        if (firstDayDigit > 3) {
+          digits = "0" + digits; // e.g. '4' -> '04'
+        }
+      }
+      if (digits.length >= 2) {
+        const day = parseInt(digits.substring(0, 2), 10);
+        if (day > 31) {
+          digits = "31" + digits.substring(2);
+        } else if (day === 0 && digits.length === 2) {
+          digits = "01" + digits.substring(2);
+        }
+      }
+
+      // Month validation
+      if (digits.length >= 3) {
+        const firstMonthDigit = parseInt(digits[2], 10);
+        if (firstMonthDigit > 1) {
+          digits = digits.substring(0, 2) + "0" + digits.substring(2); // e.g. '13-5' -> '13-05'
+        }
+      }
+      if (digits.length >= 4) {
+        const month = parseInt(digits.substring(2, 4), 10);
+        if (month > 12) {
+          digits = digits.substring(0, 2) + "12" + digits.substring(4);
+        } else if (month === 0 && digits.length === 4) {
+          digits = digits.substring(0, 2) + "01" + digits.substring(4);
+        }
+      }
+    }
 
     // Apply robust mask: dd-mm-yyyy
     let formatted = digits;
@@ -65,10 +104,6 @@ const DatePicker = forwardRef<HTMLInputElement, DatePickerProps>(({
     if (digits.length > 4) {
       formatted = `${digits.substring(0, 2)}-${digits.substring(2, 4)}-${digits.substring(4)}`;
     }
-
-    // Determine if we should apply the mask or just show what the user typed
-    // (helps with deleting separators)
-    const isDeleting = (e.nativeEvent as any)?.inputType?.includes("delete") || false;
 
     // Use formatted value if not deleting, otherwise respect the user's deletion
     const nextValue = isDeleting ? val : formatted;
@@ -91,10 +126,9 @@ const DatePicker = forwardRef<HTMLInputElement, DatePickerProps>(({
         newDate.getMonth() === month - 1 &&
         newDate.getDate() === day
       ) {
-        if (minDate && newDate < minDate) return;
-        if (maxDate && newDate > maxDate) return;
-
         onChange(toLocalIsoDate(newDate));
+      } else {
+        onChange(null); // Truly invalid date like Feb 30
       }
     } else if (nextValue === "") {
       onChange(null);

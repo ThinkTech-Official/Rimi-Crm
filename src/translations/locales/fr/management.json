@@ -543,5 +543,11 @@
   "Group {{index}} has only {{coverageDays}} days coverage. Minimum is 15 days.": "Le groupe {{index}} n'a que {{coverageDays}} jours de couverture. Le minimum est de 15 jours.",
   "Group {{index}} has {{totalInGroup}} applicants. Ensure they have identical travel dates.": "Le groupe {{index}} compte {{totalInGroup}} demandeurs. Assurez-vous qu'ils ont des dates de voyage identiques.",
   "Policy is not eligible for split": "La police n'est pas éligible à la division",
-  "Errors:": "Erreurs :"
+  "Errors:": "Erreurs :",
+  "S.No.": "N°",
+  "Invalid file type. Allowed: PDF, Image, CSV, Word, PowerPoint": "Type de fichier invalide. Autorisé : PDF, Image, CSV, Word, PowerPoint",
+  "File size must not exceed 10MB": "La taille du fichier ne doit pas dépasser 10 Mo",
+  "Please check agent code availability first": "Veuillez d'abord vérifier la disponibilité du code d'agent",
+  "WFG agents must have user type AGENT": "Les agents WFG doivent avoir le type d'utilisateur AGENT",
+  "Please upload all required documents": "Veuillez télécharger tous les documents requis"
 }

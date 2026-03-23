@@ -89,7 +89,7 @@ const EmailQuoteNonMed = ({
               </div>
               {premiumBreakdown.deluxePremium && (
                 <div className="flex justify-between">
-                  <span>{t("Deluxe Option (+15%):")}</span>
+                  <span>{t("Deluxe Option (+25%):")}</span>
                   <span>+${premiumBreakdown.deluxePremium.toFixed(2)}</span>
                 </div>
               )}

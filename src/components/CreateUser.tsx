@@ -665,6 +665,22 @@
 
 // ============================================================================
 
+const ALLOWED_FILE_TYPES = [
+  "application/pdf",
+  "image/jpeg",
+  "image/png",
+  "image/gif",
+  "image/webp",
+  "image/bmp",
+  "text/csv",
+  "application/vnd.ms-excel", // .xls (Excel) — included alongside csv
+  "application/msword",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  "application/vnd.ms-powerpoint",
+  "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+];
+const MAX_FILE_SIZE_MB = 10;
+
 import React, { useState, ChangeEvent, useEffect } from "react";
 import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
 import { v4 as uuidv4 } from "uuid";
@@ -680,7 +696,7 @@ const CreateUser: React.FC = () => {
   // const { langauge } = useContext(LangContext);
   const [status, setStatus] = useState<"ACTIVE" | "INACTIVE">("ACTIVE");
   const [allowBulkUpload, setAllowBulkUpload] = useState<"YES" | "NO">("NO");
-  const [userType, setUserType] = useState<userType>("ADMIN");
+  const [userType, setUserType] = useState<userType>("");
 
   //  WFG Agent checkbox
   const [isWfgAgent, setIsWfgAgent] = useState(false);
@@ -711,7 +727,7 @@ const CreateUser: React.FC = () => {
   
   useEffect(() => {
     if (success) {
-      triggerNotification({ type: "success", message: t("userCreatedSuccess") });
+      triggerNotification({ type: "success", message: t("User created successfully!") });
     }
   }, [success, t, triggerNotification]);
 
@@ -747,8 +763,10 @@ const CreateUser: React.FC = () => {
       setValue('userType', 'AGENT');
       setUserType('AGENT');
     } else {
-      // Reset company when unchecked
+      // Reset company and userType when unchecked
       setValue('company', '');
+      setValue('userType', '');
+      setUserType('');
     }
   };
 
@@ -768,21 +786,21 @@ const CreateUser: React.FC = () => {
   const onSubmit = async (formData: newUser) => {
     // Agent code must be checked and available
     if (availability !== "available" || lastCheckedCode !== agentCode) {
-      triggerNotification({ type: "error", message: "Please check agent code availability first" });
+      triggerNotification({ type: "error", message: t("Please check agent code availability first") });
       return;
     }
 
     //WFG-specific validation
     if (isWfgAgent) {
       if (formData.userType !== 'AGENT') {
-        triggerNotification({ type: "error", message: "WFG agents must have user type AGENT" });
+        triggerNotification({ type: "error", message: t("WFG agents must have user type AGENT") });
         return;
       }
       // Documents NOT required for WFG
     } else {
       // Regular agent - require at least document 1
       if (!docFile1) {
-        triggerNotification({ type: "error", message: "Please upload at least Document 1" });
+        triggerNotification({ type: "error", message: t("Please upload all required documents") });
         return;
       }
     }
@@ -809,14 +827,35 @@ const CreateUser: React.FC = () => {
     error: agentsError,
   } = useAgentCodes(agentSearch);
 
+
+
   const handleDocsChange = (
     e: ChangeEvent<HTMLInputElement>,
     docType: "docFile1" | "docFile2" | "docFile3" | "docFile4"
   ) => {
     const file = e.target.files?.[0];
-    if (file) {
-      setValue(docType, file);
+    if (!file) return;
+
+    if (!ALLOWED_FILE_TYPES.includes(file.type)) {
+      triggerNotification({
+        type: "error",
+        message: t("Invalid file type. Allowed: PDF, Image, CSV, Word, PowerPoint"),
+      });
+      e.target.value = "";
+      return;
     }
+
+    const fileSizeInMB = file.size / (1024 * 1024);
+    if (fileSizeInMB > MAX_FILE_SIZE_MB) {
+      triggerNotification({
+        type: "error",
+        message: t("File size must not exceed 10MB"),
+      });
+      e.target.value = "";
+      return;
+    }
+
+    setValue(docType, file);
   };
 
   const handleFileSize = (file: File) => {
@@ -831,15 +870,10 @@ const CreateUser: React.FC = () => {
       noValidate
     >
       <h2 className="text-lg font-bold text-left text-[#1B1B1B] mb-2">
-        {/* {langauge === "En" ? "CREATE USER" : "CRÉER UN UTILISATEUR"} */}
-        {t('createUser')}
+        {t('Create User')}
       </h2>
       <p className="text-left font-medium text-[#6A6A6A] mb-8">
-        {/* {langauge === "En"
-          ? "** Changes to User Type will restore User Permissions to default settings **"
-          : "** Les modifications apportées au type d'utilisateur restaureront les autorisations aux paramètres par défaut **"}
-           */}
-           {t('userTypeWarning')}
+           {t('** Changes to User Type will restore User Permissions to default settings **')}
       </p>
 
       <div className="grid grid-col-3 gap-4 text-text-secondary">
@@ -1293,9 +1327,10 @@ const CreateUser: React.FC = () => {
               <label className="text-sm font-semibold mb-1">{t("Insurance License")}</label>
               <div className="flex flex-col items-start space-y-2">
                 <label className="input-primary cursor-pointer w-full text-center">
-                  {t("Choose File")} <span className="text-xs">(Max 5MB)</span>
+                  {t("Choose File")} <span className="text-xs">(Max 10MB)</span>
                   <input
                     type="file"
+                    accept=".pdf,.jpg,.jpeg,.png,.gif,.webp,.bmp,.csv,.doc,.docx,.ppt,.pptx"
                     onChange={(e) => handleDocsChange(e, "docFile1")}
                     className="hidden"
                   />
@@ -1313,9 +1348,10 @@ const CreateUser: React.FC = () => {
               <label className="text-sm font-semibold mb-1">{t("E&O Insurance")}</label>
               <div className="flex flex-col items-start space-y-2">
                 <label className="input-primary cursor-pointer w-full text-center">
-                  {t("Choose File")} <span className="text-xs">(Max 5MB)</span>
+                  {t("Choose File")} <span className="text-xs">(Max 10MB)</span>
                   <input
                     type="file"
+                    accept=".pdf,.jpg,.jpeg,.png,.gif,.webp,.bmp,.csv,.doc,.docx,.ppt,.pptx"
                     onChange={(e) => handleDocsChange(e, "docFile2")}
                     className="hidden"
                   />
@@ -1333,9 +1369,10 @@ const CreateUser: React.FC = () => {
               <label className="text-sm font-semibold mb-1">{t("Bank Details")}</label>
               <div className="flex flex-col items-start space-y-2">
                 <label className="input-primary cursor-pointer w-full text-center">
-                  {t("Choose File")} <span className="text-xs">(Max 5MB)</span>
+                  {t("Choose File")} <span className="text-xs">(Max 10MB)</span>
                   <input
                     type="file"
+                    accept=".pdf,.jpg,.jpeg,.png,.gif,.webp,.bmp,.csv,.doc,.docx,.ppt,.pptx"
                     onChange={(e) => handleDocsChange(e, "docFile3")}
                     className="hidden"
                   />
@@ -1353,9 +1390,10 @@ const CreateUser: React.FC = () => {
               <label className="text-sm font-semibold mb-1">{t("Agency Agreement")}</label>
               <div className="flex flex-col items-start space-y-2">
                 <label className="input-primary cursor-pointer w-full text-center">
-                  {t("Choose File")} <span className="text-xs">(Max 5MB)</span>
+                  {t("Choose File")} <span className="text-xs">(Max 10MB)</span>
                   <input
                     type="file"
+                    accept=".pdf,.jpg,.jpeg,.png,.gif,.webp,.bmp,.csv,.doc,.docx,.ppt,.pptx"
                     onChange={(e) => handleDocsChange(e, "docFile4")}
                     className="hidden"
                   />
@@ -1381,7 +1419,7 @@ const CreateUser: React.FC = () => {
           }
           className="btn-primary"
         >
-          {createLoading ? t('creating') : t('createUser')}
+          {createLoading ? t('creating') : t('Create User')}
         </button>
       </div>
       {NotificationComponent}
