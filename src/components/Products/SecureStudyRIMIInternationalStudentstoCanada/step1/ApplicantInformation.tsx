@@ -606,10 +606,15 @@ export default function ApplicantInformation({
             rules={{
               required: t("Date of Birth is required"),
               validate: (value) => {
-                const effectiveDate = methods.getValues("effectiveDate");
-                if (!value || !effectiveDate) return true;
-
+                if (!value) return true;
                 const dobDate = new Date(value);
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                if (dobDate > today) return t("Date of birth cannot be in the future");
+
+                const effectiveDate = methods.getValues("effectiveDate");
+                if (!effectiveDate) return true;
+
                 const effDate = new Date(effectiveDate);
                 const ageDiffMs = effDate.getTime() - dobDate.getTime();
                 const ageDate = new Date(ageDiffMs);
@@ -784,10 +789,15 @@ export default function ApplicantInformation({
                 rules={{
                   required: t("Date of Birth is required"),
                   validate: (value) => {
-                    const effectiveDate = methods.getValues("effectiveDate");
-                    if (!value || !effectiveDate) return true;
-
+                    if (!value) return true;
                     const dobDate = new Date(value);
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0);
+                    if (dobDate > today) return t("Date of birth cannot be in the future");
+
+                    const effectiveDate = methods.getValues("effectiveDate");
+                    if (!effectiveDate) return true;
+
                     const effDate = new Date(effectiveDate);
                     const ageDiffMs = effDate.getTime() - dobDate.getTime();
                     const ageDate = new Date(ageDiffMs);

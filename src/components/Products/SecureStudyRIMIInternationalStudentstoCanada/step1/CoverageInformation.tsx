@@ -243,12 +243,24 @@ export default function CoverageInformation({
             )}
           </div>
           
-          {/* Effective Date */}
           <div className="flex flex-col">
             <Controller
               control={control}
               name="effectiveDate"
-              rules={{ required: t("Effective date is required") }}
+              rules={{
+                required: t("Effective date is required"),
+                validate: (value) => {
+                  if (!value) return true;
+                  const today = new Date();
+                  today.setHours(0, 0, 0, 0);
+                  const selDate = new Date(value);
+                  selDate.setHours(0, 0, 0, 0);
+                  return (
+                    selDate.getTime() >= today.getTime() ||
+                    t("Effective date cannot be in the past")
+                  );
+                },
+              }}
               render={({ field }) => (
                 <DatePicker
                   label={t("Effective Date")}
@@ -288,8 +300,10 @@ export default function CoverageInformation({
                 validate: (value) => {
                   if (effectiveDate && value) {
                     const eff = new Date(effectiveDate);
+                    eff.setHours(0, 0, 0, 0);
                     const exp = new Date(value);
-                    if (exp <= eff) {
+                    exp.setHours(0, 0, 0, 0);
+                    if (exp < eff) {
                       return t("Expiry date must be after effective date");
                     }
                   }

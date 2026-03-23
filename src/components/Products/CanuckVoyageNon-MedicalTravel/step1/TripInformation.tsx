@@ -523,7 +523,20 @@ export default function TripInformation({
             <Controller
               name={`dateBooked`}
               control={control}
-              rules={{ required: t("Date Booked is required") }}
+              rules={{
+                required: t("Date Booked is required"),
+                validate: (value) => {
+                  if (!value) return true;
+                  const today = new Date();
+                  today.setHours(0, 0, 0, 0);
+                  const booked = new Date(value);
+                  booked.setHours(0, 0, 0, 0);
+                  return (
+                    booked.getTime() <= today.getTime() ||
+                    t("Date booked cannot be in the future")
+                  );
+                },
+              }}
               render={({ field }) => (
                 <DatePicker
                   label={t("Date Booked")}
@@ -546,7 +559,20 @@ export default function TripInformation({
             <Controller
               name={`effectiveDate`}
               control={control}
-              rules={{ required: t("Date of Departure is required") }}
+              rules={{
+                required: t("Date of Departure is required"),
+                validate: (value) => {
+                  if (!value) return true;
+                  const today = new Date();
+                  today.setHours(0, 0, 0, 0);
+                  const selDate = new Date(value);
+                  selDate.setHours(0, 0, 0, 0);
+                  return (
+                    selDate.getTime() >= today.getTime() ||
+                    t("Departure date cannot be in the past")
+                  );
+                },
+              }}
               render={({ field }) => (
                 <DatePicker
                   label={t("Date of Departure")}
@@ -574,8 +600,10 @@ export default function TripInformation({
                 validate: (value) => {
                   if (effectiveDate && value) {
                     const eff = new Date(effectiveDate);
+                    eff.setHours(0, 0, 0, 0);
                     const exp = new Date(value);
-                    if (exp <= eff) {
+                    exp.setHours(0, 0, 0, 0);
+                    if (exp < eff) {
                       return t("Return date must be after departure date");
                     }
                   }
