@@ -280,10 +280,11 @@ const RIMICanuckVoyageTravelMedical: React.FC = () => {
       const response = await saveQuoteNext(stage1Payload);
       setQuoteNumber(response.quoteNumber);
       setStep1ResponseData(response);
-      console.log("✅ Stage 1 response:", response);
+      setTotalPremium(response.quoteAmount);
+      console.log("Stage 1 response:", response);
       handleFormStepChange("forward");
     } catch (err: any) {
-      console.error("❌ Stage 1 failed:", err);
+      console.error("Stage 1 failed:", err);
       triggerNotification({
         message: err.message || t("Failed to save quote."),
         type: "error",

@@ -646,7 +646,6 @@ const RIMICanuckVoyageNonMedicalTravel: React.FC = () => {
             <TestFillButton productName={productName} />
             <ApplicantInformation 
             methods={step1Methods}
-            onApplicantDataComplete={setAllApplicantDataFilled}
             />
 
             <TripInformation
@@ -660,7 +659,6 @@ const RIMICanuckVoyageNonMedicalTravel: React.FC = () => {
               onValidityChange={setIsStepOneFilled}
               quoteNumber={quoteNumber}
               handleSaveQuote={handleSaveQuote}
-              allApplicantDataFilled={allApplicantDataFilled}
             />
 
             <div className="w-full h-2 mt-5 flex items-center justify-center font-[inter]">

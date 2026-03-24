@@ -32,7 +32,7 @@ interface Applicant {
   firstName: string;
   lastName: string;
   dob: string;
-  relationship: string;
+  relation: string;
   preMedCoverage: boolean;
   gender: string;
   healthQuestionnaire?: { questions: any[] };
@@ -282,7 +282,7 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
           firstName: a.firstName,
           lastName: a.lastName,
           dob: a.dateOfBirth?.split("T")[0] || "",
-          relationship: a.relation || "",
+          relation: a.relation || "",
           preMedCoverage: a.PreExCoverage === "Yes",
           gender: a.gender,
           healthQuestionnaire: { questions: [] },
@@ -437,6 +437,7 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
         email: response.email,
         applicants: response.applicants,
       });
+      setTotalPremium(response.quoteAmount);
       console.log("from quote  getting response of stage 1", response);
       handleFormStepChange("forward");
     } catch (err) {

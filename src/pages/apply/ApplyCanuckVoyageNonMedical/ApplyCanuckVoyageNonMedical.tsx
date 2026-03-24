@@ -300,6 +300,7 @@ const RIMICanuckVoyageNonMedicalTravel: React.FC = () => {
       const response = await saveQuoteNext(stage1Payload);
       setQuoteNumber(response.quoteNumber);
       setStep1ResponseData(response);
+      setTotalPremium(response.quoteAmount);
       console.log("Stage 1 response:", response);
       handleFormStepChange("forward");
     } catch (err: any) {
