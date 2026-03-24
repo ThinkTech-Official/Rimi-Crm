@@ -80,6 +80,8 @@ const PolicyField: React.FC<PolicyFieldProps> = ({
 }) => {
   const { t, language: currentLang } = useLanguage();
 
+ 
+
   const getActiveKeyAndValue = () => {
     const fields = Array.isArray(field) ? field : [field];
     
