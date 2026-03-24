@@ -258,9 +258,9 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from "axios";
 import { API_BASE } from "./urls";
 import { store } from "../app/store";
-import { logout, setAccessToken } from "../features/authSlice";
+import { logout, markAuthenticated, initializeAuth } from "../features/authSlice";
 import { clearVerificationData } from "../features/verificationSlice";
-import { initializeAuth } from "../features/authSlice";
+
 
 export const axiosInstance = axios.create({
   baseURL: API_BASE,
@@ -393,13 +393,14 @@ axiosInstance.interceptors.response.use(
         }
 
         console.log("[Auth] Refreshing access token...");
-        const { data } = await axios.post(
+        await axios.post(
           `${API_BASE}/auth/refresh`,
           {},
           { withCredentials: true },
         );
 
-        store.dispatch(setAccessToken(data.accessToken));
+        // store.dispatch(setAccessToken(data.accessToken));
+        store.dispatch(markAuthenticated());
         recordRefreshSuccess();
         console.log("[Auth] Token refreshed successfully");
       });

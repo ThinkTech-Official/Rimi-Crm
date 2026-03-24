@@ -618,6 +618,9 @@ const authSlice = createSlice({
         console.error("Failed to decode refreshed token:", error);
       }
     },
+    markAuthenticated: (state) => {
+  state.token = "authenticated";
+},
   },
   extraReducers: (builder) => {
     builder
@@ -662,5 +665,6 @@ const authSlice = createSlice({
   },
 });
 
-export const { logout, setAccessToken } = authSlice.actions;
+// export const { logout, setAccessToken } = authSlice.actions;
+export const { logout, setAccessToken, markAuthenticated } = authSlice.actions;
 export default authSlice.reducer;

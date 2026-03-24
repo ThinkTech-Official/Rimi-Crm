@@ -624,21 +624,30 @@ export default function Dashboard() {
   }, [userType, fetchStatus, dispatch]);
 
   // Fetch pending count for ADMIN users
-  useEffect(() => {
-    if (userType === 'ADMIN') {
-      const fetchPendingCount = async () => {
-        const result = await fetchCount();
-        if (result) {
-          dispatch(setPendingCount(result.count));
-        }
-      };
+  // useEffect(() => {
+  //   if (userType === 'ADMIN') {
+  //     const fetchPendingCount = async () => {
+  //       const result = await fetchCount();
+  //       if (result) {
+  //         dispatch(setPendingCount(result.count));
+  //       }
+  //     };
       
-      fetchPendingCount();
-      // Refresh count every 30 seconds
-      const interval = setInterval(fetchPendingCount, 60000);
-      return () => clearInterval(interval);
-    }
-  }, [userType, fetchCount, dispatch]);
+  //     fetchPendingCount();
+  //     // Refresh count every 30 seconds
+  //     const interval = setInterval(fetchPendingCount, 60000);
+  //     return () => clearInterval(interval);
+  //   }
+  // }, [userType, fetchCount, dispatch]);
+
+
+  useEffect(() => {
+  if (userType === 'ADMIN') {
+    fetchCount().then((result) => {
+      if (result) dispatch(setPendingCount(result.count));
+    });
+  }
+}, [userType]);
 
   // Update selected component based on current route
   useEffect(() => {
