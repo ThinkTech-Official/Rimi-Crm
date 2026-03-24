@@ -426,7 +426,7 @@
 
 // ==============================================================
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   ChevronDownIcon,
   InformationCircleIcon,
@@ -449,10 +449,12 @@ interface Applicant {
 
 interface ApplicantInformationProps {
   methods: UseFormReturn<Step1Payload>;
+  onApplicantDataComplete: (complete: boolean) => void;
 }
 
 export default function ApplicantInformation({
   methods,
+   onApplicantDataComplete,
 }: ApplicantInformationProps) {
   const { t } = useLanguage();
   const {
@@ -465,7 +467,11 @@ export default function ApplicantInformation({
 
   // Watch form values
   const formValues = watch();
-  const { applicantNumber, applicants, isConfirmed } = formValues;
+  // const { applicantNumber, applicants, isConfirmed } = formValues;
+  const { applicantNumber, applicants, primaryDateOfBirth, primaryFirstName, primaryLastName, primaryEmail, primaryApplicantGender, isConfirmed } = formValues;
+
+
+  
 
   const [displayInfoCountryOfOrigin, setDisplayInfoCountryOfOrigin] =
     useState(false);
@@ -475,6 +481,23 @@ export default function ApplicantInformation({
   const setIsConfirmed = (value: boolean) => {
     setValue("isConfirmed", value, { shouldValidate: true, shouldDirty: true });
   };
+
+   const allApplicantDataFilled = useMemo(() => {
+    const primaryFilled = !!(primaryFirstName && primaryLastName && primaryDateOfBirth && primaryEmail && primaryApplicantGender );
+
+    const additionalFilled = (applicants || [])
+      .slice(0, applicantNumber || 0)
+      .every((a) => !!(a.firstName && a.lastName && a.dob && a.gender && a.relationship));
+
+    return primaryFilled && additionalFilled;
+  }, [primaryFirstName, primaryLastName, primaryDateOfBirth, primaryEmail, primaryApplicantGender, isConfirmed, applicants, applicantNumber]);
+
+  
+    useEffect(() => {
+    onApplicantDataComplete(allApplicantDataFilled);
+  }, [allApplicantDataFilled, onApplicantDataComplete]);
+
+
   // Resize applicants array when number changes
   useEffect(() => {
     const currentApplicants = applicants || [];

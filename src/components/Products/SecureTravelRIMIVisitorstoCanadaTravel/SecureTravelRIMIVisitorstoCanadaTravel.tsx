@@ -291,6 +291,8 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
       const response = await saveQuoteNext(stage1Payload);
       setQuoteNumber(response.quoteNumber);
 
+      setTotalPremium(response.quoteAmount);
+
       // Update form data with response if needed, or just local state for summary
       setStep1ResponseData({
         quoteId: response.quoteId,

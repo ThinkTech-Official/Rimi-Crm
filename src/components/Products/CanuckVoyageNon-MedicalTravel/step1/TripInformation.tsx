@@ -178,6 +178,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import {
   InformationCircleIcon,
   ChevronDownIcon,
+  ArrowPathIcon,
 } from "@heroicons/react/24/outline";
 import { usePremiumCalculationProduct4 } from "../../../../hooks/canuck-voyage-non-medical/usePremiumCalculationProduct4";
 import { Controller, UseFormReturn } from "react-hook-form";
@@ -191,6 +192,7 @@ const msPerDay = 1000 * 60 * 60 * 24;
 
 interface TripInformationProps {
   methods: UseFormReturn<Step1Payload>;
+  allApplicantDataFilled: boolean;
   premiumBreakdown: {
     basePremium: number;
     deluxePremium?: number;
@@ -219,11 +221,13 @@ export default function TripInformation({
   setTotalPremium,
   handleSaveQuote,
   saving = false,
+  allApplicantDataFilled,
 }: TripInformationProps) {
   const { t } = useLanguage();
   const [showTripCost, setShowTripCost] = useState(false);
   const [showTripCancellation, setShowTripCancellation] = useState(false);
   const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
+  const [forceRecalculate, setForceRecalculate] = useState(0);
 
   const {
     register,
@@ -246,6 +250,7 @@ export default function TripInformation({
     tripCancellationDeluxe,
     primaryDateOfBirth,
     applicants,
+    applicantNumber,
   } = formValues;
 
   // Auto-calculate coverage length when dates change
@@ -262,25 +267,58 @@ export default function TripInformation({
     }
   }, [effectiveDate, expiryDate, setValue]);
 
-  // Calculate ages for premium calculation
-  const calculateAge = (dob: string): number => {
-    if (!dob) return 0;
-    const birthDate = new Date(dob);
-    const today = new Date();
-    let age = today.getFullYear() - birthDate.getFullYear();
-    const monthDiff = today.getMonth() - birthDate.getMonth();
-    if (
-      monthDiff < 0 ||
-      (monthDiff === 0 && today.getDate() < birthDate.getDate())
-    ) {
-      age--;
-    }
-    return age;
-  };
-
-  // Check if form can calculate premium
   const canCalculatePremium = useMemo(() => {
-    const baseFields = [
+    const tripFieldsFilled = [
+      tripCost > 0,
+      dateBooked,
+      effectiveDate,
+      expiryDate,
+      coverageLength,
+    ].every((v) => !!v);
+
+    const deluxeSelected =
+      tripCancellationDeluxe === true || tripCancellationDeluxe === false;
+
+    const primaryFilled = !!(
+      primaryDateOfBirth &&
+      formValues.primaryFirstName &&
+      formValues.primaryLastName &&
+      formValues.primaryEmail &&
+      formValues.primaryApplicantGender
+    );
+
+    const activeApplicants = (applicants || []).slice(0, applicantNumber || 0);
+    const additionalFilled = activeApplicants.every(
+      (a) =>
+        !!(a.dob && a.firstName && a.lastName && a.gender && a.relationship),
+    );
+
+    return (
+      tripFieldsFilled && deluxeSelected && primaryFilled && additionalFilled
+    );
+  }, [
+    tripCost,
+    dateBooked,
+    effectiveDate,
+    expiryDate,
+    coverageLength,
+    tripCancellationDeluxe,
+    primaryDateOfBirth,
+    formValues.primaryFirstName,
+    formValues.primaryLastName,
+    formValues.primaryEmail,
+    formValues.primaryApplicantGender,
+    applicants,
+    applicantNumber,
+  ]);
+
+  // Check if all fields filled for validation
+  // const isFormFilled = useMemo(() => {
+  //   return canCalculatePremium;
+  // }, [canCalculatePremium]);
+
+  const isFormFilled = useMemo(() => {
+    return [
       tripCost > 0,
       dateBooked,
       effectiveDate,
@@ -288,8 +326,6 @@ export default function TripInformation({
       coverageLength,
       primaryDateOfBirth,
     ].every((v) => !!v);
-
-    return baseFields;
   }, [
     tripCost,
     dateBooked,
@@ -299,33 +335,51 @@ export default function TripInformation({
     primaryDateOfBirth,
   ]);
 
-  // Check if all fields filled for validation
-  const isFormFilled = useMemo(() => {
-    return canCalculatePremium;
-  }, [canCalculatePremium]);
-
   useEffect(() => {
     onValidityChange?.(isFormFilled);
   }, [isFormFilled, onValidityChange]);
 
   // Premium calculation data
-  const applicantAges = useMemo(() => {
-    const primaryAge = calculateAge(primaryDateOfBirth);
-    const additionalAges = (applicants || [])
-      .filter((a) => a.dob)
-      .map((a) => ({ age: calculateAge(a.dob) }));
+  // const applicantAges = useMemo(() => {
+  //   const primaryAge = calculateAge(primaryDateOfBirth);
+  //   const additionalAges = (applicants || [])
+  //     .filter((a) => a.dob)
+  //     .map((a) => ({ age: calculateAge(a.dob) }));
 
-    return [{ age: primaryAge }, ...additionalAges];
-  }, [primaryDateOfBirth, applicants]);
+  //   return [{ age: primaryAge }, ...additionalAges];
+  // }, [primaryDateOfBirth, applicants]);
+
+  // const premiumCalculationData = useMemo(
+  //   () => ({
+  //     tripCost: tripCost || 0,
+  //     numberOfTravellers: 1 + (applicants?.length || 0),
+  //     tripCancellationDeluxe: tripCancellationDeluxe || false,
+  //     applicants: applicantAges,
+  //   }),
+  //   [tripCost, applicants, tripCancellationDeluxe, applicantAges]
+  // );
 
   const premiumCalculationData = useMemo(
     () => ({
       tripCost: tripCost || 0,
-      numberOfTravellers: 1 + (applicants?.length || 0),
+      numberOfTravellers: 1 + (applicantNumber || 0),
       tripCancellationDeluxe: tripCancellationDeluxe || false,
-      applicants: applicantAges,
+      effectiveDate: effectiveDate || "",
+      applicants: [
+        { dob: primaryDateOfBirth || "" },
+        ...(applicants || [])
+          .slice(0, applicantNumber || 0)
+          .map((a) => ({ dob: a.dob })),
+      ],
     }),
-    [tripCost, applicants, tripCancellationDeluxe, applicantAges]
+    [
+      tripCost,
+      applicantNumber,
+      tripCancellationDeluxe,
+      effectiveDate,
+      primaryDateOfBirth,
+      JSON.stringify(applicants),
+    ],
   );
 
   const {
@@ -335,7 +389,8 @@ export default function TripInformation({
     error: hookError,
   } = usePremiumCalculationProduct4(
     premiumCalculationData,
-    canCalculatePremium
+    canCalculatePremium,
+    forceRecalculate,
   );
 
   useEffect(() => {
@@ -383,7 +438,10 @@ export default function TripInformation({
             {...register("tripCost", {
               required: t("Trip cost is required"),
               min: { value: 1, message: t("Trip cost must be at least $1") },
-              max: { value: 30000, message: t("Trip cost cannot exceed $30,000") },
+              max: {
+                value: 30000,
+                message: t("Trip cost cannot exceed $30,000"),
+              },
               valueAsNumber: true,
             })}
           />
@@ -406,7 +464,9 @@ export default function TripInformation({
               {t("Trip Cost")}
             </h2>
             <p className="text-sm text-gray-600 mt-2">
-              {t("Enter the total cost, per person, of the non-refundable, pre-paid travel arrangements. The maximum available trip cost is")}{" "}
+              {t(
+                "Enter the total cost, per person, of the non-refundable, pre-paid travel arrangements. The maximum available trip cost is",
+              )}{" "}
               <strong>{t("$30,000 per person")}</strong>.
             </p>
           </div>
@@ -428,12 +488,15 @@ export default function TripInformation({
               control={control}
               rules={{
                 validate: (value) =>
-                  value === true || value === false || t("Please select an option"),
+                  value === true ||
+                  value === false ||
+                  t("Please select an option"),
               }}
               render={({ field }) => (
                 <select
-                  className={`input-primary appearance-none cursor-pointer ${errors.tripCancellationDeluxe ? "border-red-500" : ""
-                    }`}
+                  className={`input-primary appearance-none cursor-pointer ${
+                    errors.tripCancellationDeluxe ? "border-red-500" : ""
+                  }`}
                   value={
                     field.value === true
                       ? "yes"
@@ -444,7 +507,7 @@ export default function TripInformation({
                   onChange={(e) => {
                     const val = e.target.value;
                     field.onChange(
-                      val === "yes" ? true : val === "no" ? false : null
+                      val === "yes" ? true : val === "no" ? false : null,
                     );
                   }}
                   onBlur={field.onBlur}
@@ -479,39 +542,61 @@ export default function TripInformation({
               {t("Trip Cancellation - Deluxe Option")}
             </h2>
             <p className="mt-2 text-sm text-gray-700">
-              {t("The following trip cancellation insured risks are covered if the Deluxe Option is selected:")}
+              {t(
+                "The following trip cancellation insured risks are covered if the Deluxe Option is selected:",
+              )}
             </p>
             <ul className="list-disc pl-5 mt-2 text-sm text-gray-700 space-y-2">
               <li>{t("Rail services cancelled due to staff shortages.")}</li>
               <li>
-                {t("Pregnancy of your immediate family member, provided pregnancy occurs after the date of initial booking.")}
+                {t(
+                  "Pregnancy of your immediate family member, provided pregnancy occurs after the date of initial booking.",
+                )}
               </li>
               <li>
-                {t("The cancellation of a trip by your insured travel companion due to an insured risk.")}
+                {t(
+                  "The cancellation of a trip by your insured travel companion due to an insured risk.",
+                )}
               </li>
               <li>
-                {t("Cancellation of commercial child care services within 7 days prior to the departure date.")}
+                {t(
+                  "Cancellation of commercial child care services within 7 days prior to the departure date.",
+                )}
               </li>
               <li>
-                {t("Critical illness of your cat or dog, less than 5 years old, within 7 days prior to the departure date.")}
+                {t(
+                  "Critical illness of your cat or dog, less than 5 years old, within 7 days prior to the departure date.",
+                )}
               </li>
               <li>
-                {t("Undue financial hardship of your corporation due to unforeseen circumstances.")}
+                {t(
+                  "Undue financial hardship of your corporation due to unforeseen circumstances.",
+                )}
               </li>
               <li>
-                {t("Your employer mandates that you are required to work during your scheduled trip.")}
+                {t(
+                  "Your employer mandates that you are required to work during your scheduled trip.",
+                )}
               </li>
               <li>
-                {t("Political unrest, riot, rebellion, or revolution in your home country or destination country.")}
+                {t(
+                  "Political unrest, riot, rebellion, or revolution in your home country or destination country.",
+                )}
               </li>
               <li>
-                {t("A report of adverse weather at your destination at the time of your scheduled arrival.")}
+                {t(
+                  "A report of adverse weather at your destination at the time of your scheduled arrival.",
+                )}
               </li>
               <li>
-                {t("Worsening of your chronic illness that was stable at the time your trip was booked.")}
+                {t(
+                  "Worsening of your chronic illness that was stable at the time your trip was booked.",
+                )}
               </li>
               <li>
-                {t("Your required attendance at a business or board event that was scheduled after this insurance was purchased.")}
+                {t(
+                  "Your required attendance at a business or board event that was scheduled after this insurance was purchased.",
+                )}
               </li>
             </ul>
           </div>
@@ -608,7 +693,7 @@ export default function TripInformation({
                     }
                   }
                   return true;
-                }
+                },
               }}
               render={({ field }) => (
                 <DatePicker
@@ -687,19 +772,22 @@ export default function TripInformation({
           {/* Save Quote Button */}
           {quoteNumber && !isDirty ? (
             <div className="flex flex-col justify-center items-center mt-4 text-xl font-bold text-red-600">
-              <span>
-                {t("Quote Saved:")}{" "}
-              </span>
+              <span>{t("Quote Saved:")} </span>
               <span>{quoteNumber}</span>
 
-              <button type="button" className="text-[#2b00b7] cursor-pointer text-base hover:underline underline-offset-2 mt-2" onClick={() => setIsEmailModalOpen(true)}>
+              <button
+                type="button"
+                className="text-[#2b00b7] cursor-pointer text-base hover:underline underline-offset-2 mt-2"
+                onClick={() => setIsEmailModalOpen(true)}
+              >
                 {t("Email Quote")}
               </button>
             </div>
           ) : (
             isFormFilled && (
               <div className="text-center mt-4">
-                <button type="button"
+                <button
+                  type="button"
                   onClick={async () => {
                     const success = await handleSaveQuote();
                     // Reset form to current values to clear isDirty
@@ -708,8 +796,9 @@ export default function TripInformation({
                     }
                   }}
                   disabled={saving}
-                  className={`text-base hover:underline underline-offset-2 cursor-pointer text-primary mt-2 ${saving ? "opacity-50" : ""
-                    }`}
+                  className={`text-base hover:underline underline-offset-2 cursor-pointer text-primary mt-2 ${
+                    saving ? "opacity-50" : ""
+                  }`}
                 >
                   {saving ? t("Saving...") : t("Save Quote")}
                 </button>
@@ -718,6 +807,19 @@ export default function TripInformation({
           )}
         </div>
       )}
+
+      {isFormFilled && !premiumBreakdown && (
+        <div className="max-w-5xl mx-auto mt-4 p-4 bg-[#F9F9F9] flex items-center justify-center">
+          <button
+            type="button"
+            onClick={() => setForceRecalculate((n) => n + 1)}
+            className="bg-primary text-white px-4 py-2 text-sm cursor-pointer hover:bg-[#2309A1]"
+          >
+            <ArrowPathIcon className="h-5 w-5" aria-hidden="true" />
+          </button>
+        </div>
+      )}
+
       {isEmailModalOpen && (
         <EmailQuoteNonMed
           quoteNumber={quoteNumber}

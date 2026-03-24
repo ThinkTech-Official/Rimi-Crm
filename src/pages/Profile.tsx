@@ -443,7 +443,7 @@ export default function Profile() {
     console.log("Profile loaded:", profile);
     setFormData(profile);
     setPasswords({ password: "", confirmPassword: "" });
-    setFiles({ doc1: null, doc2: null, doc3: null });
+    setFiles({ doc1: null, doc2: null, doc3: null , doc4: null });
 
     // Check if user can request verification
     // FIXED: Using !! to ensure boolean type
@@ -543,7 +543,7 @@ export default function Profile() {
 
       // Reset local edit state
       setIsEditing(false);
-      setFiles({ doc1: null, doc2: null, doc3: null });
+      setFiles({ doc1: null, doc2: null, doc3: null , doc4: null });
       setPasswords({ password: "", confirmPassword: "" });
 
       // Refresh the profile data

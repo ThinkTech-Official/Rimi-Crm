@@ -5,7 +5,9 @@ interface PremiumCalculationData {
   tripCost: number;
   numberOfTravellers: number;
   tripCancellationDeluxe: boolean;
-  applicants: { age: number }[];
+  // applicants: { age: number }[];
+  effectiveDate: string;
+  applicants: { dob: string }[];
 }
 
 interface PremiumResponse {
@@ -20,6 +22,7 @@ interface PremiumResponse {
 export function usePremiumCalculationProduct4(
   data: PremiumCalculationData,
   shouldCalculate: boolean,
+  forceRecalculate: number =0,
 ) {
   const [totalPremium, setTotalPremium] = useState<number>(0);
   const [breakdown, setBreakdown] = useState<
@@ -29,7 +32,7 @@ export function usePremiumCalculationProduct4(
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!shouldCalculate) {
+    if (!shouldCalculate && forceRecalculate === 0) {
       setTotalPremium(0);
       setBreakdown(null);
       return;
@@ -75,6 +78,7 @@ export function usePremiumCalculationProduct4(
     data.tripCancellationDeluxe,
     JSON.stringify(data.applicants),
     shouldCalculate,
+    forceRecalculate,
   ]);
 
   return { totalPremium, breakdown, loading, error };
