@@ -67,6 +67,8 @@ import { AuthSyncListener } from "./components/protection/AuthSyncListener.tsx";
 
 import MGAContracting from "./pages/MGAContracting.tsx";
 import Commissions from "./pages/Commissions.tsx";
+import ErrorBoundary from "./components/protection/ErrorBoundary.tsx";
+import RouteErrorPage from "./components/protection/RouteErrorPage.tsx";
 
 // Create ONE client (module-level singleton)
 const queryClient = new QueryClient({
@@ -124,7 +126,7 @@ const queryClient = new QueryClient({
 
 const router = createBrowserRouter(
   createRoutesFromElements(
-    <Route path="/" element={<App />}>
+    <Route path="/" element={<App />} errorElement={<RouteErrorPage />}>
       <Route path="/login" element={<Login />} />
       <Route path="/apply" element={<AgentApplicationOpen />} />
       <Route path="/apply-mga" element={<MGAContracting />} />
@@ -249,7 +251,9 @@ createRoot(document.getElementById("root")!).render(
           {/* <LangContextProvider> */}
           <LanguageProvider>
             <AuthSyncListener />
+            <ErrorBoundary>
             <RouterProvider router={router} />
+            </ErrorBoundary>
           </LanguageProvider>
           {/* </LangContextProvider> */}
           {/* </I18nextProvider> */}
