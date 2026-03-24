@@ -594,6 +594,12 @@ export default function CoverageInformation({
     }
   }, [policyType, effectiveDate, setValue]);
 
+  // Serialize applicant DOBs so nested changes are detected by useMemo
+  // (RHF's watch() may return the same array reference even when dob changes)
+  const serializedApplicantDobs = JSON.stringify(
+    applicants.map((a: any) => a.dob)
+  );
+
   // Check if form can calculate premium
   const canCalculatePremium = useMemo(() => {
     const baseFields = [
@@ -607,11 +613,17 @@ export default function CoverageInformation({
       String(deductible),
     ].every((v) => v !== "" && v !== undefined && v !== null);
 
+    // All additional applicants must also have their DOB filled in
+    const parsedDobs: string[] = JSON.parse(serializedApplicantDobs);
+    const allApplicantDobsFilled =
+      parsedDobs.length === 0 ||
+      parsedDobs.every((dob) => dob !== "" && dob !== undefined && dob !== null);
+
     if (policyType === "Multi-Trip Annual") {
-      return baseFields && numberOfDaysPerTrip !== undefined;
+      return baseFields && allApplicantDobsFilled && numberOfDaysPerTrip !== undefined;
     }
 
-    return baseFields;
+    return baseFields && allApplicantDobsFilled;
   }, [
     policyType,
     effectiveDate,
@@ -622,6 +634,7 @@ export default function CoverageInformation({
     primaryDateOfBirth,
     deductible,
     numberOfDaysPerTrip,
+    serializedApplicantDobs,
   ]);
 
   // Check if all fields filled for validation
@@ -659,7 +672,11 @@ export default function CoverageInformation({
       primaryDateOfBirth,
       numberOfDaysPerTrip,
       deductible,
-      applicants,
+      // Use serialized DOBs instead of the raw applicants reference.
+      // RHF may return the same array reference even when a nested dob
+      // changes, so Object.is() equality would never detect the change.
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+      serializedApplicantDobs,
     ]
   );
 
