@@ -1,5 +1,5 @@
 // hooks/admin/index.ts
-import { useQuery, keepPreviousData } from "@tanstack/react-query";
+import { useQuery, keepPreviousData, useMutation } from "@tanstack/react-query";
 import { axiosInstance } from "../../utils/axiosInstance";
 
 // Types
@@ -13,6 +13,7 @@ interface AdminStats {
   monthlyPremiums: number;
   activeAgents: number;
   commissionPercent: number;
+  computedAt?: string; 
 }
 
 interface ChartData {
@@ -106,6 +107,17 @@ interface Quote {
 }
 
 // Hook for Admin Stats
+// export const useAdminStats = () => {
+//   return useQuery<AdminStats>({
+//     queryKey: ["admin-stats"],
+//     queryFn: async () => {
+//       const response = await axiosInstance.get("/admin/stats");
+//       return response.data;
+//     },
+//     refetchInterval: 60000, // Refetch every minute
+//   });
+// };
+
 export const useAdminStats = () => {
   return useQuery<AdminStats>({
     queryKey: ["admin-stats"],
@@ -113,7 +125,6 @@ export const useAdminStats = () => {
       const response = await axiosInstance.get("/admin/stats");
       return response.data;
     },
-    refetchInterval: 60000, // Refetch every minute
   });
 };
 
@@ -324,6 +335,15 @@ export const useAgentCommissions = (agentCode: string, page: number, limit = 10)
     },
     enabled: !!agentCode,
     placeholderData: keepPreviousData,
+  });
+};
+
+export const useRefreshDashboard = () => {
+  return useMutation({
+    mutationFn: async () => {
+      const response = await axiosInstance.post("/admin/refresh-dashboard");
+      return response.data;
+    },
   });
 };
 
