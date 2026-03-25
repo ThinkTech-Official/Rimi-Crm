@@ -544,6 +544,7 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
         email: response.email,
         applicants: response.applicants,
       });
+      setTotalPremium(response.quoteAmount);
       console.log("from quote  getting response of stage 1", response);
       handleFormStepChange("forward");
     } catch (err) {

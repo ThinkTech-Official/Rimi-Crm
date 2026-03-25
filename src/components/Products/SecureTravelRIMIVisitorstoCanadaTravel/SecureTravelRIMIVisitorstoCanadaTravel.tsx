@@ -314,6 +314,7 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
         email: response.email,
         applicants: response.applicants,
       });
+      setTotalPremium(response.quoteAmount);
 
       handleFormStepChange("forward");
     } catch (err) {

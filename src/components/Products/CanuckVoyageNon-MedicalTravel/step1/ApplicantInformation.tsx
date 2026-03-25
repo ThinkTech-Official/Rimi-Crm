@@ -449,12 +449,10 @@ interface Applicant {
 
 interface ApplicantInformationProps {
   methods: UseFormReturn<Step1Payload>;
-  onApplicantDataComplete: (complete: boolean) => void;
 }
 
 export default function ApplicantInformation({
   methods,
-   onApplicantDataComplete,
 }: ApplicantInformationProps) {
   const { t } = useLanguage();
   const {
@@ -492,10 +490,6 @@ export default function ApplicantInformation({
     return primaryFilled && additionalFilled;
   }, [primaryFirstName, primaryLastName, primaryDateOfBirth, primaryEmail, primaryApplicantGender, isConfirmed, applicants, applicantNumber]);
 
-  
-    useEffect(() => {
-    onApplicantDataComplete(allApplicantDataFilled);
-  }, [allApplicantDataFilled, onApplicantDataComplete]);
 
 
   // Resize applicants array when number changes

@@ -192,7 +192,6 @@ const msPerDay = 1000 * 60 * 60 * 24;
 
 interface TripInformationProps {
   methods: UseFormReturn<Step1Payload>;
-  allApplicantDataFilled: boolean;
   premiumBreakdown: {
     basePremium: number;
     deluxePremium?: number;
@@ -220,8 +219,7 @@ export default function TripInformation({
   quoteNumber,
   setTotalPremium,
   handleSaveQuote,
-  saving = false,
-  allApplicantDataFilled,
+  saving = false
 }: TripInformationProps) {
   const { t } = useLanguage();
   const [showTripCost, setShowTripCost] = useState(false);
