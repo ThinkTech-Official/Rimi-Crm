@@ -594,14 +594,9 @@ export default function CoverageInformation({
     }
   }, [policyType, effectiveDate, setValue]);
 
-  // Serialize applicant DOBs so nested changes are detected by useMemo
-  // (RHF's watch() may return the same array reference even when dob changes)
-  const serializedApplicantDobs = JSON.stringify(
-    applicants.map((a: any) => a.dob)
-  );
 
   // Check if form can calculate premium
-  const canCalculatePremium = useMemo(() => {
+  const canCalculatePremium = (() => {
     const baseFields = [
       policyType,
       effectiveDate,
@@ -614,33 +609,19 @@ export default function CoverageInformation({
     ].every((v) => v !== "" && v !== undefined && v !== null);
 
     // All additional applicants must also have their DOB filled in
-    const parsedDobs: string[] = JSON.parse(serializedApplicantDobs);
     const allApplicantDobsFilled =
-      parsedDobs.length === 0 ||
-      parsedDobs.every((dob) => dob !== "" && dob !== undefined && dob !== null);
+      applicants.length === 0 ||
+      applicants.every((a: any) => a.dob !== "" && a.dob !== undefined && a.dob !== null);
 
     if (policyType === "Multi-Trip Annual") {
       return baseFields && allApplicantDobsFilled && numberOfDaysPerTrip !== undefined;
     }
 
     return baseFields && allApplicantDobsFilled;
-  }, [
-    policyType,
-    effectiveDate,
-    expiryDate,
-    coverageLength,
-    destinationCountry,
-    travelingThroughUS,
-    primaryDateOfBirth,
-    deductible,
-    numberOfDaysPerTrip,
-    serializedApplicantDobs,
-  ]);
+  })();
 
   // Check if all fields filled for validation
-  const isFormFilled = useMemo(() => {
-    return canCalculatePremium;
-  }, [canCalculatePremium]);
+  const isFormFilled = canCalculatePremium;
 
   useEffect(() => {
     onValidityChange?.(isFormFilled);
@@ -649,36 +630,18 @@ export default function CoverageInformation({
 
 
   // Premium calculation data
-  const premiumCalculationData = useMemo(
-    () => ({
-      policyType,
-      destinationCountry,
-      travelingThroughUS,
-      effectiveDate,
-      expiryDate,
-      coverageLength: Number(coverageLength),
-      primaryDateOfBirth,
-      numberOfDaysPerTrip,
-      deductible,
-      applicants: applicants.map((a: any) => ({ dob: a.dob })),
-    }),
-    [
-      policyType,
-      destinationCountry,
-      travelingThroughUS,
-      effectiveDate,
-      expiryDate,
-      coverageLength,
-      primaryDateOfBirth,
-      numberOfDaysPerTrip,
-      deductible,
-      // Use serialized DOBs instead of the raw applicants reference.
-      // RHF may return the same array reference even when a nested dob
-      // changes, so Object.is() equality would never detect the change.
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-      serializedApplicantDobs,
-    ]
-  );
+  const premiumCalculationData = {
+    policyType,
+    destinationCountry,
+    travelingThroughUS,
+    effectiveDate,
+    expiryDate,
+    coverageLength: Number(coverageLength),
+    primaryDateOfBirth,
+    numberOfDaysPerTrip,
+    deductible,
+    applicants: applicants.map((a: any) => ({ dob: a.dob })),
+  };
 
   const {
     totalPremium: hookTotalPremium,

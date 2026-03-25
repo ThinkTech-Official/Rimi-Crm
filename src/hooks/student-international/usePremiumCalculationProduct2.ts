@@ -98,7 +98,7 @@ export function usePremiumCalculationProduct2(params: PremiumCalculationParams) 
     params.expiryDate,
     params.coverageLength,
     params.primaryDateOfBirth,
-    params.applicants.length, // Re-calculate when applicants change
+    JSON.stringify(params.applicants), // Re-calculate when applicants deep content changes
     params.isConfirmed, // Re-calculate when confirmed
   ]);
 

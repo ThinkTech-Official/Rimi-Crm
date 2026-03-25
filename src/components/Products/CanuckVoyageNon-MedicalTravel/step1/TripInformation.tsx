@@ -174,7 +174,7 @@
 
 // ===================================================
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   InformationCircleIcon,
   ChevronDownIcon,
@@ -265,7 +265,7 @@ export default function TripInformation({
     }
   }, [effectiveDate, expiryDate, setValue]);
 
-  const canCalculatePremium = useMemo(() => {
+  const canCalculatePremium = (() => {
     const tripFieldsFilled = [
       tripCost > 0,
       dateBooked,
@@ -294,44 +294,21 @@ export default function TripInformation({
     return (
       tripFieldsFilled && deluxeSelected && primaryFilled && additionalFilled
     );
-  }, [
-    tripCost,
-    dateBooked,
-    effectiveDate,
-    expiryDate,
-    coverageLength,
-    tripCancellationDeluxe,
-    primaryDateOfBirth,
-    formValues.primaryFirstName,
-    formValues.primaryLastName,
-    formValues.primaryEmail,
-    formValues.primaryApplicantGender,
-    applicants,
-    applicantNumber,
-  ]);
+  })();
 
   // Check if all fields filled for validation
   // const isFormFilled = useMemo(() => {
   //   return canCalculatePremium;
   // }, [canCalculatePremium]);
 
-  const isFormFilled = useMemo(() => {
-    return [
-      tripCost > 0,
-      dateBooked,
-      effectiveDate,
-      expiryDate,
-      coverageLength,
-      primaryDateOfBirth,
-    ].every((v) => !!v);
-  }, [
-    tripCost,
+  const isFormFilled = [
+    tripCost > 0,
     dateBooked,
     effectiveDate,
     expiryDate,
     coverageLength,
     primaryDateOfBirth,
-  ]);
+  ].every((v) => !!v);
 
   useEffect(() => {
     onValidityChange?.(isFormFilled);
@@ -357,28 +334,18 @@ export default function TripInformation({
   //   [tripCost, applicants, tripCancellationDeluxe, applicantAges]
   // );
 
-  const premiumCalculationData = useMemo(
-    () => ({
-      tripCost: tripCost || 0,
-      numberOfTravellers: 1 + (applicantNumber || 0),
-      tripCancellationDeluxe: tripCancellationDeluxe || false,
-      effectiveDate: effectiveDate || "",
-      applicants: [
-        { dob: primaryDateOfBirth || "" },
-        ...(applicants || [])
-          .slice(0, applicantNumber || 0)
-          .map((a) => ({ dob: a.dob })),
-      ],
-    }),
-    [
-      tripCost,
-      applicantNumber,
-      tripCancellationDeluxe,
-      effectiveDate,
-      primaryDateOfBirth,
-      JSON.stringify(applicants),
+  const premiumCalculationData = {
+    tripCost: tripCost || 0,
+    numberOfTravellers: 1 + (applicantNumber || 0),
+    tripCancellationDeluxe: tripCancellationDeluxe || false,
+    effectiveDate: effectiveDate || "",
+    applicants: [
+      { dob: primaryDateOfBirth || "" },
+      ...(applicants || [])
+        .slice(0, applicantNumber || 0)
+        .map((a) => ({ dob: a.dob })),
     ],
-  );
+  };
 
   const {
     totalPremium: hookTotalPremium,
