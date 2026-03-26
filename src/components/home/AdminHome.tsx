@@ -208,7 +208,9 @@ import {
   useAgents,
   usePolicies,
   useQuotes,
+  useRefreshDashboard,
 } from "../../hooks/admin-dashboard";
+import { useQueryClient } from "@tanstack/react-query";
 
 // Import chart components (assuming these exist)
 import MultiLineChart from "../analytics/admin-charts/MultiLineChart";
@@ -248,6 +250,23 @@ export default function AdminHome() {
     quotesPage,
     limit
   );
+
+  const queryClient = useQueryClient();
+  const { mutate: refreshDashboard, isPending: isRefreshing } = useRefreshDashboard();
+
+  const handleRefresh = () => {
+    refreshDashboard(undefined, {
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ["admin-stats"] });
+        queryClient.invalidateQueries({ queryKey: ["quotes-analysis"] });
+        queryClient.invalidateQueries({ queryKey: ["policy-analysis"] });
+        queryClient.invalidateQueries({ queryKey: ["quotes-policy-conversion"] });
+        queryClient.invalidateQueries({ queryKey: ["agent-types-monthly"] });
+        queryClient.invalidateQueries({ queryKey: ["policy-sales"] });
+      },
+    });
+  };
+
   const tableDropDownRef = useRef<HTMLDivElement>(null);
   useOnClickOutside(tableDropDownRef as React.RefObject<HTMLElement>, () => {
     setIsFilterDropdownOpen(false);
@@ -339,7 +358,7 @@ export default function AdminHome() {
     navigate(`/admin/agent-details/${agentCode}`);
   };
 
-  if (statsLoading) {
+if (statsLoading) {
     return (
       <div className="flex flex-col justify-center items-center gap-3 fixed top-1/2 left-1/2">
         <Spinner className="w-10 h-10" />
@@ -347,6 +366,26 @@ export default function AdminHome() {
       </div>
     );
   }
+
+  
+  if (!statsLoading && stats && !stats.computedAt) {
+    return (
+      <div className="flex flex-col items-center justify-center h-[60vh] gap-4">
+        <p className="text-gray-500 text-lg">{t("No dashboard data yet.")}</p>
+        <p className="text-gray-400 text-sm">{t("Click below to generate dashboard data.")}</p>
+        <button
+          onClick={handleRefresh}
+          disabled={isRefreshing}
+          className="flex items-center gap-2 bg-primary text-white px-6 py-2 rounded cursor-pointer disabled:opacity-70"
+        >
+          {isRefreshing ? <Spinner className="w-5 h-5" /> : null}
+          {isRefreshing ? t("Generating...") : t("Generate Dashboard Data")}
+        </button>
+      </div>
+    );
+  }
+
+  
 
   const statsCards = [
     { label: t("Total Policies"), value: stats?.totalPolicies || 0 },
@@ -373,18 +412,41 @@ export default function AdminHome() {
 
   return (
     <div className="w-full relative">
-      <div className="flex justify-end mb-4">
-        <button
-          onClick={handleDownloadPDF}
-          disabled={isDownloading}
-          className={`flex gap-2 items-center -mt-4 ${isDownloading ? "opacity-90 cursor-not-allowed" : "cursor-pointer"}`}
-        >
-          {isDownloading ? (
-            <Spinner className="w-7 h-7 text-primary" />
-          ) : (
-            <MdDownload className="h-7 w-7 text-primary" />
-          )}
-        </button>
+      <div className="flex justify-between items-center mb-4">
+        {/* Last updated timestamp */}
+        <p className="text-sm text-gray-400">
+          {stats?.computedAt
+            ? `${t("Last updated")}: ${new Date(stats.computedAt).toLocaleString()}`
+            : ""}
+        </p>
+
+        <div className="flex items-center gap-3 -mt-4">
+          {/* Manual refresh button */}
+          <button
+            onClick={handleRefresh}
+            disabled={isRefreshing}
+            title={t("Refresh dashboard data")}
+            className={`flex gap-2 items-center text-sm text-primary border border-primary px-3 py-1 rounded ${
+              isRefreshing ? "opacity-70 cursor-not-allowed" : "cursor-pointer hover:bg-primary hover:text-white transition-colors"
+            }`}
+          >
+            {isRefreshing ? <Spinner className="w-4 h-4" /> : null}
+            {isRefreshing ? t("Refreshing...") : t("Refresh Data")}
+          </button>
+
+          {/* PDF download */}
+          <button
+            onClick={handleDownloadPDF}
+            disabled={isDownloading}
+            className={`flex gap-2 items-center ${isDownloading ? "opacity-90 cursor-not-allowed" : "cursor-pointer"}`}
+          >
+            {isDownloading ? (
+              <Spinner className="w-7 h-7 text-primary" />
+            ) : (
+              <MdDownload className="h-7 w-7 text-primary" />
+            )}
+          </button>
+        </div>
       </div>
       <div className="w-full flex flex-col gap-8 pb-4 bg-white" ref={targetRef}>
 
