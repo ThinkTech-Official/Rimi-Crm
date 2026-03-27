@@ -5,6 +5,7 @@ import {
   QuoteApplicant,
 } from "../hooks/useQuoteDetail";
 import { useLanguage } from "../context/LanguageContext";
+import { formatDate } from "../utils/dateUtils";
 
 const DetailItem: React.FC<{ label: string; value: string | number | null | undefined; className?: string }> = ({ label, value, className = "" }) => {
   const { t } = useLanguage();
@@ -71,24 +72,13 @@ export const QuoteDetailPage: React.FC = () => {
   if (!quote) return <p className="text-center py-10">{t("No quote found.")}</p>;
 
   // format helpers
-  const fmtDate = (iso?: string) =>
-    iso
-      ? new Date(iso).toLocaleDateString("en-CA", {
-        year: "numeric",
-        month: "2-digit",
-        day: "2-digit",
-      })
-      : "-";
+  const fmtDate = (iso?: string) => formatDate(iso);
 
   const fmtDatePlusOneMonth = (iso?: string) => {
     if (!iso) return "-";
     const d = new Date(iso);
     d.setMonth(d.getMonth() + 1);
-    return d.toLocaleDateString("en-CA", {
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-    });
+    return formatDate(d);
   };
 
   return (

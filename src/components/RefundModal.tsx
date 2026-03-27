@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { MdClose } from 'react-icons/md';
 import { useLanguage } from '../context/LanguageContext';
+import { formatDate } from '../utils/dateUtils';
 
 interface RefundModalProps {
   isOpen: boolean;
@@ -115,13 +116,13 @@ const RefundModal: React.FC<RefundModalProps> = ({
             <div className="flex justify-between">
               <span className="text-gray-600">{t("Original Expiry:")}</span>
               <span className="font-medium">
-                {new Date(originalExpiryDate).toLocaleDateString('en-CA')}
+                {formatDate(originalExpiryDate)}
               </span>
             </div>
             <div className="flex justify-between">
               <span className="text-gray-600">{t("New Expiry:")}</span>
               <span className="font-medium">
-                {new Date(newExpiryDate).toLocaleDateString('en-CA')}
+                {formatDate(newExpiryDate)}
               </span>
             </div>
             <div className="flex justify-between">

@@ -8,6 +8,7 @@ import { FaInfo } from "react-icons/fa";
 import { useLanguage } from "../context/LanguageContext";
 import { useSelector } from 'react-redux';
 import { RootState } from "../app/store";
+import { formatDate } from "../utils/dateUtils";
 
 
 interface PaymentRecord {
@@ -173,7 +174,7 @@ export default function CancellationModal({
                       </h3>
                       <p className="text-sm text-blue-700 mb-2">
                         {t("This policy has already started (Effective:")}{" "}
-                        {new Date(effectiveDate).toLocaleDateString("en-CA")}).
+                        {formatDate(effectiveDate)}).
                         {t("Cancelling will:")}
                       </p>
                       <ul className="list-disc list-inside text-sm text-blue-700 space-y-1">
@@ -337,7 +338,7 @@ export default function CancellationModal({
                               borderColor: "#AAA9A9",
                             }}
                           >
-                            {new Date(payment.date).toLocaleDateString("en-CA")}
+                            {formatDate(payment.date)}
                           </td>
                         </tr>
                       ))}
@@ -646,9 +647,7 @@ export default function CancellationModal({
                                       borderColor: "#AAA9A9",
                                     }}
                                   >
-                                    {new Date(item.date).toLocaleDateString(
-                                      "en-CA",
-                                    )}
+                                    {formatDate(item.date)}
                                   </td>
                                 </tr>
                               ),

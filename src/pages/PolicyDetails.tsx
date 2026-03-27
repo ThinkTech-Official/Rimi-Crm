@@ -39,6 +39,7 @@ import { HealthQuestionnaireSection } from "./QuoteDetails";
 import Spinner from "../components/Spinner";
 import {
   fmtDate,
+  fmtDateDisplay,
   calcAge,
   fmtCurrency,
   PRODUCT_FIELDS_CONFIG,
@@ -1628,7 +1629,7 @@ const PolicyDetailsPage: React.FC = () => {
                   </span>
                 )}
                 <span className="ml-auto text-xs text-gray-400">
-                  {new Date(att.createdAt).toLocaleDateString("en-CA")}
+                  {fmtDateDisplay(att.createdAt)}
                 </span>
               </li>
             ))}

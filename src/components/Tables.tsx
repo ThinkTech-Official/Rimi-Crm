@@ -5,6 +5,7 @@ import { Agent } from "../hooks/admin-dashboard";
 import Spinner from "./Spinner";
 import { RenderPageNumbers } from "./RenderPageNumbers";
 import { useLanguage } from "../context/LanguageContext";
+import { formatDate } from "../utils/dateUtils";
 
 export function PoliciesTable({
   data,
@@ -131,9 +132,7 @@ export function PoliciesTable({
                     }}
                   >
                     {" "}
-                    {p.dateIssued
-                      ? new Date(p.dateIssued).toLocaleDateString()
-                      : "-"}
+                    {formatDate(p.dateIssued)}
                   </td>
                 </tr>
               ))
@@ -284,9 +283,7 @@ export function QuotesTable({
                     }}
                   >
                     {" "}
-                    {q.createdAt
-                      ? new Date(q.createdAt).toLocaleDateString()
-                      : "-"}
+                    {formatDate(q.createdAt)}
                   </td>
                 </tr>
               ))
@@ -395,7 +392,7 @@ export function CommissionsTable({
                     }`}
                   >
                     <td className="px-2 sm:px-3 py-2 whitespace-nowrap border-r border-b border-[#AAA9A9]">
-                      {new Date(commission.createdAt).toLocaleDateString()}
+                      {formatDate(commission.createdAt)}
                     </td>
                     <td className="px-2 sm:px-3 py-2 whitespace-nowrap border-r border-b border-[#AAA9A9]">
                       {commission.policy?.policyNumber || t("N/A")}
@@ -524,7 +521,7 @@ export function AgentsTable({
                     }}
                   >
                     {" "}
-                    {agent.joinedDate}
+                    {formatDate(agent.joinedDate)}
                   </td>
                   <td
                     className="px-2 sm:px-6 py-2 sm:py-4 min-w-[200px] max-w-[250px] text-wrap"
@@ -546,7 +543,7 @@ export function AgentsTable({
                     }}
                   >
                     {" "}
-                    {agent.validity}
+                    {formatDate(agent.validity)}
                   </td>
                   <td
                     className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap"

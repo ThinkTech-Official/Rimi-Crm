@@ -7,6 +7,7 @@ import { stripePromise } from "../../../utils/stripe";
 
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useRenewalPolicyData } from "../../../hooks/renewals/useRenewalPolicyData";
+import { formatDate } from "../../../utils/dateUtils";
 
 import BeneficiaryInCaseOfDeath from "../../../components/Products/SecureStudyRIMIInternationalStudentstoCanada/step2/BeneficiaryInCaseOfDeath";
 import PaymentInformation from "../../../components/Products/SecureStudyRIMIInternationalStudentstoCanada/step2/PaymentInformation";
@@ -632,8 +633,8 @@ export default function SecureStudyRIMIInternationalStudentstoCanada() {
               <br />
               <span className="text-xs">
                 Original Coverage:{" "}
-                {new Date(policyData.effectiveDate).toLocaleDateString()} to{" "}
-                {new Date(policyData.expiryDate).toLocaleDateString()}
+                {formatDate(policyData.effectiveDate)} to{" "}
+                {formatDate(policyData.expiryDate)}
               </span>
             </p>
           </div>

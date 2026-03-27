@@ -27,6 +27,7 @@ import Summary from "../../../components/Products/CanuckVoyageNon-MedicalTravel/
 // Add these to existing imports
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useRenewalPolicyData } from "../../../hooks/renewals/useRenewalPolicyData";
+import { formatDate } from "../../../utils/dateUtils";
 
 interface Applicant {
   index: string;
@@ -591,8 +592,8 @@ const RIMICanuckVoyageNonMedicalTravel: React.FC = () => {
               <br />
               <span className="text-xs">
                 {t("Original Coverage:")}{" "}
-                {new Date(policyData.effectiveDate).toLocaleDateString()} to{" "}
-                {new Date(policyData.expiryDate).toLocaleDateString()}
+                {formatDate(policyData.effectiveDate)} to{" "}
+                {formatDate(policyData.expiryDate)}
               </span>
             </p>
           </div>

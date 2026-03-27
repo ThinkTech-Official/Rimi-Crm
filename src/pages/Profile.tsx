@@ -382,6 +382,7 @@ const PERMISSIONS_MAP: Record<string, typeof adminPermission> = {
 };
 
 import { useLanguage } from "../context/LanguageContext";
+import { formatDate } from "../utils/dateUtils";
 
 export default function Profile() {
   const { t } = useLanguage();
@@ -684,9 +685,7 @@ export default function Profile() {
               {formData.verificationValidTill && (
                 <span className="text-xs text-green-600 ml-2">
                   {t("Valid until")}{" "}
-                  {new Date(
-                    formData.verificationValidTill
-                  ).toLocaleDateString()}
+                  {formatDate(formData.verificationValidTill)}
                 </span>
               )}
             </div>
@@ -846,7 +845,7 @@ export default function Profile() {
               {t("Created At (dd-mm-yyyy)")}
             </label>
             <input
-              value={new Date(formData.createdAt).toLocaleDateString()}
+              value={formatDate(formData.createdAt)}
               disabled
               className="input-primary2 bg-gray-100"
             />
@@ -858,7 +857,7 @@ export default function Profile() {
                 {t("Valid Upto (dd-mm-yyyy)")}
               </label>
               <input
-                value={new Date(formData.validUpto).toLocaleDateString()}
+                value={formatDate(formData.validUpto)}
                 disabled
                 className="input-primary2 bg-gray-100"
               />

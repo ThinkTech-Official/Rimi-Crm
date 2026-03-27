@@ -1,5 +1,5 @@
-import React from "react";
 import { useLanguage } from "../../../../context/LanguageContext";
+import { formatDate } from "../../../../utils/dateUtils";
 
 interface Applicant {
   firstName: string;
@@ -25,10 +25,7 @@ export default function ApplicantInformationFinished({
   applicants,
 }: ApplicantInformationFinishedProps) {
   const { t } = useLanguage();
-  const fmtDate = (iso: string) => {
-    if (!iso) return t("N/A");
-    return new Date(iso).toLocaleDateString();
-  };
+  const fmtDate = (iso: string) => formatDate(iso);
 
   return (
     <div className="max-w-5xl mx-auto mt-4 p-3 sm:p-6 bg-[#F9F9F9]">

@@ -1,9 +1,9 @@
-import React from "react";
 import {
   useQuoteDetail,
   QuoteApplicant,
 } from "../../../../hooks/useQuoteDetail";
 import { useLanguage } from "../../../../context/LanguageContext";
+import { formatDate } from "../../../../utils/dateUtils";
 
 interface SummaryProps {
   /** This should be the same `id` you passed to useQuoteDetail to fetch exactly one quote. */
@@ -43,8 +43,8 @@ const Summary: React.FC<SummaryProps> = ({ quoteId }) => {
     [t("Quote Number"), maybe(data.quoteNumber)],
     [t("Product"), t(maybe(data.product?.split("_").join(" ")) as string)],
     [t("Status"), t(maybe(data.status) as string)],
-    [t("Effective Date"), maybe(data.effectiveDate)],
-    [t("Expiry Date"), maybe(data.expiryDate)],
+    [t("Effective Date"), formatDate(data.effectiveDate)],
+    [t("Expiry Date"), formatDate(data.expiryDate)],
     [t("Coverage Length (Days)"), maybe(data.covLen)],
     [t("Policy Type"), t(maybe(data.policyType) as string)],
     [t("Destination Province"), t(maybe(data.destProv) as string)],
@@ -160,7 +160,7 @@ const Summary: React.FC<SummaryProps> = ({ quoteId }) => {
                       {maybe(app.lastName)}
                     </td>
                     <td className="p-3 text-left text-[#6A6A6A]">
-                      {maybe(app.dateOfBirth)}
+                      {formatDate(app.dateOfBirth)}
                     </td>
                     <td className="p-3 text-left text-[#6A6A6A]">
                       {t(maybe((app as any).relationship || (app as any).relation) as string)}

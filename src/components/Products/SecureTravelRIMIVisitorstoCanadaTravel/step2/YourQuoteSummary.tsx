@@ -1,5 +1,6 @@
 
 import { useLanguage } from "../../../../context/LanguageContext";
+import { formatDate } from "../../../../utils/dateUtils";
 
 export interface QuoteStage1Response {
   quoteNumber: string;
@@ -38,7 +39,7 @@ export default function YourQuoteSummary({ step1ResponseData }: QuoteSummaryProp
   } = step1ResponseData;
 
   // Simple date formatter
-  const fmtDate = (iso: string) => new Date(iso).toLocaleDateString();
+  const fmtDate = (iso: string) => formatDate(iso);
 
   // Simple currency formatter
   const fmtMoney = (amt: number) =>

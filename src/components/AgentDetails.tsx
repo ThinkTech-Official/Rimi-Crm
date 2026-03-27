@@ -113,6 +113,7 @@ import { PoliciesTable, QuotesTable } from "./Tables";
 import { useMgaAgentDetails } from "../hooks/mga-dashboard/useMgaAgentDetails"; // Add this import
 import { useMgaAgentPolicies } from "../hooks/mga-dashboard/useMgaAgentPolicies";
 import { useMgaAgentQuotes } from "../hooks/mga-dashboard/useMgaAgentQuotes";
+import { formatDate } from "../utils/dateUtils";
 
 const AgentDetails = () => {
   const [pPage, setPPage] = useState(1);
@@ -203,13 +204,13 @@ const AgentDetails = () => {
           <div className="flex gap-2">
             <div className="text-text-primary font-semibold">Joined Date:</div>
             <div className="text-text-secondary">
-              {new Date(agentData.joinedDate).toLocaleDateString()}
+              {formatDate(agentData.joinedDate)}
             </div>
           </div>
           <div className="flex gap-2">
             <div className="text-text-primary font-semibold">Validity:</div>
             <div className="text-text-secondary">
-              {new Date(agentData.validity).toLocaleDateString()}
+              {formatDate(agentData.validity)}
             </div>
           </div>
         </div>

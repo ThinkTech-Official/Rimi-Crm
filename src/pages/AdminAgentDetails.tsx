@@ -316,11 +316,12 @@ import { useParams } from "react-router-dom";
 import { useLanguage } from "../context/LanguageContext";
 import { useAgentCommissions, useAgentDetails, useAgentPolicies, useAgentQuotes } from "../hooks/admin-dashboard";
 import { PoliciesTable, QuotesTable } from "../components/Tables";
-import { useUpdateCommissionStatus, useBulkUpdateCommissionStatus, useMarkCommissionsAsPaid } from "../hooks/admin-dashboard/useCommission";
+import { useBulkUpdateCommissionStatus, useMarkCommissionsAsPaid } from "../hooks/admin-dashboard/useCommission";
 import { CommissionsTable } from "../components/CommissionsTable";
 import Spinner from "../components/Spinner";
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
 import { RenderPageNumbers } from "../components/RenderPageNumbers";
+import { formatDate } from "../utils/dateUtils";
 
 const AdminAgentDetails = () => {
   const [pPage, setPPage] = useState(1);
@@ -520,7 +521,7 @@ const commissions = commissionsData?.data || [];
               <div className="flex gap-2">
                 <span className="text-text-primary font-semibold">{t("Joined")}:</span>
                 <span className="text-text-secondary">
-                  {new Date(agentData.createdAt).toLocaleDateString()}
+                  {formatDate(agentData.createdAt)}
                 </span>
               </div>
               
@@ -528,7 +529,7 @@ const commissions = commissionsData?.data || [];
                 <span className="text-text-primary font-semibold">{t("Valid Until")}:</span>
                 <span className="text-text-secondary">
                   {agentData.validUpto 
-                    ? new Date(agentData.validUpto).toLocaleDateString()
+                    ? formatDate(agentData.validUpto)
                     : t("N/A")
                   }
                 </span>

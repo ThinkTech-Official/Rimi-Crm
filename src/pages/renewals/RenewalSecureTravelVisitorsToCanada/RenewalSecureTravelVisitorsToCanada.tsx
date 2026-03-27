@@ -21,6 +21,7 @@ import { FormProvider, useForm } from "react-hook-form";
 import { Step1Payload } from "../../../components/Products/SecureTravelRIMIVisitorstoCanadaTravel/SecureTravelRIMIVisitorstoCanadaTravel";
 import useNotification from "../../../hooks/useNotification";
 import { useLanguage } from "../../../context/LanguageContext";
+import { formatDate } from "../../../utils/dateUtils";
 
 import { useRenewalPolicyData } from "../../../hooks/renewals/useRenewalPolicyData";
 
@@ -688,8 +689,8 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
               <br />
               <span className="text-xs">
                 {t("Original Coverage")}:{" "}
-                {new Date(policyData.effectiveDate).toLocaleDateString()} to{" "}
-                {new Date(policyData.expiryDate).toLocaleDateString()}
+                {formatDate(policyData.effectiveDate)} to{" "}
+                {formatDate(policyData.expiryDate)}
               </span>
             </p>
           </div>

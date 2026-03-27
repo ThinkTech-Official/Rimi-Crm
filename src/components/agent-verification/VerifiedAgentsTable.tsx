@@ -1,5 +1,5 @@
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
-import { format } from "date-fns";
+import { formatDate } from "../../utils/dateUtils";
 import Spinner from "../Spinner";
 import { RenderPageNumbers } from "../RenderPageNumbers";
 import { useLanguage } from "../../context/LanguageContext";
@@ -130,9 +130,7 @@ export function VerifiedAgentsTable({
                       borderColor: "#AAA9A9",
                     }}
                   >
-                    {agent.verifiedAt
-                      ? format(new Date(agent.verifiedAt), "MMM dd, yyyy")
-                      : "N/A"}
+                    {formatDate(agent.verifiedAt)}
                   </td>
                   <td
                     className="px-2 sm:px-3 py-2 whitespace-nowrap border-r border-b border-[#AAA9A9]"
@@ -142,12 +140,7 @@ export function VerifiedAgentsTable({
                       borderColor: "#AAA9A9",
                     }}
                   >
-                    {agent.verificationValidTill
-                      ? format(
-                          new Date(agent.verificationValidTill),
-                          "MMM dd, yyyy"
-                        )
-                      : "N/A"}
+                    {formatDate(agent.verificationValidTill)}
                   </td>
                 </tr>
               ))

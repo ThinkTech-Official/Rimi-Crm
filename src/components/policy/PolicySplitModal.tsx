@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { usePolicySplit } from '../../hooks/admin-dashboard/usePolicySplit';
 import { MdClose } from 'react-icons/md';
 import { useLanguage } from '../../context/LanguageContext';
+import { formatDate } from '../../utils/dateUtils';
 
 
 interface Applicant {
@@ -339,7 +340,7 @@ export const PolicySplitModal: React.FC<PolicySplitModalProps> = ({
                               <div className="mt-2 grid grid-cols-2 gap-2 text-sm">
                                 <div>
                                   <span className="text-text-secondary">{t("DOB:")}</span>
-                                  <span className="ml-2 text-text-primary">{new Date(applicant.dateOfBirth).toLocaleDateString('en-CA')}</span>
+                                  <span className="ml-2 text-text-primary">{formatDate(applicant.dateOfBirth)}</span>
                                 </div>
                                 <div>
                                   <span className="text-text-secondary">{t("Relation:")}</span>
@@ -350,7 +351,7 @@ export const PolicySplitModal: React.FC<PolicySplitModalProps> = ({
                                 <div>
                                   <span className="text-text-secondary">{t("Coverage:")}</span>
                                   <span className="ml-2 text-text-primary">
-                                    {new Date(applicant.effectiveDate).toLocaleDateString('en-CA')} - {new Date(applicant.expiryDate).toLocaleDateString('en-CA')}
+                                    {formatDate(applicant.effectiveDate)} - {formatDate(applicant.expiryDate)}
                                   </span>
                                 </div>
                                 <div>
@@ -456,7 +457,7 @@ export const PolicySplitModal: React.FC<PolicySplitModalProps> = ({
                         <div>
                           <span className="text-gray-700">{t("Coverage Period:")}</span>
                           <p className="font-medium text-gray-900">
-                            {new Date(policy.coveragePeriod.effectiveDate).toLocaleDateString('en-CA')} - {new Date(policy.coveragePeriod.expiryDate).toLocaleDateString('en-CA')}
+                            {formatDate(policy.coveragePeriod.effectiveDate)} - {formatDate(policy.coveragePeriod.expiryDate)}
                           </p>
                           <p className="text-gray-600">({policy.coveragePeriod.days} {t("days")})</p>
                         </div>

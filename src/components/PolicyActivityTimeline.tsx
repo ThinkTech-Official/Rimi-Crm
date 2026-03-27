@@ -13,6 +13,7 @@ import {
   MdAutorenew,
   MdCreditCard,
 } from "react-icons/md";
+import { formatDate } from "../utils/dateUtils";
 
 interface ActivityTimelineProps {
   activities: PolicyActivity[];
@@ -101,20 +102,6 @@ export const PolicyActivityTimeline: React.FC<ActivityTimelineProps> = ({
       .split("_")
       .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
       .join(" ");
-  };
-
-  /**
-   * Format date for display
-   */
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleString("en-CA", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
   };
 
   if (loading) {
@@ -245,15 +232,9 @@ export const PolicyActivityTimeline: React.FC<ActivityTimelineProps> = ({
                                           // Check if it's a date string
                                           if (
                                             typeof val === "string" &&
-                                            val.match(/^\d{4}-\d{2}-\d{2}T/)
+                                            (val.match(/^\d{4}-\d{2}-\d{2}T/) || val.match(/^\d{4}-\d{2}-\d{2}$/))
                                           ) {
-                                            return new Date(
-                                              val,
-                                            ).toLocaleDateString("en-CA", {
-                                              year: "numeric",
-                                              month: "short",
-                                              day: "numeric",
-                                            });
+                                            return formatDate(val);
                                           }
                                           return String(val);
                                         };

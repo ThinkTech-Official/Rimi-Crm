@@ -15,6 +15,7 @@ import Spinner from "../components/Spinner";
 import { CommissionsTable } from "../components/CommissionsTable";
 import DatePicker from "../components/DatePicker";
 import { RenderPageNumbers } from "../components/RenderPageNumbers";
+import { formatDate } from "../utils/dateUtils";
 
 const MGAAgentDetails = () => {
   const navigate = useNavigate();
@@ -193,7 +194,7 @@ const MGAAgentDetails = () => {
                   {t("Joined")}:
                 </span>
                 <span className="text-text-secondary">
-                  {agentData.joinedDate}
+                  {formatDate(agentData.joinedDate)}
                 </span>
               </div>
 
@@ -202,7 +203,7 @@ const MGAAgentDetails = () => {
                   {t("Valid Until")}:
                 </span>
                 <span className="text-text-secondary">
-                  {agentData.validity}
+                  {formatDate(agentData.validity)}
                 </span>
               </div>
             </div>
@@ -446,9 +447,9 @@ const MGAAgentDetails = () => {
                 <div className="mt-2 text-sm text-gray-600">
                   {t("Showing commissions")}
                   {dateFrom &&
-                    ` ${t("from")} ${new Date(dateFrom).toLocaleDateString()}`}
+                    ` ${t("from")} ${formatDate(dateFrom)}`}
                   {dateTo &&
-                    ` ${t("to")} ${new Date(dateTo).toLocaleDateString()}`}
+                    ` ${t("to")} ${formatDate(dateTo)}`}
                 </div>
               )}
             </div>

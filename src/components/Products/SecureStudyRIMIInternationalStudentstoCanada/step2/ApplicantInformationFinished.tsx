@@ -54,9 +54,9 @@
 
 // =============================
 
-import { ChevronDownIcon } from "@heroicons/react/24/outline";
 import React from "react";
 import { useLanguage } from "../../../../context/LanguageContext";
+import { formatDate } from "../../../../utils/dateUtils";
 
 interface Applicant {
   index: string;
@@ -79,11 +79,7 @@ const ApplicantInformationFinished: React.FC<
   ApplicantInformationFinishedProps
 > = ({ dateOfBirth, firstName, lastName, gender, applicants }) => {
   const { t } = useLanguage();
-  const formatDate = (dateString: string) => {
-    if (!dateString) return t("N/A");
-    const date = new Date(dateString);
-    return date.toISOString().split("T")[0];
-  };
+  const fmtDate = (dateString: string) => formatDate(dateString);
 
 
   return (
@@ -98,7 +94,7 @@ const ApplicantInformationFinished: React.FC<
           <div className="flex flex-col">
             <label className="text-sm">{t("Date of Birth")}</label>
             <input
-              value={formatDate(dateOfBirth)}
+              value={fmtDate(dateOfBirth)}
               disabled
               className="input-primary break-words h-auto"
             />
@@ -163,7 +159,7 @@ const ApplicantInformationFinished: React.FC<
                 <div className="flex flex-col">
                   <label className="text-sm">{t("Date of Birth")}</label>
                   <p className="input-primary break-words h-auto">
-                    {formatDate(applicant.dob)}
+                    {fmtDate(applicant.dob)}
                   </p>
                 </div>
 
