@@ -209,7 +209,7 @@ export default function SecureStudyRIMIInternationalStudentstoCanada() {
         type: "error",
         message: "No policy ID provided. Redirecting to policies page.",
       });
-      navigate("/policies");
+      navigate("/search-policies");
     }
   }, [policyId, navigate, triggerNotification]);
 
@@ -481,7 +481,7 @@ export default function SecureStudyRIMIInternationalStudentstoCanada() {
             Could not load policy information.
           </p>
           <button
-            onClick={() => navigate("/policies")}
+            onClick={() => navigate("/search-policies")}
             className="mt-4 px-4 py-2 bg-yellow-600 text-white rounded hover:bg-yellow-700"
           >
             Back to Policies
@@ -499,7 +499,7 @@ export default function SecureStudyRIMIInternationalStudentstoCanada() {
       <div className="flex gap-1 mb-4 items-center text-primary">
         <span
           className="underline underline-offset-2 cursor-pointer text-sm text-primary font-medium"
-          onClick={() => navigate("/policies")}
+          onClick={() => navigate("/search-policies")}
         >
           Policies
         </span>

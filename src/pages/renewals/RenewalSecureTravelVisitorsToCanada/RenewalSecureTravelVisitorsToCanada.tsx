@@ -555,7 +555,7 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
       <div className="flex gap-1 mb-4 items-center text-primary">
         <span
           className="underline underline-offset-2 cursor-pointer text-sm text-primary font-medium"
-          onClick={() => navigate("/policies")}
+          onClick={() => navigate("/search-policies")}
         >
           {t("Policies")}
         </span>
