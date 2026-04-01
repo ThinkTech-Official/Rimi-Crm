@@ -460,7 +460,7 @@ export default function SecureStudyRIMIInternationalStudentstoCanada() {
           </h3>
           <p className="text-red-700 mt-2">{policyError}</p>
           <button
-            onClick={() => navigate(`/policies/${policyId}`)}
+            onClick={() => navigate(`/search-policies`)}
             className="mt-4 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
           >
             Return to Policy

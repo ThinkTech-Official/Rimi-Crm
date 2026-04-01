@@ -245,7 +245,7 @@ const RIMICanuckVoyageNonMedicalTravel: React.FC = () => {
         type: "error",
         message: "No policy ID provided. Redirecting to policies page.",
       });
-      navigate("/policies");
+      navigate("/search-policies");
     }
   }, [policyId, navigate, triggerNotification]);
 
@@ -422,7 +422,7 @@ const RIMICanuckVoyageNonMedicalTravel: React.FC = () => {
           </h3>
           <p className="text-red-700 mt-2">{policyError}</p>
           <button
-            onClick={() => navigate(`/policies/${policyId}`)}
+            onClick={() => navigate(`/search-policies`)}
             className="mt-4 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
           >
             {t("Return to Policy")}
@@ -443,7 +443,7 @@ const RIMICanuckVoyageNonMedicalTravel: React.FC = () => {
             {t("Could not load policy information.")}
           </p>
           <button
-            onClick={() => navigate("/policies")}
+            onClick={() => navigate("/search-policies")}
             className="mt-4 px-4 py-2 bg-yellow-600 text-white rounded hover:bg-yellow-700"
           >
             {t("Back to Policies")}
