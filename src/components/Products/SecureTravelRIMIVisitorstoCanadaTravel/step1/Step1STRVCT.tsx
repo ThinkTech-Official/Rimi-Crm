@@ -1,4 +1,4 @@
-import React, { useEffect, useState, ChangeEvent, useMemo } from "react";
+import React, { useEffect, useState, ChangeEvent } from "react";
 import {
   ChevronDownIcon,
   InformationCircleIcon,
@@ -279,7 +279,7 @@ const Step1STRVCT = ({
   const allQuestionnairesComplete =
     primaryQuestionnaireComplete && applicantsQuestionnaireComplete;
 
-  const applicantsToShow = useMemo(() => {
+  const applicantsToShow = (() => {
     const list: any[] = [];
     if (primaryNeedsQuestionnaire) {
       list.push({
@@ -299,13 +299,7 @@ const Step1STRVCT = ({
       }
     });
     return list;
-  }, [
-    primaryNeedsQuestionnaire,
-    primaryFirstName,
-    primaryLastName,
-    applicants,
-    applicantAges,
-  ]);
+  })();
 
   // Effects to resize the array if applicant changes the number after entering the applicant
   useEffect(() => {
@@ -449,46 +443,28 @@ const Step1STRVCT = ({
 
   //=====================================Backend Communication Data===========================
 
-  const premiumCalculationData = useMemo<PremiumCalculationData>(
-    () => ({
-      countryOfOrigin,
-      inCanada,
-      superVisa,
-      coverageForPreMedCon,
-      destinationProvince,
-      effectiveDate: effectiveDate ? new Date(effectiveDate).toISOString() : "",
-      expiryDate: expiryDate ? new Date(expiryDate).toISOString() : "",
-      coverageLength,
-      policyType,
-      coverageOption,
-      deductible: Number(deductible),
-      primarydateOfBirth: primaryDateOfBirth
-        ? new Date(primaryDateOfBirth).toISOString()
-        : "",
-      paymentOption,
-      plan: 1,
-      applicants: (applicants || []).map((app: any) => ({
-        ...app,
-        dob: app.dob ? new Date(app.dob).toISOString() : "",
-      })),
-    }),
-    [
-      countryOfOrigin,
-      inCanada,
-      superVisa,
-      coverageForPreMedCon,
-      destinationProvince,
-      effectiveDate,
-      expiryDate,
-      coverageLength,
-      policyType,
-      coverageOption,
-      deductible,
-      primaryDateOfBirth,
-      paymentOption,
-      applicants,
-    ],
-  );
+  const premiumCalculationData: PremiumCalculationData = {
+    countryOfOrigin,
+    inCanada,
+    superVisa,
+    coverageForPreMedCon,
+    destinationProvince,
+    effectiveDate: effectiveDate ? new Date(effectiveDate).toISOString() : "",
+    expiryDate: expiryDate ? new Date(expiryDate).toISOString() : "",
+    coverageLength,
+    policyType,
+    coverageOption,
+    deductible: Number(deductible),
+    primaryDateOfBirth: primaryDateOfBirth
+      ? new Date(primaryDateOfBirth).toISOString()
+      : "",
+    paymentOption,
+    plan: 1,
+    applicants: (applicants || []).map((app: any) => ({
+      ...app,
+      dob: app.dob ? new Date(app.dob).toISOString() : "",
+    })),
+  };
 
   const {
     totalPremium: hookTotalPremium,
@@ -1677,24 +1653,7 @@ const Step1STRVCT = ({
         )}
         {isAgeQuestionnaireOpen && (
           <AgeQuestionaire
-            applicantsToShow={[
-              ...(primaryNeedsQuestionnaire
-                ? [
-                  {
-                    firstName: primaryFirstName,
-                    lastName: primaryLastName,
-                    index: -1,
-                  },
-                ]
-                : []),
-              ...applicantsNeedingQuestionnaire.map(
-                (app: any, originalIdx: number) => ({
-                  firstName: app.firstName,
-                  lastName: app.lastName,
-                  index: applicants.findIndex((a: any) => a === app),
-                }),
-              ),
-            ]}
+            applicantsToShow={applicantsToShow}
             primaryQuestionnaire={primaryQuestionnaire}
             setPrimaryQuestionaire={setPrimaryQuestionnaireWrapper}
             setIsAgeQuestionnaireOpen={setIsAgeQuestionnaireOpen}

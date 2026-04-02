@@ -17,15 +17,7 @@ export const toLocalIsoDate = (date: Date | null | undefined | string): string =
  * Formats a date string or object into a standardized display format (MMM DD, YYYY).
  */
 export const formatDate = (date: string | Date | null | undefined): string => {
-  if (!date) return "-";
-  const d = new Date(date);
-  if (isNaN(d.getTime())) return "-";
-
-  return d.toLocaleDateString("en-CA", {
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  });
+  return formatDateToDDMMYYYY(date);
 };
 
 /**

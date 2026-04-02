@@ -643,7 +643,7 @@ const RIMICanuckVoyageNonMedicalTravel: React.FC = () => {
       {steps[0].status === "current" && (
         <FormProvider {...step1Methods}>
           <form onSubmit={step1Methods.handleSubmit(handleNext)}>
-            <TestFillButton productName={productName} />
+            {/* <TestFillButton productName={productName} /> */}
             <ApplicantInformation 
             methods={step1Methods}
             />
@@ -693,10 +693,10 @@ const RIMICanuckVoyageNonMedicalTravel: React.FC = () => {
             </h3>
           </div>
 
-          <TestFillButton
+          {/* <TestFillButton
             productName={productName}
             methods={[contactInfoMethods, addressMethods]}
-          />
+          /> */}
 
           <QuoteSummary step1ResponseData={step1ResponseData} />
           <ApplicantInformationFinished

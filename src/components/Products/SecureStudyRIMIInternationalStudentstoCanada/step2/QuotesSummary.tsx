@@ -1,4 +1,5 @@
 import { useLanguage } from "../../../../context/LanguageContext";
+import { formatDate } from "../../../../utils/dateUtils";
 
 // export default function QuoteSummary() {
 //   return (
@@ -83,16 +84,6 @@ export default function QuoteSummary({ step1ResponseData }: QuoteSummaryProps) {
       </div>
     );
   }
-
-  const formatDate = (dateString: string) => {
-    if (!dateString) return "N/A";
-    const date = new Date(dateString);
-    return date.toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-    });
-  };
 
   const summaryData = [
     [t("Effective Date"), formatDate(step1ResponseData.effectiveDate)],

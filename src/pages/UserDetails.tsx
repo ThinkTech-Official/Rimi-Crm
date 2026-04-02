@@ -558,7 +558,7 @@ export default function UserDetails() {
                     {t(doc.label)}
                   </label>
                   {doc.link ? (
-                <div className="flex items-center gap-2">
+                <div className="grid grid-cols-2 items-center gap-2">
                   <a
                     href={`${API_BASE}${doc.link}`}
                     target="_blank"
@@ -566,7 +566,7 @@ export default function UserDetails() {
                     className="flex items-center gap-2 text-text-secondary hover:underline text-sm"
                   >
                     <DocumentIcon className="h-5 w-5 text-text-primary" />
-                    {doc.link.split("/").pop()}
+                    <p className="line-clamp-1">{doc.link.split("/").pop()}</p>
                   </a>
                 </div>
               ) : (

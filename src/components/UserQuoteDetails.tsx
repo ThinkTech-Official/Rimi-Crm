@@ -5,6 +5,7 @@ import {
   QuoteDetail,
   QuoteApplicant,
 } from "../hooks/useQuoteDetail";
+import { formatDate } from "../utils/dateUtils";
 
 export const UserQuoteDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -17,24 +18,13 @@ export const UserQuoteDetails: React.FC = () => {
   if (!quote) return <p className="text-center py-10">No quote found.</p>;
 
   // format helpers
-  const fmtDate = (iso?: string) =>
-    iso
-      ? new Date(iso).toLocaleDateString("en-CA", {
-        year: "numeric",
-        month: "2-digit",
-        day: "2-digit",
-      })
-      : "-";
+  const fmtDate = (iso?: string) => formatDate(iso);
 
   const fmtDatePlusOneMonth = (iso?: string) => {
     if (!iso) return "-";
     const d = new Date(iso);
     d.setMonth(d.getMonth() + 1);
-    return d.toLocaleDateString("en-CA", {
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-    });
+    return formatDate(d);
   };
 
   return (

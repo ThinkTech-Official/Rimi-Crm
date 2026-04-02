@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { useGetVerificationStatus } from '../../hooks/agent-verification/useGetVerificationStatus';
 import { 
   CheckCircleIcon, 
@@ -8,8 +8,8 @@ import {
   DocumentIcon,
   CalendarIcon
 } from '@heroicons/react/24/outline';
-import { format } from 'date-fns';
 import { useLanguage } from '../../context/LanguageContext';
+import { formatDate } from '../../utils/dateUtils';
 
 export default function VerificationStatusDisplay() {
   const { t } = useLanguage();
@@ -109,7 +109,7 @@ export default function VerificationStatusDisplay() {
               <div className="flex items-center space-x-2">
                 <DocumentIcon className="h-4 w-4" />
                 <span>
-                  {t("Documents uploaded on")}: {format(new Date(status.documentsUploadedAt), 'MMM dd, yyyy')}
+                  {t("Documents uploaded on")}: {formatDate(status.documentsUploadedAt)}
                 </span>
               </div>
             )}
@@ -118,7 +118,7 @@ export default function VerificationStatusDisplay() {
               <div className="flex items-center space-x-2">
                 <CheckCircleIcon className="h-4 w-4" />
                 <span>
-                  {t("Verified on")}: {format(new Date(status.verifiedAt), 'MMM dd, yyyy')}
+                  {t("Verified on")}: {formatDate(status.verifiedAt)}
                 </span>
               </div>
             )}
@@ -127,7 +127,7 @@ export default function VerificationStatusDisplay() {
               <div className="flex items-center space-x-2">
                 <CalendarIcon className="h-4 w-4" />
                 <span>
-                  {t("Valid until")}: {format(new Date(status.verificationValidTill), 'MMM dd, yyyy')}
+                  {t("Valid until")}: {formatDate(status.verificationValidTill)}
                 </span>
               </div>
             )}

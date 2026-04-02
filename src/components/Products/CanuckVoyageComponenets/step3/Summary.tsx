@@ -81,6 +81,7 @@
 import React from "react";
 import { useQuoteDetail } from "../../../../hooks/useQuoteDetail";
 import { useLanguage } from "../../../../context/LanguageContext";
+import { formatDate } from "../../../../utils/dateUtils";
 
 interface SummaryProps {
   quoteId: string | null;
@@ -107,18 +108,7 @@ const Summary: React.FC<SummaryProps> = ({ quoteId }) => {
   const maybe = (value: any) =>
     value === undefined || value === null || value === "" ? t("N/A") : value;
 
-  const formatDate = (dateString: any) => {
-    if (!dateString) return "N/A";
-    try {
-      return new Date(dateString).toLocaleDateString("en-US", {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-      });
-    } catch {
-      return dateString;
-    }
-  };
+  const formatDateDisplay = (dateString: any) => formatDate(dateString);
 
   const pluralize = (value: any, singular: string, plural: string) => {
     const num = Number(value);
@@ -155,7 +145,7 @@ const Summary: React.FC<SummaryProps> = ({ quoteId }) => {
   const contactInfoRows: [string, React.ReactNode][] = [
     [t("First Name"), maybe(data.firstName)],
     [t("Last Name"), maybe(data.lastName)],
-    [t("Date of Birth"), formatDate(data.dateOfBirth)],
+    [t("Date of Birth"), formatDateDisplay(data.dateOfBirth)],
     [t("Gender"), maybe(data.gender)],
     [t("Primary Email"), maybe(data.email)],
     [t("Additional Email"), maybe((data as any).additionalEmail)],
@@ -173,8 +163,8 @@ const Summary: React.FC<SummaryProps> = ({ quoteId }) => {
       </span>,
     ],
     [t("Policy Type"), t(maybe(data.policyType))],
-    [t("Effective Date"), formatDate(data.effectiveDate)],
-    [t("Expiry Date"), formatDate(data.expiryDate)],
+    [t("Effective Date"), formatDateDisplay(data.effectiveDate)],
+    [t("Expiry Date"), formatDateDisplay(data.expiryDate)],
     [
       t("Coverage Length"),
       `${maybe(data.covLen)} ${t(pluralize(data.covLen, "day", "days"))}`,
@@ -220,33 +210,7 @@ const Summary: React.FC<SummaryProps> = ({ quoteId }) => {
     [t("Province of Residence"), maybe(data.province)]
   );
 
-  const addressRows: [string, React.ReactNode][] = [
-    [t("Address Line 1"), maybe(data.street)],
-    [t("Address Line 2"), maybe((data as any).street2)],
-    [t("City"), maybe(data.city)],
-    [t("Province / State"), maybe(data.province)],
-    [t("Postal Code"), maybe((data as any).postalCode)],
-    [t("Country"), maybe(data.countryCode)],
-  ];
 
-  const premiumRows: [string, React.ReactNode][] = [
-    [
-      t("Total Premium"),
-      <span className="text-xl font-bold text-green-600">
-        ${maybe(data.premium)} {t("CAD")}
-      </span>,
-    ],
-    [
-      t("Paid Premium"),
-      <span className="font-semibold">${maybe(data.paidPremium)} {t("CAD")}</span>,
-    ],
-    [
-      t("Payment Status"),
-      <span className="inline-block px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-semibold">
-        {t("Paid")}
-      </span>,
-    ],
-  ];
 
   return (
     <div className="w-full mt-4 p-6 bg-[#F9F9F9]">
@@ -323,7 +287,7 @@ const Summary: React.FC<SummaryProps> = ({ quoteId }) => {
                         {maybe(app.lastName)}
                       </td>
                       <td className="p-3 text-left text-[#6A6A6A]">
-                        {formatDate(app.dateOfBirth)}
+                        {formatDateDisplay(app.dateOfBirth)}
                       </td>
                       <td className="p-3 text-left text-[#6A6A6A]">
                         {t(maybe((app as any).relationship || (app as any).relation))}

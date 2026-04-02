@@ -1,6 +1,7 @@
 import React from "react";
 import { useLanguage } from "../../../../context/LanguageContext";
 import { useQuoteDetail } from "../../../../hooks/useQuoteDetail";
+import { formatDate } from "../../../../utils/dateUtils";
 
 interface SummaryProps {
   quoteId: string | null;
@@ -27,18 +28,7 @@ const Summary: React.FC<SummaryProps> = ({ quoteId }) => {
   const maybe = (value: any) =>
     value === undefined || value === null || value === "" ? "N/A" : value;
 
-  const formatDate = (dateString: any) => {
-    if (!dateString) return "N/A";
-    try {
-      return new Date(dateString).toLocaleDateString("en-US", {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-      });
-    } catch {
-      return dateString;
-    }
-  };
+  const formatDateDisplay = (dateString: any) => formatDate(dateString);
 
   const pluralize = (value: any, singular: string, plural: string) => {
     const num = Number(value);
@@ -53,7 +43,7 @@ const Summary: React.FC<SummaryProps> = ({ quoteId }) => {
   const contactInfoRows: [string, React.ReactNode][] = [
     [t("First Name"), maybe(data.firstName)],
     [t("Last Name"), maybe(data.lastName)],
-    [t("Date of Birth"), formatDate(data.dateOfBirth)],
+    [t("Date of Birth"), formatDateDisplay(data.dateOfBirth)],
     [t("Gender"), maybe(data.gender)],
     [t("Primary Email"), maybe(data.email)],
     [t("Additional Email"), maybe((data as any).additionalEmail)],
@@ -71,9 +61,9 @@ const Summary: React.FC<SummaryProps> = ({ quoteId }) => {
     ],
     [t("Policy Type"), maybe(data.policyType)],
     [t("Trip Cost (per person)"), `$${maybe((data as any).tripCost)} ${t("CAD")}`],
-    [t("Date Trip was Booked"), formatDate((data as any).dateBooked)],
-    [t("Departure Date"), formatDate(data.effectiveDate)],
-    [t("Return Date"), formatDate(data.expiryDate)],
+    [t("Date Trip was Booked"), formatDateDisplay((data as any).dateBooked)],
+    [t("Departure Date"), formatDateDisplay(data.effectiveDate)],
+    [t("Return Date"), formatDateDisplay(data.expiryDate)],
     [
       t("Coverage Length"),
       `${maybe(data.covLen)} ${pluralize(data.covLen, "day", "days")}`,
@@ -219,7 +209,7 @@ const Summary: React.FC<SummaryProps> = ({ quoteId }) => {
                         {maybe(app.lastName)}
                       </td>
                       <td className="p-3 text-left text-[#6A6A6A]">
-                        {formatDate(app.dateOfBirth)}
+                        {formatDateDisplay(app.dateOfBirth)}
                       </td>
                       <td className="p-3 text-left text-[#6A6A6A]">
                         {maybe(t(app.relationship || app.relation))}

@@ -337,7 +337,7 @@ import { Controller, useForm } from "react-hook-form";
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
 import { RenderPageNumbers } from "./RenderPageNumbers";
 import DatePicker from "./DatePicker";
-import { formatDateToDDMMYYYY, isAfterDate } from "../utils/dateUtils";
+import { formatDate, isAfterDate } from "../utils/dateUtils";
 import useNotification from "../hooks/useNotification";
 
 const QuotesSearch: React.FC = () => {
@@ -732,7 +732,7 @@ const QuotesSearch: React.FC = () => {
                     <td
                       className="px-2 sm:px-3 py-2 whitespace-nowrap border-r border-b border-[#AAA9A9]"
                     >
-                      {formatDateToDDMMYYYY(u.dateIssued)}
+                      {formatDate(u.dateIssued)}
                     </td>
                     <td
                       className="px-2 sm:px-3 py-2 whitespace-nowrap capitalize border-r border-b border-[#AAA9A9]"

@@ -146,6 +146,7 @@
 // =============================
 
 import { useLanguage } from "../context/LanguageContext";
+import { formatDate } from "../utils/dateUtils";
 
 interface CommissionRow {
   id: string;
@@ -271,7 +272,7 @@ export function CommissionsTable({
                 className="px-2 sm:px-3 py-2 whitespace-nowrap border-r border-b border-[#AAA9A9]"
                 style={cellStyle}
               >
-                {new Date(commission.paymentHistory.date).toLocaleDateString()}
+                {formatDate(commission.paymentHistory.date)}
               </td>
               <td
                 className="px-2 sm:px-3 py-2 whitespace-nowrap border-r border-b border-[#AAA9A9] font-medium text-primary"

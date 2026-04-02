@@ -7,6 +7,7 @@ import { stripePromise } from "../../../utils/stripe";
 
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useRenewalPolicyData } from "../../../hooks/renewals/useRenewalPolicyData";
+import { formatDate } from "../../../utils/dateUtils";
 
 import BeneficiaryInCaseOfDeath from "../../../components/Products/SecureStudyRIMIInternationalStudentstoCanada/step2/BeneficiaryInCaseOfDeath";
 import PaymentInformation from "../../../components/Products/SecureStudyRIMIInternationalStudentstoCanada/step2/PaymentInformation";
@@ -208,7 +209,7 @@ export default function SecureStudyRIMIInternationalStudentstoCanada() {
         type: "error",
         message: "No policy ID provided. Redirecting to policies page.",
       });
-      navigate("/policies");
+      navigate("/search-policies");
     }
   }, [policyId, navigate, triggerNotification]);
 
@@ -459,7 +460,7 @@ export default function SecureStudyRIMIInternationalStudentstoCanada() {
           </h3>
           <p className="text-red-700 mt-2">{policyError}</p>
           <button
-            onClick={() => navigate(`/policies/${policyId}`)}
+            onClick={() => navigate(`/search-policies`)}
             className="mt-4 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
           >
             Return to Policy
@@ -480,7 +481,7 @@ export default function SecureStudyRIMIInternationalStudentstoCanada() {
             Could not load policy information.
           </p>
           <button
-            onClick={() => navigate("/policies")}
+            onClick={() => navigate("/search-policies")}
             className="mt-4 px-4 py-2 bg-yellow-600 text-white rounded hover:bg-yellow-700"
           >
             Back to Policies
@@ -498,7 +499,7 @@ export default function SecureStudyRIMIInternationalStudentstoCanada() {
       <div className="flex gap-1 mb-4 items-center text-primary">
         <span
           className="underline underline-offset-2 cursor-pointer text-sm text-primary font-medium"
-          onClick={() => navigate("/policies")}
+          onClick={() => navigate("/search-policies")}
         >
           Policies
         </span>
@@ -632,8 +633,8 @@ export default function SecureStudyRIMIInternationalStudentstoCanada() {
               <br />
               <span className="text-xs">
                 Original Coverage:{" "}
-                {new Date(policyData.effectiveDate).toLocaleDateString()} to{" "}
-                {new Date(policyData.expiryDate).toLocaleDateString()}
+                {formatDate(policyData.effectiveDate)} to{" "}
+                {formatDate(policyData.expiryDate)}
               </span>
             </p>
           </div>

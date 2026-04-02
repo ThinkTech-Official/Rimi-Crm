@@ -97,7 +97,7 @@
 // =======================================================
 
 
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useGetVerificationStatus } from '../../hooks/agent-verification/useGetVerificationStatus';
 import { useRequestVerification } from '../../hooks/agent-verification/useRequestVerification';
@@ -112,6 +112,7 @@ import {
 } from '@heroicons/react/24/outline';
 import { API_BASE } from '../../utils/urls';
 import useNotification from '../../hooks/useNotification';
+import { formatDate } from '../../utils/dateUtils';
 
 interface VerificationTabProps {
   onUploadClick: () => void;
@@ -120,11 +121,11 @@ interface VerificationTabProps {
 
 import { useLanguage } from '../../context/LanguageContext';
 
-export default function VerificationTab({ onUploadClick, userType }: VerificationTabProps) {
-  const { language, t } = useLanguage();
+export default function VerificationTab({ onUploadClick }: VerificationTabProps) {
+  const { t } = useLanguage();
   const dispatch = useDispatch();
   const verificationStatus = useSelector(selectVerificationStatus);
-  const { data, fetchStatus } = useGetVerificationStatus();
+  const { fetchStatus } = useGetVerificationStatus();
   const { requestVerification, loading: requesting } = useRequestVerification();
   const { triggerNotification, NotificationComponent } = useNotification();
 
@@ -261,7 +262,7 @@ export default function VerificationTab({ onUploadClick, userType }: Verificatio
               </p>
               {verificationStatus?.documentsUploadedAt && (
                 <p className="mt-1 text-xs text-yellow-600">
-                  {t("Last uploaded")}: {new Date(verificationStatus.documentsUploadedAt).toLocaleString()}
+                  {t("Last uploaded")}: {formatDate(verificationStatus.documentsUploadedAt)}
                 </p>
               )}
               <div className="mt-4 flex gap-3">
@@ -300,7 +301,7 @@ export default function VerificationTab({ onUploadClick, userType }: Verificatio
               </p>
               {verificationStatus?.documentsUploadedAt && (
                 <div className="mt-3 text-xs text-blue-600 space-y-1">
-                  <p><strong>{t("Uploaded")}:</strong> {new Date(verificationStatus.documentsUploadedAt).toLocaleString()}</p>
+                  <p><strong>{t("Uploaded")}:</strong> {formatDate(verificationStatus.documentsUploadedAt)}</p>
                   {/* Show requested time if available */}
                   {/* <p><strong>Requested:</strong> {new Date(verificationStatus.verificationRequestedAt).toLocaleString()}</p> */}
                 </div>
@@ -326,10 +327,10 @@ export default function VerificationTab({ onUploadClick, userType }: Verificatio
               </p>
               <div className="mt-3 text-sm text-green-600 space-y-1">
                 {verificationStatus?.verifiedAt && (
-                  <p><strong>{t("Verified on")}:</strong> {new Date(verificationStatus.verifiedAt).toLocaleDateString()}</p>
+                  <p><strong>{t("Verified on")}:</strong> {formatDate(verificationStatus.verifiedAt)}</p>
                 )}
                 {verificationStatus?.verificationValidTill && (
-                  <p><strong>{t("Valid until")}:</strong> {new Date(verificationStatus.verificationValidTill).toLocaleDateString()}</p>
+                  <p><strong>{t("Valid until")}:</strong> {formatDate(verificationStatus.verificationValidTill)}</p>
                 )}
                 {verificationStatus?.verifiedBy && (
                   <p className="text-xs text-green-500">{t("Verified by")}: {verificationStatus.verifiedBy}</p>
@@ -381,7 +382,7 @@ export default function VerificationTab({ onUploadClick, userType }: Verificatio
               </p>
               {verificationStatus?.verificationValidTill && (
                 <p className="mt-1 text-xs text-orange-600">
-                  {t("Expired on")}: {new Date(verificationStatus.verificationValidTill).toLocaleDateString()}
+                  {t("Expired on")}: {formatDate(verificationStatus.verificationValidTill)}
                 </p>
               )}
               <button

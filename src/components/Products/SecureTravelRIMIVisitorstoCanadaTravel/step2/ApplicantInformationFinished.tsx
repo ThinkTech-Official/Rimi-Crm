@@ -1,5 +1,6 @@
 import { Applicant } from "../../../../hooks/useSaveQuote";
 import { useLanguage } from "../../../../context/LanguageContext";
+import { formatDate } from "../../../../utils/dateUtils";
 
 export interface ApplicantFinishedProps {
   dateOfBirth: string;
@@ -32,7 +33,7 @@ const ApplicantInformationFinished: React.FC<ApplicantFinishedProps> = ({
           <div className="flex flex-col">
             <label className="text-sm">{t("Date of Birth")}</label>
             <p className="input-primary break-words h-auto">
-              {new Date(dateOfBirth).toLocaleDateString()}
+              {formatDate(dateOfBirth)}
             </p>
           </div>
 
@@ -73,7 +74,7 @@ const ApplicantInformationFinished: React.FC<ApplicantFinishedProps> = ({
               <div className="flex flex-col">
                 <label className="text-sm">{t("Date of Birth")}</label>
                 <p className="input-primary break-words h-auto">
-                  {new Date(app.dob).toLocaleDateString()}
+                  {formatDate(app.dob)}
                 </p>
               </div>
 

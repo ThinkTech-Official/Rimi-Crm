@@ -41,6 +41,7 @@
 
 import React from "react";
 import { useLanguage } from "../../../../context/LanguageContext";
+import { formatDate } from "../../../../utils/dateUtils";
 
 interface QuoteStage1Response {
   quoteNumber: string;
@@ -79,7 +80,7 @@ export default function QuoteSummary({ step1ResponseData }: QuoteSummaryProps) {
     quoteAmount,
   } = step1ResponseData;
 
-  const fmtDate = (iso: string) => new Date(iso).toLocaleDateString();
+  const fmtDate = (iso: string) => formatDate(iso);
   const fmtMoney = (amt: number) =>
     amt.toLocaleString(undefined, { style: "currency", currency: "CAD" });
 

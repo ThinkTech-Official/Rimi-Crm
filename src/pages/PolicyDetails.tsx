@@ -24,7 +24,6 @@ import { usePolicyActivity } from "../hooks/usePolicyActivity";
 import { PolicyActivityTimeline } from "../components/PolicyActivityTimeline";
 import RefundModal from "../components/RefundModal";
 import PremiumChangeModal from "../components/PremiumChangeModal";
-import ValidationErrorModal from "../components/ValidationErrorModal";
 import { usePaymentSchedule } from "../hooks/usePaymentSchedule";
 import { PaymentScheduleTable } from "../components/policy/PaymentScheduleTable";
 import { UpdateCardModal } from "../components/UpdateCardModal";
@@ -37,8 +36,10 @@ import UpdatePaymentMethodConfirmationModal from "../components/policy/UpdatePay
 import { MdClose, MdUploadFile } from "react-icons/md";
 import { HealthQuestionnaireSection } from "./QuoteDetails";
 import Spinner from "../components/Spinner";
+import DatePicker from "../components/DatePicker";
 import {
   fmtDate,
+  fmtDateDisplay,
   calcAge,
   fmtCurrency,
   PRODUCT_FIELDS_CONFIG,
@@ -65,7 +66,76 @@ interface PolicyFieldProps {
   isEditMode: boolean;
   onFieldChange: (field: string, value: any) => void;
   transform?: (value: any) => React.ReactNode;
+  product?: string;
+  fieldErrors?: Record<string, string>;
+  error?: string;
+  id?: string;
 }
+
+const EDITABLE_FIELDS = [
+  "language",
+  "firstName",
+  "lastName",
+  "gender",
+  "email",
+  "additionalEmail",
+  "phoneNumber",
+  "street",
+  "street2",
+  "city",
+  "province",
+  "countryCode",
+  "postalCode",
+  "effectiveDate",
+  "expiryDate",
+  "destination",
+  "destinationProvince",
+  "destProv",
+  "applicantOnSuperVisa",
+  "superVisa",
+  "deductible",
+  "relation",
+  "beneficiaryName",
+  "beneficiaryRelation",
+  "tripCost",
+  "legalGuardianName",
+];
+ 
+const PRODUCT_RULES: Record<string, { 
+    maxAge: number; 
+    minAgeDays: number; 
+    minPhone: number; 
+    maxPhone: number;
+    requiredFields?: string[];
+  }> = {
+    SECURE_TRAVEL_RIMI_VISITORS_TO_CANADA_TRAVEL: {
+      maxAge: 86,
+      minAgeDays: 15,
+      minPhone: 10,
+      maxPhone: 15,
+    },
+    SECURE_STUDY_RIMI_INTERNATIONAL_STUDENTS_TO_CANADA: {
+      maxAge: 65,
+      minAgeDays: 15,
+      minPhone: 10,
+      maxPhone: 15,
+    },
+    RIMI_CANUCK_VOYAGE_TRAVEL_MEDICAL: {
+      maxAge: 80,
+      minAgeDays: 15,
+      minPhone: 10,
+      maxPhone: 10,
+      requiredFields: ["province"],
+    },
+    RIMI_CANUCK_VOYAGE_NON_MEDICAL_TRAVEL: {
+      maxAge: 86,
+      minAgeDays: 15,
+      minPhone: 10,
+      maxPhone: 10,
+      requiredFields: ["provinceStateResidence"],
+    },
+};
+
 
 const PolicyField: React.FC<PolicyFieldProps> = ({
   label,
@@ -77,6 +147,10 @@ const PolicyField: React.FC<PolicyFieldProps> = ({
   isEditMode,
   onFieldChange,
   transform,
+  product,
+  fieldErrors,
+  error: manualError,
+  id,
 }) => {
   const { t, language: currentLang } = useLanguage();
 
@@ -100,6 +174,7 @@ const PolicyField: React.FC<PolicyFieldProps> = ({
   };
 
   let { value: rawValue, key: activeKey } = getActiveKeyAndValue();
+  const error = manualError || (fieldErrors ? fieldErrors[activeKey] : undefined);
 
   // Handle Default Values
   if (rawValue === null || rawValue === undefined || rawValue === "") {
@@ -111,12 +186,23 @@ const PolicyField: React.FC<PolicyFieldProps> = ({
     }
   }
 
-  if (isEditMode) {
+  let isFieldEditable = EDITABLE_FIELDS.includes(activeKey);
+
+  // Special case: Destination is NOT editable for non-medical travel
+  if (
+    activeKey === "destination" &&
+    product === "RIMI_CANUCK_VOYAGE_NON_MEDICAL_TRAVEL"
+  ) {
+    isFieldEditable = false;
+  }
+
+  if (isEditMode && isFieldEditable) {
     if (type === "select") {
       return (
         <div className="min-w-0">
           <div className="font-semibold text-base">{t(label)}</div>
           <select
+            id={id || activeKey}
             value={(rawValue ?? "") as string}
             onChange={(e) => onFieldChange(activeKey, e.target.value)}
             className="input-primary"
@@ -127,6 +213,24 @@ const PolicyField: React.FC<PolicyFieldProps> = ({
               </option>
             ))}
           </select>
+          {error && <p className="text-red-500 text-xs mt-1">{t(error)}</p>}
+        </div>
+      );
+    }
+    if (type === "date") {
+      return (
+        <div className="min-w-0">
+          <DatePicker
+            id={id || activeKey}
+            label={t(label)}
+            value={rawValue ? (rawValue as string).split("T")[0] : ""}
+            onChange={(val) => onFieldChange(activeKey, val)}
+            error={error ? t(error) : undefined}
+            isDisabled={
+              (activeKey === "effectiveDate" && policy.status === "ACTIVE") ||
+              (activeKey === "dateOfBirth" && policy.status === "ACTIVE")
+            }
+          />
         </div>
       );
     }
@@ -134,17 +238,13 @@ const PolicyField: React.FC<PolicyFieldProps> = ({
       <div className="min-w-0">
         <div className="font-semibold text-base">{t(label)}</div>
         <input
+          id={id || activeKey}
           type={type}
-          value={
-            type === "date" ? fmtDate((rawValue ?? "") as string) : (rawValue ?? "") as string
-          }
+          value={(rawValue ?? "") as string}
           onChange={(e) => onFieldChange(activeKey, e.target.value)}
-          className="input-primary"
-          disabled={
-            (activeKey === "effectiveDate" && policy.status === "ACTIVE") ||
-            (activeKey === "dateOfBirth" && policy.status === "ACTIVE")
-          }
+          className={`input-primary ${error ? "border-red-500" : ""}`}
         />
+        {error && <p className="text-red-500 text-xs mt-1">{t(error)}</p>}
       </div>
     );
   }
@@ -256,6 +356,10 @@ const PolicyDetailsPage: React.FC = () => {
   const [editedApplicants, setEditedApplicants] = useState<PolicyApplicant[]>(
     [],
   );
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const [applicantErrors, setApplicantErrors] = useState<
+    Record<string, string>[]
+  >([]);
 
   const {
     loading: modifyLoading,
@@ -271,12 +375,6 @@ const PolicyDetailsPage: React.FC = () => {
 
   const [showPremiumModal, setShowPremiumModal] = useState(false);
   const [premiumData] = useState<any>(null);
-
-  const [showValidationModal, setShowValidationModal] = useState(false);
-  const [validationMessage, setValidationMessage] = useState({
-    title: "",
-    message: "",
-  });
 
   const [showRenewalModal, setShowRenewalModal] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
@@ -371,7 +469,28 @@ const PolicyDetailsPage: React.FC = () => {
         : DEFAULT_FIELDS_CONFIG;
 
     const handleFieldChange = (field: string, value: any) => {
-      setEditedPolicy((prev) => ({ ...prev, [field]: value }));
+      const updates: Record<string, any> = { [field]: value };
+
+      if (field === "applicantOnSuperVisa" && value === "yes") {
+        const currentData = { ...p, ...editedPolicy };
+        const effectiveDate = currentData.effectiveDate?.toString();
+        if (effectiveDate) {
+          const effDate = new Date(effectiveDate);
+          const expDate = new Date(effDate);
+          expDate.setDate(effDate.getDate() + 365 - 1); // 365 days inclusive
+          updates.expiryDate = expDate.toISOString().split("T")[0];
+        }
+      }
+
+      setEditedPolicy((prev) => ({ ...prev, ...updates }));
+      // Clear error for this field
+      if (fieldErrors[field]) {
+        setFieldErrors((prev) => {
+          const updated = { ...prev };
+          delete updated[field];
+          return updated;
+        });
+      }
     };
 
   const handleApplicantChange = (index: number, field: string, value: any) => {
@@ -380,6 +499,16 @@ const PolicyDetailsPage: React.FC = () => {
       updated[index] = { ...updated[index], [field]: value };
       return updated;
     });
+    // Clear error
+    if (applicantErrors[index] && applicantErrors[index][field]) {
+      setApplicantErrors((prev) => {
+        const updated = [...prev];
+        const newAppErrors = { ...updated[index] };
+        delete newAppErrors[field];
+        updated[index] = newAppErrors;
+        return updated;
+      });
+    }
   };
 
   const calculateDays = (start: string, end: string): number => {
@@ -391,23 +520,85 @@ const PolicyDetailsPage: React.FC = () => {
 
   const validateModification = (): {
     valid: boolean;
-    error?: { title: string; message: string };
+    fieldErrors: Record<string, string>;
+    applicantErrors: Record<string, string>[];
   } => {
-    const effectiveDate =
-      editedPolicy.effectiveDate || p.effectiveDate!.toString();
-    const expiryDate = editedPolicy.expiryDate || p.expiryDate!.toString();
+    const data = { ...p, ...editedPolicy };
+    const effectiveDate = data.effectiveDate?.toString() || "";
+    const expiryDate = data.expiryDate?.toString() || "";
     const today = new Date().toISOString().split("T")[0];
 
-    //  Effective date validation
+    const errors: Record<string, string> = {};
+    const appErrorsList: Record<string, string>[] = [];
+
+    const product = p.product || "";
+    const rules = PRODUCT_RULES[product as keyof typeof PRODUCT_RULES] || {
+      maxAge: 86,
+      minAgeDays: 15,
+      minPhone: 10,
+      maxPhone: 10,
+    };
+
+    // 1. Basic Info Validations
+    const basicFields = [
+      { key: "firstName", label: "First Name", max: 100 },
+      { key: "lastName", label: "Last Name", max: 100 },
+      { key: "gender", label: "Gender" },
+      { key: "email", label: "Email Address", max: 100 },
+      { key: "phoneNumber", label: "Phone Number" },
+      { key: "street", label: "Address Line 1", max: 100 },
+      { key: "street2", label: "Address Line 2", max: 100, optional: true },
+      { key: "city", label: "City" },
+      { key: "province", label: "Province" },
+      { key: "countryCode", label: "Country" },
+      { key: "postalCode", label: "Postal Code" },
+      { key: "provinceStateResidence", label: "Province/State of Residence", optional: true },
+      { key: "beneficiaryName", label: "Beneficiary Name", max: 100, optional: true },
+      { key: "beneficiaryRelation", label: "Beneficiary Relation", optional: true },
+    ];
+
+    // Add product-specific required fields
+    if (rules.requiredFields) {
+      for (const rf of rules.requiredFields) {
+        const field = basicFields.find(bf => bf.key === rf);
+        if (field) field.optional = false;
+      }
+    }
+
+    for (const f of basicFields) {
+      if (f.optional && ((data as any)[f.key] === undefined || (data as any)[f.key] === null)) continue;
+      const val = (data as any)[f.key];
+      const maxLen = f.max || 60;
+      
+      if (!val || (typeof val === "string" && val.trim() === "")) {
+        errors[f.key] = `${t(f.label)} ${t("is required.")}`;
+      } else if (typeof val === "string" && val.length > maxLen) {
+        errors[f.key] = `${t(f.label)} ${t("cannot exceed")} ${maxLen} ${t("characters.")}`;
+      }
+    }
+
+    // 2. Email Format Validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (data.email && !emailRegex.test(data.email) && !errors.email) {
+      errors.email = t("Please enter a valid email address.");
+    }
+
+    // 3. Phone Number Validation (Regex according to normal product form)
+    if (data.phoneNumber && !errors.phoneNumber) {
+      const cleanPhone = data.phoneNumber?.replace(/[^0-9]/g, "");
+      if (!/^[0-9]*$/.test(data.phoneNumber)) {
+        errors.phoneNumber = t("Phone number must contain digits only");
+      } else if (cleanPhone.length < rules.minPhone) {
+        errors.phoneNumber = `${t("Phone number must be at least")} ${rules.minPhone} ${t("digits")}`;
+      } else if (cleanPhone.length > rules.maxPhone) {
+        errors.phoneNumber = `${t("Phone number must be at most")} ${rules.maxPhone} ${t("digits")}`;
+      }
+    }
+
+    // 4. Effective Date validation
     if (p.status === "SOLD" && editedPolicy.effectiveDate) {
       if (editedPolicy.effectiveDate < today) {
-        return {
-          valid: false,
-          error: {
-            title: t("Invalid Effective Date"),
-            message: t("Effective date cannot be in the past."),
-          },
-        };
+        errors.effectiveDate = t("Effective date cannot be in the past.");
       }
     }
 
@@ -416,67 +607,149 @@ const PolicyDetailsPage: React.FC = () => {
       editedPolicy.effectiveDate &&
       editedPolicy.effectiveDate !== p.effectiveDate!.toString()
     ) {
-      return {
-        valid: false,
-        error: {
-          title: "Cannot Modify Effective Date",
-          message: "Cannot change effective date for active policies.",
-        },
-      };
+      errors.effectiveDate = t("Cannot change effective date for active policies.");
     }
 
-    //  Expiry date validation
-    if (expiryDate <= effectiveDate) {
-      return {
-        valid: false,
-        error: {
-          title: "Invalid Expiry Date",
-          message: "Expiry date must be after effective date.",
-        },
-      };
+    // Age validation on primary (if DOB or Effective Date changed)
+    if (data.dateOfBirth && effectiveDate) {
+        const dobDate = new Date(data.dateOfBirth.toString());
+        const effDate = new Date(effectiveDate);
+        const today0 = new Date();
+        today0.setHours(0,0,0,0);
+        
+        if (dobDate > today0) {
+            errors.dateOfBirth = t("Date of birth cannot be in the future");
+        } else if (p.status === "SOLD" || editedPolicy.dateOfBirth || editedPolicy.effectiveDate) {
+            const ageDiffMs = effDate.getTime() - dobDate.getTime();
+            const ageDate = new Date(ageDiffMs);
+            const years = Math.abs(ageDate.getUTCFullYear() - 1970);
+            const days = Math.floor(ageDiffMs / (1000 * 60 * 60 * 24));
+
+            if (days < rules.minAgeDays || years >= rules.maxAge) {
+                errors.dateOfBirth = `${t("Age must be at least")} ${rules.minAgeDays} ${t("days and less than")} ${rules.maxAge} ${t("years according to the effective date.")}`;
+            }
+        }
+    }
+
+    // Legal Guardian check for Secure Study if under 18
+    if (product === "SECURE_STUDY_RIMI_INTERNATIONAL_STUDENTS_TO_CANADA" && data.dateOfBirth && effectiveDate) {
+      const dobDate = new Date(data.dateOfBirth.toString());
+      const effDate = new Date(effectiveDate);
+      const ageDiffMs = effDate.getTime() - dobDate.getTime();
+      const ageDate = new Date(ageDiffMs);
+      const years = Math.abs(ageDate.getUTCFullYear() - 1970);
+      
+      if (years < 18 && !data.legalGuardianName?.trim()) {
+        errors.legalGuardianName = t("Legal guardian name is required for applicants under 18.");
+      }
+    }
+
+    // 5. Expiry Date validation
+    if (!expiryDate || !effectiveDate || expiryDate <= effectiveDate) {
+      errors.expiryDate = t("Expiry date must be after effective date.");
     }
 
     if (p.status === "ACTIVE" && editedPolicy.expiryDate) {
       if (editedPolicy.expiryDate > p.expiryDate!.toString()) {
-        return {
-          valid: false,
-          error: {
-            title: t("Cannot Extend Coverage"),
-            message: t(
-              "Cannot extend coverage for active policies. Only early return is allowed.",
-            ),
-          },
-        };
+        errors.expiryDate = t("Cannot extend coverage for active policies. Only early return is allowed.");
       }
     }
 
-    // Rule V3: Super Visa check
+    // 6. Super Visa check
     const newCoverageLength = calculateDays(effectiveDate, expiryDate);
-    const superVisaStatus =
-      editedPolicy.applicantOnSuperVisa || p.applicantOnSuperVisa;
+    const superVisaStatus = editedPolicy.applicantOnSuperVisa || p.applicantOnSuperVisa;
 
-    if (
-      (superVisaStatus === "YES" || superVisaStatus === "yes") &&
-      newCoverageLength < 365
-    ) {
-      return {
-        valid: false,
-        error: {
-          title: "Super Visa Validation Error",
-          message: `This policy is marked as Super Visa but coverage is only ${newCoverageLength} days (less than 365). Please change "Are Applicants Travelling on a Super Visa?" to "No" in Coverage Details section before saving.`,
-        },
-      };
+    if ((superVisaStatus === "YES" || superVisaStatus === "yes") && newCoverageLength < 365) {
+      errors.expiryDate = `${t("This policy is marked as Super Visa but coverage is only")} ${newCoverageLength} ${t("days (less than 365). Please change \"Are Applicants Travelling on a Super Visa?\" to \"No\" in Coverage Details section before saving.")}`;
     }
 
-    return { valid: true };
+    // 7. Applicant Validations
+    let hasAppErrors = false;
+    for (let i = 0; i < editedApplicants.length; i++) {
+      const app = editedApplicants[i];
+      const singleAppErrors: Record<string, string> = {};
+
+      if (!app.firstName?.trim()) {
+        singleAppErrors.firstName = t("First Name is required.");
+      } else if (app.firstName.length > 100) {
+        singleAppErrors.firstName = `${t("First Name cannot exceed")} 100 ${t("characters.")}`;
+      }
+
+      if (!app.lastName?.trim()) {
+        singleAppErrors.lastName = t("Last Name is required.");
+      } else if (app.lastName.length > 100) {
+        singleAppErrors.lastName = `${t("Last Name cannot exceed")} 100 ${t("characters.")}`;
+      }
+
+      if (!app.dateOfBirth) {
+        singleAppErrors.dateOfBirth = t("Date of Birth is required.");
+      } else if (effectiveDate) {
+          const dobDate = new Date(app.dateOfBirth.toString());
+          const effDate = new Date(effectiveDate);
+          const ageDiffMs = effDate.getTime() - dobDate.getTime();
+          const ageDate = new Date(ageDiffMs);
+          const years = Math.abs(ageDate.getUTCFullYear() - 1970);
+          const days = Math.floor(ageDiffMs / (1000 * 60 * 60 * 24));
+          
+          if (days < rules.minAgeDays || years >= rules.maxAge) {
+              singleAppErrors.dateOfBirth = `${t("Age must be at least")} ${rules.minAgeDays} ${t("days and less than")} ${rules.maxAge} ${t("years according to the effective date.")}`;
+          }
+      }
+
+      if (!app.gender) {
+        singleAppErrors.gender = t("Gender is required.");
+      }
+
+      appErrorsList.push(singleAppErrors);
+      if (Object.keys(singleAppErrors).length > 0) hasAppErrors = true;
+    }
+
+    if (Object.keys(errors).length > 0 || hasAppErrors) {
+        console.log("Validation Errors:", { fieldErrors: errors, applicantErrors: appErrorsList });
+    }
+
+    return { 
+        valid: Object.keys(errors).length === 0 && !hasAppErrors,
+        fieldErrors: errors,
+        applicantErrors: appErrorsList
+    };
   };
 
   const handleSaveChanges = async () => {
     // Validate
     const validation = validateModification();
-    if (!validation.valid && validation.error) {
-      setValidationMessage(validation.error);
-      setShowValidationModal(true);
+    setFieldErrors(validation.fieldErrors);
+    setApplicantErrors(validation.applicantErrors);
+
+    if (!validation.valid) {
+      // Scroll to error
+      setTimeout(() => {
+          const firstErrKey = Object.keys(validation.fieldErrors)[0];
+          if (firstErrKey) {
+              const el = document.getElementById(firstErrKey);
+              if (el) {
+                  el.scrollIntoView({ behavior: "smooth", block: "center" });
+                  el.focus({ preventScroll: true });
+              }
+          } else {
+              for (let i = 0; i < validation.applicantErrors.length; i++) {
+                  const firstAppField = Object.keys(validation.applicantErrors[i])[0];
+                  if (firstAppField) {
+                      const el = document.getElementById(`applicant-${i}-${firstAppField}`);
+                      if (el) {
+                          el.scrollIntoView({ behavior: "smooth", block: "center" });
+                          el.focus({ preventScroll: true });
+                          break;
+                      }
+                  }
+              }
+          }
+      }, 100);
+
+      triggerNotification({
+          message: t("Please fill all fields correctly before saving."),
+          type: "warning"
+      });
       return;
     }
 
@@ -539,8 +812,16 @@ const PolicyDetailsPage: React.FC = () => {
       countryCode: editedPolicy.countryCode || p.countryCode!,
       postalCode: editedPolicy.postalCode || p.postalCode!,
       expiryDate: editedPolicy.expiryDate || fmtDate(p.expiryDate?.toString()),
-      destination: editedPolicy.destination || p.destination!,
-      deductible: editedPolicy.deductible || p.deductible!,
+      destination: String(
+        editedPolicy.destination ??
+        editedPolicy.destinationProvince ??
+        editedPolicy.destProv ??
+        p.destination ??
+        p.destinationProvince ??
+        p.destProv ??
+        ""
+      ),
+      deductible: String(editedPolicy.deductible || p.deductible || ""),
       
       // Conditional Main Info
       dateOfBirth:
@@ -562,12 +843,15 @@ const PolicyDetailsPage: React.FC = () => {
       usTravelDays: editedPolicy.usTravelDays ?? p.usTravelDays,
       numberOfDaysPerTrip: editedPolicy.numberOfDaysPerTrip ?? p.numberOfDaysPerTrip,
       plan: editedPolicy.plan || p.plan,
-      beneficiaryName: editedPolicy.beneficiaryName || p.beneficiaryName,
-      beneficiaryRelation: editedPolicy.beneficiaryRelation || p.beneficiaryRelation,
-      relationshipToInsured: editedPolicy.relationshipToInsured || p.relationshipToInsured,
+      beneficiaryName: editedPolicy.beneficiaryName ?? p.beneficiaryName,
+      beneficiaryRelation: editedPolicy.beneficiaryRelation ?? p.beneficiaryRelation,
+      relationshipToInsured: editedPolicy.relationshipToInsured ?? p.relationshipToInsured,
 
-      coverage: editedPolicy.coverage || p.coverage,
-      applicantInCanada: editedPolicy.applicantInCanada || p.applicantInCanada,
+      legalGuardianName: editedPolicy.legalGuardianName ?? p.legalGuardianName,
+      provinceStateResidence: editedPolicy.provinceStateResidence ?? p.provinceStateResidence,
+
+      coverage: editedPolicy.coverage ?? p.coverage,
+      applicantInCanada: editedPolicy.applicantInCanada ?? p.applicantInCanada,
 
       // Nested/Calculated
       applicants: editedApplicants.map((a) => ({
@@ -816,6 +1100,8 @@ const PolicyDetailsPage: React.FC = () => {
               editedPolicy={editedPolicy}
               isEditMode={isEditMode}
               onFieldChange={handleFieldChange}
+              product={p.product}
+              fieldErrors={fieldErrors}
             />
           ))}
         </div>
@@ -837,6 +1123,8 @@ const PolicyDetailsPage: React.FC = () => {
                 editedPolicy={editedPolicy}
                 isEditMode={isEditMode}
                 onFieldChange={handleFieldChange}
+                product={p.product}
+                fieldErrors={fieldErrors}
               />
             ))}
           {!isEditMode && (
@@ -862,6 +1150,8 @@ const PolicyDetailsPage: React.FC = () => {
                 editedPolicy={editedPolicy}
                 isEditMode={isEditMode}
                 onFieldChange={handleFieldChange}
+                product={p.product}
+                fieldErrors={fieldErrors}
               />
             ))}
         </div>
@@ -884,6 +1174,8 @@ const PolicyDetailsPage: React.FC = () => {
               editedPolicy={editedPolicy}
               isEditMode={isEditMode}
               onFieldChange={handleFieldChange}
+              product={p.product}
+              fieldErrors={fieldErrors}
             />
           ))}
         </div>
@@ -910,55 +1202,80 @@ const PolicyDetailsPage: React.FC = () => {
 
               <div className="min-w-0">
                 <div className="font-semibold">{t("First Name")}</div>
-                {isEditMode ? (
+                {isEditMode && EDITABLE_FIELDS.includes("firstName") ? (
                   <input
                     type="text"
                     value={a.firstName}
                     onChange={(e) =>
                       handleApplicantChange(idx, "firstName", e.target.value)
                     }
-                    className="input-primary w-full"
+                    className={`input-primary w-full ${applicantErrors[idx]?.firstName ? "border-red-500" : ""}`}
+                    id={`applicant-${idx}-firstName`}
                   />
                 ) : (
                   <div className="text-sm text-[#6F6B7D] break-words">
                     {a.firstName || "-"}
                   </div>
                 )}
+                {isEditMode && applicantErrors[idx]?.firstName && (
+                  <p className="text-red-500 text-xs mt-1">
+                    {t(applicantErrors[idx].firstName)}
+                  </p>
+                )}
               </div>
 
               <div className="min-w-0">
                 <div className="font-semibold">{t("Last Name")}</div>
-                {isEditMode ? (
+                {isEditMode && EDITABLE_FIELDS.includes("lastName") ? (
                   <input
                     type="text"
                     value={a.lastName}
                     onChange={(e) =>
                       handleApplicantChange(idx, "lastName", e.target.value)
                     }
-                    className="input-primary w-full"
+                    className={`input-primary w-full ${applicantErrors[idx]?.lastName ? "border-red-500" : ""}`}
+                    id={`applicant-${idx}-lastName`}
                   />
                 ) : (
                   <div className="text-sm text-[#6F6B7D] break-words">
                     {a.lastName || "-"}
                   </div>
                 )}
+                {isEditMode && applicantErrors[idx]?.lastName && (
+                  <p className="text-red-500 text-xs mt-1">
+                    {t(applicantErrors[idx].lastName)}
+                  </p>
+                )}
               </div>
 
               <div className="min-w-0">
-                <div className="font-semibold">{t("Date of Birth")}</div>
-                {isEditMode && p.status === "SOLD" ? (
-                  <input
-                    type="date"
-                    value={fmtDate(a.dateOfBirth?.toString())}
-                    onChange={(e) =>
-                      handleApplicantChange(idx, "dateOfBirth", e.target.value)
+                {isEditMode &&
+                EDITABLE_FIELDS.includes("dateOfBirth") &&
+                p.status === "SOLD" ? (
+                  <DatePicker
+                    id={`applicant-${idx}-dateOfBirth`}
+                    label={t("Date of Birth")}
+                    value={
+                      a.dateOfBirth
+                        ? (a.dateOfBirth as string).split("T")[0]
+                        : ""
                     }
-                    className="input-primary w-full"
+                    onChange={(val) =>
+                      handleApplicantChange(idx, "dateOfBirth", val)
+                    }
+                    error={
+                      applicantErrors[idx]?.dateOfBirth
+                        ? t(applicantErrors[idx].dateOfBirth)
+                        : undefined
+                    }
                   />
                 ) : (
-                  <div className="text-sm text-[#6F6B7D] break-words">
-                    {fmtDate(a.dateOfBirth)}
-                  </div>
+                  <>
+                    <div className="font-semibold">{t("Date of Birth")}</div>
+                    <div className="text-sm text-[#6F6B7D] break-words">
+                      {fmtDate(a.dateOfBirth)}
+                    </div>
+                  </>
                 )}
               </div>
 
@@ -971,28 +1288,36 @@ const PolicyDetailsPage: React.FC = () => {
 
               <div className="min-w-0">
                 <div className="font-semibold">{t("Gender")}</div>
-                {isEditMode ? (
+                {isEditMode && EDITABLE_FIELDS.includes("gender") ? (
                   <select
                     value={a.gender || ""}
                     onChange={(e) =>
                       handleApplicantChange(idx, "gender", e.target.value)
                     }
-                    className="input-primary w-full"
+                    className={`input-primary w-full ${applicantErrors[idx]?.gender ? "border-red-500" : ""}`}
+                    id={`applicant-${idx}-gender`}
                   >
+                    <option value="">{t("Please select")}</option>
                     <option value="Male">{t("Male")}</option>
                     <option value="Female">{t("Female")}</option>
-                    <option value="Other">{t("Other")}</option>
+                    <option value="Non-Binary">{t("Non-Binary")}</option>
+                    <option value="Undeclared">{t("Undeclared")}</option>
                   </select>
                 ) : (
                   <div className="text-sm text-[#6F6B7D] break-words">
                     {t(a.gender || "")}
                   </div>
                 )}
+                {isEditMode && applicantErrors[idx]?.gender && (
+                  <p className="text-red-500 text-xs mt-1">
+                    {t(applicantErrors[idx].gender)}
+                  </p>
+                )}
               </div>
 
               <div className="min-w-0">
                 <div className="font-semibold">{t("Relationship to Primary Applicant")}</div>
-                {isEditMode ? (
+                {isEditMode && EDITABLE_FIELDS.includes("relation") ? (
                   <input
                     type="text"
                     value={a.relation || ""}
@@ -1009,7 +1334,7 @@ const PolicyDetailsPage: React.FC = () => {
               </div>
               <div className="min-w-0">
                 <div className="font-semibold">{t("Coverage for Stable Pre-Existing Medical Condition")}</div>
-                {isEditMode ? (
+                {isEditMode && EDITABLE_FIELDS.includes("PreExCoverage") ? (
                   <select
                     value={a.PreExCoverage || ""}
                     onChange={(e) =>
@@ -1055,6 +1380,8 @@ const PolicyDetailsPage: React.FC = () => {
               editedPolicy={editedPolicy}
               isEditMode={isEditMode}
               onFieldChange={handleFieldChange}
+              product={p.product}
+              fieldErrors={fieldErrors}
             />
           ))}
         </div>
@@ -1075,6 +1402,8 @@ const PolicyDetailsPage: React.FC = () => {
                 editedPolicy={editedPolicy}
                 isEditMode={isEditMode}
                 onFieldChange={handleFieldChange}
+                product={p.product}
+                fieldErrors={fieldErrors}
               />
             ))}
           </div>
@@ -1628,7 +1957,7 @@ const PolicyDetailsPage: React.FC = () => {
                   </span>
                 )}
                 <span className="ml-auto text-xs text-gray-400">
-                  {new Date(att.createdAt).toLocaleDateString("en-CA")}
+                  {fmtDateDisplay(att.createdAt)}
                 </span>
               </li>
             ))}
@@ -1751,13 +2080,7 @@ const PolicyDetailsPage: React.FC = () => {
         isAgeBracketChange={premiumData?.isAgeBracketChange}
       />
 
-      <ValidationErrorModal
-        isOpen={showValidationModal}
-        onClose={() => setShowValidationModal(false)}
-        title={validationMessage.title}
-        message={validationMessage.message}
-        type="warning"
-      />
+
 
       <UpdateCardModal
         isOpen={showUpdateCardModal}

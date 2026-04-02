@@ -1,4 +1,5 @@
 import { useLanguage } from "../../../../context/LanguageContext";
+import { formatDate } from "../../../../utils/dateUtils";
 
 interface Applicant {
   firstName: string;
@@ -24,18 +25,7 @@ export default function ApplicantInformationFinished({
   applicants,
 }: ApplicantInformationFinishedProps) {
   const { t } = useLanguage();
-  const fmtDate = (iso: string) => {
-    if (!iso) return t("N/A");
-    try {
-      return new Date(iso).toLocaleDateString("en-US", {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-      });
-    } catch {
-      return iso;
-    }
-  };
+  const fmtDate = (iso: string) => formatDate(iso);
 
   return (
     <div className="max-w-5xl mx-auto mt-6 p-3 sm:p-6 bg-[#F9F9F9]">

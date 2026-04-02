@@ -59,7 +59,7 @@
 // ==============================
 
 import { InformationCircleIcon } from "@heroicons/react/24/outline";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { UseFormReturn } from "react-hook-form";
 import { useLanguage } from "../../../../context/LanguageContext";
 
@@ -83,9 +83,16 @@ export default function ContactInformation({
   const { t } = useLanguage();
   const {
     register,
+    setValue,
     formState: { errors },
   } = methods;
   const [displayInfoAddEmail, setDisplayInfoAddEmail] = useState(false);
+
+  useEffect(() => {
+    if (email) {
+      setValue("contactInfo.email", email);
+    }
+  }, [email, setValue]);
 
   return (
     <div className="max-w-5xl mx-auto mt-4 p-3 sm:p-6 bg-[#F9F9F9]">

@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { useGetVerificationRequests } from '../../hooks/agent-verification/useGetVerificationRequests';
 import { useVerifyAgent } from '../../hooks/agent-verification/useVerifyAgent';
 import { CheckCircleIcon, ClockIcon, DocumentIcon, UserIcon, ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
-import { format } from 'date-fns';
 import { API_BASE } from '../../utils/urls';
 import { useMgaCodes } from '../../hooks/agent-verification/useMgaCodes'; 
 import { VerifiedAgentsTable } from './VerifiedAgentsTable';
@@ -11,6 +10,7 @@ import VerificationModal from './VerifyAgentModal';
 import { useLanguage } from '../../context/LanguageContext';
 import { RenderPageNumbers } from '../RenderPageNumbers';
 import { getApplicantTypeBadge } from '../../utils/getApplicantTypeBadge';
+import { formatDate } from '../../utils/dateUtils';
 
 
 
@@ -538,7 +538,7 @@ const handleVerifySubmit = async () => {
                                 <p className="text-xs text-text-secondary mb-0.5">{t("Document Upload Status")}</p>
                                 <p className="text-sm font-medium text-gray-700">
                                   {agent.documentsUploadedAt
-                                    ? format(new Date(agent.documentsUploadedAt), "MMM dd, yyyy")
+                                    ? formatDate(agent.documentsUploadedAt)
                                     : agent.applicantType === 'under_mga' && agent.mgaType === 'wfg'
                                     ? t("WFG Code Provided")
                                     : t("Not uploaded")}
@@ -668,7 +668,7 @@ const handleVerifySubmit = async () => {
                               <p className="text-xs text-text-secondary mb-1">{t("Document Upload Status")}</p>
                               <p className="text-sm font-medium text-gray-700">
                                 {agent.documentsUploadedAt
-                                  ? format(new Date(agent.documentsUploadedAt), "MMM dd, yyyy")
+                                  ? formatDate(agent.documentsUploadedAt)
                                   : agent.applicantType === 'under_mga' && agent.mgaType === 'wfg'
                                   ? t("WFG Code Provided")
                                   : t("Not uploaded")}

@@ -17,6 +17,7 @@ import { useLanguage } from "../../../context/LanguageContext";
 
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useRenewalPolicyData } from "../../../hooks/renewals/useRenewalPolicyData";
+import { formatDate } from "../../../utils/dateUtils";
 import ApplicantInformation from "../../../components/Products/CanuckVoyageComponenets/step1/ApplicantInformation";
 import CoverageInformation from "../../../components/Products/CanuckVoyageComponenets/step1/CoverageInformation";
 import QuoteSummary from "../../../components/Products/CanuckVoyageComponenets/step2/QouteSummary";
@@ -255,7 +256,7 @@ const RIMICanuckVoyageTravelMedical: React.FC = () => {
         type: "error",
         message: "No policy ID provided. Redirecting to policies page.",
       });
-      navigate("/policies");
+      navigate("/search-policies");
     }
   }, [policyId, navigate, triggerNotification]);
 
@@ -423,7 +424,7 @@ const RIMICanuckVoyageTravelMedical: React.FC = () => {
           </h3>
           <p className="text-red-700 mt-2">{policyError}</p>
           <button
-            onClick={() => navigate(`/policies/${policyId}`)}
+            onClick={() => navigate(`/search-policies`)}
             className="mt-4 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
           >
             {t("Return to Policy")}
@@ -444,7 +445,7 @@ const RIMICanuckVoyageTravelMedical: React.FC = () => {
             {t("Could not load policy information.")}
           </p>
           <button
-            onClick={() => navigate("/policies")}
+            onClick={() => navigate("/search-policies")}
             className="mt-4 px-4 py-2 bg-yellow-600 text-white rounded hover:bg-yellow-700"
           >
             {t("Back to Policies")}
@@ -460,7 +461,7 @@ const RIMICanuckVoyageTravelMedical: React.FC = () => {
       <div className="flex gap-1 mb-4 items-center text-primary">
         <span
           className="underline underline-offset-2 cursor-pointer text-sm text-primary font-medium"
-          onClick={() => navigate("/policies")}
+          onClick={() => navigate("/search-policies")}
         >
           {t("Policies")}
         </span>
@@ -592,8 +593,8 @@ const RIMICanuckVoyageTravelMedical: React.FC = () => {
               <br />
               <span className="text-xs">
                 {t("Original Coverage:")}{" "}
-                {new Date(policyData.effectiveDate).toLocaleDateString()} to{" "}
-                {new Date(policyData.expiryDate).toLocaleDateString()}
+                {formatDate(policyData.effectiveDate)} to{" "}
+                {formatDate(policyData.expiryDate)}
               </span>
             </p>
           </div>

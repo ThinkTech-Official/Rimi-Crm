@@ -1,9 +1,15 @@
 import { PolicyDetail } from "../hooks/usePolicyDetail";
+import { formatDate } from "../utils/dateUtils";
 
 export const fmtDate = (iso?: string) => {
   if (!iso) return "-";
   const datePart = iso.split("T")[0];
   return datePart;
+};
+
+export const fmtDateDisplay = (iso?: string) => {
+  if (!iso) return "-";
+  return formatDate(iso);
 };
 
 export const calcAge = (dob?: string, ref?: string) => {
@@ -40,7 +46,7 @@ export const PRODUCT_FIELDS_CONFIG: Record<
   SECURE_TRAVEL_RIMI_VISITORS_TO_CANADA_TRAVEL: {
     policyInfo: [
       { label: "Policy Number", field: "policyNumber" },
-      { label: "Sale Date", field: "dateIssued", transform: fmtDate },
+      { label: "Sale Date", field: "dateIssued", transform: fmtDateDisplay },
       { label: "Status", field: "status" },
       { label: "Sales Channel", field: "salesChannel" },
       { label: "Language", field: "language" },
@@ -54,7 +60,7 @@ export const PRODUCT_FIELDS_CONFIG: Record<
         label: "Date of Birth",
         field: "dateOfBirth",
         type: "date",
-        transform: fmtDate,
+        transform: fmtDateDisplay,
       },
       { label: "Gender", field: "gender", type: "select", options: ["Male", "Female", "Other"] },
       {
@@ -85,13 +91,13 @@ export const PRODUCT_FIELDS_CONFIG: Record<
         label: "Effective Date",
         field: ["effectiveDate", "covEffDate"],
         type: "date",
-        transform: fmtDate,
+        transform: fmtDateDisplay,
       },
       {
         label: "Expiry Date",
         field: ["expiryDate", "covExpDate"],
         type: "date",
-        transform: fmtDate,
+        transform: fmtDateDisplay,
       },
       {
         label: "Coverage Length",
@@ -112,6 +118,7 @@ export const PRODUCT_FIELDS_CONFIG: Record<
         options: ["yes", "no"],
       },
       { label: "Deductible", field: "deductible" },
+      { label: "Coverage", field: "coverage" },
     ],
     beneficiaryInfo: [
       { label: "Name", field: "beneficiaryName" },
@@ -121,7 +128,7 @@ export const PRODUCT_FIELDS_CONFIG: Record<
   SECURE_STUDY_RIMI_INTERNATIONAL_STUDENTS_TO_CANADA: {
     policyInfo: [
       { label: "Policy Number", field: "policyNumber" },
-      { label: "Sale Date", field: "dateIssued", transform: fmtDate },
+      { label: "Sale Date", field: "dateIssued", transform: fmtDateDisplay },
       { label: "Status", field: "status" },
       { label: "Sales Channel", field: "salesChannel" },
       { label: "Language", field: "language" },
@@ -135,7 +142,7 @@ export const PRODUCT_FIELDS_CONFIG: Record<
         label: "Date of Birth",
         field: "dateOfBirth",
         type: "date",
-        transform: fmtDate,
+        transform: fmtDateDisplay,
       },
       {
         label: "Gender",
@@ -166,13 +173,13 @@ export const PRODUCT_FIELDS_CONFIG: Record<
         label: "Effective Date",
         field: ["effectiveDate", "covEffDate"],
         type: "date",
-        transform: fmtDate,
+        transform: fmtDateDisplay,
       },
       {
         label: "Expiry Date",
         field: ["expiryDate", "covExpDate"],
         type: "date",
-        transform: fmtDate,
+        transform: fmtDateDisplay,
       },
       {
         label: "Coverage Length",
@@ -191,7 +198,7 @@ export const PRODUCT_FIELDS_CONFIG: Record<
   RIMI_CANUCK_VOYAGE_TRAVEL_MEDICAL: {
     policyInfo: [
       { label: "Policy Number", field: "policyNumber" },
-      { label: "Sale Date", field: "dateIssued", transform: fmtDate },
+      { label: "Sale Date", field: "dateIssued", transform: fmtDateDisplay },
       { label: "Status", field: "status" },
       { label: "Sales Channel", field: "salesChannel" },
       { label: "Language", field: "language" },
@@ -205,7 +212,7 @@ export const PRODUCT_FIELDS_CONFIG: Record<
         label: "Date of Birth",
         field: "dateOfBirth",
         type: "date",
-        transform: fmtDate,
+        transform: fmtDateDisplay,
       },
       { label: "Gender", field: "gender", type: "select", options: ["Male", "Female", "Other"] },
       { label: "Premium", field: "primaryPremium", transform: fmtCurrency },
@@ -225,13 +232,13 @@ export const PRODUCT_FIELDS_CONFIG: Record<
         label: "Effective Date",
         field: ["effectiveDate", "covEffDate"],
         type: "date",
-        transform: fmtDate,
+        transform: fmtDateDisplay,
       },
       {
         label: "Expiry Date",
         field: ["expiryDate", "covExpDate"],
         type: "date",
-        transform: fmtDate,
+        transform: fmtDateDisplay,
       },
       {
         label: "Coverage Length",
@@ -250,7 +257,7 @@ export const PRODUCT_FIELDS_CONFIG: Record<
   RIMI_CANUCK_VOYAGE_NON_MEDICAL_TRAVEL: {
     policyInfo: [
       { label: "Policy Number", field: "policyNumber" },
-      { label: "Sale Date", field: "dateIssued", transform: fmtDate },
+      { label: "Sale Date", field: "dateIssued", transform: fmtDateDisplay },
       { label: "Status", field: "status" },
       { label: "Sales Channel", field: "salesChannel" },
       { label: "Language", field: "language" },
@@ -264,7 +271,7 @@ export const PRODUCT_FIELDS_CONFIG: Record<
         label: "Date of Birth",
         field: "dateOfBirth",
         type: "date",
-        transform: fmtDate,
+        transform: fmtDateDisplay,
       },
       {
         label: "Gender",
@@ -294,13 +301,13 @@ export const PRODUCT_FIELDS_CONFIG: Record<
         label: "Effective Date",
         field: ["effectiveDate", "covEffDate"],
         type: "date",
-        transform: fmtDate,
+        transform: fmtDateDisplay,
       },
       {
         label: "Expiry Date",
         field: ["expiryDate", "covExpDate"],
         type: "date",
-        transform: fmtDate,
+        transform: fmtDateDisplay,
       },
       {
         label: "Coverage Length",
@@ -323,7 +330,7 @@ export const PRODUCT_FIELDS_CONFIG: Record<
         field: "tripCancellationDeluxe",
         transform: (v) => (v ? "Yes" : "No"),
       },
-      { label: "Trip Booking Date", field: "dateBooked", transform: fmtDate },
+      { label: "Trip Booking Date", field: "dateBooked", transform: fmtDateDisplay },
       { label: "Destination", field: ["destination", "destinationCountry"] },
     ],
   },
@@ -338,7 +345,7 @@ export const DEFAULT_FIELDS_CONFIG: {
 } = {
   policyInfo: [
     { label: "Policy Number", field: "policyNumber" },
-    { label: "Sale Date", field: "dateIssued", transform: fmtDate },
+    { label: "Sale Date", field: "dateIssued", transform: fmtDateDisplay },
     { label: "Status", field: "status" },
     { label: "Sales Channel", field: "salesChannel" },
     { label: "Language", field: "language" },
@@ -348,7 +355,7 @@ export const DEFAULT_FIELDS_CONFIG: {
      { label: "Individual Policy Number", field: ["primaryIndividualNumber", "individualPolicyNumber"] },
      { label: "First Name", field: "firstName" },
      { label: "Last Name", field: "lastName" },
-     { label: "Date of Birth", field: "dateOfBirth", type: "date", transform: fmtDate },
+     { label: "Date of Birth", field: "dateOfBirth", type: "date", transform: fmtDateDisplay },
   ],
   contactInfo: [
      { label: "Email Address", field: "email", type: "email" },
@@ -357,8 +364,8 @@ export const DEFAULT_FIELDS_CONFIG: {
      { label: "Address Line 2", field: "street2" },
   ],
   coverageDetails: [
-     { label: "Effective Date", field: "effectiveDate", type: "date", transform: fmtDate },
-     { label: "Expiry Date", field: "expiryDate", type: "date", transform: fmtDate },
+     { label: "Effective Date", field: "effectiveDate", type: "date", transform: fmtDateDisplay },
+     { label: "Expiry Date", field: "expiryDate", type: "date", transform: fmtDateDisplay },
      { label: "Coverage Length", field: "covLen", transform: (v: any) => v ? `${v} Days` : "-" },
   ],
   beneficiaryInfo: [

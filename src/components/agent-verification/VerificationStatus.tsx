@@ -1,4 +1,3 @@
-import React from 'react';
 import { useSelector } from 'react-redux';
 import { selectVerificationStatus } from '../../features/verificationSlice';
 import { 
@@ -9,9 +8,9 @@ import {
   DocumentIcon,
   CalendarIcon
 } from '@heroicons/react/24/outline';
-import { format } from 'date-fns';
 import { API_BASE } from '../../utils/urls';
 import { useLanguage } from '../../context/LanguageContext';
+import { formatDate } from '../../utils/dateUtils';
 
 export default function VerificationStatus() {
   const { t } = useLanguage();
@@ -107,7 +106,7 @@ export default function VerificationStatus() {
               <div className="flex items-center space-x-2">
                 <DocumentIcon className="h-4 w-4" />
                 <span>
-                  {t("Documents uploaded on")}: {format(new Date(status.documentsUploadedAt), 'MMM dd, yyyy')}
+                  {t("Documents uploaded on")}: {formatDate(status.documentsUploadedAt)}
                 </span>
               </div>
             )}
@@ -116,7 +115,7 @@ export default function VerificationStatus() {
               <div className="flex items-center space-x-2">
                 <CheckCircleIcon className="h-4 w-4" />
                 <span>
-                  {t("Verified on")}: {format(new Date(status.verifiedAt), 'MMM dd, yyyy')}
+                  {t("Verified on")}: {formatDate(status.verifiedAt)}
                 </span>
               </div>
             )}
@@ -127,7 +126,7 @@ export default function VerificationStatus() {
                 <span className={
                   new Date(status.verificationValidTill) <= new Date() ? 'text-red-600 font-medium' : ''
                 }>
-                  {t("Valid until")}: {format(new Date(status.verificationValidTill), 'MMM dd, yyyy')}
+                  {t("Valid until")}: {formatDate(status.verificationValidTill)}
                 </span>
               </div>
             )}

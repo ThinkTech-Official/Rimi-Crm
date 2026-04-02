@@ -13,6 +13,7 @@ import {
   MdAutorenew,
   MdCreditCard,
 } from "react-icons/md";
+import { formatDate } from "../utils/dateUtils";
 
 interface ActivityTimelineProps {
   activities: PolicyActivity[];
@@ -103,20 +104,6 @@ export const PolicyActivityTimeline: React.FC<ActivityTimelineProps> = ({
       .join(" ");
   };
 
-  /**
-   * Format date for display
-   */
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleString("en-CA", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  };
-
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center py-12 gap-3">
@@ -152,7 +139,7 @@ export const PolicyActivityTimeline: React.FC<ActivityTimelineProps> = ({
   }
 
   return (
-    <div className="relative pl-8 space-y-8 before:absolute before:left-[11px] before:top-2 before:bottom-2 before:w-[2px] before:bg-gray-100">
+    <div className="relative pl-8 space-y-8 before:absolute before:left-[11px] before:top-2 before:bottom-2 before:w-[2px] before:bg-gray-100 max-h-[70vh] overflow-y-auto custom-scrollbar3">
       {activities.map((activity) => {
         const style = getActivityStyle(activity.activityType);
         return (
@@ -245,15 +232,9 @@ export const PolicyActivityTimeline: React.FC<ActivityTimelineProps> = ({
                                           // Check if it's a date string
                                           if (
                                             typeof val === "string" &&
-                                            val.match(/^\d{4}-\d{2}-\d{2}T/)
+                                            (val.match(/^\d{4}-\d{2}-\d{2}T/) || val.match(/^\d{4}-\d{2}-\d{2}$/))
                                           ) {
-                                            return new Date(
-                                              val,
-                                            ).toLocaleDateString("en-CA", {
-                                              year: "numeric",
-                                              month: "short",
-                                              day: "numeric",
-                                            });
+                                            return formatDate(val);
                                           }
                                           return String(val);
                                         };

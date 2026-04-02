@@ -1,6 +1,7 @@
 import React from "react";
 import { PaymentScheduleItem } from "../../hooks/usePaymentSchedule";
 import { useLanguage } from "../../context/LanguageContext";
+import { formatDate } from "../../utils/dateUtils";
 
 interface PaymentScheduleTableProps {
   schedule: PaymentScheduleItem[];
@@ -76,14 +77,6 @@ export const PaymentScheduleTable: React.FC<PaymentScheduleTableProps> = ({
       "lump-sum": t("Lump Sum"),
     };
     return labels[type] || t(type);
-  };
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("en-CA", {
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-    });
   };
 
   const formatCurrency = (amount: number, currency: string) => {

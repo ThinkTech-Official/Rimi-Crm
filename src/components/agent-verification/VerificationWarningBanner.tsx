@@ -3,6 +3,7 @@ import { ExclamationTriangleIcon, XMarkIcon } from '@heroicons/react/24/outline'
 import { useGetVerificationStatus } from '../../hooks/agent-verification/useGetVerificationStatus';
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '../../context/LanguageContext';
+import { formatDate } from '../../utils/dateUtils';
 
 interface VerificationWarningBannerProps {
   userType: string | null;
@@ -56,7 +57,7 @@ export default function VerificationWarningBanner({ userType }: VerificationWarn
         return t('Your verification was rejected. Please upload new documents for review.');
       case 'EXPIRED':
         const expiredDate = verificationStatus.verificationValidTill 
-          ? new Date(verificationStatus.verificationValidTill).toLocaleDateString()
+          ? formatDate(verificationStatus.verificationValidTill)
           : t('recently');
         return `${t("Your verification expired on")} ${expiredDate}. ${t("Please upload new documents.")}`;
       default:

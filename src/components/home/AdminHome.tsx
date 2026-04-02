@@ -221,6 +221,7 @@ import AdminPolicySalesChart from "../analytics/admin-charts/AdminPolicySalesCha
 import { RenderPageNumbers } from "../RenderPageNumbers";
 import { useOnClickOutside } from "../../hooks/useOnClickOutside";
 import { pastelColors } from "../Products/SecureTravelRIMIVisitorstoCanadaTravel/step1/Constants";
+import { formatDate } from "../../utils/dateUtils";
 
 export default function AdminHome() {
   const navigate = useNavigate();
@@ -416,7 +417,7 @@ if (statsLoading) {
         {/* Last updated timestamp */}
         <p className="text-sm text-gray-400">
           {stats?.computedAt
-            ? `${t("Last updated")}: ${new Date(stats.computedAt).toLocaleString()}`
+            ? `${t("Last updated")}: ${formatDate(stats.computedAt)}`
             : ""}
         </p>
 
@@ -738,13 +739,13 @@ function AgentsTable({
                     {agent.agentCode}
                   </td>
                   <td className="px-2 sm:px-3 py-2 whitespace-nowrap border-r border-b border-[#AAA9A9]">
-                    {agent.joinedDate}
+                    {agent.joinedDate ? formatDate(agent.joinedDate) : "N/A"}
                   </td>
                   <td className="px-2 sm:px-3 py-2 min-w-[200px] max-w-[250px] text-wrap border-r border-b border-[#AAA9A9]">
                     {agent.name}
                   </td>
                   <td className="px-2 sm:px-3 py-2 whitespace-nowrap border-r border-b border-[#AAA9A9]">
-                    {agent.validity}
+                    {agent.validity ? formatDate(agent.validity) : "N/A"}
                   </td>
                   <td className="px-2 sm:px-3 py-2 whitespace-nowrap border-r border-b border-[#AAA9A9]">
                     {agent.quotesCount}
@@ -873,7 +874,7 @@ function PoliciesTable({ data, loading, currentPage, onPageChange }: any) {
                   </td>
                   <td className="px-2 sm:px-3 py-2 whitespace-nowrap border-r border-b border-[#AAA9A9]">
                     {policy.dateIssued
-                      ? new Date(policy.dateIssued).toLocaleDateString()
+                      ? formatDate(policy.dateIssued)
                       : "N/A"}
                   </td>
                 </tr>
@@ -995,7 +996,7 @@ function QuotesTable({ data, loading, currentPage, onPageChange }: any) {
                   </td>
                   <td className="px-2 sm:px-3 py-2 whitespace-nowrap border-r border-b border-[#AAA9A9]">
                     {quote.createdAt
-                      ? new Date(quote.createdAt).toLocaleDateString()
+                      ? formatDate(quote.createdAt)
                       : "N/A"}
                   </td>
                 </tr>
