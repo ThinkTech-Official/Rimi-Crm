@@ -597,7 +597,7 @@ export default function CoverageInformation({
   // Serialize applicant DOBs so nested changes are detected by useMemo
   // (RHF's watch() may return the same array reference even when dob changes)
   const serializedApplicantDobs = JSON.stringify(
-    applicants.map((a: any) => a.dob)
+    applicants.map((a: any) => a.dob),
   );
 
   // Check if form can calculate premium
@@ -617,10 +617,16 @@ export default function CoverageInformation({
     const parsedDobs: string[] = JSON.parse(serializedApplicantDobs);
     const allApplicantDobsFilled =
       parsedDobs.length === 0 ||
-      parsedDobs.every((dob) => dob !== "" && dob !== undefined && dob !== null);
+      parsedDobs.every(
+        (dob) => dob !== "" && dob !== undefined && dob !== null,
+      );
 
     if (policyType === "Multi-Trip Annual") {
-      return baseFields && allApplicantDobsFilled && numberOfDaysPerTrip !== undefined;
+      return (
+        baseFields &&
+        allApplicantDobsFilled &&
+        numberOfDaysPerTrip !== undefined
+      );
     }
 
     return baseFields && allApplicantDobsFilled;
@@ -646,8 +652,6 @@ export default function CoverageInformation({
     onValidityChange?.(isFormFilled);
   }, [isFormFilled, onValidityChange]);
 
-
-
   // Premium calculation data
   const premiumCalculationData = useMemo(
     () => ({
@@ -660,7 +664,11 @@ export default function CoverageInformation({
       primaryDateOfBirth,
       numberOfDaysPerTrip,
       deductible,
-      applicants: applicants.map((a: any) => ({ dob: a.dob })),
+      // applicants: applicants.map((a: any) => ({ dob: a.dob })),
+      applicants: applicants.map((a: any) => ({
+        dob: a.dob,
+        relation: a.relationship, 
+      })),
     }),
     [
       policyType,
@@ -677,7 +685,7 @@ export default function CoverageInformation({
       // changes, so Object.is() equality would never detect the change.
       // eslint-disable-next-line react-hooks/exhaustive-deps
       serializedApplicantDobs,
-    ]
+    ],
   );
 
   const {
@@ -687,7 +695,7 @@ export default function CoverageInformation({
     error: hookError,
   } = usePremiumCalculationProduct3(
     premiumCalculationData,
-    canCalculatePremium
+    canCalculatePremium,
   );
 
   useEffect(() => {
@@ -747,7 +755,6 @@ export default function CoverageInformation({
   //   }
   // };
 
-
   return (
     <div className="max-w-5xl mx-auto mt-6 p-3 sm:p-6 bg-[#F9F9F9]">
       <h3 className="text-lg font-bold text-left text-[#1B1B1B] mb-5">
@@ -772,7 +779,9 @@ export default function CoverageInformation({
             >
               <option value="">{t("Please select")}</option>
               <option value="Single Trip">{t("Single Trip")}</option>
-              <option value="Multi-Trip Annual">{t("Multi-Trip Annual")}</option>
+              <option value="Multi-Trip Annual">
+                {t("Multi-Trip Annual")}
+              </option>
             </select>
             <div className="pointer-events-none absolute inset-y-0 right-2 flex items-center text-gray-500">
               <ChevronDownIcon className="h-5 w-5" aria-hidden="true" />
@@ -839,7 +848,7 @@ export default function CoverageInformation({
                   }
                 }
                 return true;
-              }
+              },
             }}
             render={({ field }) => (
               <DatePicker
@@ -1193,7 +1202,9 @@ export default function CoverageInformation({
             {t("Destination")}
           </h2>
           <p className="text-sm text-text-secondary mt-2">
-            {t("Select the primary destination country for your trip. Select Canada only if you are travelling outside your home province, but within Canada for your entire trip.")}
+            {t(
+              "Select the primary destination country for your trip. Select Canada only if you are travelling outside your home province, but within Canada for your entire trip.",
+            )}
           </p>
         </div>
       )}
@@ -1234,7 +1245,9 @@ export default function CoverageInformation({
 
       {travelingThroughUS === "yes" && (
         <div className="mt-4 flex flex-col text-text-secondary">
-          <label className="text-sm">{t("Number of Travel Days in the US")}</label>
+          <label className="text-sm">
+            {t("Number of Travel Days in the US")}
+          </label>
           <input
             type="number"
             className="input-primary"
@@ -1251,11 +1264,17 @@ export default function CoverageInformation({
               },
               validate: (value) => {
                 const val = Number(value);
-                if (travelingThroughUS === "yes" && !isNaN(val) && val > coverageLength) {
-                  return t("US travel days cannot exceed the total coverage length.");
+                if (
+                  travelingThroughUS === "yes" &&
+                  !isNaN(val) &&
+                  val > coverageLength
+                ) {
+                  return t(
+                    "US travel days cannot exceed the total coverage length.",
+                  );
                 }
                 return true;
-              }
+              },
             })}
           />
           {errors.usTravelDays && (
@@ -1315,7 +1334,9 @@ export default function CoverageInformation({
             {t("close")}
           </button>
           <p className="text-sm text-gray-600 mt-2">
-            {t("Deductible means the amount (if applicable), in Canadian dollars, which the insured must pay before any remaining eligible expenses are reimbursed under this policy.")}
+            {t(
+              "Deductible means the amount (if applicable), in Canadian dollars, which the insured must pay before any remaining eligible expenses are reimbursed under this policy.",
+            )}
           </p>
 
           <div className="mt-4">
@@ -1358,9 +1379,7 @@ export default function CoverageInformation({
       {/* Save Quote Button */}
       {quoteNumber && !isDirty ? (
         <div className="flex flex-col justify-center items-center mt-4 text-xl font-bold text-red-600">
-          <span>
-            {t("Quote Saved:")}{" "}
-          </span>
+          <span>{t("Quote Saved:")} </span>
           <span>{quoteNumber}</span>
 
           <button
@@ -1373,7 +1392,8 @@ export default function CoverageInformation({
         </div>
       ) : (
         <div className="text-center mt-4">
-          <button type="button"
+          <button
+            type="button"
             onClick={async () => {
               const success = await handleSaveQuote();
               if (success) {
@@ -1382,8 +1402,9 @@ export default function CoverageInformation({
               }
             }}
             disabled={saving}
-            className={`text-base hover:underline underline-offset-2 cursor-pointer text-primary mt-2 ${saving ? "opacity-50" : ""
-              }`}
+            className={`text-base hover:underline underline-offset-2 cursor-pointer text-primary mt-2 ${
+              saving ? "opacity-50" : ""
+            }`}
           >
             {saving ? t("Saving...") : t("Save Quote")}
           </button>
