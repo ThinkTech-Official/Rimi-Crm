@@ -1163,7 +1163,7 @@ export default function SecureStudyRIMIInternationalStudentstoCanada() {
       {steps[0].status === "current" && (
         <FormProvider {...step1Methods}>
           <form onSubmit={step1Methods.handleSubmit(handleNext)}>
-            <TestFillButton productName={productName} />
+            {/* <TestFillButton productName={productName} /> */}
             <Step1Container
               methods={step1Methods}
               quoteNumber={quoteNumber}
@@ -1201,10 +1201,10 @@ export default function SecureStudyRIMIInternationalStudentstoCanada() {
             </h3>
           </div>
 
-          <TestFillButton 
+          {/* <TestFillButton 
             productName={productName} 
             methods={[contactInfoMethods, addressInfoMethods, beneficiaryInfoMethods]} 
-          />
+          /> */}
 
           <QuoteSummary step1ResponseData={step1ResponseData} />
           <ApplicantInformationFinished

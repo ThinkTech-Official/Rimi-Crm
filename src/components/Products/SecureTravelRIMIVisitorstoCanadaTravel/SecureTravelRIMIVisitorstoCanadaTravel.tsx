@@ -457,7 +457,7 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
       {steps[0].status === "current" && (
         <div>
           <FormProvider {...step1Methods}>
-            <TestFillButton productName={productName} />
+            {/* <TestFillButton productName={productName} /> */}
             <Step1STRVCT
               onValidityChange={setIsStepOneFilled}
               quoteNumber={quoteNumber}
@@ -494,10 +494,10 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
             </h3>
           </div>
 
-          <TestFillButton
+          {/* <TestFillButton
             productName={productName}
             methods={[contactInfoMethods, addressMethods, beneficiaryMethods]}
-          />
+          /> */}
           <YourQuoteSummary step1ResponseData={step1ResponseData} />
           <ApplicantInformationFinished
             dateOfBirth={step1ResponseData?.dateOfBirth ?? ""}
