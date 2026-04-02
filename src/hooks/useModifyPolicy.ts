@@ -62,6 +62,8 @@ export interface ModifyPolicyData {
   beneficiaryName?: string;
   beneficiaryRelation?: string;
   relationshipToInsured?: string;
+  provinceStateResidence?: string;
+  legalGuardianName?: string;
 
   coverage?: string;
   applicantInCanada?: string;

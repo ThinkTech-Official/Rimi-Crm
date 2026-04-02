@@ -139,7 +139,7 @@ export const PolicyActivityTimeline: React.FC<ActivityTimelineProps> = ({
   }
 
   return (
-    <div className="relative pl-8 space-y-8 before:absolute before:left-[11px] before:top-2 before:bottom-2 before:w-[2px] before:bg-gray-100">
+    <div className="relative pl-8 space-y-8 before:absolute before:left-[11px] before:top-2 before:bottom-2 before:w-[2px] before:bg-gray-100 max-h-[70vh] overflow-y-auto custom-scrollbar3">
       {activities.map((activity) => {
         const style = getActivityStyle(activity.activityType);
         return (

@@ -118,6 +118,7 @@ export const PRODUCT_FIELDS_CONFIG: Record<
         options: ["yes", "no"],
       },
       { label: "Deductible", field: "deductible" },
+      { label: "Coverage", field: "coverage" },
     ],
     beneficiaryInfo: [
       { label: "Name", field: "beneficiaryName" },
