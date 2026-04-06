@@ -42,7 +42,7 @@ export interface PremiumCalculationData {
   coverageForPreMedCon?: boolean;
   applicants?: any[];
   plan?: number;
-  primaryDateOfBirth?: string;
+  primarydateOfBirth?: string;
   paymentOption?: string;
 }
 
@@ -455,7 +455,7 @@ const Step1STRVCT = ({
     policyType,
     coverageOption,
     deductible: Number(deductible),
-    primaryDateOfBirth: primaryDateOfBirth
+    primarydateOfBirth: primaryDateOfBirth
       ? new Date(primaryDateOfBirth).toISOString()
       : "",
     paymentOption,
