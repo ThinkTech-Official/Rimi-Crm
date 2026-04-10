@@ -49,6 +49,7 @@ export interface ModifyPolicyData {
   destination: string;
   deductible: string;
   applicantOnSuperVisa?: string;
+  superVisaYears?: string;
 
   // New product-specific fields
   tripCost?: number;

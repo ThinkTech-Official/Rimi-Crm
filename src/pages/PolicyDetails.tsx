@@ -12,6 +12,9 @@ import { usePolicyNotes } from "../hooks/usePolicyNotes";
 import { usePolicyAttachments } from "../hooks/usePolicyAttachments";
 import { useFulfillment } from "../hooks/useFulfillment";
 import { useLanguage } from "../context/LanguageContext";
+import {
+  ChevronDownIcon
+} from "@heroicons/react/24/outline";
 import { usePolicyFeeRefund } from "../hooks/usePolicyFeeRefund";
 import {
   useModifyPolicy,
@@ -45,6 +48,7 @@ import {
   PRODUCT_FIELDS_CONFIG,
   DEFAULT_FIELDS_CONFIG,
 } from "./PolicyDetailsConfig";
+import { RelationToPrimaryApplicant } from "../utils/sharedConstants";
 
 
 const formatFileSize = (bytes: number): string => {
@@ -60,12 +64,12 @@ interface PolicyFieldProps {
   label: string;
   field: keyof PolicyDetail | (keyof PolicyDetail)[];
   type?: "text" | "email" | "date" | "select" | "number";
-  options?: string[];
+  options?: string[] | { value: string; label: string }[];
   policy: PolicyDetail;
   editedPolicy: Partial<PolicyDetail>;
   isEditMode: boolean;
   onFieldChange: (field: string, value: any) => void;
-  transform?: (value: any) => React.ReactNode;
+  transform?: (value: any, t: (key: string) => string) => React.ReactNode;
   product?: string;
   fieldErrors?: Record<string, string>;
   error?: string;
@@ -84,56 +88,64 @@ const EDITABLE_FIELDS = [
   "street2",
   "city",
   "province",
-  "countryCode",
   "postalCode",
   "effectiveDate",
+  "countryCode",
+  "countryOfOrigin",
   "expiryDate",
   "destination",
   "destinationProvince",
   "destProv",
+  "applicantTravelThroughUs",
+  "usTravelDays",
   "applicantOnSuperVisa",
   "superVisa",
   "deductible",
+  "coverage",
+  "applicantInCanada",
   "relation",
   "beneficiaryName",
   "beneficiaryRelation",
   "tripCost",
   "legalGuardianName",
+  "superVisaYears",
 ];
- 
-const PRODUCT_RULES: Record<string, { 
-    maxAge: number; 
-    minAgeDays: number; 
-    minPhone: number; 
-    maxPhone: number;
-    requiredFields?: string[];
-  }> = {
-    SECURE_TRAVEL_RIMI_VISITORS_TO_CANADA_TRAVEL: {
-      maxAge: 86,
-      minAgeDays: 15,
-      minPhone: 10,
-      maxPhone: 15,
-    },
-    SECURE_STUDY_RIMI_INTERNATIONAL_STUDENTS_TO_CANADA: {
-      maxAge: 65,
-      minAgeDays: 15,
-      minPhone: 10,
-      maxPhone: 15,
-    },
-    RIMI_CANUCK_VOYAGE_TRAVEL_MEDICAL: {
-      maxAge: 80,
-      minAgeDays: 15,
-      minPhone: 10,
-      maxPhone: 10,
-      requiredFields: ["province"],
-    },
-    RIMI_CANUCK_VOYAGE_NON_MEDICAL_TRAVEL: {
-      maxAge: 86,
-      minAgeDays: 15,
-      minPhone: 10,
-      maxPhone: 10,
-      requiredFields: ["provinceStateResidence"],
-    },
+
+const PRODUCT_RULES: Record<string, {
+  maxAge: number;
+  minAgeDays: number;
+  minPhone: number;
+  maxPhone: number;
+  requiredFields?: string[];
+}> = {
+  SECURE_TRAVEL_RIMI_VISITORS_TO_CANADA_TRAVEL: {
+    maxAge: 86,
+    minAgeDays: 15,
+    minPhone: 10,
+    maxPhone: 15,
+    requiredFields: ["destination"],
+  },
+  SECURE_STUDY_RIMI_INTERNATIONAL_STUDENTS_TO_CANADA: {
+    maxAge: 65,
+    minAgeDays: 15,
+    minPhone: 10,
+    maxPhone: 15,
+    requiredFields: ["destination"],
+  },
+  RIMI_CANUCK_VOYAGE_TRAVEL_MEDICAL: {
+    maxAge: 80,
+    minAgeDays: 15,
+    minPhone: 10,
+    maxPhone: 10,
+    requiredFields: ["province"],
+  },
+  RIMI_CANUCK_VOYAGE_NON_MEDICAL_TRAVEL: {
+    maxAge: 86,
+    minAgeDays: 15,
+    minPhone: 10,
+    maxPhone: 10,
+    requiredFields: ["provinceStateResidence"],
+  },
 };
 
 
@@ -154,11 +166,11 @@ const PolicyField: React.FC<PolicyFieldProps> = ({
 }) => {
   const { t, language: currentLang } = useLanguage();
 
- 
+
 
   const getActiveKeyAndValue = () => {
     const fields = Array.isArray(field) ? field : [field];
-    
+
     // Find the first field that actually exists in the policy data
     // We want to keep updating the SAME key throughout the edit session
     let firstExistingKey = fields[0];
@@ -187,6 +199,16 @@ const PolicyField: React.FC<PolicyFieldProps> = ({
   }
 
   let isFieldEditable = EDITABLE_FIELDS.includes(activeKey);
+  
+  // Special case: usTravelDays is only editable if travelingThroughUS is "yes"
+  if (activeKey === "usTravelDays") {
+    const usTravelVal =
+      editedPolicy.applicantTravelThroughUs ??
+      (policy as any).applicantTravelThroughUs;
+    if (usTravelVal !== "yes") {
+      isFieldEditable = false;
+    }
+  }
 
   // Special case: Destination is NOT editable for non-medical travel
   if (
@@ -195,24 +217,44 @@ const PolicyField: React.FC<PolicyFieldProps> = ({
   ) {
     isFieldEditable = false;
   }
+  if(
+    activeKey === "expiryDate" &&
+    product === "SECURE_STUDY_RIMI_INTERNATIONAL_STUDENTS_TO_CANADA" || activeKey === "expiryDate" &&
+    product === "SECURE_TRAVEL_RIMI_VISITORS_TO_CANADA_TRAVEL"
+  ) {
+    isFieldEditable = false;
+  }
 
   if (isEditMode && isFieldEditable) {
     if (type === "select") {
       return (
         <div className="min-w-0">
-          <div className="font-semibold text-base">{t(label)}</div>
-          <select
-            id={id || activeKey}
-            value={(rawValue ?? "") as string}
-            onChange={(e) => onFieldChange(activeKey, e.target.value)}
-            className="input-primary"
-          >
-            {options?.map((opt) => (
-              <option key={opt} value={opt}>
-                {t(opt)}
-              </option>
-            ))}
-          </select>
+          <div className="font-semibold text-base mb-1">{t(label)}</div>
+          <div className="relative">
+            <select
+              id={id || activeKey}
+              value={String(rawValue ?? "")}
+              onChange={(e) => onFieldChange(activeKey, e.target.value)}
+              className="input-primary appearance-none pr-10 cursor-pointer"
+            >
+              {!options?.some((opt) =>
+                typeof opt === "string" ? opt === "" : opt.value === ""
+              ) && <option value="">{t("Please select...")}</option>}
+              {options?.map((opt) => {
+                const isString = typeof opt === "string";
+                const optValue = isString ? opt : opt.value;
+                const optLabel = isString ? opt : opt.label;
+                return (
+                  <option key={optValue} value={optValue}>
+                    {t(optLabel)}
+                  </option>
+                );
+              })}
+            </select>
+            <div className="pointer-events-none absolute inset-y-0 right-2 flex items-center text-gray-400">
+              <ChevronDownIcon className="h-5 w-5" aria-hidden="true" />
+            </div>
+          </div>
           {error && <p className="text-red-500 text-xs mt-1">{t(error)}</p>}
         </div>
       );
@@ -252,7 +294,7 @@ const PolicyField: React.FC<PolicyFieldProps> = ({
   let displayValue: React.ReactNode;
 
   if (transform) {
-    displayValue = transform(rawValue);
+    displayValue = transform(rawValue, t);
   } else {
     // Handle booleans and string booleans
     const v = String(rawValue ?? "").toLowerCase();
@@ -403,7 +445,7 @@ const PolicyDetailsPage: React.FC = () => {
     }
   }, [p]);
 
-  if (loading) return <div className="flex flex-col justify-center items-center gap-2 mt-10"><Spinner className="h-8 w-8"/><p className="text-center">{t("Loading...")}</p></div>;
+  if (loading) return <div className="flex flex-col justify-center items-center gap-2 mt-10"><Spinner className="h-8 w-8" /><p className="text-center">{t("Loading...")}</p></div>;
   if (error)
     return <p className="text-red-600 text-center py-10">{t(error)}</p>;
   if (!p) return <p className="text-center py-10">{t("No policy found.")}</p>;
@@ -452,7 +494,12 @@ const PolicyDetailsPage: React.FC = () => {
 
   const handleModifyClick = () => {
     setIsEditMode(true);
-    setEditedPolicy({ ...p });
+    const svStatus = p.applicantOnSuperVisa || p.superVisa;
+    const initialPolicy: Partial<PolicyDetail> = { ...p };
+    if ((svStatus === "yes" || svStatus === "YES") && !p.superVisaYears) {
+      initialPolicy.superVisaYears = "1";
+    }
+    setEditedPolicy(initialPolicy);
     setEditedApplicants([...p.applicants]);
   };
 
@@ -462,36 +509,63 @@ const PolicyDetailsPage: React.FC = () => {
     setEditedApplicants([]);
   };
 
-    const fieldsConfig =
-      p.product &&
+  const fieldsConfig =
+    p.product &&
       PRODUCT_FIELDS_CONFIG[p.product as keyof typeof PRODUCT_FIELDS_CONFIG]
-        ? PRODUCT_FIELDS_CONFIG[p.product as keyof typeof PRODUCT_FIELDS_CONFIG]
-        : DEFAULT_FIELDS_CONFIG;
+      ? PRODUCT_FIELDS_CONFIG[p.product as keyof typeof PRODUCT_FIELDS_CONFIG]
+      : DEFAULT_FIELDS_CONFIG;
 
-    const handleFieldChange = (field: string, value: any) => {
-      const updates: Record<string, any> = { [field]: value };
+  const handleFieldChange = (field: string, value: any) => {
+    const updates: Record<string, any> = { [field]: value };
 
-      if (field === "applicantOnSuperVisa" && value === "yes") {
+    if (field === "applicantOnSuperVisa" || field === "superVisa") {
+      if (value === "yes") {
         const currentData = { ...p, ...editedPolicy };
         const effectiveDate = currentData.effectiveDate?.toString();
+        const years = editedPolicy.superVisaYears || p.superVisaYears || "1";
         if (effectiveDate) {
           const effDate = new Date(effectiveDate);
           const expDate = new Date(effDate);
-          expDate.setDate(effDate.getDate() + 365 - 1); // 365 days inclusive
+          expDate.setDate(effDate.getDate() + (Number(years) || 1) * 365 - 1);
+          updates.expiryDate = expDate.toISOString().split("T")[0];
+        }
+      } else {
+        updates.superVisaYears = "";
+      }
+    }
+
+    if (field === "superVisaYears") {
+      const currentData = { ...p, ...editedPolicy };
+      const superVisaStatus = editedPolicy.applicantOnSuperVisa || editedPolicy.superVisa || p.applicantOnSuperVisa || p.superVisa;
+
+      if (superVisaStatus === "yes" || superVisaStatus === "YES") {
+        const effectiveDate = currentData.effectiveDate?.toString();
+        if (effectiveDate && value) {
+          const effDate = new Date(effectiveDate);
+          const expDate = new Date(effDate);
+          expDate.setDate(effDate.getDate() + (Number(value) || 1) * 365 - 1);
           updates.expiryDate = expDate.toISOString().split("T")[0];
         }
       }
+    }
 
-      setEditedPolicy((prev) => ({ ...prev, ...updates }));
-      // Clear error for this field
-      if (fieldErrors[field]) {
-        setFieldErrors((prev) => {
-          const updated = { ...prev };
-          delete updated[field];
-          return updated;
-        });
-      }
-    };
+    if (
+      (field === "travelingThroughUS" || field === "applicantTravelThroughUs") &&
+      value === "no"
+    ) {
+      updates.usTravelDays = ""; // Clear or set to 0. 
+    }
+
+    setEditedPolicy((prev) => ({ ...prev, ...updates }));
+    // Clear error for this field
+    if (fieldErrors[field]) {
+      setFieldErrors((prev) => {
+        const updated = { ...prev };
+        delete updated[field];
+        return updated;
+      });
+    }
+  };
 
   const handleApplicantChange = (index: number, field: string, value: any) => {
     setEditedApplicants((prev) => {
@@ -555,6 +629,9 @@ const PolicyDetailsPage: React.FC = () => {
       { key: "provinceStateResidence", label: "Province/State of Residence", optional: true },
       { key: "beneficiaryName", label: "Beneficiary Name", max: 100, optional: true },
       { key: "beneficiaryRelation", label: "Beneficiary Relation", optional: true },
+      { key: "destination", label: "Destination province", optional: true },
+      { key: "destinationProvince", label: "Destination province", optional: true },
+      { key: "destProv", label: "Destination province", optional: true },
     ];
 
     // Add product-specific required fields
@@ -569,7 +646,7 @@ const PolicyDetailsPage: React.FC = () => {
       if (f.optional && ((data as any)[f.key] === undefined || (data as any)[f.key] === null)) continue;
       const val = (data as any)[f.key];
       const maxLen = f.max || 60;
-      
+
       if (!val || (typeof val === "string" && val.trim() === "")) {
         errors[f.key] = `${t(f.label)} ${t("is required.")}`;
       } else if (typeof val === "string" && val.length > maxLen) {
@@ -612,23 +689,23 @@ const PolicyDetailsPage: React.FC = () => {
 
     // Age validation on primary (if DOB or Effective Date changed)
     if (data.dateOfBirth && effectiveDate) {
-        const dobDate = new Date(data.dateOfBirth.toString());
-        const effDate = new Date(effectiveDate);
-        const today0 = new Date();
-        today0.setHours(0,0,0,0);
-        
-        if (dobDate > today0) {
-            errors.dateOfBirth = t("Date of birth cannot be in the future");
-        } else if (p.status === "SOLD" || editedPolicy.dateOfBirth || editedPolicy.effectiveDate) {
-            const ageDiffMs = effDate.getTime() - dobDate.getTime();
-            const ageDate = new Date(ageDiffMs);
-            const years = Math.abs(ageDate.getUTCFullYear() - 1970);
-            const days = Math.floor(ageDiffMs / (1000 * 60 * 60 * 24));
+      const dobDate = new Date(data.dateOfBirth.toString());
+      const effDate = new Date(effectiveDate);
+      const today0 = new Date();
+      today0.setHours(0, 0, 0, 0);
 
-            if (days < rules.minAgeDays || years >= rules.maxAge) {
-                errors.dateOfBirth = `${t("Age must be at least")} ${rules.minAgeDays} ${t("days and less than")} ${rules.maxAge} ${t("years according to the effective date.")}`;
-            }
+      if (dobDate > today0) {
+        errors.dateOfBirth = t("Date of birth cannot be in the future");
+      } else if (p.status === "SOLD" || editedPolicy.dateOfBirth || editedPolicy.effectiveDate) {
+        const ageDiffMs = effDate.getTime() - dobDate.getTime();
+        const ageDate = new Date(ageDiffMs);
+        const years = Math.abs(ageDate.getUTCFullYear() - 1970);
+        const days = Math.floor(ageDiffMs / (1000 * 60 * 60 * 24));
+
+        if (days < rules.minAgeDays || years >= rules.maxAge) {
+          errors.dateOfBirth = `${t("Age must be at least")} ${rules.minAgeDays} ${t("days and less than")} ${rules.maxAge} ${t("years according to the effective date.")}`;
         }
+      }
     }
 
     // Legal Guardian check for Secure Study if under 18
@@ -638,7 +715,7 @@ const PolicyDetailsPage: React.FC = () => {
       const ageDiffMs = effDate.getTime() - dobDate.getTime();
       const ageDate = new Date(ageDiffMs);
       const years = Math.abs(ageDate.getUTCFullYear() - 1970);
-      
+
       if (years < 18 && !data.legalGuardianName?.trim()) {
         errors.legalGuardianName = t("Legal guardian name is required for applicants under 18.");
       }
@@ -659,8 +736,15 @@ const PolicyDetailsPage: React.FC = () => {
     const newCoverageLength = calculateDays(effectiveDate, expiryDate);
     const superVisaStatus = editedPolicy.applicantOnSuperVisa || p.applicantOnSuperVisa;
 
-    if ((superVisaStatus === "YES" || superVisaStatus === "yes") && newCoverageLength < 365) {
-      errors.expiryDate = `${t("This policy is marked as Super Visa but coverage is only")} ${newCoverageLength} ${t("days (less than 365). Please change \"Are Applicants Travelling on a Super Visa?\" to \"No\" in Coverage Details section before saving.")}`;
+    if (superVisaStatus === "YES" || superVisaStatus === "yes") {
+      if (newCoverageLength < 365) {
+        errors.expiryDate = `${t("This policy is marked as Super Visa but coverage is only")} ${newCoverageLength} ${t("days (less than 365). Please change \"Are Applicants Travelling on a Super Visa?\" to \"No\" in Coverage Details section before saving.")}`;
+      }
+      
+      const years = editedPolicy.superVisaYears ?? p.superVisaYears;
+      if (!years || years === "") {
+        errors.superVisaYears = t("Super Visa Duration is required.");
+      }
     }
 
     // 7. Applicant Validations
@@ -684,20 +768,24 @@ const PolicyDetailsPage: React.FC = () => {
       if (!app.dateOfBirth) {
         singleAppErrors.dateOfBirth = t("Date of Birth is required.");
       } else if (effectiveDate) {
-          const dobDate = new Date(app.dateOfBirth.toString());
-          const effDate = new Date(effectiveDate);
-          const ageDiffMs = effDate.getTime() - dobDate.getTime();
-          const ageDate = new Date(ageDiffMs);
-          const years = Math.abs(ageDate.getUTCFullYear() - 1970);
-          const days = Math.floor(ageDiffMs / (1000 * 60 * 60 * 24));
-          
-          if (days < rules.minAgeDays || years >= rules.maxAge) {
-              singleAppErrors.dateOfBirth = `${t("Age must be at least")} ${rules.minAgeDays} ${t("days and less than")} ${rules.maxAge} ${t("years according to the effective date.")}`;
-          }
+        const dobDate = new Date(app.dateOfBirth.toString());
+        const effDate = new Date(effectiveDate);
+        const ageDiffMs = effDate.getTime() - dobDate.getTime();
+        const ageDate = new Date(ageDiffMs);
+        const years = Math.abs(ageDate.getUTCFullYear() - 1970);
+        const days = Math.floor(ageDiffMs / (1000 * 60 * 60 * 24));
+
+        if (days < rules.minAgeDays || years >= rules.maxAge) {
+          singleAppErrors.dateOfBirth = `${t("Age must be at least")} ${rules.minAgeDays} ${t("days and less than")} ${rules.maxAge} ${t("years according to the effective date.")}`;
+        }
       }
 
       if (!app.gender) {
         singleAppErrors.gender = t("Gender is required.");
+      }
+
+      if (!app.relation) {
+        singleAppErrors.relation = t("Relationship to Primary Applicant is required.");
       }
 
       appErrorsList.push(singleAppErrors);
@@ -705,13 +793,13 @@ const PolicyDetailsPage: React.FC = () => {
     }
 
     if (Object.keys(errors).length > 0 || hasAppErrors) {
-        console.log("Validation Errors:", { fieldErrors: errors, applicantErrors: appErrorsList });
+      console.log("Validation Errors:", { fieldErrors: errors, applicantErrors: appErrorsList });
     }
 
-    return { 
-        valid: Object.keys(errors).length === 0 && !hasAppErrors,
-        fieldErrors: errors,
-        applicantErrors: appErrorsList
+    return {
+      valid: Object.keys(errors).length === 0 && !hasAppErrors,
+      fieldErrors: errors,
+      applicantErrors: appErrorsList
     };
   };
 
@@ -724,31 +812,31 @@ const PolicyDetailsPage: React.FC = () => {
     if (!validation.valid) {
       // Scroll to error
       setTimeout(() => {
-          const firstErrKey = Object.keys(validation.fieldErrors)[0];
-          if (firstErrKey) {
-              const el = document.getElementById(firstErrKey);
-              if (el) {
-                  el.scrollIntoView({ behavior: "smooth", block: "center" });
-                  el.focus({ preventScroll: true });
-              }
-          } else {
-              for (let i = 0; i < validation.applicantErrors.length; i++) {
-                  const firstAppField = Object.keys(validation.applicantErrors[i])[0];
-                  if (firstAppField) {
-                      const el = document.getElementById(`applicant-${i}-${firstAppField}`);
-                      if (el) {
-                          el.scrollIntoView({ behavior: "smooth", block: "center" });
-                          el.focus({ preventScroll: true });
-                          break;
-                      }
-                  }
-              }
+        const firstErrKey = Object.keys(validation.fieldErrors)[0];
+        if (firstErrKey) {
+          const el = document.getElementById(firstErrKey);
+          if (el) {
+            el.scrollIntoView({ behavior: "smooth", block: "center" });
+            el.focus({ preventScroll: true });
           }
+        } else {
+          for (let i = 0; i < validation.applicantErrors.length; i++) {
+            const firstAppField = Object.keys(validation.applicantErrors[i])[0];
+            if (firstAppField) {
+              const el = document.getElementById(`applicant-${i}-${firstAppField}`);
+              if (el) {
+                el.scrollIntoView({ behavior: "smooth", block: "center" });
+                el.focus({ preventScroll: true });
+                break;
+              }
+            }
+          }
+        }
       }, 100);
 
       triggerNotification({
-          message: t("Please fill all fields correctly before saving."),
-          type: "warning"
+        message: t("Please fill all fields correctly before saving."),
+        type: "warning"
       });
       return;
     }
@@ -822,7 +910,7 @@ const PolicyDetailsPage: React.FC = () => {
         ""
       ),
       deductible: String(editedPolicy.deductible || p.deductible || ""),
-      
+
       // Conditional Main Info
       dateOfBirth:
         p.status === "SOLD"
@@ -832,7 +920,7 @@ const PolicyDetailsPage: React.FC = () => {
         p.status === "SOLD"
           ? editedPolicy.effectiveDate || fmtDate(p.effectiveDate?.toString())
           : undefined,
-      
+
       // Dynamic Product-Specific Fields
       tripCost: editedPolicy.tripCost ?? p.tripCost,
       dateBooked: editedPolicy.dateBooked || p.dateBooked,
@@ -848,6 +936,7 @@ const PolicyDetailsPage: React.FC = () => {
       relationshipToInsured: editedPolicy.relationshipToInsured ?? p.relationshipToInsured,
 
       legalGuardianName: editedPolicy.legalGuardianName ?? p.legalGuardianName,
+      superVisaYears: editedPolicy.superVisaYears ?? p.superVisaYears,
       provinceStateResidence: editedPolicy.provinceStateResidence ?? p.provinceStateResidence,
 
       coverage: editedPolicy.coverage ?? p.coverage,
@@ -1078,8 +1167,7 @@ const PolicyDetailsPage: React.FC = () => {
             </div>
             <div className="ml-3">
               <p className="text-sm text-blue-700">
-                <strong>Edit Mode:</strong> You are now editing this policy.
-                Make your changes and click "Save Changes" when done.
+                <strong>{t("Edit Mode")}:</strong> {t("You are now editing this policy. Make your changes and click \"Save Changes\" when done.")}
               </p>
             </div>
           </div>
@@ -1250,8 +1338,8 @@ const PolicyDetailsPage: React.FC = () => {
 
               <div className="min-w-0">
                 {isEditMode &&
-                EDITABLE_FIELDS.includes("dateOfBirth") &&
-                p.status === "SOLD" ? (
+                  EDITABLE_FIELDS.includes("dateOfBirth") &&
+                  p.status === "SOLD" ? (
                   <DatePicker
                     id={`applicant-${idx}-dateOfBirth`}
                     label={t("Date of Birth")}
@@ -1318,18 +1406,28 @@ const PolicyDetailsPage: React.FC = () => {
               <div className="min-w-0">
                 <div className="font-semibold">{t("Relationship to Primary Applicant")}</div>
                 {isEditMode && EDITABLE_FIELDS.includes("relation") ? (
-                  <input
-                    type="text"
-                    value={a.relation || ""}
-                    onChange={(e) =>
-                      handleApplicantChange(idx, "relation", e.target.value)
-                    }
-                    className="input-primary w-full"
-                  />
+                 <select
+                  className={`input-primary w-full cursor-pointer`}
+                  name="relation"
+                  value={a.relation || ""}
+                  onChange={(e) => handleApplicantChange(idx, "relation", e.target.value)}
+                  id={`applicant-${idx}-relation`}
+                 >
+                  {RelationToPrimaryApplicant.map((relation) => (
+                    <option key={relation.value} value={relation.value}>
+                      {t(relation.label)}
+                    </option>
+                  ))}
+                 </select>
                 ) : (
                   <div className="text-sm text-[#6F6B7D] break-words">
                     {t(a.relation || "")}
                   </div>
+                )}
+                {isEditMode && applicantErrors[idx]?.relation && (
+                  <p className="text-red-500 text-xs mt-1">
+                    {t(applicantErrors[idx].relation)}
+                  </p>
                 )}
               </div>
               <div className="min-w-0">
@@ -1372,7 +1470,15 @@ const PolicyDetailsPage: React.FC = () => {
           {t("Coverage Details")}
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 text-sm w-full capitalize">
-          {fieldsConfig.coverageDetails?.map((f) => (
+          {fieldsConfig.coverageDetails?.filter(f => {
+            const fieldKey = Array.isArray(f.field) ? f.field[0] : f.field;
+            if (fieldKey === "superVisaYears") {
+              if (!isEditMode) return false;
+              const sv = editedPolicy.applicantOnSuperVisa || editedPolicy.superVisa || p.applicantOnSuperVisa || p.superVisa;
+              return sv === "yes" || sv === "YES";
+            }
+            return true;
+          }).map((f) => (
             <PolicyField
               key={f.label}
               {...f}
@@ -1411,239 +1517,239 @@ const PolicyDetailsPage: React.FC = () => {
       )}
 
 
+
       {/* Premium / Payment Info */}
       {(history?.length > 0 ||
         (paymentSchedule && paymentSchedule.length > 0)) && (
-        <section className="border-b border-inputBorder py-4 space-y-4">
-          <div className="uppercase text-primary font-semibold text-lg">
-            {t("Premium / Payment Info")}
-          </div>
-
-          <div className="grid grid-cols-4 gap-x-4">
-            <div className="min-w-0">
-              <div className="font-medium">{t("Premium")}</div>
-              <div className="break-words">
-                {fmtCurrency(p?.premiumTotal || p?.premium)}
-              </div>
+          <section className="border-b border-inputBorder py-4 space-y-4">
+            <div className="uppercase text-primary font-semibold text-lg">
+              {t("Premium / Payment Info")}
             </div>
-            <div className="min-w-0">
-              <div className="font-medium">{t("Payment Option")}</div>
-              <div className="break-words">{p.paymentOption || "-"}</div>
-            </div>
-            <div className="min-w-0">
-              <div className="font-medium">{t("Credit Card")}</div>
-              {/* <div>{history[0]?.last4 ? `•••• ${history[0].last4}` : "-"}</div> */}
 
+            <div className="grid grid-cols-4 gap-x-4">
               <div className="min-w-0">
-                {(() => {
-                  // Priority: Policy.currentCard -> Most Recent Payment -> First Payment
-                  const brand =
-                    p.currentCardBrand ||
-                    history[history.length - 1]?.brand ||
-                    history[0]?.brand;
-                  const last4 =
-                    p.currentCardLast4 ||
-                    history[history.length - 1]?.last4 ||
-                    history[0]?.last4;
-                  const name =
-                    p.currentCardholderName ||
-                    history[history.length - 1]?.cardholderName ||
-                    history[0]?.cardholderName;
+                <div className="font-medium">{t("Premium")}</div>
+                <div className="break-words">
+                  {fmtCurrency(p?.premiumTotal || p?.premium)}
+                </div>
+              </div>
+              <div className="min-w-0">
+                <div className="font-medium">{t("Payment Option")}</div>
+                <div className="break-words">{p.paymentOption || "-"}</div>
+              </div>
+              <div className="min-w-0">
+                <div className="font-medium">{t("Credit Card")}</div>
+                {/* <div>{history[0]?.last4 ? `•••• ${history[0].last4}` : "-"}</div> */}
 
-                  if (!last4) return "-";
+                <div className="min-w-0">
+                  {(() => {
+                    // Priority: Policy.currentCard -> Most Recent Payment -> First Payment
+                    const brand =
+                      p.currentCardBrand ||
+                      history[history.length - 1]?.brand ||
+                      history[0]?.brand;
+                    const last4 =
+                      p.currentCardLast4 ||
+                      history[history.length - 1]?.last4 ||
+                      history[0]?.last4;
+                    const name =
+                      p.currentCardholderName ||
+                      history[history.length - 1]?.cardholderName ||
+                      history[0]?.cardholderName;
 
-                  return (
-                    <div className="flex flex-col">
-                      <span className="font-medium">
-                        {brand?.toUpperCase()} •••• {last4}
-                      </span>
-                      {name && (
-                        <span className="text-xs text-gray-600">{name}</span>
-                      )}
-                      {p.currentCardUpdatedAt && (
-                        <span className="text-xs text-gray-500">
-                          {t("Updated:")}{" "}
-                          {fmtDate(p.currentCardUpdatedAt.toString())}
+                    if (!last4) return "-";
+
+                    return (
+                      <div className="flex flex-col">
+                        <span className="font-medium">
+                          {brand?.toUpperCase()} •••• {last4}
                         </span>
-                      )}
-                    </div>
-                  );
-                })()}
+                        {name && (
+                          <span className="text-xs text-gray-600">{name}</span>
+                        )}
+                        {p.currentCardUpdatedAt && (
+                          <span className="text-xs text-gray-500">
+                            {t("Updated:")}{" "}
+                            {fmtDate(p.currentCardUpdatedAt.toString())}
+                          </span>
+                        )}
+                      </div>
+                    );
+                  })()}
+                </div>
               </div>
-            </div>
-            <div className="min-w-0">
-              <div className="font-medium">{t("Date")}</div>
-              <div className="break-words">
-                {history[0]?.date ? fmtDate(history[0].date) : "-"}
-              </div>
-            </div>
-          </div>
-
-          {/* ✅ ADD THIS: Parent Policy Link for Split Policies */}
-          {p.parentPolicyId && (
-            <div className="bg-blue-50 border-l-4 border-blue-400 p-3 rounded">
-              <div className="flex items-center">
-                <svg
-                  className="w-5 h-5 text-blue-600 mr-2"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-                <div>
-                  <p className="text-sm text-blue-700 font-medium">
-                    {t("Split Policy - Payments Covered by Parent Policy")}
-                  </p>
-                  <button
-                    onClick={() =>
-                      navigate(`/policy-detail/${p.parentPolicyId}`)
-                    }
-                    className="text-xs text-blue-600 hover:text-blue-800 underline mt-1"
-                  >
-                    {t("View Original Policy Payment →")}
-                  </button>
+              <div className="min-w-0">
+                <div className="font-medium">{t("Date")}</div>
+                <div className="break-words">
+                  {history[0]?.date ? fmtDate(history[0].date) : "-"}
                 </div>
               </div>
             </div>
-          )}
 
-          {/* Payment Schedule Table */}
-          {p.paymentOption === "monthly-installments" &&
-            paymentSchedule &&
-            paymentSchedule.length > 0 && (
-              <div className="mt-6">
-                <h3 className="font-semibold text-sm mb-3">
-                  {t("Payment Schedule")}
-                </h3>
-                <PaymentScheduleTable
-                  schedule={paymentSchedule || []}
-                  loading={scheduleLoading}
-                  error={scheduleError}
-                  onProcessRefund={
-                    p.status === "CANCELLED" ? handleRefund : undefined
-                  }
-                  cardHolderName={p.currentCardholderName}
-                  cardLast4={p.currentCardLast4}
-                  cardBrand={p.currentCardBrand}
-                />
+            {/* ✅ ADD THIS: Parent Policy Link for Split Policies */}
+            {p.parentPolicyId && (
+              <div className="bg-blue-50 border-l-4 border-blue-400 p-3 rounded">
+                <div className="flex items-center">
+                  <svg
+                    className="w-5 h-5 text-blue-600 mr-2"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                  <div>
+                    <p className="text-sm text-blue-700 font-medium">
+                      {t("Split Policy - Payments Covered by Parent Policy")}
+                    </p>
+                    <button
+                      onClick={() =>
+                        navigate(`/policy-detail/${p.parentPolicyId}`)
+                      }
+                      className="text-xs text-blue-600 hover:text-blue-800 underline mt-1"
+                    >
+                      {t("View Original Policy Payment →")}
+                    </button>
+                  </div>
+                </div>
               </div>
             )}
 
-          {/* Payment History Table */}
-          {history.length > 0 && (
-            <div className="mt-4">
-              <h3 className="font-semibold text-sm mb-3">
-                {t("Payment History")}
-              </h3>
-              <div className="overflow-x-auto custom-scrollbar-x">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-primary text-white text-sm 2xl:text-base capitalize">
-                    <tr>
-                      <th className="px-2 sm:px-3 py-1 sm:py-3 text-left font-medium text-nowrap">
-                        #
-                      </th>
-                      <th className="px-2 sm:px-3 py-1 sm:py-3 text-left font-medium text-nowrap">
-                        {t("Method")}
-                      </th>
-                      <th className="px-2 sm:px-3 py-1 sm:py-3 text-left font-medium text-nowrap">
-                        {t("Name")}
-                      </th>
-                      <th className="px-2 sm:px-3 py-1 sm:py-3 text-left font-medium text-nowrap">
-                        {t("Brand")}
-                      </th>
-                      <th className="px-2 sm:px-3 py-1 sm:py-3 text-left font-medium text-nowrap">
-                        {t("Last 4")}
-                      </th>
-                      <th className="px-2 sm:px-3 py-1 sm:py-3 text-right font-medium text-nowrap">
-                        {t("Amount")}
-                      </th>
-                      {/* <th className="px-2 sm:px-3 py-1 sm:py-3 text-right font-medium text-nowrap">
+            {/* Payment Schedule Table */}
+            {p.paymentOption === "monthly-installments" &&
+              paymentSchedule &&
+              paymentSchedule.length > 0 && (
+                <div className="mt-6">
+                  <h3 className="font-semibold text-sm mb-3">
+                    {t("Payment Schedule")}
+                  </h3>
+                  <PaymentScheduleTable
+                    schedule={paymentSchedule || []}
+                    loading={scheduleLoading}
+                    error={scheduleError}
+                    onProcessRefund={
+                      p.status === "CANCELLED" ? handleRefund : undefined
+                    }
+                    cardHolderName={p.currentCardholderName}
+                    cardLast4={p.currentCardLast4}
+                    cardBrand={p.currentCardBrand}
+                  />
+                </div>
+              )}
+
+            {/* Payment History Table */}
+            {history.length > 0 && (
+              <div className="mt-4">
+                <h3 className="font-semibold text-sm mb-3">
+                  {t("Payment History")}
+                </h3>
+                <div className="overflow-x-auto custom-scrollbar-x">
+                  <table className="min-w-full divide-y divide-gray-200">
+                    <thead className="bg-primary text-white text-sm 2xl:text-base capitalize">
+                      <tr>
+                        <th className="px-2 sm:px-3 py-1 sm:py-3 text-left font-medium text-nowrap">
+                          #
+                        </th>
+                        <th className="px-2 sm:px-3 py-1 sm:py-3 text-left font-medium text-nowrap">
+                          {t("Method")}
+                        </th>
+                        <th className="px-2 sm:px-3 py-1 sm:py-3 text-left font-medium text-nowrap">
+                          {t("Name")}
+                        </th>
+                        <th className="px-2 sm:px-3 py-1 sm:py-3 text-left font-medium text-nowrap">
+                          {t("Brand")}
+                        </th>
+                        <th className="px-2 sm:px-3 py-1 sm:py-3 text-left font-medium text-nowrap">
+                          {t("Last 4")}
+                        </th>
+                        <th className="px-2 sm:px-3 py-1 sm:py-3 text-right font-medium text-nowrap">
+                          {t("Amount")}
+                        </th>
+                        {/* <th className="px-2 sm:px-3 py-1 sm:py-3 text-right font-medium text-nowrap">
                         Fee
                       </th> */}
-                      <th className="px-2 sm:px-3 py-1 sm:py-3 text-left font-medium text-nowrap">
-                        {t("Status")}
-                      </th>
-                      <th className="px-2 sm:px-3 py-1 sm:py-3 text-left font-medium text-nowrap">
-                        {t("Date")}
-                      </th>
-                      <th className="px-2 sm:px-3 py-1 sm:py-3 text-left font-medium text-nowrap">
-                        {t("Payment Type")}
-                      </th>
-                      {/* <th className="px-2 sm:px-3 py-1 sm:py-3 text-center font-medium text-nowrap">
+                        <th className="px-2 sm:px-3 py-1 sm:py-3 text-left font-medium text-nowrap">
+                          {t("Status")}
+                        </th>
+                        <th className="px-2 sm:px-3 py-1 sm:py-3 text-left font-medium text-nowrap">
+                          {t("Date")}
+                        </th>
+                        <th className="px-2 sm:px-3 py-1 sm:py-3 text-left font-medium text-nowrap">
+                          {t("Payment Type")}
+                        </th>
+                        {/* <th className="px-2 sm:px-3 py-1 sm:py-3 text-center font-medium text-nowrap">
                         Actions
                       </th> */}
-                    </tr>
-                  </thead>
-                  <tbody
-                    className="bg-white text-[#808080] text-sm 2xl:text-base"
-                    style={{ border: "1px solid #AAA9A9" }}
-                  >
-                    {history.map((h, i) => {
-                      const isReference = [
-                        "split-policy-covered",
-                        "split-initial-covered",
-                        "split-monthly-covered",
-                        "policy-fee-reference",
-                      ].includes(h.paymentType || "");
+                      </tr>
+                    </thead>
+                    <tbody
+                      className="bg-white text-[#808080] text-sm 2xl:text-base"
+                      style={{ border: "1px solid #AAA9A9" }}
+                    >
+                      {history.map((h, i) => {
+                        const isReference = [
+                          "split-policy-covered",
+                          "split-initial-covered",
+                          "split-monthly-covered",
+                          "policy-fee-reference",
+                        ].includes(h.paymentType || "");
 
-                      const cellStyle = {
-                        borderWidth: "0px 1px 1px 0px",
-                        borderStyle: "solid" as const,
-                        borderColor: "#AAA9A9",
-                      };
+                        const cellStyle = {
+                          borderWidth: "0px 1px 1px 0px",
+                          borderStyle: "solid" as const,
+                          borderColor: "#AAA9A9",
+                        };
 
-                      return (
-                        <tr
-                          key={h.id}
-                          className={`hover:bg-white ${
-                            isReference ? "bg-blue-50" : ""
-                          }`}
-                        >
-                          <td
-                            className="px-2 sm:px-3 py-2 sm:py-4 whitespace-nowrap"
-                            style={cellStyle}
+                        return (
+                          <tr
+                            key={h.id}
+                            className={`hover:bg-white ${isReference ? "bg-blue-50" : ""
+                              }`}
                           >
-                            {i + 1}
-                          </td>
-                          <td
-                            className="px-2 sm:px-3 py-2 sm:py-4 whitespace-nowrap"
-                            style={cellStyle}
-                          >
-                            {h.method}
-                          </td>
-                          <td
-                            className="px-2 sm:px-3 py-2 sm:py-4 whitespace-nowrap"
-                            style={cellStyle}
-                          >
-                            {h.cardholderName}
-                          </td>
-                          <td
-                            className="px-2 sm:px-3 py-2 sm:py-4 whitespace-nowrap capitalize"
-                            style={cellStyle}
-                          >
-                            {h.brand}
-                          </td>
-                          <td
-                            className="px-2 sm:px-3 py-2 sm:py-4 whitespace-nowrap"
-                            style={cellStyle}
-                          >
-                            {h.last4}
-                          </td>
-                          <td
-                            className="px-2 sm:px-3 py-2 sm:py-4 whitespace-nowrap text-right font-medium"
-                            style={cellStyle}
-                          >
-                            {h.amount.toLocaleString("en-CA", {
-                              style: "currency",
-                              currency: h.currency,
-                              currencyDisplay: "code",
-                            })}
-                          </td>
-                          {/* <td
+                            <td
+                              className="px-2 sm:px-3 py-2 sm:py-4 whitespace-nowrap"
+                              style={cellStyle}
+                            >
+                              {i + 1}
+                            </td>
+                            <td
+                              className="px-2 sm:px-3 py-2 sm:py-4 whitespace-nowrap"
+                              style={cellStyle}
+                            >
+                              {h.method}
+                            </td>
+                            <td
+                              className="px-2 sm:px-3 py-2 sm:py-4 whitespace-nowrap"
+                              style={cellStyle}
+                            >
+                              {h.cardholderName}
+                            </td>
+                            <td
+                              className="px-2 sm:px-3 py-2 sm:py-4 whitespace-nowrap capitalize"
+                              style={cellStyle}
+                            >
+                              {h.brand}
+                            </td>
+                            <td
+                              className="px-2 sm:px-3 py-2 sm:py-4 whitespace-nowrap"
+                              style={cellStyle}
+                            >
+                              {h.last4}
+                            </td>
+                            <td
+                              className="px-2 sm:px-3 py-2 sm:py-4 whitespace-nowrap text-right font-medium"
+                              style={cellStyle}
+                            >
+                              {h.amount.toLocaleString("en-CA", {
+                                style: "currency",
+                                currency: h.currency,
+                                currencyDisplay: "code",
+                              })}
+                            </td>
+                            {/* <td
                             className="px-2 sm:px-3 py-2 sm:py-4 whitespace-nowrap text-right"
                             style={cellStyle}
                           >
@@ -1655,49 +1761,48 @@ const PolicyDetailsPage: React.FC = () => {
                                 })
                               : "N/A"}
                           </td> */}
-                          <td
-                            className="px-2 sm:px-3 py-2 sm:py-4 whitespace-nowrap"
-                            style={cellStyle}
-                          >
-                            <span
-                              className={`${
-                                h.status === "succeeded"
-                                  ? "text-green-600"
-                                  : h.status === "refunded"
-                                    ? "text-orange-600"
-                                    : ""
-                              }`}
+                            <td
+                              className="px-2 sm:px-3 py-2 sm:py-4 whitespace-nowrap"
+                              style={cellStyle}
                             >
-                              {h.status}
-                            </span>
-                          </td>
-                          <td
-                            className="px-2 sm:px-3 py-2 sm:py-4 whitespace-nowrap"
-                            style={cellStyle}
-                          >
-                            {fmtDate(h.date)}
-                          </td>
-                          <td
-                            className="px-2 sm:px-3 py-2 sm:py-4 whitespace-nowrap"
-                            style={cellStyle}
-                          >
-                            <div className="flex items-center gap-1">
-                              {/* ✅ Show indicator for reference payments */}
-                              {isReference && (
-                                <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
-                                  ℹ️ Reference
-                                </span>
-                              )}
                               <span
-                                className={
-                                  isReference ? "text-xs text-gray-600" : ""
-                                }
+                                className={`${h.status === "succeeded"
+                                    ? "text-green-600"
+                                    : h.status === "refunded"
+                                      ? "text-orange-600"
+                                      : ""
+                                  }`}
                               >
-                                {h.paymentType || "N/A"}
+                                {h.status}
                               </span>
-                            </div>
-                          </td>
-                          {/* <td
+                            </td>
+                            <td
+                              className="px-2 sm:px-3 py-2 sm:py-4 whitespace-nowrap"
+                              style={cellStyle}
+                            >
+                              {fmtDate(h.date)}
+                            </td>
+                            <td
+                              className="px-2 sm:px-3 py-2 sm:py-4 whitespace-nowrap"
+                              style={cellStyle}
+                            >
+                              <div className="flex items-center gap-1">
+                                {/* ✅ Show indicator for reference payments */}
+                                {isReference && (
+                                  <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
+                                    ℹ️ Reference
+                                  </span>
+                                )}
+                                <span
+                                  className={
+                                    isReference ? "text-xs text-gray-600" : ""
+                                  }
+                                >
+                                  {h.paymentType || "N/A"}
+                                </span>
+                              </div>
+                            </td>
+                            {/* <td
                             className="px-2 sm:px-3 py-2 sm:py-4 whitespace-nowrap text-center"
                             style={cellStyle}
                           >
@@ -1740,16 +1845,16 @@ const PolicyDetailsPage: React.FC = () => {
                                 </button>
                               )}
                           </td> */}
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
               </div>
-            </div>
-          )}
-        </section>
-      )}
+            )}
+          </section>
+        )}
 
       <div className="flex flex-col gap-4 justify-between w-full border-b border-[#D8D8D8] pb-4">
         <div className="text-primary uppercase font-semibold text-xl">
@@ -1771,7 +1876,7 @@ const PolicyDetailsPage: React.FC = () => {
             <label className="font-semibold text-base">CC</label>
             <input
               className="input-primary"
-              placeholder="Up to 5 emails; separated by ;"
+              placeholder={t("Up to 5 emails; separated by ;")}
               value={cc}
               onChange={(e) => setCc(e.target.value)}
               disabled={isEditMode}

@@ -97,6 +97,7 @@ export interface PolicyDetail {
   destinationProvince?: string;
   inCanada?: string;
   superVisa?: string;
+  superVisaYears?: string;
   destinationCountry?: string;
 
   premiumTotal?: number;

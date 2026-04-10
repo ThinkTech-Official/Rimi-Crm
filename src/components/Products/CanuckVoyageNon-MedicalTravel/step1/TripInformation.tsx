@@ -265,6 +265,10 @@ export default function TripInformation({
     }
   }, [effectiveDate, expiryDate, setValue]);
 
+  useEffect(() => {
+    setValue("destinationCountry", "Canada");
+  }, [setValue]);
+
   const canCalculatePremium = (() => {
     const tripFieldsFilled = [
       tripCost > 0,

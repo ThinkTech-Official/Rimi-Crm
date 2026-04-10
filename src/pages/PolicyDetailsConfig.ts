@@ -1,5 +1,13 @@
 import { PolicyDetail } from "../hooks/usePolicyDetail";
 import { formatDate } from "../utils/dateUtils";
+import {
+  Countries,
+  CanadaStates,
+  DeductiblesSecureTravel,
+  DeductiblesCanuckVoyage,
+  ResidenceCountries,
+  CoverageOptions,
+} from "../utils/sharedConstants";
 
 export const fmtDate = (iso?: string) => {
   if (!iso) return "-";
@@ -28,8 +36,8 @@ export interface FieldConfig {
   label: string;
   field: keyof PolicyDetail | (keyof PolicyDetail)[];
   type?: "text" | "email" | "date" | "select" | "number";
-  transform?: (v: any) => any;
-  options?: string[];
+  transform?: (v: any, t: (key: string) => string) => any;
+  options?: string[] | { value: string; label: string }[];
 }
 
 export const PRODUCT_FIELDS_CONFIG: Record<
@@ -66,8 +74,8 @@ export const PRODUCT_FIELDS_CONFIG: Record<
       {
         label: "Coverage for Stable Pre-Existing Medical Condition",
         field: "PreExCoverage",
-        transform: (v: any) =>
-          v === true || v === "true" || v === "yes" || v === "y" ? "Yes" : "No",
+        transform: (v: any, t: any) =>
+          v === true || v === "true" || v === "yes" || v === "y" ? t("Yes") : t("No"),
       },
       { label: "Premium", field: "primaryPremium", transform: fmtCurrency },
     ],
@@ -83,7 +91,7 @@ export const PRODUCT_FIELDS_CONFIG: Record<
       { label: "Address Line 2", field: "street2" },
       { label: "City", field: "city" },
       { label: "Province", field: "province" },
-      { label: "Country", field: "countryCode" },
+      { label: "Country", field: "countryCode", type: "select", options: ResidenceCountries },
       { label: "Postal Code", field: "postalCode" },
     ],
     coverageDetails: [
@@ -102,23 +110,46 @@ export const PRODUCT_FIELDS_CONFIG: Record<
       {
         label: "Coverage Length",
         field: ["covLen", "coverageLength"],
-        transform: (v) => (v ? `${v} Days` : "-"),
+        transform: (v, t) => (v ? `${v} ${t("Days")}` : "-"),
       },
       { label: "Policy Type", field: "policyType" },
-      { label: "Country of Origin", field: "countryOfOrigin" },
-      { label: "Destination Province", field: ["destination", "destinationProvince", "destProv"] },
+      { label: "Country of Origin", field: "countryOfOrigin", type: "select", options: Countries },
+      { label: "Destination Province", field: ["destination", "destinationProvince", "destProv"], type: "select", options: CanadaStates },
       {
         label: "Are Applicants Currently in Canada?",
         field: ["applicantInCanada", "inCanada"],
+        type: "select",
+        options: [
+          { value: "", label: "Please select..." },
+          { value: "yes", label: "Yes" },
+          { value: "no", label: "No" }
+        ],
       },
       {
         label: "Are Applicants Travelling on a Super Visa?",
         field: ["applicantOnSuperVisa", "superVisa"],
         type: "select",
-        options: ["yes", "no"],
+        options: [
+          { value: "yes", label: "Yes" },
+          { value: "no", label: "No" }
+        ],
       },
-      { label: "Deductible", field: "deductible" },
-      { label: "Coverage", field: "coverage" },
+      {
+        label: "Super Visa Duration",
+        field: "superVisaYears",
+        type: "select",
+        options: [
+          { value: "", label: "Please select..." },
+          { value: "1", label: "1 year" },
+        ],
+      },
+      {
+        label: "Deductible",
+        field: "deductible",
+        type: "select",
+        options: DeductiblesSecureTravel
+      },
+      { label: "Coverage", field: "coverage", type: "select", options: CoverageOptions },
     ],
     beneficiaryInfo: [
       { label: "Name", field: "beneficiaryName" },
@@ -160,13 +191,13 @@ export const PRODUCT_FIELDS_CONFIG: Record<
         type: "email",
       },
       { label: "Phone Number", field: "phoneNumber" },
-      { label: "Legal Guardian Name", field: "legalGuardianName" },
       { label: "Address Line 1", field: "street" },
       { label: "Address Line 2", field: "street2" },
       { label: "City", field: "city" },
       { label: "Province", field: "province" },
-      { label: "Country", field: "countryCode" },
+      { label: "Country", field: "countryOfOrigin", type: "select", options: Countries },
       { label: "Postal Code", field: "postalCode" },
+      { label: "Legal Guardian Name", field: "legalGuardianName" },
     ],
     coverageDetails: [
       {
@@ -184,15 +215,20 @@ export const PRODUCT_FIELDS_CONFIG: Record<
       {
         label: "Coverage Length",
         field: ["covLen", "coverageLength"],
-        transform: (v) => (v ? `${v} Days` : "-"),
+        transform: (v, t) => (v ? `${v} ${t("Days")}` : "-"),
       },
       { label: "Policy Type", field: "policyType" },
-      { label: "Country of Origin", field: "countryOfOrigin" },
-      { label: "Destination Province", field: ["destination", "destinationProvince", "destProv"] },
+      { label: "Country of Origin", field: "countryCode", type: "select", options: Countries },
+      {
+        label: "Destination Province",
+        field: ["destination", "destinationProvince", "destProv"],
+        type: "select",
+        options: CanadaStates
+      },
     ],
     beneficiaryInfo: [
       { label: "Name", field: "beneficiaryName" },
-      { label: "Relationship to Insured", field: "beneficiaryRelation" },
+      { label: "Relationship to Insured", field: "beneficiaryRelation"},
     ],
   },
   RIMI_CANUCK_VOYAGE_TRAVEL_MEDICAL: {
@@ -219,12 +255,13 @@ export const PRODUCT_FIELDS_CONFIG: Record<
     ],
     contactInfo: [
       { label: "Email Address", field: "email", type: "email" },
+      { label: "Additional Email Address", field: "additionalEmail", type: "email" },
       { label: "Phone Number", field: "phoneNumber" },
       { label: "Address Line 1", field: "street" },
       { label: "Address Line 2", field: "street2" },
       { label: "City", field: "city" },
       { label: "Province", field: "province" },
-      { label: "Country", field: "countryCode" },
+      { label: "Country", field: "countryCode", type: "select", options: ResidenceCountries },
       { label: "Postal Code", field: "postalCode" },
     ],
     coverageDetails: [
@@ -243,14 +280,27 @@ export const PRODUCT_FIELDS_CONFIG: Record<
       {
         label: "Coverage Length",
         field: ["covLen", "coverageLength"],
-        transform: (v) => (v ? `${v} Days` : "-"),
+        transform: (v, t) => (v ? `${v} ${t("Days")}` : "-"),
       },
       { label: "Policy Type", field: "policyType" },
-      { label: "Destination Country", field: ["destination", "destinationCountry"] },
-      { label: "Traveling Through US", field: ["travelingThroughUS", "applicantTravelThroughUs"] },
+      {
+        label: "Destination Country",
+        field: ["destination", "destinationCountry"],
+        type: "select",
+        options: Countries
+      },
+      { label: "Traveling Through US", field: ["applicantTravelThroughUs", "applicantTravelThroughUs"], type: "select", options: [
+          { value: "yes", label: "Yes" },
+          { value: "no", label: "No" }
+        ] },
       { label: "US Travel Days", field: "usTravelDays" },
       { label: "Days Per Trip", field: "numberOfDaysPerTrip" },
-      { label: "Deductible", field: "deductible" },
+      {
+        label: "Deductible",
+        field: "deductible",
+        type: "select",
+        options: DeductiblesCanuckVoyage
+      },
     ],
     beneficiaryInfo: [],
   },
@@ -293,7 +343,7 @@ export const PRODUCT_FIELDS_CONFIG: Record<
       { label: "Address Line 2", field: "street2" },
       { label: "City", field: "city" },
       { label: "Province", field: "province" },
-      { label: "Country", field: "countryCode" },
+      { label: "Country", field: "countryOfOrigin", type: "select", options: Countries },
       { label: "Postal Code", field: "postalCode" },
     ],
     coverageDetails: [
@@ -312,10 +362,9 @@ export const PRODUCT_FIELDS_CONFIG: Record<
       {
         label: "Coverage Length",
         field: ["covLen", "coverageLength"],
-        transform: (v) => (v ? `${v} Days` : "-"),
+        transform: (v, t) => (v ? `${v} ${t("Days")}` : "-"),
       },
-      { label: "Policy Type", field: "policyType" },
-      { label: "Country of Origin", field: "countryOfOrigin" },
+      { label: "Country of Origin", field: "countryOfOrigin", type: "select", options: Countries },
       {
         label: "Province of Residence",
         field: ["provinceStateResidence", "province"],
@@ -328,10 +377,15 @@ export const PRODUCT_FIELDS_CONFIG: Record<
       {
         label: "Trip Cancellation - Deluxe Option",
         field: "tripCancellationDeluxe",
-        transform: (v) => (v ? "Yes" : "No"),
+        transform: (v, t) => (v ? t("Yes") : t("No")),
       },
       { label: "Trip Booking Date", field: "dateBooked", transform: fmtDateDisplay },
-      { label: "Destination", field: ["destination", "destinationCountry"] },
+      {
+        label: "Destination",
+        field: ["destination", "destinationCountry"],
+        type: "select",
+        options: Countries
+      },
     ],
   },
 };
@@ -352,24 +406,24 @@ export const DEFAULT_FIELDS_CONFIG: {
     { label: "Agent", field: "agentCode" },
   ],
   primaryInsured: [
-     { label: "Individual Policy Number", field: ["primaryIndividualNumber", "individualPolicyNumber"] },
-     { label: "First Name", field: "firstName" },
-     { label: "Last Name", field: "lastName" },
-     { label: "Date of Birth", field: "dateOfBirth", type: "date", transform: fmtDateDisplay },
+    { label: "Individual Policy Number", field: ["primaryIndividualNumber", "individualPolicyNumber"] },
+    { label: "First Name", field: "firstName" },
+    { label: "Last Name", field: "lastName" },
+    { label: "Date of Birth", field: "dateOfBirth", type: "date", transform: fmtDateDisplay },
   ],
   contactInfo: [
-     { label: "Email Address", field: "email", type: "email" },
-     { label: "Phone Number", field: "phoneNumber" },
-     { label: "Address Line 1", field: "street" },
-     { label: "Address Line 2", field: "street2" },
+    { label: "Email Address", field: "email", type: "email" },
+    { label: "Phone Number", field: "phoneNumber" },
+    { label: "Address Line 1", field: "street" },
+    { label: "Address Line 2", field: "street2" },
   ],
   coverageDetails: [
-     { label: "Effective Date", field: "effectiveDate", type: "date", transform: fmtDateDisplay },
-     { label: "Expiry Date", field: "expiryDate", type: "date", transform: fmtDateDisplay },
-     { label: "Coverage Length", field: "covLen", transform: (v: any) => v ? `${v} Days` : "-" },
+    { label: "Effective Date", field: "effectiveDate", type: "date", transform: fmtDateDisplay },
+    { label: "Expiry Date", field: "expiryDate", type: "date", transform: fmtDateDisplay },
+    { label: "Coverage Length", field: "covLen", transform: (v: any, t: any) => v ? `${v} ${t("Days")}` : "-" },
   ],
   beneficiaryInfo: [
-     { label: "Name", field: "beneficiaryName" },
-     { label: "Relationship to Insured", field: "beneficiaryRelation" },
+    { label: "Name", field: "beneficiaryName" },
+    { label: "Relationship to Insured", field: "beneficiaryRelation" },
   ]
 };

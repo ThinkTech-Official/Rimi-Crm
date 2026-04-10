@@ -377,7 +377,7 @@ const RIMICanuckVoyageNonMedicalTravel: React.FC = () => {
       effectiveDate: "",
       expiryDate: "",
       coverageLength: 0,
-      destinationCountry: "",
+      destinationCountry: "Canada",
       tripCancellationDeluxe: null,
       agentCode: "",
       product: "",
