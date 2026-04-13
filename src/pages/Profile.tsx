@@ -383,6 +383,7 @@ const PERMISSIONS_MAP: Record<string, typeof adminPermission> = {
 
 import { useLanguage } from "../context/LanguageContext";
 import { formatDate } from "../utils/dateUtils";
+import Spinner from "../components/Spinner";
 
 export default function Profile() {
   const { t } = useLanguage();
@@ -582,7 +583,12 @@ export default function Profile() {
     }));
   };
 
-  if (loading) return <p className="text-center">Loading profile…</p>;
+  if (loading) return <div className="flex justify-center flex-col items-center gap-2">
+          <Spinner className="w-8 h-8"/>
+          <p className="text-primary">
+            {t("Loading commissions...")}
+          </p>
+        </div>;
   if (error) return <p className="text-red-500">Error: {error}</p>;
 
   const currentUserPermissions = PERMISSIONS_MAP[formData.userType] || {};

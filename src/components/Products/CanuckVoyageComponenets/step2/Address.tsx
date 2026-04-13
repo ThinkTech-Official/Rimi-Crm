@@ -464,8 +464,8 @@ export default function Address({ methods }: AddressProps) {
               })}
             >
               <option value="">{t("Please select...")}</option>
-              <option value="CA">{t("Canada")}</option>
-              <option value="US">{t("United States")}</option>
+              <option value="Canada">{t("Canada")}</option>
+              <option value="United States">{t("United States")}</option>
             </select>
 
             <div className="pointer-events-none absolute inset-y-0 right-2 flex items-center text-gray-500">
