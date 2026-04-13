@@ -728,7 +728,12 @@ export default function CoverageInformation({
               {...register("policyType", {
                 required: t("Policy Type is required"),
                 onChange: (e) => {
-                  if (e.target.value !== "Multi-Trip Annual") {
+                  const val = e.target.value;
+                  if (val === "Single Trip") {
+                    setValue("coverageLength", 0);
+                    setValue("expiryDate", "");
+                  }
+                  if (val !== "Multi-Trip Annual") {
                     setValue("numberOfDaysPerTrip", undefined);
                   }
                 },
@@ -1358,9 +1363,8 @@ export default function CoverageInformation({
               }
             }}
             disabled={saving}
-            className={`text-base hover:underline underline-offset-2 cursor-pointer text-primary mt-2 ${
-              saving ? "opacity-50" : ""
-            }`}
+            className={`text-base hover:underline underline-offset-2 cursor-pointer text-primary mt-2 ${saving ? "opacity-50" : ""
+              }`}
           >
             {saving ? t("Saving...") : t("Save Quote")}
           </button>
