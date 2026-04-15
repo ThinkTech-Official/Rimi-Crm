@@ -112,7 +112,7 @@ const Products: React.FC = () => {
                 </button>
 
                 {/* Secure Study Specific Bulk Upload Button */}
-                {product.id ===
+                {/* {product.id ===
                   "secure-study-international-students-to-canada" &&
                   userType === "ADMIN" && (
                     <button
@@ -122,7 +122,7 @@ const Products: React.FC = () => {
                       <ArrowUpTrayIcon className="h-5 w-5" aria-hidden="true" />{" "}
                       {t("Bulk upload")}
                     </button>
-                  )}
+                  )} */}
               </div>
             </div>
           </div>
