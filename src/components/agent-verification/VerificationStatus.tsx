@@ -1,9 +1,9 @@
 import { useSelector } from 'react-redux';
 import { selectVerificationStatus } from '../../features/verificationSlice';
-import { 
-  CheckCircleIcon, 
-  ClockIcon, 
-  ExclamationCircleIcon, 
+import {
+  CheckCircleIcon,
+  ClockIcon,
+  ExclamationCircleIcon,
   XCircleIcon,
   DocumentIcon,
   CalendarIcon
@@ -69,7 +69,7 @@ export default function VerificationStatus() {
           bgColor: 'bg-gray-50',
           borderColor: 'border-gray-200',
           title: t('Documents Not Uploaded'),
-          message: status.isImportedAgent 
+          message: status.isImportedAgent
             ? t('Please upload verification documents before March 1st, 2026.')
             : t('Please upload your verification documents to activate your account.')
         };
@@ -100,7 +100,7 @@ export default function VerificationStatus() {
             {statusDisplay.title}
           </h3>
           <p className="mt-1 text-gray-700">{statusDisplay.message}</p>
-          
+
           <div className="mt-4 space-y-2 text-sm text-gray-600">
             {status.documentsUploadedAt && (
               <div className="flex items-center space-x-2">
@@ -110,7 +110,7 @@ export default function VerificationStatus() {
                 </span>
               </div>
             )}
-            
+
             {status.verifiedAt && (
               <div className="flex items-center space-x-2">
                 <CheckCircleIcon className="h-4 w-4" />
@@ -119,7 +119,7 @@ export default function VerificationStatus() {
                 </span>
               </div>
             )}
-            
+
             {status.verificationValidTill && (
               <div className="flex items-center space-x-2">
                 <CalendarIcon className="h-4 w-4" />

@@ -331,7 +331,6 @@ import {
   UserIcon,
   ShieldCheckIcon,
 } from "@heroicons/react/24/outline";
-import { API_BASE } from "../utils/urls";
 import { MdCancel } from "react-icons/md";
 import { getUserTypeFromToken } from "../utils/getUserType";
 import VerificationTab from "../components/agent-verification/VerificationTab";
@@ -400,7 +399,7 @@ export default function Profile() {
   const userType = userInfo?.userType;
   const showVerificationTab = userType && ["AGENT", "MGA"].includes(userType);
   const {triggerNotification, NotificationComponent} = useNotification();
-
+  
   const [formData, setFormData] = useState<ProfileForm>({
     id: "",
     firstName: "",
@@ -420,6 +419,11 @@ export default function Profile() {
     agentCodes: [],
     phoneNumber:"",
   });
+  
+  const verified = formData?.verificationStatus === "VERIFIED";
+  const pending = formData?.verificationStatus === "PENDING";
+  const draft = formData?.verificationStatus === "DRAFT";
+  const rejected = formData?.verificationStatus === "REJECTED";
 
   // Local state for files to upload
   const [files, setFiles] = useState<{ [key: string]: File | null }>({
@@ -583,10 +587,10 @@ export default function Profile() {
     }));
   };
 
-  if (loading) return <div className="flex justify-center flex-col items-center gap-2">
+  if (loading) return <div className="flex justify-center flex-col items-center gap-2 fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
           <Spinner className="w-8 h-8"/>
           <p className="text-primary">
-            {t("Loading commissions...")}
+            {t("Loading profile...")}
           </p>
         </div>;
   if (error) return <p className="text-red-500">Error: {error}</p>;
@@ -645,7 +649,7 @@ export default function Profile() {
       )}
 
       {/* Status Indicators */}
-      {formData?.verificationStatus === "PENDING" && (
+      {pending && (
         <div className="border border-blue-300 bg-blue-50 rounded-lg p-4 mb-4">
           <div className="flex items-center gap-2">
             <svg
@@ -668,8 +672,8 @@ export default function Profile() {
         </div>
       )}
 
-      {formData?.verificationStatus === "VERIFIED" && (
-        <div className="border border-green-300 bg-green-50 rounded-lg p-4 mb-4">
+      {verified && (
+        <div className="border border-green-300 bg-green-50 rounded-lg p-2 lg:p-4 mb-4">
           <div className="flex items-center gap-2">
             <svg
               className="h-5 w-5 text-green-600"
@@ -686,7 +690,7 @@ export default function Profile() {
             </svg>
             <div className="flex-1">
               <span className="text-sm font-medium text-green-800">
-                {t("Verified")} ✓
+                {t("Verified")}
               </span>
               {formData.verificationValidTill && (
                 <span className="text-xs text-green-600 ml-2">
@@ -1102,15 +1106,18 @@ export default function Profile() {
         const filename = link.split("/").pop();
         return (
           <li key={idx}>
+            <div className="flex items-center gap-2">
+            <DocumentIcon className="h-6 w-6 text-text-primary" />
+            <p className="text-nowrap">{label}:</p>
             <a
               href={link}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-2 text-text-secondary hover:underline"
+              className="text-text-secondary hover:underline line-clamp-1"
             >
-              <DocumentIcon className="h-5 w-5 text-text-primary" />
-              <span>{label}: {filename}</span>
+              {filename}
             </a>
+            </div>
           </li>
         );
       })}
@@ -1122,7 +1129,7 @@ export default function Profile() {
   )}
 
   {/* Upload inputs — show in edit mode for AGENT/MGA */}
-  {isEditing && showVerificationTab && (
+  {isEditing && showVerificationTab && !verified && (
     <div className="flex flex-col gap-3 mt-2">
       {[
         { key: 'doc1', label: 'Insurance License' },

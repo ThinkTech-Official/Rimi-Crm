@@ -666,7 +666,8 @@ const handleVerifySubmit = async () => {
                           <div className="flex flex-col items-end gap-3 flex-shrink-0">
                             <div className="text-right">
                               <p className="text-xs text-text-secondary mb-1">{t("Document Upload Status")}</p>
-                              <p className="text-sm font-medium text-gray-700">
+                              <p className="text-sm font-medium text-gray-700 flex gap-2 items-center">
+                                <span>{t("Uploaded on")}:</span>
                                 {agent.documentsUploadedAt
                                   ? formatDate(agent.documentsUploadedAt)
                                   : agent.applicantType === 'under_mga' && agent.mgaType === 'wfg'

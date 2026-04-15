@@ -551,22 +551,22 @@ export default function UserDetails() {
         <h3 className="text-primary font-semibold mb-2 capitalize text-lg">
           {t("Documents")}
         </h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 gap-y-3">
           {documentFields.map((doc) => (
             <div key={doc.key} className="flex flex-col gap-2">
                   <label className="text-sm font-medium text-gray-700">
                     {t(doc.label)}
                   </label>
                   {doc.link ? (
-                <div className="grid grid-cols-2 items-center gap-2">
+                <div className="flex items-center gap-2">
+                  <DocumentIcon className="h-8 w-8 text-text-primary" />
                   <a
                     href={`${API_BASE}${doc.link}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-2 text-text-secondary hover:underline text-sm"
+                    className="text-text-secondary hover:underline text-sm line-clamp-1"
                   >
-                    <DocumentIcon className="h-5 w-5 text-text-primary" />
-                    <p className="line-clamp-1">{doc.link.split("/").pop()}</p>
+                    {doc.link.split("/").pop()}
                   </a>
                 </div>
               ) : (

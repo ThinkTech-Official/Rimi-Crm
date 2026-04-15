@@ -204,7 +204,7 @@ export default function Navbar() {
                 />
               </button>
               {isProfileMenuOpen && (
-                <div className="absolute mt-5 ml-1 w-full rounded-sm shadow-lg bg-white border border-[#E9EEF1] z-10">
+                <div className="absolute mt-5 ml-1 w-[110%] rounded-sm shadow-lg bg-white border border-[#E9EEF1] z-10">
                   <ul className="py-1 text-sm 2xl:text-lg text-gray-700">
                     <li>
                       <button
@@ -219,7 +219,7 @@ export default function Navbar() {
                         onClick={handleLogout}
                         className="w-full text-left px-4 py-2 hover:bg-primary hover:text-white cursor-pointer flex gap-2 items-center"
                       >
-                        <IoIosLogOut className="h-4 w-4 2xl:w-5 2xl:h-5" />{" "}
+                        <IoIosLogOut className="h-4 w-4 2xl:w-5 2xl:h-5" />
                         {t("Logout")}
                       </button>
                     </li>

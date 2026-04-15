@@ -671,5 +671,7 @@
   "Please scroll through all conditions to enable the “Accept” button.":"Veuillez faire défiler toutes les conditions afin d'activer le bouton « Accepter ».",
   "APPLICANT":"CANDIDAT",
   "Refresh Data":"Rafraîchir les données",
-  "Refreshing...":"Rafraîchissement..."
+  "Refreshing...":"Rafraîchissement...",
+  "Uploaded on":"Téléchargé le",
+  "Loading profile...":"Chargement du profil..."
 }
