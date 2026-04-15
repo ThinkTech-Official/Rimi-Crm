@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 // import { LangContext } from "../context/LangContext";
 import { useLanguage } from "../context/LanguageContext";
+import DatePicker from "./DatePicker";
+import { toLocalIsoDate, isAfterDate, formatDate } from "../utils/dateUtils";
 
 interface TripCalculatorFormInputs {
   startDate: string;
@@ -21,12 +23,17 @@ const TripCalculator: React.FC = () => {
   const [result, setResult] = useState<string>("");
 
   const {
-    register,
+    control,
     handleSubmit,
     watch,
     setValue,
     formState: { errors },
-  } = useForm<TripCalculatorFormInputs>();
+  } = useForm<TripCalculatorFormInputs>({
+    defaultValues: {
+      startDate: toLocalIsoDate(new Date()),
+      operation: "add",
+    }
+  });
 
   const startDate = watch("startDate");
   const daysInput = watch("daysInput");
@@ -35,9 +42,11 @@ const TripCalculator: React.FC = () => {
   useEffect(() => {
     if (calculationType === "duration" && startDate && daysInput) {
       const start = new Date(startDate);
+      if (isNaN(start.getTime())) return;
+
       const end = new Date(start);
       end.setDate(start.getDate() + Number(daysInput) - 1); // inclusive days
-      setValue("endDate", end.toISOString().split("T")[0]);
+      setValue("endDate", toLocalIsoDate(end));
     }
   }, [calculationType, startDate, daysInput, setValue]);
 
@@ -45,16 +54,17 @@ const TripCalculator: React.FC = () => {
     const { startDate, endDate, years, months, weeks, days, operation } = data;
 
     if (calculationType === "duration" && startDate && endDate) {
+      if (isAfterDate(startDate, endDate)) {
+        setResult(t("End date must be after start date"));
+        return;
+      }
+
       const start = new Date(startDate);
       const end = new Date(endDate);
       const diffTime = end.getTime() - start.getTime();
       const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
-      
-      if (diffDays <= 0) {
-        setResult(t("End date must be after start date"));
-      } else {
-        setResult(`${diffDays} ${t("Days")}`);
-      }
+
+      setResult(`${diffDays} ${t("Days")}`);
     } else if (calculationType === "newDate" && startDate) {
       let newDate = new Date(startDate);
       const op = operation === "subtract" ? -1 : 1;
@@ -64,7 +74,7 @@ const TripCalculator: React.FC = () => {
       if (weeks) newDate.setDate(newDate.getDate() + op * +weeks * 7);
       if (days) newDate.setDate(newDate.getDate() + op * +days);
 
-      setResult(newDate.toDateString());
+      setResult(formatDate(newDate));
     } else {
       setResult(t("Invalid Input"));
     }
@@ -92,22 +102,20 @@ const TripCalculator: React.FC = () => {
           <button
             type="button"
             onClick={() => handleCalculationTypeChange("duration")}
-            className={`py-2 px-4 font-medium border cursor-pointer transition-colors ${
-              calculationType === "duration"
-                ? "text-white bg-primary border-primary"
-                : "text-text-secondary border-inputBorder"
-            }`}
+            className={`py-2 px-4 font-medium border cursor-pointer transition-colors ${calculationType === "duration"
+              ? "text-white bg-primary border-primary"
+              : "text-text-secondary border-inputBorder"
+              }`}
           >
             {t("Calculate Duration")}
           </button>
           <button
             type="button"
             onClick={() => handleCalculationTypeChange("newDate")}
-            className={`py-2 px-4 font-medium border cursor-pointer transition-colors ${
-              calculationType === "newDate"
-                ? "text-white bg-primary border-primary"
-                : "text-text-secondary border-inputBorder"
-            }`}
+            className={`py-2 px-4 font-medium border cursor-pointer transition-colors ${calculationType === "newDate"
+              ? "text-white bg-primary border-primary"
+              : "text-text-secondary border-inputBorder"
+              }`}
           >
             {t("Calculate New Date")}
           </button>
@@ -116,68 +124,73 @@ const TripCalculator: React.FC = () => {
         {/* Form Inputs */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4 text-text-secondary">
           {/* Start Date */}
-          <div className="flex flex-col font-[inter]">
-            <label className="text-sm">
-              {t("Start Date")}
-            </label>
-            <input
-              type="date"
-              className="input-primary"
-              {...register("startDate", { 
-                setValueAs: (value: any) => value?.trim() || "",
-                required: t("Start Date is required") 
-              })}
-            />
-            {errors.startDate && (
-              <p className="text-red-500 text-sm">{errors.startDate.message}</p>
+          <Controller
+            name="startDate"
+            control={control}
+            rules={{ required: t("Start Date is required") }}
+            render={({ field }) => (
+              <DatePicker
+                label={t("Start Date")}
+                value={field.value}
+                onChange={field.onChange}
+                error={errors.startDate?.message}
+              />
             )}
-          </div>
+          />
 
           {/* Conditional Inputs */}
           {calculationType === "duration" ? (
-            <div className="flex flex-col font-[inter]">
-              <label className="text-sm">
-                {t("End Date")}
-              </label>
-              <input
-                type="date"
-                className="input-primary"
-                {...register("endDate", { 
-                  setValueAs: (value: any) => value?.trim() || "",
-                  required: t("End Date is required") 
-                })}
-              />
-              {errors.endDate && (
-                <p className="text-red-500 text-sm">{errors.endDate.message}</p>
+            <Controller
+              name="endDate"
+              control={control}
+              rules={{ required: t("End Date is required") }}
+              render={({ field }) => (
+                <DatePicker
+                  label={t("End Date")}
+                  value={field.value}
+                  onChange={field.onChange}
+                  error={errors.endDate?.message}
+                />
               )}
-            </div>
+            />
           ) : (
             <>
               <div className="flex flex-col font-[inter]">
                 <label className="text-sm">
                   {t("Operation")}
                 </label>
-                <select className="input-primary" {...register("operation")}>
-                  <option value="add">
-                    {t("Add")}
-                  </option>
-                  <option value="subtract">
-                    {t("Subtract")}
-                  </option>
-                </select>
+                <Controller
+                  name="operation"
+                  control={control}
+                  render={({ field }) => (
+                    <select className="input-primary" {...field}>
+                      <option value="add">
+                        {t("Add")}
+                      </option>
+                      <option value="subtract">
+                        {t("Subtract")}
+                      </option>
+                    </select>
+                  )}
+                />
               </div>
 
               {/* Years, Months, Weeks, Days */}
               {["years", "months", "weeks", "days"].map((field) => (
                 <div key={field} className="flex flex-col">
                   <label className="text-sm capitalize">{t(field)}</label>
-                  <input
-                    type="number"
-                    placeholder="0"
-                    className="input-primary"
-                    {...register(field as keyof TripCalculatorFormInputs, {
-                      setValueAs: (value: any) => value?.trim() || "",
-                    })}
+                  <Controller
+                    name={field as keyof TripCalculatorFormInputs}
+                    control={control}
+                    render={({ field: fieldProps }) => (
+                      <input
+                        {...fieldProps}
+                        type="number"
+                        placeholder="0"
+                        className="input-primary"
+                        onChange={(e) => fieldProps.onChange(e.target.value)}
+                      />
+                    )}
                   />
                 </div>
               ))}
@@ -188,16 +201,21 @@ const TripCalculator: React.FC = () => {
         {/* Days Input (for duration) */}
         {calculationType === "duration" && (
           <div className="w-full mt-4 flex flex-col">
-            <label className="text-sm">
+            <label className="text-sm capitalize">
               {t("Days")}
             </label>
-            <input
-              type="number"
-              placeholder="0"
-              className="input-primary"
-              {...register("daysInput", {
-                setValueAs: (value: any) => value?.trim() || "",
-              })}
+            <Controller
+              name="daysInput"
+              control={control}
+              render={({ field }) => (
+                <input
+                  {...field}
+                  type="number"
+                  placeholder="0"
+                  className="input-primary"
+                  onChange={(e) => field.onChange(e.target.value)}
+                />
+              )}
             />
           </div>
         )}
