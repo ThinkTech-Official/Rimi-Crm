@@ -200,7 +200,7 @@ const MGAAgentDetails = () => {
 
               <div className="flex gap-2">
                 <span className="text-text-primary font-semibold">
-                  {t("Valid Until")}:
+                  {t("Valid until")}:
                 </span>
                 <span className="text-text-secondary">
                   {formatDate(agentData.validity)}

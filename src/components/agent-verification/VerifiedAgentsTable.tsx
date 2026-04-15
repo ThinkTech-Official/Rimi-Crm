@@ -57,7 +57,7 @@ export function VerifiedAgentsTable({
                 {t("Verified Date")}
               </th>
               <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium">
-                {t("Valid Until")}
+                {t("Valid until")}
               </th>
             </tr>
           </thead>

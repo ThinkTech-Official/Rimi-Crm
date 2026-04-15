@@ -11,7 +11,6 @@ import { useLanguage } from "../context/LanguageContext";
 interface Product {
   id: string; // Added ID for easier handling
   name: string;
-  nameFr: string;
   description: string; // Added description
   descriptionFr: string;
   img: string;
@@ -23,7 +22,6 @@ const productList: Product[] = [
   {
     id: "canuck-voyage-travel-medical",
     name: "RIMI Canuck Voyage Travel Medical",
-    nameFr: "RIMI Canuck Voyage Travel Medical",
     description: "A Comprehensive Guide to Your Insurance Coverage",
     descriptionFr: "Un guide complet sur votre couverture d'assurance",
     img: "/RIMI_Travel_Med.jpg",
@@ -32,7 +30,6 @@ const productList: Product[] = [
   {
     id: "canuck-voyage-non-medical-travel",
     name: "RIMI Canuck Voyage Non-Medical Travel",
-    nameFr: "RIMI Assurance voyage non médicale Travel",
     description: "A Comprehensive Guide to Your Insurance Coverage",
     descriptionFr: "Un guide complet sur votre couverture d'assurance",
     img: "/RIMI_Travel_Non_Med.png",
@@ -41,7 +38,6 @@ const productList: Product[] = [
   {
     id: "secure-travel-visitors-to-canada",
     name: "Secure Travel RIMI Visitors to Canada Travel",
-    nameFr: "Secure Travel RIMI Visitors to Canada Travel",
     description: "A Comprehensive Guide to Your Insurance Coverage",
     descriptionFr: "Un guide complet sur votre couverture d'assurance",
     img: "/RIMI_Visitors_to_Canada.png",
@@ -50,7 +46,6 @@ const productList: Product[] = [
   {
     id: "secure-study-international-students-to-canada",
     name: "Secure Study RIMI International Students to Canada",
-    nameFr: "Secure Study RIMI International Students to Canada",
     description: "A Comprehensive Guide to Your Insurance Coverage",
     descriptionFr: "Un guide complet sur votre couverture d'assurance",
     img: "/RIMI_Int_Students.png",
@@ -88,13 +83,13 @@ const Products: React.FC = () => {
           >
             {/* Placeholder Image Header */}
             <div className="bg-gray-200 w-full flex-shrink-0">
-              <img src={product.img} alt={language === "fr" ? product.nameFr : product.name} />
+              <img src={product.img} alt={t(product.name)} />
             </div>
 
             {/* Card Content */}
             <div className="p-5 flex flex-col flex-1">
               <h3 className="text-gray-900 font-bold text-base mb-2">
-                {language === "fr" ? product.nameFr : product.name}
+                {t(product.name)}
               </h3>
 
               <p className="text-gray-500 text-sm mb-6 flex-1">

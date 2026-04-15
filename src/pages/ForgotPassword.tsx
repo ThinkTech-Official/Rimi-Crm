@@ -61,7 +61,7 @@ const ForgotPassword: React.FC = () => {
               className="h-12 w-32 sm:h-[75px] sm:w-40"
             />
           </div>
-          <h1 className="text-center text-2xl font-bold text-neutral-800 mb-6 capitalize">
+          <h1 className="text-center text-2xl font-bold text-neutral-800 mb-6">
             {t("Reset Password")}
           </h1>
           {/* Login Form */}

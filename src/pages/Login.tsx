@@ -73,7 +73,7 @@ const Login = () => {
         {/* Outlined Box */}
         <div className="relative z-10 border border-white/80 min-h-[400px] px-8 max-w-lg flex flex-col items-center justify-center text-center">
           <h1 className="text-4xl xl:text-5xl font-medium text-white mb-6 tracking-wider leading-snug uppercase font-[inter]">
-            Rimi <br /> Insurance
+           {t("Rimi")}  <br /> {t("Insurance")}
           </h1>
           <p className="text-white text-2xl max-w-xs leading-relaxed capitalize">
             {t("Welcome to RIMI travel insurance portal")}
