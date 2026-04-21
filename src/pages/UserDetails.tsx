@@ -561,7 +561,7 @@ export default function UserDetails() {
                 <div className="flex items-center gap-2">
                   <DocumentIcon className="h-8 w-8 text-text-primary" />
                   <a
-                    href={`${API_BASE}${doc.link}`}
+                    href={`${doc.link}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-text-secondary hover:underline text-sm line-clamp-1"

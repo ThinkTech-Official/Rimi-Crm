@@ -26,7 +26,6 @@ type SuperVisaOption = "" | "yes" | "no";
 type SuperVisaYears = "" | "1";
 type YesNo = "" | "yes" | "no";
 
-const msPerDay = 1000 * 60 * 60 * 24;
 
 export interface PremiumCalculationData {
   countryOfOrigin: string;
@@ -104,12 +103,6 @@ const Step1STRVCT = ({
 
   quoteNumber,
   setQuoteNumber,
-
-  formStep,
-  handleFormStepChange,
-  handleNext,
-  //   isStepOneFilled,
-  savingStage1,
 }: Props) => {
   const { t } = useLanguage();
   const agentCode = useSelector((state: RootState) => state.auth.agentCode);
@@ -247,6 +240,10 @@ const Step1STRVCT = ({
   const applicantAges = applicants.map((app: any) =>
     calculateAge(app.dob, effectiveDate),
   );
+
+  const anyApplicantOver80 =
+    (primaryAge !== null && primaryAge > 80) ||
+    applicantAges.some((age: number | null) => age !== null && age > 80);
 
   // Check who needs questionnaire
   const primaryNeedsQuestionnaire =
@@ -389,6 +386,16 @@ const Step1STRVCT = ({
     if (!showPaymentOption) setValue("paymentOption", "lump-sum");
   }, [showPaymentOption, setValue]);
 
+  // Reset deductible if anyone is over 80 and a low deductible is selected
+  useEffect(() => {
+    if (anyApplicantOver80) {
+      const currentDeductible = getValues("deductible");
+      if (["0", "100", "250"].includes(String(currentDeductible))) {
+        setValue("deductible", "", { shouldValidate: true });
+      }
+    }
+  }, [anyApplicantOver80, setValue, getValues]);
+
   const paymentOptions = [
     { value: "lump-sum", label: "Lump Sum" },
     ...(Number(coverageOption) >= 100000
@@ -415,7 +422,7 @@ const Step1STRVCT = ({
     coverageLength,
     policyType,
     coverageOption,
-    // deductible !== undefined,
+    deductible,
     paymentOption,
   ].every((v) => v !== "" && v !== undefined && v !== null);
 
@@ -438,8 +445,7 @@ const Step1STRVCT = ({
       coverageOption,
       deductible,
       primaryDateOfBirth,
-    ].every((v) => v !== "" && v !== undefined && v !== null) &&
-    allQuestionnairesComplete;
+    ].every((v) => v !== "" && v !== undefined && v !== null);
 
   //=====================================Backend Communication Data===========================
 
@@ -460,10 +466,14 @@ const Step1STRVCT = ({
       : "",
     paymentOption,
     plan: 1,
-    applicants: (applicants || []).map((app: any) => ({
-      ...app,
-      dob: app.dob ? new Date(app.dob).toISOString() : "",
-    })),
+    // send applicant's data without health questionnaire
+    applicants: (applicants || []).map((app: any) => {
+      const { healthQuestionnaire, ...rest } = app;
+      return {
+        ...rest,
+        dob: app.dob ? new Date(app.dob).toISOString() : "",
+      };
+    }),
   };
 
   const {
@@ -677,6 +687,11 @@ const Step1STRVCT = ({
                     onChange={(date) => {
                       field.onChange(date);
                       setValue("primaryQuestionnaire", null);
+                      // if age is more then 80 then make deductible null so that the person has to choose it again
+                      const age = calculateAge(date, effectiveDate);
+                      if (age && age > 80) {
+                        setValue("deductible", "");
+                      }
                     }}
                     maxDate={new Date()}
                   />
@@ -1506,11 +1521,16 @@ const Step1STRVCT = ({
                     info={() => setShowInfoDeductible((prev) => !prev)}
                     options={[
                       { value: "", label: t("Please select...") },
-                      { value: "0", label: "$0.00 CAD" },
-                      { value: "100", label: "$100.00 CAD" },
-                      { value: "250", label: "$250.00 CAD" },
+                      ...(anyApplicantOver80
+                        ? []
+                        : [
+                            { value: "0", label: "$0.00 CAD" },
+                            { value: "100", label: "$100.00 CAD" },
+                            { value: "250", label: "$250.00 CAD" },
+                          ]),
                       { value: "500", label: "$500.00 CAD" },
                       { value: "1000", label: "$1,000.00 CAD" },
+                      { value: "3000", label: "$3,000.00 CAD" },
                     ]}
                     {...field}
                     value={field.value !== undefined ? String(field.value) : ""}
@@ -1580,7 +1600,8 @@ const Step1STRVCT = ({
 
       {/* ====================================== COVERAGE INFOIRMATION END ========================== */}
 
-      <div className="w-full mt-6 bg-greyBg p-6">
+      {CanCalculatePremium && (
+        <div className="w-full mt-6 bg-greyBg p-6">
         {loading ? (
           <div className="flex flex-col gap-2 items-center">
             <Spinner className="h-6 w-6" />
@@ -1591,65 +1612,65 @@ const Step1STRVCT = ({
         ) : error ? (
           <p className="text-red-500">{t("Error")}: {t(error)}</p>
         ) : (
-          <div>
             <div>
-              {schedule.length > 0 && (
-                <div className="mb-4">
-                  <p className="text-text-primary text-xl font-bold text-center">
-                    {t("Payment Schedule")}
-                  </p>
-                  <div className="flex flex-col gap-1 mt-2">
-                    {schedule.map((item: any, idx: any) => (
-                      <div key={idx} className="flex justify-between">
-                        <span className="text-text-primary font-medium">
-                          {item.count
-                            ? `${item.count} × ${item.label}`
-                            : item.label}
-                        </span>
-                        <span className="text-text-secondary">
-                          ${item.amount?.toFixed(2)} CAD
-                        </span>
-                      </div>
-                    ))}
+              <div>
+                {schedule.length > 0 && (
+                  <div className="mb-4">
+                    <p className="text-text-primary text-xl font-bold text-center">
+                      {t("Payment Schedule")}
+                    </p>
+                    <div className="flex flex-col gap-1 mt-2">
+                      {schedule.map((item: any, idx: any) => (
+                        <div key={idx} className="flex justify-between">
+                          <span className="text-text-primary font-medium">
+                            {item.count
+                              ? `${item.count} × ${item.label}`
+                              : item.label}
+                          </span>
+                          <span className="text-text-secondary">
+                            ${item.amount?.toFixed(2)} CAD
+                          </span>
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              )}
-              <h3 className="text-lg text-center mt-2 text-text-secondary">
-                <span className="font-bold text-text-primary">{t("Your Quote")}:</span>{" "}
-                ${totalPremium} CAD
-              </h3>
-            </div>
-
-            {quoteNumber != null && !isDirty ? (
-              <div className=" flex flex-col justify-center items-center mb-2 gap-2">
-                <p className="mt-2 text-xl font-bold text-red-600">
-                  <span>{t("Quote Saved")}: </span>
-                  <span>{quoteNumber}</span>
-                </p>
-                <p
-                  className="text-[#2b00b7] cursor-pointer text-base hover:underline underline-offset-2"
-                  onClick={handleEmailQuote}
-                >
-                  {t("Email Quote")}
-                </p>
-              </div>
-            ) : (
-              <h3 className=" text-center mt-2 cursor-pointer text-[#2b00b7]">
-                {isFormFilled ? (
-                  <button
-                    type="button"
-                    disabled={saving}
-                    onClick={handleQuoteSave}
-                    className="text-base hover:underline underline-offset-2 cursor-pointer"
-                  >
-                    {saving ? t("Saving...") : t("Save Quote")}
-                  </button>
-                ) : (
-                  ""
                 )}
-              </h3>
-            )}
-          </div>
+                <h3 className="text-lg text-center mt-2 text-text-secondary">
+                  <span className="font-bold text-text-primary">{t("Your Quote")}:</span>{" "}
+                  ${totalPremium} CAD
+                </h3>
+              </div>
+
+              {quoteNumber != null && !isDirty ? (
+                <div className=" flex flex-col justify-center items-center mb-2 gap-2">
+                  <p className="mt-2 text-xl font-bold text-red-600">
+                    <span>{t("Quote Saved")}: </span>
+                    <span>{quoteNumber}</span>
+                  </p>
+                  <p
+                    className="text-[#2b00b7] cursor-pointer text-base hover:underline underline-offset-2"
+                    onClick={handleEmailQuote}
+                  >
+                    {t("Email Quote")}
+                  </p>
+                </div>
+              ) : (
+                <h3 className=" text-center mt-2 cursor-pointer text-[#2b00b7]">
+                  {isFormFilled ? (
+                    <button
+                      type="button"
+                      disabled={saving}
+                      onClick={handleQuoteSave}
+                      className="text-base hover:underline underline-offset-2 cursor-pointer"
+                    >
+                      {saving ? t("Saving...") : t("Save Quote")}
+                    </button>
+                  ) : (
+                    ""
+                  )}
+                </h3>
+              )}
+            </div>
         )}
         {isAgeQuestionnaireOpen && (
           <AgeQuestionaire
@@ -1680,8 +1701,9 @@ const Step1STRVCT = ({
           />
         )}
       </div>
-    </>
-  );
-};
+        )}
+      </>
+    );
+  };
 
 export default Step1STRVCT;

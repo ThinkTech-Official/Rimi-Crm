@@ -63,7 +63,7 @@ export interface Step1Payload {
   coverageLength: string;
   policyType: string;
   coverageOption: string;
-  deductible: number;
+  deductible: string;
   paymentOption: "lump-sum" | "monthly-installments";
 
   primaryQuestionnaire: {
@@ -143,7 +143,7 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
       coverageLength: "",
       policyType: "",
       coverageOption: "",
-      deductible: 0,
+      deductible: "",
       paymentOption: "lump-sum",
       primaryQuestionnaire: null,
       isConfirmed: false,
@@ -282,6 +282,7 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
         product: productName,
         quoteNumber: quoteNumber,
         status: "Inactive",
+        deductible: Number(formValues.deductible),
         // Ensure dates are strings as expected by backend
         primaryDateOfBirth: formValues.primaryDateOfBirth as string,
         effectiveDate: formValues.effectiveDate as string,
