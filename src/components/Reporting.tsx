@@ -1,36 +1,24 @@
 
-import { useState, useEffect, Fragment } from "react";
-import { useForm, SubmitHandler } from "react-hook-form";
+import { useEffect } from "react";
+import { useForm, SubmitHandler, Controller } from "react-hook-form";
 // import { LangContext } from "../context/LangContext";
 import { useLanguage } from "../context/LanguageContext";
+import DatePicker from "./DatePicker";
 import { useReporting, ReportingPayload } from "../hooks/useReporting";
-import { Transition } from "@headlessui/react";
 import {
-  XCircleIcon,
-  CheckCircleIcon,
-  XMarkIcon,
   ChevronDownIcon,
 } from "@heroicons/react/24/outline";
-
-type ToastType = "error" | "success";
-interface Toast {
-  type: ToastType;
-  message: string;
-  show: boolean;
-}
+import useNotification from "../hooks/useNotification";
+import { useFormLanguageRevalidation } from "../hooks/useFormLanguageRevalidation";
 
 const Reporting: React.FC = () => {
   // const { langauge } = useContext(LangContext);
   const { t } = useLanguage();
   const { sendReport, loading, error, result } = useReporting();
+  const {triggerNotification, NotificationComponent} = useNotification();
 
   // React Hook Form setup
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-    reset,
-  } = useForm<ReportingPayload>({
+  const methods = useForm<ReportingPayload>({
     defaultValues: {
       product: "",
       reportType: "",
@@ -41,27 +29,27 @@ const Reporting: React.FC = () => {
     },
   });
 
-  // single toast state
-  const [toast, setToast] = useState<Toast>({
-    type: "error",
-    message: "",
-    show: false,
-  });
+  const {
+    register,
+    handleSubmit,
+    control,
+    formState: { errors },
+    reset,
+  } = methods;
 
   // show error-toast on network/validation error from hook
   useEffect(() => {
     if (error) {
-      setToast({ type: "error", message: error, show: true });
+      triggerNotification({type: "error", message: error})
     }
   }, [error]);
 
   // show success-toast when backend responds
   useEffect(() => {
     if (result?.success) {
-      setToast({
+      triggerNotification({
         type: "success",
-        message: t("Report created successfully!"),
-        show: true,
+        message: t("Report created successfully!")
       });
       reset(); // clear form
     }
@@ -70,6 +58,9 @@ const Reporting: React.FC = () => {
   const onSubmit: SubmitHandler<ReportingPayload> = async (data) => {
     await sendReport(data);
   };
+
+  // Re-trigger validation when language changes to update error messages
+  useFormLanguageRevalidation(methods);
 
   return (
     <>
@@ -101,18 +92,18 @@ const Reporting: React.FC = () => {
               >
                 <option value="">---</option>
                 <option value="RIMI_CANUCK_VOYAGE_TRAVEL_MEDICAL"> 
-                  RIMI Canuck Voyage Travel Medical
+                  {t("RIMI Canuck Voyage Travel Medical")}
                 </option>
                 <option value="RIMI_CANUCK_VOYAGE_NON_MEDICAL_TRAVEL">
-                  RIMI Canuck Voyage Non-Medical Travel
+                  {t("RIMI Canuck Voyage Non-Medical Travel")}
                 </option>
-                <option value="RIMI_MONTHLY">Rimi Monthly</option>
-                <option value="RIMI_WEEKLY">Rimi Weekly</option>
+                <option value="RIMI_MONTHLY">{t("Rimi Monthly")}</option>
+                <option value="RIMI_WEEKLY">{t("Rimi Weekly")}</option>
                 <option value="SECURE_STUDY_RIMI_INTERNATIONAL_STUDENTS_TO_CANADA">
-                  Secure Study RIMI International Students to Canada
+                  {t("Secure Study RIMI International Students to Canada")}
                 </option>
                 <option value="SECURE_TRAVEL_RIMI_VISITORS_TO_CANADA_TRAVEL">
-                  Secure Travel RIMI Visitors to Canada Travel
+                  {t("Secure Travel RIMI Visitors to Canada Travel")}
                 </option>
               </select>
 
@@ -156,42 +147,34 @@ const Reporting: React.FC = () => {
           </div>
 
           {/* START DATE */}
-          <div className="flex flex-col gap-1">
-            <label className="text-sm">
-              {t("Start Date")}
-            </label>
-            <input
-              {...register("startDate", {
-                required: t("Start date is required"),
-              })}
-              type="date"
-              className={`input-primary ${
-                errors.startDate ? "border-red-500" : "border-[#3a17c5]"
-              }`}
-            />
-            {errors.startDate && (
-              <p className="text-red-500 text-sm">{errors.startDate.message}</p>
+          <Controller
+            name="startDate"
+            control={control}
+            rules={{ required: t("Start date is required") }}
+            render={({ field }) => (
+              <DatePicker
+                label={t("Start Date")}
+                value={field.value}
+                onChange={field.onChange}
+                error={errors.startDate?.message}
+              />
             )}
-          </div>
+          />
 
           {/* END DATE */}
-          <div className="flex flex-col gap-1">
-            <label className="text-sm">
-              {t("End Date")}
-            </label>
-            <input
-              {...register("endDate", {
-                required: t("End date is required"),
-              })}
-              type="date"
-              className={`input-primary ${
-                errors.endDate ? "border-red-500" : "border-[#3a17c5]"
-              }`}
-            />
-            {errors.endDate && (
-              <p className="text-red-500 text-sm">{errors.endDate.message}</p>
+          <Controller
+            name="endDate"
+            control={control}
+            rules={{ required: t("End date is required") }}
+            render={({ field }) => (
+              <DatePicker
+                label={t("End Date")}
+                value={field.value}
+                onChange={field.onChange}
+                error={errors.endDate?.message}
+              />
             )}
-          </div>
+          />
 
           {/* EMAIL TO */}
           <div className="flex flex-col gap-1">
@@ -249,60 +232,7 @@ const Reporting: React.FC = () => {
           </button>
         </div>
       </form>
-
-      {/* Toast notification */}
-      <div
-        aria-live="assertive"
-        className="pointer-events-none fixed inset-0 flex items-end px-4 py-6 sm:items-start sm:p-6"
-      >
-        <div className="flex w-full flex-col items-center space-y-4 sm:items-end">
-          <Transition
-            show={toast.show}
-            as={Fragment}
-            enter="transform ease-out duration-300 transition"
-            enterFrom="translate-y-2 opacity-0 sm:translate-y-0 sm:translate-x-2"
-            enterTo="translate-y-0 opacity-100 sm:translate-x-0"
-            leave="transition ease-in duration-100"
-            leaveFrom="opacity-100"
-            leaveTo="opacity-0"
-            afterLeave={() => setToast((t) => ({ ...t, show: false }))}
-          >
-            <div className="pointer-events-auto w-full max-w-sm overflow-hidden rounded-lg bg-white shadow-lg ring-1 ring-black ring-opacity-5">
-              <div className="p-4 flex items-start">
-                <div className="flex-shrink-0">
-                  {toast.type === "error" ? (
-                    <XCircleIcon
-                      className="h-6 w-6 text-red-400"
-                      aria-hidden="true"
-                    />
-                  ) : (
-                    <CheckCircleIcon
-                      className="h-6 w-6 text-green-400"
-                      aria-hidden="true"
-                    />
-                  )}
-                </div>
-                <div className="ml-3 w-0 flex-1 pt-0.5">
-                  <p className="text-sm font-medium text-gray-900">
-                    {toast.type === "error" ? t("Error") : t("Success")}
-                  </p>
-                  <p className="mt-1 text-sm text-gray-500">{toast.message}</p>
-                </div>
-                <div className="ml-4 flex flex-shrink-0">
-                  <button
-                    type="button"
-                    className="inline-flex rounded-md bg-white text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-                    onClick={() => setToast((t) => ({ ...t, show: false }))}
-                  >
-                    <span className="sr-only">{t("Close")}</span>
-                    <XMarkIcon className="h-5 w-5" aria-hidden="true" />
-                  </button>
-                </div>
-              </div>
-            </div>
-          </Transition>
-        </div>
-      </div>
+      {NotificationComponent}
     </>
   );
 };
