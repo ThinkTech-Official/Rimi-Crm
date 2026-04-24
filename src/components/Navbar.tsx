@@ -246,7 +246,7 @@ export default function Navbar() {
                 <Link to="/home" onClick={() => setShowSlider(false)}>{t("Home")}</Link>
               </li>
               <li>
-              <li>Contact us</li>
+                {t("Contact us")}
               </li>
             </ul>
           </div>

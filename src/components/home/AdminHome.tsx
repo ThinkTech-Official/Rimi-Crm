@@ -689,36 +689,37 @@ function AgentsTable({
 
   const agents = data?.data || [];
   const totalPages = data?.totalPages || 1;
+  const { t } = useLanguage();
 
   return (
     <div className="space-y-2 w-full">
       <h2 className="text-lg font-bold text-text-primary">
-        All Agents ({data?.total || 0})
+        {t("All Agents")} ({data?.total || 0})
       </h2>
       <div className="w-full overflow-x-auto custom-scrollbar pb-2">
         <table className="min-w-full divide-y divide-gray-200 overflow-auto custom-scrollbar">
           <thead className="bg-primary text-white text-base 2xl:text-xl capitalize">
             <tr>
               <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium text-nowrap">
-                Agent Code
+                {t("Agent Code")}
               </th>
               <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium text-nowrap">
-                Joined Date
+                {t("Joined Date")}
               </th>
               <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium text-nowrap">
-                Name
+                {t("Name")}
               </th>
               <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium text-nowrap">
-                Validity
+                {t("Validity")}
               </th>
               <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium text-nowrap">
-                Quotes
+                {t("Quotes")}
               </th>
               <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium text-nowrap">
-                Policies
+                {t("Policies")}
               </th>
               <th className="px-2 sm:px-6 py-1 sm:py-3 text-center font-medium">
-                Action
+                {t("Action")}
               </th>
             </tr>
           </thead>
@@ -726,7 +727,7 @@ function AgentsTable({
             {agents.length === 0 ? (
               <tr>
                 <td colSpan={7} className="text-center py-4 text-gray-500">
-                  No agents found
+                  {t("No agents found")}
                 </td>
               </tr>
             ) : (
@@ -758,7 +759,7 @@ function AgentsTable({
                       className="text-primary hover:underline hover:underline-offset-2 cursor-pointer font-medium px-4 text-center w-full"
                       onClick={() => onAgentClick(agent.agentCode)}
                     >
-                      View Details
+                      {t("View Details")}
                     </button>
                   </td>
                 </tr>
@@ -814,33 +815,34 @@ function PoliciesTable({ data, loading, currentPage, onPageChange }: any) {
 
   const policies = data?.data || [];
   const totalPages = data?.totalPages || 1;
+  const { t } = useLanguage();
 
   return (
     <div className="space-y-2 w-full">
       <h2 className="text-lg font-bold text-text-primary">
-        All Policies ({data?.total || 0})
+        {t("All Policies")} ({data?.total || 0})
       </h2>
       <div className="w-full overflow-x-auto custom-scrollbar pb-2">
         <table className="min-w-full divide-y divide-gray-200 overflow-auto custom-scrollbar">
           <thead className="bg-primary text-white text-base 2xl:text-xl capitalize">
             <tr>
               <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium text-nowrap">
-                Policy No.
+                {t("Policy No.")}
               </th>
               <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium text-nowrap">
-                Name
+                {t("Name")}
               </th>
               <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium text-nowrap">
-                Type
+                {t("Type")}
               </th>
               <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium text-nowrap">
-                Premium
+                {t("Premium")}
               </th>
               <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium text-nowrap">
-                Status
+                {t("Status")}
               </th>
               <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium text-nowrap">
-                Issued at
+                {t("Issued at")}
               </th>
             </tr>
           </thead>
@@ -848,7 +850,7 @@ function PoliciesTable({ data, loading, currentPage, onPageChange }: any) {
             {policies.length === 0 ? (
               <tr>
                 <td colSpan={6} className="text-center py-4 text-gray-500">
-                  No policies found
+                  {t("No policies found")}
                 </td>
               </tr>
             ) : (
@@ -930,36 +932,37 @@ function QuotesTable({ data, loading, currentPage, onPageChange }: any) {
 
   const quotes = data?.data || [];
   const totalPages = data?.totalPages || 1;
+  const { t } = useLanguage();
 
   return (
     <div className="space-y-2 w-full">
       <h2 className="text-lg font-bold text-text-primary">
-        All Quotes ({data?.total || 0})
+        {t("All Quotes")} ({data?.total || 0})
       </h2>
       <div className="w-full overflow-x-auto custom-scrollbar pb-2">
         <table className="min-w-full divide-y divide-gray-200 overflow-auto custom-scrollbar">
           <thead className="bg-primary text-white text-base 2xl:text-xl capitalize">
             <tr>
               <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium text-nowrap">
-                Quote No.
+                {t("Quote No.")}
               </th>
               <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium text-nowrap">
-                Name
+                {t("Name")}
               </th>
               <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium text-nowrap">
-                Type
+                {t("Type")}
               </th>
               <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium text-nowrap">
-                Premium
+                {t("Premium")}
               </th>
               <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium text-nowrap">
-                Product
+                {t("Product")}
               </th>
               <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium text-nowrap">
-                Status
+                {t("Status")}
               </th>
               <th className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium text-nowrap">
-                Created at
+                {t("Created at")}
               </th>
             </tr>
           </thead>
@@ -967,7 +970,7 @@ function QuotesTable({ data, loading, currentPage, onPageChange }: any) {
             {quotes.length === 0 ? (
               <tr>
                 <td colSpan={7} className="text-center py-4 text-gray-500">
-                  No quotes found
+                  {t("No quotes found")}
                 </td>
               </tr>
             ) : (

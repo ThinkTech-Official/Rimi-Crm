@@ -602,8 +602,8 @@ export default function Profile() {
 
   return (
     <div className="max-w-5xl mx-auto p-6 bg-white shadow-lg border border-gray-200">
-      <h2 className="text-xl font-semibold text-center text-primary mb-4">
-        {isEditing ? t("MODIFY USER") : t("USER PROFILE")}
+      <h2 className="text-xl font-semibold text-center text-primary mb-4 uppercase">
+        {isEditing ? t("Modify User") : t("User profile")}
       </h2>
 
       {/* Request Verification Button */}
@@ -922,7 +922,7 @@ export default function Profile() {
                   disabled
                   className="mr-2"
                 />
-                {key}
+                {t(key)}
               </label>
             ))}
           </div>
