@@ -101,7 +101,7 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
       coverageLength: "",
       policyType: "",
       coverageOption: "",
-      deductible: 0,
+      deductible: "",
       paymentOption: "lump-sum",
       primaryQuestionnaire: null,
       isConfirmed: false,
@@ -298,7 +298,7 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
       coverageLength: "",
       policyType: policyData.policyType || "",
       coverageOption: policyData.coverage || "",
-      deductible: policyData.deductible || 0,
+      deductible: "",
       paymentOption: "lump-sum",
       superVisaYears: "", // User re-selects if super visa
       primaryQuestionnaire: null,
@@ -396,12 +396,13 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
 
     try {
       const formValues = step1Methods.getValues();
-      const stage1Payload = {
+      const stage1Payload: any = {
         ...formValues,
         agentCode: agentCode!,
         product: productName,
         quoteNumber: quoteNumber,
         status: "Inactive",
+        deductible: Number(formValues.deductible),
         primaryDateOfBirth:
           (formValues.primaryDateOfBirth as any) instanceof Date
             ? (formValues.primaryDateOfBirth as any).toISOString()
@@ -414,6 +415,13 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
           (formValues.expiryDate as any) instanceof Date
             ? (formValues.expiryDate as any).toISOString()
             : formValues.expiryDate,
+        applicants: (formValues.applicants || []).map((app: any) => {
+          const { healthQuestionnaire, ...rest } = app;
+          return {
+            ...rest,
+            dob: app.dob ? new Date(app.dob).toISOString() : "",
+          };
+        }),
       };
 
       const response = await saveQuoteNext(stage1Payload);

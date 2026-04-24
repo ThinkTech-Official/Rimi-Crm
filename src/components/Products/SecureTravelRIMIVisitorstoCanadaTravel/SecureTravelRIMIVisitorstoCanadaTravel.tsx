@@ -1,5 +1,5 @@
 import { CheckIcon } from "@heroicons/react/24/outline";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import ApplicantInformationFinished from "./step2/ApplicantInformationFinished";
 import ContactInformation from "./step2/ContactInformation";
 import Address from "./step2/Address";
@@ -107,7 +107,7 @@ interface QuoteStage1Response {
 const productName = "SECURE_TRAVEL_RIMI_VISITORS_TO_CANADA_TRAVEL";
 
 export default function SecureTravelRIMIVisitorstoCanadaTravel() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const agentCode = useSelector((state: RootState) => state.auth.agentCode);
 
   const [steps, setSteps] = useState([
@@ -215,6 +215,25 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
   let firstPaymentAmount: number = totalPremium;
 
   const stripeProductId = "prod_SRGSLGPsB7SQxy";
+
+  // Re-trigger validation when language changes to update error messages
+  useEffect(() => {
+    const triggerValidation = async () => {
+      if (Object.keys(step1Methods.formState.errors).length > 0) {
+        await step1Methods.trigger();
+      }
+      if (Object.keys(contactInfoMethods.formState.errors).length > 0) {
+        await contactInfoMethods.trigger();
+      }
+      if (Object.keys(addressMethods.formState.errors).length > 0) {
+        await addressMethods.trigger();
+      }
+      if (Object.keys(beneficiaryMethods.formState.errors).length > 0) {
+        await beneficiaryMethods.trigger();
+      }
+    };
+    triggerValidation();
+  }, [language, step1Methods, contactInfoMethods, addressMethods, beneficiaryMethods]);
 
   // We need to watch payment option to perform calculations
   const watchedPaymentOption = step1Methods.watch("paymentOption");

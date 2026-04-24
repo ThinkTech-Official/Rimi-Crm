@@ -95,7 +95,7 @@ const calculateAge = (
 };
 
 export default function SecureTravelRIMIVisitorstoCanadaTravel() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
 
@@ -134,7 +134,7 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
       coverageLength: "",
       policyType: "",
       coverageOption: "",
-      deductible: 0,
+      deductible: "",
       paymentOption: "lump-sum",
       primaryQuestionnaire: null,
       isConfirmed: false,
@@ -178,6 +178,25 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
       },
     },
   });
+
+  // Re-trigger validation when language changes to update error messages
+  useEffect(() => {
+    const triggerValidation = async () => {
+      if (Object.keys(step1Methods.formState.errors).length > 0) {
+        await step1Methods.trigger();
+      }
+      if (Object.keys(contactInfoMethods.formState.errors).length > 0) {
+        await contactInfoMethods.trigger();
+      }
+      if (Object.keys(addressMethods.formState.errors).length > 0) {
+        await addressMethods.trigger();
+      }
+      if (Object.keys(beneficiaryMethods.formState.errors).length > 0) {
+        await beneficiaryMethods.trigger();
+      }
+    };
+    triggerValidation();
+  }, [language, step1Methods, contactInfoMethods, addressMethods, beneficiaryMethods]);
 
   // Helper to watch payment option for calculations
   const watchedPaymentOption = step1Methods.watch("paymentOption");
@@ -431,7 +450,7 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
         coverageLength: String(quoteData.coverageLength || ""),
         policyType: quoteData.policyType || "",
         coverageOption: String(quoteData.coverageOption || ""),
-        deductible: quoteData.deductible || 0,
+        deductible: String(quoteData.deductible ?? ""),
         paymentOption: (quoteData.paymentOption as any) || "lump-sum",
         primaryQuestionnaire: null,
         isConfirmed: true,
@@ -510,16 +529,23 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
 
     try {
       const formValues = step1Methods.getValues();
-      const stage1Payload = {
+      const stage1Payload: any = {
         ...formValues,
-       primaryDateOfBirth: formValues.primaryDateOfBirth?.split("T")[0] || "",
-       effectiveDate: formValues.effectiveDate?.split("T")[0] || "",
-       expiryDate: formValues.expiryDate?.split("T")[0] || "",
+        primaryDateOfBirth: formValues.primaryDateOfBirth?.split("T")[0] || "",
+        effectiveDate: formValues.effectiveDate?.split("T")[0] || "",
+        expiryDate: formValues.expiryDate?.split("T")[0] || "",
         agentCode: agentCode!,
-        // product: "Secure Travel RIMI Visitors to Canada Travel",
         product: productName,
         quoteNumber: quoteNumber,
         status: "Inactive",
+        deductible: Number(formValues.deductible),
+        applicants: (formValues.applicants || []).map((app: any) => {
+          const { healthQuestionnaire, ...rest } = app;
+          return {
+            ...rest,
+            dob: app.dob ? new Date(app.dob).toISOString() : "",
+          };
+        }),
       };
 
       const response = await saveQuoteNext(stage1Payload);

@@ -268,7 +268,7 @@
 // =======================================================
 
 import { CheckIcon } from "@heroicons/react/24/outline";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useLanguage } from "../../../context/LanguageContext";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../app/store";
@@ -331,7 +331,7 @@ interface QuoteStage1Response {
 const productName = "RIMI_CANUCK_VOYAGE_TRAVEL_MEDICAL";
 
 const RIMICanuckVoyageTravelMedical: React.FC = () => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const agentCode = useSelector((state: RootState) => state.auth.agentCode);
 
   // ========== STEP MANAGEMENT ==========
@@ -420,6 +420,22 @@ const RIMICanuckVoyageTravelMedical: React.FC = () => {
     name: "contactInfo",
   });
 
+  // Re-trigger validation when language changes to update error messages
+  useEffect(() => {
+    const triggerValidation = async () => {
+      if (Object.keys(step1Methods.formState.errors).length > 0) {
+        await step1Methods.trigger();
+      }
+      if (Object.keys(contactInfoMethods.formState.errors).length > 0) {
+        await contactInfoMethods.trigger();
+      }
+      if (Object.keys(addressMethods.formState.errors).length > 0) {
+        await addressMethods.trigger();
+      }
+    };
+    triggerValidation();
+  }, [language, step1Methods, contactInfoMethods, addressMethods]);
+
   // ========== VALIDATION ==========
 
   // ========== HOOKS ==========
@@ -471,6 +487,7 @@ const RIMICanuckVoyageTravelMedical: React.FC = () => {
         quoteNumber: quoteNumber || undefined,
         status: "Inactive",
       };
+      console.log("Stage 1 payload:", stage1Payload);
 
       const response = await saveQuoteNext(stage1Payload);
       setQuoteNumber(response.quoteNumber);

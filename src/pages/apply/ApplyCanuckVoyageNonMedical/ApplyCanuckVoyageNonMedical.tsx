@@ -85,7 +85,7 @@ export interface Stage2FormValues {
 const productName = "RIMI_CANUCK_VOYAGE_NON_MEDICAL_TRAVEL";
 
 const RIMICanuckVoyageNonMedicalTravel: React.FC = () => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
 
@@ -127,7 +127,7 @@ const RIMICanuckVoyageNonMedicalTravel: React.FC = () => {
       status: "Inactive",
     },
   });
-
+  
   const step2Methods = useForm<Stage2FormValues>({
     mode: "all",
     defaultValues: {
@@ -146,6 +146,19 @@ const RIMICanuckVoyageNonMedicalTravel: React.FC = () => {
       },
     },
   });
+
+  // Re-trigger validation when language changes to update error messages
+  useEffect(() => {
+    const triggerValidation = async () => {
+      if (Object.keys(step1Methods.formState.errors).length > 0) {
+        await step1Methods.trigger();
+      }
+      if (Object.keys(step2Methods.formState.errors).length > 0) {
+        await step2Methods.trigger();
+      }
+    };
+    triggerValidation();
+  }, [language, step1Methods, step2Methods]);
 
   // Watch values for local logic
   // const watchedStep1 = step1Methods.watch();

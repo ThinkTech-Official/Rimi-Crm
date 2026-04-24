@@ -87,7 +87,7 @@ interface QuoteStage1ResponseProduct2 {
 const productName = "SECURE_STUDY_RIMI_INTERNATIONAL_STUDENTS_TO_CANADA";
 
 export default function SecureStudyRIMIInternationalStudentstoCanada() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
@@ -123,7 +123,7 @@ export default function SecureStudyRIMIInternationalStudentstoCanada() {
       coverageLength: "",
     },
   });
-
+  
   const step2Methods = useForm<Stage2FormValues>({
     mode: "all",
     defaultValues: {
@@ -151,6 +151,19 @@ export default function SecureStudyRIMIInternationalStudentstoCanada() {
       },
     },
   });
+
+  // Re-trigger validation when language changes to update error messages
+  useEffect(() => {
+    const triggerValidation = async () => {
+      if (Object.keys(step1Methods.formState.errors).length > 0) {
+        await step1Methods.trigger();
+      }
+      if (Object.keys(step2Methods.formState.errors).length > 0) {
+        await step2Methods.trigger();
+      }
+    };
+    triggerValidation();
+  }, [language, step1Methods, step2Methods]);
 
   // Watch values for local logic
   const watchedStep1 = step1Methods.watch();

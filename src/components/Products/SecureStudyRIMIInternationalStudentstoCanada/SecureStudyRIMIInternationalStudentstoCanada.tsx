@@ -702,7 +702,7 @@
 // ==========================================================
 
 import { CheckIcon } from "@heroicons/react/24/outline";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../app/store";
 import { Elements } from "@stripe/react-stripe-js";
@@ -804,7 +804,7 @@ interface AddressInfo {
 const productName = "SECURE_STUDY_RIMI_INTERNATIONAL_STUDENTS_TO_CANADA";
 
 export default function SecureStudyRIMIInternationalStudentstoCanada() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const agentCode = useSelector((state: RootState) => state.auth.agentCode);
 
   // ==================== PREMIUM STATE ====================
@@ -892,7 +892,24 @@ export default function SecureStudyRIMIInternationalStudentstoCanada() {
     },
   });
 
-  // ==================== HOOKS ====================
+  // Re-trigger validation when language changes to update error messages
+  useEffect(() => {
+    const triggerValidation = async () => {
+      if (Object.keys(step1Methods.formState.errors).length > 0) {
+        await step1Methods.trigger();
+      }
+      if (Object.keys(contactInfoMethods.formState.errors).length > 0) {
+        await contactInfoMethods.trigger();
+      }
+      if (Object.keys(beneficiaryInfoMethods.formState.errors).length > 0) {
+        await beneficiaryInfoMethods.trigger();
+      }
+      if (Object.keys(addressInfoMethods.formState.errors).length > 0) {
+        await addressInfoMethods.trigger();
+      }
+    };
+    triggerValidation();
+  }, [language, step1Methods, contactInfoMethods, beneficiaryInfoMethods, addressInfoMethods]);
   const { saveQuoteNext, loading: savingStage1 } = useSaveQuoteNextProduct2();
   const {
     completeApplication,
