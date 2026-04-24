@@ -24,6 +24,7 @@ import { Stage1Payload } from "../../../hooks/canuck-voyage-non-medical/useSaveQ
 import { useCreateQuoteProduct4 } from "../../../hooks/canuck-voyage-non-medical/useCreateQuoteProduct4";
 import useNotification from "../../../hooks/useNotification";
 import { useLanguage } from "../../../context/LanguageContext";
+import { useFormLanguageRevalidation } from "../../../hooks/useFormLanguageRevalidation";
 
 interface Applicant {
   index: string;
@@ -148,17 +149,7 @@ const RIMICanuckVoyageNonMedicalTravel: React.FC = () => {
   });
 
   // Re-trigger validation when language changes to update error messages
-  useEffect(() => {
-    const triggerValidation = async () => {
-      if (Object.keys(step1Methods.formState.errors).length > 0) {
-        await step1Methods.trigger();
-      }
-      if (Object.keys(step2Methods.formState.errors).length > 0) {
-        await step2Methods.trigger();
-      }
-    };
-    triggerValidation();
-  }, [language, step1Methods, step2Methods]);
+  useFormLanguageRevalidation(step1Methods, step2Methods);
 
   // Watch values for local logic
   // const watchedStep1 = step1Methods.watch();

@@ -893,23 +893,12 @@ export default function SecureStudyRIMIInternationalStudentstoCanada() {
   });
 
   // Re-trigger validation when language changes to update error messages
-  useEffect(() => {
-    const triggerValidation = async () => {
-      if (Object.keys(step1Methods.formState.errors).length > 0) {
-        await step1Methods.trigger();
-      }
-      if (Object.keys(contactInfoMethods.formState.errors).length > 0) {
-        await contactInfoMethods.trigger();
-      }
-      if (Object.keys(beneficiaryInfoMethods.formState.errors).length > 0) {
-        await beneficiaryInfoMethods.trigger();
-      }
-      if (Object.keys(addressInfoMethods.formState.errors).length > 0) {
-        await addressInfoMethods.trigger();
-      }
-    };
-    triggerValidation();
-  }, [language, step1Methods, contactInfoMethods, beneficiaryInfoMethods, addressInfoMethods]);
+  useFormLanguageRevalidation(
+    step1Methods,
+    contactInfoMethods,
+    beneficiaryInfoMethods,
+    addressInfoMethods
+  );
   const { saveQuoteNext, loading: savingStage1 } = useSaveQuoteNextProduct2();
   const {
     completeApplication,

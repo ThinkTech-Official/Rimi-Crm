@@ -18,6 +18,7 @@ import { FormProvider, useForm } from "react-hook-form";
 import YourQuoteSummary from "./step2/YourQuoteSummary";
 import { useLanguage } from "../../../context/LanguageContext";
 import TestFillButton from "../../common/TestFillButton";
+import { useFormLanguageRevalidation } from "../../../hooks/useFormLanguageRevalidation";
 
 type SuperVisaOption = "" | "yes" | "no";
 type SuperVisaYears = "" | "1";
@@ -217,23 +218,7 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
   const stripeProductId = "prod_SRGSLGPsB7SQxy";
 
   // Re-trigger validation when language changes to update error messages
-  useEffect(() => {
-    const triggerValidation = async () => {
-      if (Object.keys(step1Methods.formState.errors).length > 0) {
-        await step1Methods.trigger();
-      }
-      if (Object.keys(contactInfoMethods.formState.errors).length > 0) {
-        await contactInfoMethods.trigger();
-      }
-      if (Object.keys(addressMethods.formState.errors).length > 0) {
-        await addressMethods.trigger();
-      }
-      if (Object.keys(beneficiaryMethods.formState.errors).length > 0) {
-        await beneficiaryMethods.trigger();
-      }
-    };
-    triggerValidation();
-  }, [language, step1Methods, contactInfoMethods, addressMethods, beneficiaryMethods]);
+  useFormLanguageRevalidation(step1Methods, contactInfoMethods, addressMethods, beneficiaryMethods);
 
   // We need to watch payment option to perform calculations
   const watchedPaymentOption = step1Methods.watch("paymentOption");

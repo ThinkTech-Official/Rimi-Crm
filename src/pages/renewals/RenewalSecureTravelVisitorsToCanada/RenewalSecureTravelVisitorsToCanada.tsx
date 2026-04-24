@@ -22,6 +22,7 @@ import { Step1Payload } from "../../../components/Products/SecureTravelRIMIVisit
 import useNotification from "../../../hooks/useNotification";
 import { useLanguage } from "../../../context/LanguageContext";
 import { formatDate } from "../../../utils/dateUtils";
+import { useFormLanguageRevalidation } from "../../../hooks/useFormLanguageRevalidation";
 
 import { useRenewalPolicyData } from "../../../hooks/renewals/useRenewalPolicyData";
 
@@ -145,6 +146,9 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
       },
     },
   });
+
+  // Re-trigger validation when language changes to update error messages
+  useFormLanguageRevalidation(step1Methods, contactInfoMethods, addressMethods, beneficiaryMethods);
 
   // Helper to watch payment option for calculations
   const watchedPaymentOption = step1Methods.watch("paymentOption");

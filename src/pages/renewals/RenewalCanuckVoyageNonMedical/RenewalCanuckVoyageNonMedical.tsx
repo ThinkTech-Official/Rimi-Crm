@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import { useForm, FormProvider } from "react-hook-form";
 import useNotification from "../../../hooks/useNotification";
 import { useLanguage } from "../../../context/LanguageContext";
+import { useFormLanguageRevalidation } from "../../../hooks/useFormLanguageRevalidation";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../app/store";
 import { useSaveQuoteNextProduct4 } from "../../../hooks/canuck-voyage-non-medical/useSaveQuoteNextProduct4";
@@ -173,17 +174,7 @@ const RIMICanuckVoyageNonMedicalTravel: React.FC = () => {
   });
 
   // Re-trigger validation when language changes to update error messages
-  useEffect(() => {
-    const triggerValidation = async () => {
-      if (Object.keys(step1Methods.formState.errors).length > 0) {
-        await step1Methods.trigger();
-      }
-      if (Object.keys(step2Methods.formState.errors).length > 0) {
-        await step2Methods.trigger();
-      }
-    };
-    triggerValidation();
-  }, [language, step1Methods, step2Methods]);
+  useFormLanguageRevalidation(step1Methods, step2Methods);
 
   // Watch values for local logic
   const watchedStep2 = step2Methods.watch();

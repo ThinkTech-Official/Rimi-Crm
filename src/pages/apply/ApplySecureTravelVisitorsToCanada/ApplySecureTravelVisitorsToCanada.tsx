@@ -23,6 +23,7 @@ import { Step1Payload } from "../../../components/Products/SecureTravelRIMIVisit
 import { usePremiumCalculate } from "../../../hooks/usePremiumCalculate";
 import { PremiumCalculationData } from "../../../components/Products/SecureTravelRIMIVisitorstoCanadaTravel/step1/Step1STRVCT";
 import { useLanguage } from "../../../context/LanguageContext";
+import { useFormLanguageRevalidation } from "../../../hooks/useFormLanguageRevalidation";
 
 type SuperVisaOption = "" | "yes" | "no";
 type SuperVisaYears = "" | "1";
@@ -180,23 +181,7 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
   });
 
   // Re-trigger validation when language changes to update error messages
-  useEffect(() => {
-    const triggerValidation = async () => {
-      if (Object.keys(step1Methods.formState.errors).length > 0) {
-        await step1Methods.trigger();
-      }
-      if (Object.keys(contactInfoMethods.formState.errors).length > 0) {
-        await contactInfoMethods.trigger();
-      }
-      if (Object.keys(addressMethods.formState.errors).length > 0) {
-        await addressMethods.trigger();
-      }
-      if (Object.keys(beneficiaryMethods.formState.errors).length > 0) {
-        await beneficiaryMethods.trigger();
-      }
-    };
-    triggerValidation();
-  }, [language, step1Methods, contactInfoMethods, addressMethods, beneficiaryMethods]);
+  useFormLanguageRevalidation(step1Methods, contactInfoMethods, addressMethods, beneficiaryMethods);
 
   // Helper to watch payment option for calculations
   const watchedPaymentOption = step1Methods.watch("paymentOption");

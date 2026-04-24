@@ -14,6 +14,7 @@ import { stripePromise } from "../../../utils/stripe";
 import { useForm, FormProvider } from "react-hook-form";
 import useNotification from "../../../hooks/useNotification";
 import { useLanguage } from "../../../context/LanguageContext";
+import { useFormLanguageRevalidation } from "../../../hooks/useFormLanguageRevalidation";
 
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useRenewalPolicyData } from "../../../hooks/renewals/useRenewalPolicyData";
@@ -173,17 +174,7 @@ const RIMICanuckVoyageTravelMedical: React.FC = () => {
   });
 
   // Re-trigger validation when language changes to update error messages
-  useEffect(() => {
-    const triggerValidation = async () => {
-      if (Object.keys(step1Methods.formState.errors).length > 0) {
-        await step1Methods.trigger();
-      }
-      if (Object.keys(step2Methods.formState.errors).length > 0) {
-        await step2Methods.trigger();
-      }
-    };
-    triggerValidation();
-  }, [language, step1Methods, step2Methods]);
+  useFormLanguageRevalidation(step1Methods, step2Methods);
 
 
   // Watch values for local logic

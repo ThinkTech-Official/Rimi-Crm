@@ -294,6 +294,7 @@ import Summary from "./step3/Summary";
 import { FormProvider, useForm, useWatch } from "react-hook-form";
 import useNotification from "../../../hooks/useNotification";
 import TestFillButton from "../../common/TestFillButton";
+import { useFormLanguageRevalidation } from "../../../hooks/useFormLanguageRevalidation";
 
 interface Applicant {
   index: string;
@@ -421,20 +422,7 @@ const RIMICanuckVoyageTravelMedical: React.FC = () => {
   });
 
   // Re-trigger validation when language changes to update error messages
-  useEffect(() => {
-    const triggerValidation = async () => {
-      if (Object.keys(step1Methods.formState.errors).length > 0) {
-        await step1Methods.trigger();
-      }
-      if (Object.keys(contactInfoMethods.formState.errors).length > 0) {
-        await contactInfoMethods.trigger();
-      }
-      if (Object.keys(addressMethods.formState.errors).length > 0) {
-        await addressMethods.trigger();
-      }
-    };
-    triggerValidation();
-  }, [language, step1Methods, contactInfoMethods, addressMethods]);
+  useFormLanguageRevalidation(step1Methods, contactInfoMethods, addressMethods);
 
   // ========== VALIDATION ==========
 
