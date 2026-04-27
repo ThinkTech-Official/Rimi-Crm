@@ -1103,20 +1103,19 @@ export default function Profile() {
         { link: formData.docLink4, type: formData.docType4, label: 'Agency Agreement' },
       ].map(({ link, type, label }, idx) => {
         if (!link) return null;
-        const filename = link.split("/").pop();
         return (
           <li key={idx}>
-            <div className="flex items-center gap-2">
-            <DocumentIcon className="h-6 w-6 text-text-primary" />
-            <p className="text-nowrap">{label}:</p>
-            <a
+            <div className="flex items-center gap-1">
+            <DocumentIcon className="h-4 w-4 text-text-primary" />
+            <a href={link} target="_blank" rel="noopener noreferrer" className="text-nowrap hover:text-primary hover:underline">{label}</a>
+            {/* <a
               href={link}
               target="_blank"
               rel="noopener noreferrer"
               className="text-text-secondary hover:underline line-clamp-1"
             >
               {filename}
-            </a>
+            </a> */}
             </div>
           </li>
         );

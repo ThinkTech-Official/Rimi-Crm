@@ -551,13 +551,16 @@ export default function UserDetails() {
         <h3 className="text-primary font-semibold mb-2 capitalize text-lg">
           {t("Documents")}
         </h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 gap-y-3">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 gap-y-1">
           {documentFields.map((doc) => (
             <div key={doc.key} className="flex flex-col gap-2">
-                  <label className="text-sm font-medium text-gray-700">
+                  <div className="flex items-center gap-1">
+                    <DocumentIcon className="h-4 w-4 text-text-primary" />
+                    <a href={doc.link} target="_blank" rel="noopener noreferrer" className="font-medium text-gray-700 hover:text-primary hover:underline">
                     {t(doc.label)}
-                  </label>
-                  {doc.link ? (
+                  </a>
+                  </div>
+                  {/* {doc.link ? (
                 <div className="flex items-center gap-2">
                   <DocumentIcon className="h-8 w-8 text-text-primary" />
                   <a
@@ -571,7 +574,7 @@ export default function UserDetails() {
                 </div>
               ) : (
                 <p className="text-gray-400 text-sm">{t("No document attached")}</p>
-              )}
+              )} */}
 
               {isEditing && (
                 <div className="mt-2 text-center">
