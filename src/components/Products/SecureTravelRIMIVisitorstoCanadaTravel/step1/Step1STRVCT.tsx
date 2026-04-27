@@ -1672,36 +1672,42 @@ const Step1STRVCT = ({
               )}
             </div>
         )}
-        {isAgeQuestionnaireOpen && (
-          <AgeQuestionaire
-            applicantsToShow={applicantsToShow}
-            primaryQuestionnaire={primaryQuestionnaire}
-            setPrimaryQuestionaire={setPrimaryQuestionnaireWrapper}
-            setIsAgeQuestionnaireOpen={setIsAgeQuestionnaireOpen}
-            setApplicants={setApplicantsWrapper}
-            applicants={applicants}
-            setCoverageForPreMedCon={(val) =>
-              setValue("coverageForPreMedCon", val)
-            }
-          />
-        )}
-        {showConfirmEligibility && (
-          <ConfirmEligibilityModal
-            confirmEligibility={showConfirmEligibility}
-            setShowConfirmEligibility={setShowConfirmEligibility}
-            setIsConfirmed={(val: boolean) => setValue("isConfirmed", val, { shouldValidate: true, shouldDirty: true })}
-          />
-        )}
-        {isEmailModalOpen && (
-          <EmailQuote
-            quoteNumber={quoteNumber}
-            schedule={schedule}
-            totalPremium={totalPremium}
-            setIsEmailModalOpen={setIsEmailModalOpen}
-          />
-        )}
       </div>
         )}
+
+      {isAgeQuestionnaireOpen && (
+        <AgeQuestionaire
+          applicantsToShow={applicantsToShow}
+          primaryQuestionnaire={primaryQuestionnaire}
+          setPrimaryQuestionaire={setPrimaryQuestionnaireWrapper}
+          setIsAgeQuestionnaireOpen={setIsAgeQuestionnaireOpen}
+          setApplicants={setApplicantsWrapper}
+          applicants={applicants}
+          setCoverageForPreMedCon={(val) =>
+            setValue("coverageForPreMedCon", val)
+          }
+        />
+      )}
+      {showConfirmEligibility && (
+        <ConfirmEligibilityModal
+          confirmEligibility={showConfirmEligibility}
+          setShowConfirmEligibility={setShowConfirmEligibility}
+          setIsConfirmed={(val: boolean) =>
+            setValue("isConfirmed", val, {
+              shouldValidate: true,
+              shouldDirty: true,
+            })
+          }
+        />
+      )}
+      {isEmailModalOpen && (
+        <EmailQuote
+          quoteNumber={quoteNumber}
+          schedule={schedule}
+          totalPremium={totalPremium}
+          setIsEmailModalOpen={setIsEmailModalOpen}
+        />
+      )}
       </>
     );
   };
