@@ -318,10 +318,15 @@ const PolicyField: React.FC<PolicyFieldProps> = ({
     displayValue = "-";
   }
 
+  const isCurrency = (value: string) => {
+    const valuesToCheck = ["Coverage", "Deductible", "Amount"];
+    return valuesToCheck.includes(t(value));
+  };
+
   return (
     <div className="min-w-0">
       <div className="font-semibold text-base break-words">{t(label)}</div>
-      <div className="text-sm text-[#6F6B7D] break-words">{displayValue}</div>
+      <div className="text-sm text-[#6F6B7D] break-words">{isCurrency(t(label)) ? fmtCurrency(Number(displayValue)) : displayValue}</div>
     </div>
   );
 };

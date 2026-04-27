@@ -126,7 +126,7 @@ export const PRODUCT_FIELDS_CONFIG: Record<
         ],
       },
       {
-        label: "Are Applicants Travelling on a Super Visa?",
+        label: "Are Applicants Travelling to Canada on a Super Visa?",
         field: ["applicantOnSuperVisa", "superVisa"],
         type: "select",
         options: [
