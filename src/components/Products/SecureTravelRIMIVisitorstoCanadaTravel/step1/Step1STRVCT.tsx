@@ -68,7 +68,7 @@ type Props = {
 };
 
 //use today as fallback
-const calculateAge = (
+export const calculateAge = (
   dob: string | Date,
   effectiveDate: string | Date,
 ): number | null => {

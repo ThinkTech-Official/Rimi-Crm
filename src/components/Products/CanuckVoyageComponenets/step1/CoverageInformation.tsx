@@ -508,6 +508,8 @@ import { Step1Payload } from "../RIMICanuckVoyageTravelMedical";
 import DatePicker from "../../../DatePicker";
 import EmailQuoteMedical from "./EmailQuoteMedical";
 import { useLanguage } from "../../../../context/LanguageContext";
+import { calculateAge } from "../../SecureTravelRIMIVisitorstoCanadaTravel/step1/Step1STRVCT";
+import Dropdown from "../../../DropDown";
 
 const msPerDay = 1000 * 60 * 60 * 24;
 
@@ -711,6 +713,14 @@ export default function CoverageInformation({
   //     console.error("❌ Save failed:", err);
   //   }
   // };
+   const primaryAge = calculateAge(primaryDateOfBirth, effectiveDate);
+  const applicantAges = applicants.map((app: any) =>
+    calculateAge(app.dob, effectiveDate),
+  );
+
+  const anyApplicantOver60 =
+    (primaryAge !== null && primaryAge >= 60) ||
+    applicantAges.some((age: number | null) => age !== null && age >= 60);
 
   return (
     <div className="max-w-5xl mx-auto mt-6 p-3 sm:p-6 bg-[#F9F9F9]">
@@ -844,31 +854,36 @@ export default function CoverageInformation({
         {/* Number of Days per Trip (Multi-Trip only) */}
         {policyType === "Multi-Trip Annual" && (
           <div className="flex flex-col">
-            <label className="text-sm">{t("Number of Days per Trip")}</label>
-            <div className="relative">
-              <select
-                className="input-primary appearance-none cursor-pointer"
-                {...register("numberOfDaysPerTrip", {
-                  required:
-                    policyType === "Multi-Trip Annual"
-                      ? t("Number of days per trip is required")
-                      : false,
-                  valueAsNumber: true,
-                })}
-              >
-                <option value={0}>{t("Please select...")}</option>
-                <option value={5}>{t("5 days")}</option>
-                <option value={10}>{t("10 days")}</option>
-                <option value={20}>{t("20 days")}</option>
-                <option value={35}>{t("35 days")}</option>
-                <option value={50}>{t("50 days")}</option>
-                <option value={65}>{t("65 days")}</option>
-                <option value={100}>{t("100 days")}</option>
-              </select>
-              <div className="pointer-events-none absolute inset-y-0 right-2 flex items-center text-gray-500">
-                <ChevronDownIcon className="h-5 w-5" aria-hidden="true" />
-              </div>
-            </div>
+            <Controller
+                control={control}
+                name="numberOfDaysPerTrip"
+                rules={{ required: t("Number of days per trip is required") }}
+                render={({ field }) => (
+                  <Dropdown
+                    label={t("Number of days per trip")}
+                    options={[
+                      { value: "", label: t("Please select...") },
+                      { value: "5", label: "5 days" },
+                      { value: "10", label: "10 days" },
+                      { value: "20", label: "20 days" },
+                      ...(anyApplicantOver60
+                        ? []
+                        : [
+                            { value: "35", label: "35 days" },
+                            { value: "50", label: "50 days" },
+                            { value: "65", label: "65 days" },
+                            { value: "100", label: "100 days" },
+                          ]),
+                    ]}
+                    {...field}
+                    value={field.value !== undefined ? String(field.value) : ""}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      field.onChange(val === "" ? "" : Number(val));
+                    }}
+                  />
+                )}
+              />
             {errors.numberOfDaysPerTrip && (
               <p className="text-red-500 text-sm mt-1">
                 {errors.numberOfDaysPerTrip.message}
