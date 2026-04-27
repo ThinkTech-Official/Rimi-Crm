@@ -289,7 +289,7 @@ export const PRODUCT_FIELDS_CONFIG: Record<
         type: "select",
         options: Countries
       },
-      { label: "Traveling Through US", field: ["applicantTravelThroughUs", "applicantTravelThroughUs"], type: "select", options: [
+      { label: "Are Applicants Travelling Through US?", field: ["applicantTravelThroughUs", "applicantTravelThroughUs"], type: "select", options: [
           { value: "yes", label: "Yes" },
           { value: "no", label: "No" }
         ] },
