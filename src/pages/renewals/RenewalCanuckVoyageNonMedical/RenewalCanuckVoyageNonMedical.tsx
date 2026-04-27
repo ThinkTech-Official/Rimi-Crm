@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { useForm, FormProvider } from "react-hook-form";
 import useNotification from "../../../hooks/useNotification";
 import { useLanguage } from "../../../context/LanguageContext";
-import { useFormLanguageRevalidation } from "../../../hooks/useFormLanguageRevalidation";
+import useFormLanguageRevalidation from "../../../hooks/useFormLanguageRevalidation";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../app/store";
 import { useSaveQuoteNextProduct4 } from "../../../hooks/canuck-voyage-non-medical/useSaveQuoteNextProduct4";

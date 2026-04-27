@@ -26,7 +26,7 @@ import { useQuoteByNumber } from "../../../hooks/apply/useQuoteByNumber";
 import { FormProvider, useForm } from "react-hook-form";
 import useNotification from "../../../hooks/useNotification";
 import { useLanguage } from "../../../context/LanguageContext";
-import { useFormLanguageRevalidation } from "../../../hooks/useFormLanguageRevalidation";
+import useFormLanguageRevalidation from "../../../hooks/useFormLanguageRevalidation";
 
 export interface Applicant {
   index: string;

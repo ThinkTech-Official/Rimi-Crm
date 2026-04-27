@@ -792,5 +792,6 @@
   "Once verified, the agent will have access to all features until the specified validity date. You can always update this later if needed.": "Une fois vérifié, l'agent aura accès à toutes les fonctionnalités jusqu'à la date de validité spécifiée. Vous pouvez toujours mettre à jour cela plus tard si nécessaire.",
   "Are you sure you want to delete": "Êtes-vous sûr de vouloir supprimer",
   "Change Logs": "Historique des modifications",
-  "Enter country name": "Entrez le nom du pays"
+  "Enter country name": "Entrez le nom du pays",
+  "Enter number of days": "Entrez le nombre de jours"
 }

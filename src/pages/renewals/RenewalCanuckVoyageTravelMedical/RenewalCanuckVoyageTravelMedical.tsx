@@ -14,7 +14,7 @@ import { stripePromise } from "../../../utils/stripe";
 import { useForm, FormProvider } from "react-hook-form";
 import useNotification from "../../../hooks/useNotification";
 import { useLanguage } from "../../../context/LanguageContext";
-import { useFormLanguageRevalidation } from "../../../hooks/useFormLanguageRevalidation";
+import useFormLanguageRevalidation from "../../../hooks/useFormLanguageRevalidation";
 
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useRenewalPolicyData } from "../../../hooks/renewals/useRenewalPolicyData";

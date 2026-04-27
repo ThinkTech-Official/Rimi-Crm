@@ -18,7 +18,7 @@ import { FormProvider, useForm } from "react-hook-form";
 import YourQuoteSummary from "./step2/YourQuoteSummary";
 import { useLanguage } from "../../../context/LanguageContext";
 import TestFillButton from "../../common/TestFillButton";
-import { useFormLanguageRevalidation } from "../../../hooks/useFormLanguageRevalidation";
+import useFormLanguageRevalidation from "../../../hooks/useFormLanguageRevalidation";
 
 type SuperVisaOption = "" | "yes" | "no";
 type SuperVisaYears = "" | "1";

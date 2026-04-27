@@ -294,7 +294,7 @@ import Summary from "./step3/Summary";
 import { FormProvider, useForm, useWatch } from "react-hook-form";
 import useNotification from "../../../hooks/useNotification";
 import TestFillButton from "../../common/TestFillButton";
-import { useFormLanguageRevalidation } from "../../../hooks/useFormLanguageRevalidation";
+import useFormLanguageRevalidation from "../../../hooks/useFormLanguageRevalidation";
 
 interface Applicant {
   index: string;

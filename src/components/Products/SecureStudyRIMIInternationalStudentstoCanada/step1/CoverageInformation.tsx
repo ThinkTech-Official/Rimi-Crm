@@ -160,7 +160,7 @@ export default function CoverageInformation({
             <div className="relative">
               <select
                 {...register("policyType", {
-                  required: t("Policy type is required"),
+                  required: t("Policy Type is required"),
                 })}
                 className="input-primary appearance-none cursor-pointer"
               >
@@ -190,7 +190,7 @@ export default function CoverageInformation({
               type="text"
               {...register("countryOfOrigin", {
                 setValueAs: (v: any) => v?.trim() || "",
-                required: t("Country of origin is required"),
+                required: t("Country of Origin is required"),
               })}
               className="input-primary"
               placeholder={t("Enter country name")}
@@ -223,7 +223,7 @@ export default function CoverageInformation({
             <Controller
               control={control}
               name="destinationProvince"
-              rules={{ required: t("Destination province is required") }}
+              rules={{ required: t("Destination Province is required") }}
               render={({ field }) => (
                 <Dropdown
                   label={t("Destination Province")}
@@ -248,7 +248,7 @@ export default function CoverageInformation({
               control={control}
               name="effectiveDate"
               rules={{
-                required: t("Effective date is required"),
+                required: t("Effective Date is required"),
                 validate: (value) => {
                   if (!value) return true;
                   const today = new Date();
@@ -296,7 +296,7 @@ export default function CoverageInformation({
               control={control}
               name="expiryDate"
               rules={{ 
-                required: t("Expiry date is required"),
+                required: t("Expiry Date is required"),
                 validate: (value) => {
                   if (effectiveDate && value) {
                     const eff = new Date(effectiveDate);
@@ -336,7 +336,7 @@ export default function CoverageInformation({
             <input
               type="number"
               {...register("coverageLength", {
-                required: t("Coverage length is required"),
+                required: t("Coverage Length is required"),
                 min: { value: 1, message: t("Must be at least 1 day") },
                 onChange: () => setLastModified("coverageLength"),
               })}

@@ -23,7 +23,7 @@ import { Step1Payload } from "../../../components/Products/SecureTravelRIMIVisit
 import { usePremiumCalculate } from "../../../hooks/usePremiumCalculate";
 import { PremiumCalculationData } from "../../../components/Products/SecureTravelRIMIVisitorstoCanadaTravel/step1/Step1STRVCT";
 import { useLanguage } from "../../../context/LanguageContext";
-import { useFormLanguageRevalidation } from "../../../hooks/useFormLanguageRevalidation";
+import useFormLanguageRevalidation from "../../../hooks/useFormLanguageRevalidation";
 
 type SuperVisaOption = "" | "yes" | "no";
 type SuperVisaYears = "" | "1";

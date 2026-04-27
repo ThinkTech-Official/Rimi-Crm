@@ -9,7 +9,7 @@ import {
   ChevronDownIcon,
 } from "@heroicons/react/24/outline";
 import useNotification from "../hooks/useNotification";
-import { useFormLanguageRevalidation } from "../hooks/useFormLanguageRevalidation";
+import useFormLanguageRevalidation from "../hooks/useFormLanguageRevalidation";
 
 const Reporting: React.FC = () => {
   // const { langauge } = useContext(LangContext);

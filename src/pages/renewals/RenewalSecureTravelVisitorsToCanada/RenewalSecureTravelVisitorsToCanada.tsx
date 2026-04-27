@@ -22,7 +22,7 @@ import { Step1Payload } from "../../../components/Products/SecureTravelRIMIVisit
 import useNotification from "../../../hooks/useNotification";
 import { useLanguage } from "../../../context/LanguageContext";
 import { formatDate } from "../../../utils/dateUtils";
-import { useFormLanguageRevalidation } from "../../../hooks/useFormLanguageRevalidation";
+import useFormLanguageRevalidation from "../../../hooks/useFormLanguageRevalidation";
 
 import { useRenewalPolicyData } from "../../../hooks/renewals/useRenewalPolicyData";
 

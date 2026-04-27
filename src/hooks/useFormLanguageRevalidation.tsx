@@ -8,13 +8,12 @@ import { UseFormReturn } from 'react-hook-form';
  * 
  * @param formMethods - One or more react-hook-form method instances to re-validate.
  */
-export function useFormLanguageRevalidation(...formMethods: UseFormReturn<any>[]) {
+export const useFormLanguageRevalidation = (...formMethods: UseFormReturn<any>[]) => {
   const { language } = useLanguage();
 
   useEffect(() => {
     const revalidate = async () => {
       for (const methods of formMethods) {
-        // Only trigger validation if there are existing errors
         if (methods && methods.formState.errors && Object.keys(methods.formState.errors).length > 0) {
           await methods.trigger();
         }
@@ -22,7 +21,7 @@ export function useFormLanguageRevalidation(...formMethods: UseFormReturn<any>[]
     };
 
     revalidate();
-    // We include all formMethods in dependencies to ensure the effect stays current
-    // if form instances change (though they usually don't).
-  }, [language, ...formMethods]);
-}
+  }, [language]); // Removed spread to avoid unstable dependency issues in production
+};
+
+export default useFormLanguageRevalidation;
