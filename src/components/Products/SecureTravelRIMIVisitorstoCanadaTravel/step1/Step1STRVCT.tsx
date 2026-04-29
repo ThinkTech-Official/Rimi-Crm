@@ -242,8 +242,8 @@ const Step1STRVCT = ({
   );
 
   const anyApplicantOver80 =
-    (primaryAge !== null && primaryAge > 80) ||
-    applicantAges.some((age: number | null) => age !== null && age > 80);
+    (primaryAge !== null && primaryAge >= 80) ||
+    applicantAges.some((age: number | null) => age !== null && age >= 80);
 
   // Check who needs questionnaire
   const primaryNeedsQuestionnaire =
