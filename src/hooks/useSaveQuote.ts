@@ -83,7 +83,7 @@ export function useSaveQuote() {
       return data;
     } catch (err: any) {
       const errorMessage =
-        err.response?.data?.message || err.message || "Failed to save quote";
+        err.response?.data?.message || err.response?.data || err.message || "Failed to save quote";
       setError(errorMessage);
       console.log(
         "from useSave Qoutes error on response not ok 122",

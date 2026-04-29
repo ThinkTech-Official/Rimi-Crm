@@ -684,7 +684,10 @@ const RIMICanuckVoyageTravelMedical: React.FC = () => {
               saving={savingStage1}
             />
 
-            <div className="w-full h-2 mt-5 flex items-center justify-center font-[inter]">
+            <div className="w-full mt-5 flex flex-col items-center justify-center font-[inter]">
+              {error && (
+                <p className="text-red-500 text-sm mb-2 text-center">{error}</p>
+              )}
               <h3 className="text-base sm:text-lg">
                 {loading
                   ? t("Calculating...")
@@ -709,7 +712,10 @@ const RIMICanuckVoyageTravelMedical: React.FC = () => {
       {/* ========== STEP 2: COMPLETE APPLICATION ========== */}
       {steps[1].status === "current" && quoteNumber && (
         <div>
-          <div className="w-full h-2 mt-8 flex items-center justify-center font-[inter]">
+          <div className="w-full mt-8 flex flex-col items-center justify-center font-[inter]">
+            {error && (
+              <p className="text-red-500 text-sm mb-2 text-center">{error}</p>
+            )}
             <h3 className="text-base sm:text-lg">
               {t("Your Quote")}: ${step1ResponseData?.quoteAmount.toFixed(2)}{" "}
               {t("CAD")}

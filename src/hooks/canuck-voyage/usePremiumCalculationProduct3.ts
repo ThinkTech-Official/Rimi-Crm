@@ -64,7 +64,7 @@ export function usePremiumCalculationProduct3(
           console.log("Request cancelled");
         } else {
           const message =
-            err.response?.data?.message || "Failed to calculate premium";
+            err.response?.data?.message || err.response?.data || err.message || "Failed to calculate premium";
           setError(message);
           console.error("Premium calculation error:", err);
         }

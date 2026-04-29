@@ -169,7 +169,7 @@ export function useSaveQuoteNextProduct3() {
       const data: Stage1Response = response.data;
       return data;
     } catch (err: any) {
-      const message = err.message || 'Failed to save quote';
+      const message = err.response?.data?.message || err.response?.data || err.message || 'Failed to save quote';
       setError(message);
       throw new Error(message);
     } finally {

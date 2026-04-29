@@ -78,8 +78,9 @@ export function useSaveQuoteNext() {
         setData(json);
         return json;
       } catch (err: any) {
-        setError(err);
-        throw err;
+        const message = err.response?.data?.message || err.response?.data || err.message || 'Failed to save quote';
+        setError(message);
+        throw message;
       } finally {
         setLoading(false);
       }

@@ -80,8 +80,9 @@ export function usePremiumCalculationProduct2(params: PremiumCalculationParams) 
 
         setTotalPremium(result.totalPremium);
       } catch (err: any) {
-        console.error("❌ Error calculating premium:", err.message);
-        setError(err.message || "Failed to calculate premium");
+        const message = err.response?.data?.message || err.response?.data || err.message || "Failed to calculate premium";
+        setError(message);
+        console.error("❌ Error calculating premium:", message);
         setTotalPremium(0);
       } finally {
         setLoading(false);

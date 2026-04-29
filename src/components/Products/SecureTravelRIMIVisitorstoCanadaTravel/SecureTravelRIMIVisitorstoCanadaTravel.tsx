@@ -322,9 +322,9 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
       setTotalPremium(response.quoteAmount);
 
       handleFormStepChange("forward");
-    } catch (err) {
+    } catch (err: any) {
       console.error("saveQuoteNext failed", err);
-      triggerNotification({ message: t("Failed to save quote"), type: "error" });
+      triggerNotification({ message: err.message || t("Failed to save quote"), type: "error" });
     }
   };
 
@@ -488,13 +488,16 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
 
       {steps[1].status === "current" && quoteNumber && (
         <div>
-          <div className="w-full h-2 mt-8 flex items-center justify-center mb-5">
+          <div className="w-full mt-8 flex flex-col items-center justify-center mb-5 font-[inter]">
+            {error && (
+              <p className="text-red-500 text-sm mb-2 text-center">{error}</p>
+            )}
             <h3 className="text-xl">
               <span className="text-text-primary font-semibold">
                 {t("Your Quote")}:
               </span>{" "}
               <span className="text-text-secondary">
-                {step1ResponseData?.quoteAmount} CAD
+                {loading ? t("Calculating...") : `${step1ResponseData?.quoteAmount || totalPremium} CAD`}
               </span>
             </h3>
           </div>

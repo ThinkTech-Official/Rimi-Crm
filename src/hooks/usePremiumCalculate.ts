@@ -110,8 +110,9 @@ export function usePremiumCalculate(
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  
+
   const payloadKey = JSON.stringify(premiumCalculationData);
+  console.log("Premium calculation data:", premiumCalculationData);
 
   useEffect(() => {
     if (!enabled) return;
@@ -120,14 +121,16 @@ export function usePremiumCalculate(
 
     setLoading(true);
     setError(null);
-
     axiosInstance
       .post('/premium/calculate', premiumCalculationData)
       .then(response => {
         if (!cancelled) setQuoteResponse(response.data);
       })
       .catch(err => {
-        if (!cancelled) setError(err.message || 'Failed to fetch quote premium');
+        if (!cancelled) {
+          const message = err.response?.data?.message || err.response?.data || err.message || 'Failed to fetch quote premium';
+          setError(message);
+        }
       })
       .finally(() => {
         if (!cancelled) setLoading(false);
@@ -136,8 +139,8 @@ export function usePremiumCalculate(
     return () => {
       cancelled = true;
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [payloadKey, enabled]); 
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [payloadKey, enabled]);
 
   return {
     totalPremium: quoteResponse.totalPremium,

@@ -59,7 +59,7 @@ export function usePremiumCalculationProduct4(
         if (err.name === "AbortError") {
           console.log("Request cancelled");
         } else {
-          const message = err.message || "Failed to calculate premium";
+          const message = err.response?.data?.message || err.response?.data || err.message || "Failed to calculate premium";
           setError(message);
           console.error("Premium calculation error:", err);
         }

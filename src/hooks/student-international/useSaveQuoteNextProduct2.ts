@@ -68,7 +68,7 @@ export function useSaveQuoteNextProduct2() {
       setData(result);
       return result;
     } catch (err: any) {
-      const errorMessage = err.message || "Failed to save quote";
+      const errorMessage = err.response?.data?.message || err.response?.data || err.message || "Failed to save quote";
       console.error("Error saving Product 2 quote:", errorMessage);
       setError(errorMessage);
       throw new Error(errorMessage);
