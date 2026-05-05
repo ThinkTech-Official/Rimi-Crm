@@ -164,9 +164,10 @@ export default function CoverageInformation({
                 })}
                 className="input-primary appearance-none cursor-pointer"
               >
-                <option value="">{t("Select Policy Type")}</option>
-                <option value="Single">{t("Single")}</option>
-                <option value="Family">{t("Family")}</option>
+                <option value="">{t("Please select...")}</option>
+                <option value="standard">{t("Standard")}</option>
+                <option value="enhanced">{t("Enhanced")}</option>
+                <option value="premium">{t("Premium")}</option>
               </select>
               <ChevronDownIcon className="h-5 w-5 text-gray-400 absolute right-3 top-1/2 transform -translate-y-1/2" />
             </div>
