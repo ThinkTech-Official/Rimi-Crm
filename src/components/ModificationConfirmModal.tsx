@@ -1,5 +1,6 @@
 import React from "react";
 import { useLanguage } from "../context/LanguageContext";
+import { MdClose } from "react-icons/md";
 
 interface ModificationConfirmModalProps {
     isOpen: boolean;
@@ -28,10 +29,10 @@ const ModificationConfirmModal: React.FC<ModificationConfirmModalProps> = ({
                     </h2>
                     <button
                         onClick={onClose}
-                        className="text-gray-400 hover:text-gray-600"
+                        className="text-gray-400 hover:text-gray-600 cursor-pointer"
                         disabled={loading}
                     >
-                        ✕
+                        <MdClose className="h-5 w-5"/>
                     </button>
                 </div>
 

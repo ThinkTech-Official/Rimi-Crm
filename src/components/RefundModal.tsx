@@ -97,7 +97,7 @@ const RefundModal: React.FC<RefundModalProps> = ({
 
   return (
     <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50 h-full">
-      <div className="bg-white rounded-lg shadow-xl max-w-lg w-full max-h-[90vh] overflow-y-auto custom-scrollbar3">
+      <div className="bg-white shadow-xl max-w-lg w-full max-h-[90vh] overflow-y-auto custom-scrollbar3">
         {/* Header */}
         <div className="sticky top-0 bg-white border-b border-inputBorder px-6 py-4 flex justify-between items-center z-10">
           <h2 className="text-xl font-semibold text-text-black">
@@ -177,7 +177,7 @@ const RefundModal: React.FC<RefundModalProps> = ({
                 {t("Transaction Fee")} <span className="text-red-500">*</span>
               </label>
               <div className="relative">
-                <span className="absolute left-3 top-2.5 text-gray-500">$</span>
+                {/* <span className="absolute left-3 top-2.5 text-gray-500">$</span> */}
                 <input
                   type="number"
                   step="0.01"
@@ -191,9 +191,9 @@ const RefundModal: React.FC<RefundModalProps> = ({
                   placeholder="0.00"
                   disabled={loading}
                 />
-                <span className="absolute right-3 top-2.5 text-gray-500">
+                {/* <span className="absolute right-3 top-2.5 text-gray-500">
                   CAD
-                </span>
+                </span> */}
               </div>
               {error && <p className="mt-1 text-sm text-red-600">{error}</p>}
             </div>
@@ -226,14 +226,14 @@ const RefundModal: React.FC<RefundModalProps> = ({
           <button
             onClick={onClose}
             disabled={loading}
-            className="py-2 px-4 border border-inputBorder hover:border-gray-400 cursor-pointer transition delay-100 rounded text-sm font-medium text-gray-700"
+            className="py-2 px-4 border border-inputBorder hover:border-gray-400 cursor-pointer transition delay-100 text-sm font-medium text-gray-700"
           >
             {t("Cancel")}
           </button>
           <button
             onClick={handleConfirm}
             disabled={loading || !transactionFee || !!error}
-            className="bg-primary text-white py-2 px-4 font-semibold hover:bg-[#2309A1] transition-all duration-200 cursor-pointer disabled:cursor-not-allowed disabled:opacity-70 rounded text-sm flex items-center space-x-2"
+            className="bg-primary text-white py-2 px-4 font-semibold hover:bg-[#2309A1] transition-all duration-200 cursor-pointer disabled:cursor-not-allowed disabled:opacity-70 text-sm flex items-center space-x-2"
           >
             {loading ? (
               <>
