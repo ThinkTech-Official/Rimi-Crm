@@ -12,9 +12,7 @@ import { usePolicyNotes } from "../hooks/usePolicyNotes";
 import { usePolicyAttachments } from "../hooks/usePolicyAttachments";
 import { useFulfillment } from "../hooks/useFulfillment";
 import { useLanguage } from "../context/LanguageContext";
-import {
-  ChevronDownIcon
-} from "@heroicons/react/24/outline";
+import { ChevronDownIcon } from "@heroicons/react/24/outline";
 import { usePolicyFeeRefund } from "../hooks/usePolicyFeeRefund";
 import {
   useModifyPolicy,
@@ -49,7 +47,8 @@ import {
   DEFAULT_FIELDS_CONFIG,
 } from "./PolicyDetailsConfig";
 import { RelationToPrimaryApplicant } from "../utils/sharedConstants";
-
+import ChargeConfirmationModal from "../components/ChargeConfirmationModal";
+import ModificationConfirmModal from "../components/ModificationConfirmModal";
 
 const formatFileSize = (bytes: number): string => {
   if (bytes === 0) return "0 Bytes";
@@ -58,7 +57,6 @@ const formatFileSize = (bytes: number): string => {
   const i = Math.floor(Math.log(bytes) / Math.log(k));
   return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + " " + sizes[i];
 };
-
 
 interface PolicyFieldProps {
   label: string;
@@ -111,13 +109,16 @@ const EDITABLE_FIELDS = [
   "superVisaYears",
 ];
 
-const PRODUCT_RULES: Record<string, {
-  maxAge: number;
-  minAgeDays: number;
-  minPhone: number;
-  maxPhone: number;
-  requiredFields?: string[];
-}> = {
+const PRODUCT_RULES: Record<
+  string,
+  {
+    maxAge: number;
+    minAgeDays: number;
+    minPhone: number;
+    maxPhone: number;
+    requiredFields?: string[];
+  }
+> = {
   SECURE_TRAVEL_RIMI_VISITORS_TO_CANADA_TRAVEL: {
     maxAge: 86,
     minAgeDays: 15,
@@ -130,7 +131,8 @@ const PRODUCT_RULES: Record<string, {
     minAgeDays: 15,
     minPhone: 10,
     maxPhone: 15,
-    requiredFields: ["destination"],
+    // requiredFields: ["destination"],
+    requiredFields: ["destProv"],
   },
   RIMI_CANUCK_VOYAGE_TRAVEL_MEDICAL: {
     maxAge: 80,
@@ -147,7 +149,6 @@ const PRODUCT_RULES: Record<string, {
     requiredFields: ["provinceStateResidence"],
   },
 };
-
 
 const PolicyField: React.FC<PolicyFieldProps> = ({
   label,
@@ -166,8 +167,6 @@ const PolicyField: React.FC<PolicyFieldProps> = ({
 }) => {
   const { t, language: currentLang } = useLanguage();
 
-
-
   const getActiveKeyAndValue = () => {
     const fields = Array.isArray(field) ? field : [field];
 
@@ -181,16 +180,20 @@ const PolicyField: React.FC<PolicyFieldProps> = ({
       }
     }
 
-    const value = editedPolicy[firstExistingKey] ?? (policy as any)[firstExistingKey];
+    const value =
+      editedPolicy[firstExistingKey] ?? (policy as any)[firstExistingKey];
     return { value, key: firstExistingKey as string };
   };
 
   let { value: rawValue, key: activeKey } = getActiveKeyAndValue();
-  const error = manualError || (fieldErrors ? fieldErrors[activeKey] : undefined);
+  const error =
+    manualError || (fieldErrors ? fieldErrors[activeKey] : undefined);
 
   // Handle Default Values
   if (rawValue === null || rawValue === undefined || rawValue === "") {
-    const fieldArray = Array.isArray(field) ? (field as string[]) : [field as string];
+    const fieldArray = Array.isArray(field)
+      ? (field as string[])
+      : [field as string];
     if (fieldArray.includes("salesChannel")) {
       rawValue = "Online";
     } else if (fieldArray.includes("language")) {
@@ -199,7 +202,7 @@ const PolicyField: React.FC<PolicyFieldProps> = ({
   }
 
   let isFieldEditable = EDITABLE_FIELDS.includes(activeKey);
-  
+
   // Special case: usTravelDays is only editable if travelingThroughUS is "yes"
   if (activeKey === "usTravelDays") {
     const usTravelVal =
@@ -217,13 +220,13 @@ const PolicyField: React.FC<PolicyFieldProps> = ({
   ) {
     isFieldEditable = false;
   }
-  if(
-    activeKey === "expiryDate" &&
-    product === "SECURE_STUDY_RIMI_INTERNATIONAL_STUDENTS_TO_CANADA" || activeKey === "expiryDate" &&
-    product === "SECURE_TRAVEL_RIMI_VISITORS_TO_CANADA_TRAVEL"
-  ) {
-    isFieldEditable = false;
-  }
+  // if(
+  //   activeKey === "expiryDate" &&
+  //   product === "SECURE_STUDY_RIMI_INTERNATIONAL_STUDENTS_TO_CANADA" || activeKey === "expiryDate" &&
+  //   product === "SECURE_TRAVEL_RIMI_VISITORS_TO_CANADA_TRAVEL"
+  // ) {
+  //   isFieldEditable = false;
+  // }
 
   if (isEditMode && isFieldEditable) {
     if (type === "select") {
@@ -238,7 +241,7 @@ const PolicyField: React.FC<PolicyFieldProps> = ({
               className="input-primary appearance-none pr-10 cursor-pointer"
             >
               {!options?.some((opt) =>
-                typeof opt === "string" ? opt === "" : opt.value === ""
+                typeof opt === "string" ? opt === "" : opt.value === "",
               ) && <option value="">{t("Please select...")}</option>}
               {options?.map((opt) => {
                 const isString = typeof opt === "string";
@@ -270,6 +273,7 @@ const PolicyField: React.FC<PolicyFieldProps> = ({
             error={error ? t(error) : undefined}
             isDisabled={
               (activeKey === "effectiveDate" && policy.status === "ACTIVE") ||
+              (activeKey === "expiryDate" && policy.status === "ACTIVE") ||
               (activeKey === "dateOfBirth" && policy.status === "ACTIVE")
             }
           />
@@ -326,13 +330,14 @@ const PolicyField: React.FC<PolicyFieldProps> = ({
   return (
     <div className="min-w-0">
       <div className="font-semibold text-base break-words">{t(label)}</div>
-      <div className="text-sm text-[#6F6B7D] break-words">{isCurrency(t(label)) ? fmtCurrency(Number(displayValue)) : displayValue}</div>
+      <div className="text-sm text-[#6F6B7D] break-words">
+        {isCurrency(t(label))
+          ? fmtCurrency(Number(displayValue))
+          : displayValue}
+      </div>
     </div>
   );
 };
-
-
-
 
 const PolicyDetailsPage: React.FC = () => {
   const { t } = useLanguage();
@@ -351,6 +356,9 @@ const PolicyDetailsPage: React.FC = () => {
   const [newNote, setNewNote] = React.useState("");
 
   const [showSplitModal, setShowSplitModal] = useState(false);
+
+  const [showModificationConfirmModal, setShowModificationConfirmModal] =
+    useState(false);
 
   const {
     items: attachments,
@@ -413,12 +421,21 @@ const PolicyDetailsPage: React.FC = () => {
     error: modifyError,
     modifyPolicy,
     calculateRefund,
+    calculateModificationPreview,
   } = useModifyPolicy();
 
   const [showRefundModal, setShowRefundModal] = useState(false);
   const [refundData, setRefundData] = useState<Partial<RefundData> | null>(
     null,
   );
+
+  const [showChargeModal, setShowChargeModal] = useState(false);
+  const [chargeData, setChargeData] = useState<{
+    chargeAmount: number;
+    originalPremium: number;
+    newPremium: number;
+    premiumDifference: number;
+  } | null>(null);
 
   const [showPremiumModal, setShowPremiumModal] = useState(false);
   const [premiumData] = useState<any>(null);
@@ -450,7 +467,13 @@ const PolicyDetailsPage: React.FC = () => {
     }
   }, [p]);
 
-  if (loading) return <div className="flex flex-col justify-center items-center gap-2 mt-10"><Spinner className="h-8 w-8" /><p className="text-center">{t("Loading...")}</p></div>;
+  if (loading)
+    return (
+      <div className="flex flex-col justify-center items-center gap-2 mt-10">
+        <Spinner className="h-8 w-8" />
+        <p className="text-center">{t("Loading...")}</p>
+      </div>
+    );
   if (error)
     return <p className="text-red-600 text-center py-10">{t(error)}</p>;
   if (!p) return <p className="text-center py-10">{t("No policy found.")}</p>;
@@ -516,7 +539,7 @@ const PolicyDetailsPage: React.FC = () => {
 
   const fieldsConfig =
     p.product &&
-      PRODUCT_FIELDS_CONFIG[p.product as keyof typeof PRODUCT_FIELDS_CONFIG]
+    PRODUCT_FIELDS_CONFIG[p.product as keyof typeof PRODUCT_FIELDS_CONFIG]
       ? PRODUCT_FIELDS_CONFIG[p.product as keyof typeof PRODUCT_FIELDS_CONFIG]
       : DEFAULT_FIELDS_CONFIG;
 
@@ -541,7 +564,11 @@ const PolicyDetailsPage: React.FC = () => {
 
     if (field === "superVisaYears") {
       const currentData = { ...p, ...editedPolicy };
-      const superVisaStatus = editedPolicy.applicantOnSuperVisa || editedPolicy.superVisa || p.applicantOnSuperVisa || p.superVisa;
+      const superVisaStatus =
+        editedPolicy.applicantOnSuperVisa ||
+        editedPolicy.superVisa ||
+        p.applicantOnSuperVisa ||
+        p.superVisa;
 
       if (superVisaStatus === "yes" || superVisaStatus === "YES") {
         const effectiveDate = currentData.effectiveDate?.toString();
@@ -555,10 +582,11 @@ const PolicyDetailsPage: React.FC = () => {
     }
 
     if (
-      (field === "travelingThroughUS" || field === "applicantTravelThroughUs") &&
+      (field === "travelingThroughUS" ||
+        field === "applicantTravelThroughUs") &&
       value === "no"
     ) {
-      updates.usTravelDays = ""; // Clear or set to 0. 
+      updates.usTravelDays = ""; // Clear or set to 0.
     }
 
     setEditedPolicy((prev) => ({ ...prev, ...updates }));
@@ -631,31 +659,53 @@ const PolicyDetailsPage: React.FC = () => {
       { key: "province", label: "Province" },
       { key: "countryCode", label: "Country" },
       { key: "postalCode", label: "Postal Code" },
-      { key: "provinceStateResidence", label: "Province/State of Residence", optional: true },
-      { key: "beneficiaryName", label: "Beneficiary Name", max: 100, optional: true },
-      { key: "beneficiaryRelation", label: "Beneficiary Relation", optional: true },
+      {
+        key: "provinceStateResidence",
+        label: "Province/State of Residence",
+        optional: true,
+      },
+      {
+        key: "beneficiaryName",
+        label: "Beneficiary Name",
+        max: 100,
+        optional: true,
+      },
+      {
+        key: "beneficiaryRelation",
+        label: "Beneficiary Relation",
+        optional: true,
+      },
       { key: "destination", label: "Destination province", optional: true },
-      { key: "destinationProvince", label: "Destination province", optional: true },
+      {
+        key: "destinationProvince",
+        label: "Destination province",
+        optional: true,
+      },
       { key: "destProv", label: "Destination province", optional: true },
     ];
 
     // Add product-specific required fields
     if (rules.requiredFields) {
       for (const rf of rules.requiredFields) {
-        const field = basicFields.find(bf => bf.key === rf);
+        const field = basicFields.find((bf) => bf.key === rf);
         if (field) field.optional = false;
       }
     }
 
     for (const f of basicFields) {
-      if (f.optional && ((data as any)[f.key] === undefined || (data as any)[f.key] === null)) continue;
+      if (
+        f.optional &&
+        ((data as any)[f.key] === undefined || (data as any)[f.key] === null)
+      )
+        continue;
       const val = (data as any)[f.key];
       const maxLen = f.max || 60;
 
       if (!val || (typeof val === "string" && val.trim() === "")) {
         errors[f.key] = `${t(f.label)} ${t("is required.")}`;
       } else if (typeof val === "string" && val.length > maxLen) {
-        errors[f.key] = `${t(f.label)} ${t("cannot exceed")} ${maxLen} ${t("characters.")}`;
+        errors[f.key] =
+          `${t(f.label)} ${t("cannot exceed")} ${maxLen} ${t("characters.")}`;
       }
     }
 
@@ -678,18 +728,29 @@ const PolicyDetailsPage: React.FC = () => {
     }
 
     // 4. Effective Date validation
-    if (p.status === "SOLD" && editedPolicy.effectiveDate) {
-      if (editedPolicy.effectiveDate < today) {
-        errors.effectiveDate = t("Effective date cannot be in the past.");
-      }
-    }
+    // if (p.status === "SOLD" && editedPolicy.effectiveDate) {
+    //   if (editedPolicy.effectiveDate < today) {
+    //     errors.effectiveDate = t("Effective date cannot be in the past.");
+    //   }
+    // }
 
+    // if (
+    //   p.status === "ACTIVE" &&
+    //   editedPolicy.effectiveDate &&
+    //   editedPolicy.effectiveDate !== p.effectiveDate!.toString()
+    // ) {
+    //   errors.effectiveDate = t(
+    //     "Cannot change effective date for active policies.",
+    //   );
+    // }
     if (
       p.status === "ACTIVE" &&
       editedPolicy.effectiveDate &&
-      editedPolicy.effectiveDate !== p.effectiveDate!.toString()
+      editedPolicy.effectiveDate !== fmtDate(p.effectiveDate?.toString())
     ) {
-      errors.effectiveDate = t("Cannot change effective date for active policies.");
+      errors.effectiveDate = t(
+        "Effective date cannot be changed for active policies.",
+      );
     }
 
     // Age validation on primary (if DOB or Effective Date changed)
@@ -701,7 +762,11 @@ const PolicyDetailsPage: React.FC = () => {
 
       if (dobDate > today0) {
         errors.dateOfBirth = t("Date of birth cannot be in the future");
-      } else if (p.status === "SOLD" || editedPolicy.dateOfBirth || editedPolicy.effectiveDate) {
+      } else if (
+        p.status === "SOLD" ||
+        editedPolicy.dateOfBirth ||
+        editedPolicy.effectiveDate
+      ) {
         const ageDiffMs = effDate.getTime() - dobDate.getTime();
         const ageDate = new Date(ageDiffMs);
         const years = Math.abs(ageDate.getUTCFullYear() - 1970);
@@ -714,7 +779,11 @@ const PolicyDetailsPage: React.FC = () => {
     }
 
     // Legal Guardian check for Secure Study if under 18
-    if (product === "SECURE_STUDY_RIMI_INTERNATIONAL_STUDENTS_TO_CANADA" && data.dateOfBirth && effectiveDate) {
+    if (
+      product === "SECURE_STUDY_RIMI_INTERNATIONAL_STUDENTS_TO_CANADA" &&
+      data.dateOfBirth &&
+      effectiveDate
+    ) {
       const dobDate = new Date(data.dateOfBirth.toString());
       const effDate = new Date(effectiveDate);
       const ageDiffMs = effDate.getTime() - dobDate.getTime();
@@ -722,7 +791,9 @@ const PolicyDetailsPage: React.FC = () => {
       const years = Math.abs(ageDate.getUTCFullYear() - 1970);
 
       if (years < 18 && !data.legalGuardianName?.trim()) {
-        errors.legalGuardianName = t("Legal guardian name is required for applicants under 18.");
+        errors.legalGuardianName = t(
+          "Legal guardian name is required for applicants under 18.",
+        );
       }
     }
 
@@ -731,21 +802,59 @@ const PolicyDetailsPage: React.FC = () => {
       errors.expiryDate = t("Expiry date must be after effective date.");
     }
 
-    if (p.status === "ACTIVE" && editedPolicy.expiryDate) {
-      if (editedPolicy.expiryDate > p.expiryDate!.toString()) {
-        errors.expiryDate = t("Cannot extend coverage for active policies. Only early return is allowed.");
+    // if (p.status === "ACTIVE" && editedPolicy.expiryDate) {
+    //   if (editedPolicy.expiryDate > p.expiryDate!.toString()) {
+    //     errors.expiryDate = t(
+    //       "Cannot extend coverage for active policies. Only early return is allowed.",
+    //     );
+    //   }
+    // }
+
+    if (
+      p.status === "ACTIVE" &&
+      editedPolicy.expiryDate &&
+      editedPolicy.expiryDate !== fmtDate(p.expiryDate?.toString())
+    ) {
+      errors.expiryDate = t(
+        "Expiry date cannot be changed for active policies.",
+      );
+    }
+
+    const resolvedEffective =
+      editedPolicy.effectiveDate || fmtDate(p.effectiveDate?.toString()) || "";
+    const resolvedExpiry =
+      editedPolicy.expiryDate || fmtDate(p.expiryDate?.toString()) || "";
+
+    if (resolvedEffective && resolvedExpiry) {
+      if (new Date(resolvedExpiry) <= new Date(resolvedEffective)) {
+        errors.expiryDate = t("Expiry date must be after effective date.");
+      }
+    }
+
+    if (
+      p.product === "SECURE_TRAVEL_RIMI_VISITORS_TO_CANADA_TRAVEL" &&
+      p.paymentOption === "monthly-installments" &&
+      resolvedEffective &&
+      resolvedExpiry
+    ) {
+      const newCovLen = calculateDays(resolvedEffective, resolvedExpiry);
+      if (newCovLen < 365) {
+        errors.expiryDate = t(
+          "Coverage length cannot be reduced below 365 days for monthly installment policies.",
+        );
       }
     }
 
     // 6. Super Visa check
     const newCoverageLength = calculateDays(effectiveDate, expiryDate);
-    const superVisaStatus = editedPolicy.applicantOnSuperVisa || p.applicantOnSuperVisa;
+    const superVisaStatus =
+      editedPolicy.applicantOnSuperVisa || p.applicantOnSuperVisa;
 
     if (superVisaStatus === "YES" || superVisaStatus === "yes") {
       if (newCoverageLength < 365) {
-        errors.expiryDate = `${t("This policy is marked as Super Visa but coverage is only")} ${newCoverageLength} ${t("days (less than 365). Please change \"Are Applicants Travelling on a Super Visa?\" to \"No\" in Coverage Details section before saving.")}`;
+        errors.expiryDate = `${t("This policy is marked as Super Visa but coverage is only")} ${newCoverageLength} ${t('days (less than 365). Please change "Are Applicants Travelling on a Super Visa?" to "No" in Coverage Details section before saving.')}`;
       }
-      
+
       const years = editedPolicy.superVisaYears ?? p.superVisaYears;
       if (!years || years === "") {
         errors.superVisaYears = t("Super Visa Duration is required.");
@@ -790,7 +899,9 @@ const PolicyDetailsPage: React.FC = () => {
       }
 
       if (!app.relation) {
-        singleAppErrors.relation = t("Relationship to Primary Applicant is required.");
+        singleAppErrors.relation = t(
+          "Relationship to Primary Applicant is required.",
+        );
       }
 
       appErrorsList.push(singleAppErrors);
@@ -798,13 +909,16 @@ const PolicyDetailsPage: React.FC = () => {
     }
 
     if (Object.keys(errors).length > 0 || hasAppErrors) {
-      console.log("Validation Errors:", { fieldErrors: errors, applicantErrors: appErrorsList });
+      console.log("Validation Errors:", {
+        fieldErrors: errors,
+        applicantErrors: appErrorsList,
+      });
     }
 
     return {
       valid: Object.keys(errors).length === 0 && !hasAppErrors,
       fieldErrors: errors,
-      applicantErrors: appErrorsList
+      applicantErrors: appErrorsList,
     };
   };
 
@@ -828,7 +942,9 @@ const PolicyDetailsPage: React.FC = () => {
           for (let i = 0; i < validation.applicantErrors.length; i++) {
             const firstAppField = Object.keys(validation.applicantErrors[i])[0];
             if (firstAppField) {
-              const el = document.getElementById(`applicant-${i}-${firstAppField}`);
+              const el = document.getElementById(
+                `applicant-${i}-${firstAppField}`,
+              );
               if (el) {
                 el.scrollIntoView({ behavior: "smooth", block: "center" });
                 el.focus({ preventScroll: true });
@@ -841,52 +957,177 @@ const PolicyDetailsPage: React.FC = () => {
 
       triggerNotification({
         message: t("Please fill all fields correctly before saving."),
-        type: "warning"
+        type: "warning",
       });
       return;
     }
 
-    const expiryDate =
-      editedPolicy.expiryDate || fmtDate(p.expiryDate?.toString());
-    const originalExpiryDate = fmtDate(p.expiryDate?.toString());
+    //
+    // const expiryDate =
+    //   editedPolicy.expiryDate || fmtDate(p.expiryDate?.toString());
+    // const originalExpiryDate = fmtDate(p.expiryDate?.toString());
+
+    // // Check if dates changed
+    // const datesChanged = expiryDate !== originalExpiryDate;
+
+    // if (datesChanged) {
+    //   // Check for early return (refund scenario)
+    //   if (expiryDate < originalExpiryDate) {
+    //     // Calculate refund
+    //     const refundCalc = await calculateRefund(
+    //       id!,
+    //       originalExpiryDate,
+    //       expiryDate,
+    //       p.premium || 0,
+    //       parseInt(p.covLen || "365"),
+    //     );
+
+    //     if (refundCalc) {
+    //       setRefundData({
+    //         originalExpiryDate,
+    //         newExpiryDate: expiryDate,
+    //         ...refundCalc,
+    //       });
+    //       setShowRefundModal(true);
+    //       return;
+    //     }
+    //   }
+
+    //   // TODO
+    //   // Check for premium increase (age bracket change)
+    //   // This requires calling the premium calculation API
+    //   // For now, proceed with save
+    // }
+
+    // // Save without refund
+    // await performSave();
+
+    //
+    //
+
+    // Check coverage length change using both dates
+    // const originalCovLen = Number(p.covLen) || 0;
+    // const resolvedEffective = editedPolicy.effectiveDate || fmtDate(p.effectiveDate?.toString()) || "";
+    // const resolvedExpiry = editedPolicy.expiryDate || fmtDate(p.expiryDate?.toString()) || "";
+    // const newCovLen = calculateDays(resolvedEffective, resolvedExpiry);
+
+    // if (
+    //     newCovLen < originalCovLen &&
+    //     p.status === "SOLD" &&
+    //     p.paymentOption !== "monthly-installments"
+    // ) {
+    //     // Coverage decreased — show refund modal
+    //     const refundCalc = await calculateRefund(
+    //         id!,
+    //         fmtDate(p.expiryDate?.toString()),
+    //         resolvedExpiry,
+    //          Number(p.premium) || 0,
+    //         originalCovLen,
+    //     );
+
+    //     if (refundCalc) {
+    //         setRefundData({
+    //             originalExpiryDate: fmtDate(p.expiryDate?.toString()),
+    //             newExpiryDate: resolvedExpiry,
+    //             ...refundCalc,
+    //         });
+    //         setShowRefundModal(true);
+    //         return;
+    //     }
+    // }
+
+    // // Coverage unchanged or increased — backend handles charge
+    // await performSave();
+
+    ////////////////////================
+
+    const resolvedEffective =
+      editedPolicy.effectiveDate || fmtDate(p.effectiveDate?.toString()) || "";
+    const resolvedExpiry =
+      editedPolicy.expiryDate || fmtDate(p.expiryDate?.toString()) || "";
 
     // Check if dates changed
-    const datesChanged = expiryDate !== originalExpiryDate;
+    const datesChanged =
+      resolvedEffective !== fmtDate(p.effectiveDate?.toString()) ||
+      resolvedExpiry !== fmtDate(p.expiryDate?.toString());
 
-    if (datesChanged) {
-      // Check for early return (refund scenario)
-      if (expiryDate < originalExpiryDate) {
-        // Calculate refund
-        const refundCalc = await calculateRefund(
-          id!,
-          originalExpiryDate,
-          expiryDate,
-          p.premium || 0,
-          parseInt(p.covLen || "365"),
-        );
-
-        if (refundCalc) {
-          setRefundData({
-            originalExpiryDate,
-            newExpiryDate: expiryDate,
-            ...refundCalc,
-          });
-          setShowRefundModal(true);
-          return;
-        }
+    if (datesChanged && p.status === "SOLD") {
+      // Block monthly date changes immediately with clear message
+      if (p.paymentOption === "monthly-installments") {
+        triggerNotification({
+          message: t(
+            "Date changes for monthly installment policies require additional processing. Please contact support.",
+          ),
+          type: "warning",
+        });
+        return;
       }
 
-      // TODO
-      // Check for premium increase (age bracket change)
-      // This requires calling the premium calculation API
-      // For now, proceed with save
+      // Get premium preview from backend
+      const preview = await calculateModificationPreview(
+        id!,
+        resolvedEffective,
+        resolvedExpiry,
+      );
+
+      if (!preview) {
+        triggerNotification({
+          message: t("Failed to calculate premium preview. Please try again."),
+          type: "error",
+        });
+        return;
+      }
+
+      if (
+        preview.difference > 0 &&
+        p.paymentOption !== "monthly-installments"
+      ) {
+        // Premium decreased — show refund modal
+        setRefundData({
+          originalExpiryDate: fmtDate(p.expiryDate?.toString()),
+          newExpiryDate: resolvedExpiry,
+          daysToRefund: preview.originalCovLen - preview.newCovLen,
+          maxRefundable: preview.difference,
+        });
+        setShowRefundModal(true);
+        return;
+      }
+
+      if (
+        preview.difference < 0 &&
+        p.paymentOption !== "monthly-installments"
+      ) {
+        // Premium increased — show charge confirmation modal
+        setChargeData({
+          chargeAmount: Math.abs(preview.difference),
+          originalPremium: preview.originalPremium,
+          newPremium: preview.newPremium,
+          premiumDifference: preview.difference,
+        });
+        setShowChargeModal(true);
+        return;
+      }
+
+      // No premium change — just save with premiumDifference = 0
+      // await performSave(undefined, 0);
+      setShowModificationConfirmModal(true);
+      return;
     }
 
-    // Save without refund
+    // No date changes — save directly
     await performSave();
+
+    //
+
+    //
   };
 
-  const performSave = async (refund?: RefundData) => {
+  const handleModificationConfirm = async () => {
+    setShowModificationConfirmModal(false);
+    await performSave(undefined, 0);
+  };
+
+  const performSave = async (refund?: RefundData, premiumDiff?: number) => {
     const modifyData: ModifyPolicyData = {
       // Basic Info (Required)
       language: editedPolicy.language || p.language || "",
@@ -907,12 +1148,12 @@ const PolicyDetailsPage: React.FC = () => {
       expiryDate: editedPolicy.expiryDate || fmtDate(p.expiryDate?.toString()),
       destination: String(
         editedPolicy.destination ??
-        editedPolicy.destinationProvince ??
-        editedPolicy.destProv ??
-        p.destination ??
-        p.destinationProvince ??
-        p.destProv ??
-        ""
+          editedPolicy.destinationProvince ??
+          editedPolicy.destProv ??
+          p.destination ??
+          p.destinationProvince ??
+          p.destProv ??
+          "",
       ),
       deductible: String(editedPolicy.deductible || p.deductible || ""),
 
@@ -929,20 +1170,28 @@ const PolicyDetailsPage: React.FC = () => {
       // Dynamic Product-Specific Fields
       tripCost: editedPolicy.tripCost ?? p.tripCost,
       dateBooked: editedPolicy.dateBooked || p.dateBooked,
-      tripCancellationDeluxe: editedPolicy.tripCancellationDeluxe ?? p.tripCancellationDeluxe,
-      applicantOnSuperVisa: editedPolicy.applicantOnSuperVisa || p.applicantOnSuperVisa,
-      travelingThroughUS: editedPolicy.travelingThroughUS || p.travelingThroughUS,
-      applicantTravelThroughUs: editedPolicy.applicantTravelThroughUs || p.applicantTravelThroughUs,
+      tripCancellationDeluxe:
+        editedPolicy.tripCancellationDeluxe ?? p.tripCancellationDeluxe,
+      applicantOnSuperVisa:
+        editedPolicy.applicantOnSuperVisa || p.applicantOnSuperVisa,
+      travelingThroughUS:
+        editedPolicy.travelingThroughUS || p.travelingThroughUS,
+      applicantTravelThroughUs:
+        editedPolicy.applicantTravelThroughUs || p.applicantTravelThroughUs,
       usTravelDays: editedPolicy.usTravelDays ?? p.usTravelDays,
-      numberOfDaysPerTrip: editedPolicy.numberOfDaysPerTrip ?? p.numberOfDaysPerTrip,
+      numberOfDaysPerTrip:
+        editedPolicy.numberOfDaysPerTrip ?? p.numberOfDaysPerTrip,
       plan: editedPolicy.plan || p.plan,
       beneficiaryName: editedPolicy.beneficiaryName ?? p.beneficiaryName,
-      beneficiaryRelation: editedPolicy.beneficiaryRelation ?? p.beneficiaryRelation,
-      relationshipToInsured: editedPolicy.relationshipToInsured ?? p.relationshipToInsured,
+      beneficiaryRelation:
+        editedPolicy.beneficiaryRelation ?? p.beneficiaryRelation,
+      relationshipToInsured:
+        editedPolicy.relationshipToInsured ?? p.relationshipToInsured,
 
       legalGuardianName: editedPolicy.legalGuardianName ?? p.legalGuardianName,
       superVisaYears: editedPolicy.superVisaYears ?? p.superVisaYears,
-      provinceStateResidence: editedPolicy.provinceStateResidence ?? p.provinceStateResidence,
+      provinceStateResidence:
+        editedPolicy.provinceStateResidence ?? p.provinceStateResidence,
 
       coverage: editedPolicy.coverage ?? p.coverage,
       applicantInCanada: editedPolicy.applicantInCanada ?? p.applicantInCanada,
@@ -961,18 +1210,37 @@ const PolicyDetailsPage: React.FC = () => {
         PreExCoverage: a.PreExCoverage,
       })),
       refund: refund,
+      premiumDifference: premiumDiff,
       lastKnownUpdatedAt: new Date().toISOString(),
     };
 
     const result = await modifyPolicy(id!, modifyData);
+
+    // if (result && result.success) {
+    //   triggerNotification({ message: result.message, type: "success" });
+    //   setTimeout(() => {
+    //     window.location.reload();
+    //   }, 2000);
+    // } else {
+    //   // triggerNotification({ message: `Error: ${modifyError}`, type: "error" });
+
+    //   const errorMsg =
+    //     modifyError || "Failed to modify policy. Please try again.";
+    //   triggerNotification({ message: errorMsg, type: "error" });
+    // }
 
     if (result && result.success) {
       triggerNotification({ message: result.message, type: "success" });
       setTimeout(() => {
         window.location.reload();
       }, 2000);
-    } else if (modifyError) {
-      triggerNotification({ message: `Error: ${modifyError}`, type: "error" });
+    } else if (result && !result.success) {
+      triggerNotification({ message: result.message, type: "error" });
+    } else {
+      triggerNotification({
+        message: "Failed to modify policy. Please try again.",
+        type: "error",
+      });
     }
   };
 
@@ -992,7 +1260,13 @@ const PolicyDetailsPage: React.FC = () => {
     };
 
     setShowRefundModal(false);
-    await performSave(refundPayload);
+    await performSave(refundPayload, refundData.maxRefundable);
+  };
+
+  const handleChargeConfirm = async () => {
+    if (!chargeData) return;
+    setShowChargeModal(false);
+    await performSave(undefined, chargeData.premiumDifference);
   };
 
   const handleCancelPolicy = () => {
@@ -1172,7 +1446,10 @@ const PolicyDetailsPage: React.FC = () => {
             </div>
             <div className="ml-3">
               <p className="text-sm text-blue-700">
-                <strong>{t("Edit Mode")}:</strong> {t("You are now editing this policy. Make your changes and click \"Save Changes\" when done.")}
+                <strong>{t("Edit Mode")}:</strong>{" "}
+                {t(
+                  'You are now editing this policy. Make your changes and click "Save Changes" when done.',
+                )}
               </p>
             </div>
           </div>
@@ -1222,13 +1499,11 @@ const PolicyDetailsPage: React.FC = () => {
             ))}
           {!isEditMode && (
             <div className="min-w-0">
-              <div className="font-semibold">
-                {t("Age on Effective Date")}
-              </div>
+              <div className="font-semibold">{t("Age on Effective Date")}</div>
               <div className="text-sm text-[#6F6B7D] break-words">
                 {calcAge(
                   editedPolicy.dateOfBirth || p.dateOfBirth?.toString(),
-                  editedPolicy.effectiveDate || p.effectiveDate?.toString()
+                  editedPolicy.effectiveDate || p.effectiveDate?.toString(),
                 )}
               </div>
             </div>
@@ -1287,7 +1562,9 @@ const PolicyDetailsPage: React.FC = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 text-sm w-full capitalize">
               {/* Individual Policy Number - Full Width */}
               <div className="min-w-0">
-                <div className="font-semibold">{t("Individual Policy Number")}</div>
+                <div className="font-semibold">
+                  {t("Individual Policy Number")}
+                </div>
                 <div className="text-sm text-[#6F6B7D] break-words">
                   {a.individualPolicyNumber || a.policyNumber || "-"}
                 </div>
@@ -1343,8 +1620,8 @@ const PolicyDetailsPage: React.FC = () => {
 
               <div className="min-w-0">
                 {isEditMode &&
-                  EDITABLE_FIELDS.includes("dateOfBirth") &&
-                  p.status === "SOLD" ? (
+                EDITABLE_FIELDS.includes("dateOfBirth") &&
+                p.status === "SOLD" ? (
                   <DatePicker
                     id={`applicant-${idx}-dateOfBirth`}
                     label={t("Date of Birth")}
@@ -1373,7 +1650,9 @@ const PolicyDetailsPage: React.FC = () => {
               </div>
 
               <div className="min-w-0">
-                <div className="font-semibold">{t("Age on Effective Date")}</div>
+                <div className="font-semibold">
+                  {t("Age on Effective Date")}
+                </div>
                 <div className="text-sm text-[#6F6B7D] break-words">
                   {calcAge(a.dateOfBirth, p.effectiveDate?.toString())}
                 </div>
@@ -1409,21 +1688,25 @@ const PolicyDetailsPage: React.FC = () => {
               </div>
 
               <div className="min-w-0">
-                <div className="font-semibold">{t("Relationship to Primary Applicant")}</div>
+                <div className="font-semibold">
+                  {t("Relationship to Primary Applicant")}
+                </div>
                 {isEditMode && EDITABLE_FIELDS.includes("relation") ? (
-                 <select
-                  className={`input-primary w-full cursor-pointer`}
-                  name="relation"
-                  value={a.relation || ""}
-                  onChange={(e) => handleApplicantChange(idx, "relation", e.target.value)}
-                  id={`applicant-${idx}-relation`}
-                 >
-                  {RelationToPrimaryApplicant.map((relation) => (
-                    <option key={relation.value} value={relation.value}>
-                      {t(relation.label)}
-                    </option>
-                  ))}
-                 </select>
+                  <select
+                    className={`input-primary w-full cursor-pointer`}
+                    name="relation"
+                    value={a.relation || ""}
+                    onChange={(e) =>
+                      handleApplicantChange(idx, "relation", e.target.value)
+                    }
+                    id={`applicant-${idx}-relation`}
+                  >
+                    {RelationToPrimaryApplicant.map((relation) => (
+                      <option key={relation.value} value={relation.value}>
+                        {t(relation.label)}
+                      </option>
+                    ))}
+                  </select>
                 ) : (
                   <div className="text-sm text-[#6F6B7D] break-words">
                     {t(a.relation || "")}
@@ -1436,12 +1719,18 @@ const PolicyDetailsPage: React.FC = () => {
                 )}
               </div>
               <div className="min-w-0">
-                <div className="font-semibold">{t("Coverage for Stable Pre-Existing Medical Condition")}</div>
+                <div className="font-semibold">
+                  {t("Coverage for Stable Pre-Existing Medical Condition")}
+                </div>
                 {isEditMode && EDITABLE_FIELDS.includes("PreExCoverage") ? (
                   <select
                     value={a.PreExCoverage || ""}
                     onChange={(e) =>
-                      handleApplicantChange(idx, "PreExCoverage", e.target.value)
+                      handleApplicantChange(
+                        idx,
+                        "PreExCoverage",
+                        e.target.value,
+                      )
                     }
                     className="input-primary w-full"
                   >
@@ -1450,7 +1739,10 @@ const PolicyDetailsPage: React.FC = () => {
                   </select>
                 ) : (
                   <div className="text-sm text-[#6F6B7D] break-words">
-                    {a.PreExCoverage === "yes" || String(a.PreExCoverage) === "true" ? t("Yes") : t("No")}
+                    {a.PreExCoverage === "yes" ||
+                    String(a.PreExCoverage) === "true"
+                      ? t("Yes")
+                      : t("No")}
                   </div>
                 )}
               </div>
@@ -1475,37 +1767,21 @@ const PolicyDetailsPage: React.FC = () => {
           {t("Coverage Details")}
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 text-sm w-full capitalize">
-          {fieldsConfig.coverageDetails?.filter(f => {
-            const fieldKey = Array.isArray(f.field) ? f.field[0] : f.field;
-            if (fieldKey === "superVisaYears") {
-              if (!isEditMode) return false;
-              const sv = editedPolicy.applicantOnSuperVisa || editedPolicy.superVisa || p.applicantOnSuperVisa || p.superVisa;
-              return sv === "yes" || sv === "YES";
-            }
-            return true;
-          }).map((f) => (
-            <PolicyField
-              key={f.label}
-              {...f}
-              policy={p}
-              editedPolicy={editedPolicy}
-              isEditMode={isEditMode}
-              onFieldChange={handleFieldChange}
-              product={p.product}
-              fieldErrors={fieldErrors}
-            />
-          ))}
-        </div>
-      </div>
-
-      {/* Beneficiary Information */}
-      {fieldsConfig.beneficiaryInfo && fieldsConfig.beneficiaryInfo.length > 0 && (
-        <div className="flex flex-col gap-4 justify-between w-full border-b border-[#D8D8D8] pb-4">
-          <div className="text-primary uppercase font-semibold text-xl">
-            {t("Beneficiary Information")}
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 text-sm w-full capitalize">
-            {fieldsConfig.beneficiaryInfo?.map((f) => (
+          {fieldsConfig.coverageDetails
+            ?.filter((f) => {
+              const fieldKey = Array.isArray(f.field) ? f.field[0] : f.field;
+              if (fieldKey === "superVisaYears") {
+                if (!isEditMode) return false;
+                const sv =
+                  editedPolicy.applicantOnSuperVisa ||
+                  editedPolicy.superVisa ||
+                  p.applicantOnSuperVisa ||
+                  p.superVisa;
+                return sv === "yes" || sv === "YES";
+              }
+              return true;
+            })
+            .map((f) => (
               <PolicyField
                 key={f.label}
                 {...f}
@@ -1517,244 +1793,266 @@ const PolicyDetailsPage: React.FC = () => {
                 fieldErrors={fieldErrors}
               />
             ))}
-          </div>
         </div>
-      )}
+      </div>
 
-
+      {/* Beneficiary Information */}
+      {fieldsConfig.beneficiaryInfo &&
+        fieldsConfig.beneficiaryInfo.length > 0 && (
+          <div className="flex flex-col gap-4 justify-between w-full border-b border-[#D8D8D8] pb-4">
+            <div className="text-primary uppercase font-semibold text-xl">
+              {t("Beneficiary Information")}
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 text-sm w-full capitalize">
+              {fieldsConfig.beneficiaryInfo?.map((f) => (
+                <PolicyField
+                  key={f.label}
+                  {...f}
+                  policy={p}
+                  editedPolicy={editedPolicy}
+                  isEditMode={isEditMode}
+                  onFieldChange={handleFieldChange}
+                  product={p.product}
+                  fieldErrors={fieldErrors}
+                />
+              ))}
+            </div>
+          </div>
+        )}
 
       {/* Premium / Payment Info */}
       {(history?.length > 0 ||
         (paymentSchedule && paymentSchedule.length > 0)) && (
-          <section className="border-b border-inputBorder py-4 space-y-4">
-            <div className="uppercase text-primary font-semibold text-lg">
-              {t("Premium / Payment Info")}
+        <section className="border-b border-inputBorder py-4 space-y-4">
+          <div className="uppercase text-primary font-semibold text-lg">
+            {t("Premium / Payment Info")}
+          </div>
+
+          <div className="grid grid-cols-4 gap-x-4">
+            <div className="min-w-0">
+              <div className="font-medium">{t("Premium")}</div>
+              <div className="break-words">
+                {fmtCurrency(p?.premiumTotal || p?.premium)}
+              </div>
             </div>
+            <div className="min-w-0">
+              <div className="font-medium">{t("Payment Option")}</div>
+              <div className="break-words">{p.paymentOption || "-"}</div>
+            </div>
+            <div className="min-w-0">
+              <div className="font-medium">{t("Credit Card")}</div>
+              {/* <div>{history[0]?.last4 ? `•••• ${history[0].last4}` : "-"}</div> */}
 
-            <div className="grid grid-cols-4 gap-x-4">
               <div className="min-w-0">
-                <div className="font-medium">{t("Premium")}</div>
-                <div className="break-words">
-                  {fmtCurrency(p?.premiumTotal || p?.premium)}
-                </div>
-              </div>
-              <div className="min-w-0">
-                <div className="font-medium">{t("Payment Option")}</div>
-                <div className="break-words">{p.paymentOption || "-"}</div>
-              </div>
-              <div className="min-w-0">
-                <div className="font-medium">{t("Credit Card")}</div>
-                {/* <div>{history[0]?.last4 ? `•••• ${history[0].last4}` : "-"}</div> */}
+                {(() => {
+                  // Priority: Policy.currentCard -> Most Recent Payment -> First Payment
+                  const brand =
+                    p.currentCardBrand ||
+                    history[history.length - 1]?.brand ||
+                    history[0]?.brand;
+                  const last4 =
+                    p.currentCardLast4 ||
+                    history[history.length - 1]?.last4 ||
+                    history[0]?.last4;
+                  const name =
+                    p.currentCardholderName ||
+                    history[history.length - 1]?.cardholderName ||
+                    history[0]?.cardholderName;
 
-                <div className="min-w-0">
-                  {(() => {
-                    // Priority: Policy.currentCard -> Most Recent Payment -> First Payment
-                    const brand =
-                      p.currentCardBrand ||
-                      history[history.length - 1]?.brand ||
-                      history[0]?.brand;
-                    const last4 =
-                      p.currentCardLast4 ||
-                      history[history.length - 1]?.last4 ||
-                      history[0]?.last4;
-                    const name =
-                      p.currentCardholderName ||
-                      history[history.length - 1]?.cardholderName ||
-                      history[0]?.cardholderName;
+                  if (!last4) return "-";
 
-                    if (!last4) return "-";
-
-                    return (
-                      <div className="flex flex-col">
-                        <span className="font-medium">
-                          {brand?.toUpperCase()} •••• {last4}
+                  return (
+                    <div className="flex flex-col">
+                      <span className="font-medium">
+                        {brand?.toUpperCase()} •••• {last4}
+                      </span>
+                      {name && (
+                        <span className="text-xs text-gray-600">{name}</span>
+                      )}
+                      {p.currentCardUpdatedAt && (
+                        <span className="text-xs text-gray-500">
+                          {t("Updated:")}{" "}
+                          {fmtDate(p.currentCardUpdatedAt.toString())}
                         </span>
-                        {name && (
-                          <span className="text-xs text-gray-600">{name}</span>
-                        )}
-                        {p.currentCardUpdatedAt && (
-                          <span className="text-xs text-gray-500">
-                            {t("Updated:")}{" "}
-                            {fmtDate(p.currentCardUpdatedAt.toString())}
-                          </span>
-                        )}
-                      </div>
-                    );
-                  })()}
-                </div>
+                      )}
+                    </div>
+                  );
+                })()}
               </div>
-              <div className="min-w-0">
-                <div className="font-medium">{t("Date")}</div>
-                <div className="break-words">
-                  {history[0]?.date ? fmtDate(history[0].date) : "-"}
+            </div>
+            <div className="min-w-0">
+              <div className="font-medium">{t("Date")}</div>
+              <div className="break-words">
+                {history[0]?.date ? fmtDate(history[0].date) : "-"}
+              </div>
+            </div>
+          </div>
+
+          {/* ✅ ADD THIS: Parent Policy Link for Split Policies */}
+          {p.parentPolicyId && (
+            <div className="bg-blue-50 border-l-4 border-blue-400 p-3 rounded">
+              <div className="flex items-center">
+                <svg
+                  className="w-5 h-5 text-blue-600 mr-2"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+                <div>
+                  <p className="text-sm text-blue-700 font-medium">
+                    {t("Split Policy - Payments Covered by Parent Policy")}
+                  </p>
+                  <button
+                    onClick={() =>
+                      navigate(`/policy-detail/${p.parentPolicyId}`)
+                    }
+                    className="text-xs text-blue-600 hover:text-blue-800 underline mt-1"
+                  >
+                    {t("View Original Policy Payment →")}
+                  </button>
                 </div>
               </div>
             </div>
+          )}
 
-            {/* ✅ ADD THIS: Parent Policy Link for Split Policies */}
-            {p.parentPolicyId && (
-              <div className="bg-blue-50 border-l-4 border-blue-400 p-3 rounded">
-                <div className="flex items-center">
-                  <svg
-                    className="w-5 h-5 text-blue-600 mr-2"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                  <div>
-                    <p className="text-sm text-blue-700 font-medium">
-                      {t("Split Policy - Payments Covered by Parent Policy")}
-                    </p>
-                    <button
-                      onClick={() =>
-                        navigate(`/policy-detail/${p.parentPolicyId}`)
-                      }
-                      className="text-xs text-blue-600 hover:text-blue-800 underline mt-1"
-                    >
-                      {t("View Original Policy Payment →")}
-                    </button>
-                  </div>
-                </div>
+          {/* Payment Schedule Table */}
+          {p.paymentOption === "monthly-installments" &&
+            paymentSchedule &&
+            paymentSchedule.length > 0 && (
+              <div className="mt-6">
+                <h3 className="font-semibold text-sm mb-3">
+                  {t("Payment Schedule")}
+                </h3>
+                <PaymentScheduleTable
+                  schedule={paymentSchedule || []}
+                  loading={scheduleLoading}
+                  error={scheduleError}
+                  onProcessRefund={
+                    p.status === "CANCELLED" ? handleRefund : undefined
+                  }
+                  cardHolderName={p.currentCardholderName}
+                  cardLast4={p.currentCardLast4}
+                  cardBrand={p.currentCardBrand}
+                />
               </div>
             )}
 
-            {/* Payment Schedule Table */}
-            {p.paymentOption === "monthly-installments" &&
-              paymentSchedule &&
-              paymentSchedule.length > 0 && (
-                <div className="mt-6">
-                  <h3 className="font-semibold text-sm mb-3">
-                    {t("Payment Schedule")}
-                  </h3>
-                  <PaymentScheduleTable
-                    schedule={paymentSchedule || []}
-                    loading={scheduleLoading}
-                    error={scheduleError}
-                    onProcessRefund={
-                      p.status === "CANCELLED" ? handleRefund : undefined
-                    }
-                    cardHolderName={p.currentCardholderName}
-                    cardLast4={p.currentCardLast4}
-                    cardBrand={p.currentCardBrand}
-                  />
-                </div>
-              )}
-
-            {/* Payment History Table */}
-            {history.length > 0 && (
-              <div className="mt-4">
-                <h3 className="font-semibold text-sm mb-3">
-                  {t("Payment History")}
-                </h3>
-                <div className="overflow-x-auto custom-scrollbar-x">
-                  <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-primary text-white text-sm 2xl:text-base capitalize">
-                      <tr>
-                        <th className="px-2 sm:px-3 py-1 sm:py-3 text-left font-medium text-nowrap">
-                          #
-                        </th>
-                        <th className="px-2 sm:px-3 py-1 sm:py-3 text-left font-medium text-nowrap">
-                          {t("Method")}
-                        </th>
-                        <th className="px-2 sm:px-3 py-1 sm:py-3 text-left font-medium text-nowrap">
-                          {t("Name")}
-                        </th>
-                        <th className="px-2 sm:px-3 py-1 sm:py-3 text-left font-medium text-nowrap">
-                          {t("Brand")}
-                        </th>
-                        <th className="px-2 sm:px-3 py-1 sm:py-3 text-left font-medium text-nowrap">
-                          {t("Last 4")}
-                        </th>
-                        <th className="px-2 sm:px-3 py-1 sm:py-3 text-right font-medium text-nowrap">
-                          {t("Amount")}
-                        </th>
-                        {/* <th className="px-2 sm:px-3 py-1 sm:py-3 text-right font-medium text-nowrap">
+          {/* Payment History Table */}
+          {history.length > 0 && (
+            <div className="mt-4">
+              <h3 className="font-semibold text-sm mb-3">
+                {t("Payment History")}
+              </h3>
+              <div className="overflow-x-auto custom-scrollbar-x">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-primary text-white text-sm 2xl:text-base capitalize">
+                    <tr>
+                      <th className="px-2 sm:px-3 py-1 sm:py-3 text-left font-medium text-nowrap">
+                        #
+                      </th>
+                      <th className="px-2 sm:px-3 py-1 sm:py-3 text-left font-medium text-nowrap">
+                        {t("Method")}
+                      </th>
+                      <th className="px-2 sm:px-3 py-1 sm:py-3 text-left font-medium text-nowrap">
+                        {t("Name")}
+                      </th>
+                      <th className="px-2 sm:px-3 py-1 sm:py-3 text-left font-medium text-nowrap">
+                        {t("Brand")}
+                      </th>
+                      <th className="px-2 sm:px-3 py-1 sm:py-3 text-left font-medium text-nowrap">
+                        {t("Last 4")}
+                      </th>
+                      <th className="px-2 sm:px-3 py-1 sm:py-3 text-right font-medium text-nowrap">
+                        {t("Amount")}
+                      </th>
+                      {/* <th className="px-2 sm:px-3 py-1 sm:py-3 text-right font-medium text-nowrap">
                         Fee
                       </th> */}
-                        <th className="px-2 sm:px-3 py-1 sm:py-3 text-left font-medium text-nowrap">
-                          {t("Status")}
-                        </th>
-                        <th className="px-2 sm:px-3 py-1 sm:py-3 text-left font-medium text-nowrap">
-                          {t("Date")}
-                        </th>
-                        <th className="px-2 sm:px-3 py-1 sm:py-3 text-left font-medium text-nowrap">
-                          {t("Payment Type")}
-                        </th>
-                        {/* <th className="px-2 sm:px-3 py-1 sm:py-3 text-center font-medium text-nowrap">
+                      <th className="px-2 sm:px-3 py-1 sm:py-3 text-left font-medium text-nowrap">
+                        {t("Status")}
+                      </th>
+                      <th className="px-2 sm:px-3 py-1 sm:py-3 text-left font-medium text-nowrap">
+                        {t("Date")}
+                      </th>
+                      <th className="px-2 sm:px-3 py-1 sm:py-3 text-left font-medium text-nowrap">
+                        {t("Payment Type")}
+                      </th>
+                      {/* <th className="px-2 sm:px-3 py-1 sm:py-3 text-center font-medium text-nowrap">
                         Actions
                       </th> */}
-                      </tr>
-                    </thead>
-                    <tbody
-                      className="bg-white text-[#808080] text-sm 2xl:text-base"
-                      style={{ border: "1px solid #AAA9A9" }}
-                    >
-                      {history.map((h, i) => {
-                        const isReference = [
-                          "split-policy-covered",
-                          "split-initial-covered",
-                          "split-monthly-covered",
-                          "policy-fee-reference",
-                        ].includes(h.paymentType || "");
+                    </tr>
+                  </thead>
+                  <tbody
+                    className="bg-white text-[#808080] text-sm 2xl:text-base"
+                    style={{ border: "1px solid #AAA9A9" }}
+                  >
+                    {history.map((h, i) => {
+                      const isReference = [
+                        "split-policy-covered",
+                        "split-initial-covered",
+                        "split-monthly-covered",
+                        "policy-fee-reference",
+                      ].includes(h.paymentType || "");
 
-                        const cellStyle = {
-                          borderWidth: "0px 1px 1px 0px",
-                          borderStyle: "solid" as const,
-                          borderColor: "#AAA9A9",
-                        };
+                      const cellStyle = {
+                        borderWidth: "0px 1px 1px 0px",
+                        borderStyle: "solid" as const,
+                        borderColor: "#AAA9A9",
+                      };
 
-                        return (
-                          <tr
-                            key={h.id}
-                            className={`hover:bg-white ${isReference ? "bg-blue-50" : ""
-                              }`}
+                      return (
+                        <tr
+                          key={h.id}
+                          className={`hover:bg-white ${
+                            isReference ? "bg-blue-50" : ""
+                          }`}
+                        >
+                          <td
+                            className="px-2 sm:px-3 py-2 sm:py-4 whitespace-nowrap"
+                            style={cellStyle}
                           >
-                            <td
-                              className="px-2 sm:px-3 py-2 sm:py-4 whitespace-nowrap"
-                              style={cellStyle}
-                            >
-                              {i + 1}
-                            </td>
-                            <td
-                              className="px-2 sm:px-3 py-2 sm:py-4 whitespace-nowrap"
-                              style={cellStyle}
-                            >
-                              {h.method}
-                            </td>
-                            <td
-                              className="px-2 sm:px-3 py-2 sm:py-4 whitespace-nowrap"
-                              style={cellStyle}
-                            >
-                              {h.cardholderName}
-                            </td>
-                            <td
-                              className="px-2 sm:px-3 py-2 sm:py-4 whitespace-nowrap capitalize"
-                              style={cellStyle}
-                            >
-                              {h.brand}
-                            </td>
-                            <td
-                              className="px-2 sm:px-3 py-2 sm:py-4 whitespace-nowrap"
-                              style={cellStyle}
-                            >
-                              {h.last4}
-                            </td>
-                            <td
-                              className="px-2 sm:px-3 py-2 sm:py-4 whitespace-nowrap text-right font-medium"
-                              style={cellStyle}
-                            >
-                              {h.amount.toLocaleString("en-CA", {
-                                style: "currency",
-                                currency: h.currency,
-                                currencyDisplay: "code",
-                              })}
-                            </td>
-                            {/* <td
+                            {i + 1}
+                          </td>
+                          <td
+                            className="px-2 sm:px-3 py-2 sm:py-4 whitespace-nowrap"
+                            style={cellStyle}
+                          >
+                            {h.method}
+                          </td>
+                          <td
+                            className="px-2 sm:px-3 py-2 sm:py-4 whitespace-nowrap"
+                            style={cellStyle}
+                          >
+                            {h.cardholderName}
+                          </td>
+                          <td
+                            className="px-2 sm:px-3 py-2 sm:py-4 whitespace-nowrap capitalize"
+                            style={cellStyle}
+                          >
+                            {h.brand}
+                          </td>
+                          <td
+                            className="px-2 sm:px-3 py-2 sm:py-4 whitespace-nowrap"
+                            style={cellStyle}
+                          >
+                            {h.last4}
+                          </td>
+                          <td
+                            className="px-2 sm:px-3 py-2 sm:py-4 whitespace-nowrap text-right font-medium"
+                            style={cellStyle}
+                          >
+                            {h.amount.toLocaleString("en-CA", {
+                              style: "currency",
+                              currency: h.currency,
+                              currencyDisplay: "code",
+                            })}
+                          </td>
+                          {/* <td
                             className="px-2 sm:px-3 py-2 sm:py-4 whitespace-nowrap text-right"
                             style={cellStyle}
                           >
@@ -1766,48 +2064,49 @@ const PolicyDetailsPage: React.FC = () => {
                                 })
                               : "N/A"}
                           </td> */}
-                            <td
-                              className="px-2 sm:px-3 py-2 sm:py-4 whitespace-nowrap"
-                              style={cellStyle}
+                          <td
+                            className="px-2 sm:px-3 py-2 sm:py-4 whitespace-nowrap"
+                            style={cellStyle}
+                          >
+                            <span
+                              className={`${
+                                h.status === "succeeded"
+                                  ? "text-green-600"
+                                  : h.status === "refunded"
+                                    ? "text-orange-600"
+                                    : ""
+                              }`}
                             >
-                              <span
-                                className={`${h.status === "succeeded"
-                                    ? "text-green-600"
-                                    : h.status === "refunded"
-                                      ? "text-orange-600"
-                                      : ""
-                                  }`}
-                              >
-                                {h.status}
-                              </span>
-                            </td>
-                            <td
-                              className="px-2 sm:px-3 py-2 sm:py-4 whitespace-nowrap"
-                              style={cellStyle}
-                            >
-                              {fmtDate(h.date)}
-                            </td>
-                            <td
-                              className="px-2 sm:px-3 py-2 sm:py-4 whitespace-nowrap"
-                              style={cellStyle}
-                            >
-                              <div className="flex items-center gap-1">
-                                {/* ✅ Show indicator for reference payments */}
-                                {isReference && (
-                                  <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
-                                    ℹ️ Reference
-                                  </span>
-                                )}
-                                <span
-                                  className={
-                                    isReference ? "text-xs text-gray-600" : ""
-                                  }
-                                >
-                                  {h.paymentType || "N/A"}
+                              {h.status}
+                            </span>
+                          </td>
+                          <td
+                            className="px-2 sm:px-3 py-2 sm:py-4 whitespace-nowrap"
+                            style={cellStyle}
+                          >
+                            {fmtDate(h.date)}
+                          </td>
+                          <td
+                            className="px-2 sm:px-3 py-2 sm:py-4 whitespace-nowrap"
+                            style={cellStyle}
+                          >
+                            <div className="flex items-center gap-1">
+                              {/* ✅ Show indicator for reference payments */}
+                              {isReference && (
+                                <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
+                                  ℹ️ Reference
                                 </span>
-                              </div>
-                            </td>
-                            {/* <td
+                              )}
+                              <span
+                                className={
+                                  isReference ? "text-xs text-gray-600" : ""
+                                }
+                              >
+                                {h.paymentType || "N/A"}
+                              </span>
+                            </div>
+                          </td>
+                          {/* <td
                             className="px-2 sm:px-3 py-2 sm:py-4 whitespace-nowrap text-center"
                             style={cellStyle}
                           >
@@ -1850,16 +2149,16 @@ const PolicyDetailsPage: React.FC = () => {
                                 </button>
                               )}
                           </td> */}
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
-                </div>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
               </div>
-            )}
-          </section>
-        )}
+            </div>
+          )}
+        </section>
+      )}
 
       <div className="flex flex-col gap-4 justify-between w-full border-b border-[#D8D8D8] pb-4">
         <div className="text-primary uppercase font-semibold text-xl">
@@ -2171,8 +2470,22 @@ const PolicyDetailsPage: React.FC = () => {
         onConfirm={handleRefundConfirm}
         originalExpiryDate={refundData?.originalExpiryDate || ""}
         newExpiryDate={refundData?.newExpiryDate || ""}
+        originalEffectiveDate={fmtDate(p.effectiveDate?.toString())}
+        newEffectiveDate={
+          editedPolicy.effectiveDate || fmtDate(p.effectiveDate?.toString())
+        }
         daysToRefund={refundData?.daysToRefund || 0}
         maxRefundable={refundData?.maxRefundable || 0}
+        loading={modifyLoading}
+      />
+
+      <ChargeConfirmationModal
+        isOpen={showChargeModal}
+        onClose={() => setShowChargeModal(false)}
+        onConfirm={handleChargeConfirm}
+        chargeAmount={chargeData?.chargeAmount || 0}
+        originalPremium={chargeData?.originalPremium || 0}
+        newPremium={chargeData?.newPremium || 0}
         loading={modifyLoading}
       />
 
@@ -2189,8 +2502,6 @@ const PolicyDetailsPage: React.FC = () => {
         reason={premiumData?.reason}
         isAgeBracketChange={premiumData?.isAgeBracketChange}
       />
-
-
 
       <UpdateCardModal
         isOpen={showUpdateCardModal}
@@ -2281,6 +2592,13 @@ const PolicyDetailsPage: React.FC = () => {
           setShowUpdateCardConfirmModal(false);
           setShowUpdateCardModal(true);
         }}
+      />
+
+      <ModificationConfirmModal
+        isOpen={showModificationConfirmModal}
+        onClose={() => setShowModificationConfirmModal(false)}
+        onConfirm={handleModificationConfirm}
+        loading={modifyLoading}
       />
     </div>
   );

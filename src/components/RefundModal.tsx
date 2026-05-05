@@ -1,12 +1,14 @@
-import React, { useState, useEffect } from 'react';
-import { MdClose } from 'react-icons/md';
-import { useLanguage } from '../context/LanguageContext';
-import { formatDate } from '../utils/dateUtils';
+import React, { useState, useEffect } from "react";
+import { MdClose } from "react-icons/md";
+import { useLanguage } from "../context/LanguageContext";
+import { formatDate } from "../utils/dateUtils";
 
 interface RefundModalProps {
   isOpen: boolean;
   onClose: () => void;
   onConfirm: (transactionFee: number, netRefund: number) => void;
+  originalEffectiveDate?: string;
+  newEffectiveDate?: string;
   originalExpiryDate: string;
   newExpiryDate: string;
   daysToRefund: number;
@@ -18,6 +20,8 @@ const RefundModal: React.FC<RefundModalProps> = ({
   isOpen,
   onClose,
   onConfirm,
+  originalEffectiveDate,
+  newEffectiveDate,
   originalExpiryDate,
   newExpiryDate,
   daysToRefund,
@@ -25,14 +29,14 @@ const RefundModal: React.FC<RefundModalProps> = ({
   loading = false,
 }) => {
   const { t } = useLanguage();
-  const [transactionFee, setTransactionFee] = useState<string>('');
-  const [error, setError] = useState<string>('');
+  const [transactionFee, setTransactionFee] = useState<string>("0");
+  const [error, setError] = useState<string>("");
 
   // Reset when modal opens
   useEffect(() => {
     if (isOpen) {
-      setTransactionFee('');
-      setError('');
+      setTransactionFee("0");
+      setError("");
     }
   }, [isOpen]);
 
@@ -40,27 +44,29 @@ const RefundModal: React.FC<RefundModalProps> = ({
     ? Math.max(0, maxRefundable - parseFloat(transactionFee))
     : 0;
 
-  const handleTransactionFeeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleTransactionFeeChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     const value = e.target.value;
     setTransactionFee(value);
-    setError('');
+    setError("");
 
     // Validate
     if (value) {
       const feeAmount = parseFloat(value);
 
       if (isNaN(feeAmount)) {
-        setError(t('Please enter a valid number'));
+        setError(t("Please enter a valid number"));
         return;
       }
 
       if (feeAmount < 0) {
-        setError(t('Transaction fee cannot be negative'));
+        setError(t("Transaction fee cannot be negative"));
         return;
       }
 
       if (feeAmount > maxRefundable) {
-        setError(t('Transaction fee cannot exceed maximum refundable amount'));
+        setError(t("Transaction fee cannot exceed maximum refundable amount"));
         return;
       }
     }
@@ -68,19 +74,19 @@ const RefundModal: React.FC<RefundModalProps> = ({
 
   const handleConfirm = () => {
     if (!transactionFee) {
-      setError(t('Transaction fee is required'));
+      setError(t("Transaction fee is required"));
       return;
     }
 
     const feeAmount = parseFloat(transactionFee);
 
     if (isNaN(feeAmount) || feeAmount < 0) {
-      setError(t('Please enter a valid transaction fee'));
+      setError(t("Please enter a valid transaction fee"));
       return;
     }
 
     if (feeAmount > maxRefundable) {
-      setError(t('Transaction fee cannot exceed maximum refundable amount'));
+      setError(t("Transaction fee cannot exceed maximum refundable amount"));
       return;
     }
 
@@ -108,29 +114,52 @@ const RefundModal: React.FC<RefundModalProps> = ({
         {/* Content */}
         <div className="px-6 py-6 space-y-6">
           <p className="text-sm text-text-secondary">
-            {t("Policy modified for early return. Please review the refund details below:")}
+            {t(
+              "Policy modified for early return. Please review the refund details below:",
+            )}
           </p>
-
           {/* Date Information */}
+
           <div className="bg-gray-50 rounded p-4 space-y-2 text-sm border border-inputBorder">
+            {originalExpiryDate !== newExpiryDate && (
+              <>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">
+                    {t("Original Effective:")}
+                  </span>
+                  <span className="font-medium">
+                    {originalEffectiveDate
+                      ? formatDate(originalEffectiveDate)
+                      : "-"}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">{t("New Effective:")}</span>
+                  <span className="font-medium">
+                    {newEffectiveDate ? formatDate(newEffectiveDate) : "-"}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">{t("Original Expiry:")}</span>
+                  <span className="font-medium">
+                    {formatDate(originalExpiryDate)}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">{t("New Expiry:")}</span>
+                  <span className="font-medium">
+                    {formatDate(newExpiryDate)}
+                  </span>
+                </div>
+              </>
+            )}
             <div className="flex justify-between">
-              <span className="text-gray-600">{t("Original Expiry:")}</span>
+              <span className="text-gray-600">{t("Coverage Reduced By:")}</span>
               <span className="font-medium">
-                {formatDate(originalExpiryDate)}
+                {daysToRefund} {t("days")}
               </span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-gray-600">{t("New Expiry:")}</span>
-              <span className="font-medium">
-                {formatDate(newExpiryDate)}
-              </span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-gray-600">{t("Days Reduced:")}</span>
-              <span className="font-medium">{daysToRefund} {t("days")}</span>
             </div>
           </div>
-
           {/* Refund Calculation */}
           <div className="space-y-4">
             <div className="flex justify-between items-center">
@@ -156,16 +185,17 @@ const RefundModal: React.FC<RefundModalProps> = ({
                   max={maxRefundable}
                   value={transactionFee}
                   onChange={handleTransactionFeeChange}
-                  className={`input-primary pl-7 ${error ? 'border-red-500' : ''
-                    }`}
+                  className={`input-primary pl-7 ${
+                    error ? "border-red-500" : ""
+                  }`}
                   placeholder="0.00"
                   disabled={loading}
                 />
-                <span className="absolute right-3 top-2.5 text-gray-500">CAD</span>
+                <span className="absolute right-3 top-2.5 text-gray-500">
+                  CAD
+                </span>
               </div>
-              {error && (
-                <p className="mt-1 text-sm text-red-600">{error}</p>
-              )}
+              {error && <p className="mt-1 text-sm text-red-600">{error}</p>}
             </div>
 
             {/* Net Refund Display */}
@@ -178,12 +208,14 @@ const RefundModal: React.FC<RefundModalProps> = ({
               </span>
             </div>
           </div>
-
           {/* Warning if net refund is $0 */}
           {netRefund === 0 && transactionFee && (
             <div className="bg-yellow-50 border border-yellow-200 rounded p-3">
               <p className="text-sm text-yellow-800">
-                ℹ️ {t("Net refund is 0.00 CAD because the transaction fee equals the refundable amount.")}
+                ℹ️{" "}
+                {t(
+                  "Net refund is 0.00 CAD because the transaction fee equals the refundable amount.",
+                )}
               </p>
             </div>
           )}

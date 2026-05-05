@@ -71,6 +71,7 @@ export interface ModifyPolicyData {
 
   applicants?: ModifyApplicant[];
   refund?: RefundData;
+  premiumDifference?: number;
   premiumRecalculation?: PremiumRecalculation;
   lastKnownUpdatedAt: string;
 }
@@ -99,8 +100,12 @@ export const useModifyPolicy = () => {
       );
       return response.data;
     } catch (err: any) {
-      setError(err.message || "An error occurred while modifying policy");
-      return null;
+      const message =
+        err.response?.data?.message ||
+        err.message ||
+        "An error occurred while modifying policy";
+      setError(message);
+      return { success: false, message } as any;
     } finally {
       setLoading(false);
     }
@@ -145,10 +150,54 @@ export const useModifyPolicy = () => {
     }
   };
 
+  const calculateModificationPreview = async (
+    policyId: string,
+    newEffectiveDate: string,
+    newExpiryDate: string,
+  ): Promise<{
+    success: boolean;
+    originalPremium: number;
+    newPremium: number;
+    difference: number;
+    originalCovLen: number;
+    newCovLen: number;
+  } | null> => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const response = await axiosInstance.post(
+        `/policies/${policyId}/calculate-modification-preview`,
+        {
+          newEffectiveDate,
+          newExpiryDate,
+        },
+      );
+      return response.data;
+    } catch (err: any) {
+      const message =
+        err.response?.data?.message ||
+        err.message ||
+        "An error occurred while calculating modification preview";
+      setError(message);
+      return null;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return {
     loading,
     error,
     modifyPolicy,
     calculateRefund,
+    calculateModificationPreview, // ← ADD
   };
+
+  // return {
+  //   loading,
+  //   error,
+  //   modifyPolicy,
+  //   calculateRefund,
+  // };
 };
