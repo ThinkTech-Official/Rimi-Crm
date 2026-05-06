@@ -2,6 +2,7 @@ import { useState } from "react";
 import { MdClose, MdUploadFile, MdInsertDriveFile } from "react-icons/md";
 import { useUploadDocuments } from "../hooks/useUploadDocuments";
 import useNotification from "../hooks/useNotification";
+import { useLanguage } from "../context/LanguageContext";
 
 
 
@@ -31,7 +32,7 @@ const AddDocument = ({
   const [activeTab, setActiveTab] = useState<TabType>("document");
   const [files, setFiles] = useState<FileItem[]>([]);
   const [categoryName, setCategoryName] = useState("");
-  
+  const { t } = useLanguage();
   const { uploadDocuments, loading, error } = useUploadDocuments();
 
  
@@ -111,7 +112,7 @@ const AddDocument = ({
                 : "text-text-secondary border-inputBorder"
             }`}
           >
-            Add Document
+            {t("Add Document")}
           </button>
           <button
             onClick={() => setActiveTab("category")}
@@ -211,7 +212,7 @@ const AddDocument = ({
                   className="py-2 px-4 border border-inputBorder hover:border-gray-700 cursor-pointer transition delay-100 w-36"
                   disabled={loading}
                 >
-                  Close
+                  {t("close")}
                 </button>
                 <button 
                   className="btn-primary w-36" 

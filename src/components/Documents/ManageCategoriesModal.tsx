@@ -186,7 +186,7 @@ const ManageCategoriesModal = ({
                         onClick={onClose}
                         className="py-2 px-6 border border-inputBorder hover:border-gray-500 transition cursor-pointer"
                     >
-                        {t("Close")}
+                        {t("close")}
                     </button>
                 </div>
 

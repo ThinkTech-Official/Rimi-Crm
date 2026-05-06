@@ -42,8 +42,9 @@ export default function YourQuoteSummary({ step1ResponseData }: QuoteSummaryProp
   const fmtDate = (iso: string) => formatDate(iso);
 
   // Simple currency formatter
-  const fmtMoney = (amt: number) =>
-    amt.toLocaleString(undefined, { style: "currency", currency: "CAD" });
+  // const fmtMoney = (amt: number) =>
+  //   amt.toLocaleString(undefined, { style: "currency", currency: "CAD" });
+  const fmtMoney = (amt: number) => `$${amt.toFixed(2)} CAD`;
 
   const rows: [string, React.ReactNode][] = [
     [t("Effective Date"), fmtDate(effectiveDate)],

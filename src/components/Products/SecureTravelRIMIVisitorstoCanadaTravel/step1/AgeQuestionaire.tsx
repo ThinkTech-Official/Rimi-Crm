@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import { IoWarning } from "react-icons/io5";
 import { useLanguage } from "../../../../context/LanguageContext";
+import useNotification from "../../../../hooks/useNotification";
 
 const questions = [
   {
@@ -87,6 +88,7 @@ const AgeQuestionaire = ({
   setCoverageForPreMedCon,
 }: Props) => {
   const { t } = useLanguage();
+  const { triggerNotification, NotificationComponent } = useNotification();
   // Use stable index (applicant.index) for keys. 
   // Primary applicant is usually -1 or undefined in some contexts, but let's stick to applicant.index
   const [responses, setResponses] = useState<{
@@ -174,6 +176,20 @@ const AgeQuestionaire = ({
   };
 
   const handleSubmit = () => {
+    const isComplete = applicantsToShow.every((applicant) => {
+      const appKey = getAppKey(applicant);
+      const appResponses = responses[appKey] || {};
+      return questions.every((_, qIdx) => appResponses[qIdx] !== undefined);
+    });
+
+    if (!isComplete) {
+      triggerNotification({
+        message: t("Please answer all questions for all applicants before saving."),
+        type: "error",
+      });
+      return;
+    }
+
     const anyYes = applicantsToShow.some((applicant) => {
       const appKey = getAppKey(applicant);
       const appResponses = responses[appKey] || {};
@@ -277,6 +293,7 @@ const AgeQuestionaire = ({
 
   return (
     <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50 p-4">
+      {NotificationComponent}
       <div className="bg-white max-w-5xl w-full flex flex-col max-h-[90%] overflow-auto custom-scrollbar3 p-6 shadow-lg">
         <div className="flex justify-between items-start border-b border-inputBorder pb-3">
           <div>

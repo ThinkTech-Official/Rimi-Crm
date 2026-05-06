@@ -194,6 +194,8 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
   //   const [quoteNumber, setQuoteNumber] = useState<string | null>(null);
   //  NOTE: quoteNumber is now part of form or can be state, keeping state for now as it's returned from backend
   const [quoteNumber, setQuoteNumber] = useState<string | null>(null);
+  const [showQuestionnaireError, setShowQuestionnaireError] = useState(false);
+  const [showQuestionnaireError, setShowQuestionnaireError] = useState(false);
 
   const [step1ResponseData, setStep1ResponseData] =
     useState<QuoteStage1Response | null>(null);
@@ -273,6 +275,15 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
     if (!isValid) {
       // Optional: triggerNotification for validation error
       console.log("Form validation failed", step1Methods.formState.errors);
+      return;
+    }
+    if (!isStepOneFilled) {
+      setShowQuestionnaireError(true);
+
+      triggerNotification({
+        message: t("Please answer medical questions"),
+        type: "error",
+      });
       return;
     }
 
@@ -481,6 +492,7 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
               handleNext={handleNext}
               isStepOneFilled={isStepOneFilled}
               savingStage1={savingStage1}
+              showQuestionnaireError={showQuestionnaireError}
             />
           </FormProvider>
         </div>

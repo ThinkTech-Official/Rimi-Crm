@@ -62,6 +62,7 @@ type Props = {
   handleNext: () => void;
   isStepOneFilled: boolean;
   savingStage1: boolean;
+  showQuestionnaireError: boolean;
 
   quoteNumber: string | null;
   setQuoteNumber: (val: string | null) => void;
@@ -103,6 +104,7 @@ const Step1STRVCT = ({
 
   quoteNumber,
   setQuoteNumber,
+  showQuestionnaireError,
 }: Props) => {
   const { t } = useLanguage();
   const agentCode = useSelector((state: RootState) => state.auth.agentCode);
@@ -263,13 +265,13 @@ const Step1STRVCT = ({
 
   // Check questionnaire completion
   const primaryQuestionnaireComplete =
-    !primaryNeedsQuestionnaire || primaryQuestionnaire !== null;
+    !primaryNeedsQuestionnaire || (primaryQuestionnaire !== null && primaryQuestionnaire?.questions?.length > 0);
   const applicantsQuestionnaireComplete = applicants.every(
     (app: any, idx: number) => {
       const age = applicantAges[idx];
       const needsIt =
         age !== null && age >= 70 && age <= 84 && app.preMedCoverage;
-      return !needsIt || app.healthQuestionnaire !== undefined;
+      return !needsIt || (app.healthQuestionnaire?.questions?.length > 0);
     },
   );
 
@@ -424,7 +426,9 @@ const Step1STRVCT = ({
     coverageOption,
     deductible,
     paymentOption,
-  ].every((v) => v !== "" && v !== undefined && v !== null);
+    isConfirmed,
+    allQuestionnairesComplete,
+  ].every((v) => v !== "" && v !== undefined && v !== null && v !== false);
 
   const isFormFilled = canSaveQoute;
 
@@ -787,7 +791,7 @@ const Step1STRVCT = ({
                       onChange={(e) => field.onChange(e.target.value === "yes")}
                       value={field.value ? "yes" : "no"}
                     >
-                      <option value="">{t("Select an option")}</option>
+                      <option value="">{t("Please select")}...</option>
                       <option value="yes">{t("Yes")}</option>
                       <option value="no">{t("No")}</option>
                     </select>
@@ -1107,11 +1111,11 @@ const Step1STRVCT = ({
 
           {/* Open Medical Questionnaire Section */}
           {anyNeedsQuestionnaire && (
-            <div className="bg-blue-50 border border-blue-200 p-4 mt-6">
-              <p className="text-sm text-blue-900 mb-2">
+            <div className={`p-4 mt-6 border ${showQuestionnaireError && !allQuestionnairesComplete ? "bg-red-50 border-red-300" : "bg-blue-50 border-blue-200"}`}>
+              <p className={`text-sm mb-2 ${showQuestionnaireError && !allQuestionnairesComplete ? "text-red-900" : "text-blue-900"}`}>
                 {t("A Medical Declaration must be completed if you are between 70 and 84 years of age as of the effective date of coverage and are applying to purchase coverage for stable pre-existing conditions that have been stable in the 180 days prior to your effective date")}
               </p>
-              <p className="text-sm text-blue-900 mb-3">
+              <p className={`text-sm mb-3 ${showQuestionnaireError && !allQuestionnairesComplete ? "text-red-900" : "text-blue-900"}`}>
                 {t("* If you answer \"Yes\" to any of these questions, you will not be eligible for coverage of stable pre-existing medical conditions and \"Include coverage for stable pre-existing medical conditions\" will be set to \"No\" for that applicant.")}
               </p>
               <button
@@ -1120,6 +1124,11 @@ const Step1STRVCT = ({
               >
                 {t("Open Medical Questionnaire")}
               </button>
+              {showQuestionnaireError && !allQuestionnairesComplete && (
+                <p className="text-red-500 text-sm mt-2">
+                  {t("Medical questionnaire must be completed before proceeding.")}
+                </p>
+              )}
             </div>
           )}
 

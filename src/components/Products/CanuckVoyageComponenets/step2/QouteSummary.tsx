@@ -81,9 +81,9 @@ export default function QuoteSummary({ step1ResponseData }: QuoteSummaryProps) {
   } = step1ResponseData;
 
   const fmtDate = (iso: string) => formatDate(iso);
-  const fmtMoney = (amt: number) =>
-    amt.toLocaleString(undefined, { style: "currency", currency: "CAD" });
-
+  // const fmtMoney = (amt: number) =>
+  //   amt.toLocaleString(undefined, { style: "currency", currency: "CAD" });
+  const fmtMoney = (amt: number) => `$${amt.toFixed(2)} CAD`;
   const rows: [string, React.ReactNode][] = [
     [t("Policy Type"), t(policyType)],
     [t("Effective Date"), fmtDate(effectiveDate)],

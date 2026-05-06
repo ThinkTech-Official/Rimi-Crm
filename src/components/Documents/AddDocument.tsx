@@ -186,7 +186,7 @@ const AddDocument = ({
                 className="py-2 px-4 border border-inputBorder hover:border-gray-500 cursor-pointer transition delay-100 w-36"
                 disabled={loading}
               >
-                {t("Close")}
+                {t("close")}
               </button>
               <button
                 className="btn-primary w-36"
@@ -203,4 +203,4 @@ const AddDocument = ({
   );
 };
 
-export default AddDocument;
+export default AddDocument;

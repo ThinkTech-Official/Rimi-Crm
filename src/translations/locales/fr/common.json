@@ -793,5 +793,7 @@
   "Are you sure you want to delete": "Êtes-vous sûr de vouloir supprimer",
   "Change Logs": "Historique des modifications",
   "Enter country name": "Entrez le nom du pays",
-  "Enter number of days": "Entrez le nombre de jours"
+  "Enter number of days": "Entrez le nombre de jours",
+  "Contact No.": "N° de contact",
+  "All agents are currently processed": "Tous les agents sont en cours de traitement"
 }

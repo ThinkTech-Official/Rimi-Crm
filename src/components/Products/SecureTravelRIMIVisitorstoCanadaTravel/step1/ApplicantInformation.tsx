@@ -111,9 +111,9 @@ export default function ApplicantInformation() {
             className="p-2 border border-[#DBDADE] font-[inter] w-full max-w-xs"
             onChange={(e) => setCoverageForPreMedCon(e.target.value === "yes")}
           >
-            <option value="">Select an option</option>
-            <option value="yes">Yes</option>
-            <option value="no">No</option>
+            <option value="">{t("Please select")}</option>
+            <option value="yes">{t("Yes")}</option>
+            <option value="no">{t("No")}</option>
           </select>
         </div>
 
@@ -250,9 +250,9 @@ export default function ApplicantInformation() {
                   setCoverageForPreMedCon(e.target.value === "yes")
                 }
               >
-                <option value="">Select an option</option>
-                <option value="yes">Yes</option>
-                <option value="no">No</option>
+                <option value="">{t("Please select")}</option>
+                <option value="yes">{t("Yes")}</option>
+                <option value="no">{t("No")}</option>
               </select>
             </div>
           </div>
