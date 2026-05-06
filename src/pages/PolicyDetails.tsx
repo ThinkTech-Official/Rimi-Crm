@@ -276,6 +276,7 @@ const PolicyField: React.FC<PolicyFieldProps> = ({
               (activeKey === "expiryDate" && policy.status === "ACTIVE") ||
               (activeKey === "dateOfBirth" && policy.status === "ACTIVE")
             }
+            minDate={activeKey === "effectiveDate" ? new Date() : undefined}
           />
         </div>
       );
