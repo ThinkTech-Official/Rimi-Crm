@@ -330,6 +330,8 @@ import {
   DocumentIcon,
   UserIcon,
   ShieldCheckIcon,
+  EyeIcon,
+  EyeSlashIcon,
 } from "@heroicons/react/24/outline";
 import { MdCancel } from "react-icons/md";
 import { getUserTypeFromToken } from "../utils/getUserType";
@@ -436,6 +438,12 @@ export default function Profile() {
     password: "",
     confirmPassword: "",
   });
+  const [passwordErrors, setPasswordErrors] = useState({
+    password: "",
+    confirmPassword: "",
+  });
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [showRequestVerification, setShowRequestVerification] = useState(false);
   // verification new route
   const { requestVerification, loading: requestingVerification } =
@@ -486,9 +494,38 @@ export default function Profile() {
   const handlePassChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setPasswords((prev) => ({ ...prev, [name]: value }));
+    // Clear error when user types
+    setPasswordErrors((prev) => ({ ...prev, [name]: "" }));
   };
 
   const handleSave = async () => {
+    // Validation for password
+    if (passwords.password || passwords.confirmPassword) {
+      let valid = true;
+      const errors = { password: "", confirmPassword: "" };
+
+      if (!passwords.password) {
+        errors.password = t("Password is required");
+        valid = false;
+      } else if (passwords.password.length < 6) {
+        errors.password = t("Minimum length is 6");
+        valid = false;
+      }
+
+      if (!passwords.confirmPassword) {
+        errors.confirmPassword = t("Please confirm password");
+        valid = false;
+      } else if (passwords.password !== passwords.confirmPassword) {
+        errors.confirmPassword = t("Passwords do not match");
+        valid = false;
+      }
+
+      if (!valid) {
+        setPasswordErrors(errors);
+        return;
+      }
+    }
+
     try {
       let hasDocuments = false;
 
@@ -547,13 +584,23 @@ export default function Profile() {
         await updateProfile(pwdPayload);
       }
 
-      // Reset local edit state
+      // Use handleDiscard logic for cleanup
       setIsEditing(false);
       setFiles({ doc1: null, doc2: null, doc3: null , doc4: null });
       setPasswords({ password: "", confirmPassword: "" });
+      setPasswordErrors({ password: "", confirmPassword: "" });
+      setShowPassword(false);
+      setShowConfirmPassword(false);
+
+      triggerNotification({
+        type: "success",
+        message: t("Profile updated successfully"),
+      });
 
       // Refresh the profile data
-      window.location.reload();
+      setTimeout(() => {
+        window.location.reload();
+      }, 2000);
     } catch (err: any) {
       triggerNotification({
         type: "error",
@@ -602,6 +649,7 @@ export default function Profile() {
 
   return (
     <div className="max-w-5xl mx-auto p-6 bg-white shadow-lg border border-gray-200">
+      {NotificationComponent}
       <h2 className="text-xl font-semibold text-center text-primary mb-4 uppercase">
         {isEditing ? t("Modify User") : t("User profile")}
       </h2>
@@ -750,7 +798,14 @@ export default function Profile() {
                   {t("Save Changes")}
                 </button>
                 <button
-                  onClick={() => setIsEditing(false)}
+                  onClick={() => {
+                    setIsEditing(false);
+                    setPasswords({ password: "", confirmPassword: "" });
+                    setPasswordErrors({ password: "", confirmPassword: "" });
+                    setFiles({ doc1: null, doc2: null, doc3: null, doc4: null });
+                    setShowPassword(false);
+                    setShowConfirmPassword(false);
+                  }}
                   className="px-4 py-2 bg-gray-50 hover:bg-gray-100 border border-gray-300 hover:border-gray-500 cursor-pointer transition-all delay-100"
                 >
                   {t("Discard Changes")}
@@ -880,27 +935,61 @@ export default function Profile() {
                 <label htmlFor="password" className="text-sm">
                   {t("New Password")}
                 </label>
-                <input
-                  name="password"
-                  type="password"
-                  placeholder={t("New Password")}
-                  value={passwords.password}
-                  onChange={handlePassChange}
-                  className="input-primary"
-                />
+                <div className="relative">
+                  <input
+                    name="password"
+                    type={showPassword ? "text" : "password"}
+                    placeholder={t("New Password")}
+                    value={passwords.password}
+                    onChange={handlePassChange}
+                    className={`input-primary ${passwordErrors.password ? "border-red-500" : ""}`}
+                  />
+                  <span
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer"
+                    onClick={() => setShowPassword(!showPassword)}
+                  >
+                    {showPassword ? (
+                      <EyeSlashIcon className="h-5 w-5 text-gray-500" />
+                    ) : (
+                      <EyeIcon className="h-5 w-5 text-gray-500" />
+                    )}
+                  </span>
+                </div>
+                {passwordErrors.password && (
+                  <p className="text-red-500 text-xs mt-1">
+                    {passwordErrors.password}
+                  </p>
+                )}
               </div>
               <div className="flex flex-col gap-1 w-full">
                 <label htmlFor="confirmPassword" className="text-sm">
                   {t("Confirm Password")}
                 </label>
-                <input
-                  name="confirmPassword"
-                  type="password"
-                  placeholder={t("Confirm Password")}
-                  value={passwords.confirmPassword}
-                  onChange={handlePassChange}
-                  className="input-primary"
-                />
+                <div className="relative">
+                  <input
+                    name="confirmPassword"
+                    type={showConfirmPassword ? "text" : "password"}
+                    placeholder={t("Confirm Password")}
+                    value={passwords.confirmPassword}
+                    onChange={handlePassChange}
+                    className={`input-primary ${passwordErrors.confirmPassword ? "border-red-500" : ""}`}
+                  />
+                  <span
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  >
+                    {showConfirmPassword ? (
+                      <EyeSlashIcon className="h-5 w-5 text-gray-500" />
+                    ) : (
+                      <EyeIcon className="h-5 w-5 text-gray-500" />
+                    )}
+                  </span>
+                </div>
+                {passwordErrors.confirmPassword && (
+                  <p className="text-red-500 text-xs mt-1">
+                    {passwordErrors.confirmPassword}
+                  </p>
+                )}
               </div>
             </div>
           )}
