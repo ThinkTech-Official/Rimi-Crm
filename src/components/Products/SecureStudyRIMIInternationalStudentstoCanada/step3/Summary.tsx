@@ -107,7 +107,6 @@ const renderTable = (rows: [string, React.ReactNode][]) => (
           <h2 className="text-xl font-semibold mb-2">{t("Contact Information")}</h2>
           {renderTable(contactInfoRows)}
         </section>
-[diff_chunk_end]
         {/* QUOTE SUMMARY */}
         <section>
           <h2 className="text-xl font-semibold mb-2">{t("Quote Summary")}</h2>
