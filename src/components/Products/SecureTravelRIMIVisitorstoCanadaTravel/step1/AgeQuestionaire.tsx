@@ -337,7 +337,7 @@ const AgeQuestionaire = ({
               {questions.map((q, qIdx) => (
                 <tr key={qIdx} className="border-b border-gray-200">
                   <td className="py-4 pr-4 text-sm align-top min-w-md">
-                    {qIdx + 1}. {q.question}
+                    {qIdx + 1}. {t(q.question)}
                   </td>
                   {applicantsToShow.map((applicant, idx) => {
                     const appKey = getAppKey(applicant);
@@ -358,7 +358,7 @@ const AgeQuestionaire = ({
                                 }
                                 className="accent-primary"
                               />
-                              <span className="ml-1 text-sm">{option}</span>
+                              <span className="ml-1 text-sm">{t(option)}</span>
                             </label>
                           ))}
                         </div>
