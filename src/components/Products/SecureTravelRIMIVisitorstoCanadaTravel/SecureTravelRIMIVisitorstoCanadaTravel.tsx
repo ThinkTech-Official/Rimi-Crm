@@ -195,7 +195,7 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
   //  NOTE: quoteNumber is now part of form or can be state, keeping state for now as it's returned from backend
   const [quoteNumber, setQuoteNumber] = useState<string | null>(null);
   const [showQuestionnaireError, setShowQuestionnaireError] = useState(false);
-  const [showQuestionnaireError, setShowQuestionnaireError] = useState(false);
+  // const [showQuestionnaireError, setShowQuestionnaireError] = useState(false);
 
   const [step1ResponseData, setStep1ResponseData] =
     useState<QuoteStage1Response | null>(null);

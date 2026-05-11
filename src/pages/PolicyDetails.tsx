@@ -94,8 +94,8 @@ const EDITABLE_FIELDS = [
   "destination",
   "destinationProvince",
   "destProv",
-  "applicantTravelThroughUs",
-  "usTravelDays",
+  // "applicantTravelThroughUs",
+  // "usTravelDays",
   "applicantOnSuperVisa",
   "superVisa",
   "deductible",
@@ -107,6 +107,8 @@ const EDITABLE_FIELDS = [
   "tripCost",
   "legalGuardianName",
   "superVisaYears",
+  // "applicantTravelThroughUs",
+  // "travelingThroughUS", 
 ];
 
 const PRODUCT_RULES: Record<
@@ -963,82 +965,9 @@ const PolicyDetailsPage: React.FC = () => {
       return;
     }
 
-    //
-    // const expiryDate =
-    //   editedPolicy.expiryDate || fmtDate(p.expiryDate?.toString());
-    // const originalExpiryDate = fmtDate(p.expiryDate?.toString());
 
-    // // Check if dates changed
-    // const datesChanged = expiryDate !== originalExpiryDate;
 
-    // if (datesChanged) {
-    //   // Check for early return (refund scenario)
-    //   if (expiryDate < originalExpiryDate) {
-    //     // Calculate refund
-    //     const refundCalc = await calculateRefund(
-    //       id!,
-    //       originalExpiryDate,
-    //       expiryDate,
-    //       p.premium || 0,
-    //       parseInt(p.covLen || "365"),
-    //     );
-
-    //     if (refundCalc) {
-    //       setRefundData({
-    //         originalExpiryDate,
-    //         newExpiryDate: expiryDate,
-    //         ...refundCalc,
-    //       });
-    //       setShowRefundModal(true);
-    //       return;
-    //     }
-    //   }
-
-    //   // TODO
-    //   // Check for premium increase (age bracket change)
-    //   // This requires calling the premium calculation API
-    //   // For now, proceed with save
-    // }
-
-    // // Save without refund
-    // await performSave();
-
-    //
-    //
-
-    // Check coverage length change using both dates
-    // const originalCovLen = Number(p.covLen) || 0;
-    // const resolvedEffective = editedPolicy.effectiveDate || fmtDate(p.effectiveDate?.toString()) || "";
-    // const resolvedExpiry = editedPolicy.expiryDate || fmtDate(p.expiryDate?.toString()) || "";
-    // const newCovLen = calculateDays(resolvedEffective, resolvedExpiry);
-
-    // if (
-    //     newCovLen < originalCovLen &&
-    //     p.status === "SOLD" &&
-    //     p.paymentOption !== "monthly-installments"
-    // ) {
-    //     // Coverage decreased — show refund modal
-    //     const refundCalc = await calculateRefund(
-    //         id!,
-    //         fmtDate(p.expiryDate?.toString()),
-    //         resolvedExpiry,
-    //          Number(p.premium) || 0,
-    //         originalCovLen,
-    //     );
-
-    //     if (refundCalc) {
-    //         setRefundData({
-    //             originalExpiryDate: fmtDate(p.expiryDate?.toString()),
-    //             newExpiryDate: resolvedExpiry,
-    //             ...refundCalc,
-    //         });
-    //         setShowRefundModal(true);
-    //         return;
-    //     }
-    // }
-
-    // // Coverage unchanged or increased — backend handles charge
-    // await performSave();
+   
 
     ////////////////////================
 
@@ -1051,6 +980,142 @@ const PolicyDetailsPage: React.FC = () => {
     const datesChanged =
       resolvedEffective !== fmtDate(p.effectiveDate?.toString()) ||
       resolvedExpiry !== fmtDate(p.expiryDate?.toString());
+
+
+
+      // ===================
+
+      // Product 3: applicantTravelThroughUs change affects premium
+if (
+  p.product === "RIMI_CANUCK_VOYAGE_TRAVEL_MEDICAL" &&
+  p.status === "SOLD" &&
+  !datesChanged
+) {
+  const travelThroughUsChanged =
+    (editedPolicy.applicantTravelThroughUs !== undefined &&
+      editedPolicy.applicantTravelThroughUs !== p.applicantTravelThroughUs) ||
+    (editedPolicy.travelingThroughUS !== undefined &&
+      editedPolicy.travelingThroughUS !== p.applicantTravelThroughUs);
+
+  if (travelThroughUsChanged) {
+    const preview = await calculateModificationPreview(
+      id!,
+      resolvedEffective,
+      resolvedExpiry,
+      {
+        applicantTravelThroughUs:
+          editedPolicy.applicantTravelThroughUs ??
+          editedPolicy.travelingThroughUS ??
+          p.applicantTravelThroughUs,
+      },
+    );
+
+    if (!preview) {
+      triggerNotification({
+        message: t("Failed to calculate premium preview. Please try again."),
+        type: "error",
+      });
+      return;
+    }
+
+    if (preview.difference > 0) {
+      setRefundData({
+        originalExpiryDate: resolvedExpiry,
+        newExpiryDate: resolvedExpiry,
+        daysToRefund: 0,
+        maxRefundable: preview.difference,
+      });
+      setShowRefundModal(true);
+      return;
+    }
+
+    if (preview.difference < 0) {
+      setChargeData({
+        chargeAmount: Math.abs(preview.difference),
+        originalPremium: preview.originalPremium,
+        newPremium: preview.newPremium,
+        premiumDifference: preview.difference,
+      });
+      setShowChargeModal(true);
+      return;
+    }
+
+    // No premium change — still need to save
+    setShowModificationConfirmModal(true);
+    return;
+  }
+}
+
+// ====================
+
+    // Product 4: non-date field changes that affect premium
+    if (
+      p.product === "RIMI_CANUCK_VOYAGE_NON_MEDICAL_TRAVEL" &&
+      p.status === "SOLD" &&
+      !datesChanged
+    ) {
+      const tripCostChanged =
+        editedPolicy.tripCost !== undefined &&
+        editedPolicy.tripCost !== p.tripCost;
+      const deluxeChanged =
+        editedPolicy.tripCancellationDeluxe !== undefined &&
+        editedPolicy.tripCancellationDeluxe !== p.tripCancellationDeluxe;
+
+      if (tripCostChanged || deluxeChanged) {
+        const resolvedEffective = fmtDate(p.effectiveDate?.toString()) || "";
+        const resolvedExpiry = fmtDate(p.expiryDate?.toString()) || "";
+
+        const preview = await calculateModificationPreview(
+          id!,
+          resolvedEffective,
+          resolvedExpiry,
+          {
+            tripCost: editedPolicy.tripCost ?? p.tripCost,
+            tripCancellationDeluxe:
+              editedPolicy.tripCancellationDeluxe ?? p.tripCancellationDeluxe,
+          },
+        );
+
+        if (!preview) {
+          triggerNotification({
+            message: t(
+              "Failed to calculate premium preview. Please try again.",
+            ),
+            type: "error",
+          });
+          return;
+        }
+
+        if (preview.difference > 0) {
+          setRefundData({
+            originalExpiryDate: resolvedExpiry,
+            newExpiryDate: resolvedExpiry,
+            daysToRefund: 0,
+            maxRefundable: preview.difference,
+          });
+          setShowRefundModal(true);
+          return;
+        }
+
+        if (preview.difference < 0) {
+          setChargeData({
+            chargeAmount: Math.abs(preview.difference),
+            originalPremium: preview.originalPremium,
+            newPremium: preview.newPremium,
+            premiumDifference: preview.difference,
+          });
+          setShowChargeModal(true);
+          return;
+        }
+
+        // No premium change — still need to save the field changes
+        setShowModificationConfirmModal(true);
+        return;
+      }
+    }
+
+    // No date changes, no premium-affecting field changes — save directly
+    // await performSave();
 
     if (datesChanged && p.status === "SOLD") {
       // Block monthly date changes immediately with clear message
@@ -1145,6 +1210,7 @@ const PolicyDetailsPage: React.FC = () => {
       city: editedPolicy.city || p.city!,
       province: editedPolicy.province || p.province!,
       countryCode: editedPolicy.countryCode || p.countryCode!,
+      countryOfOrigin: editedPolicy.countryOfOrigin ?? p.countryOfOrigin,
       postalCode: editedPolicy.postalCode || p.postalCode!,
       expiryDate: editedPolicy.expiryDate || fmtDate(p.expiryDate?.toString()),
       destination: String(
@@ -1177,8 +1243,12 @@ const PolicyDetailsPage: React.FC = () => {
         editedPolicy.applicantOnSuperVisa || p.applicantOnSuperVisa,
       travelingThroughUS:
         editedPolicy.travelingThroughUS || p.travelingThroughUS,
+      // applicantTravelThroughUs:
+      //   editedPolicy.applicantTravelThroughUs || p.applicantTravelThroughUs,
       applicantTravelThroughUs:
-        editedPolicy.applicantTravelThroughUs || p.applicantTravelThroughUs,
+  editedPolicy.applicantTravelThroughUs ??
+  p.applicantTravelThroughUs,
+      
       usTravelDays: editedPolicy.usTravelDays ?? p.usTravelDays,
       numberOfDaysPerTrip:
         editedPolicy.numberOfDaysPerTrip ?? p.numberOfDaysPerTrip,

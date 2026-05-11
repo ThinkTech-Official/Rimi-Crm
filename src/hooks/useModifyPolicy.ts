@@ -74,6 +74,8 @@ export interface ModifyPolicyData {
   premiumDifference?: number;
   premiumRecalculation?: PremiumRecalculation;
   lastKnownUpdatedAt: string;
+
+  countryOfOrigin?: string;
 }
 
 export const useModifyPolicy = () => {
@@ -154,6 +156,7 @@ export const useModifyPolicy = () => {
     policyId: string,
     newEffectiveDate: string,
     newExpiryDate: string,
+    overrides?: { tripCost?: number; tripCancellationDeluxe?: boolean; applicantTravelThroughUs?: string },
   ): Promise<{
     success: boolean;
     originalPremium: number;
@@ -171,6 +174,7 @@ export const useModifyPolicy = () => {
         {
           newEffectiveDate,
           newExpiryDate,
+          ...overrides,
         },
       );
       return response.data;
