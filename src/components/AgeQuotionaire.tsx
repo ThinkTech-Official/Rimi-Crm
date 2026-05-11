@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useLanguage } from "../context/LanguageContext";
 
 const questions = [
   {
@@ -77,6 +78,7 @@ const AgeQuestionaire = ({
   setApplicants,
   currentIdx,
 }: Props) => {
+  const { t } = useLanguage();
   const [responses, setResponses] = useState<{ [key: number]: string }>({});
 
   const handleOptionChange = (index: number, answer: string) => {
@@ -126,10 +128,10 @@ const AgeQuestionaire = ({
       <div className="bg-white max-w-2xl w-full flex flex-col max-h-[90%] overflow-auto custom-scrollbar3 p-6 shadow-lg">
         <div className="border-b border-inputBorder">
           <h1 className="text-2xl font-semibold text-gray-900">
-            Health Questionnaire
+            {t("Health Questionnaire")}
           </h1>
           <p className="text-sm text-gray-500 mt-1 mb-1">
-            Please answer all questions carefully.
+            {t("Please answer all questions carefully.")}
           </p>
         </div>
 
@@ -137,7 +139,7 @@ const AgeQuestionaire = ({
           {questions.map((q, i) => (
             <li key={i} className="mb-4">
               <h2 className="font-medium mb-2 text-text-primary">
-                {q.question}
+                {t(q.question)}
               </h2>
               <ul className="flex gap-4 items-center">
                 {q.options.map((option, optionIndex) => (
@@ -151,7 +153,7 @@ const AgeQuestionaire = ({
                         className="accent-primary"
                       />
 
-                      <span className="ml-2">{option}</span>
+                      <span className="ml-2">{t(option)}</span>
                     </label>
                   </li>
                 ))}
@@ -165,10 +167,10 @@ const AgeQuestionaire = ({
             onClick={closeModal}
             className="w-32 border border-inputBorder hover:border-gray-700 transition delay-100 cursor-pointer"
           >
-            Cancel
+            {t("Cancel")}
           </button>
           <button onClick={handleSubmit} className="w-32 btn-primary">
-            Submit
+            {t("Submit")}
           </button>
         </div>
       </div>

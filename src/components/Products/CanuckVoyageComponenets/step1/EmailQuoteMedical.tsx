@@ -36,13 +36,13 @@ const EmailQuoteMedical = ({
         {/* Modal Header */}
         <div className="px-6 py-4 border-b border-inputBorder">
           <h2 className="text-xl font-bold text-primary text-center">
-            Email Quote Preview
+            {t("Email Quote Preview")}
           </h2>
         </div>
 
         {/* Email Input */}
         <div className="px-6 py-4">
-          <label className="block text-sm mb-1">Recipient Email</label>
+          <label className="block text-sm mb-1">{t("Recipient Email")}</label>
           <input
             type="email"
             placeholder={t("Enter email address")}
@@ -57,22 +57,20 @@ const EmailQuoteMedical = ({
           <div className="bg-white p-6 shadow-sm">
             {/* Subject */}
             <p className="mb-4 text-text-primary text-base">
-              <strong>Subject: </strong>
-              {subject}
+              <strong>{t("Subject")}: </strong>
+              {t(subject)}
             </p>
             {/* Greeting */}
-            <p className="mb-4 text-gray-700">Hi,</p>
+            <p className="mb-4 text-gray-700">{t("Hi")},</p>
 
             {/* Email body */}
             <p className="mb-4 text-gray-700">
-              Thank you for requesting a quote with RIMI Insurance. Your quote
-              amount details are provided below. You can view your full quote by
-              clicking the quote number.
+              {t("Thank you for requesting a quote with RIMI Insurance. Your quote amount details are provided below. You can view your full quote by clicking the quote number.")}
             </p>
 
             {/* Quote Number as clickable link */}
             <p className="mb-4 text-gray-700">
-              Quote Number:{" "}
+              {t("Quote Number")}:{" "}
               <a
                 href={quoteLink}
                 target="_blank"
@@ -86,7 +84,7 @@ const EmailQuoteMedical = ({
             <div>
               <div className="space-y-1">
                 <div className="flex justify-between text-base">
-                  <span>Total Premium:</span>
+                  <span>{t("Total Premium")}:</span>
                   <span className="">
                     ${premiumBreakdown.finalPremium.toFixed(2)} CAD
                   </span>
@@ -96,9 +94,9 @@ const EmailQuoteMedical = ({
 
             {/* Footer */}
             <p className="mt-6 text-gray-700">
-              Kind regards,
+              {t("Kind regards")},
               <br />
-              RIMI Insurance Team
+              {t("RIMI Insurance Team")}
             </p>
           </div>
         </div>
@@ -110,7 +108,7 @@ const EmailQuoteMedical = ({
             className="py-2 px-4 border border-inputBorder hover:border-gray-700 cursor-pointer transition delay-100"
             onClick={handleModalClose}
           >
-            Close
+            {t("Close")}
           </button>
           <button
             type="button"
@@ -118,7 +116,7 @@ const EmailQuoteMedical = ({
             onClick={handleSendEmail}
             disabled={sending}
           >
-            {sending ? "Sending..." : "Send Email"}
+            {sending ? t("Sending...") : t("Send Email")}
           </button>
         </div>
       </div>

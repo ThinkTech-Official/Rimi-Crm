@@ -122,7 +122,7 @@ const AddDocument = ({
                 : "text-text-secondary border-inputBorder"
             }`}
           >
-            Add Category
+            {t("Add Category")}
           </button>
         </div>
 
@@ -140,7 +140,7 @@ const AddDocument = ({
               className="input-primary flex items-center justify-center gap-2 cursor-pointer border-2 border-dashed"
             >
               <MdUploadFile size={20} />
-              Choose Files
+              {t("Choose Files")}
               <input
                 type="file"
                 id="fileUpload"
@@ -185,7 +185,7 @@ const AddDocument = ({
                     <button
                       onClick={() => handleDelete(file.id)}
                       className="p-2 text-red-600 cursor-pointer"
-                      aria-label="Delete file"
+                      aria-label={t("Delete file")}
                       disabled={loading}
                     >
                       <MdClose size={20} />
@@ -198,7 +198,7 @@ const AddDocument = ({
             {files.length === 0 && (
               <div className="text-center py-12 text-gray-400">
                 <MdUploadFile size={48} className="mx-auto mb-3 opacity-50" />
-                <p>No files selected</p>
+                <p>{t("No files selected")}</p>
               </div>
             )}
 
@@ -219,7 +219,10 @@ const AddDocument = ({
                   onClick={handleUploadDocuments}
                   disabled={loading}
                 >
-                  {loading ? "Uploading..." : `Upload ${files.length} ${files.length === 1 ? "File" : "Files"}`}
+                  {loading ? t("Uploading...") : t("Upload {{count}} {{files}}", { 
+                    count: String(files.length), 
+                    files: files.length === 1 ? t("File") : t("Files") 
+                  })}
                 </button>
               </div>
             )}
@@ -231,13 +234,13 @@ const AddDocument = ({
           <div className="flex-1 flex flex-col">
             <div className="mb-6">
               <label className="block mb-2 text-sm font-medium text-gray-700">
-                Category Name
+                {t("Category Name")}
               </label>
               <input
                 type="text"
                 value={categoryName}
                 onChange={(e) => setCategoryName(e.target.value)}
-                placeholder="Enter category name"
+                placeholder={t("Enter category name")}
                 className="input-primary w-full"
               />
             </div>
@@ -247,10 +250,10 @@ const AddDocument = ({
                 onClick={handleCancelCategory}
                 className="py-2 px-4 border border-inputBorder hover:border-gray-700 cursor-pointer transition delay-100 w-36"
               >
-                Cancel
+                {t("Cancel")}
               </button>
               <button onClick={handleAddCategory} className="btn-primary w-36">
-                Add Category
+                {t("Add Category")}
               </button>
             </div>
           </div>
