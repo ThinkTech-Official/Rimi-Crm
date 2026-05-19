@@ -1376,13 +1376,14 @@ const Step1STRVCT = ({
                     required: t("Effective Date is required"),
                     validate: (value) => {
                       if (!value) return true;
-                      const today = new Date();
-                      today.setHours(0, 0, 0, 0);
+                      const tomorrow = new Date();
+                      tomorrow.setDate(tomorrow.getDate() + 1);
+                      tomorrow.setHours(0, 0, 0, 0);
                       const selDate = new Date(value);
                       selDate.setHours(0, 0, 0, 0);
                       return (
-                        selDate.getTime() >= today.getTime() ||
-                        t("Effective date cannot be in the past")
+                        selDate.getTime() >= tomorrow.getTime() ||
+                        t("Effective date must be tomorrow or later")
                       );
                     },
                   }}
@@ -1395,7 +1396,11 @@ const Step1STRVCT = ({
                         field.onChange(date);
                         setLastModified("effectiveDate");
                       }}
-                      minDate={new Date()}
+                      minDate={(() => {
+                        const tomorrow = new Date();
+                        tomorrow.setDate(tomorrow.getDate() + 1);
+                        return tomorrow;
+                      })()}
                     />
                   )}
                 />
@@ -1434,7 +1439,13 @@ const Step1STRVCT = ({
                         setLastModified("expiryDate");
                       }}
                       minDate={
-                        effectiveDate ? new Date(effectiveDate) : new Date()
+                        effectiveDate
+                          ? new Date(effectiveDate)
+                          : (() => {
+                              const tomorrow = new Date();
+                              tomorrow.setDate(tomorrow.getDate() + 1);
+                              return tomorrow;
+                            })()
                       }
                     />
                   )}

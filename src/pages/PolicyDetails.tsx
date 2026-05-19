@@ -278,7 +278,15 @@ const PolicyField: React.FC<PolicyFieldProps> = ({
               (activeKey === "expiryDate" && policy.status === "ACTIVE") ||
               (activeKey === "dateOfBirth" && policy.status === "ACTIVE")
             }
-            minDate={activeKey === "effectiveDate" ? new Date() : undefined}
+            minDate={
+              activeKey === "effectiveDate"
+                ? (() => {
+                    const tomorrow = new Date();
+                    tomorrow.setDate(tomorrow.getDate() + 1);
+                    return tomorrow;
+                  })()
+                : undefined
+            }
           />
         </div>
       );
@@ -731,11 +739,18 @@ const PolicyDetailsPage: React.FC = () => {
     }
 
     // 4. Effective Date validation
-    // if (p.status === "SOLD" && editedPolicy.effectiveDate) {
-    //   if (editedPolicy.effectiveDate < today) {
-    //     errors.effectiveDate = t("Effective date cannot be in the past.");
-    //   }
-    // }
+    if (p.status === "SOLD" && editedPolicy.effectiveDate) {
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      tomorrow.setHours(0, 0, 0, 0);
+
+      const selDate = new Date(editedPolicy.effectiveDate);
+      selDate.setHours(0, 0, 0, 0);
+
+      if (selDate.getTime() < tomorrow.getTime()) {
+        errors.effectiveDate = t("Effective date must be tomorrow or later.");
+      }
+    }
 
     // if (
     //   p.status === "ACTIVE" &&
