@@ -1,12 +1,17 @@
 import { useState, useCallback } from 'react';
 import { axiosInstance } from '../utils/axiosInstance';
+import useNotification from './useNotification';
 
-export function useFulfillment(policyId: string) {
+export function useFulfillment(
+  policyId: string,
+  triggerNotification?: (args: any) => void
+) {
   const [preview, setPreview] = useState<{ subject: string; html: string } | null>(null);
   const [loading, setLoading] = useState(false);
-  const [error, setError]     = useState<string|null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const { triggerNotification: localTrigger } = useNotification();
 
-
+  const activeTrigger = triggerNotification || localTrigger;
 
   const fetchPreview = useCallback(async () => {
     setLoading(true);
@@ -29,14 +34,21 @@ export function useFulfillment(policyId: string) {
         await axiosInstance.post(`/policies/${policyId}/fulfillment/send`, {
           to, cc, agentEmail,
         });
-        alert('Email sent!');
+        activeTrigger({
+          message: "Email sent!",
+          type: "success",
+        });
       } catch (e: any) {
         setError(e.message);
+        activeTrigger({
+          message: e.message,
+          type: "error",
+        });
       } finally {
         setLoading(false);
       }
     },
-    [policyId]
+    [policyId, activeTrigger]
   );
 
   return { preview, loading, error, fetchPreview, sendMail };

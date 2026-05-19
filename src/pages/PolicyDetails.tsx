@@ -386,7 +386,7 @@ const PolicyDetailsPage: React.FC = () => {
     error: fulError,
     fetchPreview,
     sendMail,
-  } = useFulfillment(id!);
+  } = useFulfillment(id!, triggerNotification);
 
   const [to, setTo] = useState(p?.email || "");
   const [cc, setCc] = useState("");
@@ -2686,6 +2686,7 @@ if (
         onConfirm={handleModificationConfirm}
         loading={modifyLoading}
       />
+      {NotificationComponent}
     </div>
   );
 };
