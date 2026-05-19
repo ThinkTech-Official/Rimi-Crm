@@ -3,12 +3,12 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { useUserDetails } from "../hooks/useUserDetails";
 import { DocumentIcon } from "@heroicons/react/24/outline";
-import { API_BASE } from "../utils/urls";
 import Spinner from "../components/Spinner";
 import { MdCancel } from "react-icons/md";
 import { useForm, Controller } from "react-hook-form";
 import { useLanguage } from "../context/LanguageContext";
 import { getApplicantTypeBadge } from "../utils/getApplicantTypeBadge";
+import useNotification from "../hooks/useNotification";
 
 // Interface for the form data
 export interface UserFormData {
@@ -91,6 +91,7 @@ export default function UserDetails() {
     formState: { errors },
     watch,
   } = useForm<UserFormData>();
+  const { triggerNotification, NotificationComponent } = useNotification();
 
   // Redirect non-admins
   useEffect(() => {
@@ -129,9 +130,16 @@ export default function UserDetails() {
   const onSubmit = async (data: UserFormData) => {
     try {
       await save(data as UserFormData, files);
+      triggerNotification({
+        type: "success",
+        message: t("User details updated successfully"),
+      });
       setIsEditing(false);
     } catch {
-      alert(saveError || t("Save failed"));
+      triggerNotification({
+        type: "error",
+        message: saveError || t("Save failed"),
+      });
     }
   };
 
@@ -192,6 +200,7 @@ export default function UserDetails() {
 
   return (
     <div className="max-w-5xl mx-auto px-2 py-6 sm:p-6 bg-greyBg">
+      {NotificationComponent}
       <h2 className="text-xl font-semibold text-center text-[#3a17c5] mb-4">
         {isEditing ? t("MODIFY USER") : t("VIEW USER")}
       </h2>
