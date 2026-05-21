@@ -80,7 +80,7 @@ export default function UserDetails() {
   const navigate = useNavigate();
   const token = useSelector((state: any) => state.auth.token) as string | null;
   const currentUserType = useSelector(
-    (state: any) => state.auth.user?.userType
+    (state: any) => state.auth.user?.userType,
   ) as string;
   const { user, loading, error, save, saving, saveError } = useUserDetails(id!);
   const {
@@ -143,7 +143,6 @@ export default function UserDetails() {
     }
   };
 
-
   const handleRemoveFile = (fileName: string) => {
     setFiles((prev) => ({
       ...prev,
@@ -158,15 +157,18 @@ export default function UserDetails() {
         <p>{t("Loading...")}</p>
       </div>
     );
-  if (error) return <p className="text-red-500">{t("Error")}: {error}</p>;
+  if (error)
+    return (
+      <p className="text-red-500">
+        {t("Error")}: {error}
+      </p>
+    );
 
   const formData = watch();
 
   const formatDocType = (type: string | undefined, defaultLabel: string) => {
     if (!type) return defaultLabel;
-    return type
-      .replace(/_/g, " ")
-      .replace(/\b\w/g, (l) => l.toUpperCase());
+    return type.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase());
   };
 
   const currentUserPermissions = PERMISSIONS_MAP[formData.userType] || {};
@@ -205,7 +207,9 @@ export default function UserDetails() {
         {isEditing ? t("MODIFY USER") : t("VIEW USER")}
       </h2>
       <div className="bg-white text-center text-text-secondary py-2 mb-4">
-        {t("** Changes to User Type will restore User Permissions to default settings **")}
+        {t(
+          "** Changes to User Type will restore User Permissions to default settings **",
+        )}
       </div>
 
       <div className="flex justify-center sm:justify-end space-x-2 mb-4">
@@ -241,7 +245,7 @@ export default function UserDetails() {
           <span className="px-2.5 py-1 bg-indigo-100 text-indigo-700 text-xs font-bold rounded-full uppercase tracking-wider">
             {formData.userType}
           </span>
-            {getApplicantTypeBadge(formData)}
+          {getApplicantTypeBadge(formData)}
         </div>
         <h3 className="text-primary font-semibold mb-2 capitalize text-lg">
           {t("User Information")}
@@ -534,9 +538,11 @@ export default function UserDetails() {
           {Object.entries(currentUserPermissions).map(([k, v]) => (
             <label key={k} className="block">
               <input type="checkbox" checked={v} disabled className="mr-2" />
-              {t(k
-                .replace(/([A-Z])/g, " $1")
-                .replace(/^./, (s) => s.toUpperCase()))}
+              {t(
+                k
+                  .replace(/([A-Z])/g, " $1")
+                  .replace(/^./, (s) => s.toUpperCase()),
+              )}
             </label>
           ))}
         </div>
@@ -563,27 +569,38 @@ export default function UserDetails() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3 gap-y-1">
           {documentFields.map((doc) => (
             <div key={doc.key} className="flex flex-col gap-2">
-                  <div className="flex items-center gap-1">
-                    <DocumentIcon className="h-4 w-4 text-text-primary" />
-                    <a href={doc.link} target="_blank" rel="noopener noreferrer" className="font-medium text-gray-700 hover:text-primary hover:underline">
-                    {t(doc.label)}
-                  </a>
-                  </div>
-                  {/* {doc.link ? (
-                <div className="flex items-center gap-2">
-                  <DocumentIcon className="h-8 w-8 text-text-primary" />
+              {/* <div className="flex items-center gap-1">
+                <DocumentIcon className="h-4 w-4 text-text-primary" />
+                <a
+                  href={doc.link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-medium text-gray-700 hover:text-primary hover:underline"
+                >
+                  {t(doc.label)}
+                </a>
+              </div> */}
+
+              {doc.link ? (
+                <div className="flex items-center gap-1">
+                  <DocumentIcon className="h-4 w-4 text-text-primary" />
                   <a
-                    href={`${doc.link}`}
+                    href={doc.link}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-text-secondary hover:underline text-sm line-clamp-1"
+                    className="font-medium text-gray-700 hover:text-primary hover:underline"
                   >
-                    {doc.link.split("/").pop()}
+                    {t(doc.label)}
                   </a>
                 </div>
               ) : (
-                <p className="text-gray-400 text-sm">{t("No document attached")}</p>
-              )} */}
+                <div className="flex items-center gap-1">
+                  <DocumentIcon className="h-4 w-4 text-gray-300" />
+                  <span className="text-gray-400 text-sm">
+                    {t(doc.label)} — {t("No document")}
+                  </span>
+                </div>
+              )}
 
               {isEditing && (
                 <div className="mt-2 text-center">
@@ -619,5 +636,3 @@ export default function UserDetails() {
     </div>
   );
 }
-
-
