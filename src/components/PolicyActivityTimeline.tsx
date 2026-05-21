@@ -14,6 +14,7 @@ import {
   MdCreditCard,
 } from "react-icons/md";
 import { formatDate } from "../utils/dateUtils";
+import { useLanguage } from "../context/LanguageContext";
 
 interface ActivityTimelineProps {
   activities: PolicyActivity[];
@@ -26,6 +27,8 @@ export const PolicyActivityTimeline: React.FC<ActivityTimelineProps> = ({
   loading,
   error,
 }) => {
+  const { t } = useLanguage();
+
   /**
    * Get icon and color for activity type
    */
@@ -109,7 +112,7 @@ export const PolicyActivityTimeline: React.FC<ActivityTimelineProps> = ({
       <div className="flex flex-col items-center justify-center py-12 gap-3">
         <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
         <p className="text-sm font-medium text-text-secondary">
-          Loading history...
+          {t("Loading history...")}
         </p>
       </div>
     );
@@ -120,7 +123,7 @@ export const PolicyActivityTimeline: React.FC<ActivityTimelineProps> = ({
       <div className="bg-red-50 border border-red-200 p-6 flex flex-col items-center text-center">
         <MdCancel className="text-4xl text-red-500 mb-2" />
         <h4 className="font-semibold text-red-900 mb-1">
-          Error Loading History
+          {t("Error Loading History")}
         </h4>
         <p className="text-sm text-red-700">{error}</p>
       </div>
@@ -132,7 +135,7 @@ export const PolicyActivityTimeline: React.FC<ActivityTimelineProps> = ({
       <div className="text-center py-12 bg-gray-50/50 border border-dashed border-gray-300">
         <MdInfo className="text-4xl text-gray-300 mx-auto mb-2" />
         <p className="text-gray-500 font-medium">
-          No activity history recorded for this policy.
+          {t("No activity history recorded for this policy.")}
         </p>
       </div>
     );
@@ -159,7 +162,7 @@ export const PolicyActivityTimeline: React.FC<ActivityTimelineProps> = ({
                     {style.icon}
                   </div>
                   <h4 className="font-bold text-gray-900">
-                    {formatActivityType(activity.activityType)}
+                    {t(formatActivityType(activity.activityType))}
                   </h4>
                 </div>
                 <time className="text-xs font-medium text-gray-400">
@@ -205,17 +208,17 @@ export const PolicyActivityTimeline: React.FC<ActivityTimelineProps> = ({
                           return (
                             <div key={key} className="space-y-2">
                               <span className="text-[10px] uppercase font-bold text-gray-400 tracking-wider">
-                                Changed Fields
+                                {t("Changed Fields")}
                               </span>
                               <div className="bg-white rounded border border-gray-200 overflow-hidden">
                                 <table className="w-full text-sm">
                                   <thead className="bg-gray-50 border-b border-gray-200">
                                     <tr>
                                       <th className="px-3 py-2 text-left text-xs font-semibold text-gray-600">
-                                        Field
+                                        {t("Field")}
                                       </th>
                                       <th className="px-3 py-2 text-left text-xs font-semibold text-gray-600">
-                                        New Value
+                                        {t("New Value")}
                                       </th>
                                     </tr>
                                   </thead>
@@ -228,7 +231,7 @@ export const PolicyActivityTimeline: React.FC<ActivityTimelineProps> = ({
                                         const formatValue = (val: any) => {
                                           if (val === null || val === undefined)
                                             return "-";
-                                          if (val === "") return "(empty)";
+                                          if (val === "") return `(${t("empty")})`;
                                           // Check if it's a date string
                                           if (
                                             typeof val === "string" &&
@@ -244,10 +247,15 @@ export const PolicyActivityTimeline: React.FC<ActivityTimelineProps> = ({
                                             key={fieldName}
                                             className="hover:bg-gray-50"
                                           >
-                                            <td className="px-3 py-2 font-medium text-gray-700 capitalize">
-                                              {fieldName
-                                                .replace(/([A-Z])/g, " $1")
-                                                .trim()}
+                                            <td className="px-3 py-2 font-medium text-gray-700">
+                                              {t(
+                                                fieldName
+                                                  .replace(/([A-Z])/g, " $1")
+                                                  .trim()
+                                                  .split(" ")
+                                                  .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+                                                  .join(" ")
+                                              )}
                                             </td>
                                             <td className="px-3 py-2 text-gray-900 font-medium">
                                               {formatValue(newValue)}
@@ -291,12 +299,12 @@ export const PolicyActivityTimeline: React.FC<ActivityTimelineProps> = ({
                           return (
                             <div key={key} className="space-y-1">
                               <span className="text-[10px] uppercase font-bold text-gray-400 tracking-wider">
-                                Commission Reversal
+                                {t("Commission Reversal")}
                               </span>
                               <div className="bg-white border border-gray-200 rounded p-3 grid grid-cols-3 gap-3 text-sm">
                                 <div className="text-center">
                                   <div className="text-xs text-gray-500 mb-1">
-                                    Reversed
+                                    {t("Reversed")}
                                   </div>
                                   <div className="text-lg font-bold text-gray-900">
                                     {cr.commissionsReversed ?? 0}
@@ -304,7 +312,7 @@ export const PolicyActivityTimeline: React.FC<ActivityTimelineProps> = ({
                                 </div>
                                 <div className="text-center border-x border-gray-100">
                                   <div className="text-xs text-gray-500 mb-1">
-                                    Total Amount
+                                    {t("Total Amount")}
                                   </div>
                                   <div className="text-lg font-bold text-red-600">
                                     -$
@@ -315,19 +323,19 @@ export const PolicyActivityTimeline: React.FC<ActivityTimelineProps> = ({
                                 </div>
                                 <div className="text-center">
                                   <div className="text-xs text-gray-500 mb-1">
-                                    Agent Balances
+                                    {t("Agent Balances")}
                                   </div>
                                   <div className="text-sm font-medium text-gray-700">
                                     {Object.keys(cr.agentBalances ?? {})
                                       .length === 0
                                       ? "—"
                                       : Object.entries(cr.agentBalances).map(
-                                          ([agent, bal]) => (
-                                            <div key={agent}>
-                                              {agent}: ${Number(bal).toFixed(2)}
-                                            </div>
-                                          ),
-                                        )}
+                                        ([agent, bal]) => (
+                                          <div key={agent}>
+                                            {agent}: ${Number(bal).toFixed(2)}
+                                          </div>
+                                        ),
+                                      )}
                                   </div>
                                 </div>
                               </div>
@@ -345,21 +353,21 @@ export const PolicyActivityTimeline: React.FC<ActivityTimelineProps> = ({
                           return (
                             <div key={key} className="space-y-1">
                               <span className="text-[10px] uppercase font-bold text-gray-400 tracking-wider">
-                                Current Month Refund
+                                {t("Current Month Refund")}
                               </span>
                               <div className="bg-white border border-gray-200 rounded p-3 space-y-2 text-sm">
                                 <div className="flex justify-between items-center">
-                                  <span className="text-gray-500">Month</span>
+                                  <span className="text-gray-500">{t("Month")}</span>
                                   <span className="font-semibold text-gray-900">
                                     {cm.monthName}
                                   </span>
                                 </div>
                                 <div className="flex justify-between items-center">
                                   <span className="text-gray-500">
-                                    Days Used / Unused
+                                    {t("Days Used / Unused")}
                                   </span>
                                   <span className="font-semibold text-gray-900">
-                                    {cm.daysUsed} used · {cm.daysUnused} unused
+                                    {t("{{count}} used", { count: String(cm.daysUsed) })} · {t("{{count}} unused", { count: String(cm.daysUnused) })}
                                   </span>
                                 </div>
                                 {/* Progress bar */}
@@ -370,14 +378,14 @@ export const PolicyActivityTimeline: React.FC<ActivityTimelineProps> = ({
                                       width: `${Math.round(
                                         (cm.daysUsed /
                                           (cm.daysUsed + cm.daysUnused)) *
-                                          100,
+                                        100,
                                       )}%`,
                                     }}
                                   />
                                 </div>
                                 <div className="flex justify-between items-center pt-1 border-t border-gray-100">
                                   <span className="text-gray-500">
-                                    Refund Amount
+                                    {t("Refund Amount")}
                                   </span>
                                   <span className="font-bold text-green-600">
                                     ${Number(cm.amount).toFixed(2)}
@@ -401,18 +409,18 @@ export const PolicyActivityTimeline: React.FC<ActivityTimelineProps> = ({
                           return (
                             <div key={key} className="space-y-1">
                               <span className="text-[10px] uppercase font-bold text-gray-400 tracking-wider">
-                                Prepaid Last Month Refund
+                                {t("Prepaid Last Month Refund")}
                               </span>
                               <div className="bg-white border border-gray-200 rounded p-3 space-y-2 text-sm">
                                 <div className="flex justify-between items-center">
-                                  <span className="text-gray-500">Month</span>
+                                  <span className="text-gray-500">{t("Month")}</span>
                                   <span className="font-semibold text-gray-900">
                                     {pl.monthName}
                                   </span>
                                 </div>
                                 <div className="flex justify-between items-center border-t border-gray-100 pt-2">
                                   <span className="text-gray-500">
-                                    Refund Amount
+                                    {t("Refund Amount")}
                                   </span>
                                   <span className="font-bold text-green-600">
                                     ${Number(pl.amount).toFixed(2)}
@@ -436,12 +444,12 @@ export const PolicyActivityTimeline: React.FC<ActivityTimelineProps> = ({
                           return (
                             <div key={key} className="space-y-1">
                               <span className="text-[10px] uppercase font-bold text-gray-400 tracking-wider">
-                                Fee Allocation
+                                {t("Fee Allocation")}
                               </span>
                               <div className="bg-white border border-gray-200 rounded p-3 space-y-2 text-sm">
                                 <div className="flex justify-between items-center">
                                   <span className="text-gray-500">
-                                    Current Month Refund
+                                    {t("Current Month Refund")}
                                   </span>
                                   <span className="font-semibold text-gray-900">
                                     ${Number(fa.currentMonthRefund).toFixed(2)}
@@ -449,7 +457,7 @@ export const PolicyActivityTimeline: React.FC<ActivityTimelineProps> = ({
                                 </div>
                                 <div className="flex justify-between items-center">
                                   <span className="text-gray-500">
-                                    Prepaid Last Month Refund
+                                    {t("Prepaid Last Month Refund")}
                                   </span>
                                   <span className="font-semibold text-gray-900">
                                     $
@@ -459,20 +467,20 @@ export const PolicyActivityTimeline: React.FC<ActivityTimelineProps> = ({
                                   </span>
                                 </div>
                                 <div className="flex justify-between items-center text-xs text-gray-400">
-                                  <span>Fee from Current</span>
+                                  <span>{t("Fee from Current")}</span>
                                   <span>
                                     -${Number(fa.feeFromCurrent).toFixed(2)}
                                   </span>
                                 </div>
                                 <div className="flex justify-between items-center text-xs text-gray-400">
-                                  <span>Fee from Prepaid</span>
+                                  <span>{t("Fee from Prepaid")}</span>
                                   <span>
                                     -${Number(fa.feeFromPrepaid).toFixed(2)}
                                   </span>
                                 </div>
                                 <div className="flex justify-between items-center border-t border-gray-100 pt-2 font-bold">
                                   <span className="text-gray-700">
-                                    Total Refund
+                                    {t("Total Refund")}
                                   </span>
                                   <span className="text-green-600">
                                     ${Number(fa.totalRefund).toFixed(2)}
@@ -487,7 +495,14 @@ export const PolicyActivityTimeline: React.FC<ActivityTimelineProps> = ({
                         return (
                           <div key={key} className="space-y-1">
                             <span className="text-[10px] uppercase font-bold text-gray-400 tracking-wider">
-                              {key.replace(/([A-Z])/g, " $1").trim()}
+                              {t(
+                                key
+                                  .replace(/([A-Z])/g, " $1")
+                                  .trim()
+                                  .split(" ")
+                                  .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+                                  .join(" ")
+                              )}
                             </span>
                             <div className="text-sm text-gray-800 font-medium break-all">
                               {typeof value === "object" ? (
@@ -514,7 +529,7 @@ export const PolicyActivityTimeline: React.FC<ActivityTimelineProps> = ({
                     <MdPerson className="text-xs" />
                   </div>
                   <span className="text-xs text-gray-500 font-medium">
-                    Performed by:{" "}
+                    {t("Performed by:")}{" "}
                     <span className="text-gray-900 font-bold">
                       {activity.performedByName || activity.performedBy}
                     </span>

@@ -178,21 +178,24 @@ type Props = {
 };
 
 const AdminPolicySalesChart = ({ data }: Props) => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
 
   const rows = useMemo(() => {
     if (!data?.labels?.length || !data?.datasets?.length) return [];
 
     return data.labels.map((label, i) => {
       const row: Record<string, number | string> = {
-        date: new Date(label).toLocaleDateString("en-US", { month: "short", day: "2-digit" }),
+        date: new Date(label).toLocaleDateString(language === "fr" ? "fr-CA" : "en-US", {
+          month: "short",
+          day: "2-digit",
+        }),
       };
       data.datasets.forEach((ds) => {
-        row[ds.label] = Number(ds.data[i] ?? 0);
+        row[t(ds.label)] = Number(ds.data[i] ?? 0);
       });
       return row;
     });
-  }, [data]);
+  }, [data, language, t]);
 
   const isEmpty = rows.length === 0;
 
@@ -223,7 +226,7 @@ const AdminPolicySalesChart = ({ data }: Props) => {
               axisLine={false}
               allowDecimals={false}
               label={{
-                value: "Policies",
+                value: t("Policies"),
                 angle: -90,
                 position: "insideLeft",
                 fill: "#9CA3AF",
@@ -240,7 +243,7 @@ const AdminPolicySalesChart = ({ data }: Props) => {
               axisLine={false}
               tickFormatter={(v) => `$${(v / 1000).toFixed(0)}k`}
               label={{
-                value: "Premium",
+                value: t("Premium"),
                 angle: 90,
                 position: "insideRight",
                 fill: "#9CA3AF",
@@ -255,7 +258,7 @@ const AdminPolicySalesChart = ({ data }: Props) => {
                 fontSize: 12,
               }}
               formatter={(value: any, name: string) =>
-                name === "Total Premium"
+                name === t("Total Premium")
                   ? [`$${Number(value).toLocaleString()}`, name]
                   : [value, name]
               }
@@ -265,7 +268,7 @@ const AdminPolicySalesChart = ({ data }: Props) => {
             />
             <Bar
               yAxisId="count"
-              dataKey="Policy Count"
+              dataKey={t("Policy Count")}
               fill="#1A16F3"
               fillOpacity={0.85}
               radius={[2, 2, 0, 0]}
@@ -273,7 +276,7 @@ const AdminPolicySalesChart = ({ data }: Props) => {
             />
             <Line
               yAxisId="premium"
-              dataKey="Total Premium"
+              dataKey={t("Total Premium")}
               stroke="#EAB308"
               strokeWidth={2}
               dot={{ r: 3, fill: "#EAB308" }}

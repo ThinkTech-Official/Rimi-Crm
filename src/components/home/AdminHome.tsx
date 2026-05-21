@@ -598,6 +598,7 @@ if (statsLoading) {
 // Chart wrapper components that fetch their own data
 function QuotesAnalysisChart() {
   const { data, isLoading, error } = useQuotesAnalysis();
+  const { t } = useLanguage();
 
   if (isLoading)
     return (
@@ -606,12 +607,13 @@ function QuotesAnalysisChart() {
       </div>
     );
   if (error)
-    return <div className="text-red-500">Failed to load quotes analysis</div>;
+    return <div className="text-red-500">{t("Failed to load quotes analysis")}</div>;
 
   return <QuotesAnalysis data={data} />;
 }
 
 function PolicyAnalysisChart() {
+  const { t } = useLanguage();
   const { data, isLoading, error } = usePolicyAnalysis();
 
   if (isLoading)
@@ -621,12 +623,13 @@ function PolicyAnalysisChart() {
       </div>
     );
   if (error)
-    return <div className="text-red-500">Failed to load policy analysis</div>;
+    return <div className="text-red-500">{t("Failed to load policy analysis")}</div>;
 
   return <PolicyAnalysis data={data} />;
 }
 
 function QuotesVsPolicyConversionChart() {
+  const { t } = useLanguage();
   const { data, isLoading, error } = useQuotesPolicyConversion();
 
   if (isLoading)
@@ -636,12 +639,13 @@ function QuotesVsPolicyConversionChart() {
       </div>
     );
   if (error)
-    return <div className="text-red-500">Failed to load conversion data</div>;
+    return <div className="text-red-500">{t("Failed to load conversion data")}</div>;
 
   return <QuotesVsPolicyConversion data={data} />;
 }
 
 function AgentTypesMonthlyChart() {
+  const { t } = useLanguage();
   const { data, isLoading, error } = useAgentTypesMonthly();
 
   if (isLoading)
@@ -651,12 +655,13 @@ function AgentTypesMonthlyChart() {
       </div>
     );
   if (error)
-    return <div className="text-red-500">Failed to load agent types data</div>;
+    return <div className="text-red-500">{t("Failed to load agent types data")}</div>;
 
   return <MultiLineChart data={data} />;
 }
 
 function PolicySalesChart() {
+  const { t } = useLanguage();
   const { data, isLoading, error } = usePolicySales();
 
   if (isLoading)
@@ -666,7 +671,7 @@ function PolicySalesChart() {
       </div>
     );
   if (error)
-    return <div className="text-red-500">Failed to load sales data</div>;
+    return <div className="text-red-500">{t("Failed to load sales data")}</div>;
 
   return <AdminPolicySalesChart data={data} />;
 }

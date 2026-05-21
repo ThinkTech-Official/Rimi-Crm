@@ -156,6 +156,7 @@
   "Loading quote summary…": "Chargement du résumé du devis...",
   "Error fetching quote details": "Erreur lors de la récupération des détails du devis",
   "No data to display.": "Aucune donnée à afficher.",
+  "No data": "Aucune donnée",
   "Primary Email": "Courriel principal",
   "Secondary Email": "Courriel secondaire",
   "Primary Phone": "Téléphone principal",
@@ -814,5 +815,9 @@
   "In the 12 months prior to your effective date have you been diagnosed with or been treated for internal bleeding?": "Au cours des 12 mois précédant votre date d'effet, avez-vous reçu un diagnostic ou avez-vous été traité pour une hémorragie interne ?",
   "Health Questionnaire": "Questionnaire de santé",
   "Please answer all questions carefully.": "Veuillez répondre attentivement à toutes les questions.",
-  "Download CSV": "Télécharger le CSV"
+  "Download CSV": "Télécharger le CSV",
+  "No activity history recorded for this policy.": "Aucun historique d'activité n'a été enregistré pour cette police.",
+  "Loading history...": "Chargement de l'historique...",
+  "Last updated": "Dernière mise à jour",
+  "Policy Count": "Nombre de polices"
 }

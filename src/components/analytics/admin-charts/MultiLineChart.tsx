@@ -184,6 +184,7 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import type { ChartData } from "../../../hooks/admin-dashboard"; 
+import { useLanguage } from "../../../context/LanguageContext";
 
 type Props = {
   data?: ChartData; // from useAgentTypesMonthly()
@@ -197,6 +198,7 @@ const pctChange = (curr: number, prev: number) => {
 };
 
 const MultiLineChart = ({ data }: Props) => {
+  const { t } = useLanguage();
   const [chartHeight, setChartHeight] = useState(500);
 
   // Recharts rows: [{ labelKey, <dataset.label>: value, ... }]
@@ -268,7 +270,7 @@ const MultiLineChart = ({ data }: Props) => {
         {/* Summary cards (top 3 series) */}
         <div className="flex justify-between items-center p-6 px-3 bg-[#F8FAFC] mb-5">
           {cards.length === 0 ? (
-            <div className="text-gray-500">No data</div>
+            <div className="text-gray-500">{t("No data")}</div>
           ) : (
             cards.map((c, i) => (
               <div
@@ -307,7 +309,7 @@ const MultiLineChart = ({ data }: Props) => {
         <div className="w-full" style={{ paddingRight: 10 }}>
           {isEmpty ? (
             <div className="h-[300px] flex items-center justify-center text-gray-500">
-              No data available
+              {t("No data available")}
             </div>
           ) : (
             <ResponsiveContainer width="100%" height={chartHeight}>

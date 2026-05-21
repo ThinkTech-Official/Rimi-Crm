@@ -127,7 +127,7 @@ const TripCalculator: React.FC = () => {
           <Controller
             name="startDate"
             control={control}
-            rules={{ required: t("Start Date is required") }}
+            rules={{ required: t("Start date is required") }}
             render={({ field }) => (
               <DatePicker
                 label={t("Start Date")}
@@ -143,7 +143,7 @@ const TripCalculator: React.FC = () => {
             <Controller
               name="endDate"
               control={control}
-              rules={{ required: t("End Date is required") }}
+              rules={{ required: t("End date is required") }}
               render={({ field }) => (
                 <DatePicker
                   label={t("End Date")}

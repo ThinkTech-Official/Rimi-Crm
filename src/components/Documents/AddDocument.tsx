@@ -32,7 +32,20 @@ const AddDocument = ({
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;
 
-    const newFiles = Array.from(e.target.files).map((file) => ({
+    const maxSize = 10 * 1024 * 1024; // 10MB
+    const selectedFiles = Array.from(e.target.files);
+    const validFiles = selectedFiles.filter((file) => file.size <= maxSize);
+
+    if (validFiles.length < selectedFiles.length) {
+      triggerNotification({
+        type: "error",
+        message: t("File size should not exceed 10MB"),
+      });
+    }
+
+    if (validFiles.length === 0) return;
+
+    const newFiles = validFiles.map((file) => ({
       id: Math.random().toString(36).substr(2, 9),
       file: file,
       name: file.name,
@@ -80,7 +93,7 @@ const AddDocument = ({
       console.error("Upload failed:", err);
       triggerNotification({
         type: "error",
-        message: err.message || t("Upload failed"),
+        message: t(err.response.data.message || "Upload failed"),
       });
     }
   };
@@ -100,11 +113,6 @@ const AddDocument = ({
         <h2 className="text-xl font-bold mb-6">{t("Add Document")}</h2>
 
         <div className="flex-1 flex flex-col overflow-hidden">
-          {error && (
-            <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 text-sm">
-              {t(error)}
-            </div>
-          )}
 
           <label
             htmlFor="fileUpload"
@@ -189,7 +197,7 @@ const AddDocument = ({
                 {t("close")}
               </button>
               <button
-                className="btn-primary w-36"
+                className="btn-primary min-w-36 text-nowrap"
                 onClick={handleUploadDocuments}
                 disabled={loading}
               >
