@@ -354,7 +354,7 @@ export default function UserDetails() {
                   message: t("Invalid email address"),
                 },
               })}
-              disabled={!isEditing}
+              disabled={true}
               className="input-primary"
             />
             {errors.email && (
