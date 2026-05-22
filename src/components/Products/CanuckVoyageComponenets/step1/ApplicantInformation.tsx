@@ -321,7 +321,7 @@ export default function ApplicantInformation({
           <input
             className="input-primary"
             type="email"
-            placeholder={t("Enter Email Address")}
+            placeholder={t("Enter email address")}
             {...register("primaryEmail", {
               setValueAs: (value: any) => value?.trim()?.toLowerCase() || "",
               required: t("Email is required"),

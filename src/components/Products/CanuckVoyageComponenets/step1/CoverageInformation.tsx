@@ -922,7 +922,7 @@ export default function CoverageInformation({
                 required: t("Destination Country is required"),
               })}
             >
-              <option value="">Please select</option>
+              <option value="">{t("Please select")}</option>
               <option value="Afghanistan">Afghanistan</option>
               <option value="Åland Islands">Åland Islands</option>
               <option value="Albania">Albania</option>

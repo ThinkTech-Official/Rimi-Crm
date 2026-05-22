@@ -819,5 +819,10 @@
   "No activity history recorded for this policy.": "Aucun historique d'activité n'a été enregistré pour cette police.",
   "Loading history...": "Chargement de l'historique...",
   "Last updated": "Dernière mise à jour",
-  "Policy Count": "Nombre de polices"
+  "Policy Count": "Nombre de polices",
+  "Cancel the Stripe subscription": "Annuler l'abonnement Stripe",
+  "Keep your coverage through the last paid period": "Maintenez votre couverture jusqu'à la dernière période payée",
+  "Cancelling will:": "Annuler l'abonnement :",
+  "Cancellation Fee (CAD)": "Frais d'annulation (CAD)",
+  "Please fill all fields correctly before saving.": "Veuillez remplir tous les champs correctement avant de sauvegarder."
 }
