@@ -114,7 +114,7 @@ export function useUserDetails(id: string): UseUserDetailsResult {
 
       Object.entries(files).forEach(([key, file]) => {
         if (file) {
-          const index = key.replace("doc", ""); 
+          const index = key.replace("doc", "");
           fd.append(`document${index}`, file);
         }
       });
@@ -123,7 +123,8 @@ export function useUserDetails(id: string): UseUserDetailsResult {
         const res = await axiosInstance.put(`/auth/update-user/${id}`, fd);
         setUser(res.data.user);
       } catch (err: any) {
-        setSaveError(err.message);
+        console.log(err)
+        setSaveError(err?.response?.data?.message || err?.message || "Something went wrong");
         throw err;
       } finally {
         setSaving(false);

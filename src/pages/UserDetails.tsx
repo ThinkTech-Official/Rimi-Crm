@@ -121,9 +121,23 @@ export default function UserDetails() {
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, files: fileList } = e.target;
+    const file = fileList && fileList[0] ? fileList[0] : null;
+
+    if (file) {
+      const fileSizeInMB = file.size / (1024 * 1024);
+      if (fileSizeInMB > 10) {
+        triggerNotification({
+          type: "error",
+          message: t("File size must not exceed 10MB"),
+        });
+        e.target.value = "";
+        return;
+      }
+    }
+
     setFiles((prev) => ({
       ...prev,
-      [name]: fileList && fileList[0] ? fileList[0] : null,
+      [name]: file,
     }));
   };
 
@@ -134,11 +148,19 @@ export default function UserDetails() {
         type: "success",
         message: t("User details updated successfully"),
       });
+      setFiles({
+        doc1: null,
+        doc2: null,
+        doc3: null,
+        doc4: null,
+      })
       setIsEditing(false);
-    } catch {
+    } catch (err: any) {
+      const errorMessage =
+        err?.response?.data?.message || err?.message || t("Save failed");
       triggerNotification({
         type: "error",
-        message: saveError || t("Save failed"),
+        message: errorMessage,
       });
     }
   };
@@ -215,8 +237,18 @@ export default function UserDetails() {
       <div className="flex justify-center sm:justify-end space-x-2 mb-4">
         {isEditing ? (
           <>
-            <button onClick={handleSubmit(onSubmit)} className="btn-primary">
-              {t("Save Changes")}
+            <button
+              onClick={handleSubmit(onSubmit)}
+              className="btn-primary flex items-center justify-center gap-2"
+              disabled={saving}
+            >
+              {saving ? (
+                <>
+                  {t("Saving...")}
+                </>
+              ) : (
+                t("Save Changes")
+              )}
             </button>
             <button
               onClick={() => {
@@ -227,7 +259,8 @@ export default function UserDetails() {
                 });
                 setIsEditing(false);
               }}
-              className="px-4 py-2 bg-white border border-inputBorder text-gray-700 hover:border-gray-600 transition cursor-pointer"
+              disabled={saving}
+              className="px-4 py-2 bg-white border border-inputBorder text-gray-700 hover:border-gray-600 transition cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {t("Discard Changes")}
             </button>

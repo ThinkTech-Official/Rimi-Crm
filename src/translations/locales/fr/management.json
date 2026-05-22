@@ -547,7 +547,7 @@
   "S.No.": "N°",
   "Invalid file type. Allowed: PDF, Image, CSV, Word, PowerPoint": "Type de fichier invalide. Autorisé : PDF, Image, CSV, Word, PowerPoint",
   "Invalid file type. Only PDF, JPG, JPEG, and PNG are allowed.": "Type de fichier invalide. Autorisé : PDF, JPG, JPEG et PNG",
-  "File size must not exceed 10MB": "La taille du fichier ne doit pas dépasser 10 Mo",
+  "File size must not exceed 10MB": "La taille du fichier ne doit pas dépasser 10 MB",
   "Please check agent code availability first": "Veuillez d'abord vérifier la disponibilité du code d'agent",
   "WFG agents must have user type AGENT": "Les agents WFG doivent avoir le type d'utilisateur AGENT",
   "Please upload all required documents": "Veuillez télécharger tous les documents requis",

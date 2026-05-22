@@ -29,9 +29,8 @@ import PolicyUploader from "./pages/PolicyUploader.tsx";
 import PolicyDetails from "./pages/PolicyDetails.tsx";
 import ImportSalesUpload from "./pages/ImportSalesUpload.tsx";
 import AgentDashboard from "./pages/AgentDashboard.tsx";
-import AgentDetails from "./components/AgentDetails.tsx";
 
-import { LanguageProvider } from "./context/LanguageContext.tsx";
+import { LanguageProvider } from "./context/LanguageContext";
 
 // "build": "tsc -b && vite build",
 
