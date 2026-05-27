@@ -824,5 +824,7 @@
   "Keep your coverage through the last paid period": "Maintenez votre couverture jusqu'à la dernière période payée",
   "Cancelling will:": "Annuler l'abonnement :",
   "Cancellation Fee (CAD)": "Frais d'annulation (CAD)",
-  "Please fill all fields correctly before saving.": "Veuillez remplir tous les champs correctement avant de sauvegarder."
+  "Please fill all fields correctly before saving.": "Veuillez remplir tous les champs correctement avant de sauvegarder.",
+  "Required":"Obligatoire",
+  "Must be at least 1 year from today":"Doit être au moins 1 an à partir d'aujourd'hui"
 }

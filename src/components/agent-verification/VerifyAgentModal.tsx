@@ -2,6 +2,7 @@ import { CalendarIcon, DocumentIcon, ExclamationTriangleIcon, XMarkIcon } from "
 import { MgaOption } from "../../hooks/agent-verification/useMgaCodes";
 import DatePicker from "../DatePicker";
 import { useLanguage } from "../../context/LanguageContext";
+import { useState } from "react";
 
 interface VerificationModalProps {
   selectedAgent: any;
@@ -41,6 +42,13 @@ export default function VerificationModal({
   openDocument,
 }: VerificationModalProps) {
   const { t } = useLanguage();
+  const [errors, setErrors] = useState<{
+    agentCode?: string;
+    commissionPercent?: string;
+    mgaId?: string;
+    validityDate?: string;
+  }>({});
+
   const needsAssignment = selectedAgent.agentCode?.startsWith('TEMP-') || !selectedAgent.commissionPercent;
 
   // Only need MGA assignment for "other" type, NOT for WFG
@@ -49,6 +57,41 @@ export default function VerificationModal({
     (selectedAgent.mgaType === 'other' || selectedAgent.mgaType === null);
 
   const isWfgAgent = selectedAgent.applicantType === 'wfg';
+
+  const onVerifyClick = () => {
+    const newErrors: any = {};
+    let isValid = true;
+
+    if (needsAssignment) {
+      if (!adminAssignments.agentCode) {
+        newErrors.agentCode = t("Required");
+        isValid = false;
+      }
+      if (!isWfgAgent && !adminAssignments.commissionPercent) {
+        newErrors.commissionPercent = t("Required");
+        isValid = false;
+      }
+      if (needsMgaAssignment && !adminAssignments.mgaId) {
+        newErrors.mgaId = t("Required");
+        isValid = false;
+      }
+    }
+    
+    const minRequired = new Date();
+    minRequired.setFullYear(minRequired.getFullYear() + 1);
+    const minRequiredStr = minRequired.toISOString().split('T')[0];
+    if (!isWfgAgent && (!validityDate || validityDate < minRequiredStr)) {
+      newErrors.validityDate = !validityDate ? t("Required") : t("Must be at least 1 year from today");
+      isValid = false;
+    }
+
+    if (isValid) {
+      setErrors({});
+      handleVerifySubmit();
+    } else {
+      setErrors(newErrors);
+    }
+  };
 
   return (
     <div className='fixed flex h-full w-full inset-0 items-center justify-center z-50 bg-black/30 backdrop-blur-sm'>
@@ -252,6 +295,7 @@ export default function VerificationModal({
                           ...adminAssignments,
                           agentCode: e.target.value
                         });
+                        setErrors((prev) => ({ ...prev, agentCode: undefined }));
                       }}
                       placeholder={t("Enter unique agent code")}
                       className="w-full bg-white border border-inputBorder px-4 py-2 focus:border-0 focus:outline-none focus:ring-1 focus:ring-primary text-black/80 placeholder:text-black/50 text-[15px] sm:text-base"
@@ -272,6 +316,7 @@ export default function VerificationModal({
                           agentCodeAvailability.lastChecked === adminAssignments.agentCode && agentCodeAvailability.status === 'taken' ? t('Taken') : t('Check')}
                     </button>
                   </div>
+                  {errors.agentCode && <p className="text-red-500 text-sm mt-1">{errors.agentCode}</p>}
                   {agentCodeAvailability.lastChecked === adminAssignments.agentCode && agentCodeAvailability.status === 'taken' && (
                     <p className="text-red-500 text-sm mt-1">
                       {t("Agent code already in use, please use another code")}
@@ -291,15 +336,19 @@ export default function VerificationModal({
                         min="0"
                         max="100"
                         value={adminAssignments.commissionPercent}
-                        onChange={(e) => setAdminAssignments({
-                          ...adminAssignments,
-                          commissionPercent: e.target.value
-                        })}
+                        onChange={(e) => {
+                          setAdminAssignments({
+                            ...adminAssignments,
+                            commissionPercent: e.target.value
+                          });
+                          setErrors((prev) => ({ ...prev, commissionPercent: undefined }));
+                        }}
                         placeholder={t("e.g., 15.50")}
                         className="w-full bg-white border border-inputBorder px-4 pr-8 py-2 focus:border-0 focus:outline-none focus:ring-1 focus:ring-primary text-black/80 placeholder:text-black/50 text-[15px] sm:text-base"
                       />
                       <span className="absolute right-3 top-2 text-text-secondary">%</span>
                     </div>
+                    {errors.commissionPercent && <p className="text-red-500 text-sm mt-1">{errors.commissionPercent}</p>}
                   </div>
                 )}
 
@@ -330,10 +379,13 @@ export default function VerificationModal({
                                 name="mgaSelection"
                                 value={mga.id}
                                 checked={adminAssignments.mgaId === mga.id}
-                                onChange={(e) => setAdminAssignments({
-                                  ...adminAssignments,
-                                  mgaId: e.target.value
-                                })}
+                                onChange={(e) => {
+                                  setAdminAssignments({
+                                    ...adminAssignments,
+                                    mgaId: e.target.value
+                                  });
+                                  setErrors((prev) => ({ ...prev, mgaId: undefined }));
+                                }}
                                 className="mr-2 text-primary focus:ring-primary"
                               />
                               <span className="text-sm text-text-primary">
@@ -353,6 +405,7 @@ export default function VerificationModal({
                         {mgas.find(m => m.id === adminAssignments.mgaId)?.agentCode || adminAssignments.mgaId}
                       </div>
                     )}
+                    {errors.mgaId && <p className="text-red-500 text-sm mt-1">{errors.mgaId}</p>}
                   </div>
                 )}
               </div>
@@ -375,14 +428,33 @@ export default function VerificationModal({
                 <DatePicker
                   label=""
                   value={validityDate}
-                  onChange={(date: Date) => {
-                    const year = date.getFullYear();
-                    const month = String(date.getMonth() + 1).padStart(2, "0");
-                    const day = String(date.getDate()).padStart(2, "0");
-                    setValidityDate(`${year}-${month}-${day}`);
+                  onChange={(dateOrString: Date | string) => {
+                    if (!dateOrString) {
+                      setValidityDate('');
+                      return;
+                    }
+                    const isoStr = typeof dateOrString === 'string'
+                      ? dateOrString
+                      : (() => {
+                          const year = (dateOrString as Date).getFullYear();
+                          const month = String((dateOrString as Date).getMonth() + 1).padStart(2, "0");
+                          const day = String((dateOrString as Date).getDate()).padStart(2, "0");
+                          return `${year}-${month}-${day}`;
+                        })();
+                    setValidityDate(isoStr);
+                    // Validate: must be at least 1 year from today
+                    const minRequired = new Date();
+                    minRequired.setFullYear(minRequired.getFullYear() + 1);
+                    const minRequiredStr = minRequired.toISOString().split('T')[0];
+                    if (isoStr && isoStr < minRequiredStr) {
+                      setErrors((prev) => ({ ...prev, validityDate: t("Must be at least 1 year from today") }));
+                    } else {
+                      setErrors((prev) => ({ ...prev, validityDate: undefined }));
+                    }
                   }}
                   minDate={new Date()}
                 />
+                {errors.validityDate && <p className="text-red-500 text-sm mt-1">{errors.validityDate}</p>}
               </div>
               <div className="flex gap-2 mt-2">
                 <button
@@ -394,6 +466,7 @@ export default function VerificationModal({
                     const month = String(baseDate.getMonth() + 1).padStart(2, "0");
                     const day = String(baseDate.getDate()).padStart(2, "0");
                     setValidityDate(`${year}-${month}-${day}`);
+                    setErrors((prev) => ({ ...prev, validityDate: undefined }));
                   }}
                   className="px-3 py-1 text-xs font-medium bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100 transition-colors cursor-pointer"
                 >
@@ -408,6 +481,7 @@ export default function VerificationModal({
                     const month = String(baseDate.getMonth() + 1).padStart(2, "0");
                     const day = String(baseDate.getDate()).padStart(2, "0");
                     setValidityDate(`${year}-${month}-${day}`);
+                    setErrors((prev) => ({ ...prev, validityDate: undefined }));
                   }}
                   className="px-3 py-1 text-xs font-medium bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100 transition-colors cursor-pointer"
                 >
@@ -435,8 +509,8 @@ export default function VerificationModal({
             {t("Cancel")}
           </button>
           <button
-            onClick={handleVerifySubmit}
-            disabled={verifying || !validityDate}
+            onClick={onVerifyClick}
+            disabled={verifying}
             className='w-full btn-primary'
           >
             {verifying ? (
