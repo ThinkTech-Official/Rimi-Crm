@@ -164,7 +164,7 @@ export default function CoverageInformation({
                 })}
                 className="input-primary appearance-none cursor-pointer"
               >
-                <option value="">{t("Please select...")}</option>
+                <option value="">{t("Please select")}</option>
                 <option value="standard">{t("Standard")}</option>
                 <option value="enhanced">{t("Enhanced")}</option>
                 <option value="premium">{t("Premium")}</option>

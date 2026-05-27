@@ -444,7 +444,7 @@ export default function Address({ methods }: AddressProps) {
                 required: t("Country is required"),
               })}
             >
-              <option value="">{t("Please select...")}</option>
+              <option value="">{t("Please select")}</option>
               <option value="Canada">{t("Canada")}</option>
               <option value="United States">{t("United States")}</option>
             </select>

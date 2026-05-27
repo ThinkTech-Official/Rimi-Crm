@@ -1,5 +1,5 @@
 export const Countries = [
-  { value: "", label: "Please select..." },
+  { value: "", label: "Please select" },
   { value: "Afghanistan", label: "Afghanistan" },
   { value: "Åland Islands", label: "Åland Islands" },
   { value: "Albania", label: "Albania" },
@@ -246,7 +246,7 @@ export const Countries = [
 ];
 
 export const CanadaStates = [
-  { value: "", label: "Please select..." },
+  { value: "", label: "Please select" },
   { value: "Ontario", label: "Ontario" },
   { value: "British Columbia", label: "British Columbia" },
   { value: "Quebec", label: "Quebec" },
@@ -263,7 +263,7 @@ export const CanadaStates = [
 ];
 
 export const allCoverageOptions = [
-  { value: "", label: "Please select..." },
+  { value: "", label: "Please select" },
   { value: "25000", label: "$25,000.00 CAD" },
   { value: "50000", label: "$50,000.00 CAD" },
   { value: "100000", label: "$100,000.00 CAD" },
@@ -273,7 +273,7 @@ export const allCoverageOptions = [
 ];
 
 export const StudentsToCanadaCountries = [
-  { value: "", label: "Please select..." },
+  { value: "", label: "Please select" },
   { value: "Afghanistan", label: "Afghanistan" },
   { value: "Åland Islands", label: "Åland Islands" },
   { value: "Albania", label: "Albania" },
@@ -520,7 +520,7 @@ export const StudentsToCanadaCountries = [
 ];
 
 export const NonMedTravelCountries = [
-  { value: "", label: "Please select..." },
+  { value: "", label: "Please select" },
   { value: "Afghanistan", label: "Afghanistan" },
   { value: "Åland Islands", label: "Åland Islands" },
   { value: "Albania", label: "Albania" },

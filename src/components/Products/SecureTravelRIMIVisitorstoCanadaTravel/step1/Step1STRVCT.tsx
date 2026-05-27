@@ -791,7 +791,7 @@ const Step1STRVCT = ({
                       onChange={(e) => field.onChange(e.target.value === "yes")}
                       value={field.value ? "yes" : "no"}
                     >
-                      <option value="">{t("Please select")}...</option>
+                      <option value="">{t("Please select")}</option>
                       <option value="yes">{t("Yes")}</option>
                       <option value="no">{t("No")}</option>
                     </select>
@@ -1232,7 +1232,7 @@ const Step1STRVCT = ({
                 label={t("Are applicants currently in Canada?")}
                 info={() => setShowInfoInCanada((prev) => !prev)}
                 options={[
-                  { value: "", label: t("Please select...") },
+                  { value: "", label: t("Please select") },
                   { value: "yes", label: t("Yes") },
                   { value: "no", label: t("No") },
                 ]}
@@ -1290,7 +1290,7 @@ const Step1STRVCT = ({
                   label={t("Are applicants travelling to Canada on a Super Visa?")}
                   info={() => setShowInfoSuperVisa((prev) => !prev)}
                   options={[
-                    { value: "", label: t("Please select...") },
+                    { value: "", label: t("Please select") },
                     { value: "yes", label: t("Yes") },
                     { value: "no", label: t("No") },
                   ]}
@@ -1350,7 +1350,7 @@ const Step1STRVCT = ({
                   <Dropdown
                     label={t("Super Visa Duration")}
                     options={[
-                      { value: "", label: t("Please select...") },
+                      { value: "", label: t("Please select") },
                       { value: "1", label: t("1 year") },
                     ]}
                     {...register("superVisaYears", {
@@ -1483,7 +1483,7 @@ const Step1STRVCT = ({
                   label={t("Policy Type")}
                   info={() => setShowInfoPolicyType((prev) => !prev)}
                   options={[
-                    { value: "", label: t("Please select...") },
+                    { value: "", label: t("Please select") },
                     { value: "standard", label: t("Standard") },
                     { value: "enhanced", label: t("Enhanced") },
                     // { value: 'premium',  label: 'Premium' },
@@ -1540,7 +1540,7 @@ const Step1STRVCT = ({
                     label={t("Deductible")}
                     info={() => setShowInfoDeductible((prev) => !prev)}
                     options={[
-                      { value: "", label: t("Please select...") },
+                      { value: "", label: t("Please select") },
                       ...(anyApplicantOver80
                         ? []
                         : [

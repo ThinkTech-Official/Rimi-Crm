@@ -481,7 +481,7 @@ export default function TripInformation({
                   }}
                   onBlur={field.onBlur}
                 >
-                  <option value="">{t("Please select...")}</option>
+                  <option value="">{t("Please select")}</option>
                   <option value="yes">{t("Yes")}</option>
                   <option value="no">{t("No")}</option>
                 </select>

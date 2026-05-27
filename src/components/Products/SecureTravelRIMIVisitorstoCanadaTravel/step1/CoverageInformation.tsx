@@ -20,7 +20,7 @@ const msPerDay = 1000 * 60 * 60 * 24;
 const today = new Date().toISOString().slice(0, 10);
 
 const allCoverageOptions = [
-  { value: "", label: "Please select..." },
+  { value: "", label: "Please select" },
   { value: "25000", label: "$25,000.00 CAD" },
   { value: "50000", label: "$50,000.00 CAD" },
   { value: "100000", label: "$100,000.00 CAD" },
@@ -154,7 +154,7 @@ export default function CoverageInformation() {
           label={t("Country of Origin")}
           info={() => setShowInfoCountryOfOrigin((prev) => !prev)}
           options={[
-            { value: "", label: t("Please select...") },
+            { value: "", label: t("Please select") },
             { value: "Afghanistan", label: "Afghanistan" },
             { value: "Åland Islands", label: "Åland Islands" },
             { value: "Albania", label: "Albania" },
@@ -407,7 +407,7 @@ export default function CoverageInformation() {
           label={t("Are applicants currently in Canada?")}
           info={() => setShowInfoInCanada((prev) => !prev)}
           options={[
-            { value: "", label: t("Please select...") },
+            { value: "", label: t("Please select") },
             { value: "yes", label: t("Yes") },
             { value: "no", label: t("No") },
           ]}
@@ -457,7 +457,7 @@ export default function CoverageInformation() {
             label={t("Are applicants travelling to Canada on a Super Visa?")}
             info={() => setShowInfoSuperVisa((prev) => !prev)}
             options={[
-              { value: "", label: t("Please select...") },
+              { value: "", label: t("Please select") },
               { value: "yes", label: t("Yes") },
               { value: "no", label: t("No") },
             ]}
@@ -493,7 +493,7 @@ export default function CoverageInformation() {
             <Dropdown
               label={t("Super Visa Duration")}
               options={[
-                { value: "", label: t("Please select...") },
+                { value: "", label: t("Please select") },
                 { value: "1", label: t("1 year") },
               ]}
               value={superVisaYears}
@@ -534,7 +534,7 @@ export default function CoverageInformation() {
             label={t("Policy Type")}
             info={() => setShowInfoPolicyType((prev) => !prev)}
             options={[
-              { value: "", label: t("Please select...") },
+              { value: "", label: t("Please select") },
               { value: "standard", label: t("Standard") },
               { value: "enhanced", label: t("Enhanced") },
               // { value: 'premium',  label: 'Premium' },
@@ -568,7 +568,7 @@ export default function CoverageInformation() {
           label={t("Deductible")}
           info={() => setShowInfoDeductible((prev) => !prev)}
           options={[
-            { value: "", label: t("Please select...") },
+            { value: "", label: t("Please select") },
             { value: "0", label: t("$0.00 CAD") },
             { value: "100", label: t("$100.00 CAD") },
             { value: "250", label: t("$250.00 CAD") },
@@ -644,29 +644,32 @@ const Dropdown: FC<DropdownProps> = ({
   options,
   className = "",
   ...selectProps
-}) => (
-  <div className="flex flex-col gap-2">
-    <label className="flex items-center gap-2 text-gray-700">
-      {info && (
-        <InformationCircleIcon
-          onClick={info}
-          className="h-5 w-5 text-[#3a17c5] cursor-pointer"
-        />
-      )}
-      {label}
-    </label>
-    <select
-      {...selectProps}
-      className={`p-2 border border-[#DBDADE] bg-white text-[#00000080] ${className}`}
-    >
-      {options.map((opt) => (
-        <option key={opt.value} value={opt.value}>
-          {opt.label}
-        </option>
-      ))}
-    </select>
-  </div>
-);
+}) => {
+  const { t } = useLanguage();
+  return (
+    <div className="flex flex-col gap-2">
+      <label className="flex items-center gap-2 text-gray-700">
+        {info && (
+          <InformationCircleIcon
+            onClick={info}
+            className="h-5 w-5 text-[#3a17c5] cursor-pointer"
+          />
+        )}
+        {label}
+      </label>
+      <select
+        {...selectProps}
+        className={`p-2 border border-[#DBDADE] bg-white text-[#00000080] ${className}`}
+      >
+        {options.map((opt) => (
+          <option key={opt.value} value={opt.value}>
+            {t(opt.label)}
+          </option>
+        ))}
+      </select>
+    </div>
+  );
+};
 
 
 interface TextInputProps extends InputHTMLAttributes<HTMLInputElement> {

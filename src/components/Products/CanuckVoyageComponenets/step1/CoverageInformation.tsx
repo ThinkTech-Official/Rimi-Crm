@@ -875,7 +875,7 @@ export default function CoverageInformation({
                   <Dropdown
                     label={t("Number of days per trip")}
                     options={[
-                      { value: "", label: t("Please select...") },
+                      { value: "", label: t("Please select") },
                       { value: "5", label: "5 days" },
                       { value: "10", label: "10 days" },
                       { value: "20", label: "20 days" },
@@ -1292,7 +1292,7 @@ export default function CoverageInformation({
               valueAsNumber: true,
             })}
           >
-            <option value="">{t("Please select...")}</option>
+            <option value="">{t("Please select")}</option>
             <option value={0}>$0.00 CAD</option>
             <option value={250}>$250.00 CAD</option>
             <option value={500}>$500.00 CAD</option>
