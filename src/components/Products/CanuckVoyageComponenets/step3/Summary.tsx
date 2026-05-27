@@ -206,7 +206,7 @@ const Summary: React.FC<SummaryProps> = ({ quoteId }) => {
 
   // Add remaining rows
   quoteRows.push(
-    [t("Deductible"), `${maybe(data.deductible)} ${t("CAD")}`],
+    [t("Deductible"), `$${maybe(data.deductible)} ${t("CAD")}`],
     [t("Province of Residence"), maybe(data.province)]
   );
 
