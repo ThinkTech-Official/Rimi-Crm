@@ -9,6 +9,7 @@ import useNotification from "../hooks/useNotification";
 import { useLanguage } from "../context/LanguageContext";
 import { FaArrowLeftLong } from "react-icons/fa6";
 import LanguageDropdown from "../components/LanguageDropdown";
+import { ALLOWED_FILE_TYPES } from "../components/CreateUser";
 
 const AgentApplicationOpen: React.FC = () => {
   const [passwordVisible, setPasswordVisible] = useState(false);
@@ -98,10 +99,18 @@ const AgentApplicationOpen: React.FC = () => {
     const file = e.target.files?.[0];
     if (file) {
       const maxSize = 10 * 1024 * 1024; // 10MB
+      if (!ALLOWED_FILE_TYPES.includes(file.type)) {
+        triggerNotification({
+          type: "error",
+          message: t("Invalid file type. Allowed: PDF, Image, CSV, Word, PowerPoint"),
+          duration: 5000,
+        });
+        return;
+      }
       if (file.size > maxSize) {
         triggerNotification({
           type: "error",
-          message: t("Something went wrong"), // Generic error for size if not defined specifically
+          message: t("File size should not exceed 10MB"),
           duration: 5000,
         });
         return;
