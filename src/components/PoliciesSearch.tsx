@@ -6,7 +6,6 @@ import {
   SearchPoliciesCriteria,
 } from "../hooks/useSearchPolicies";
 import { Link } from "react-router-dom";
-import { FaAngleDown } from "react-icons/fa";
 import { useForm, Controller } from "react-hook-form";
 import {
   ChevronLeftIcon,
@@ -16,6 +15,7 @@ import { RenderPageNumbers } from "./RenderPageNumbers";
 import DatePicker from "./DatePicker";
 import { isAfterDate, formatDateToDDMMYYYY } from "../utils/dateUtils";
 import useNotification from "../hooks/useNotification";
+import Dropdown from "./DropDown";
 
 const PoliciesSearch: React.FC = () => {
   // const { langauge } = useContext(LangContext);
@@ -42,7 +42,6 @@ const PoliciesSearch: React.FC = () => {
 
   const status = ["All", "Active", "Sold", "Cancelled", "Expired"];
 
-  const [isSelectStatusOpen, setIsSelectStatusOpen] = useState(false);
   const [searchData, setSearchData] = useState<SearchPoliciesCriteria>({
     products: ["All"],
   });
@@ -83,7 +82,6 @@ const PoliciesSearch: React.FC = () => {
       return;
     }
     setSelectedStatus(status);
-    setIsSelectStatusOpen(false);
   };
 
   const onSearch = (formData: SearchPoliciesCriteria) => {
@@ -284,45 +282,26 @@ const PoliciesSearch: React.FC = () => {
           </div>
           {/* Status */}
           <div className="flex flex-col">
-            <label className="text-sm 2xl:text-base">{t("Status")}</label>
-            <div className="relative bg-white">
-              <button
-                type="button"
-                className="w-full border border-inputBorder py-2 sm:py-3 px-4 focus:border-0 focus:ring-1 focus:ring-primary capitalize flex items-center justify-between text-left text-text-light cursor-pointer"
-                onClick={() => setIsSelectStatusOpen((prev) => !prev)}
-              >
-                <span className="capitalize">
-                  {t(selectedStatus) || t("All")}
-                </span>
-                <FaAngleDown
-                  className={`ml-2 cusor-pointer transition-transform ${
-                    isSelectStatusOpen ? "rotate-180" : ""
-                  }`}
+            <Controller
+              name="status"
+              control={control}
+              render={({ field }) => (
+                <Dropdown
+                  {...field}
+                  label={t("Status")}
+                  options={status.map((s) => ({
+                    value: s === "All" ? "" : s,
+                    label: s,
+                  }))}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    handleStatusChange(val || "All");
+                    field.onChange(val);
+                  }}
+                  value={selectedStatus}
                 />
-              </button>
-
-              {isSelectStatusOpen && (
-                <div className="absolute mt-[2px] top-full left-0 w-full bg-white border border-inputBorder shadow-md z-10 max-h-60 overflow-y-auto custom-scrollbar3 pr-[2px]">
-                  {status.map((s, i) => (
-                    <div
-                      key={i}
-                      className={`px-4 py-2 hover:bg-gray-200 text-text-light cursor-pointer capitalize ${
-                        selectedStatus === s
-                          ? "bg-primary text-white hover:bg-gray-200 hover:text-text-light"
-                          : ""
-                      }`}
-                      onClick={() => {
-                        handleStatusChange(s);
-                        setValue("status", s, { shouldValidate: true });
-                        setIsSelectStatusOpen(false);
-                      }}
-                    >
-                      {t(s)}
-                    </div>
-                  ))}
-                </div>
               )}
-            </div>
+            />
           </div>
         </div>
         {/* Product list */}
