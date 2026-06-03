@@ -1007,7 +1007,8 @@ const Step1STRVCT = ({
                     <div className="relative">
                       <select
                         className="input-primary appearance-none cursor-pointer"
-                        {...register(`applicants.${idx}.relation`, {
+                        // {...register(`applicants.${idx}.relation`, {
+                        {...register(`applicants.${idx}.relationship`, {
                           required: t("Relation is required"),
                         })}
                       >
@@ -1025,9 +1026,9 @@ const Step1STRVCT = ({
                         />
                       </div>
                     </div>
-                    {errors.applicants?.[idx]?.relation && (
+                    {errors.applicants?.[idx]?.relationship && (
                       <p className="text-red-500 text-sm mt-1">
-                        {errors.applicants[idx].relation.message}
+                        {errors.applicants[idx].relationship.message}
                       </p>
                     )}
                   </div>

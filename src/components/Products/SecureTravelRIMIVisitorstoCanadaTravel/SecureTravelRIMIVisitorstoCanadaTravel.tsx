@@ -29,7 +29,8 @@ interface Applicant {
   firstName: string;
   lastName: string;
   dob: string;
-  relation: string;
+  // relation: string;
+  relationship: string;
   preMedCoverage: boolean;
   gender: string;
 
