@@ -500,7 +500,7 @@ const PolicyDetailsPage: React.FC = () => {
   const canUpdateCard =
     p.paymentOption === "monthly-installments" &&
     p.status !== "CANCELLED" &&
-    p.stripeSubscriptionScheduleId;
+    p.stripeSubscriptionScheduleId && p.status !== 'PAUSED';
 
   // REnewal Handlers
 
