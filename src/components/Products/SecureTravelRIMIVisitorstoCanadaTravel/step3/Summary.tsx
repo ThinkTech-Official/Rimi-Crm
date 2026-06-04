@@ -47,7 +47,7 @@ const Summary: React.FC<SummaryProps> = ({ quoteId }) => {
     [t("Expiry Date"), formatDate(data.expiryDate)],
     [t("Coverage Length (Days)"), maybe(data.covLen)],
     [t("Policy Type"), t(maybe(data.policyType) as string)],
-    [t("Destination Province"), t(maybe(data.destProv) as string)],
+    [t("Destination Province"), t(maybe(data.destination) as string)],
     [t("In Canada?"), t(maybe(data.applicantInCanada) as string)],
     [t("On Super Visa?"), t(maybe(data.applicantOnSuperVisa) as string)],
   ];
