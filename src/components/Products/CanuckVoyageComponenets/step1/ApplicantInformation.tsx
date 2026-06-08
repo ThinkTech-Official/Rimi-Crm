@@ -471,57 +471,59 @@ export default function ApplicantInformation({
                 </p>
               )}
             </div>
-            <Controller
-              name={`applicants.${idx}.dob`}
-              control={control}
-              rules={{
-                required: t("Date of Birth is required"),
-                validate: (value) => {
-                  if (!value) return true;
-                  const dobDate = new Date(value);
-                  const today = new Date();
-                  today.setHours(0, 0, 0, 0);
-                  if (dobDate > today) return t("Date of birth cannot be in the future");
+            <div className="flex flex-col gap-1">
+              <Controller
+                name={`applicants.${idx}.dob`}
+                control={control}
+                rules={{
+                  required: t("Date of Birth is required"),
+                  validate: (value) => {
+                    if (!value) return true;
+                    const dobDate = new Date(value);
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0);
+                    if (dobDate > today) return t("Date of birth cannot be in the future");
 
-                  const effectiveDate = methods.getValues("effectiveDate");
-                  if (!effectiveDate) return true;
+                    const effectiveDate = methods.getValues("effectiveDate");
+                    if (!effectiveDate) return true;
 
-                  const eff = new Date(effectiveDate);
-                  const dob = new Date(value);
+                    const eff = new Date(effectiveDate);
+                    const dob = new Date(value);
 
-                  const diffTime = eff.getTime() - dob.getTime();
-                  const diffDays = diffTime / (1000 * 60 * 60 * 24);
+                    const diffTime = eff.getTime() - dob.getTime();
+                    const diffDays = diffTime / (1000 * 60 * 60 * 24);
 
-                  if (diffDays < 15) {
-                    return t("Age must be at least 15 days and less than 80 years according to the effective date.");
+                    if (diffDays < 15) {
+                      return t("Age must be at least 15 days and less than 80 years according to the effective date.");
+                    }
+
+                    const eightyYearsLater = new Date(dob);
+                    eightyYearsLater.setFullYear(dob.getFullYear() + 80);
+                    if (eff >= eightyYearsLater) {
+                      return t("Age must be at least 15 days and less than 80 years according to the effective date.");
+                    }
+
+                    return true;
                   }
+                }}
+                render={({ field }) => (
+                  <DatePicker
+                    label={t("Date of Birth")}
+                    value={field.value}
+                    onChange={(date: string) => {
+                      field.onChange(date);
+                    }}
+                    maxDate={new Date()}
+                  />
+                )}
+              />
 
-                  const eightyYearsLater = new Date(dob);
-                  eightyYearsLater.setFullYear(dob.getFullYear() + 80);
-                  if (eff >= eightyYearsLater) {
-                    return t("Age must be at least 15 days and less than 80 years according to the effective date.");
-                  }
-
-                  return true;
-                }
-              }}
-              render={({ field }) => (
-                <DatePicker
-                  label={t("Date of Birth")}
-                  value={field.value}
-                  onChange={(date: string) => {
-                    field.onChange(date);
-                  }}
-                  maxDate={new Date()}
-                />
+              {errors.applicants?.[idx]?.dob && (
+                <p className="text-red-500 text-sm">
+                  {errors.applicants[idx].dob.message}
+                </p>
               )}
-            />
-
-            {errors.applicants?.[idx]?.dob && (
-              <p className="text-red-500 text-sm">
-                {errors.applicants[idx].dob.message}
-              </p>
-            )}
+            </div>
             <div className="flex flex-col">
               <label className="text-sm">{t("Gender")}</label>
               <div className="relative">
