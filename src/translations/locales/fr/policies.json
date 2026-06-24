@@ -200,5 +200,9 @@
   "Fee from Current": "Frais du mois en cours",
   "Fee from Prepaid": "Frais du prépayé",
   "Total Refund": "Remboursement total",
-  "Performed by:": "Effectué par :"
+  "Performed by:": "Effectué par :",
+  "A single policy is for a single person. A family policy is for a family of up to 4 people.":"Une police individuelle est pour une seule personne. Une police familiale est pour une famille comptant jusqu'à 4 personnes.",
+  "The applicant’s country of residence before arriving in Canada.":"Le pays de résidence du demandeur avant son arrivée au Canada.",
+  "Address Line 2 is required":"La ligne d'adresse 2 est requise",
+  "Address is required": "L'adresse est requise"
 }
