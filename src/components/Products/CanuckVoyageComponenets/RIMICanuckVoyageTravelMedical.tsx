@@ -377,7 +377,7 @@ const RIMICanuckVoyageTravelMedical: React.FC = () => {
       destinationCountry: "",
       travelingThroughUS: "",
       usTravelDays: 0,
-      numberOfDaysPerTrip: 0,
+      numberOfDaysPerTrip: undefined,
       deductible: 0,
       agentCode: agentCode!,
       isConfirmed: false,
