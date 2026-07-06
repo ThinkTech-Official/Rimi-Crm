@@ -76,6 +76,9 @@ export interface ModifyPolicyData {
   lastKnownUpdatedAt: string;
 
   countryOfOrigin?: string;
+
+    monthlyCatchUpAmount?: number;
+  
 }
 
 export const useModifyPolicy = () => {
@@ -164,6 +167,16 @@ export const useModifyPolicy = () => {
     difference: number;
     originalCovLen: number;
     newCovLen: number;
+
+        // Monthly-specific  populated when paymentOption = monthly-installments
+    isMonthly?: boolean;
+    catchUpAmount?: number;
+    oldMonthly?: number;
+    newMonthly?: number;
+    oldMonths?: number;
+    newMonths?: number;
+    paidRegularCount?: number;
+
   } | null> => {
     setLoading(true);
     setError(null);

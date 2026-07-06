@@ -49,6 +49,7 @@ import {
 import { RelationToPrimaryApplicant } from "../utils/sharedConstants";
 import ChargeConfirmationModal from "../components/ChargeConfirmationModal";
 import ModificationConfirmModal from "../components/ModificationConfirmModal";
+import MonthlyCatchUpModal from "../components/MonthlyCatchUpModal";
 
 const formatFileSize = (bytes: number): string => {
   if (bytes === 0) return "0 Bytes";
@@ -108,7 +109,7 @@ const EDITABLE_FIELDS = [
   "legalGuardianName",
   "superVisaYears",
   // "applicantTravelThroughUs",
-  // "travelingThroughUS", 
+  // "travelingThroughUS",
 ];
 
 const PRODUCT_RULES: Record<
@@ -274,19 +275,42 @@ const PolicyField: React.FC<PolicyFieldProps> = ({
             onChange={(val) => onFieldChange(activeKey, val)}
             error={error ? t(error) : undefined}
             isDisabled={
-              (activeKey === "effectiveDate" && policy.status === "ACTIVE") ||
-              (activeKey === "expiryDate" && policy.status === "ACTIVE") ||
-              (activeKey === "dateOfBirth" && policy.status === "ACTIVE")
+              // (activeKey === "effectiveDate" && policy.status === "ACTIVE") ||
+              // (activeKey === "expiryDate" && policy.status === "ACTIVE") ||
+              activeKey === "dateOfBirth" && policy.status === "ACTIVE"
             }
+            // minDate={
+            //   activeKey === "effectiveDate"
+            //     ? (() => {
+            //         const tomorrow = new Date();
+            //         tomorrow.setDate(tomorrow.getDate() + 1);
+            //         return tomorrow;
+            //       })()
+            //     : undefined
+            // }
+
+            // ----- new test code -----
+
             minDate={
               activeKey === "effectiveDate"
                 ? (() => {
+                    if (policy.status === "ACTIVE" && policy.effectiveDate) {
+                      // ACTIVE: forward-only slide — minimum is day after current effective date
+                      const currentEff = new Date(
+                        policy.effectiveDate.toString(),
+                      );
+                      currentEff.setDate(currentEff.getDate() + 1);
+                      return currentEff;
+                    }
+                    // SOLD: minimum is tomorrow
                     const tomorrow = new Date();
                     tomorrow.setDate(tomorrow.getDate() + 1);
                     return tomorrow;
                   })()
                 : undefined
             }
+
+            // ------------
           />
         </div>
       );
@@ -451,6 +475,15 @@ const PolicyDetailsPage: React.FC = () => {
   const [showPremiumModal, setShowPremiumModal] = useState(false);
   const [premiumData] = useState<any>(null);
 
+  const [showMonthlyCatchUpModal, setShowMonthlyCatchUpModal] = useState(false);
+  const [monthlyCatchUpModalData, setMonthlyCatchUpModalData] = useState<{
+    catchUpAmount: number;
+    oldMonthly: number;
+    newMonthly: number;
+    paidRegularCount: number;
+    premiumDifference: number;
+  } | null>(null);
+
   const [showRenewalModal, setShowRenewalModal] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [showSendConfirmationModal, setShowSendConfirmationModal] =
@@ -500,7 +533,8 @@ const PolicyDetailsPage: React.FC = () => {
   const canUpdateCard =
     p.paymentOption === "monthly-installments" &&
     p.status !== "CANCELLED" &&
-    p.stripeSubscriptionScheduleId && p.status !== 'PAUSED';
+    p.stripeSubscriptionScheduleId &&
+    p.status !== "PAUSED";
 
   // REnewal Handlers
 
@@ -761,14 +795,44 @@ const PolicyDetailsPage: React.FC = () => {
     //     "Cannot change effective date for active policies.",
     //   );
     // }
+    // if (
+    //   p.status === "ACTIVE" &&
+    //   editedPolicy.effectiveDate &&
+    //   editedPolicy.effectiveDate !== fmtDate(p.effectiveDate?.toString())
+    // ) {
+    //   errors.effectiveDate = t(
+    //     "Effective date cannot be changed for active policies.",
+    //   );
+    // }
+
+    // ACTIVE effective date: slide validation handled together with expiry below
+
+    // ACTIVE: slide-only — same coverage length, forward direction only
     if (
       p.status === "ACTIVE" &&
-      editedPolicy.effectiveDate &&
-      editedPolicy.effectiveDate !== fmtDate(p.effectiveDate?.toString())
+      (editedPolicy.effectiveDate || editedPolicy.expiryDate)
     ) {
-      errors.effectiveDate = t(
-        "Effective date cannot be changed for active policies.",
-      );
+      const origEff = fmtDate(p.effectiveDate?.toString()) || "";
+      const origExp = fmtDate(p.expiryDate?.toString()) || "";
+      const newEff = editedPolicy.effectiveDate || origEff;
+      const newExp = editedPolicy.expiryDate || origExp;
+
+      const origLen = calculateDays(origEff, origExp);
+      const newLen = calculateDays(newEff, newExp);
+
+      if (newLen > origLen) {
+        errors.expiryDate = t(
+          "Coverage length cannot be increased for active policies.",
+        );
+      } else if (newLen < origLen) {
+        errors.expiryDate = t(
+          "Coverage length cannot be reduced for active policies. To process an early return, please use the Cancel Policy action instead.",
+        );
+      } else if (new Date(newEff) < new Date(origEff)) {
+        errors.effectiveDate = t(
+          "Dates can only be moved forward for active policies, not backward.",
+        );
+      }
     }
 
     // Age validation on primary (if DOB or Effective Date changed)
@@ -828,15 +892,18 @@ const PolicyDetailsPage: React.FC = () => {
     //   }
     // }
 
-    if (
-      p.status === "ACTIVE" &&
-      editedPolicy.expiryDate &&
-      editedPolicy.expiryDate !== fmtDate(p.expiryDate?.toString())
-    ) {
-      errors.expiryDate = t(
-        "Expiry date cannot be changed for active policies.",
-      );
-    }
+    // if (
+    //   p.status === "ACTIVE" &&
+    //   editedPolicy.expiryDate &&
+    //   editedPolicy.expiryDate !== fmtDate(p.expiryDate?.toString())
+    // ) {
+    //   errors.expiryDate = t(
+    //     "Expiry date cannot be changed for active policies.",
+    //   );
+    // }
+
+    // Old ACTIVE expiry block removed  slide-only validation now handled
+    // by the new ACTIVE block above which checks covLen and direction correctly.
 
     const resolvedEffective =
       editedPolicy.effectiveDate || fmtDate(p.effectiveDate?.toString()) || "";
@@ -849,19 +916,22 @@ const PolicyDetailsPage: React.FC = () => {
       }
     }
 
-    if (
-      p.product === "SECURE_TRAVEL_RIMI_VISITORS_TO_CANADA_TRAVEL" &&
-      p.paymentOption === "monthly-installments" &&
-      resolvedEffective &&
-      resolvedExpiry
-    ) {
-      const newCovLen = calculateDays(resolvedEffective, resolvedExpiry);
-      if (newCovLen < 365) {
-        errors.expiryDate = t(
-          "Coverage length cannot be reduced below 365 days for monthly installment policies.",
-        );
-      }
-    }
+    // if (
+    //   p.product === "SECURE_TRAVEL_RIMI_VISITORS_TO_CANADA_TRAVEL" &&
+    //   p.paymentOption === "monthly-installments" &&
+    //   resolvedEffective &&
+    //   resolvedExpiry
+    // ) {
+    //   const newCovLen = calculateDays(resolvedEffective, resolvedExpiry);
+    //   if (newCovLen < 365) {
+    //     errors.expiryDate = t(
+    //       "Coverage length cannot be reduced below 365 days for monthly installment policies.",
+    //     );
+    //   }
+    // }
+
+    // RVC Monthly 365-day frontend check removed SOLD has full freedom on length.
+    // Super Visa check above handles the legitimate 365-day constraint.
 
     // 6. Super Visa check
     const newCoverageLength = calculateDays(effectiveDate, expiryDate);
@@ -980,88 +1050,103 @@ const PolicyDetailsPage: React.FC = () => {
       return;
     }
 
-
-
-   
-
     ////////////////////================
 
-    const resolvedEffective =
-      editedPolicy.effectiveDate || fmtDate(p.effectiveDate?.toString()) || "";
-    const resolvedExpiry =
-      editedPolicy.expiryDate || fmtDate(p.expiryDate?.toString()) || "";
+    // const resolvedEffective =
+    //   editedPolicy.effectiveDate || fmtDate(p.effectiveDate?.toString()) || "";
+    // const resolvedExpiry =
+    //   editedPolicy.expiryDate || fmtDate(p.expiryDate?.toString()) || "";
 
-    // Check if dates changed
+    // // Check if dates changed
+    // const datesChanged =
+    //   resolvedEffective !== fmtDate(p.effectiveDate?.toString()) ||
+    //   resolvedExpiry !== fmtDate(p.expiryDate?.toString());
+
+    // ----- New test code ----------
+
+    const resolvedEffective =
+      fmtDate(
+        editedPolicy.effectiveDate?.toString() || p.effectiveDate?.toString(),
+      ) || "";
+    const resolvedExpiry =
+      fmtDate(
+        editedPolicy.expiryDate?.toString() || p.expiryDate?.toString(),
+      ) || "";
+
+    // Check if dates changed — both sides now consistently YYYY-MM-DD
     const datesChanged =
       resolvedEffective !== fmtDate(p.effectiveDate?.toString()) ||
       resolvedExpiry !== fmtDate(p.expiryDate?.toString());
 
+    //---------------
 
+    // ===================
 
-      // ===================
+    // Product 3: applicantTravelThroughUs change affects premium
+    if (
+      p.product === "RIMI_CANUCK_VOYAGE_TRAVEL_MEDICAL" &&
+      p.status === "SOLD" &&
+      !datesChanged
+    ) {
+      const travelThroughUsChanged =
+        (editedPolicy.applicantTravelThroughUs !== undefined &&
+          editedPolicy.applicantTravelThroughUs !==
+            p.applicantTravelThroughUs) ||
+        (editedPolicy.travelingThroughUS !== undefined &&
+          editedPolicy.travelingThroughUS !== p.applicantTravelThroughUs);
 
-      // Product 3: applicantTravelThroughUs change affects premium
-if (
-  p.product === "RIMI_CANUCK_VOYAGE_TRAVEL_MEDICAL" &&
-  p.status === "SOLD" &&
-  !datesChanged
-) {
-  const travelThroughUsChanged =
-    (editedPolicy.applicantTravelThroughUs !== undefined &&
-      editedPolicy.applicantTravelThroughUs !== p.applicantTravelThroughUs) ||
-    (editedPolicy.travelingThroughUS !== undefined &&
-      editedPolicy.travelingThroughUS !== p.applicantTravelThroughUs);
+      if (travelThroughUsChanged) {
+        const preview = await calculateModificationPreview(
+          id!,
+          resolvedEffective,
+          resolvedExpiry,
+          {
+            applicantTravelThroughUs:
+              editedPolicy.applicantTravelThroughUs ??
+              editedPolicy.travelingThroughUS ??
+              p.applicantTravelThroughUs,
+          },
+        );
 
-  if (travelThroughUsChanged) {
-    const preview = await calculateModificationPreview(
-      id!,
-      resolvedEffective,
-      resolvedExpiry,
-      {
-        applicantTravelThroughUs:
-          editedPolicy.applicantTravelThroughUs ??
-          editedPolicy.travelingThroughUS ??
-          p.applicantTravelThroughUs,
-      },
-    );
+        if (!preview) {
+          triggerNotification({
+            message: t(
+              "Failed to calculate premium preview. Please try again.",
+            ),
+            type: "error",
+          });
+          return;
+        }
 
-    if (!preview) {
-      triggerNotification({
-        message: t("Failed to calculate premium preview. Please try again."),
-        type: "error",
-      });
-      return;
+        if (preview.difference > 0) {
+          setRefundData({
+            originalExpiryDate: resolvedExpiry,
+            newExpiryDate: resolvedExpiry,
+            daysToRefund: 0,
+            maxRefundable: preview.difference,
+          });
+          setShowRefundModal(true);
+          return;
+        }
+
+        if (preview.difference < 0) {
+          setChargeData({
+            chargeAmount: Math.abs(preview.difference),
+            originalPremium: preview.originalPremium,
+            newPremium: preview.newPremium,
+            premiumDifference: preview.difference,
+          });
+          setShowChargeModal(true);
+          return;
+        }
+
+        // No premium change — still need to save
+        setShowModificationConfirmModal(true);
+        return;
+      }
     }
 
-    if (preview.difference > 0) {
-      setRefundData({
-        originalExpiryDate: resolvedExpiry,
-        newExpiryDate: resolvedExpiry,
-        daysToRefund: 0,
-        maxRefundable: preview.difference,
-      });
-      setShowRefundModal(true);
-      return;
-    }
-
-    if (preview.difference < 0) {
-      setChargeData({
-        chargeAmount: Math.abs(preview.difference),
-        originalPremium: preview.originalPremium,
-        newPremium: preview.newPremium,
-        premiumDifference: preview.difference,
-      });
-      setShowChargeModal(true);
-      return;
-    }
-
-    // No premium change — still need to save
-    setShowModificationConfirmModal(true);
-    return;
-  }
-}
-
-// ====================
+    // ====================
 
     // Product 4: non-date field changes that affect premium
     if (
@@ -1132,19 +1217,74 @@ if (
     // No date changes, no premium-affecting field changes — save directly
     // await performSave();
 
-    if (datesChanged && p.status === "SOLD") {
-      // Block monthly date changes immediately with clear message
-      if (p.paymentOption === "monthly-installments") {
-        triggerNotification({
-          message: t(
-            "Date changes for monthly installment policies require additional processing. Please contact support.",
-          ),
-          type: "warning",
-        });
-        return;
-      }
+    // if (datesChanged && p.status === "SOLD") {
+    //   // Block monthly date changes immediately with clear message
+    //   if (p.paymentOption === "monthly-installments") {
+    //     triggerNotification({
+    //       message: t(
+    //         "Date changes for monthly installment policies require additional processing. Please contact support.",
+    //       ),
+    //       type: "warning",
+    //     });
+    //     return;
+    //   }
 
-      // Get premium preview from backend
+    //   // Get premium preview from backend
+    //   const preview = await calculateModificationPreview(
+    //     id!,
+    //     resolvedEffective,
+    //     resolvedExpiry,
+    //   );
+
+    //   if (!preview) {
+    //     triggerNotification({
+    //       message: t("Failed to calculate premium preview. Please try again."),
+    //       type: "error",
+    //     });
+    //     return;
+    //   }
+
+    //   if (
+    //     preview.difference > 0 &&
+    //     p.paymentOption !== "monthly-installments"
+    //   ) {
+    //     // Premium decreased — show refund modal
+    //     setRefundData({
+    //       originalExpiryDate: fmtDate(p.expiryDate?.toString()),
+    //       newExpiryDate: resolvedExpiry,
+    //       daysToRefund: preview.originalCovLen - preview.newCovLen,
+    //       maxRefundable: preview.difference,
+    //     });
+    //     setShowRefundModal(true);
+    //     return;
+    //   }
+
+    //   if (
+    //     preview.difference < 0 &&
+    //     p.paymentOption !== "monthly-installments"
+    //   ) {
+    //     // Premium increased — show charge confirmation modal
+    //     setChargeData({
+    //       chargeAmount: Math.abs(preview.difference),
+    //       originalPremium: preview.originalPremium,
+    //       newPremium: preview.newPremium,
+    //       premiumDifference: preview.difference,
+    //     });
+    //     setShowChargeModal(true);
+    //     return;
+    //   }
+
+    //   // No premium change — just save with premiumDifference = 0
+    //   // await performSave(undefined, 0);
+    //   setShowModificationConfirmModal(true);
+    //   return;
+    // }
+
+    // new code ---------------------
+
+    if (datesChanged && (p.status === "SOLD" || p.status === "ACTIVE")) {
+      const isMonthly = p.paymentOption === "monthly-installments";
+
       const preview = await calculateModificationPreview(
         id!,
         resolvedEffective,
@@ -1159,11 +1299,27 @@ if (
         return;
       }
 
-      if (
-        preview.difference > 0 &&
-        p.paymentOption !== "monthly-installments"
-      ) {
-        // Premium decreased — show refund modal
+      if (isMonthly) {
+        // Monthly (SOLD and ACTIVE): show catch-up modal
+        const catchUp = preview.catchUpAmount ?? 0;
+        if (catchUp === 0) {
+          // No catch-up needed — skip modal, save directly with 0
+          await performSave(undefined, preview.difference, 0);
+          return;
+        }
+        setMonthlyCatchUpModalData({
+          catchUpAmount: catchUp,
+          oldMonthly: preview.oldMonthly ?? 0,
+          newMonthly: preview.newMonthly ?? 0,
+          paidRegularCount: preview.paidRegularCount ?? 0,
+          premiumDifference: preview.difference,
+        });
+        setShowMonthlyCatchUpModal(true);
+        return;
+      }
+
+      // Lump sum (SOLD and ACTIVE): existing refund/charge modals
+      if (preview.difference > 0) {
         setRefundData({
           originalExpiryDate: fmtDate(p.expiryDate?.toString()),
           newExpiryDate: resolvedExpiry,
@@ -1174,11 +1330,7 @@ if (
         return;
       }
 
-      if (
-        preview.difference < 0 &&
-        p.paymentOption !== "monthly-installments"
-      ) {
-        // Premium increased — show charge confirmation modal
+      if (preview.difference < 0) {
         setChargeData({
           chargeAmount: Math.abs(preview.difference),
           originalPremium: preview.originalPremium,
@@ -1189,11 +1341,12 @@ if (
         return;
       }
 
-      // No premium change — just save with premiumDifference = 0
-      // await performSave(undefined, 0);
+      // No premium change — confirm and save
       setShowModificationConfirmModal(true);
       return;
     }
+
+    // ---------------------
 
     // No date changes — save directly
     await performSave();
@@ -1203,12 +1356,31 @@ if (
     //
   };
 
+  // const handleModificationConfirm = async () => {
+  //   setShowModificationConfirmModal(false);
+  //   await performSave(undefined, 0);
+  // };
+
   const handleModificationConfirm = async () => {
     setShowModificationConfirmModal(false);
     await performSave(undefined, 0);
   };
 
-  const performSave = async (refund?: RefundData, premiumDiff?: number) => {
+  const handleMonthlyCatchUpConfirm = async (signedAmount: number) => {
+    if (!monthlyCatchUpModalData) return;
+    setShowMonthlyCatchUpModal(false);
+    await performSave(
+      undefined,
+      monthlyCatchUpModalData.premiumDifference,
+      signedAmount,
+    );
+  };
+
+  const performSave = async (
+    refund?: RefundData,
+    premiumDiff?: number,
+    monthlyCatchUp?: number,
+  ) => {
     const modifyData: ModifyPolicyData = {
       // Basic Info (Required)
       language: editedPolicy.language || p.language || "",
@@ -1227,7 +1399,8 @@ if (
       countryCode: editedPolicy.countryCode || p.countryCode!,
       countryOfOrigin: editedPolicy.countryOfOrigin ?? p.countryOfOrigin,
       postalCode: editedPolicy.postalCode || p.postalCode!,
-      expiryDate: editedPolicy.expiryDate || fmtDate(p.expiryDate?.toString()),
+      // expiryDate: editedPolicy.expiryDate || fmtDate(p.expiryDate?.toString()),
+      expiryDate: fmtDate(editedPolicy.expiryDate?.toString() || p.expiryDate?.toString()) || "",
       destination: String(
         editedPolicy.destination ??
           editedPolicy.destinationProvince ??
@@ -1244,9 +1417,14 @@ if (
         p.status === "SOLD"
           ? editedPolicy.dateOfBirth || fmtDate(p.dateOfBirth?.toString())
           : undefined,
+      // effectiveDate:
+      //   p.status === "SOLD" || p.status === "ACTIVE"
+      //     ? editedPolicy.effectiveDate || fmtDate(p.effectiveDate?.toString())
+      //     : undefined,
+
       effectiveDate:
-        p.status === "SOLD"
-          ? editedPolicy.effectiveDate || fmtDate(p.effectiveDate?.toString())
+        p.status === "SOLD" || p.status === "ACTIVE"
+          ? fmtDate(editedPolicy.effectiveDate?.toString() || p.effectiveDate?.toString())
           : undefined,
 
       // Dynamic Product-Specific Fields
@@ -1261,9 +1439,8 @@ if (
       // applicantTravelThroughUs:
       //   editedPolicy.applicantTravelThroughUs || p.applicantTravelThroughUs,
       applicantTravelThroughUs:
-  editedPolicy.applicantTravelThroughUs ??
-  p.applicantTravelThroughUs,
-      
+        editedPolicy.applicantTravelThroughUs ?? p.applicantTravelThroughUs,
+
       usTravelDays: editedPolicy.usTravelDays ?? p.usTravelDays,
       numberOfDaysPerTrip:
         editedPolicy.numberOfDaysPerTrip ?? p.numberOfDaysPerTrip,
@@ -1297,6 +1474,7 @@ if (
       })),
       refund: refund,
       premiumDifference: premiumDiff,
+      monthlyCatchUpAmount: monthlyCatchUp,
       lastKnownUpdatedAt: new Date().toISOString(),
     };
 
@@ -2686,6 +2864,18 @@ if (
         onConfirm={handleModificationConfirm}
         loading={modifyLoading}
       />
+
+      <MonthlyCatchUpModal
+        isOpen={showMonthlyCatchUpModal}
+        onClose={() => setShowMonthlyCatchUpModal(false)}
+        onConfirm={handleMonthlyCatchUpConfirm}
+        catchUpAmount={monthlyCatchUpModalData?.catchUpAmount ?? 0}
+        oldMonthly={monthlyCatchUpModalData?.oldMonthly ?? 0}
+        newMonthly={monthlyCatchUpModalData?.newMonthly ?? 0}
+        paidRegularCount={monthlyCatchUpModalData?.paidRegularCount ?? 0}
+        loading={modifyLoading}
+      />
+
       {NotificationComponent}
     </div>
   );
