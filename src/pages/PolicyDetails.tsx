@@ -916,19 +916,22 @@ const PolicyDetailsPage: React.FC = () => {
       }
     }
 
-    if (
-      p.product === "SECURE_TRAVEL_RIMI_VISITORS_TO_CANADA_TRAVEL" &&
-      p.paymentOption === "monthly-installments" &&
-      resolvedEffective &&
-      resolvedExpiry
-    ) {
-      const newCovLen = calculateDays(resolvedEffective, resolvedExpiry);
-      if (newCovLen < 365) {
-        errors.expiryDate = t(
-          "Coverage length cannot be reduced below 365 days for monthly installment policies.",
-        );
-      }
-    }
+    // if (
+    //   p.product === "SECURE_TRAVEL_RIMI_VISITORS_TO_CANADA_TRAVEL" &&
+    //   p.paymentOption === "monthly-installments" &&
+    //   resolvedEffective &&
+    //   resolvedExpiry
+    // ) {
+    //   const newCovLen = calculateDays(resolvedEffective, resolvedExpiry);
+    //   if (newCovLen < 365) {
+    //     errors.expiryDate = t(
+    //       "Coverage length cannot be reduced below 365 days for monthly installment policies.",
+    //     );
+    //   }
+    // }
+
+    // RVC Monthly 365-day frontend check removed SOLD has full freedom on length.
+    // Super Visa check above handles the legitimate 365-day constraint.
 
     // 6. Super Visa check
     const newCoverageLength = calculateDays(effectiveDate, expiryDate);
@@ -1049,15 +1052,33 @@ const PolicyDetailsPage: React.FC = () => {
 
     ////////////////////================
 
-    const resolvedEffective =
-      editedPolicy.effectiveDate || fmtDate(p.effectiveDate?.toString()) || "";
-    const resolvedExpiry =
-      editedPolicy.expiryDate || fmtDate(p.expiryDate?.toString()) || "";
+    // const resolvedEffective =
+    //   editedPolicy.effectiveDate || fmtDate(p.effectiveDate?.toString()) || "";
+    // const resolvedExpiry =
+    //   editedPolicy.expiryDate || fmtDate(p.expiryDate?.toString()) || "";
 
-    // Check if dates changed
+    // // Check if dates changed
+    // const datesChanged =
+    //   resolvedEffective !== fmtDate(p.effectiveDate?.toString()) ||
+    //   resolvedExpiry !== fmtDate(p.expiryDate?.toString());
+
+    // ----- New test code ----------
+
+    const resolvedEffective =
+      fmtDate(
+        editedPolicy.effectiveDate?.toString() || p.effectiveDate?.toString(),
+      ) || "";
+    const resolvedExpiry =
+      fmtDate(
+        editedPolicy.expiryDate?.toString() || p.expiryDate?.toString(),
+      ) || "";
+
+    // Check if dates changed — both sides now consistently YYYY-MM-DD
     const datesChanged =
       resolvedEffective !== fmtDate(p.effectiveDate?.toString()) ||
       resolvedExpiry !== fmtDate(p.expiryDate?.toString());
+
+    //---------------
 
     // ===================
 
@@ -1378,7 +1399,8 @@ const PolicyDetailsPage: React.FC = () => {
       countryCode: editedPolicy.countryCode || p.countryCode!,
       countryOfOrigin: editedPolicy.countryOfOrigin ?? p.countryOfOrigin,
       postalCode: editedPolicy.postalCode || p.postalCode!,
-      expiryDate: editedPolicy.expiryDate || fmtDate(p.expiryDate?.toString()),
+      // expiryDate: editedPolicy.expiryDate || fmtDate(p.expiryDate?.toString()),
+      expiryDate: fmtDate(editedPolicy.expiryDate?.toString() || p.expiryDate?.toString()) || "",
       destination: String(
         editedPolicy.destination ??
           editedPolicy.destinationProvince ??
@@ -1395,9 +1417,14 @@ const PolicyDetailsPage: React.FC = () => {
         p.status === "SOLD"
           ? editedPolicy.dateOfBirth || fmtDate(p.dateOfBirth?.toString())
           : undefined,
+      // effectiveDate:
+      //   p.status === "SOLD" || p.status === "ACTIVE"
+      //     ? editedPolicy.effectiveDate || fmtDate(p.effectiveDate?.toString())
+      //     : undefined,
+
       effectiveDate:
         p.status === "SOLD" || p.status === "ACTIVE"
-          ? editedPolicy.effectiveDate || fmtDate(p.effectiveDate?.toString())
+          ? fmtDate(editedPolicy.effectiveDate?.toString() || p.effectiveDate?.toString())
           : undefined,
 
       // Dynamic Product-Specific Fields
