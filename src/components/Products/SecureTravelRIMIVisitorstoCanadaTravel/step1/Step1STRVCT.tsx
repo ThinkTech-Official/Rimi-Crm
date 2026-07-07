@@ -677,10 +677,10 @@ const Step1STRVCT = ({
                     today.setHours(0, 0, 0, 0);
                     const dob = new Date(value);
                     dob.setHours(0, 0, 0, 0);
-                    return (
-                      dob.getTime() <= today.getTime() ||
-                      t("Date of birth cannot be in the future")
-                    );
+                    if (dob.getTime() > today.getTime()) {
+                      return t("Date of birth cannot be in the future");
+                    }
+                    return true;
                   },
                 }}
                 render={({ field }) => (
@@ -920,10 +920,24 @@ const Step1STRVCT = ({
                       today.setHours(0, 0, 0, 0);
                       const dob = new Date(value);
                       dob.setHours(0, 0, 0, 0);
-                      return (
-                        dob.getTime() <= today.getTime() ||
-                        t("Date of birth cannot be in the future")
-                      );
+                      if (dob.getTime() > today.getTime()) {
+                        return t("Date of birth cannot be in the future");
+                      }
+                      if (!effectiveDate) {
+                        return true;
+                      }
+                      const refDate = new Date(effectiveDate);
+                      refDate.setHours(0, 0, 0, 0);
+                      const diffTime = refDate.getTime() - dob.getTime();
+                      const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+                      if (diffDays < 15) {
+                        return t("Minimum age of the applicant must be 15 days");
+                      }
+                      const age = calculateAge(value, effectiveDate);
+                      if (age !== null && age >= 90) {
+                        return t("Maximum age of the applicant must be 90 years");
+                      }
+                      return true;
                     },
                   }}
                       render={({ field }) => (
