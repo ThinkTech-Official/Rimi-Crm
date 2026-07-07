@@ -613,7 +613,10 @@ export default function CoverageInformation({
     // All additional applicants must also have their DOB filled in
     const allApplicantDobsFilled =
       applicants.length === 0 ||
-      applicants.every((a: any) => a.dob !== "" && a.dob !== undefined && a.dob !== null);
+      applicants.every((a: any) =>
+         a.dob !== "" && a.dob !== undefined && a.dob !== null && 
+         a.relationship !== "" && a.relationship !== undefined && a.relationship !== null,
+    );
 
     if (policyType === "Multi-Trip Annual") {
       return (
@@ -644,7 +647,7 @@ export default function CoverageInformation({
     primaryDateOfBirth,
     numberOfDaysPerTrip,
     deductible,
-    applicants: applicants.map((a: any) => ({ dob: a.dob })),
+    applicants: applicants.map((a: any) => ({ dob: a.dob, relation: a.relationship })),
   };
 
   const {

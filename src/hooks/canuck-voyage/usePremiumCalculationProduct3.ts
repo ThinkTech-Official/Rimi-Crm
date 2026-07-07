@@ -12,7 +12,7 @@ interface PremiumCalculationData {
   primaryDateOfBirth: string;
   numberOfDaysPerTrip?: number;
   deductible: number;
-  applicants: { dob: string }[];
+  applicants: { dob: string; relation?: string }[];
 }
 
 interface PremiumResponse {

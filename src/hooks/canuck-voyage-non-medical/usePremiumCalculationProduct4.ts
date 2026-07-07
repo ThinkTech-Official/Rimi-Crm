@@ -8,6 +8,7 @@ interface PremiumCalculationData {
   // applicants: { age: number }[];
   effectiveDate: string;
   applicants: { dob: string }[];
+  province?: string;
 }
 
 interface PremiumResponse {
@@ -15,6 +16,9 @@ interface PremiumResponse {
   breakdown: {
     basePremium: number;
     deluxePremium?: number;
+    preTaxPremium: number;
+    taxRate?: number;
+    taxAmount?: number;
     finalPremium: number;
   };
 }
@@ -22,7 +26,7 @@ interface PremiumResponse {
 export function usePremiumCalculationProduct4(
   data: PremiumCalculationData,
   shouldCalculate: boolean,
-  forceRecalculate: number =0,
+  forceRecalculate: number = 0,
 ) {
   const [totalPremium, setTotalPremium] = useState<number>(0);
   const [breakdown, setBreakdown] = useState<
@@ -59,7 +63,11 @@ export function usePremiumCalculationProduct4(
         if (err.name === "AbortError") {
           console.log("Request cancelled");
         } else {
-          const message = err.response?.data?.message || err.response?.data || err.message || "Failed to calculate premium";
+          const message =
+            err.response?.data?.message ||
+            err.response?.data ||
+            err.message ||
+            "Failed to calculate premium";
           setError(message);
           console.error("Premium calculation error:", err);
         }
@@ -77,6 +85,7 @@ export function usePremiumCalculationProduct4(
     data.numberOfTravellers,
     data.tripCancellationDeluxe,
     JSON.stringify(data.applicants),
+    data.province,
     shouldCalculate,
     forceRecalculate,
   ]);

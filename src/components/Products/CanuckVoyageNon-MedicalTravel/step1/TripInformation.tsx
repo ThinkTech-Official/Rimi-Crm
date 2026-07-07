@@ -192,9 +192,12 @@ const msPerDay = 1000 * 60 * 60 * 24;
 
 interface TripInformationProps {
   methods: UseFormReturn<Step1Payload>;
-  premiumBreakdown: {
+   premiumBreakdown: {
     basePremium: number;
     deluxePremium?: number;
+    preTaxPremium: number;
+    taxRate?: number;
+    taxAmount?: number;
     finalPremium: number;
   } | null;
   setPremiumBreakdown: React.Dispatch<React.SetStateAction<any>>;
@@ -249,6 +252,7 @@ export default function TripInformation({
     primaryDateOfBirth,
     applicants,
     applicantNumber,
+    provinceStateResidence,
   } = formValues;
 
   // Auto-calculate coverage length when dates change
@@ -338,11 +342,26 @@ export default function TripInformation({
   //   [tripCost, applicants, tripCancellationDeluxe, applicantAges]
   // );
 
+  // const premiumCalculationData = {
+  //   tripCost: tripCost || 0,
+  //   numberOfTravellers: 1 + (applicantNumber || 0),
+  //   tripCancellationDeluxe: tripCancellationDeluxe || false,
+  //   effectiveDate: effectiveDate || "",
+  //   applicants: [
+  //     { dob: primaryDateOfBirth || "" },
+  //     ...(applicants || [])
+  //       .slice(0, applicantNumber || 0)
+  //       .map((a) => ({ dob: a.dob })),
+  //   ],
+  // };
+
   const premiumCalculationData = {
     tripCost: tripCost || 0,
     numberOfTravellers: 1 + (applicantNumber || 0),
     tripCancellationDeluxe: tripCancellationDeluxe || false,
     effectiveDate: effectiveDate || "",
+    // Province drives sales tax: MB=7%, ON=8%, QC=9%, all others=0%
+    province: provinceStateResidence || "",
     applicants: [
       { dob: primaryDateOfBirth || "" },
       ...(applicants || [])
@@ -724,6 +743,25 @@ export default function TripInformation({
             <h4 className="text-lg font-bold text-left text-[#1B1B1B] mb-5">
               {t("Premium Breakdown")}
             </h4>
+            {/* <div className="space-y-1">
+              <div className="flex justify-between">
+                <span>{t("Base Premium:")}</span>
+                <span>${premiumBreakdown.basePremium.toFixed(2)}</span>
+              </div>
+              {premiumBreakdown.deluxePremium && (
+                <div className="flex justify-between text-green-700">
+                  <span>{t("Deluxe Option (+25%):")}</span>
+                  <span>+${premiumBreakdown.deluxePremium.toFixed(2)}</span>
+                </div>
+              )}
+              <div className="flex justify-between font-bold text-lg border-t border-inputBorder pt-2 mt-2">
+                <span>{t("Total Premium:")}</span>
+                <span className="text-primary">
+                  ${premiumBreakdown.finalPremium.toFixed(2)} {t("CAD")}
+                </span>
+              </div>
+            </div> */}
+
             <div className="space-y-1">
               <div className="flex justify-between">
                 <span>{t("Base Premium:")}</span>
@@ -733,6 +771,14 @@ export default function TripInformation({
                 <div className="flex justify-between text-green-700">
                   <span>{t("Deluxe Option (+25%):")}</span>
                   <span>+${premiumBreakdown.deluxePremium.toFixed(2)}</span>
+                </div>
+              )}
+              {premiumBreakdown.taxAmount && premiumBreakdown.taxRate && (
+                <div className="flex justify-between text-gray-700">
+                  <span>
+                    {t("Provincial Tax")} ({(premiumBreakdown.taxRate * 100).toFixed(0)}%):
+                  </span>
+                  <span>+${premiumBreakdown.taxAmount.toFixed(2)}</span>
                 </div>
               )}
               <div className="flex justify-between font-bold text-lg border-t border-inputBorder pt-2 mt-2">
