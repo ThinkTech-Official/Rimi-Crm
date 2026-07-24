@@ -231,11 +231,13 @@ export const PolicyActivityTimeline: React.FC<ActivityTimelineProps> = ({
                                         const formatValue = (val: any) => {
                                           if (val === null || val === undefined)
                                             return "-";
-                                          if (val === "") return `(${t("empty")})`;
+                                          if (val === "")
+                                            return `(${t("empty")})`;
                                           // Check if it's a date string
                                           if (
                                             typeof val === "string" &&
-                                            (val.match(/^\d{4}-\d{2}-\d{2}T/) || val.match(/^\d{4}-\d{2}-\d{2}$/))
+                                            (val.match(/^\d{4}-\d{2}-\d{2}T/) ||
+                                              val.match(/^\d{4}-\d{2}-\d{2}$/))
                                           ) {
                                             return formatDate(val);
                                           }
@@ -253,8 +255,14 @@ export const PolicyActivityTimeline: React.FC<ActivityTimelineProps> = ({
                                                   .replace(/([A-Z])/g, " $1")
                                                   .trim()
                                                   .split(" ")
-                                                  .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-                                                  .join(" ")
+                                                  .map(
+                                                    (word) =>
+                                                      word
+                                                        .charAt(0)
+                                                        .toUpperCase() +
+                                                      word.slice(1),
+                                                  )
+                                                  .join(" "),
                                               )}
                                             </td>
                                             <td className="px-3 py-2 text-gray-900 font-medium">
@@ -330,12 +338,12 @@ export const PolicyActivityTimeline: React.FC<ActivityTimelineProps> = ({
                                       .length === 0
                                       ? "—"
                                       : Object.entries(cr.agentBalances).map(
-                                        ([agent, bal]) => (
-                                          <div key={agent}>
-                                            {agent}: ${Number(bal).toFixed(2)}
-                                          </div>
-                                        ),
-                                      )}
+                                          ([agent, bal]) => (
+                                            <div key={agent}>
+                                              {agent}: ${Number(bal).toFixed(2)}
+                                            </div>
+                                          ),
+                                        )}
                                   </div>
                                 </div>
                               </div>
@@ -357,7 +365,9 @@ export const PolicyActivityTimeline: React.FC<ActivityTimelineProps> = ({
                               </span>
                               <div className="bg-white border border-gray-200 rounded p-3 space-y-2 text-sm">
                                 <div className="flex justify-between items-center">
-                                  <span className="text-gray-500">{t("Month")}</span>
+                                  <span className="text-gray-500">
+                                    {t("Month")}
+                                  </span>
                                   <span className="font-semibold text-gray-900">
                                     {cm.monthName}
                                   </span>
@@ -367,7 +377,13 @@ export const PolicyActivityTimeline: React.FC<ActivityTimelineProps> = ({
                                     {t("Days Used / Unused")}
                                   </span>
                                   <span className="font-semibold text-gray-900">
-                                    {t("{{count}} used", { count: String(cm.daysUsed) })} · {t("{{count}} unused", { count: String(cm.daysUnused) })}
+                                    {t("{{count}} used", {
+                                      count: String(cm.daysUsed),
+                                    })}{" "}
+                                    ·{" "}
+                                    {t("{{count}} unused", {
+                                      count: String(cm.daysUnused),
+                                    })}
                                   </span>
                                 </div>
                                 {/* Progress bar */}
@@ -378,7 +394,7 @@ export const PolicyActivityTimeline: React.FC<ActivityTimelineProps> = ({
                                       width: `${Math.round(
                                         (cm.daysUsed /
                                           (cm.daysUsed + cm.daysUnused)) *
-                                        100,
+                                          100,
                                       )}%`,
                                     }}
                                   />
@@ -413,7 +429,9 @@ export const PolicyActivityTimeline: React.FC<ActivityTimelineProps> = ({
                               </span>
                               <div className="bg-white border border-gray-200 rounded p-3 space-y-2 text-sm">
                                 <div className="flex justify-between items-center">
-                                  <span className="text-gray-500">{t("Month")}</span>
+                                  <span className="text-gray-500">
+                                    {t("Month")}
+                                  </span>
                                   <span className="font-semibold text-gray-900">
                                     {pl.monthName}
                                   </span>
@@ -491,6 +509,111 @@ export const PolicyActivityTimeline: React.FC<ActivityTimelineProps> = ({
                           );
                         }
 
+                        // ── statusChanged ────────────────────────────────────
+                        if (
+                          key === "statusChanged" &&
+                          typeof value === "object" &&
+                          value !== null
+                        ) {
+                          const sc = value as any;
+                          return (
+                            <div key={key} className="space-y-1">
+                              <span className="text-[10px] uppercase font-bold text-gray-400 tracking-wider">
+                                {t("Status Changed")}
+                              </span>
+                              <div className="bg-amber-50 border border-amber-200 p-3 space-y-2 text-sm">
+                                <div className="flex items-center gap-2">
+                                  <span className="px-2 py-0.5 bg-blue-100 text-blue-700 text-xs font-semibold">
+                                    {sc.from}
+                                  </span>
+                                  <span className="text-gray-400">→</span>
+                                  <span className="px-2 py-0.5 bg-green-100 text-green-700 text-xs font-semibold">
+                                    {sc.to}
+                                  </span>
+                                </div>
+                                {sc.reason && (
+                                  <p className="text-xs text-gray-500 italic">
+                                    {sc.reason}
+                                  </p>
+                                )}
+                              </div>
+                            </div>
+                          );
+                        }
+
+                        // ── monthlyRateChange ────────────────────────────────
+                        if (
+                          key === "monthlyRateChange" &&
+                          typeof value === "object" &&
+                          value !== null
+                        ) {
+                          const mr = value as any;
+                          const isCharge = Number(mr.catchUpAmount) < 0;
+                          const absAmount = Math.abs(Number(mr.catchUpAmount));
+                          return (
+                            <div key={key} className="space-y-1">
+                              <span className="text-[10px] uppercase font-bold text-gray-400 tracking-wider">
+                                {t("Monthly Rate Change")}
+                              </span>
+                              <div className="bg-white border border-gray-200 p-3 space-y-2 text-sm">
+                                <div className="flex justify-between items-center">
+                                  <span className="text-gray-500">
+                                    {t("Old Monthly Rate")}
+                                  </span>
+                                  <span className="font-semibold text-gray-900">
+                                    ${Number(mr.oldMonthly).toFixed(2)} / mo
+                                  </span>
+                                </div>
+                                <div className="flex justify-between items-center">
+                                  <span className="text-gray-500">
+                                    {t("New Monthly Rate")}
+                                  </span>
+                                  <span className="font-semibold text-gray-900">
+                                    ${Number(mr.newMonthly).toFixed(2)} / mo
+                                  </span>
+                                </div>
+                                {absAmount > 0 && (
+                                  <div className="flex justify-between items-center border-t border-gray-100 pt-2">
+                                    <span className="text-gray-500">
+                                      {isCharge
+                                        ? t("Catch-Up Charge")
+                                        : t("Catch-Up Refund")}
+                                    </span>
+                                    <span
+                                      className={`font-bold ${isCharge ? "text-red-600" : "text-green-600"}`}
+                                    >
+                                      ${absAmount.toFixed(2)} cad
+                                    </span>
+                                  </div>
+                                )}
+                                {absAmount === 0 && (
+                                  <div className="flex justify-between items-center border-t border-gray-100 pt-2">
+                                    <span className="text-gray-500">
+                                      {t("Catch-Up Amount")}
+                                    </span>
+                                    <span className="text-gray-400 text-xs">
+                                      {t("No adjustment needed")}
+                                    </span>
+                                  </div>
+                                )}
+                                <div className="flex justify-between items-center text-xs text-gray-400">
+                                  <span>{t("Paid Installments")}</span>
+                                  <span>{mr.paidRegularCount}</span>
+                                </div>
+                                <div className="flex justify-between items-center text-xs text-gray-400">
+                                  <span>{t("Remaining Installments")}</span>
+                                  <span>{mr.remainingCount}</span>
+                                </div>
+                                {mr.newSubscriptionId && (
+                                  <div className="text-xs text-gray-400 font-mono truncate border-t border-gray-100 pt-2">
+                                    {t("New Sub:")} {mr.newSubscriptionId}
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          );
+                        }
+
                         // ── default ─────────────────────────────────────────
                         return (
                           <div key={key} className="space-y-1">
@@ -500,8 +623,12 @@ export const PolicyActivityTimeline: React.FC<ActivityTimelineProps> = ({
                                   .replace(/([A-Z])/g, " $1")
                                   .trim()
                                   .split(" ")
-                                  .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-                                  .join(" ")
+                                  .map(
+                                    (word) =>
+                                      word.charAt(0).toUpperCase() +
+                                      word.slice(1),
+                                  )
+                                  .join(" "),
                               )}
                             </span>
                             <div className="text-sm text-gray-800 font-medium break-all">

@@ -527,6 +527,51 @@ const PolicyDetailsPage: React.FC = () => {
   // BUTTON VISIBILITY
 
   const canModify = p.status === "SOLD" || p.status === "ACTIVE";
+
+  // Compare editedPolicy and editedApplicants against original to detect
+  // real changes. editedPolicy is pre-populated with all policy fields on
+  // edit start, so key-count is not a reliable proxy — need value comparison.
+  const fmtForCompare = (val: any): string => {
+    if (val == null) return '';
+    const s = String(val);
+    return s.includes('T') ? s.split('T')[0] : s;
+  };
+
+  const TRACKABLE_FIELDS: (keyof PolicyDetail)[] = [
+    'language', 'firstName', 'lastName', 'dateOfBirth', 'gender',
+    'email', 'additionalEmail', 'phoneNumber', 'street', 'street2',
+    'city', 'province', 'countryCode', 'postalCode', 'effectiveDate',
+    'expiryDate', 'destination', 'deductible', 'applicantOnSuperVisa',
+    'beneficiaryName', 'beneficiaryRelation', 'legalGuardianName',
+    'tripCost', 'countryOfOrigin', 'tripCancellationDeluxe',
+    'applicantTravelThroughUs',
+  ];
+
+  const hasUnsavedChanges = (() => {
+    // Check top-level policy fields
+    for (const field of TRACKABLE_FIELDS) {
+      if (fmtForCompare(editedPolicy[field]) !== fmtForCompare(p[field])) {
+        return true;
+      }
+    }
+    // Check applicant fields
+    const APPLICANT_FIELDS = [
+      'firstName', 'lastName', 'email', 'province',
+      'gender', 'relation', 'PreExCoverage',
+    ] as const;
+    for (let i = 0; i < editedApplicants.length; i++) {
+      const orig = p.applicants[i];
+      const edited = editedApplicants[i];
+      if (!orig || !edited) return true;
+      for (const f of APPLICANT_FIELDS) {
+        if (fmtForCompare((orig as any)[f]) !== fmtForCompare((edited as any)[f])) {
+          return true;
+        }
+      }
+    }
+    return false;
+  })();
+
   const canCancel = p.status !== "CANCELLED" && p.status !== "PAUSED";
 
   // helper to check if policy can update card
@@ -1679,10 +1724,11 @@ const PolicyDetailsPage: React.FC = () => {
               >
                 {t("Cancel")}
               </button>
-              <button
+               <button
                 onClick={handleSaveChanges}
                 className="bg-primary text-white py-2 sm:py-2 px-4 font-semibold hover:bg-[#2309A1] transition-all duration-200 cursor-pointer disabled:cursor-default disabled:opacity-70"
-                disabled={modifyLoading}
+                disabled={modifyLoading || !hasUnsavedChanges}
+                title={!hasUnsavedChanges ? t("No changes to save") : undefined}
               >
                 {modifyLoading ? t("Saving...") : t("Save Changes")}
               </button>
