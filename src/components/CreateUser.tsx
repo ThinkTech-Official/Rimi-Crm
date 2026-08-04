@@ -797,6 +797,8 @@ const CreateUser: React.FC = () => {
         return;
       }
       // Documents NOT required for WFG
+    } else if (userType === 'ADMIN') {
+      // Documents NOT required for Admin
     } else {
       // Regular agent - require at least document 1
       if (!docFile1) {
@@ -1320,7 +1322,7 @@ const CreateUser: React.FC = () => {
         </div>
 
         {/* Documents - Hidden for WFG agents */}
-        {!isWfgAgent && (
+        {!isWfgAgent && userType !== 'ADMIN' && (
           <div className="col-span-3 grid grid-cols-1 sm:grid-cols-2 gap-6">
             {/* Insurance License */}
             <div className="flex flex-col w-full">
