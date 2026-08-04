@@ -164,7 +164,7 @@ export default function VerificationTab({ onUploadClick }: VerificationTabProps)
   };
 
   const status = verificationStatus?.verificationStatus;
-  const hasDocuments = verificationStatus?.docLink1 || verificationStatus?.docLink2 || verificationStatus?.docLink3;
+  const hasDocuments = verificationStatus?.docLink1 || verificationStatus?.docLink2 || verificationStatus?.docLink3 || verificationStatus?.docLink4;
 
   return (
     <div className="space-y-6">
@@ -196,6 +196,9 @@ export default function VerificationTab({ onUploadClick }: VerificationTabProps)
             )}
             {verificationStatus?.docLink3 && (
               <DocumentLink link={verificationStatus.docLink3} label={t("Document 3")} />
+            )}
+            {verificationStatus?.docLink4 && (
+              <DocumentLink link={verificationStatus.docLink4} label={t("Document 4")} />
             )}
           </div>
         </div>

@@ -435,13 +435,16 @@ export default function Profile() {
     doc4: null,
   });
   const [passwords, setPasswords] = useState({
+    currentPassword: "",
     password: "",
     confirmPassword: "",
   });
   const [passwordErrors, setPasswordErrors] = useState({
+    currentPassword: "",
     password: "",
     confirmPassword: "",
   });
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [showRequestVerification, setShowRequestVerification] = useState(false);
@@ -456,7 +459,7 @@ export default function Profile() {
 
     console.log("Profile loaded:", profile);
     setFormData(profile);
-    setPasswords({ password: "", confirmPassword: "" });
+    setPasswords({ currentPassword: "", password: "", confirmPassword: "" });
     setFiles({ doc1: null, doc2: null, doc3: null , doc4: null });
 
     // Check if user can request verification
@@ -500,9 +503,14 @@ export default function Profile() {
 
   const handleSave = async () => {
     // Validation for password
-    if (passwords.password || passwords.confirmPassword) {
+    if (passwords.currentPassword || passwords.password || passwords.confirmPassword) {
       let valid = true;
-      const errors = { password: "", confirmPassword: "" };
+      const errors = { currentPassword: "", password: "", confirmPassword: "" };
+
+      if (!passwords.currentPassword) {
+        errors.currentPassword = t("Current password is required");
+        valid = false;
+      }
 
       if (!passwords.password) {
         errors.password = t("Password is required");
@@ -569,6 +577,7 @@ export default function Profile() {
       // CASE 2: Only password is being updated (no documents)
       if (passwords.password && !hasDocuments) {
         const pwdPayload = new FormData();
+        pwdPayload.append("currentPassword", passwords.currentPassword);
         pwdPayload.append("password", passwords.password.trim());
         pwdPayload.append("confirmPassword", passwords.confirmPassword.trim());
 
@@ -578,6 +587,7 @@ export default function Profile() {
       // CASE 3: Both documents AND password (need to call both)
       if (hasDocuments && passwords.password) {
         const pwdPayload = new FormData();
+        pwdPayload.append("currentPassword", passwords.currentPassword);
         pwdPayload.append("password", passwords.password.trim());
         pwdPayload.append("confirmPassword", passwords.confirmPassword.trim());
 
@@ -587,8 +597,9 @@ export default function Profile() {
       // Use handleDiscard logic for cleanup
       setIsEditing(false);
       setFiles({ doc1: null, doc2: null, doc3: null , doc4: null });
-      setPasswords({ password: "", confirmPassword: "" });
-      setPasswordErrors({ password: "", confirmPassword: "" });
+      setPasswords({ currentPassword: "", password: "", confirmPassword: "" });
+      setPasswordErrors({ currentPassword: "", password: "", confirmPassword: "" });
+      setShowCurrentPassword(false);
       setShowPassword(false);
       setShowConfirmPassword(false);
 
@@ -800,8 +811,9 @@ export default function Profile() {
                 <button
                   onClick={() => {
                     setIsEditing(false);
-                    setPasswords({ password: "", confirmPassword: "" });
-                    setPasswordErrors({ password: "", confirmPassword: "" });
+                    setPasswords({ currentPassword: "", password: "", confirmPassword: "" });
+                    setPasswordErrors({ currentPassword: "", password: "", confirmPassword: "" });
+                    setShowCurrentPassword(false);
                     setFiles({ doc1: null, doc2: null, doc3: null, doc4: null });
                     setShowPassword(false);
                     setShowConfirmPassword(false);
@@ -932,6 +944,37 @@ export default function Profile() {
           {isEditing && (
             <div className="flex gap-4 col-span-full">
               <div className="flex flex-col gap-1 w-full">
+                <label htmlFor="currentPassword" className="text-sm">
+                  {t("Current Password")}
+                </label>
+                <div className="relative">
+                  <input
+                    name="currentPassword"
+                    type={showCurrentPassword ? "text" : "password"}
+                    placeholder={t("Current Password")}
+                    value={passwords.currentPassword}
+                    onChange={handlePassChange}
+                    autoComplete="current-password"
+                    className={`input-primary ${passwordErrors.currentPassword ? "border-red-500" : ""}`}
+                  />
+                  <span
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer"
+                    onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                  >
+                    {showCurrentPassword ? (
+                      <EyeSlashIcon className="h-5 w-5 text-gray-500" />
+                    ) : (
+                      <EyeIcon className="h-5 w-5 text-gray-500" />
+                    )}
+                  </span>
+                </div>
+                {passwordErrors.currentPassword && (
+                  <p className="text-red-500 text-xs mt-1">
+                    {passwordErrors.currentPassword}
+                  </p>
+                )}
+              </div>
+              <div className="flex flex-col gap-1 w-full">
                 <label htmlFor="password" className="text-sm">
                   {t("New Password")}
                 </label>
@@ -942,6 +985,7 @@ export default function Profile() {
                     placeholder={t("New Password")}
                     value={passwords.password}
                     onChange={handlePassChange}
+                    autoComplete="new-password"
                     className={`input-primary ${passwordErrors.password ? "border-red-500" : ""}`}
                   />
                   <span
@@ -972,6 +1016,7 @@ export default function Profile() {
                     placeholder={t("Confirm Password")}
                     value={passwords.confirmPassword}
                     onChange={handlePassChange}
+                    autoComplete="new-password"
                     className={`input-primary ${passwordErrors.confirmPassword ? "border-red-500" : ""}`}
                   />
                   <span

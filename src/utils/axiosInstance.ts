@@ -267,6 +267,20 @@ export const axiosInstance = axios.create({
   withCredentials: true,
 });
 
+// Public quote/application links carry a short-lived capability token. Forward
+// it as a header so it is never mixed into request bodies or persisted locally.
+axiosInstance.interceptors.request.use((config) => {
+  if (typeof window !== 'undefined') {
+    const quoteAccessToken = new URLSearchParams(window.location.search).get(
+      'accessToken',
+    );
+    if (quoteAccessToken) {
+      config.headers.set('x-quote-access-token', quoteAccessToken);
+    }
+  }
+  return config;
+});
+
 let isRefreshing = false;
 let failedQueue: Array<{
   resolve: () => void;
@@ -345,7 +359,11 @@ axiosInstance.interceptors.response.use(
     if (error.response?.status !== 401) return Promise.reject(error);
 
     const url = originalRequest.url ?? "";
+    const isPublicQuoteLink =
+      typeof window !== "undefined" &&
+      new URLSearchParams(window.location.search).has("accessToken");
     if (
+      isPublicQuoteLink ||
       url.includes("/auth/me") ||
       url.includes("/auth/refresh") ||
       url.includes("/auth/login")

@@ -147,7 +147,7 @@ export default function VerificationStatusDisplay() {
           </div>
 
           {/* Document Links */}
-          {(status.docLink1 || status.docLink2 || status.docLink3) && (
+          {(status.docLink1 || status.docLink2 || status.docLink3 || status.docLink4) && (
             <div className="mt-4 pt-4 border-t border-gray-200">
               <p className="text-sm font-medium text-gray-700 mb-2">{t("Uploaded Documents")}:</p>
               <div className="flex space-x-2">
@@ -182,6 +182,17 @@ export default function VerificationStatusDisplay() {
                   >
                     <DocumentIcon className="h-4 w-4" />
                     <span>{t("Document 3")}</span>
+                  </a>
+                )}
+                {status.docLink4 && (
+                  <a
+                    href={status.docLink4}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center space-x-1 text-primary hover:text-primary-dark text-sm"
+                  >
+                    <DocumentIcon className="h-4 w-4" />
+                    <span>{t("Document 4")}</span>
                   </a>
                 )}
               </div>

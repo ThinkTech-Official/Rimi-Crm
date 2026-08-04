@@ -87,6 +87,7 @@ export default function VerificationStatus() {
     { link: status.docLink1, name: t('Document 1') },
     { link: status.docLink2, name: t('Document 2') },
     { link: status.docLink3, name: t('Document 3') },
+    { link: status.docLink4, name: t('Document 4') },
   ].filter(doc => doc.link);
 
   return (

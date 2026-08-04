@@ -45,7 +45,7 @@ export default function VerificationWarningBanner({ userType }: VerificationWarn
     if (!verificationStatus) return '';
 
     if (verificationStatus.isImportedAgent && !verificationStatus.documentsUploadedAt) {
-      return t('Important: Verification documents must be uploaded before March 1st, 2026 to continue using the platform.');
+      return t('Please upload your verification documents to continue using policy-issuing features.');
     }
 
     switch (verificationStatus.verificationStatus) {

@@ -145,6 +145,7 @@ interface VerificationState {
     docLink1: string | null;
     docLink2: string | null;
     docLink3: string | null;
+    docLink4: string | null;
     verifiedBy: string | null;
   } | null;
   
@@ -200,6 +201,7 @@ const verificationSlice = createSlice({
       docLink1: string | null;
       docLink2: string | null;
       docLink3: string | null;
+      docLink4: string | null;
     }>) => {
       if (state.userVerificationStatus) {
         state.userVerificationStatus = {

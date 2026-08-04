@@ -538,9 +538,23 @@ export const initializeAuth = createAsyncThunk(
   "auth/initialize",
   async (_, { rejectWithValue }) => {
     try {
-      const response = await axios.get(`${API_BASE}/auth/me`, {
-        withCredentials: true,
-      });
+      let response;
+      try {
+        response = await axios.get(`${API_BASE}/auth/me`, {
+          withCredentials: true,
+        });
+      } catch (error: any) {
+        if (error.response?.status !== 401) throw error;
+
+        await axios.post(
+          `${API_BASE}/auth/refresh`,
+          {},
+          { withCredentials: true },
+        );
+        response = await axios.get(`${API_BASE}/auth/me`, {
+          withCredentials: true,
+        });
+      }
       return {
         userType: response.data.userType,
         // fullName: response.data.fullName,
