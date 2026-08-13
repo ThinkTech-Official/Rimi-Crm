@@ -46,7 +46,12 @@ const Users: React.FC = () => {
   } = useSearchUsers();
 
   const { triggerNotification, NotificationComponent } = useNotification();
-  const { register, handleSubmit, control } = useForm<SearchCriteria>({
+  const {
+    register,
+    handleSubmit,
+    control,
+    formState: { errors },
+  } = useForm<SearchCriteria>({
     defaultValues: criteria
   });
 
@@ -97,6 +102,9 @@ const Users: React.FC = () => {
               className="input-primary"
               placeholder={t("First Name")}
             />
+            {errors.firstName && (
+              <p className="text-red-500 text-sm">{errors.firstName.message}</p>
+            )}
           </div>
 
           <div className="flex flex-col">
@@ -108,6 +116,9 @@ const Users: React.FC = () => {
               className="input-primary"
               placeholder={t("Last Name")}
             />
+            {errors.lastName && (
+              <p className="text-red-500 text-sm">{errors.lastName.message}</p>
+            )}
           </div>
 
           <div className="flex flex-col">
@@ -115,14 +126,13 @@ const Users: React.FC = () => {
             <input
               {...register("email", {
                 setValueAs: (value) => value?.trim()?.toLowerCase() || "",
-                pattern: {
-                  value: /^\S+@\S+\.\S+$/,
-                  message: t("Invalid email format"),
-                },
               })}
               className="input-primary"
               placeholder={t("Email")}
             />
+            {errors.email && (
+              <p className="text-red-500 text-sm">{errors.email.message}</p>
+            )}
           </div>
 
           <div className="flex flex-col">
@@ -134,6 +144,9 @@ const Users: React.FC = () => {
               className="input-primary"
               placeholder={t("Agent Code")}
             />
+            {errors.agentCode && (
+              <p className="text-red-500 text-sm">{errors.agentCode.message}</p>
+            )}
           </div>
 
           <div className="flex flex-col">
@@ -171,6 +184,9 @@ const Users: React.FC = () => {
               className="input-primary"
               placeholder={t("Company")}
             />
+            {errors.company && (
+              <p className="text-red-500 text-sm">{errors.company.message}</p>
+            )}
           </div>
 
           <div className="flex flex-col">

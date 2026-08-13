@@ -1,9 +1,18 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 // import { LangContext } from "../context/LangContext";
 import { useLanguage } from "../context/LanguageContext";
 import DatePicker from "./DatePicker";
-import { toLocalIsoDate, isAfterDate, formatDate } from "../utils/dateUtils";
+import {
+  toLocalIsoDate,
+  isAfterDate,
+  formatDate,
+  parseLocalDate,
+  addMonthsClamped,
+  addYearsClamped,
+  addDays,
+  daysBetween,
+} from "../utils/dateUtils";
 
 interface TripCalculatorFormInputs {
   startDate: string;
@@ -36,54 +45,111 @@ const TripCalculator: React.FC = () => {
   });
 
   const startDate = watch("startDate");
-  const daysInput = watch("daysInput");
 
-  // Automatically calculate end date when user types days
-  useEffect(() => {
-    if (calculationType === "duration" && startDate && daysInput) {
-      const start = new Date(startDate);
-      if (isNaN(start.getTime())) return;
+  /** Whole, non-negative number, or null if the field can't be used. */
+  const toWholeCount = (value?: string): number | null => {
+    if (value === undefined || value === null || value.trim() === "") return 0;
+    const n = Number(value);
+    if (!Number.isFinite(n) || !Number.isInteger(n) || n < 0) return null;
+    return n;
+  };
 
-      const end = new Date(start);
-      end.setDate(start.getDate() + Number(daysInput) - 1); // inclusive days
-      setValue("endDate", toLocalIsoDate(end));
-    }
-  }, [calculationType, startDate, daysInput, setValue]);
+  // Days and End Date are kept in step explicitly from each field's own
+  // handler. An effect watching both would either loop or silently overwrite
+  // whichever the user had just chosen.
+  const syncEndDateFromDays = (days: string, from: string = startDate) => {
+    const start = parseLocalDate(from);
+    const count = toWholeCount(days);
+    if (!start || count === null || count < 1) return;
+    setValue("endDate", toLocalIsoDate(addDays(start, count - 1)));
+  };
+
+  const syncDaysFromEndDate = (end: string, from: string = startDate) => {
+    const start = parseLocalDate(from);
+    const endParsed = parseLocalDate(end);
+    if (!start || !endParsed) return;
+    const span = daysBetween(start, endParsed) + 1; // inclusive
+    setValue("daysInput", span > 0 ? String(span) : "");
+  };
 
   const onSubmit = (data: TripCalculatorFormInputs) => {
     const { startDate, endDate, years, months, weeks, days, operation } = data;
 
-    if (calculationType === "duration" && startDate && endDate) {
+    const start = parseLocalDate(startDate);
+    if (!start) {
+      setResult(t("Invalid Input"));
+      return;
+    }
+
+    if (calculationType === "duration") {
+      if (!endDate) {
+        setResult(t("Invalid Input"));
+        return;
+      }
       if (isAfterDate(startDate, endDate)) {
         setResult(t("End date must be after start date"));
         return;
       }
 
-      const start = new Date(startDate);
-      const end = new Date(endDate);
-      const diffTime = end.getTime() - start.getTime();
-      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+      const end = parseLocalDate(endDate);
+      if (!end) {
+        setResult(t("Invalid Input"));
+        return;
+      }
 
-      setResult(`${diffDays} ${t("Days")}`);
-    } else if (calculationType === "newDate" && startDate) {
-      let newDate = new Date(startDate);
-      const op = operation === "subtract" ? -1 : 1;
-
-      if (years) newDate.setFullYear(newDate.getFullYear() + op * +years);
-      if (months) newDate.setMonth(newDate.getMonth() + op * +months);
-      if (weeks) newDate.setDate(newDate.getDate() + op * +weeks * 7);
-      if (days) newDate.setDate(newDate.getDate() + op * +days);
-
-      setResult(formatDate(newDate));
-    } else {
-      setResult(t("Invalid Input"));
+      setResult(`${daysBetween(start, end) + 1} ${t("Days")}`);
+      return;
     }
+
+    // newDate
+    const counts = {
+      years: toWholeCount(years),
+      months: toWholeCount(months),
+      weeks: toWholeCount(weeks),
+      days: toWholeCount(days),
+    };
+
+    if (Object.values(counts).some((c) => c === null)) {
+      setResult(t("Enter whole numbers of 0 or more"));
+      return;
+    }
+
+    const total =
+      counts.years! + counts.months! + counts.weeks! + counts.days!;
+    if (total === 0) {
+      setResult(t("Enter a number of years, months, weeks or days"));
+      return;
+    }
+
+    const op = operation === "subtract" ? -1 : 1;
+
+    // Months and years clamp to the end of the target month rather than
+    // overflowing, so Jan 31 + 1 month is Feb 28, not Mar 3.
+    let newDate = start;
+    if (counts.years) newDate = addYearsClamped(newDate, op * counts.years);
+    if (counts.months) newDate = addMonthsClamped(newDate, op * counts.months);
+    if (counts.weeks) newDate = addDays(newDate, op * counts.weeks * 7);
+    if (counts.days) newDate = addDays(newDate, op * counts.days);
+
+    setResult(formatDate(newDate));
   };
 
   const handleCalculationTypeChange = (type: "duration" | "newDate") => {
     if (type === calculationType) return;
     setCalculationType(type);
     setResult("");
+
+    // Drop values belonging to the other mode so a later calculation can't
+    // silently pick up something the user can no longer see.
+    if (type === "duration") {
+      setValue("years", "");
+      setValue("months", "");
+      setValue("weeks", "");
+      setValue("days", "");
+    } else {
+      setValue("endDate", "");
+      setValue("daysInput", "");
+    }
   };
 
   return (
@@ -132,7 +198,14 @@ const TripCalculator: React.FC = () => {
               <DatePicker
                 label={t("Start Date")}
                 value={field.value}
-                onChange={field.onChange}
+                onChange={(value: any) => {
+                  field.onChange(value);
+                  // Keep whichever of Days / End Date the user already set.
+                  const days = watch("daysInput");
+                  const end = watch("endDate");
+                  if (days) syncEndDateFromDays(days, value);
+                  else if (end) syncDaysFromEndDate(end, value);
+                }}
                 error={errors.startDate?.message}
               />
             )}
@@ -148,7 +221,10 @@ const TripCalculator: React.FC = () => {
                 <DatePicker
                   label={t("End Date")}
                   value={field.value}
-                  onChange={field.onChange}
+                  onChange={(value: any) => {
+                    field.onChange(value);
+                    syncDaysFromEndDate(value);
+                  }}
                   error={errors.endDate?.message}
                 />
               )}
@@ -186,6 +262,8 @@ const TripCalculator: React.FC = () => {
                       <input
                         {...fieldProps}
                         type="number"
+                        min="0"
+                        step="1"
                         placeholder="0"
                         className="input-primary"
                         onChange={(e) => fieldProps.onChange(e.target.value)}
@@ -211,9 +289,14 @@ const TripCalculator: React.FC = () => {
                 <input
                   {...field}
                   type="number"
+                  min="1"
+                  step="1"
                   placeholder="0"
                   className="input-primary"
-                  onChange={(e) => field.onChange(e.target.value)}
+                  onChange={(e) => {
+                    field.onChange(e.target.value);
+                    syncEndDateFromDays(e.target.value);
+                  }}
                 />
               )}
             />

@@ -92,6 +92,8 @@ import { PremiumCalculationData } from '../components/Products/SecureTravelRIMIV
 import { axiosInstance } from '../utils/axiosInstance';
 
 interface PaymentScheduleItem {
+  /** Stable identifier from the server; `label` is display text only. */
+  key?: string;
   label: string;
   amount: number;
   count?: number;

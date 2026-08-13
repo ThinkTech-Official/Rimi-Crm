@@ -162,7 +162,14 @@ export function useSearchUsers(): UseSearchUsersResult {
         setHasNextPage(!!hNext);
         setHasPrevPage(!!hPrev);
       } catch (err: any) {
-        setError(err.message);
+        // Validation failures come back as an array of messages; everything
+        // else returns a single string.
+        const raw = err.response?.data?.message;
+        setError(
+          Array.isArray(raw)
+            ? raw.join(". ")
+            : raw || err.message || "Failed to search users",
+        );
       } finally {
         setLoading(false);
       }

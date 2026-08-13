@@ -48,36 +48,8 @@ export const useDocuments = () => {
     }
   }, []);
 
-  const uploadDocument = useCallback(async (file: File, category: string = 'General') => {
-    setLoading(true);
-    setError(null);
-    try {
-      const formData = new FormData();
-      formData.append('file', file);
-      formData.append('category', category);
-
-      const response = await axiosInstance.post(
-        `/documents/upload`,
-        formData,
-        {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-        }
-      );
-      
-      // Refresh documents after upload
-      await fetchCategorizedDocuments();
-      
-      return response.data;
-    } catch (err: any) {
-      console.error('Upload document error:', err);
-      setError(err.response?.data?.message || err.message || 'Upload failed');
-      throw err;
-    } finally {
-      setLoading(false);
-    }
-  }, [fetchCategorizedDocuments]);
+  // Uploading lives in useUploadDocuments, which handles the multi-file case
+  // that AddDocument actually needs.
 
   const updateDocument = useCallback(async (
     id: string,
@@ -135,7 +107,6 @@ export const useDocuments = () => {
     categorizedDocuments,
     loading,
     error,
-    uploadDocument,
     updateDocument,
     deleteDocument,
     refetch: fetchCategorizedDocuments,

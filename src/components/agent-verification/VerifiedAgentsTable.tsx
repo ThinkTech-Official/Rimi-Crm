@@ -3,7 +3,7 @@ import { formatDate } from "../../utils/dateUtils";
 import Spinner from "../Spinner";
 import { RenderPageNumbers } from "../RenderPageNumbers";
 import { useLanguage } from "../../context/LanguageContext";
-import { getApplicantTypeBadge } from "../../utils/getApplicantTypeBadge";
+import { ApplicantTypeBadge } from "../../utils/getApplicantTypeBadge";
 
 type VerifiedAgent = {
   id: string;
@@ -119,7 +119,7 @@ export function VerifiedAgentsTable({
                     }}
                   >
                     <div className="flex items-center gap-2">
-                      {agent.userType || "N/A"} {getApplicantTypeBadge(agent)}
+                      {agent.userType || "N/A"} <ApplicantTypeBadge agent={agent} />
                     </div>
                   </td>
                   <td

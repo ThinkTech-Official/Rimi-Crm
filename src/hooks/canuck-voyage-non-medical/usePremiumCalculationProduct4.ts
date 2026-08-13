@@ -86,6 +86,10 @@ export function usePremiumCalculationProduct4(
     data.tripCancellationDeluxe,
     JSON.stringify(data.applicants),
     data.province,
+    // Affects the premium: the server ages each applicant as at the effective
+    // date, so moving the trip across a birthday changes the age band and the
+    // base premium. Without this the quote screen keeps showing the old figure.
+    data.effectiveDate,
     shouldCalculate,
     forceRecalculate,
   ]);

@@ -33,13 +33,35 @@ export const useUploadDocuments = () => {
         return response.data;
       });
 
-      const results = await Promise.all(uploadPromises);
-      return results;
+      // allSettled, not all: one bad file shouldn't hide the fact that the
+      // others uploaded, and the caller needs to know which ones failed.
+      const settled = await Promise.allSettled(uploadPromises);
+
+      const failures = settled
+        .map((result, i) => ({ result, name: files[i].file.name }))
+        .filter(({ result }) => result.status === "rejected");
+
+      if (failures.length > 0) {
+        const detail = failures
+          .map(({ result, name }) => {
+            const reason = (result as PromiseRejectedResult).reason;
+            const msg =
+              reason?.response?.data?.message ||
+              reason?.message ||
+              "Upload failed";
+            return `${name}: ${msg}`;
+          })
+          .join("; ");
+        setError(detail);
+        throw new Error(detail);
+      }
+
+      return settled.map(
+        (result) => (result as PromiseFulfilledResult<any>).value,
+      );
     } catch (err: any) {
       console.error("Upload error:", err.response?.data || err.message);
-      const errorMessage =
-        err.response?.data?.message || err.message || "Upload failed";
-      setError(errorMessage);
+      setError(err.response?.data?.message || err.message || "Upload failed");
       throw err;
     } finally {
       setLoading(false);

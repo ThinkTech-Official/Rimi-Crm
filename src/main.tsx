@@ -173,22 +173,75 @@ const router = createBrowserRouter(
           }
         />
 
-        <Route path="search-quotes" element={<QuotesSearch />} />
-        <Route path="search-policies" element={<PoliciesSearch />} />
+        <Route
+          path="search-quotes"
+          element={
+            <ProtectedRoute allowedRoles={["ADMIN", "AGENT", "MGA"]}>
+              <QuotesSearch />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="search-policies"
+          element={
+            <ProtectedRoute allowedRoles={["ADMIN", "AGENT", "MGA"]}>
+              <PoliciesSearch />
+            </ProtectedRoute>
+          }
+        />
 
         {/* Add the new verification requests route for admin */}
         <Route
           path="verification-requests"
-          element={<VerificationRequests />}
+          element={
+            <ProtectedRoute allowedRoles={["ADMIN"]}>
+              <VerificationRequests />
+            </ProtectedRoute>
+          }
         />
 
         <Route path="commissions" element={<Commissions />} />
 
-        <Route path="reporting" element={<Reporting />} />
-        <Route path="search-users" element={<Users />} />
-        <Route path="create-user" element={<CreateUser />} />
-        <Route path="documents" element={<Documents />} />
-        <Route path="trip-calculator" element={<TripCalculator />} />
+        <Route
+          path="reporting"
+          element={
+            <ProtectedRoute allowedRoles={["ADMIN"]}>
+              <Reporting />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="search-users"
+          element={
+            <ProtectedRoute allowedRoles={["ADMIN"]}>
+              <Users />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="create-user"
+          element={
+            <ProtectedRoute allowedRoles={["ADMIN"]}>
+              <CreateUser />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="documents"
+          element={
+            <ProtectedRoute allowedRoles={["ADMIN", "AGENT", "MGA"]}>
+              <Documents />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="trip-calculator"
+          element={
+            <ProtectedRoute allowedRoles={["ADMIN"]}>
+              <TripCalculator />
+            </ProtectedRoute>
+          }
+        />
         <Route path="profile" element={<Profile />} />
         <Route path="userdetail/:id" element={<UserDetails />} />
         <Route path="migrations/users" element={<UserUpload />} />

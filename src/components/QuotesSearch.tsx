@@ -441,7 +441,6 @@ const QuotesSearch: React.FC = () => {
 
     setSearchData(finalData);
 
-    console.log("finalData", finalData);
     setPage(1);
     search(finalData, 1, limit);
   };

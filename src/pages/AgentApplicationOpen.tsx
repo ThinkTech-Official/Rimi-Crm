@@ -63,11 +63,12 @@ const AgentApplicationOpen: React.FC = () => {
       }
     }
 
-    // Add applicant type data to form submission
+    // Add applicant type data to form submission.
+    // No mgaType here: it is never sent by the hook and the server sets it to
+    // null on public registration, so passing one was misleading.
     const submissionData = {
       ...formData,
       applicantType,
-      ...(applicantType === "under_mga" && { mgaType: "other" }),
     };
 
     const isSuccess = await submitApplication(submissionData as any);
@@ -102,7 +103,7 @@ const AgentApplicationOpen: React.FC = () => {
       if (!ALLOWED_FILE_TYPES.includes(file.type)) {
         triggerNotification({
           type: "error",
-          message: t("Invalid file type. Allowed: PDF, Image, CSV, Word, PowerPoint"),
+          message: t("Invalid file type. Allowed: PDF, JPG, PNG"),
           duration: 5000,
         });
         return;
@@ -436,8 +437,14 @@ const AgentApplicationOpen: React.FC = () => {
                             setValueAs: (value: any) => value?.trim() || "",
                             required: t("Password is required"),
                             minLength: {
-                              value: 6,
-                              message: t("Minimum length is 6"),
+                              value: 8,
+                              message: t("Minimum length is 8"),
+                            },
+                            pattern: {
+                              value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
+                              message: t(
+                                "Password must contain uppercase, lowercase, and number",
+                              ),
                             },
                           })}
                           className={`input-primary ${

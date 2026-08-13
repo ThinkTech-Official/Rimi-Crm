@@ -271,9 +271,11 @@ import { ShieldExclamationIcon } from '@heroicons/react/24/outline';
 interface ProtectedRouteProps {
   children: ReactNode;
   requiresVerification?: boolean;
+  /** User types allowed here. Omit to allow any authenticated user. */
+  allowedRoles?: string[];
 }
 
-const ProtectedRoute = ({ children, requiresVerification = false }: ProtectedRouteProps) => {
+const ProtectedRoute = ({ children, requiresVerification = false, allowedRoles }: ProtectedRouteProps) => {
   const { token, userType, initialized } = useAppSelector((state) => state.auth);
   const location = useLocation();
   const dispatch = useDispatch();
@@ -329,7 +331,13 @@ const ProtectedRoute = ({ children, requiresVerification = false }: ProtectedRou
     return <Navigate to={`/login?returnUrl=${encodeURIComponent(returnUrl)}`} replace />;
   }
 
- 
+  // Role check — the sidebar hides links a user may not use, but the route
+  // itself has to refuse anyone who reaches it by typing the URL.
+  if (allowedRoles && !allowedRoles.includes(userType || '')) {
+    return <Navigate to="/" replace />;
+  }
+
+
   if (needsVerificationCheck && ['AGENT', 'MGA'].includes(userType || '') && !verificationChecked) {
     return (
       <div className="flex justify-center items-center min-h-[400px]">

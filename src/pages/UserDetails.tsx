@@ -7,7 +7,7 @@ import Spinner from "../components/Spinner";
 import { MdCancel } from "react-icons/md";
 import { useForm, Controller } from "react-hook-form";
 import { useLanguage } from "../context/LanguageContext";
-import { getApplicantTypeBadge } from "../utils/getApplicantTypeBadge";
+import { ApplicantTypeBadge } from "../utils/getApplicantTypeBadge";
 import useNotification from "../hooks/useNotification";
 
 // Interface for the form data
@@ -278,7 +278,7 @@ export default function UserDetails() {
           <span className="px-2.5 py-1 bg-indigo-100 text-indigo-700 text-xs font-bold rounded-full uppercase tracking-wider">
             {formData.userType}
           </span>
-          {getApplicantTypeBadge(formData)}
+          <ApplicantTypeBadge agent={formData} />
         </div>
         <h3 className="text-primary font-semibold mb-2 capitalize text-lg">
           {t("User Information")}

@@ -1,15 +1,16 @@
 import { useEffect, useState } from 'react';
 import { useGetVerificationRequests } from '../../hooks/agent-verification/useGetVerificationRequests';
 import { useVerifyAgent } from '../../hooks/agent-verification/useVerifyAgent';
+import { useRejectAgent } from '../../hooks/agent-verification/useRejectAgent';
 import { CheckCircleIcon, ClockIcon, DocumentIcon, UserIcon, ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
-import { API_BASE } from '../../utils/urls';
+import { axiosInstance } from '../../utils/axiosInstance';
 import { useMgaCodes } from '../../hooks/agent-verification/useMgaCodes'; 
 import { VerifiedAgentsTable } from './VerifiedAgentsTable';
 import useNotification from '../../hooks/useNotification';
 import VerificationModal from './VerifyAgentModal';
 import { useLanguage } from '../../context/LanguageContext';
 import { RenderPageNumbers } from '../RenderPageNumbers';
-import { getApplicantTypeBadge } from '../../utils/getApplicantTypeBadge';
+import { ApplicantTypeBadge } from '../../utils/getApplicantTypeBadge';
 import { formatDate } from '../../utils/dateUtils';
 
 
@@ -49,14 +50,46 @@ export default function VerificationRequests() {
   const [selectedAgent, setSelectedAgent] = useState<any>(null);
   const [showVerifyModal, setShowVerifyModal] = useState(false);
   const [validityDate, setValidityDate] = useState('');
-  
+  const [rejectingAgent, setRejectingAgent] = useState<any>(null);
+  const [rejectReason, setRejectReason] = useState('');
+
   const { data: requests, loading, fetchRequests } = useGetVerificationRequests();
   const { verifyAgent, loading: verifying } = useVerifyAgent();
+  const { rejectAgent, loading: rejecting } = useRejectAgent();
 
   useEffect(() => {
     const status = activeTab === 'unverified' ? 'PENDING' : 'VERIFIED';
     fetchRequests(status, currentPage, 10);
   }, [activeTab, currentPage, fetchRequests]);
+
+  const handleRejectClick = (agent: any) => {
+    setRejectingAgent(agent);
+    setRejectReason('');
+  };
+
+  const handleRejectSubmit = async () => {
+    if (!rejectingAgent) return;
+
+    const result = await rejectAgent({
+      agentId: rejectingAgent.id,
+      reason: rejectReason.trim() || undefined,
+    });
+
+    if (result) {
+      triggerNotification({
+        type: 'success',
+        message: t('Application rejected. The applicant has been notified.'),
+      });
+      setRejectingAgent(null);
+      setRejectReason('');
+      fetchRequests(activeTab === 'unverified' ? 'PENDING' : 'VERIFIED', currentPage, 10);
+    } else {
+      triggerNotification({
+        type: 'error',
+        message: t('Failed to reject application. Please try again.'),
+      });
+    }
+  };
 
   const handleVerifyClick = (agent: any) => {
     setSelectedAgent(agent);
@@ -113,20 +146,14 @@ useEffect(() => {
     setAgentCodeAvailability({ status: 'checking', lastChecked: '' });
 
     try {
-      const response = await fetch(
-        `${API_BASE}/auth/check?code=${encodeURIComponent(adminAssignments.agentCode)}`,
-        {
-          credentials: 'include',
-        }
-      );
+      // axiosInstance, not fetch: it carries the silent token-refresh
+      // interceptor, so an expired access token retries instead of failing.
+      const response = await axiosInstance.get('/auth/check', {
+        params: { code: adminAssignments.agentCode },
+      });
 
-      if (!response.ok) {
-        throw new Error(t('Failed to check availability'));
-      }
-
-      const data = await response.json();
       setAgentCodeAvailability({
-        status: data.available ? 'available' : 'taken',
+        status: response.data.available ? 'available' : 'taken',
         lastChecked: adminAssignments.agentCode,
       });
     } catch (error) {
@@ -485,7 +512,7 @@ const handleVerifySubmit = async () => {
                                 <h3 className="text-base font-semibold text-gray-900 capitalize">
                                   {agent.firstName} {agent.lastName}
                                 </h3>
-                                {getApplicantTypeBadge(agent)}
+                                {<ApplicantTypeBadge agent={agent} />}
                               </div>
                               
                               <div className="grid grid-cols-1 gap-y-1.5">
@@ -600,6 +627,12 @@ const handleVerifySubmit = async () => {
                             >
                               {t("Verify Agent")}
                             </button>
+                            <button
+                              onClick={() => handleRejectClick(agent)}
+                              className="w-full mt-2 px-4 py-2 border border-red-500 text-red-600 hover:bg-red-50 cursor-pointer rounded transition-colors"
+                            >
+                              {t("Reject")}
+                            </button>
                           </div>
                         </div>
 
@@ -616,7 +649,7 @@ const handleVerifySubmit = async () => {
                                 <h3 className="text-lg font-semibold text-gray-900 capitalize">
                                   {agent.firstName} {agent.lastName}
                                 </h3>
-                                {getApplicantTypeBadge(agent)}
+                                {<ApplicantTypeBadge agent={agent} />}
                               </div>
                               
                               <div className="grid grid-cols-1 gap-x-8 gap-y-1">
@@ -724,12 +757,20 @@ const handleVerifySubmit = async () => {
                                </div>
                              )}
                             
-                            <button
-                              onClick={() => handleVerifyClick(agent)}
-                              className="px-4 py-2 bg-primary hover:bg-[#2309A1] text-white cursor-pointer rounded transition-colors"
-                            >
-                              {t("Verify Agent")}
-                            </button>
+                            <div className="flex gap-2">
+                              <button
+                                onClick={() => handleVerifyClick(agent)}
+                                className="px-4 py-2 bg-primary hover:bg-[#2309A1] text-white cursor-pointer rounded transition-colors"
+                              >
+                                {t("Verify Agent")}
+                              </button>
+                              <button
+                                onClick={() => handleRejectClick(agent)}
+                                className="px-4 py-2 border border-red-500 text-red-600 hover:bg-red-50 cursor-pointer rounded transition-colors"
+                              >
+                                {t("Reject")}
+                              </button>
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -810,6 +851,56 @@ const handleVerifySubmit = async () => {
             }}
             openDocument={openDocument}
           />
+        )}
+
+        {rejectingAgent && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4">
+            <div className="bg-white w-full max-w-md p-6 shadow-lg">
+              <h3 className="text-lg font-bold text-[#1B1B1B] mb-2">
+                {t("Reject Application")}
+              </h3>
+              <p className="text-sm text-text-secondary mb-4">
+                {t("Rejecting")} {rejectingAgent.firstName} {rejectingAgent.lastName}.{" "}
+                {t("They can upload new documents and apply again.")}
+              </p>
+
+              <label className="text-sm" htmlFor="rejectReason">
+                {t("Reason (optional)")}
+              </label>
+              <textarea
+                id="rejectReason"
+                value={rejectReason}
+                onChange={(e) => setRejectReason(e.target.value)}
+                maxLength={500}
+                rows={4}
+                className="input-primary w-full mt-1"
+                placeholder={t("Explain what the applicant needs to correct")}
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                {rejectReason.length}/500 — {t("included in the email to the applicant")}
+              </p>
+
+              <div className="flex justify-end gap-3 mt-6">
+                <button
+                  onClick={() => {
+                    setRejectingAgent(null);
+                    setRejectReason('');
+                  }}
+                  disabled={rejecting}
+                  className="px-4 py-2 border border-inputBorder hover:border-gray-700 cursor-pointer transition"
+                >
+                  {t("Cancel")}
+                </button>
+                <button
+                  onClick={handleRejectSubmit}
+                  disabled={rejecting}
+                  className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white cursor-pointer transition disabled:opacity-50"
+                >
+                  {rejecting ? t("Rejecting...") : t("Reject Application")}
+                </button>
+              </div>
+            </div>
+          </div>
         )}
       </div>
     </div>

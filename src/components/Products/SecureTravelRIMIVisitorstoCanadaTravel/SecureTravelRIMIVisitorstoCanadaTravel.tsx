@@ -227,17 +227,28 @@ export default function SecureTravelRIMIVisitorstoCanadaTravel() {
   const watchedPaymentOption = step1Methods.watch("paymentOption");
 
   if (watchedPaymentOption === "monthly-installments" && schedule.length >= 3) {
+    // Match on `key`, falling back to the label so an older backend still
+    // works. Matching on display text alone meant a reworded label silently
+    // fell through and quoted the full premium as the first payment.
     const monthlyItem = schedule.find(
-      (item) => item.label === "Monthly Installment"
+      (item) => item.key === "monthly-installment" || item.label === "Monthly Installment"
     );
     const firstPaymentItem = schedule.find(
-      (item) => item.label === "First Payment (2 months + fee)"
+      (item) =>
+        item.key === "first-payment" ||
+        item.label === "First Payment (2 months + fee)"
     );
 
     if (monthlyItem && firstPaymentItem) {
       monthlyAmount = monthlyItem.amount;
       remainingInstallments = monthlyItem.count;
       firstPaymentAmount = firstPaymentItem.amount;
+    } else {
+      console.error(
+        "Monthly schedule could not be parsed; refusing to fall back to the full premium.",
+        schedule
+      );
+      firstPaymentAmount = 0;
     }
   } else if (watchedPaymentOption === "lump-sum") {
     firstPaymentAmount = totalPremium;

@@ -299,34 +299,25 @@ export function useCreateUser(): UseCreateUserResult {
         formDataToSend.append("wfgCode", formData.wfgCode);
       }
 
-      // MGA override percent Opptional
-    if (formData.mgaOverridePercent) {
-      formDataToSend.append("mgaOverridePercent", formData.mgaOverridePercent);
-    }
-
       // Add selected agents for MGA users
       if (formData.selectedAgents && formData.selectedAgents.length > 0) {
         formDataToSend.append("selectedAgents", JSON.stringify(formData.selectedAgents));
       }
 
-      // Append file fields if they exist
+      // Append file fields under their own slot names so a skipped upload
+      // does not shift the remaining documents into the wrong slot.
+      // document1 = Insurance License, 2 = E&O, 3 = Bank Details, 4 = Agency Agreement
       if (formData.docFile1) {
-        formDataToSend.append("documents", formData.docFile1);
+        formDataToSend.append("document1", formData.docFile1);
       }
       if (formData.docFile2) {
-        formDataToSend.append("documents", formData.docFile2);
+        formDataToSend.append("document2", formData.docFile2);
       }
       if (formData.docFile3) {
-        formDataToSend.append("documents", formData.docFile3);
+        formDataToSend.append("document3", formData.docFile3);
       }
       if (formData.docFile4) {
-        formDataToSend.append("documents", formData.docFile4);
-      }
-
-      // Debug: Log all FormData entries
-      console.log("FormData entries:");
-      for (let [key, value] of formDataToSend.entries()) {
-        console.log(key, value);
+        formDataToSend.append("document4", formData.docFile4);
       }
 
       const response = await axiosInstance.post("/auth/register", formDataToSend);
@@ -334,7 +325,12 @@ export function useCreateUser(): UseCreateUserResult {
       setSuccess(true);
       console.log("User created successfully:", response.data);
     } catch (err: any) {
-      const errorMessage = err.response?.data?.message || err.message || "Failed to create user";
+      // Validation failures come back as an array of messages; everything
+      // else returns a single string.
+      const raw = err.response?.data?.message;
+      const errorMessage = Array.isArray(raw)
+        ? raw.join(". ")
+        : raw || err.message || "Failed to create user";
       setError(errorMessage);
       console.error("Create user error:", err);
     } finally {

@@ -999,6 +999,11 @@ export default function SecureStudyRIMIInternationalStudentstoCanada() {
     try {
       const response = await saveQuoteNext(stage1Payload);
       setQuoteNumber(response.quoteNumber);
+      // Take the premium from the server response, not the step-1 hook. The
+      // charge is derived from quote.premium server-side, so the pay button
+      // must show that same figure — otherwise a stale or still-loading hook
+      // value would quote one price while another is charged.
+      setTotalPremium(response.quoteAmount);
       setStep1ResponseData({
         quoteId: response.quoteId,
         quoteNumber: response.quoteNumber,

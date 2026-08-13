@@ -14,6 +14,25 @@ interface FileItem {
   category: string;
 }
 
+// Must stay in step with multerPlatformDocumentsConfig on the backend.
+const ALLOWED_DOCUMENT_TYPES = [
+  "application/pdf",
+  "image/jpeg",
+  "image/jpg",
+  "image/png",
+  "text/plain",
+  "text/csv",
+  "application/msword",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  "application/vnd.ms-excel",
+  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  "application/vnd.ms-powerpoint",
+  "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+];
+
+const ACCEPT_ATTR =
+  ".pdf,.jpg,.jpeg,.png,.txt,.csv,.doc,.docx,.xls,.xlsx,.ppt,.pptx";
+
 const AddDocument = ({
   setShowAddDocument,
   onSuccess,
@@ -34,14 +53,30 @@ const AddDocument = ({
 
     const maxSize = 10 * 1024 * 1024; // 10MB
     const selectedFiles = Array.from(e.target.files);
-    const validFiles = selectedFiles.filter((file) => file.size <= maxSize);
 
-    if (validFiles.length < selectedFiles.length) {
+    const rightType = selectedFiles.filter((file) =>
+      ALLOWED_DOCUMENT_TYPES.includes(file.type),
+    );
+    if (rightType.length < selectedFiles.length) {
+      triggerNotification({
+        type: "error",
+        message: t(
+          "Invalid file type. Allowed: PDF, JPG, PNG, TXT, CSV, Word, Excel, PowerPoint",
+        ),
+      });
+    }
+
+    const validFiles = rightType.filter((file) => file.size <= maxSize);
+
+    if (validFiles.length < rightType.length) {
       triggerNotification({
         type: "error",
         message: t("File size should not exceed 10MB"),
       });
     }
+
+    // Let the same file be picked again after a rejection.
+    e.target.value = "";
 
     if (validFiles.length === 0) return;
 
@@ -124,6 +159,7 @@ const AddDocument = ({
               type="file"
               id="fileUpload"
               multiple
+              accept={ACCEPT_ATTR}
               className="hidden"
               onChange={handleFileChange}
               disabled={loading}

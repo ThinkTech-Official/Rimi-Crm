@@ -120,7 +120,13 @@ export function useVerifyAgent() {
       
       return result;
     } catch (err: any) {
-      setError(err.message);
+      // Validation failures come back as an array of messages.
+      const raw = err.response?.data?.message;
+      setError(
+        Array.isArray(raw)
+          ? raw.join('. ')
+          : raw || err.message || 'Failed to verify agent',
+      );
       console.error('Error verifying agent:', err);
       return null;
     } finally {

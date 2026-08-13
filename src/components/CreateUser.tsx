@@ -665,19 +665,13 @@
 
 // ============================================================================
 
+// Must stay in step with the backend's multer fileFilter (src/common/multer.config.ts).
+// Anything accepted here but not there is rejected after upload, losing the whole submission.
 export const ALLOWED_FILE_TYPES = [
   "application/pdf",
   "image/jpeg",
+  "image/jpg",
   "image/png",
-  "image/gif",
-  "image/webp",
-  "image/bmp",
-  "text/csv",
-  "application/vnd.ms-excel", // .xls (Excel) — included alongside csv
-  "application/msword",
-  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-  "application/vnd.ms-powerpoint",
-  "application/vnd.openxmlformats-officedocument.presentationml.presentation",
 ];
 const MAX_FILE_SIZE_MB = 10;
 
@@ -841,7 +835,7 @@ const CreateUser: React.FC = () => {
     if (!ALLOWED_FILE_TYPES.includes(file.type)) {
       triggerNotification({
         type: "error",
-        message: t("Invalid file type. Allowed: PDF, Image, CSV, Word, PowerPoint"),
+        message: t("Invalid file type. Allowed: PDF, JPG, PNG"),
       });
       e.target.value = "";
       return;
@@ -1271,7 +1265,11 @@ const CreateUser: React.FC = () => {
               {...register("password", {
                 setValueAs: (value: any) => value?.trim() || "",
                 required: t("Password is required"),
-                minLength: { value: 6, message: t("Minimum length is 6") },
+                minLength: { value: 8, message: t("Minimum length is 8") },
+                pattern: {
+                  value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
+                  message: t("Password must contain uppercase, lowercase, and number"),
+                },
               })}
               className="w-full input-primary"
             />
@@ -1332,7 +1330,7 @@ const CreateUser: React.FC = () => {
                   {t("Choose File")} <span className="text-xs">(Max 10MB)</span>
                   <input
                     type="file"
-                    accept=".pdf,.jpg,.jpeg,.png,.gif,.webp,.bmp,.csv,.doc,.docx,.ppt,.pptx"
+                    accept=".pdf,.jpg,.jpeg,.png"
                     onChange={(e) => handleDocsChange(e, "docFile1")}
                     className="hidden"
                   />
@@ -1353,7 +1351,7 @@ const CreateUser: React.FC = () => {
                   {t("Choose File")} <span className="text-xs">(Max 10MB)</span>
                   <input
                     type="file"
-                    accept=".pdf,.jpg,.jpeg,.png,.gif,.webp,.bmp,.csv,.doc,.docx,.ppt,.pptx"
+                    accept=".pdf,.jpg,.jpeg,.png"
                     onChange={(e) => handleDocsChange(e, "docFile2")}
                     className="hidden"
                   />
@@ -1374,7 +1372,7 @@ const CreateUser: React.FC = () => {
                   {t("Choose File")} <span className="text-xs">(Max 10MB)</span>
                   <input
                     type="file"
-                    accept=".pdf,.jpg,.jpeg,.png,.gif,.webp,.bmp,.csv,.doc,.docx,.ppt,.pptx"
+                    accept=".pdf,.jpg,.jpeg,.png"
                     onChange={(e) => handleDocsChange(e, "docFile3")}
                     className="hidden"
                   />
@@ -1395,7 +1393,7 @@ const CreateUser: React.FC = () => {
                   {t("Choose File")} <span className="text-xs">(Max 10MB)</span>
                   <input
                     type="file"
-                    accept=".pdf,.jpg,.jpeg,.png,.gif,.webp,.bmp,.csv,.doc,.docx,.ppt,.pptx"
+                    accept=".pdf,.jpg,.jpeg,.png"
                     onChange={(e) => handleDocsChange(e, "docFile4")}
                     className="hidden"
                   />

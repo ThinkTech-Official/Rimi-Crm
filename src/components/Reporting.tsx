@@ -5,6 +5,7 @@ import { useForm, SubmitHandler, Controller } from "react-hook-form";
 import { useLanguage } from "../context/LanguageContext";
 import DatePicker from "./DatePicker";
 import { useReporting, ReportingPayload } from "../hooks/useReporting";
+import { isAfterDate } from "../utils/dateUtils";
 import {
   ChevronDownIcon,
 } from "@heroicons/react/24/outline";
@@ -47,15 +48,28 @@ const Reporting: React.FC = () => {
   // show success-toast when backend responds
   useEffect(() => {
     if (result?.success) {
+      // Say how many records were included: an empty report and a populated
+      // one otherwise look identical from the UI.
       triggerNotification({
-        type: "success",
-        message: t("Report created successfully!")
+        type: result.rowCount === 0 ? "info" : "success",
+        message:
+          result.rowCount === 0
+            ? t("No records matched — an empty report was sent.")
+            : `${t("Report sent with")} ${result.rowCount} ${t("record(s).")}`,
       });
       reset(); // clear form
     }
   }, [result, reset, t]);
 
   const onSubmit: SubmitHandler<ReportingPayload> = async (data) => {
+    if (data.startDate && data.endDate && isAfterDate(data.startDate, data.endDate)) {
+      triggerNotification({
+        type: "error",
+        message: t("End date must be on or after start date"),
+      });
+      return;
+    }
+
     await sendReport(data);
   };
 
