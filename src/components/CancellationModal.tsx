@@ -98,6 +98,11 @@ export default function CancellationModal({
       cancellationType === "visitors"
     ) {
       setCancellationFee(50);
+    } else {
+      // "other" has no standard fee. Reset to the default rather than silently
+      // inheriting whatever the previously selected type set — the admin can
+      // then enter the figure they intend.
+      setCancellationFee(50);
     }
   }, [cancellationType]);
 

@@ -27,12 +27,14 @@ export function useFulfillment(
     }
   }, [policyId]);
 
+  // agentEmail is no longer sent: the server reads the agent's address from
+  // the policy, so the caller cannot choose who gets BCC'd.
   const sendMail = useCallback(
-    async (to: string, cc: string, agentEmail: string) => {
+    async (to: string, cc: string) => {
       setLoading(true);
       try {
         await axiosInstance.post(`/policies/${policyId}/fulfillment/send`, {
-          to, cc, agentEmail,
+          to, cc,
         });
         activeTrigger({
           message: "Email sent!",

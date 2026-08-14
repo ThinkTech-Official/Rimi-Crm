@@ -13,4 +13,7 @@
 
 
 
-export const API_BASE = "http://localhost:3000"
+// export const API_BASE = "http://localhost:3000"
+
+
+export const API_BASE = "https://nurturing-perfection-production-c969.up.railway.app"

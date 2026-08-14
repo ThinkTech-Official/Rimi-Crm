@@ -147,7 +147,18 @@ export function usePolicyDetail(id: string | null) {
       })
       .catch(err => {
         console.error("Error fetching policy details:", err);
-        setError(err.message);
+        // A policy outside your scope now returns 404, so surface something
+        // meaningful rather than "Request failed with status code 404".
+        if (err.response?.status === 404) {
+          setError("Policy not found, or you do not have access to it.");
+          return;
+        }
+        const raw = err.response?.data?.message;
+        setError(
+          Array.isArray(raw)
+            ? raw.join(". ")
+            : raw || err.message || "Failed to load policy details"
+        );
       })
       .finally(() => {
         setLoading(false);

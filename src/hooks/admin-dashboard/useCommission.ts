@@ -2,7 +2,6 @@ import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tansta
 
 
 
-import { getUserTypeFromToken } from "../../utils/getUserType";
 import { axiosInstance } from "../../utils/axiosInstance";
 import { useState } from "react";
 
@@ -24,11 +23,9 @@ interface MarkAsPaidParams {
   paymentReference?: string;
 }
 
-// Helper to get current user identifier
-const getPerformedBy = (): string => {
-  const userInfo = getUserTypeFromToken();
-  return userInfo?.fullName || userInfo?.agentCode || "admin";
-};
+// performedBy is no longer sent: commission approvals and payouts are
+// attributed from the authenticated session on the server, so the client
+// cannot name someone else.
 
 {/* new code  */}
 
@@ -48,7 +45,6 @@ export const useUpdateCommissionStatus = () => {
         `/admin/commissions/${commissionId}/status`,
         {
           status: newStatus,
-          performedBy: getPerformedBy(),
           note: note || `Status changed to ${newStatus}`,
         },
       );
@@ -90,7 +86,6 @@ export const useBulkUpdateCommissionStatus = () => {
         {
           commissionIds,
           status: newStatus,
-          performedBy: getPerformedBy(),
           note,
         },
       );
@@ -139,7 +134,6 @@ export const useMarkCommissionsAsPaid = () => {
         `/admin/commissions/bulk/mark-paid`,
         {
           commissionIds,
-          performedBy: getPerformedBy(),
           paymentDate: paymentDate || new Date(),
           paymentReference,
         },

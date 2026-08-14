@@ -38,6 +38,7 @@ import { MdClose, MdUploadFile } from "react-icons/md";
 import { HealthQuestionnaireSection } from "./QuoteDetails";
 import Spinner from "../components/Spinner";
 import DatePicker from "../components/DatePicker";
+import { getUserTypeFromToken } from "../utils/getUserType";
 import {
   fmtDate,
   fmtDateDisplay,
@@ -414,7 +415,6 @@ const PolicyDetailsPage: React.FC = () => {
 
   const [to, setTo] = useState(p?.email || "");
   const [cc, setCc] = useState("");
-  const [agentEmail, setAgentEmail] = useState(p?.agentCode + "@example.com");
 
   const [showCancelModal, setShowCancelModal] = useState(false);
 
@@ -502,8 +502,7 @@ const PolicyDetailsPage: React.FC = () => {
   useEffect(() => {
     if (!p) return;
     setTo(p.email || "");
-    setAgentEmail(`${p.agentCode}@example.com`);
-  }, [id, p?.email, p?.agentCode]);
+  }, [id, p?.email]);
 
   useEffect(() => {
     if (p?.applicants) {
@@ -572,14 +571,19 @@ const PolicyDetailsPage: React.FC = () => {
     return false;
   })();
 
-  const canCancel = p.status !== "CANCELLED" && p.status !== "PAUSED";
+  // Cancellation and refunds are admin-only on the server. Gate the button on
+  // the same rule so agents are not shown a control that will 403.
+  const isAdmin = getUserTypeFromToken()?.userType === "ADMIN";
+
+  const canCancel =
+    isAdmin && p.status !== "CANCELLED" && p.status !== "SPLIT";
 
   // helper to check if policy can update card
   const canUpdateCard =
     p.paymentOption === "monthly-installments" &&
     p.status !== "CANCELLED" &&
     p.stripeSubscriptionScheduleId &&
-    p.status !== "PAUSED";
+    p.status !== "SPLIT";
 
   // REnewal Handlers
 
@@ -2500,11 +2504,13 @@ const PolicyDetailsPage: React.FC = () => {
             <label className="font-semibold text-base">
               {t("Agent Email")}
             </label>
+            {/* Read-only: the server BCCs the agent recorded on the policy, so
+                editing this had no effect on where the copy actually went. */}
             <input
               className="input-primary"
-              value={p.agentEmail ? p.agentEmail : agentEmail}
-              onChange={(e) => setAgentEmail(e.target.value)}
-              disabled={isEditMode}
+              value={p.agentEmail || t("Not set on this policy")}
+              readOnly
+              disabled
             />
           </div>
         </div>
@@ -2519,7 +2525,7 @@ const PolicyDetailsPage: React.FC = () => {
               {t("Preview Confirmation")}
             </button>
             <button
-              onClick={() => sendMail(to, cc, agentEmail)}
+              onClick={() => sendMail(to, cc)}
               disabled={fulLoading}
               className="bg-primary text-white py-2 sm:py-2 px-4 font-semibold hover:bg-[#2309A1] transition-all duration-200 cursor-pointer disabled:cursor-default disabled:opacity-70"
             >

@@ -424,7 +424,7 @@ export const PolicySplitModal: React.FC<PolicySplitModalProps> = ({
                     </div>
                   </div>
                   <p className="mt-3 text-sm text-gray-700">
-                    → {t("Status will change to:")} <span className="font-semibold text-yellow-700">{t("PAUSED")}</span>
+                    → {t("Status will change to:")} <span className="font-semibold text-yellow-700">{t("SPLIT")}</span>
                   </p>
                 </div>
 
@@ -549,7 +549,7 @@ export const PolicySplitModal: React.FC<PolicySplitModalProps> = ({
                 <div className="mb-6 p-4 bg-red-50/30 border border-red-200">
                   <p className="font-semibold text-red-900 mb-2">⚠️ {t("Important: This action cannot be undone")}</p>
                   <p className="text-red-800 text-sm">
-                    {t("After confirmation, the original policy will be PAUSED and new policies will be created.")} 
+                    {t("After confirmation, the original policy will be marked SPLIT and new policies will be created.")} 
                     {/* {t("You will have a 5-minute window to undo this action if needed.")} */}
                   </p>
                 </div>
@@ -573,7 +573,7 @@ export const PolicySplitModal: React.FC<PolicySplitModalProps> = ({
                 <div className="mt-6 p-4 bg-gray-50/30 border border-inputBorder">
                   <h4 className="font-semibold text-gray-900 mb-2">{t("What happens next:")}</h4>
                   <ol className="list-decimal list-inside text-sm text-gray-700 space-y-1">
-                    <li>{t("Original policy")} {policyNumber} {t("will be set to PAUSED status")}</li>
+                    <li>{t("Original policy")} {policyNumber} {t("will be set to SPLIT status")}</li>
                     <li>{preview?.splitPolicies.length} {t("new policies will be created (ACTIVE status)")}</li>
                     {paymentOption === 'monthly' && (
                       <li>{t("Original Stripe subscription will be cancelled, new subscriptions created")}</li>

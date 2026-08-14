@@ -200,7 +200,14 @@ const router = createBrowserRouter(
           }
         />
 
-        <Route path="commissions" element={<Commissions />} />
+        <Route
+          path="commissions"
+          element={
+            <ProtectedRoute allowedRoles={["ADMIN"]}>
+              <Commissions />
+            </ProtectedRoute>
+          }
+        />
 
         <Route
           path="reporting"
@@ -256,7 +263,14 @@ const router = createBrowserRouter(
           element={<MGAAgentDetails />}
         />
         <Route path="migrations/policies" element={<PolicyUploader />} />
-        <Route path="policy-detail/:id" element={<PolicyDetails />} />
+        <Route
+          path="policy-detail/:id"
+          element={
+            <ProtectedRoute allowedRoles={["ADMIN", "AGENT", "MGA"]}>
+              <PolicyDetails />
+            </ProtectedRoute>
+          }
+        />
         <Route path="sales-data-upload" element={<ImportSalesUpload />} />
 
         <Route
