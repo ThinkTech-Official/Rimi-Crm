@@ -164,7 +164,26 @@ export default function VerificationTab({ onUploadClick }: VerificationTabProps)
   };
 
   const status = verificationStatus?.verificationStatus;
-  const hasDocuments = verificationStatus?.docLink1 || verificationStatus?.docLink2 || verificationStatus?.docLink3;
+
+  // Independent agents upload FOUR documents at registration (licence, E&O,
+  // bank details, signed agency agreement). Only three were ever listed here,
+  // so the agency agreement was invisible and an agent had no way to confirm
+  // it had been received.
+  const documents = [
+    { link: verificationStatus?.docLink1, type: verificationStatus?.docType1, index: 1 },
+    { link: verificationStatus?.docLink2, type: verificationStatus?.docType2, index: 2 },
+    { link: verificationStatus?.docLink3, type: verificationStatus?.docType3, index: 3 },
+    { link: verificationStatus?.docLink4, type: verificationStatus?.docType4, index: 4 },
+  ].filter((d) => Boolean(d.link));
+
+  const hasDocuments = documents.length > 0;
+
+  // The stored type is a slug like "insurance_license". Showing that beats a
+  // GUID filename with a SAS signature after it, which is what the raw link is.
+  const documentLabel = (type?: string | null, index?: number) =>
+    type
+      ? type.replace(/[_-]+/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())
+      : `${t("Document")} ${index}`;
 
   return (
     <div className="space-y-6">
@@ -188,15 +207,13 @@ export default function VerificationTab({ onUploadClick }: VerificationTabProps)
             {t("Uploaded Documents")}
           </h4>
           <div className="space-y-2">
-            {verificationStatus?.docLink1 && (
-              <DocumentLink link={verificationStatus.docLink1} label={t("Document 1")} />
-            )}
-            {verificationStatus?.docLink2 && (
-              <DocumentLink link={verificationStatus.docLink2} label={t("Document 2")} />
-            )}
-            {verificationStatus?.docLink3 && (
-              <DocumentLink link={verificationStatus.docLink3} label={t("Document 3")} />
-            )}
+            {documents.map((doc) => (
+              <DocumentLink
+                key={doc.index}
+                link={doc.link as string}
+                label={documentLabel(doc.type, doc.index)}
+              />
+            ))}
           </div>
         </div>
       )}
@@ -205,7 +222,7 @@ export default function VerificationTab({ onUploadClick }: VerificationTabProps)
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
         <h4 className="text-sm font-medium text-blue-900 mb-2">{t("Verification Information")}</h4>
         <ul className="text-sm text-blue-700 space-y-1">
-          <li>• {t("Upload up to 3 documents for verification")}</li>
+          <li>• {t("Upload up to 4 documents for verification")}</li>
           <li>• {t("Supported formats: PDF, JPG, JPEG, PNG (max 5MB each)")}</li>
           <li>• {t("Review your documents before requesting verification")}</li>
           <li>• {t("Admin will review and approve your documents")}</li>

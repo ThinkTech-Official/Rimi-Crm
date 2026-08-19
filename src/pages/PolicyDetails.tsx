@@ -1430,6 +1430,20 @@ const PolicyDetailsPage: React.FC = () => {
     premiumDiff?: number,
     monthlyCatchUp?: number,
   ) => {
+    // Version of the policy this edit was built from. The server compares it and
+    // rejects the save if someone else changed the policy in the meantime.
+    // Blocked rather than defaulted: without it the server cannot detect a
+    // concurrent edit, and the save would silently overwrite the other person's.
+    const lastKnownUpdatedAt = p.updatedAt;
+    if (!lastKnownUpdatedAt) {
+      triggerNotification({
+        message:
+          "Could not confirm which version of this policy you are editing. Please reload the page and try again.",
+        type: "error",
+      });
+      return;
+    }
+
     const modifyData: ModifyPolicyData = {
       // Basic Info (Required)
       language: editedPolicy.language || p.language || "",
@@ -1524,7 +1538,14 @@ const PolicyDetailsPage: React.FC = () => {
       refund: refund,
       premiumDifference: premiumDiff,
       monthlyCatchUpAmount: monthlyCatchUp,
-      lastKnownUpdatedAt: new Date().toISOString(),
+      // Optimistic locking: this must be the `updatedAt` of the policy AS LOADED,
+      // so the server can detect that someone else saved in the meantime.
+      // It previously sent `new Date().toISOString()` — the current time — which
+      // could never match the stored value, which is why the server-side check
+      // had to be disabled. Deliberately not falling back to a default: if this
+      // is ever missing, failing the request is safer than silently saving over
+      // another user's changes.
+      lastKnownUpdatedAt,
     };
 
     const result = await modifyPolicy(id!, modifyData);

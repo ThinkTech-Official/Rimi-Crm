@@ -48,14 +48,15 @@ const Reporting: React.FC = () => {
   // show success-toast when backend responds
   useEffect(() => {
     if (result?.success) {
-      // Say how many records were included: an empty report and a populated
-      // one otherwise look identical from the UI.
+      // The request is only ACCEPTED here — the server builds the CSV and emails
+      // it after responding, so no row count is known yet. Previously this read
+      // result.rowCount, which would now be undefined and render as
+      // "Report sent with undefined record(s)".
       triggerNotification({
-        type: result.rowCount === 0 ? "info" : "success",
-        message:
-          result.rowCount === 0
-            ? t("No records matched — an empty report was sent.")
-            : `${t("Report sent with")} ${result.rowCount} ${t("record(s).")}`,
+        type: "success",
+        message: t(
+          "Report is being generated and will be emailed to you shortly.",
+        ),
       });
       reset(); // clear form
     }
