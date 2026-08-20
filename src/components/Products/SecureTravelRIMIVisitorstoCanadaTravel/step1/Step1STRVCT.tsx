@@ -21,6 +21,7 @@ import { useFormContext, Controller, useWatch } from "react-hook-form";
 import { Step1Payload } from "../SecureTravelRIMIVisitorstoCanadaTravel";
 import useNotification from "../../../../hooks/useNotification";
 import { useLanguage } from "../../../../context/LanguageContext";
+import { latestAllowedDob, validateDob, minAgeError } from "../../../../utils/dobRules";
 
 type SuperVisaOption = "" | "yes" | "no";
 type SuperVisaYears = "" | "1";
@@ -677,9 +678,10 @@ const Step1STRVCT = ({
                     today.setHours(0, 0, 0, 0);
                     const dob = new Date(value);
                     dob.setHours(0, 0, 0, 0);
-                    if (dob.getTime() > today.getTime()) {
-                      return t("Date of birth cannot be in the future");
-                    }
+                    const dobCheck = validateDob(value, t);
+                    if (dobCheck !== true) return dobCheck;
+                    const ageErr = minAgeError(value, effectiveDate, t);
+                    if (ageErr) return ageErr;
                     return true;
                   },
                 }}
@@ -697,7 +699,7 @@ const Step1STRVCT = ({
                         setValue("deductible", "");
                       }
                     }}
-                    maxDate={new Date()}
+                    maxDate={latestAllowedDob(effectiveDate)}
                   />
                 )}
               />
@@ -920,9 +922,8 @@ const Step1STRVCT = ({
                       today.setHours(0, 0, 0, 0);
                       const dob = new Date(value);
                       dob.setHours(0, 0, 0, 0);
-                      if (dob.getTime() > today.getTime()) {
-                        return t("Date of birth cannot be in the future");
-                      }
+                      const dobCheck = validateDob(value, t);
+                      if (dobCheck !== true) return dobCheck;
                       if (!effectiveDate) {
                         return true;
                       }
@@ -952,7 +953,7 @@ const Step1STRVCT = ({
                               { questions: [] },
                             );
                           }}
-                          maxDate={new Date()}
+                          maxDate={latestAllowedDob(effectiveDate)}
                         />
                       )}
                     />

@@ -463,6 +463,7 @@ import {
 import ConfirmEligibilityStudents from "./ConfirmEligibilityStudents";
 import DatePicker from "../../../DatePicker";
 import { useLanguage } from "../../../../context/LanguageContext";
+import { latestAllowedDob, validateDob } from "../../../../utils/dobRules";
 
 interface ApplicantInformationProps {
   methods: UseFormReturn<Step1FormData>;
@@ -610,7 +611,8 @@ export default function ApplicantInformation({
                 const dobDate = new Date(value);
                 const today = new Date();
                 today.setHours(0, 0, 0, 0);
-                if (dobDate > today) return t("Date of birth cannot be in the future");
+                const dobCheck = validateDob(value, t);
+                if (dobCheck !== true) return dobCheck;
 
                 const effectiveDate = methods.getValues("effectiveDate");
                 if (!effectiveDate) return true;
@@ -635,7 +637,7 @@ export default function ApplicantInformation({
                   onChange={(date) => {
                     field.onChange(date);
                   }}
-                  maxDate={new Date()}
+                  maxDate={latestAllowedDob(watch("effectiveDate"))}
                 />
                 {errors.primaryDateOfBirth && (
                   <p className="text-red-500 text-sm">
@@ -793,7 +795,8 @@ export default function ApplicantInformation({
                     const dobDate = new Date(value);
                     const today = new Date();
                     today.setHours(0, 0, 0, 0);
-                    if (dobDate > today) return t("Date of birth cannot be in the future");
+                    const dobCheck = validateDob(value, t);
+                    if (dobCheck !== true) return dobCheck;
 
                     const effectiveDate = methods.getValues("effectiveDate");
                     if (!effectiveDate) return true;
@@ -818,7 +821,7 @@ export default function ApplicantInformation({
                       field.onChange(date);
                       handleAdditionalApplicantsDateChange(idx, date);
                     }}
-                    maxDate={new Date()}
+                    maxDate={latestAllowedDob(watch("effectiveDate"))}
                   />
                 )}
               />

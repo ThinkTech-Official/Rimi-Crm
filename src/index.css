@@ -267,3 +267,75 @@ body {
     opacity: 1;
   }
 }
+/* ─────────────────────────────────────────────────────────────────────────
+   Printing a modal
+   ─────────────────────────────────────────────────────────────────────────
+   The renewal notice printed as the same page repeated, then as overlapping
+   pages. Two things caused it.
+
+   First, `window.print()` prints the whole document, and the modal overlay is
+   `position: fixed` — a fixed element is painted onto EVERY printed sheet, so
+   the long page behind it decided the sheet count and the modal was stamped on
+   each one.
+
+   Second, marking only the inner card was not enough: an absolutely-positioned
+   child still anchors to its fixed ancestor's box, so the card was re-anchored
+   per sheet and its content overlapped.
+
+   The modal now renders through a portal as a direct child of <body>, which
+   makes the rule below simple: hide every other body child, then let the
+   overlay and its card size themselves normally so the content paginates.
+   ───────────────────────────────────────────────────────────────────────── */
+@media print {
+  /* Everything except the modal. The portal makes this a flat, reliable match. */
+  body > *:not([data-print-overlay]) {
+    display: none !important;
+  }
+
+  /* No longer a fixed containing block, and no longer a centred flex box. */
+  [data-print-overlay] {
+    position: static !important;
+    display: block !important;
+    height: auto !important;
+    padding: 0 !important;
+    background: none !important;
+  }
+
+  /* Release the viewport cap and the scroll clipping so content flows on. */
+  [data-print-region] {
+    position: static !important;
+    max-width: none !important;
+    max-height: none !important;
+    height: auto !important;
+    width: auto !important;
+    overflow: visible !important;
+    box-shadow: none !important;
+    margin: 0 !important;
+  }
+
+  /* Any nested scroll container would clip to its own height. */
+  [data-print-region] * {
+    max-height: none !important;
+    overflow: visible !important;
+  }
+
+  /* A sticky header repeats on every sheet for the same reason as the overlay. */
+  [data-print-region] .sticky {
+    position: static !important;
+  }
+
+  /* Controls are not part of the document being printed. */
+  [data-print-hide] {
+    display: none !important;
+  }
+
+  /* Keep a labelled block from being severed across a page boundary. */
+  [data-print-keep] {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  @page {
+    margin: 12mm;
+  }
+}

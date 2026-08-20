@@ -49,6 +49,13 @@ export default function CancellationModal({
 }: CancellationModalProps) {
   const { t } = useLanguage();
   const [step, setStep] = useState<"preview" | "confirm">("preview");
+  // Single source of truth for the standard fee per cancellation type. "other"
+  // has no standard fee, so it falls back to the default for the admin to edit.
+  const standardFeeFor = (type: string): number => {
+    if (type === "visa-refusal") return 0;
+    if (type === "super-visa") return 150;
+    return 50; // visitors, early-return, other
+  };
   const [cancellationType, setCancellationType] = useState<
     "visitors" | "visa-refusal" | "super-visa" | "early-return" | "other"
   >("visitors");
@@ -89,21 +96,7 @@ export default function CancellationModal({
   const simpleRefund = calculateSimpleRefund();
 
   useEffect(() => {
-    if (cancellationType === "visa-refusal") {
-      setCancellationFee(0);
-    } else if (cancellationType === "super-visa") {
-      setCancellationFee(150);
-    } else if (
-      cancellationType === "early-return" ||
-      cancellationType === "visitors"
-    ) {
-      setCancellationFee(50);
-    } else {
-      // "other" has no standard fee. Reset to the default rather than silently
-      // inheriting whatever the previously selected type set — the admin can
-      // then enter the figure they intend.
-      setCancellationFee(50);
-    }
+    setCancellationFee(standardFeeFor(cancellationType));
   }, [cancellationType]);
 
   useEffect(() => {
@@ -360,7 +353,18 @@ export default function CancellationModal({
                   </label>
                   <select
                     value={cancellationType}
-                    onChange={(e) => setCancellationType(e.target.value as any)}
+                    onChange={(e) => {
+                      // Type and fee are set together, in one batched update.
+                      // Setting only the type left a render where the NEW type
+                      // was paired with the PREVIOUS type's fee, and the preview
+                      // effect fired on that pair — issuing a request for, say,
+                      // "early-return" at the super-visa fee of 150. A second,
+                      // correct request followed, but nothing guaranteed which
+                      // response landed last.
+                      const next = e.target.value as typeof cancellationType;
+                      setCancellationType(next);
+                      setCancellationFee(standardFeeFor(next));
+                    }}
                     className="input-primary"
                   >
                     <option value="visitors">{t("Visitors Insurance")}</option>
@@ -544,6 +548,21 @@ export default function CancellationModal({
                         CAD ${preview.totalPaid.toFixed(2)}
                       </div>
                     </div>
+                    {/* Shown only when it differs from Total Paid: on a started
+                        monthly policy only the unused current month plus the
+                        prepaid final month are refundable, so the two figures are
+                        far apart and the difference needs explaining. */}
+                    {preview.refundableBase !== undefined &&
+                      preview.refundableBase !== preview.totalPaid && (
+                        <div>
+                          <div className="text-gray-600">
+                            {t("Refundable Before Fee")}
+                          </div>
+                          <div className="font-medium">
+                            CAD ${preview.refundableBase.toFixed(2)}
+                          </div>
+                        </div>
+                      )}
                     <div>
                       <div className="text-gray-600">
                         {t("Cancellation Fee")}

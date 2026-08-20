@@ -437,6 +437,7 @@ import { Step1Payload } from "../RIMICanuckVoyageNon-MedicalTravel";
 import DatePicker from "../../../DatePicker";
 import ConfirmEligibilityNonMedical from "./ConfirmEligibilityNonMedical";
 import { NonMedTravelCountries } from "../../SecureTravelRIMIVisitorstoCanadaTravel/step1/Constants";
+import { latestAllowedDob, validateDob } from "../../../../utils/dobRules";
 
 interface Applicant {
   index: string;
@@ -590,7 +591,8 @@ export default function ApplicantInformation({
                 const dobDate = new Date(value);
                 const today = new Date();
                 today.setHours(0, 0, 0, 0);
-                if (dobDate > today) return t("Date of birth cannot be in the future");
+                const dobCheck = validateDob(value, t);
+                if (dobCheck !== true) return dobCheck;
 
                 const effectiveDate = methods.getValues("effectiveDate");
                 if (!effectiveDate) return true;
@@ -616,7 +618,7 @@ export default function ApplicantInformation({
                   onChange={(date) => {
                     field.onChange(date);
                   }}
-                  maxDate={new Date()}
+                  maxDate={latestAllowedDob(watch("effectiveDate"))}
                 />
                 {errors.primaryDateOfBirth && (
                   <p className="text-red-500 text-sm">
@@ -836,7 +838,8 @@ export default function ApplicantInformation({
                     const dobDate = new Date(value);
                     const today = new Date();
                     today.setHours(0, 0, 0, 0);
-                    if (dobDate > today) return t("Date of birth cannot be in the future");
+                    const dobCheck = validateDob(value, t);
+                    if (dobCheck !== true) return dobCheck;
 
                     const effectiveDate = methods.getValues("effectiveDate");
                     if (!effectiveDate) return true;
@@ -862,7 +865,7 @@ export default function ApplicantInformation({
                       onChange={(date: Date) => {
                         field.onChange(date);
                       }}
-                      maxDate={new Date()}
+                      maxDate={latestAllowedDob(watch("effectiveDate"))}
                     />
                     {errors.applicants?.[idx]?.dob && (
                       <p className="text-red-500 text-sm mt-1">

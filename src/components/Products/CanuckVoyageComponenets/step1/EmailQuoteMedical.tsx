@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useLanguage } from "../../../../context/LanguageContext";
+import { useSendQuoteEmail } from "../../../../hooks/useSendQuoteEmail";
 
 const EmailQuoteMedical = ({
   premiumBreakdown,
@@ -13,13 +14,15 @@ const EmailQuoteMedical = ({
   quoteLink?: string;
 }) => {
   const [email, setEmail] = useState("");
-  const [sending, setSending] = useState(false);
+  const { sendQuoteEmail, sending, error, sent } = useSendQuoteEmail();
   const {t} = useLanguage();
 
   const handleModalClose = () => setIsEmailModalOpen(false);
 
   const handleSendEmail = async () => {
-    console.log("Send to:", email);
+    // Was a console.log. The endpoint existed all along.
+    const ok = await sendQuoteEmail(quoteNumber, email);
+    if (ok) setTimeout(handleModalClose, 1200);
   };
   const subject = `Your Insurance Quote ${quoteNumber} from RIMI Insurance`;
 
@@ -102,6 +105,14 @@ const EmailQuoteMedical = ({
         </div>
 
         {/* Footer Buttons */}
+        {error && (
+          <p className="px-6 text-sm text-red-600">{error}</p>
+        )}
+        {sent && (
+          <p className="px-6 text-sm text-green-600">
+            {t("Quote email sent")}
+          </p>
+        )}
         <div className="px-6 py-4 flex justify-end gap-2">
           <button
             type="button"
@@ -114,7 +125,7 @@ const EmailQuoteMedical = ({
             type="button"
             className="btn-primary disabled:opacity-70"
             onClick={handleSendEmail}
-            disabled={sending}
+            disabled={sending || !quoteNumber}
           >
             {sending ? t("Sending...") : t("Send Email")}
           </button>

@@ -192,7 +192,7 @@
 
 // =================================
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { axiosInstance } from '../../utils/axiosInstance';
 
 // --- Interfaces for Request/Response/Data ---
@@ -201,6 +201,8 @@ export interface RefundPreview {
   policyNumber: string;
   paymentOption: string;
   totalPaid: number;
+  /** Portion of totalPaid eligible for refund before the fee. Absent when equal. */
+  refundableBase?: number;
   cancellationFee: number;
   adminFeeRefundable: number;
   totalRefundable: number;
@@ -269,6 +271,19 @@ export function usePolicyCancellation(policyId: string | null) {
   const [error, setError] = useState<string | null>(null);
 
   /**
+   * Sequence number for refund-preview requests.
+   *
+   * Changing the cancellation type can put more than one preview request in
+   * flight, and they are not guaranteed to come back in the order they were
+   * sent. Without this, a slower earlier response overwrote a newer one and the
+   * modal displayed a fee that did not match the selected type — a 150 super-visa
+   * fee shown against an early-return cancellation, for instance.
+   *
+   * Only the most recently issued request is allowed to write state.
+   */
+  const previewSeq = useRef(0);
+
+  /**
    * Fetch refund preview calculation (GET /policies/:id/refund-preview)
    */
   const fetchRefundPreview = async (
@@ -280,6 +295,7 @@ export function usePolicyCancellation(policyId: string | null) {
       return null;
     }
 
+    const seq = ++previewSeq.current;
     setLoading(true);
     setError(null);
 
@@ -295,14 +311,20 @@ export function usePolicyCancellation(policyId: string | null) {
         { params }
       );
       const data: RefundPreview = response.data;
+      // A newer request was issued while this one was in flight — discard this
+      // result rather than letting a stale fee overwrite the current one.
+      if (seq !== previewSeq.current) return null;
       setPreview(data);
       return data;
     } catch (err: any) {
+      if (seq !== previewSeq.current) return null;
       const errorMsg = err.message || 'Error fetching refund preview';
       setError(errorMsg);
       return null;
     } finally {
-      setLoading(false);
+      // Only the latest request controls the spinner, otherwise an early
+      // response would clear it while the current one is still running.
+      if (seq === previewSeq.current) setLoading(false);
     }
   };
 

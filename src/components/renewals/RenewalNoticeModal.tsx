@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { MdClose, MdPrint } from 'react-icons/md';
 import { useLanguage } from '../../context/LanguageContext';
 
@@ -33,6 +34,8 @@ interface RenewalNoticeModalProps {
     destination?: string;
     effectiveDate?: Date | string;
     expiryDate?: Date | string;
+    /** Coverage length in days as quoted and priced. Preferred over re-deriving. */
+    covLen?: number | null;
     applicants?: PolicyApplicant[];
     product?: string;
   };
@@ -73,12 +76,29 @@ const RenewalNoticeModal: React.FC<RenewalNoticeModalProps> = ({
   };
 
   const calculateCoverageLength = () => {
+    // Prefer the length the policy was actually quoted and priced on.
+    //
+    // This used to be derived from the dates as `expiry - effective`, which is
+    // the GAP between them and undercounts by a day: cover runs on the effective
+    // date and on the expiry date, so 05 Jun 2026 -> 04 Jun 2027 is 365 days, not
+    // 364. That understated 436 of 494 live policies by one day.
+    //
+    // Deriving it at all is the deeper problem: the expiry convention changed
+    // partway through. Policies issued before ~06 May 2026 store expiry as
+    // effective + covLen (05 May 2026 -> 06 May 2027 for 365 days), later ones as
+    // effective + covLen - 1. No single formula is right for both, but `covLen`
+    // is correct for both because it is what was sold.
+    if (typeof policy.covLen === 'number' && policy.covLen > 0) {
+      return `${policy.covLen} ${t('Days')}`;
+    }
+
     if (!policy.effectiveDate || !policy.expiryDate) return t('N/A');
+    // Fallback only: inclusive of both endpoints, matching the current convention.
     const start = new Date(policy.effectiveDate);
     const end = new Date(policy.expiryDate);
     const diffTime = Math.abs(end.getTime() - start.getTime());
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    return `${diffDays} ${t("Days")}`;
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+    return `${diffDays} ${t('Days')}`;
   };
 
   const allPolicyNumbers = [
@@ -89,9 +109,28 @@ const RenewalNoticeModal: React.FC<RenewalNoticeModalProps> = ({
     window.print();
   };
 
-  return (
-    <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50 p-4 h-full">
-      <div className="bg-white shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto custom-scrollbar3">
+  // Rendered into <body> rather than in place.
+  //
+  // Printing was repeating the notice on every sheet: the overlay is
+  // `position: fixed`, and a fixed element is painted onto each printed page.
+  // Marking the inner card as the print region was not enough, because an
+  // absolutely-positioned child still anchors to its fixed ancestor's box — which
+  // is what produced the overlapping pages 2-4.
+  //
+  // As a direct child of <body> the print rule becomes simple and reliable: hide
+  // every other body child, then let this one flow normally and paginate.
+  return createPortal(
+    <div
+      data-print-overlay
+      className="fixed inset-0 bg-black/30 flex items-center justify-center z-50 p-4 h-full"
+    >
+      {/* data-print-region: see the @media print block in index.css. Marks this
+          card as the only thing to print, and releases the fixed positioning and
+          scroll clipping that made every printed sheet a copy of the first. */}
+      <div
+        data-print-region
+        className="bg-white shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto custom-scrollbar3"
+      >
         {/* Header */}
         <div className="sticky top-0 bg-white border-b border-inputBorder px-3 sm:px-6 py-4 flex justify-between items-center z-10">
           <div>
@@ -104,6 +143,7 @@ const RenewalNoticeModal: React.FC<RenewalNoticeModalProps> = ({
           </div>
           <button
             onClick={onClose}
+            data-print-hide
             className="text-gray-500 hover:text-gray-700 text-2xl leading-none cursor-pointer"
           >
             <MdClose />
@@ -113,7 +153,7 @@ const RenewalNoticeModal: React.FC<RenewalNoticeModalProps> = ({
         {/* Content */}
         <div className="p-3 sm:p-6 space-y-8">
           {/* Print Button */}
-          <div className="flex justify-end">
+          <div className="flex justify-end" data-print-hide>
             <button
               onClick={handlePrint}
               className="flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors cursor-pointer text-sm font-medium"
@@ -157,7 +197,7 @@ const RenewalNoticeModal: React.FC<RenewalNoticeModalProps> = ({
           </div>
 
           {/* Primary Insured Person */}
-          <section>
+          <section data-print-keep>
             <h3 className="text-lg font-bold text-primary mb-4 border-b pb-2">
               {t("Primary Insured Person")}
             </h3>
@@ -184,7 +224,7 @@ const RenewalNoticeModal: React.FC<RenewalNoticeModalProps> = ({
           {policy.applicants && policy.applicants.length > 0 && (
             <div className="space-y-8">
               {policy.applicants.map((applicant, index) => (
-                <section key={applicant.id}>
+                <section key={applicant.id} data-print-keep>
                   <h3 className="text-lg font-bold text-primary mb-4 border-b pb-2">
                     {t("Insured Person")} {index + 2}
                   </h3>
@@ -212,7 +252,10 @@ const RenewalNoticeModal: React.FC<RenewalNoticeModalProps> = ({
           )}
 
           {/* Coverage Details */}
-          <section className="bg-blue-50/50 border border-blue-100 p-3 sm:p-6">
+          <section
+            data-print-keep
+            className="bg-blue-50/50 border border-blue-100 p-3 sm:p-6"
+          >
             <h3 className="text-lg font-bold text-primary mb-4">{t("Coverage Details")}</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-y-6 gap-x-8">
               <InfoField label={t("Plan Name")} value={t("Visitors to Canada")} />
@@ -234,7 +277,10 @@ const RenewalNoticeModal: React.FC<RenewalNoticeModalProps> = ({
         </div>
 
         {/* Footer */}
-        <div className="sticky bottom-0 bg-white border-t border-inputBorder p-3 sm:p-6 flex justify-end z-10">
+        <div
+          data-print-hide
+          className="sticky bottom-0 bg-white border-t border-inputBorder p-3 sm:p-6 flex justify-end z-10"
+        >
           <button
             onClick={onClose}
             className="px-6 py-2 border border-inputBorder hover:border-gray-400 font-semibold transition-all cursor-pointer"
@@ -243,7 +289,8 @@ const RenewalNoticeModal: React.FC<RenewalNoticeModalProps> = ({
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 };
 
