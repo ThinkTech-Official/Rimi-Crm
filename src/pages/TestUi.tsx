@@ -9,12 +9,12 @@ import React, {
 } from "react";
 import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
 import { v4 as uuidv4 } from "uuid";
-import { LangContext } from "../context/LangContext";
+// import { LangContext } from "../context/LangContext";
 import { useAgentCodes } from "../hooks/useAgentCodes";
 import { useCreateUser } from "../hooks/useCreateUser";
 
 const TestUi: React.FC = () => {
-  const { langauge } = useContext(LangContext);
+  // const { langauge } = useContext(LangContext);
 
   // ─── form fields ─────────────────────────────────────────────────────────────
   const [firstName, setFirstName] = useState("");
@@ -166,12 +166,10 @@ const TestUi: React.FC = () => {
       noValidate
     >
       <h2 className="text-xl font-semibold text-center text-[#3a17c5] mb-4">
-        {langauge === "En" ? "CREATE USER" : "CRÉER UN UTILISATEUR"}
+        CREATE USER
       </h2>
       <p className="text-center text-gray-600 mb-6">
-        {langauge === "En"
-          ? "** Changes to User Type will restore User Permissions to default settings **"
-          : "** Les modifications apportées au type d'utilisateur restaureront les autorisations aux paramètres par défaut **"}
+        ** Changes to User Type will restore User Permissions to default settings **
       </p>
 
       <div className="grid grid-cols-3 gap-4 text-gray-700">
@@ -489,21 +487,16 @@ const TestUi: React.FC = () => {
           className="w-60 bg-[#3a17c5] text-white py-2 rounded hover:bg-[#3a17c5e8] transition disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {createLoading
-            ? langauge === "En"
-              ? "CREATING…"
-              : "CRÉATION…"
-            : langauge === "En"
-            ? "CREATE USER"
-            : "CRÉER UN UTILISATEUR"}
+            ? "CREATING…"
+            : "CREATE USER"
+          }
         </button>
         {createError && (
           <p className="mt-2 text-red-500">{createError}</p>
         )}
         {success && (
           <p className="mt-2 text-green-600">
-            {langauge === "En"
-              ? "User created successfully!"
-              : "Utilisateur créé avec succès !"}
+            User created successfully!
           </p>
         )}
       </div>

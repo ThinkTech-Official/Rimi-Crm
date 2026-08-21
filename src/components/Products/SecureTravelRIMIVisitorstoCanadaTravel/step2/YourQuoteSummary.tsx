@@ -1,4 +1,7 @@
 
+import { useLanguage } from "../../../../context/LanguageContext";
+import { formatDate } from "../../../../utils/dateUtils";
+
 export interface QuoteStage1Response {
   quoteNumber: string;
   effectiveDate: string;
@@ -18,6 +21,7 @@ interface QuoteSummaryProps {
 
 
 export default function YourQuoteSummary({ step1ResponseData }: QuoteSummaryProps) {
+  const { t } = useLanguage();
   if (!step1ResponseData) {
     return null; // or loading state
   }
@@ -35,31 +39,32 @@ export default function YourQuoteSummary({ step1ResponseData }: QuoteSummaryProp
   } = step1ResponseData;
 
   // Simple date formatter
-  const fmtDate = (iso: string) => new Date(iso).toLocaleDateString();
+  const fmtDate = (iso: string) => formatDate(iso);
 
   // Simple currency formatter
-  const fmtMoney = (amt: number) =>
-    amt.toLocaleString(undefined, { style: "currency", currency: "CAD" });
+  // const fmtMoney = (amt: number) =>
+  //   amt.toLocaleString(undefined, { style: "currency", currency: "CAD" });
+  const fmtMoney = (amt: number) => `$${amt.toFixed(2)} CAD`;
 
   const rows: [string, React.ReactNode][] = [
-    ["Effective Date", fmtDate(effectiveDate)],
-    ["Expiry Date", fmtDate(expiryDate)],
-    ["Coverage Length", `${coverageLength} day${coverageLength !== 1 ? "s" : ""}`],
-    ["Number of Travellers", numberOfTravellers+1],
-    ["Policy Type", policyType],
-    ["Coverage Limit", fmtMoney(Number(coverageLimit))],
-    ["Deductible", fmtMoney(deductible)],
-    ["Destination Province", destinationProvince],
-    ["Quote Amount", fmtMoney(quoteAmount)],
+    [t("Effective Date"), fmtDate(effectiveDate)],
+    [t("Expiry Date"), fmtDate(expiryDate)],
+    [t("Coverage Length"), `${coverageLength} ${coverageLength !== 1 ? t("days") : t("day")}`],
+    [t("Number of Travellers"), numberOfTravellers+1],
+    [t("Policy Type"), t(policyType)],
+    [t("Coverage Limit"), fmtMoney(Number(coverageLimit))],
+    [t("Deductible"), fmtMoney(deductible)],
+    [t("Destination Province"), t(destinationProvince)],
+    [t("Quote Amount"), fmtMoney(quoteAmount)],
   ];
 
   return (
     <div className="max-w-5xl mx-auto mt-4 p-6 bg-[#F9F9F9]">
       <h2 className="text-lg font-bold text-left text-[#1B1B1B]">
-      Your Quote Summary
+        {t("Your Quote Summary")}
       </h2>
       <p className="text-left font-semibold text-[#6A6A6A] mb-8">
-        Please review the details below before proceeding.
+        {t("Please review the details below before proceeding.")}
       </p>
 
       <table className="w-full border border-[#DBDADE] font-[inter]">
@@ -72,7 +77,7 @@ export default function YourQuoteSummary({ step1ResponseData }: QuoteSummaryProp
               <td className="p-3 text-left font-semibold text-[#1B1B1B] w-1/2">
                 {label}
               </td>
-              <td className="p-3 text-left text-[#6A6A6A]">{value}</td>
+              <td className="p-3 text-left text-[#6A6A6A] capitalize">{value}</td>
             </tr>
           ))}
         </tbody>

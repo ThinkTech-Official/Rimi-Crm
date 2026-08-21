@@ -74,13 +74,11 @@
 //   return { users, loading, error, search };
 // }
 
-
 // =========================
 
-// src/hooks/useSearchUsers.ts
 import { useState, useCallback } from "react";
-import { useSelector } from "react-redux";
-import { API_BASE } from "../utils/urls";
+
+import { axiosInstance } from "../utils/axiosInstance";
 
 export interface User {
   id: string;
@@ -89,6 +87,7 @@ export interface User {
   lastName: string;
   email: string;
   userType: string;
+  company: string;
   status: string;
 }
 
@@ -107,7 +106,7 @@ export interface SearchCriteria {
 }
 
 interface UseSearchUsersResult {
-  users: User[];
+  users: User[] | null;
   loading: boolean;
   error: string | null;
   total: number;
@@ -120,9 +119,9 @@ interface UseSearchUsersResult {
 }
 
 export function useSearchUsers(): UseSearchUsersResult {
-  const token = useSelector((state: any) => state.auth.token) as string | null;
 
-  const [users, setUsers] = useState<User[]>([]);
+
+  const [users, setUsers] = useState<User[] | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -130,32 +129,20 @@ export function useSearchUsers(): UseSearchUsersResult {
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(20);
-  const [totalPages, setTotalPages] = useState(1);
+  const [totalPages, setTotalPages] = useState(0);
   const [hasNextPage, setHasNextPage] = useState(false);
   const [hasPrevPage, setHasPrevPage] = useState(false);
 
   const search = useCallback(
     async (criteria: SearchCriteria) => {
-      if (!token) {
-        setError("No auth token");
-        return;
-      }
 
       setLoading(true);
       setError(null);
 
       try {
-        const res = await fetch(`${API_BASE}/auth/users`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify(criteria),
-        });
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const res = await axiosInstance.post("/auth/users", criteria);
 
-        const json = await res.json();
+        const json = res.data;
         // Destructure the full pagination payload
         const {
           data,
@@ -175,12 +162,19 @@ export function useSearchUsers(): UseSearchUsersResult {
         setHasNextPage(!!hNext);
         setHasPrevPage(!!hPrev);
       } catch (err: any) {
-        setError(err.message);
+        // Validation failures come back as an array of messages; everything
+        // else returns a single string.
+        const raw = err.response?.data?.message;
+        setError(
+          Array.isArray(raw)
+            ? raw.join(". ")
+            : raw || err.message || "Failed to search users",
+        );
       } finally {
         setLoading(false);
       }
     },
-    [token]
+    [],
   );
 
   return {
@@ -196,3 +190,5 @@ export function useSearchUsers(): UseSearchUsersResult {
     search,
   };
 }
+
+// ==================================

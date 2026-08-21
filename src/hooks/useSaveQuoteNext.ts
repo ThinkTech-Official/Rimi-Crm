@@ -1,8 +1,7 @@
 
 import { useState, useCallback } from 'react';
-import { useSelector } from 'react-redux';
 import { Applicant } from './useSaveQuote';
-import { API_BASE } from '../utils/urls';
+import { axiosInstance } from '../utils/axiosInstance';
 
 export interface QuoteNextPayload {
   primaryFirstName:        string;
@@ -50,14 +49,14 @@ export interface QuoteNextResponse {
   applicants: Applicant[]
 }
 
-const baseUrl = `${API_BASE}`
+
 
 export function useSaveQuoteNext() {
   const [loading, setLoading] = useState(false);
   const [error,   setError]   = useState<Error | null>(null);
   const [data,    setData]    = useState<QuoteNextResponse | null>(null);
 
-  const token = useSelector((state: any) => state.auth.token) as string | null;
+  // const token = useSelector((state: any) => state.auth.token) as string | null;
 
   const saveQuoteNext = useCallback(
 
@@ -67,29 +66,21 @@ export function useSaveQuoteNext() {
 
       try {
         // If we already have a quoteNumber, do PUT (upsert), otherwise POST
-        const method = payload.quoteNumber ? 'PUT' : 'POST';
-        const url =
-          payload.quoteNumber
-            ? `${baseUrl}/quotes/stage1/${payload.quoteNumber}`
-            : `${baseUrl}/quotes/stage1`;
+        const url = payload.quoteNumber
+            ? `/quotes/stage1/${payload.quoteNumber}`
+            : `/quotes/stage1`;
 
-        const res = await fetch(url, {
-          method,
-          headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-          body: JSON.stringify(payload),
-        });
+        const res = payload.quoteNumber 
+            ? await axiosInstance.put<QuoteNextResponse>(url, payload)
+            : await axiosInstance.post<QuoteNextResponse>(url, payload);
 
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-
-        const json: QuoteNextResponse = await res.json();
+        const json: QuoteNextResponse = res.data;
         setData(json);
         return json;
       } catch (err: any) {
-        setError(err);
-        throw err;
+        const message = err.response?.data?.message || err.response?.data || err.message || 'Failed to save quote';
+        setError(message);
+        throw message;
       } finally {
         setLoading(false);
       }

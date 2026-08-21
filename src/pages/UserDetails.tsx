@@ -2,15 +2,71 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { useUserDetails } from "../hooks/useUserDetails";
-import { ProfileForm } from "../utils/types";
 import { DocumentIcon } from "@heroicons/react/24/outline";
-import { API_BASE } from "../utils/urls";
+import Spinner from "../components/Spinner";
+import { MdCancel } from "react-icons/md";
+import { useForm, Controller } from "react-hook-form";
+import { useLanguage } from "../context/LanguageContext";
+import { ApplicantTypeBadge } from "../utils/getApplicantTypeBadge";
+import useNotification from "../hooks/useNotification";
+
+// Interface for the form data
+export interface UserFormData {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  agentCode: string;
+  company: string;
+  userType: string;
+  status: string;
+  allowBulkUpload: boolean;
+  docLink1?: string;
+  docLink2?: string;
+  docLink3?: string;
+  docLink4?: string;
+  docType1?: string;
+  docType2?: string;
+  docType3?: string;
+  docType4?: string;
+  phoneNumber?: string;
+  mgaId?: string | null;
+  agentCodes?: string[];
+  newPwd?: string;
+  confirmPwd?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
 
 // Permission definitions and map
-const adminPermission = { modifyPolicies: true, viewPolicies: false, readOnly: false, manageUsers: true, bulkEnrollment: true };
-const agentPermission = { modifyPolicies: true, viewPolicies: false, readOnly: false, manageUsers: true, bulkEnrollment: true };
-const mgaPermission   = { modifyPolicies: true, viewPolicies: false, readOnly: false, manageUsers: true, bulkEnrollment: true };
-const readOnlyPermission = { modifyPolicies: true, viewPolicies: false, readOnly: false, manageUsers: true, bulkEnrollment: true };
+const adminPermission = {
+  modifyPolicies: true,
+  viewPolicies: false,
+  readOnly: false,
+  manageUsers: true,
+  bulkEnrollment: true,
+};
+const agentPermission = {
+  modifyPolicies: true,
+  viewPolicies: false,
+  readOnly: false,
+  manageUsers: true,
+  bulkEnrollment: true,
+};
+const mgaPermission = {
+  modifyPolicies: true,
+  viewPolicies: false,
+  readOnly: false,
+  manageUsers: true,
+  bulkEnrollment: true,
+};
+const readOnlyPermission = {
+  modifyPolicies: true,
+  viewPolicies: false,
+  readOnly: false,
+  manageUsers: true,
+  bulkEnrollment: true,
+};
 const PERMISSIONS_MAP: Record<string, typeof adminPermission> = {
   ADMIN: adminPermission,
   AGENT: agentPermission,
@@ -20,211 +76,506 @@ const PERMISSIONS_MAP: Record<string, typeof adminPermission> = {
 
 export default function UserDetails() {
   const { id } = useParams<{ id: string }>();
+  const { t } = useLanguage();
   const navigate = useNavigate();
   const token = useSelector((state: any) => state.auth.token) as string | null;
-  const currentUserType = useSelector((state: any) => state.auth.user?.userType) as string;
+  const currentUserType = useSelector(
+    (state: any) => state.auth.user?.userType,
+  ) as string;
   const { user, loading, error, save, saving, saveError } = useUserDetails(id!);
+  const {
+    register,
+    handleSubmit,
+    reset,
+    control,
+    formState: { errors },
+    watch,
+  } = useForm<UserFormData>();
+  const { triggerNotification, NotificationComponent } = useNotification();
 
   // Redirect non-admins
   useEffect(() => {
-    
     // if (currentUserType !== 'ADMIN') {
     //   navigate('/');
     // }
   }, [currentUserType, navigate]);
 
   const [isEditing, setIsEditing] = useState(false);
-  const [files, setFiles] = useState<{ [key: string]: File | null }>({ doc1: null, doc2: null, doc3: null });
-  const [formData, setFormData] = useState<ProfileForm>({
-    id: "",
-    firstName: "",
-    lastName: "",
-    email: "",
-    agentCode: "",
-    company: "",
-    userType: "",
-    status: "",
-    docLink1: "",
-    docLink2: "",
-    docLink3: "",
-    validUpto: "",
-    mgaId: null,
-    agentCodes: [],
-    password: "",
-    confirmPassword: "",
-    createdAt: "",
-    updatedAt: ""
+  const [files, setFiles] = useState<{ [key: string]: File | null }>({
+    doc1: null,
+    doc2: null,
+    doc3: null,
+    doc4: null,
   });
 
   useEffect(() => {
     if (user) {
-      setFormData({ ...user, password: "", confirmPassword: "" });
+      console.log("User", user);
+      reset({
+        ...user,
+        newPwd: "",
+        confirmPwd: "",
+      });
     }
-  }, [user]);
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, type, value, checked } = e.target as HTMLInputElement;
-    setFormData(prev => ({
-      ...prev,
-      [name]: type === 'checkbox' ? checked : value,
-    }));
-  };
+  }, [user, reset]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, files: fileList } = e.target;
-    setFiles(prev => ({ ...prev, [name]: fileList && fileList[0] ? fileList[0] : null }));
+    const file = fileList && fileList[0] ? fileList[0] : null;
+
+    if (file) {
+      const fileSizeInMB = file.size / (1024 * 1024);
+      if (fileSizeInMB > 10) {
+        triggerNotification({
+          type: "error",
+          message: t("File size must not exceed 10MB"),
+        });
+        e.target.value = "";
+        return;
+      }
+    }
+
+    setFiles((prev) => ({
+      ...prev,
+      [name]: file,
+    }));
   };
 
-  const handleSave = async () => {
+  const onSubmit = async (data: UserFormData) => {
     try {
-      await save(formData, files);
+      await save(data as UserFormData, files);
+      triggerNotification({
+        type: "success",
+        message: t("User details updated successfully"),
+      });
+      setFiles({
+        doc1: null,
+        doc2: null,
+        doc3: null,
+        doc4: null,
+      })
       setIsEditing(false);
-      // optionally reset passwords, etc.
-    } catch {
-      alert(saveError || 'Save failed');
+    } catch (err: any) {
+      const errorMessage =
+        err?.response?.data?.message || err?.message || t("Save failed");
+      triggerNotification({
+        type: "error",
+        message: errorMessage,
+      });
     }
   };
 
-  if (loading) return <p>Loading user…</p>;
-  if (error) return <p className="text-red-500">Error: {error}</p>;
+  const handleRemoveFile = (fileName: string) => {
+    setFiles((prev) => ({
+      ...prev,
+      [fileName]: null,
+    }));
+  };
+
+  if (loading)
+    return (
+      <div className="flex flex-col justify-center items-center gap-3 fixed top-1/2 left-1/2">
+        <Spinner className="w-10 h-10" />
+        <p>{t("Loading...")}</p>
+      </div>
+    );
+  if (error)
+    return (
+      <p className="text-red-500">
+        {t("Error")}: {error}
+      </p>
+    );
+
+  const formData = watch();
+
+  const formatDocType = (type: string | undefined, defaultLabel: string) => {
+    if (!type) return defaultLabel;
+    return type.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase());
+  };
 
   const currentUserPermissions = PERMISSIONS_MAP[formData.userType] || {};
-  const docs = [formData.docLink1, formData.docLink2, formData.docLink3].filter(Boolean);
+
+  const documentFields = [
+    {
+      key: "doc1",
+      link: formData.docLink1,
+      typeKey: "docType1" as const,
+      label: formatDocType(formData.docType1, "Insurance License"),
+    },
+    {
+      key: "doc2",
+      link: formData.docLink2,
+      typeKey: "docType2" as const,
+      label: formatDocType(formData.docType2, "E&O Insurance"),
+    },
+    {
+      key: "doc3",
+      link: formData.docLink3,
+      typeKey: "docType3" as const,
+      label: formatDocType(formData.docType3, "Bank Details"),
+    },
+    {
+      key: "doc4",
+      link: formData.docLink4,
+      typeKey: "docType4" as const,
+      label: formatDocType(formData.docType4, "Agency Agreement"),
+    },
+  ];
 
   return (
-    <div className="max-w-5xl mx-auto p-6 bg-white shadow-lg rounded-lg border border-gray-200">
+    <div className="max-w-5xl mx-auto px-2 py-6 sm:p-6 bg-greyBg">
+      {NotificationComponent}
       <h2 className="text-xl font-semibold text-center text-[#3a17c5] mb-4">
-        {isEditing ? "MODIFY USER" : "VIEW USER"}
+        {isEditing ? t("MODIFY USER") : t("VIEW USER")}
       </h2>
-      <div className="bg-gray-100 text-center text-gray-700 py-2 mb-4">
-        ** Changes to User Type will restore User Permissions to default settings **
+      <div className="bg-white text-center text-text-secondary py-2 mb-4">
+        {t(
+          "** Changes to User Type will restore User Permissions to default settings **",
+        )}
       </div>
 
-      <div className="flex justify-end space-x-2 mb-4">
+      <div className="flex justify-center sm:justify-end space-x-2 mb-4">
         {isEditing ? (
           <>
-            <button onClick={handleSave} className="px-4 py-2 bg-green-500 text-white rounded">
-              Save Changes
+            <button
+              onClick={handleSubmit(onSubmit)}
+              className="btn-primary flex items-center justify-center gap-2"
+              disabled={saving}
+            >
+              {saving ? (
+                <>
+                  {t("Saving...")}
+                </>
+              ) : (
+                t("Save Changes")
+              )}
             </button>
-            <button onClick={() => { setFormData({ ...user!, password: '', confirmPassword: '' }); setIsEditing(false); }} className="px-4 py-2 bg-gray-300 text-gray-700 rounded">
-              Discard Changes
+            <button
+              onClick={() => {
+                reset({
+                  ...user!,
+                  newPwd: "",
+                  confirmPwd: "",
+                });
+                setIsEditing(false);
+              }}
+              disabled={saving}
+              className="px-4 py-2 bg-white border border-inputBorder text-gray-700 hover:border-gray-600 transition cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {t("Discard Changes")}
             </button>
           </>
         ) : (
-          <button onClick={() => setIsEditing(true)} className="px-4 py-2 bg-gray-300 text-gray-700 rounded">
-            Modify User
+          <button onClick={() => setIsEditing(true)} className="btn-primary">
+            {t("Modify User")}
           </button>
         )}
       </div>
 
       {/* User Information */}
-      <div className="border border-gray-300 rounded-lg p-4 mb-4">
-        <h3 className="text-[#3a17c5] font-semibold mb-2">USER INFORMATION</h3>
-        <div className="grid grid-cols-2 gap-4 text-gray-700">
-        <input
-            name="agentCode"
-            value={formData.agentCode}
-            disabled={!isEditing}
-            onChange={handleChange}
-            className="border p-2 w-full"
-          />
-          <input
-            name="firstName"
-            value={formData.firstName}
-            disabled={!isEditing}
-            onChange={handleChange}
-            className="border p-2 w-full"
-          />
-          <input
-            name="lastName"
-            value={formData.lastName}
-            disabled={!isEditing}
-            onChange={handleChange}
-            className="border p-2 w-full"
-          />
-          <input
-            name="email"
-            type="email"
-            value={formData.email}
-            disabled={!isEditing}
-            onChange={handleChange}
-            className="border p-2 w-full"
-          />
-          <input
-            name="company"
-            value={formData.company}
-            disabled={!isEditing}
-            onChange={handleChange}
-            className="border p-2 w-full"
-          />
-          <select
-            name="userType"
-            value={formData.userType}
-            disabled={!isEditing}
-            onChange={handleChange}
-            className="border p-2 w-full"
-          >
-            <option value="ADMIN">Admin</option>
-            <option value="AGENT">Agent</option>
-            <option value="MGA">MGA</option>
-            <option value="READONLY">Read Only</option>
-          </select>
-          <div>
-            <label className="mr-4">
-              <input
-                type="radio"
-                name="status"
-                value="ACTIVE"
-                checked={formData.status === "ACTIVE"}
-                disabled={!isEditing}
-                onChange={handleChange}
-                className="mr-1"
-              />
-              Active
+      <div className="border border-inputBorder bg-white p-4 mb-4 relative">
+        <div className="absolute top-4 right-4 flex items-center gap-2">
+          <span className="px-2.5 py-1 bg-indigo-100 text-indigo-700 text-xs font-bold rounded-full uppercase tracking-wider">
+            {formData.userType}
+          </span>
+          <ApplicantTypeBadge agent={formData} />
+        </div>
+        <h3 className="text-primary font-semibold mb-2 capitalize text-lg">
+          {t("User Information")}
+        </h3>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-gray-700">
+          <div className="flex flex-col gap-1">
+            <label htmlFor="firstName" className="text-sm">
+              {t("First Name")}
             </label>
-            <label>
-              <input
-                type="radio"
-                name="status"
-                value="INACTIVE"
-                checked={formData.status === "INACTIVE"}
-                disabled={!isEditing}
-                onChange={handleChange}
-                className="mr-1"
-              />
-              Inactive
-            </label>
+            <input
+              {...register("firstName", {
+                required: t("First name is required"),
+                setValueAs: (value) => value?.trim() || "",
+              })}
+              disabled={!isEditing}
+              className="input-primary"
+            />
+            {errors.firstName && (
+              <span className="text-red-500 text-xs">
+                {errors.firstName.message}
+              </span>
+            )}
           </div>
 
+          <div className="flex flex-col gap-1">
+            <label htmlFor="lastName" className="text-sm">
+              {t("Last Name")}
+            </label>
+            <input
+              {...register("lastName", {
+                required: t("Last name is required"),
+                setValueAs: (value) => value?.trim() || "",
+              })}
+              disabled={!isEditing}
+              className="input-primary"
+            />
+            {errors.lastName && (
+              <span className="text-red-500 text-xs">
+                {errors.lastName.message}
+              </span>
+            )}
+          </div>
+
+          <div className="flex flex-col gap-1">
+            <label htmlFor="agentCode" className="text-sm">
+              {t("Agent Code")}
+            </label>
+            <input
+              {...register("agentCode", {
+                required: t("Agent code is required"),
+                setValueAs: (value) => value?.trim() || "",
+              })}
+              disabled={!isEditing}
+              className="input-primary"
+            />
+            {errors.agentCode && (
+              <span className="text-red-500 text-xs">
+                {errors.agentCode.message}
+              </span>
+            )}
+          </div>
+
+          <div className="flex flex-col gap-1">
+            <label htmlFor="email" className="text-sm">
+              {t("Email")}
+            </label>
+            <input
+              {...register("email", {
+                setValueAs: (value) => value?.trim()?.toLowerCase() || "",
+                required: t("Email is required"),
+                pattern: {
+                  value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                  message: t("Invalid email address"),
+                },
+              })}
+              disabled={true}
+              className="input-primary"
+            />
+            {errors.email && (
+              <span className="text-red-500 text-xs">
+                {errors.email.message}
+              </span>
+            )}
+          </div>
+
+          <div className="flex flex-col gap-1">
+            <label htmlFor="company" className="text-sm">
+              {t("Company")}
+            </label>
+            <input
+              {...register("company", {
+                required: t("Company name is required"),
+                setValueAs: (value) => value?.trim() || "",
+              })}
+              disabled={!isEditing}
+              className="input-primary"
+            />
+            {errors.company && (
+              <span className="text-red-500 text-xs">
+                {errors.company.message}
+              </span>
+            )}
+          </div>
+
+          <div className="flex flex-col gap-1">
+            <label htmlFor="phoneNumber" className="text-sm">
+              {t("Phone Number")}
+            </label>
+            <input
+              {...register("phoneNumber", {
+                setValueAs: (value) => value?.trim() || "",
+              })}
+              disabled={!isEditing}
+              className="input-primary"
+            />
+          </div>
+
+          <div className="flex flex-col gap-1">
+            <label htmlFor="userType" className="text-sm">
+              {t("User Type")}
+            </label>
+            <select
+              {...register("userType", {
+                required: t("User type is required"),
+              })}
+              disabled={!isEditing}
+              className="input-primary"
+            >
+              <option value="ADMIN">{t("Admin")}</option>
+              <option value="AGENT">{t("Agent")}</option>
+              <option value="MGA">{t("MGA")}</option>
+              <option value="READONLY">{t("Read Only")}</option>
+            </select>
+            {errors.userType && (
+              <span className="text-red-500 text-xs">
+                {errors.userType.message}
+              </span>
+            )}
+          </div>
           {isEditing && (
-            <>
+            <div className="flex flex-col gap-1 w-full">
+              <label htmlFor="newPwd" className="text-sm">
+                {t("Password")}
+              </label>
               <input
-                name="password"
+                {...register("newPwd", {
+                  setValueAs: (value) => value?.trim() || "",
+                  minLength: {
+                    value: 6,
+                    message: t("Minimum length is 6"),
+                  },
+                  validate: {
+                    hasLetter: (value) =>
+                      !value ||
+                      /[A-Za-z]/.test(value) ||
+                      t("Password must contain at least one letter"),
+                    hasNumber: (value) =>
+                      !value ||
+                      /\d/.test(value) ||
+                      t("Password must contain at least one number"),
+                  },
+                })}
                 type="password"
-                placeholder="New Password"
-                onChange={handleChange}
-                className="border p-2 w-full"
+                placeholder={t("New Password")}
+                className="input-primary"
               />
-              <input
-                name="confirmPassword"
-                type="password"
-                placeholder="Re-enter Password"
-                onChange={handleChange}
-                className="border p-2 w-full"
-              />
-            </>
+              {errors.newPwd && (
+                <span className="text-red-500 text-xs">
+                  {errors.newPwd.message}
+                </span>
+              )}
+            </div>
           )}
+          {isEditing && (
+            <div className="flex flex-col gap-1 w-full">
+              <label htmlFor="confirmPwd" className="text-sm">
+                {t("Confirm Password")}
+              </label>
+              <input
+                {...register("confirmPwd", {
+                  setValueAs: (value) => value?.trim() || "",
+                  validate: (value) =>
+                    !watch("newPwd") ||
+                    value === watch("newPwd") ||
+                    t("Passwords don't match"),
+                })}
+                type="password"
+                placeholder={t("Re-enter Password")}
+                className="input-primary"
+              />
+              {errors.confirmPwd && (
+                <span className="text-red-500 text-xs">
+                  {errors.confirmPwd.message}
+                </span>
+              )}
+            </div>
+          )}
+          <div className="flex flex-col gap-1">
+            <label htmlFor="allowBulkUpload" className="text-sm">
+              {t("Allow Bulk Upload")}
+            </label>
+            <div>
+              <Controller
+                name="allowBulkUpload"
+                control={control}
+                render={({ field }) => (
+                  <>
+                    <label className="mr-4">
+                      <input
+                        type="radio"
+                        checked={field.value === true}
+                        disabled={!isEditing}
+                        onChange={() => field.onChange(true)}
+                        className="mr-1"
+                      />
+                      {t("Yes")}
+                    </label>
+                    <label>
+                      <input
+                        type="radio"
+                        checked={field.value === false}
+                        disabled={!isEditing}
+                        onChange={() => field.onChange(false)}
+                        className="mr-1"
+                      />
+                      {t("No")}
+                    </label>
+                  </>
+                )}
+              />
+              {errors.allowBulkUpload && (
+                <span className="text-red-500 text-xs block mt-1">
+                  {errors.allowBulkUpload.message}
+                </span>
+              )}
+            </div>
+          </div>
+          <div className="flex flex-col gap-1">
+            <label htmlFor="status" className="text-sm">
+              {t("Status")}
+            </label>
+            <div>
+              <Controller
+                name="status"
+                control={control}
+                rules={{ required: t("Status is required") }}
+                render={({ field }) => (
+                  <>
+                    <label className="mr-4">
+                      <input
+                        type="radio"
+                        value="ACTIVE"
+                        checked={field.value === "ACTIVE"}
+                        disabled={!isEditing}
+                        onChange={() => field.onChange("ACTIVE")}
+                        className="mr-1"
+                      />
+                      {t("Active")}
+                    </label>
+                    <label>
+                      <input
+                        type="radio"
+                        value="INACTIVE"
+                        checked={field.value === "INACTIVE"}
+                        disabled={!isEditing}
+                        onChange={() => field.onChange("INACTIVE")}
+                        className="mr-1"
+                      />
+                      {t("Inactive")}
+                    </label>
+                  </>
+                )}
+              />
+              {errors.status && (
+                <span className="text-red-500 text-xs block mt-1">
+                  {errors.status.message}
+                </span>
+              )}
+            </div>
+          </div>
         </div>
       </div>
 
       {/* Permissions */}
-      <div className="border border-gray-300 rounded-lg p-4 mb-4">
-        <h3 className="text-[#3a17c5] font-semibold mb-2">USER PERMISSIONS</h3>
+      <div className="border border-inputBorder bg-white p-4 mb-4">
+        <h3 className="text-primary font-semibold mb-2 capitalize text-lg">
+          {t("User Permissions")}
+        </h3>
         <div className="text-gray-700 space-y-2">
           {Object.entries(currentUserPermissions).map(([k, v]) => (
             <label key={k} className="block">
               <input type="checkbox" checked={v} disabled className="mr-2" />
-              {k.replace(/([A-Z])/g, " $1").replace(/^./, s => s.toUpperCase())}
+              {t(
+                k
+                  .replace(/([A-Z])/g, " $1")
+                  .replace(/^./, (s) => s.toUpperCase()),
+              )}
             </label>
           ))}
         </div>
@@ -232,9 +583,9 @@ export default function UserDetails() {
 
       {/* MGA agentCodes */}
       {formData.agentCodes?.length! > 0 && (
-        <div className="border border-gray-300 rounded-lg p-4 mb-4">
-          <h3 className="text-[#3a17c5] font-semibold mb-2">
-            ASSIGNED AGENT CODES
+        <div className="border border-inputBorder bg-white p-4 mb-4">
+          <h3 className="text-primary font-semibold mb-2 capitalize text-lg">
+            {t("ASSIGNED AGENT CODES")}
           </h3>
           <ul className="list-disc list-inside text-gray-700">
             {formData.agentCodes!.map((c) => (
@@ -244,29 +595,76 @@ export default function UserDetails() {
         </div>
       )}
 
-<div className="border border-gray-300 rounded-lg p-4 mb-4">
-        <h3 className="text-[#3a17c5] font-semibold mb-2">DOCUMENTS</h3>
-        {docs.length > 0 ? (
-          <ul className="space-y-2">
-            {docs.map((link, idx) => {
-              const filename = link!.split("/").pop();
-              return (
-                <li key={idx}>
-                  <a href={`${API_BASE}${link}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-blue-600 hover:underline">
-                    <DocumentIcon className="h-5 w-5" />{filename}
+      <div className="border border-inputBorder bg-white p-4 mb-4">
+        <h3 className="text-primary font-semibold mb-2 capitalize text-lg">
+          {t("Documents")}
+        </h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 gap-y-1">
+          {documentFields.map((doc) => (
+            <div key={doc.key} className="flex flex-col gap-2">
+              {/* <div className="flex items-center gap-1">
+                <DocumentIcon className="h-4 w-4 text-text-primary" />
+                <a
+                  href={doc.link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-medium text-gray-700 hover:text-primary hover:underline"
+                >
+                  {t(doc.label)}
+                </a>
+              </div> */}
+
+              {doc.link ? (
+                <div className="flex items-center gap-1">
+                  <DocumentIcon className="h-4 w-4 text-text-primary" />
+                  <a
+                    href={doc.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-medium text-gray-700 hover:text-primary hover:underline"
+                  >
+                    {t(doc.label)}
                   </a>
-                </li>
-              );
-            })}
-          </ul>
-        ) : <p className="text-gray-500">No documents attached</p>}
-        {isEditing && (
-          <div className="flex flex-col gap-3 mt-2">
-            <input name="doc1" type="file" onChange={handleFileChange} className="border p-2 w-full" />
-            <input name="doc2" type="file" onChange={handleFileChange} className="border p-2 w-full" />
-            <input name="doc3" type="file" onChange={handleFileChange} className="border p-2 w-full" />
-          </div>
-        )}
+                </div>
+              ) : (
+                <div className="flex items-center gap-1">
+                  <DocumentIcon className="h-4 w-4 text-gray-300" />
+                  <span className="text-gray-400 text-sm">
+                    {t(doc.label)} — {t("No document")}
+                  </span>
+                </div>
+              )}
+
+              {isEditing && (
+                <div className="mt-2 text-center">
+                  <label className="input-primary cursor-pointer text-sm border-dashed border-2 hover:bg-gray-50 flex items-center justify-center py-4">
+                    {files[doc.key] ? (
+                      <div className="flex items-center gap-2 text-indigo-600">
+                        <span>{files[doc.key]!.name} (Ready)</span>
+                        <MdCancel
+                          size={18}
+                          className="text-red-500 cursor-pointer"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            handleRemoveFile(doc.key);
+                          }}
+                        />
+                      </div>
+                    ) : (
+                      t("Update Document")
+                    )}
+                    <input
+                      name={doc.key}
+                      type="file"
+                      onChange={handleFileChange}
+                      className="hidden"
+                    />
+                  </label>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );

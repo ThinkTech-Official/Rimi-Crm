@@ -1,71 +1,129 @@
-import React, { ChangeEvent, useContext, useEffect, useState } from "react";
-import { LangContext } from "../context/LangContext";
+import React, { useState } from "react";
+// import { LangContext } from "../context/LangContext";
+import { useLanguage } from "../context/LanguageContext";
 import {
   useSearchPolicies,
   SearchPoliciesCriteria,
-  PolicyRecord,
 } from "../hooks/useSearchPolicies";
-import { Link, useNavigate } from "react-router-dom";
-import { FaAngleDown } from "react-icons/fa";
-import { useForm } from "react-hook-form";
-
-const allProducts = [
-  "RIMI Canuck Voyage Travel Medical",
-  "RIMI Canuck Voyage Non-Medical Travel",
-  "Secure Study RIMI International Students to Canada",
-  "Secure Travel RIMI Visitors to Canada Travel",
-];
-
-const status = ["All", "Active", "Sold", "Cancelled", "Expired"];
+import { Link } from "react-router-dom";
+import { useForm, Controller } from "react-hook-form";
+import {
+  ChevronLeftIcon,
+  ChevronRightIcon,
+} from "@heroicons/react/24/outline";
+import { RenderPageNumbers } from "./RenderPageNumbers";
+import DatePicker from "./DatePicker";
+import { isAfterDate, formatDateToDDMMYYYY } from "../utils/dateUtils";
+import useNotification from "../hooks/useNotification";
+import Dropdown from "./DropDown";
 
 const PoliciesSearch: React.FC = () => {
-  const { langauge } = useContext(LangContext);
-  const navigate = useNavigate();
-  const [isSelectStatusOpen, setIsSelectStatusOpen] = useState(false);
+  // const { langauge } = useContext(LangContext);
+  const { t } = useLanguage();
 
-  const [criteria, setCriteria] = useState<
-    Omit<SearchPoliciesCriteria, "page" | "limit">
-  >({ products: ["All"] });
+  const allProducts = [
+    {
+      label: t("RIMI Canuck Voyage Travel Medical"),
+      value: "RIMI_CANUCK_VOYAGE_TRAVEL_MEDICAL",
+    },
+    {
+      label: t("RIMI Canuck Voyage Non-Medical Travel"),
+      value: "RIMI_CANUCK_VOYAGE_NON_MEDICAL_TRAVEL",
+    },
+    {
+      label: t("Secure Study RIMI International Students to Canada"),
+      value: "SECURE_STUDY_RIMI_INTERNATIONAL_STUDENTS_TO_CANADA",
+    },
+    {
+      label: t("Secure Travel RIMI Visitors to Canada Travel"),
+      value: "SECURE_TRAVEL_RIMI_VISITORS_TO_CANADA_TRAVEL",
+    },
+  ];
+
+  const status = ["All", "Active", "Sold", "Cancelled", "Expired"];
+
+  const [searchData, setSearchData] = useState<SearchPoliciesCriteria>({
+    products: ["All"],
+  });
+  const [selectedStatus, setSelectedStatus] = useState<string>("");
+  const [selectedProducts, setSelectedProducts] = useState<string[]>(["All"]);
   const [page, setPage] = useState(1);
   const limit = 10;
-  const { search, loading, error, data } = useSearchPolicies(limit);
+  // const { search, loading, error, data } = useSearchPolicies(limit);
+  const { search, exportCsv, exporting, exportError, loading, error, data } =
+    useSearchPolicies(limit);
+  const { triggerNotification, NotificationComponent } = useNotification();
+  const totalPages = data?.totalPages || 0;
   const {
     register,
     setValue,
     handleSubmit,
-    formState: { errors },
-    watch,
+    control,
+    formState: {},
   } = useForm<SearchPoliciesCriteria>({
     defaultValues: {
       products: ["All"],
     },
   });
-  useEffect(() => {
-    register("status", { required: "Status is required" });
-  }, [register]);
-
-  const handleChange =
-    (key: keyof Omit<SearchPoliciesCriteria, "page" | "limit">) =>
-    (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-      const val = e.target.value;
-      setCriteria((prev) => ({ ...prev, [key]: val || undefined }));
-    };
-
   const handleProductChange = (product: string) => {
-    setCriteria((prev) => {
-      const current = prev.products || [];
-      if (product === "All") return { ...prev, products: ["All"] };
+    setSelectedProducts((prev) => {
+      const current = prev;
+      if (product === "All") return ["All"];
       const next = current.includes(product)
         ? current.filter((p) => p !== product)
         : [...current.filter((p) => p !== "All"), product];
-      return { ...prev, products: next };
+      return next;
     });
   };
 
+  const handleStatusChange = (status: string) => {
+    if (status === "All") {
+      setSelectedStatus("");
+      return;
+    }
+    setSelectedStatus(status);
+  };
+
   const onSearch = (formData: SearchPoliciesCriteria) => {
-    console.log(formData);
+    const filteredData = Object.fromEntries(
+      Object.entries(formData).filter(([_, v]) => {
+        if (v === undefined || v === null) return false;
+        if (typeof v === "string" && v.trim() === "") return false;
+        if (Array.isArray(v) && v.length === 0) return false;
+        return true;
+      })
+    ) as SearchPoliciesCriteria;
+
+    const finalData: SearchPoliciesCriteria = {
+      ...filteredData,
+      products: selectedProducts,
+      status: selectedStatus,
+    };
+
+    if (finalData.saleDateFrom && finalData.saleDateTo) {
+      if (isAfterDate(finalData.saleDateFrom, finalData.saleDateTo)) {
+        triggerNotification({
+          message: t("Sale Date From must be before Sale Date To"),
+          type: "error",
+        });
+        return;
+      }
+    }
+
+    if (finalData.effectiveDateFrom && finalData.effectiveDateTo) {
+      if (isAfterDate(finalData.effectiveDateFrom, finalData.effectiveDateTo)) {
+        triggerNotification({
+          message: t("Effective Date From must be before Effective Date To"),
+          type: "error",
+        });
+        return;
+      }
+    }
+
+    setSearchData(finalData);
+
     setPage(1);
-    search(formData, 1, limit);
+    search(finalData, 1, limit);
   };
 
   const goToPage = (p: number) => {
@@ -73,463 +131,407 @@ const PoliciesSearch: React.FC = () => {
     const tp = data.totalPages;
     const np = Math.max(1, Math.min(p, tp));
     setPage(np);
-    search(criteria, np, limit);
+    search(searchData, np, limit);
   };
 
   return (
-    <div className="max-w-5xl mx-auto mt-4 px-2 py-4 sm:p-6 bg-[#F9F9F9]">
+    <div className="w-full mx-auto mt-4 px-2 py-4 sm:p-6 bg-[#F9F9F9]">
       <div className="space-y-2">
-        <h2 className="text-lg font-bold text-left text-[#1B1B1B] mb-2">
-          {langauge === "En" ? "Search Policies" : "Rechercher Polices"}
+        <h2 className="text-lg 2xl:text-xl font-bold text-left text-[#1B1B1B] mb-2">
+          {t("Search Policies")}
         </h2>
         <p className="text-left font-medium text-[#6A6A6A] mb-8">
-          {langauge === "En"
-            ? "Fill in as many criteria as you can to search."
-            : "Remplissez autant de critères que possible pour la recherche."}
+          {t("Fill in as many criteria as you can to search.")}
         </p>
       </div>
 
-      {/* // */}
-
-      {/* Product Selector  */}
-      {/* <div className="mt-6">
-        <p className="text-[#1B1B1B]  font-[inter] mb-2">
-          {langauge === "En" ? "Product" : "PRODUIT"}
-        </p>
-        <div className="border border-[#DBDADE] p-2 bg-[#F9F9F9] overflow-y-auto rounded text-sm font-[inter] text-[#1B1B1B] space-y-2">
-          <label className="block">
-            <input
-              type="checkbox"
-              className="mr-2 text-[#1B1B1B]"
-              checked={criteria.products?.includes("All")}
-              onChange={() => handleProductChange("All")}
-            />
-            All
-          </label>
-          {products.map((p) => (
-            <label key={p.en} className="block text-[#1B1B1B]">
-              <input
-                type="checkbox"
-                className="mr-2 text-[#1B1B1B]"
-                checked={criteria.products?.includes(p.en)}
-                onChange={() => handleProductChange(p.en)}
-              />
-              {langauge === "En" ? p.en : p.fr}
-            </label>
-          ))}
-        </div>
-      </div> */}
-
-      {/*  */}
       <form onSubmit={handleSubmit(onSearch)}>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 md:gap-x-16 lg:gap-x-24 gap-y-4 text-text-secondary">
           {/* First Name */}
-          <div className="flex flex-col 1">
-            <label className="text-sm">First Name</label>
+          <div className="flex flex-col">
+            <label className="text-sm 2xl:text-base">{t("First Name")}</label>
             <input
-              {...register("firstName", { required: "First Name is required" })}
-              // value={criteria.firstName || ""}
-              // onChange={handleChange("firstName")}
+              {...register("firstName", {
+                setValueAs: (value) => value.trim(),
+              })}
               className="input-primary"
-              placeholder="First Name"
+              placeholder={t("First Name")}
             />
-            {errors.firstName && (
-              <span className="text-red-500 text-sm">
-                {errors.firstName.message}
-              </span>
-            )}
           </div>
           {/* Last Name */}
-          <div className="flex flex-col 1">
-            <label className="text-sm">Last Name</label>
+          <div className="flex flex-col">
+            <label className="text-sm 2xl:text-base">{t("Last Name")}</label>
             <input
-              {...register("lastName", { required: "Last Name is required" })}
-              // value={criteria.lastName || ""}
-              // onChange={handleChange("lastName")}
+              {...register("lastName", {
+                setValueAs: (value) => value.trim(),
+              })}
               className="input-primary"
-              placeholder="Last Name"
+              placeholder={t("Last Name")}
             />
-            {errors.lastName && (
-              <span className="text-red-500 text-sm">
-                {errors.lastName.message}
-              </span>
-            )}
           </div>
           {/* Date of Birth */}
-          <div className="flex flex-col 1">
-            <label className="text-sm">Date of Birth</label>
-            <input
-              type="date"
-              {...register("dateOfBirth", {
-                required: "Date of Birth is required",
-              })}
-              // value={criteria.dateOfBirth || ""}
-              // onChange={handleChange("dateOfBirth")}
-              className="input-primary"
-              placeholder="Date of Birth"
+          <div className="flex flex-col">
+            <Controller
+              name="dateOfBirth"
+              control={control}
+              render={({ field }) => (
+                <DatePicker {...field} label={t("Date of Birth")} />
+              )}
             />
-            {errors.dateOfBirth && (
-              <span className="text-red-500 text-sm">
-                {errors.dateOfBirth.message}
-              </span>
-            )}
           </div>
           {/* Policy Number */}
-          <div className="flex flex-col 1">
-            <label className="text-sm">Policy Number</label>
+          <div className="flex flex-col">
+            <label className="text-sm 2xl:text-base">{t("Policy Number")}</label>
             <input
               {...register("policyNumber", {
-                required: "Policy Number is required",
+                setValueAs: (value) => value.trim(),
               })}
-              // value={criteria.policyNumber || ""}
-              // onChange={handleChange("policyNumber")}
               className="input-primary"
-              placeholder="Policy Number"
+              placeholder={t("Policy Number")}
             />
-            {errors.policyNumber && (
-              <span className="text-red-500 text-sm">
-                {errors.policyNumber.message}
-              </span>
-            )}
           </div>
           {/* Phone Number */}
-          <div className="flex flex-col 1">
-            <label className="text-sm">Phone Number</label>
+          <div className="flex flex-col">
+            <label className="text-sm 2xl:text-base">{t("Phone Number")}</label>
             <input
               {...register("phoneNumber", {
-                required: "Phone Number is required",
+                setValueAs: (value) => value.trim(),
               })}
-              // value={criteria.phoneNumber || ""}
-              // onChange={handleChange("phoneNumber")}
               className="input-primary"
-              placeholder="Phone Number"
+              placeholder={t("Phone Number")}
             />
-            {errors.phoneNumber && (
-              <span className="text-red-500 text-sm">
-                {errors.phoneNumber.message}
-              </span>
-            )}
           </div>
           {/* Email */}
-          <div className="flex flex-col 1">
-            <label className="text-sm">Email</label>
+          <div className="flex flex-col">
+            <label className="text-sm 2xl:text-base">{t("Email")}</label>
             <input
               type="email"
               {...register("email", {
-                required: "Email is required",
+                setValueAs: (value) => value?.trim()?.toLowerCase() || "",
                 pattern: {
                   value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                  message: "Invalid email address",
+                  message: t("Invalid email address"),
                 },
               })}
-              // value={criteria.email || ""}
-              // onChange={handleChange("email")}
               className="input-primary"
-              placeholder="Email"
+              placeholder={t("Email")}
             />
-            {errors.email && (
-              <span className="text-red-500 text-sm">
-                {errors.email.message}
-              </span>
-            )}
           </div>
           {/* Sale Date From */}
-          <div className="flex flex-col 1">
-            <label className="text-sm">Sale Date From</label>
-            <input
-              type="date"
-              {...register("saleDateFrom", {
-                required: "Sale Date From is required",
-              })}
-              // value={criteria.saleDateFrom || ""}
-              // onChange={handleChange("saleDateFrom")}
-              className="input-primary"
+          <div className="flex flex-col">
+            <Controller
+              name="saleDateFrom"
+              control={control}
+              render={({ field }) => (
+                <DatePicker {...field} label={t("Sale Date From")} />
+              )}
             />
-            {errors.saleDateFrom && (
-              <span className="text-red-500 text-sm">
-                {errors.saleDateFrom.message}
-              </span>
-            )}
           </div>
           {/* Sale Date To */}
-          <div className="flex flex-col 1">
-            <label className="text-sm">Sale Date To</label>
-            <input
-              type="date"
-              {...register("saleDateTo", {
-                required: "Sale Date To is required",
-              })}
-              // value={criteria.saleDateTo || ""}
-              // onChange={handleChange("saleDateTo")}
-              className="input-primary"
+          <div className="flex flex-col">
+            <Controller
+              name="saleDateTo"
+              control={control}
+              render={({ field }) => (
+                <DatePicker {...field} label={t("Sale Date To")} />
+              )}
             />
-            {errors.saleDateTo && (
-              <span className="text-red-500 text-sm">
-                {errors.saleDateTo.message}
-              </span>
-            )}
           </div>
           {/* Effective Date From */}
-          <div className="flex flex-col 1">
-            <label className="text-sm">Effective Date From</label>
-            <input
-              type="date"
-              {...register("effectiveDateFrom", {
-                required: "Effective Date From is required",
-              })}
-              // value={criteria.effectiveDateFrom || ""}
-              // onChange={handleChange("effectiveDateFrom")}
-              className="input-primary"
+          <div className="flex flex-col">
+            <Controller
+              name="effectiveDateFrom"
+              control={control}
+              render={({ field }) => (
+                <DatePicker {...field} label={t("Effective Date From")} />
+              )}
             />
-            {errors.effectiveDateFrom && (
-              <span className="text-red-500 text-sm">
-                {errors.effectiveDateFrom.message}
-              </span>
-            )}
           </div>
           {/* Effective Date To */}
-          <div className="flex flex-col 1">
-            <label className="text-sm">Effective Date To</label>
-            <input
-              type="date"
-              {...register("effectiveDateTo", {
-                required: "Effective Date To is required",
-              })}
-              // value={criteria.effectiveDateTo || ""}
-              // onChange={handleChange("effectiveDateTo")}
-              className="input-primary"
+          <div className="flex flex-col">
+            <Controller
+              name="effectiveDateTo"
+              control={control}
+              render={({ field }) => (
+                <DatePicker {...field} label={t("Effective Date To")} />
+              )}
             />
-            {errors.effectiveDateTo && (
-              <span className="text-red-500 text-sm">
-                {errors.effectiveDateTo.message}
-              </span>
-            )}
           </div>
           {/* Application ID */}
-          <div className="flex flex-col 1">
-            <label className="text-sm">Application ID</label>
+          <div className="flex flex-col">
+            <label className="text-sm 2xl:text-base">{t("Application ID")}</label>
             <input
               {...register("applicationId", {
-                required: "Application ID is required",
+                setValueAs: (value) => value.trim(),
               })}
-              // value={criteria.applicationId || ""}
-              // onChange={handleChange("applicationId")}
               className="input-primary"
-              placeholder="Application ID"
+              placeholder={t("Application ID")}
             />
-            {errors.applicationId && (
-              <span className="text-red-500 text-sm">
-                {errors.applicationId.message}
-              </span>
-            )}
           </div>
           {/* Agent */}
-          <div className="flex flex-col 1">
-            <label className="text-sm">Agent</label>
+          <div className="flex flex-col">
+            <label className="text-sm 2xl:text-base">{t("Agent Code")}</label>
             <input
-              {...register("agent", { required: "Agent is required" })}
-              // value={criteria.agent || ""}
-              // onChange={handleChange("agent")}
+              {...register("agent", {
+                setValueAs: (value) => value.trim(),
+              })}
               className="input-primary"
-              placeholder="Agent"
+              placeholder={t("Agent Code")}
             />
-            {errors.agent && (
-              <span className="text-red-500 text-sm">
-                {errors.agent.message}
-              </span>
-            )}
           </div>
           {/* Status */}
-          <div className="flex flex-col 1">
-            <label className="text-sm">Status</label>
-            {/* <select
-            value={criteria.status || "All"}
-            onChange={(e) =>
-              setCriteria((prev) => ({
-                ...prev,
-                status: e.target.value === "All" ? undefined : e.target.value,
-              }))
-            }
-            className="input-primary"
-          >
-            <option className="border-0 hover:bg-gray-100">All</option>
-            <option>Active</option>
-            <option>Sold</option>
-            <option>Expired</option>
-            <option>Cancelled</option>
-          </select> */}
-            <div className="relative bg-white">
-              <button
-                type="button"
-                className="w-full border border-inputBorder py-2 sm:py-3 px-4 focus:border-0 focus:ring-1 focus:ring-primary capitalize flex items-center justify-between text-left text-text-light cursor-pointer"
-                onClick={() => setIsSelectStatusOpen((prev) => !prev)}
-              >
-                <span className="capitalize">{criteria.status || "All"}</span>
-                <FaAngleDown
-                  className={`ml-2 cusor-pointer transition-transform ${
-                    isSelectStatusOpen ? "rotate-180" : ""
-                  }`}
+          <div className="flex flex-col">
+            <Controller
+              name="status"
+              control={control}
+              render={({ field }) => (
+                <Dropdown
+                  {...field}
+                  label={t("Status")}
+                  options={status.map((s) => ({
+                    value: s === "All" ? "" : s,
+                    label: s,
+                  }))}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    handleStatusChange(val || "All");
+                    field.onChange(val);
+                  }}
+                  value={selectedStatus}
                 />
-              </button>
-
-              {isSelectStatusOpen && (
-                <div className="absolute mt-[2px] top-full left-0 w-full bg-white border border-inputBorder shadow-md z-10 max-h-60 overflow-y-auto custom-scrollbar3 pr-[2px]">
-                  {status.map((s, i) => (
-                    <div
-                      key={i}
-                      className={`px-4 py-2 hover:bg-gray-200 text-text-light cursor-pointer capitalize ${
-                        criteria.status === s
-                          ? "bg-primary text-white hover:bg-gray-200 hover:text-text-light"
-                          : ""
-                      }`}
-                      onClick={() => {
-                        setCriteria((prev) => ({ ...prev, status: s }));
-                        setValue("status", s, { shouldValidate: true });
-                        setIsSelectStatusOpen(false);
-                      }}
-                    >
-                      {s}
-                    </div>
-                  ))}
-                </div>
               )}
-            </div>
-            {errors.status && (
-              <p className="text-red-500 text-sm text-sm mt-1">
-                {errors.status.message}
-              </p>
-            )}
+            />
           </div>
+        </div>
+        {/* Product list */}
+        <div className="mt-6">
+          <p className="text-[#1B1B1B]  font-[inter] mb-2">{t("Product")}</p>
+          <div className="border border-[#DBDADE] p-2 bg-[#F9F9F9] overflow-y-auto rounded text-sm font-[inter] text-[#1B1B1B] space-y-2">
+            <label className="block">
+              <input
+                type="checkbox"
+                checked={selectedProducts?.includes("All")}
+                onChange={() => handleProductChange("All")}
+                className="mr-2 text-[#1B1B1B] accent-primary cursor-pointer"
+              />
+              {t("All")}
+            </label>
+            {allProducts.map((p) => (
+              <label key={p.value} className="block">
+                <input
+                  type="checkbox"
+                  checked={selectedProducts?.includes(p.value)}
+                  onChange={() => handleProductChange(p.value)}
+                  className="mr-2 accent-primary cursor-pointer"
+                />{" "}
+                {p.label}
+              </label>
+            ))}
+          </div>
+        </div>
+        <div className="flex justify-center mt-6">
+          <button type="submit" disabled={loading} className="btn-primary">
+            {loading ? t("Searching...") : t("Search Policies")}
+          </button>
         </div>
       </form>
 
-      {/* Product list */}
-      <div className="mt-6">
-        <p className="text-[#1B1B1B]  font-[inter] mb-2">
-          {langauge === "En" ? "Product" : "PRODUIT"}
-        </p>
-        <div className="border border-[#DBDADE] p-2 bg-[#F9F9F9] overflow-y-auto rounded text-sm font-[inter] text-[#1B1B1B] space-y-2">
-          <label className="block">
-            <input
-              type="checkbox"
-              checked={(criteria.products || []).includes("All")}
-              onChange={() => handleProductChange("All")}
-              className="mr-2 text-[#1B1B1B] accent-primary cursor-pointer"
-            />
-            All
-          </label>
-          {allProducts.map((p) => (
-            <label key={p} className="block">
-              <input
-                type="checkbox"
-                checked={(criteria.products || []).includes(p)}
-                onChange={() => handleProductChange(p)}
-                className="mr-2 accent-primary cursor-pointer"
-              />{" "}
-              {p}
-            </label>
-          ))}
-        </div>
-      </div>
-
-      <div className="flex justify-center mt-6">
-        <button
-          onClick={handleSubmit(onSearch)}
-          disabled={loading}
-          className="btn-primary"
-        >
-          {loading ? "Searching..." : "Search Policies"}
-        </button>
-      </div>
-
-      {error && <p className="text-red-600">{error}</p>}
-
+      {/* Result list display */}
       {data && (
-        <>
-          <p>Found {data.total} policies.</p>
-          <table className="min-w-full border mt-4">
-            <thead className="bg-gray-100">
+        <div className="w-full overflow-x-auto custom-scrollbar pb-2">
+          <div className="mt-4">
+            {!loading && (
+              <div className="mb-1 flex items-center justify-between flex-wrap gap-2">
+                <p className="text-text-primary">
+                  {t("Found")} {data.total} {t("policies.")}
+                </p>
+                <div className="flex flex-col items-end gap-1">
+                  <button
+                    onClick={() => exportCsv(searchData)}
+                    disabled={exporting}
+                    className="py-2 px-4 border border-inputBorder hover:border-gray-500 transition cursor-pointer mb-2 text-sm"
+                  >
+                    {exporting ? (
+                      <div className="flex items-center gap-2">
+                        <span className="animate-spin inline-block w-4 h-4 border-2 border-current border-t-transparent rounded-full" />
+                        {t("Exporting...")}
+                      </div>
+                    ) : (
+                      <>{t("Download CSV")}</>
+                    )}
+                  </button>
+                  {exportError && (
+                    <p className="text-sm text-red-600 max-w-xs text-right">
+                      {exportError}
+                    </p>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-primary text-white text-base 2xl:text-xl capitalize">
               <tr>
                 {[
-                  // "ID",
-                  "Policy No.",
-                  "Status",
-
-                  "First Name",
-                  "Last Name",
-                  "DOB",
-                  "Eff. Date",
-                  "Exp. Date",
-                  "Product",
-
-                  "Actions",
+                  t("Policy No."),
+                  t("Status"),
+                  t("Name"),
+                  t("Eff. Date"),
+                  t("Exp. Date"),
+                  t("Product"),
+                  t("Actions"),
                 ].map((h) => (
-                  <th key={h} className="px-4 py-2 text-left">
+                  <th
+                    key={h}
+                    className="px-2 sm:px-3 py-1 sm:py-3 text-left font-medium text-nowrap"
+                  >
                     {h}
                   </th>
                 ))}
               </tr>
             </thead>
-            <tbody>
-              {data.items.map((p) => (
-                <tr key={p.id} className="border-t">
-                  {/* <td className="px-4 py-2">{p.id}</td> */}
-                  <td className="px-4 py-2">{p.policyNumber}</td>
-                  <td className="px-4 py-2">{p.status}</td>
-                  {/* <td className="px-4 py-2">{p.policyType}</td> */}
-                  <td className="px-4 py-2">{p.firstName}</td>
-                  <td className="px-4 py-2">{p.lastName}</td>
-                  <td className="px-4 py-2">{p.dateOfBirth?.split("T")[0]}</td>
-                  <td className="px-4 py-2">{p.effectiveDate?.split("T")[0]}</td>
-                  <td className="px-4 py-2">{p.expiryDate?.split("T")[0]}</td>
-                  <td className="px-4 py-2">{p.product}</td>
-
-                  <td className="px-4 py-2">
-                    <Link
-                      target="_blank"
-                      to={`/policy-detail/${p.id}`}
-                      className="px-2 py-1 bg-blue-600 text-white rounded"
-                    >
-                      View
-                    </Link>
+            <tbody className="bg-white" style={{ border: "1px solid #AAA9A9" }}>
+              {loading ? (
+                <tr>
+                  <td className="p-2 text-primary text-center h-40" colSpan={7}>
+                    {t("Loading...")}
                   </td>
                 </tr>
-              ))}
+              ) : error ? (
+                <tr>
+                  <td className="p-2 text-red-500" colSpan={7}>
+                    {error}
+                  </td>
+                </tr>
+              ) : data?.items.length === 0 ? (
+                <tr>
+                  <td
+                    className="p-2 text-text-secondary text-center"
+                    colSpan={7}
+                  >
+                    {t("No policies found")}
+                  </td>
+                </tr>
+              ) : (
+                data.items.map((p) => (
+                  <tr
+                    key={p.id}
+                    className="text-[#808080] text-sm 2xl:text-base"
+                  >
+                    <td
+                      className="px-2 sm:px-3 py-2 sm:py-3 whitespace-nowrap"
+                      style={{
+                        borderWidth: "0px 1px 1px 0px",
+                        borderStyle: "solid",
+                        borderColor: "#AAA9A9",
+                      }}
+                    >
+                      {p.policyNumber}
+                    </td>
+                    <td
+                      className="px-2 sm:px-3 py-2 sm:py-3 whitespace-nowrap"
+                      style={{
+                        borderWidth: "0px 1px 1px 0px",
+                        borderStyle: "solid",
+                        borderColor: "#AAA9A9",
+                      }}
+                    >
+                      {t(p.status || "")}
+                    </td>
+                    <td
+                      className="px-2 sm:px-3 py-2 sm:py-3 min-w-[250px] break-words"
+                      style={{
+                        borderWidth: "0px 1px 1px 0px",
+                        borderStyle: "solid",
+                        borderColor: "#AAA9A9",
+                      }}
+                    >
+                      {p.firstName + " " + p.lastName}
+                    </td>
+                    <td
+                      className="px-2 sm:px-3 py-2 sm:py-3 whitespace-nowrap"
+                      style={{
+                        borderWidth: "0px 1px 1px 0px",
+                        borderStyle: "solid",
+                        borderColor: "#AAA9A9",
+                      }}
+                    >
+                      {formatDateToDDMMYYYY(p.effectiveDate)}
+                    </td>
+                    <td
+                      className="px-2 sm:px-3 py-2 sm:py-3 whitespace-nowrap"
+                      style={{
+                        borderWidth: "0px 1px 1px 0px",
+                        borderStyle: "solid",
+                        borderColor: "#AAA9A9",
+                      }}
+                    >
+                      {formatDateToDDMMYYYY(p.expiryDate)}
+                    </td>
+                    <td
+                      className="px-2 sm:px-3 py-2 sm:py-3 capitalize min-w-[250px] text-nowrap"
+                      style={{
+                        borderWidth: "0px 1px 1px 0px",
+                        borderStyle: "solid",
+                        borderColor: "#AAA9A9",
+                      }}
+                    >
+                      {p.product?.split("_").join(" ").toLowerCase()}
+                    </td>
+
+                    <td
+                      className="px-2 sm:px-3 py-2 sm:py-3 whitespace-nowrap"
+                      style={{
+                        borderWidth: "0px 1px 1px 0px",
+                        borderStyle: "solid",
+                        borderColor: "#AAA9A9",
+                      }}
+                    >
+                      <Link
+                        target="_blank"
+                        to={`/policy-detail/${p.id}`}
+                        className="text-primary hover:underline hover:underline-offset-2 cursor-pointer font-medium px-4 text-center w-full"
+                      >
+                        {t("View")}
+                      </Link>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
-          <div className="flex justify-center space-x-2 mt-4">
-            <button
-              onClick={() => goToPage(page - 1)}
-              disabled={page <= 1}
-              className="px-3 py-1 border rounded disabled:opacity-50"
-            >
-              Prev
-            </button>
-            {Array.from({ length: data.totalPages }, (_, i) => i + 1).map(
-              (p) => (
-                <button
-                  key={p}
-                  onClick={() => goToPage(p)}
-                  className={`px-3 py-1 border rounded ${
-                    p === page
-                      ? "bg-purple-700 text-white"
-                      : "bg-white text-purple-700"
-                  }`}
-                >
-                  {p}
-                </button>
-              )
-            )}
-            <button
-              onClick={() => goToPage(page + 1)}
-              disabled={page >= data.totalPages}
-              className="px-3 py-1 border rounded disabled:opacity-50"
-            >
-              Next
-            </button>
-          </div>
-        </>
+        </div>
       )}
+
+      {/* Pagination Controls */}
+      {totalPages > 0 && (
+        <div className="flex justify-center items-center space-x-2 mt-4">
+          <button
+            onClick={() => goToPage(page - 1)}
+            disabled={page <= 1}
+            className="px-2 py-[10px] bg-[#CCCCCC] text-[#6F6B7D] cursor-pointer"
+          >
+            <ChevronLeftIcon className="h-5 w-5" />
+          </button>
+
+          <RenderPageNumbers
+            onPageChange={goToPage}
+            totalPages={totalPages}
+            page={page}
+          />
+
+          <button
+            onClick={() => goToPage(page + 1)}
+            disabled={page >= totalPages}
+            className="px-2 py-[10px] bg-[#CCCCCC] text-[#6F6B7D] cursor-pointer"
+          >
+            <ChevronRightIcon className="h-5 w-5" />
+          </button>
+        </div>
+      )}
+
+      {NotificationComponent}
     </div>
   );
 };

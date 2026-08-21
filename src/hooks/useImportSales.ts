@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { API_BASE } from "../utils/urls";
+import { axiosInstance } from "../utils/axiosInstance";
 
 export interface ImportSalesResult {
   updatedPolicies: number;
@@ -9,7 +9,7 @@ export interface ImportSalesResult {
   errors: { policyNumber: string; error: string }[];
 }
 
-const baseUrl = `${API_BASE}`
+
 
 export function useImportSales() {
   const [loading, setLoading] = useState(false);
@@ -23,16 +23,8 @@ export function useImportSales() {
     try {
       const form = new FormData();
       form.append("file", file);
-      const resp = await fetch(`${baseUrl}/policies/import-sales`, {
-        method: "POST",
-        body: form,
-      });
-      if (!resp.ok) {
-        const txt = await resp.text();
-        throw new Error(txt || resp.statusText);
-      }
-      const json = (await resp.json()) as ImportSalesResult;
-      setData(json);
+      const resp = await axiosInstance.post('/policies/import-sales', form);
+      setData(resp.data);
     } catch (err: any) {
       setError(err.message);
     } finally {

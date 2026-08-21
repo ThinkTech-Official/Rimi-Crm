@@ -1,4 +1,3 @@
-
 // import { useState, useCallback } from 'react';
 // import axios from 'axios';
 // import { Shipping } from '../components/Products/SecureTravelRIMIVisitorstoCanadaTravel/step2/PaymentInformation';
@@ -40,19 +39,16 @@
 //   return { createPaymentIntent, loading, error };
 // }
 
-
 // ============================
 
 // src/hooks/useCreatePaymentIntent.ts
 
-import { useState, useCallback } from 'react';
-import axios from 'axios';
-import { Shipping } from '../components/Products/SecureTravelRIMIVisitorstoCanadaTravel/step2/PaymentInformation';
-
-const localAddress = 'http://localhost:3000';
+import { useState, useCallback } from "react";
+import { axiosInstance } from "../utils/axiosInstance";
+import { Shipping } from "../components/Products/SecureTravelRIMIVisitorstoCanadaTravel/step2/PaymentInformation";
 
 export function useCreatePaymentIntent(
-  stripeCustomerId: string,
+  // stripeCustomerId: string,
   quoteNumber: string,
   description: string,
   cardholderName: string,
@@ -60,7 +56,8 @@ export function useCreatePaymentIntent(
   paymentOption: "lump-sum" | "monthly-installments",
   monthlyAmount?: number,
   remainingInstallments?: number,
-  stripeProductId?: string
+  stripeProductId?: string,
+  // testClockCustomerId?: string,
 ) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -79,7 +76,7 @@ export function useCreatePaymentIntent(
       const amountInDollars = amountInCents / 100;
 
       try {
-        console.log('createPayment hook:', {
+        console.log("createPayment hook:", {
           amountInDollars,
           quoteNumber,
           description,
@@ -88,11 +85,12 @@ export function useCreatePaymentIntent(
           paymentOption,
           monthlyAmount,
           remainingInstallments,
-          stripeProductId
+          stripeProductId,
+          // testClockCustomerId,
         });
 
-        const { data } = await axios.post(
-          `${localAddress}/payments/create-payment/${quoteNumber}`,
+        const { data } = await axiosInstance.post(
+          `/payments/create-payment/${quoteNumber}`,
           {
             amount: amountInDollars,
             quoteNumber,
@@ -101,27 +99,34 @@ export function useCreatePaymentIntent(
             shipping,
             paymentOption: paymentOption,
             monthlyAmount,
-          remainingInstallments,
-          stripeProductId
-          }
+            remainingInstallments,
+            stripeProductId,
+            // testClockCustomerId,
+          },
         );
 
         return data.clientSecret as string;
       } catch (err: any) {
         const msg =
-          err?.response?.data?.message || err.message || 'Unknown error';
+          err?.response?.data?.message || err.message || "Unknown error";
         setError(msg);
         throw new Error(msg);
       } finally {
         setLoading(false);
       }
     },
-    [stripeCustomerId, quoteNumber, description, cardholderName, shipping ,
-      paymentOption,        
-    monthlyAmount,        
-    remainingInstallments,
-    stripeProductId
-    ]
+    [
+      // stripeCustomerId,
+      quoteNumber,
+      description,
+      cardholderName,
+      shipping,
+      paymentOption,
+      monthlyAmount,
+      remainingInstallments,
+      stripeProductId,
+      // testClockCustomerId,
+    ],
   );
 
   return { createPaymentIntent, loading, error };

@@ -1,15 +1,14 @@
-import { useState, Fragment, useContext } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { Transition } from "@headlessui/react";
-import { XCircleIcon } from "@heroicons/react/24/outline";
-import { XMarkIcon } from "@heroicons/react/20/solid";
 import { EyeIcon, EyeSlashIcon } from "@heroicons/react/16/solid";
 // import useAdmin from '../hooks/useAdmin';
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 import rimilogo from "../assets/rimi_en.png";
-import { LangContext } from "../context/LangContext";
 import { useAuth } from "../hooks/useAuth";
+import useNotification from "../hooks/useNotification";
+import { useLanguage } from "../context/LanguageContext";
+import LanguageDropdown from "../components/LanguageDropdown";
 
 interface LoginFormInputs {
   email: string;
@@ -18,19 +17,13 @@ interface LoginFormInputs {
 
 const Login = () => {
   const navigate = useNavigate();
-
-  const { langauge } = useContext(LangContext);
-
-  const [show, setShow] = useState(false);
-  const [errMsg, setErrMsg] = useState("");
+  const [searchParams] = useSearchParams();
+  const { t } = useLanguage();
   const [signInClicked, setSignInClicked] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-
-  // const { login, loading, error} = useAuth()
+  const { triggerNotification, NotificationComponent } = useNotification();
   const { login } = useAuth();
-
-  // const { login } = useAdmin()
-
+  
   const {
     register,
     handleSubmit,
@@ -39,32 +32,24 @@ const Login = () => {
 
   const onSubmit = async (data: LoginFormInputs) => {
     setSignInClicked(true);
-    console.log(data);
     const result = await login(data.email, data.password);
-    console.log(result.type);
+
     if (result.type === "auth/loginUser/fulfilled") {
-      navigate("/dashboard");
+      const returnUrl = searchParams.get("returnUrl") || "/";
+      navigate(returnUrl, { replace: true });
     } else if (result.type === "auth/loginUser/rejected") {
-      setErrMsg(result.payload);
-      setShow(true);
       setSignInClicked(false);
+      triggerNotification({
+        type: "error",
+        message: result.payload as unknown as string,
+      });
     } else {
-      setErrMsg("Network Error");
-      setShow(true);
+      triggerNotification({
+        type: "error",
+        message: t("Network Error"),
+      });
       setSignInClicked(false);
     }
-
-    //   const resp = await login(data);
-    //   if (resp?.user) {
-    //     // navigate to admindashboard
-    //     navigate("/admindashboard");
-    //   } else {
-    // display error
-    // console.log(resp?.response?.data?.errors[0]?.msg);
-    // setErrMsg(resp?.response?.data?.errors[0]?.msg);
-    // setErrMsg("Networ error");
-    // setShow(true);
-    //   }
   };
 
   const handleForgotPassword = () => {
@@ -72,276 +57,169 @@ const Login = () => {
   };
 
   return (
-    <>
-      {/*
-            This example requires updating your template:
-    
-            ```
-            <html class="h-full bg-white">
-            <body class="h-full">
-            ```
-          */}
-      <div className="flex mt-12 sm:mt-0 sm:h-[calc(100vh-64px)] flex-1  justify-center items-center">
-        <div className="flex flex-1 flex-col  justify-center items-center ">
-          <div className="mx-auto w-full max-w-md lg:w-130 ">
-            <div className="flex flex-col justify-center items-center">
-              <a href="#">
-                <img
-                  className="h-14 sm:h-20 w-[140px] sm:w-[170px]"
-                  src={rimilogo}
-                  alt="Your Company"
-                />
-              </a>
-              <h2 className="mt-8 sm:mt-12 text-3xl sm:text-4xl font-bold font-[inter] leading-9  text-[#232323]">
-                {langauge === "En" ? <p>Sign in</p> : <p>Se connecter</p>}
-              </h2>
-              <h4 className="mt-3 text-md font-normal font-[inter] text-[#969696]">
-                Please login to continue to your account.
-              </h4>
+    <div className="h-screen flex overflow-hidden">
+      <div className="hidden lg:flex w-[45%] flex-col items-center justify-center relative overflow-hidden">
+        {/* Background Image/Overlay */}
+        <div
+          className="absolute inset-0 z-0"
+          style={{
+            backgroundImage: "url('/loginBg.png')",
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            // filter: "brightness(0.8) contrast(1.2)"
+          }}
+        ></div>
 
-              {/* <p className="mt-2 text-sm leading-6 text-gray-500">
-                    Not a member?{' '}
-                    <a href="#" className="font-semibold text-indigo-600 hover:text-indigo-500">
-                      Start a 14 day free trial
-                    </a>
-                  </p> */}
-            </div>
-
-            <div className="mt-10 mx-2">
-              <div>
-                <form
-                  id="signinForm"
-                  onSubmit={handleSubmit(onSubmit)}
-                  className="space-y-5"
-                >
-                  <div>
-                    <label
-                      htmlFor="email"
-                      className="sr-only block text-sm font-medium leading-6 text-[#D9D9D9]"
-                    >
-                      {langauge === "En" ? (
-                        <p>Email Address</p>
-                      ) : (
-                        <p>Adresse email</p>
-                      )}
-                    </label>
-
-                    <div className="mt-2">
-                      <input
-                        id="email"
-                        type="email"
-                        autoComplete="email"
-                        {...register("email", {
-                          required: "Email is required",
-                          pattern: {
-                            value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                            message: "Invalid email address",
-                          },
-                        })}
-                        className="input-primary"
-                        placeholder="Username/email"
-                      />
-                      {errors.email && (
-                        <span className="text-red-500  text-sm  font-[inter]">
-                          {errors.email.message}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                  {/* password field */}
-
-                  <div>
-                    <label
-                      htmlFor="password"
-                      className="sr-only block text-sm font-medium leading-6 text-[#D9D9D9]"
-                    >
-                      {langauge === "En" ? (
-                        <p>Password</p>
-                      ) : (
-                        <p>Mot de passe</p>
-                      )}
-                    </label>
-                    <div className="mt-2 relative">
-                      <input
-                        id="password"
-                        type={showPassword ? "text" : "password"}
-                        autoComplete="current-password"
-                        {...register("password", { required: "Password is required" })}
-                        className="input-primary"
-                        style={{ paddingRight: "40px" }}
-                        placeholder="Password"
-                      />
-                      <div
-                        className="absolute inset-y-0 right-3 flex items-center cursor-pointer text-black/50"
-                        onClick={() => setShowPassword(!showPassword)}
-                      >
-                        {showPassword ? (
-                          <EyeIcon className="h-5 w-5" />
-                        ) : (
-                          <EyeSlashIcon className="h-5 w-5" />
-                        )}
-                      </div>
-                      {errors.password && (
-                        <span className="text-red-500 text-sm font-[inter]">
-                          {errors.password.message}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                  {/* <div className="flex items-center justify-between"> */}
-                  {/* <div className="flex items-center">
-                          <input
-                            id="remember-me"
-                            name="remember-me"
-                            type="checkbox"
-                            className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600"
-                          />
-                          <label htmlFor="remember-me" className="ml-3 block text-sm leading-6 text-gray-700">
-                            Remember me
-                          </label>
-                        </div> */}
-                  {/* <div className="text-sm leading-6">
-                          <a href="#" className="font-semibold text-indigo-600 hover:text-indigo-500">
-                            Forgot password?
-                          </a>
-                        </div> */}
-                  {/* </div> */}
-               
-
-                  <div className=" flex flex-col gap-4">
-                    {/* {signInClicked ? (
-                      <button className="flex w-full justify-center rounded-md bg-[#b5b4ec] px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-[#90a1fa] focus-visible:outline-offset-2 focus-visible:outline-indigo-600 cursor-pointer">
-                        {langauge === "En" ? (
-                          <p>Sign in</p>
-                        ) : (
-                          <p>Se connecter</p>
-                        )}
-                      </button>
-                    ) : ( */}
-                      <button type="submit" className={`btn-primary ${signInClicked && 'disabled bg-indigo-100'}`}>
-                        {langauge === "En" ? (
-                          <p>Sign in</p>
-                        ) : (
-                          <p>Se connecter</p>
-                        )}
-                      </button>
-                    {/* )} */}
-                    {/* <button
-                      type="submit"
-                      className="flex w-full justify-center rounded-md bg-[#4340DA] px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-[#405ada] focus-visible:outline-offset-2 focus-visible:outline-indigo-600 cursor-pointer"
-                    >
-                      {langauge === "En" ? <p>Sign in</p> : <p>Se connecter</p>}
-                    </button> */}
-                  </div>
-                  
-                </form>
-              </div>
-                 <button
-                    onClick={handleForgotPassword}
-                    className="flex w-full mt-1 justify-left text-sm font-semibold font-[inter] leading-6 text-[#4340DA] hover:text-[#2B00B7] cursor-pointer"
-                  >
-                    {langauge === "En" ? (
-                      <p>Forgot Password?</p>
-                    ) : (
-                      <p>Mot de passe oublié?</p>
-                    )}
-                  </button>
-
-              {/* <div className="mt-10">
-                    <div className="relative">
-                      <div className="absolute inset-0 flex items-center" aria-hidden="true">
-                        <div className="w-full border-t border-gray-200" />
-                      </div>
-                      <div className="relative flex justify-center text-sm font-medium leading-6">
-                        <span className="bg-white px-6 text-gray-900">Or continue with</span>
-                      </div>
-                    </div>
-    
-                    <div className="mt-6 grid grid-cols-2 gap-4">
-                      <a
-                        href="#"
-                        className="flex w-full items-center justify-center gap-3 rounded-md bg-[#1D9BF0] px-3 py-1.5 text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1D9BF0]"
-                      >
-                        <svg className="h-5 w-5" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20">
-                          <path d="M6.29 18.251c7.547 0 11.675-6.253 11.675-11.675 0-.178 0-.355-.012-.53A8.348 8.348 0 0020 3.92a8.19 8.19 0 01-2.357.646 4.118 4.118 0 001.804-2.27 8.224 8.224 0 01-2.605.996 4.107 4.107 0 00-6.993 3.743 11.65 11.65 0 01-8.457-4.287 4.106 4.106 0 001.27 5.477A4.073 4.073 0 01.8 7.713v.052a4.105 4.105 0 003.292 4.022 4.095 4.095 0 01-1.853.07 4.108 4.108 0 003.834 2.85A8.233 8.233 0 010 16.407a11.616 11.616 0 006.29 1.84" />
-                        </svg>
-                        <span className="text-sm font-semibold leading-6">Twitter</span>
-                      </a>
-    
-                      <a
-                        href="#"
-                        className="flex w-full items-center justify-center gap-3 rounded-md bg-[#24292F] px-3 py-1.5 text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#24292F]"
-                      >
-                        <svg className="h-5 w-5" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20">
-                          <path
-                            fillRule="evenodd"
-                            d="M10 0C4.477 0 0 4.484 0 10.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0110 4.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.203 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.942.359.31.678.921.678 1.856 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0020 10.017C20 4.484 15.522 0 10 0z"
-                            clipRule="evenodd"
-                          />
-                        </svg>
-                        <span className="text-sm font-semibold leading-6">GitHub</span>
-                      </a>
-                    </div>
-                  </div> */}
-            </div>
-          </div>
+        {/* Outlined Box */}
+        <div className="relative z-10 border border-white/80 min-h-[400px] px-8 max-w-lg flex flex-col items-center justify-center text-center">
+          <h1 className="text-4xl xl:text-5xl font-medium text-white mb-6 tracking-wider leading-snug uppercase font-[inter]">
+           {t("Rimi")}  <br /> {t("Insurance")}
+          </h1>
+          <p className="text-white text-2xl max-w-xs leading-relaxed capitalize">
+            {t("Welcome to RIMI travel insurance portal")}
+          </p>
         </div>
       </div>
 
-      {/* // Toast  */}
-      <>
-        {/* Global notification live region, render this permanently at the end of the document */}
-        <div
-          aria-live="assertive"
-          className="pointer-events-none fixed inset-0 flex items-end px-4 py-6 sm:items-start sm:p-6"
-        >
-          <div className="flex w-full flex-col items-center space-y-4 sm:items-end">
-            {/* Notification panel, dynamically insert this into the live region when it needs to be displayed */}
-            <Transition
-              show={show}
-              as={Fragment}
-              enter="transform ease-out duration-300 transition"
-              enterFrom="translate-y-2 opacity-0 sm:translate-y-0 sm:translate-x-2"
-              enterTo="translate-y-0 opacity-100 sm:translate-x-0"
-              leave="transition ease-in duration-100"
-              leaveFrom="opacity-100"
-              leaveTo="opacity-0"
+      {/* ===== RIGHT COLUMN - CONTENT AREA ===== */}
+      <div className="flex-1 flex flex-col h-full overflow-y-auto bg-white lg:rounded-l-[20px] relative z-20 lg:-ml-[20px]">
+        {/* Top Nav Buttons */}
+        <div className="p-6 flex justify-end items-center gap-3">
+          {/* Language Selector */}
+          <LanguageDropdown className="mr-4" />
+
+          <button
+            onClick={() => navigate("/apply-mga")}
+            className="px-6 py-2 border border-[#2B00B7] text-[#2B00B7] font-medium text-sm transition-colors cursor-pointer"
+          >
+            {t("Apply as MGA")}
+          </button>
+          <button
+            onClick={() => navigate("/apply")}
+            className="btn-primary py-2 font-medium text-sm cursor-pointer"
+          >
+            {t("Apply as agent")}
+          </button>
+        </div>
+
+        <div className="w-full flex flex-col justify-center items-center flex-1 px-6 py-5 sm:py-10 sm:px-16">
+          <div className="w-full sm:max-w-md flex flex-col justify-center lg:justify-start">
+            <img
+              src={rimilogo}
+              alt="RIMI Logo"
+              className="h-12 w-24 sm:h-16 sm:w-36 mb-4 sm:mb-12"
+            />
+
+            <div className="mb-4 sm:mb-8">
+              <h2 className="text-2xl sm:text-3xl font-bold text-[#232323] mb-2 font-[inter]">
+                {t("Welcome to RIMI Insurance")}
+              </h2>
+              <p className="text-[#969696] text-sm font-normal font-[inter]">
+                {t("Please login to continue to your account.")}
+              </p>
+              {searchParams.get("sessionExpired") === "true" && (
+                <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-md">
+                  <p className="text-sm text-yellow-800 text-center">
+                    {t("Your session expired. Please log in again.")}
+                  </p>
+                </div>
+              )}
+            </div>
+
+            <form
+              onSubmit={handleSubmit(onSubmit)}
+              className="space-y-3"
+              noValidate
             >
-              <div className="pointer-events-auto w-full max-w-sm overflow-hidden rounded-lg bg-white shadow-lg ring-1 ring-black ring-opacity-5">
-                <div className="p-4">
-                  <div className="flex items-start">
-                    <div className="flex-shrink-0">
-                      <XCircleIcon
-                        className="h-6 w-6 text-red-400"
-                        aria-hidden="true"
-                      />
-                    </div>
-                    <div className="ml-3 w-0 flex-1 pt-0.5">
-                      <p className="text-sm font-medium text-gray-900">Error</p>
-                      <p className="mt-1 text-sm text-gray-500">{errMsg}</p>
-                    </div>
-                    <div className="ml-4 flex flex-shrink-0">
-                      <button
-                        type="button"
-                        className="inline-flex rounded-md bg-white text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-                        onClick={() => {
-                          setShow(false);
-                        }}
-                      >
-                        <span className="sr-only">Close</span>
-                        <XMarkIcon className="h-5 w-5" aria-hidden="true" />
-                      </button>
-                    </div>
-                  </div>
+              <div>
+                <label htmlFor="email" className="text-sm font-medium mb-1 text-text-secondary">
+                  {t("Email")}
+                </label>
+                <div>
+                  <input
+                    id="email"
+                    type="email"
+                    autoComplete="email"
+                    {...register("email", {
+                      setValueAs: (value) => value?.trim()?.toLowerCase() || "",
+                      required: t("Email is required"),
+                      pattern: {
+                        value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                        message: t("Invalid email address"),
+                      },
+                    })}
+                    className="input-primary"
+                    placeholder={t("Enter your email")}
+                  />
+                  {errors.email && (
+                    <span className="text-red-500 text-sm font-[inter] mt-1 block">
+                      {errors.email.message}
+                    </span>
+                  )}
                 </div>
               </div>
-            </Transition>
+
+              <div>
+                <label htmlFor="password" className="text-sm font-medium mb-1 text-text-secondary">
+                  {t("Password")}
+                </label>
+                <div className="relative">
+                  <input
+                    id="password"
+                    type={showPassword ? "text" : "password"}
+                    autoComplete="current-password"
+                    {...register("password", {
+                      setValueAs: (value) => value?.trim() || "",
+                      required: t("Password is required"),
+                    })}
+                    className="input-primary pr-10"
+                    placeholder={t("Enter your password")}
+                  />
+                  <div
+                    className="absolute inset-y-0 right-3 flex items-center cursor-pointer text-black/50"
+                    onClick={() => setShowPassword(!showPassword)}
+                  >
+                    {showPassword ? (
+                      <EyeIcon className="h-5 w-5" />
+                    ) : (
+                      <EyeSlashIcon className="h-5 w-5" />
+                    )}
+                  </div>
+                  {errors.password && (
+                    <span className="text-red-500 text-sm font-[inter] mt-1 block">
+                      {errors.password.message}
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              <div className="flex justify-end -mt-3">
+                <button
+                  type="button"
+                  onClick={handleForgotPassword}
+                  className="text-sm font-semibold font-[inter] leading-6 text-[#4340DA] hover:text-[#2B00B7] cursor-pointer"
+                >
+                  {t("Forgot Password?")}
+                </button>
+              </div>
+
+              <div className="mt-6">
+                <button
+                  type="submit"
+                  disabled={signInClicked}
+                  className={`btn-primary w-full ${signInClicked ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
+                    }`}
+                >
+                  {signInClicked ? t("Signing in...") : t("Sign in")}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
-      </>
-
-      {/* ///  */}
-    </>
+      </div>
+      {NotificationComponent}
+    </div>
   );
 };
+
 export default Login;

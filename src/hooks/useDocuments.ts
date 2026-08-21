@@ -1,10 +1,5 @@
-
-
-
-
 import { useState, useEffect, useCallback } from "react";
-import axios from "axios";
-import { API_BASE } from "../utils/urls";
+import { axiosInstance } from "../utils/axiosInstance";
 
 export interface DocumentItem {
   id: string;
@@ -13,7 +8,7 @@ export interface DocumentItem {
   createdAt?: string;
 }
 
-const localAddress =  `${API_BASE}`
+
 
 export function useDocuments() {
   const [documents, setDocuments] = useState<DocumentItem[]>([]);
@@ -23,10 +18,10 @@ export function useDocuments() {
   const fetchDocuments = useCallback(async () => {
     setLoading(true);
     try {
-      const resp = await axios.get<DocumentItem[]>(`${localAddress}/documents`);
+      const resp = await axiosInstance.get<DocumentItem[]>(`/documents`);
       setDocuments(Array.isArray(resp.data) ? resp.data : []);
       console.log(resp)
-      console.log(documents)
+      console.log("documentss",documents)
     } catch (err) {
       console.error(err);
       setError("Failed to load documents.");
@@ -40,8 +35,8 @@ export function useDocuments() {
     try {
       const formData = new FormData();
       formData.append("file", file);
-      const resp = await axios.post<DocumentItem>(
-        `${localAddress}/documents/upload`,
+      const resp = await axiosInstance.post<DocumentItem>(
+        `/documents/upload`,
         formData,
         { headers: { "Content-Type": "multipart/form-data" } }
       );
@@ -59,7 +54,7 @@ export function useDocuments() {
   const deleteDocument = useCallback(async (id: string) => {
     setLoading(true);
     try {
-      await axios.delete(`${localAddress}/documents/delete/${id}`);
+      await axiosInstance.delete(`/documents/delete/${id}`);
       setDocuments((prev) => prev.filter((doc) => doc.id !== id));
     } catch (err) {
       console.error(err);

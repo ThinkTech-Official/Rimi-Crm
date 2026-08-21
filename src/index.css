@@ -1,30 +1,341 @@
 @import "tailwindcss";
 
-@theme{
-    --color-primary: #2B00B7;
-    --color-text-primary: #1b1b1b;
-    --color-text-light: rgba(0, 0, 0, 0.5);
-    --color-text-secondary: #4B465C;
-    --color-yellow:rgba(234, 179, 8, 1);
-    --color-green:rgba(34, 197, 94, 1);
-    --color-skyblue:rgba(59, 130, 246, 1);
-    --color-darkblue:rgba(43, 0, 183, 1);
-    --color-inputBorder:rgba(217, 217, 217, 1);
-    --breakpoint-2xl: 1600px;
+@theme {
+  --color-primary: #2B00B7;
+  --color-text-primary: #1b1b1b;
+  --color-text-light: rgba(0, 0, 0, 0.5);
+  --color-text-secondary: #4B465C;
+  --color-yellow: rgba(234, 179, 8, 1);
+  --color-green: rgba(34, 197, 94, 1);
+  --color-skyblue: rgba(59, 130, 246, 1);
+  --color-darkblue: rgba(43, 0, 183, 1);
+  --color-inputBorder: rgba(217, 217, 217, 1);
+  --breakpoint-2xl: 1600px;
+  --color-greyBg: #F9F9F9;
 }
 
-@layer{ 
-    .btn-primary{
-        @apply bg-[var(--color-primary)] text-white py-2 sm:py-3 px-4 font-semibold hover:bg-[#2309A1] transition-all duration-200 cursor-pointer disabled:cursor-default disabled:opacity-70;
-    }
-     .btn-form{
-        @apply bg-[var(--color-primary)] text-white py-2 sm:py-3 px-5 font-semibold hover:bg-[#2309A1] transition-all duration-200 cursor-pointer disabled:cursor-default disabled:opacity-70 flex gap-1 items-center text-nowrap w-fit;
-    }
-    .input-primary{
-        @apply w-full bg-white border border-inputBorder px-4 py-2 sm:py-3 focus:border-0 focus:outline-none focus:ring-1 focus:ring-primary text-black/80 placeholder:text-black/50;
-    }
+@layer {
+  .btn-primary {
+    @apply bg-[var(--color-primary)] text-white py-2 sm:py-3 px-4 font-semibold hover:bg-[#2309A1] transition-all duration-200 cursor-pointer disabled:cursor-default disabled:opacity-70;
+  }
+
+  .btn-form {
+    @apply bg-[var(--color-primary)] text-white py-2 sm:py-3 px-5 font-semibold hover:bg-[#2309A1] transition-all duration-200 cursor-pointer disabled:cursor-default disabled:opacity-70 flex gap-1 items-center text-nowrap w-fit;
+  }
+
+  .input-primary {
+    @apply w-full bg-white border border-inputBorder px-4 py-2 sm:py-3 focus:border-0 focus:outline-none focus:ring-1 focus:ring-primary text-black/80 placeholder:text-black/50 text-[15px] sm:text-base;
+  }
+
+  .input-primary2 {
+    @apply w-full border border-inputBorder px-4 py-2 sm:py-3 focus:border-0 focus:outline-none focus:ring-1 focus:ring-primary text-black/80 placeholder:text-black/50;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar {
+    height: 8px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background-color: #2b00b7;
+    border-radius: 4px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background-color: #7367f029;
+    border-radius: 2px;
+  }
+
+  .custom-scrollbar2::-webkit-scrollbar {
+    height: 4px;
+  }
+
+  .custom-scrollbar2::-webkit-scrollbar-thumb {
+    background-color: #2b00b7;
+    border-radius: 4px;
+  }
+
+  .custom-scrollbar2::-webkit-scrollbar-track {
+    background-color: #7367f029;
+    border-radius: 2px;
+  }
+
+  .custom-scrollbar3::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .custom-scrollbar3::-webkit-scrollbar-thumb {
+    background-color: #2b00b7;
+    border-radius: 4px;
+  }
+
+  .custom-scrollbar3::-webkit-scrollbar-track {
+    background-color: #7367f029;
+    border-radius: 4px;
+  }
+
+  .custom-scrollbar-x::-webkit-scrollbar {
+    height: 6px;
+  }
+
+  .custom-scrollbar-x::-webkit-scrollbar-thumb {
+    background-color: #2b00b7;
+    border-radius: 4px;
+  }
+
+  .custom-scrollbar-x::-webkit-scrollbar-track {
+    background-color: #7367f029;
+    border-radius: 2px;
+  }
+
+  .custom-scrollbar-y::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .custom-scrollbar-y::-webkit-scrollbar-thumb {
+    background-color: #2b00b7;
+    border-radius: 4px;
+  }
+
+  .custom-scrollbar-y::-webkit-scrollbar-track {
+    background-color: #7367f029;
+    border-radius: 2px;
+  }
+
+  .form-container {
+    @apply max-w-5xl mx-auto mt-4 p-3 sm:p-6 bg-[#F9F9F9];
+  }
 }
 
 body {
   font-family: "Public Sans", sans-serif;
+}
+
+.spinner {
+  border-radius: 50%;
+  display: inline-block;
+  border-top: 3px solid currentColor;
+  border-right: 3px solid transparent;
+  box-sizing: border-box;
+  animation: rotation 1s linear infinite;
+}
+
+@keyframes rotation {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* CustomCalendar.css */
+.react-calendar {
+  border: none;
+  /* remove default border */
+  font-family: 'Inter', sans-serif;
+  color: #333;
+  background-color: white;
+}
+
+.react-calendar__tile {
+  border-radius: 0.2rem;
+  /* round individual days */
+  transition: all 0.2s;
+}
+
+.react-calendar__tile:hover {
+  background-color: #e0f2fe;
+  /* hover color */
+}
+
+.react-calendar__tile--active {
+  background-color: #2b00b7;
+  /* selected date color */
+  color: white;
+}
+
+.react-calendar__navigation button {
+  color: #2b00b7;
+  /* nav arrows color */
+  font-weight: bold;
+}
+
+.react-calendar__month-view__days__day--weekend {
+  color: #ef4444;
+  /* weekends color */
+}
+
+.react-calendar__tile--active {
+  background-color: #2b00b7 !important;
+  color: white !important;
+}
+
+.notification {
+  margin: 10px;
+  display: flex;
+  border-radius: 5px;
+  align-items: center;
+}
+
+.success {
+  background-color: #f0fdf4;
+  border: 2px solid #889c91;
+}
+
+.info {
+  background-color: #eff7fe;
+  border: 2px solid #4b6a9f;
+}
+
+.error {
+  background-color: #fef5f6;
+  border: 2px solid #dc6266;
+}
+
+.warning {
+  background-color: #fff9e9;
+  border: 2px solid #dfa00a;
+}
+
+.top-right {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+}
+
+.top-left {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+}
+
+.bottom-right {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+}
+
+.bottom-left {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+}
+
+.bottom-center {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.top-center {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.slide-up {
+  animation: slide 0.5s ease-in-out;
+}
+
+.slide-down {
+  animation: slideDown 0.5s ease-in-out;
+}
+
+@keyframes slideDown {
+  from {
+    transform: translateY(-50%);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slide {
+  from {
+    transform: translateY(50%);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+/* ─────────────────────────────────────────────────────────────────────────
+   Printing a modal
+   ─────────────────────────────────────────────────────────────────────────
+   The renewal notice printed as the same page repeated, then as overlapping
+   pages. Two things caused it.
+
+   First, `window.print()` prints the whole document, and the modal overlay is
+   `position: fixed` — a fixed element is painted onto EVERY printed sheet, so
+   the long page behind it decided the sheet count and the modal was stamped on
+   each one.
+
+   Second, marking only the inner card was not enough: an absolutely-positioned
+   child still anchors to its fixed ancestor's box, so the card was re-anchored
+   per sheet and its content overlapped.
+
+   The modal now renders through a portal as a direct child of <body>, which
+   makes the rule below simple: hide every other body child, then let the
+   overlay and its card size themselves normally so the content paginates.
+   ───────────────────────────────────────────────────────────────────────── */
+@media print {
+  /* Everything except the modal. The portal makes this a flat, reliable match. */
+  body > *:not([data-print-overlay]) {
+    display: none !important;
+  }
+
+  /* No longer a fixed containing block, and no longer a centred flex box. */
+  [data-print-overlay] {
+    position: static !important;
+    display: block !important;
+    height: auto !important;
+    padding: 0 !important;
+    background: none !important;
+  }
+
+  /* Release the viewport cap and the scroll clipping so content flows on. */
+  [data-print-region] {
+    position: static !important;
+    max-width: none !important;
+    max-height: none !important;
+    height: auto !important;
+    width: auto !important;
+    overflow: visible !important;
+    box-shadow: none !important;
+    margin: 0 !important;
+  }
+
+  /* Any nested scroll container would clip to its own height. */
+  [data-print-region] * {
+    max-height: none !important;
+    overflow: visible !important;
+  }
+
+  /* A sticky header repeats on every sheet for the same reason as the overlay. */
+  [data-print-region] .sticky {
+    position: static !important;
+  }
+
+  /* Controls are not part of the document being printed. */
+  [data-print-hide] {
+    display: none !important;
+  }
+
+  /* Keep a labelled block from being severed across a page boundary. */
+  [data-print-keep] {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  @page {
+    margin: 12mm;
+  }
 }

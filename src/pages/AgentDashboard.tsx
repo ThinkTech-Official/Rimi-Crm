@@ -5,6 +5,7 @@ import { usePolicies } from '../hooks/agent-dashboard/usePolicies';
 import { useQuotes } from '../hooks/agent-dashboard/useQuotes';
 import type { PolicyRow, QuoteRow } from '../utils/types';
 import { useState } from 'react';
+import { formatDate } from '../utils/dateUtils';
 
 export default function AgentDashboard() {
   // pagination state
@@ -25,8 +26,8 @@ export default function AgentDashboard() {
         <Kpi title="Total Policies" value={summary?.totalPolicies ?? (sLoading ? '…' : 0)} />
         <Kpi title="Total Quotes" value={summary?.totalQuotes ?? (sLoading ? '…' : 0)} />
         <Kpi title="Commission %" value={summary ? `${summary.commissionPercent}%` : (sLoading ? '…' : '0%')} />
-        <Kpi title="Total Commissions" value={summary ? `$${(summary.totalCommissions).toFixed(2)}` : (sLoading ? '…' : '$0.00')} />
-        <Kpi title="This Month Commissions" value={summary ? `$${(summary.currentMonthCommissions).toFixed(2)}` : (sLoading ? '…' : '$0.00')} />
+        <Kpi title="Total Commissions" value={summary ? `${(summary.totalCommissions).toFixed(2)} CAD` : (sLoading ? '…' : '0.00 CAD')} />
+        <Kpi title="This Month Commissions" value={summary ? `${(summary.currentMonthCommissions).toFixed(2)} CAD` : (sLoading ? '…' : '0.00 CAD')} />
         <Kpi title="Months in Data" value={summary?.monthlyPremiums.length ?? (sLoading ? '…' : 0)} />
       </div>
 
@@ -118,7 +119,7 @@ function TablePolicies({ data, loading }: { data: PolicyRow[]; loading?: boolean
               <td className="p-2">{p.policyType ?? '-'}</td>
               <td className="p-2">{p.premium != null ? p.premium.toFixed(2) : '-'}</td>
               <td className="p-2">{p.status ?? '-'}</td>
-              <td className="p-2">{p.dateIssued ? new Date(p.dateIssued).toLocaleDateString() : '-'}</td>
+              <td className="p-2">{p.dateIssued ? formatDate(p.dateIssued) : '-'}</td>
             </tr>
           ))}
         </tbody>
@@ -155,7 +156,7 @@ function TableQuotes({ data, loading }: { data: QuoteRow[]; loading?: boolean })
               <td className="p-2">{q.premium != null ? q.premium.toFixed(2) : '-'}</td>
               <td className="p-2">{q.product ?? '-'}</td>
               <td className="p-2">{q.status ?? '-'}</td>
-              <td className="p-2">{new Date(q.createdAt).toLocaleDateString()}</td>
+              <td className="p-2">{formatDate(q.createdAt)}</td>
             </tr>
           ))}
         </tbody>

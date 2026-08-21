@@ -1,78 +1,32 @@
-// import ApplicantInformation from "./ApplicantInformation"
-// import CoverageInformation from "./CoverageInformation"
-import React, {
-  useEffect,
-  useState,
-  ChangeEvent,
-  FormEvent,
-  FC,
-  InputHTMLAttributes,
-  SelectHTMLAttributes,
-  useMemo,
-} from "react";
+import React, { useEffect, useState, ChangeEvent } from "react";
 import {
   ChevronDownIcon,
   InformationCircleIcon,
 } from "@heroicons/react/24/outline";
 import { usePremiumCalculate } from "../../../../hooks/usePremiumCalculate";
-import { QuotePayload, useSaveQuote } from "../../../../hooks/useSaveQuote";
-import { getUserTypeFromToken } from "../../../../utils/getUserType";
-
+import { useSaveQuote } from "../../../../hooks/useSaveQuote";
 import { useSelector } from "react-redux";
 import type { RootState } from "../../../../app/store";
+import DatePicker from "../../../DatePicker";
+import { CanadaStates, Countries, allCoverageOptions } from "./Constants";
+import InfoBox from "../../../InfoBox";
+import TextInput from "../../../TextInput";
+import Dropdown from "../../../DropDown";
+import ConfirmEligibilityModal from "./ConfirmEligibility";
+import Spinner from "../../../Spinner";
+import EmailQuote from "../EmailQuote";
+import { useEmailQuote } from "../../../../hooks/apply/useEmailQuote";
+import AgeQuestionaire from "./AgeQuestionaire";
+import { useFormContext, Controller, useWatch } from "react-hook-form";
+import { Step1Payload } from "../SecureTravelRIMIVisitorstoCanadaTravel";
+import useNotification from "../../../../hooks/useNotification";
+import { useLanguage } from "../../../../context/LanguageContext";
+import { latestAllowedDob, validateDob, minAgeError } from "../../../../utils/dobRules";
 
 type SuperVisaOption = "" | "yes" | "no";
-type SuperVisaYears = "" | "1" | "2";
+type SuperVisaYears = "" | "1";
 type YesNo = "" | "yes" | "no";
 
-const msPerDay = 1000 * 60 * 60 * 24;
-
-const today = new Date().toISOString().slice(0, 10);
-
-const allCoverageOptions = [
-  { value: "", label: "Please select..." },
-  { value: "25000", label: "$25,000.00 CAD" },
-  { value: "50000", label: "$50,000.00 CAD" },
-  { value: "100000", label: "$100,000.00 CAD" },
-  { value: "150000", label: "$150,000.00 CAD" },
-  { value: "500000", label: "$500,000.00 CAD" },
-  { value: "1000000", label: "$1,000,000.00 CAD" },
-];
-
-interface PrimaryApplicant {
-  firstName: string;
-  lastname: string;
-  dateOfBirth: string;
-  email: string;
-  preExCov: string;
-  additionalApplicant?: string;
-  gender: string;
-}
-
-interface Applicant {
-  index: string;
-  firstName: string;
-  lastName: string;
-  dob: string;
-  relationship: string;
-  preMedCoverage: boolean;
-  gender: string;
-}
-
-interface CoverageInfo {
-  countryOfOrigin: string;
-  inCanada: YesNo;
-  superVisa: SuperVisaOption;
-  superVisaYears: SuperVisaYears;
-  destinationProvince: string;
-  effectiveDate: string;
-  expiryDate: string;
-  coverageLength: string;
-  policyType: string;
-  coverageOption: string;
-  deductible: string;
-  paymentOption: "lump-sum" | "monthly-installments";
-}
 
 export interface PremiumCalculationData {
   countryOfOrigin: string;
@@ -85,108 +39,307 @@ export interface PremiumCalculationData {
   policyType: string;
   coverageOption: string;
   deductible: number;
+  coverageForPreMedCon?: boolean;
+  applicants?: any[];
+  plan?: number;
   primarydateOfBirth?: string;
+  paymentOption?: string;
 }
 
 type Props = {
   onValidityChange: (valid: boolean) => void;
+  // Passing these down for the calculation/summary visualization which are not in form (calculated values)
+  totalPremium: number;
+  schedule: any[];
+  loading: boolean;
+  error: string | null;
+  setTotalPremium: (val: number) => void;
+  setSchedule: (val: any[]) => void;
+  setLoading: (val: boolean) => void;
+  setError: (val: string | null) => void;
+
+  formStep: number;
+  handleFormStepChange: (step: string) => void;
+  handleNext: () => void;
+  isStepOneFilled: boolean;
+  savingStage1: boolean;
+  showQuestionnaireError: boolean;
+
+  quoteNumber: string | null;
+  setQuoteNumber: (val: string | null) => void;
 };
 
-const Step1STRVCT = ({ onValidityChange,
-  primaryFirstName, setPrimaryFirstName,
-          primaryLastName, setPrimaryLastName ,
-          primaryDateOfBirth, setPrimaryDateOfBirth ,
-          primaryEmail, setprimaryEmail,
-          applicantNumber ,setApplicantNumber,
-          superVisa, setSuperVisa,
-          superVisaYears ,setSuperVisaYears,
-          destinationProvince, setDestinationProvince,
-          effectiveDate, setEffectiveDate,
-          expiryDate ,setExpiryDate,
-          coverageLength, setCoverageLength,
-          inCanada, setInCanada,
-          paymentOption, setPaymentOption,
-          policyType, setPolicyType,
-          deductible, setDeductible,
-          countryOfOrigin, setCountryOfOrigin,
-          coverageOption, setCoverageOption,
-          applicants ,setApplicants,
-          coverageForPreMedCon , setCoverageForPreMedCon,
-          isConfirmed, setIsConfirmed,
-          quoteNumber, setQuoteNumber,
-          primaryApplicantGender , setPrimaryApplicantGender,
-           totalPremium, setTotalPremium,
-  schedule, setSchedule,
-  loading, setLoading,
-  error, setError,
-  formStep , handleFormStepChange,
-  handleNext , isStepOneFilled,
-  savingStage1
+//use today as fallback
+export const calculateAge = (
+  dob: string | Date,
+  effectiveDate: string | Date,
+): number | null => {
+  if (!dob) return null;
 
- }: any) => {
+  // Use effective date if available, otherwise use today
+  const targetDate = effectiveDate ? new Date(effectiveDate) : new Date();
+  const birthDate = new Date(dob);
 
+  let age = targetDate.getFullYear() - birthDate.getFullYear();
+  const monthDiff = targetDate.getMonth() - birthDate.getMonth();
+  if (
+    monthDiff < 0 ||
+    (monthDiff === 0 && targetDate.getDate() < birthDate.getDate())
+  ) {
+    age--;
+  }
+  return age;
+};
 
-  const agentCode = useSelector((state: RootState) => state.auth.agentCode)
+const Step1STRVCT = ({
+  onValidityChange,
 
+  totalPremium,
+  setTotalPremium,
+  schedule,
+  setSchedule,
+  loading,
+  setLoading,
+  error,
+  setError,
 
+  quoteNumber,
+  setQuoteNumber,
+  showQuestionnaireError,
+}: Props) => {
+  const { t } = useLanguage();
+  const agentCode = useSelector((state: RootState) => state.auth.agentCode);
+  const {
+    sendQuoteEmail,
+    loading: emailLoading,
+    success: emailSuccess,
+  } = useEmailQuote();
 
+  const {
+    register,
+    control,
+    setValue,
+    getValues,
+    watch,
+    reset,
+    formState: { errors, isDirty },
+  } = useFormContext<Step1Payload>();
 
-  //===================== Applicant Information Functions and States =================================
+  // Use watch to subscribe to form updates for logic
+  const primaryFirstName = watch("primaryFirstName");
+  const primaryLastName = watch("primaryLastName");
+  const primaryDateOfBirth = watch("primaryDateOfBirth");
+  const primaryEmail = watch("primaryEmail");
+  const primaryApplicantGender = watch("primaryApplicantGender");
 
-  const [displayInfoApplicantConfirm, setDisplayInfoApplicantConfirm] =
-    useState(false);
+  const applicantNumber = watch("applicantNumber");
+  const coverageForPreMedCon = watch("coverageForPreMedCon");
+  const applicants = watch("applicants");
 
-  // const [coverageForPreMedCon, setCoverageForPreMedCon] = useState(false);
+  const countryOfOrigin = watch("countryOfOrigin");
+  const inCanada = watch("inCanada");
+  const superVisa = watch("superVisa");
+  const superVisaYears = watch("superVisaYears");
+  const destinationProvince = watch("destinationProvince");
+  const effectiveDate = watch("effectiveDate");
+  const expiryDate = watch("expiryDate");
+  const coverageLength = watch("coverageLength");
+  const policyType = watch("policyType");
+  const coverageOption = watch("coverageOption");
+  const deductible = watch("deductible");
+  const paymentOption = watch("paymentOption");
 
-  // const [primaryFirstName, setPrimaryFirstName] = useState("")
-  // const [primaryLastName, setPrimaryLastName] = useState("")
-  // const [primaryDateOfBirth, setPrimaryDateOfBirth] = useState("")
-  // const [primaryEmail, setprimaryEmail] = useState("")
+  const primaryQuestionnaire = watch("primaryQuestionnaire");
+  const isConfirmed = watch("isConfirmed") ?? false;
 
+  const [isAgeQuestionnaireOpen, setIsAgeQuestionnaireOpen] = useState(false);
   const [showInfocoverageForPreMedCon, setShowInfocoverageForPreMedCon] =
     useState(false);
-
   const [
     showInfocoverageForPreMedConIndiually,
     setShowInfocoverageForPreMedConIndiually,
   ] = useState<Record<number, boolean>>({});
-
-  // whether the info panel is showing
   const [showInfo, setShowInfo] = useState(false);
-  // whether user haveve confirmed
-  // const [isConfirmed, setIsConfirmed] = useState(false);
+  const [lastModified, setLastModified] = useState<
+    "effectiveDate" | "expiryDate" | "coverageLength" | null
+  >(null);
 
-  // state to check the applicant numbers
-  // const [applicantNumber,setApplicantNumber] = useState(0)
+  const calculateDaysBetween = (start: string, end: string): number => {
+    if (!start || !end) return 0;
+    const startDate = new Date(start);
+    const endDate = new Date(end);
+    const diffTime = endDate.getTime() - startDate.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+    return diffDays > 0 ? diffDays : 0;
+  };
 
-  // Array containing the secondary applicant data
-  // const [applicants, setApplicants] = useState<Applicant[]>([])
+  const addDaysToDate = (dateString: string, days: number): string => {
+    if (!dateString || days <= 0) return "";
+    const date = new Date(dateString);
+    date.setDate(date.getDate() + days - 1); // -1 because it's inclusive
+    return date.toISOString().split("T")[0];
+  };
+
+  // date calculation sync effects
+  useEffect(() => {
+    if (
+      effectiveDate &&
+      expiryDate &&
+      lastModified !== "coverageLength" &&
+      superVisa !== "yes"
+    ) {
+      const diffDays = calculateDaysBetween(effectiveDate, expiryDate);
+      setValue("coverageLength", String(diffDays), { shouldValidate: true });
+    }
+  }, [effectiveDate, expiryDate, lastModified, setValue, superVisa]);
+
+  useEffect(() => {
+    if (
+      effectiveDate &&
+      coverageLength &&
+      lastModified === "coverageLength" &&
+      superVisa !== "yes"
+    ) {
+      const newExpiry = addDaysToDate(effectiveDate, Number(coverageLength));
+      setValue("expiryDate", newExpiry, { shouldValidate: true });
+    }
+  }, [coverageLength, effectiveDate, lastModified, setValue, superVisa]);
+
+  useEffect(() => {
+    if (
+      expiryDate &&
+      coverageLength &&
+      lastModified === "expiryDate" &&
+      superVisa !== "yes"
+    ) {
+      const diffDays = calculateDaysBetween(effectiveDate, expiryDate);
+      setValue("coverageLength", String(diffDays), { shouldValidate: true });
+    }
+  }, [expiryDate, coverageLength, effectiveDate, lastModified, setValue, superVisa]);
+
+  // Modals / Info boxes
+  const [showInfoCountryOfOrigin, setShowInfoCountryOfOrigin] = useState(false);
+  const [showInfoSuperVisa, setShowInfoSuperVisa] = useState(false);
+  const [showInfoInCanada, setShowInfoInCanada] = useState(false);
+  const [showInfoDestinationProvince, setShowInfoDestinationProvince] =
+    useState(false);
+  const [showInfoPolicyType, setShowInfoPolicyType] = useState(false);
+  const [showInfoCoverageOption, setShowInfoCoverageOption] = useState(false);
+  const [showInfoDeductible, setShowInfoDeductible] = useState(false);
+  const [showInfoPaymentOption, setShowInfoPaymentOption] = useState(false);
+  const [showConfirmEligibility, setShowConfirmEligibility] = useState(false);
+  const [savedFormState, setSavedFormState] = useState<string | null>(null);
+  const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
+  const { triggerNotification, NotificationComponent } = useNotification();
+
+  const svOptions = allCoverageOptions.filter((o) =>
+    ["", "100000", "150000", "500000", "1000000"].includes(o.value),
+  );
+
+  const coverageOptions = superVisa === "yes" ? svOptions : allCoverageOptions;
+
+  // Questionnaire Helpers - PRESERVED LOGIC
+  const primaryAge = calculateAge(primaryDateOfBirth, effectiveDate);
+  const applicantAges = applicants.map((app: any) =>
+    calculateAge(app.dob, effectiveDate),
+  );
+
+  const anyApplicantOver80 =
+    (primaryAge !== null && primaryAge >= 80) ||
+    applicantAges.some((age: number | null) => age !== null && age >= 80);
+
+  // Check who needs questionnaire
+  const primaryNeedsQuestionnaire =
+    primaryAge !== null &&
+    primaryAge >= 70 &&
+    primaryAge <= 84 &&
+    coverageForPreMedCon;
+  const applicantsNeedingQuestionnaire = applicants.filter(
+    (app: any, idx: number) => {
+      const age = applicantAges[idx];
+      return age !== null && age >= 70 && age <= 84 && app.preMedCoverage;
+    },
+  );
+
+  const anyNeedsQuestionnaire =
+    primaryNeedsQuestionnaire || applicantsNeedingQuestionnaire.length > 0;
+
+  // Check questionnaire completion
+  const primaryQuestionnaireComplete =
+    !primaryNeedsQuestionnaire || (primaryQuestionnaire !== null && primaryQuestionnaire?.questions?.length > 0);
+  const applicantsQuestionnaireComplete = applicants.every(
+    (app: any, idx: number) => {
+      const age = applicantAges[idx];
+      const needsIt =
+        age !== null && age >= 70 && age <= 84 && app.preMedCoverage;
+      return !needsIt || (app.healthQuestionnaire?.questions?.length > 0);
+    },
+  );
+
+  const allQuestionnairesComplete =
+    primaryQuestionnaireComplete && applicantsQuestionnaireComplete;
+
+  const applicantsToShow = (() => {
+    const list: any[] = [];
+    if (primaryNeedsQuestionnaire) {
+      list.push({
+        firstName: primaryFirstName,
+        lastName: primaryLastName,
+        index: -1,
+      });
+    }
+    applicants.forEach((app: any, idx: number) => {
+      const age = applicantAges[idx];
+      if (age !== null && age >= 70 && age <= 84 && app.preMedCoverage) {
+        list.push({
+          firstName: app.firstName,
+          lastName: app.lastName,
+          index: idx,
+        });
+      }
+    });
+    return list;
+  })();
 
   // Effects to resize the array if applicant changes the number after entering the applicant
   useEffect(() => {
-    setApplicants((prev: any) =>
-      Array.from(
-        { length: applicantNumber },
-        (_, i) =>
-          prev[i] ?? {
-            firstName: "",
-            lastName: "",
-            dob: "",
-            relationship: "",
-            preMedCoverage: false,
-            gender: "",
-          }
-      )
+    if (applicantNumber === applicants.length) return;
+
+    //   setApplicants((prev: any) =>
+    //   Array.from(
+    //     { length: applicantNumber }, . ..
+    //   )
+    const newApplicants = Array.from(
+      { length: applicantNumber },
+      (_, i) =>
+        applicants[i] ?? {
+          firstName: "",
+          lastName: "",
+          dob: "",
+          relationship: "",
+          preMedCoverage: false,
+          gender: "",
+          healthQuestionnaire: {
+            questions: [],
+          },
+          email: "",
+        },
     );
-  }, [applicantNumber]);
+    setValue("applicants", newApplicants);
+  }, [applicantNumber, applicants, setValue]);
 
   // Applicant field upate function
-  const updateApplicant = (idx: number, field: keyof Applicant, value: any) => {
-    setApplicants((prev: any) => {
-      const copy = [...prev];
-      copy[idx] = { ...copy[idx], [field]: value };
-      return copy;
-    });
+  const updateApplicant = (idx: number, field: any, value: any) => {
+    // Direct form update
+    //   setApplicants((prev: any) => {
+    //     const copy = [...prev];
+    //     copy[idx] = { ...copy[idx], [field]: value };
+    //     return copy;
+    //   });
+    setValue(`applicants.${idx}.${field}` as any, value);
+    if (field === "dob") {
+      setValue(`applicants.${idx}.healthQuestionnaire`, { questions: [] });
+    }
   };
 
   const toggleInfo = (idx: number) =>
@@ -200,82 +353,30 @@ const Step1STRVCT = ({ onValidityChange,
   };
 
   const handleCheckboxChange = () => {
-    // if they try to check before even opening, auto-open for them
+    const newValue = !isConfirmed;
+    setValue("isConfirmed", newValue, { shouldValidate: true, shouldDirty: true });
+
+    if (newValue) {
+      setShowConfirmEligibility(true);
+    }
+
     if (!showInfo) {
       setShowInfo(true);
     }
-    // ask the confirm dialog
-    const ok = window.confirm(
-      "Have you read and understood the eligibility instructions above?"
-    );
-    if (ok) {
-      // toggle the checked state
-      setIsConfirmed((prev: any) => !prev);
-    } else {
-      // if they cancel, ensure it stays unchecked
-      setIsConfirmed(false);
-    }
   };
-
-  //===============================  Applicant Information Functions And States End ===============================
-  //
-
-  // =====================================COVERAGE INFORMATION FUNCTIONS AND STATES =========================
-
-  const [showInfoCountryOfOrigin, setShowInfoCountryOfOrigin] = useState(false);
-  const [showInfoSuperVisa, setShowInfoSuperVisa] = useState(false);
-  const [showInfoInCanada, setShowInfoInCanada] = useState(false);
-  const [showInfoDestinationProvince, setShowInfoDestinationProvince] =
-    useState(false);
-  const [showInfoPolicyType, setShowInfoPolicyType] = useState(false);
-  const [showInfoCoverageOption, setShowInfoCoverageOption] = useState(false);
-  const [showInfoDeductible, setShowInfoDeductible] = useState(false);
-  const [showInfoPaymentOption, setShowInfoPaymentOption] = useState(false);
-
-  //
-  // const [superVisa, setSuperVisa] = useState<SuperVisaOption>("");
-  // const [superVisaYears, setSuperVisaYears] = useState<SuperVisaYears>("");
-  // const [destinationProvince, setDestinationProvince] = useState<string>("");
-  // const [effectiveDate, setEffectiveDate] = useState<string>("");
-  // const [expiryDate, setExpiryDate] = useState<string>("");
-  // const [coverageLength, setCoverageLength] = useState<string>("");
-
-  // const [inCanada, setInCanada] = useState<YesNo>("");
-
-  // const [paymentOption, setPaymentOption]     = useState<'lump-sum' | 'monthly-installments'>('lump-sum')
-  // // const [showPaymentOption, setShowPaymentOption] = useState(false)
-
-  // const [policyType, setPolicyType] = useState<string>("")
-
-  // const [deductible, setDeductible] = useState<number>(0)
-
-  // const [countryOfOrigin, setCountryOfOrigin] = useState<string>("")
-
-  const svOptions = allCoverageOptions.filter((o) =>
-    ["", "100000", "150000", "500000", "1000000"].includes(o.value)
-  );
-
-  const coverageOptions = superVisa === "yes" ? svOptions : allCoverageOptions;
-
-  //
-  // const [coverageOption, setCoverageOption] = useState<string>("");
-
-  // ----------------- Coverage Info COmbined state and update function ----------------
-
-  // ----------------------------------------------
 
   // --- auto-calculate for Super Visa yes ---
   useEffect(() => {
     if (superVisa === "yes" && superVisaYears && effectiveDate) {
-      const eff = new Date(effectiveDate);
-      const exp = new Date(eff);
-      exp.setFullYear(eff.getFullYear() + Number(superVisaYears));
-      const days = Math.round((exp.getTime() - eff.getTime()) / msPerDay);
+      const days = Number(superVisaYears) * 365;
+      const exp = addDaysToDate(effectiveDate, days);
 
-      setExpiryDate(exp.toISOString().slice(0, 10));
-      setCoverageLength(String(days));
+      setValue("expiryDate", exp, {
+        shouldValidate: true,
+      });
+      setValue("coverageLength", String(days), { shouldValidate: true });
     }
-  }, [superVisa, superVisaYears, effectiveDate]);
+  }, [superVisa, superVisaYears, effectiveDate, setValue]);
 
   const showPaymentOption =
     superVisa === "yes" ||
@@ -285,81 +386,27 @@ const Step1STRVCT = ({ onValidityChange,
 
   // when it hides, reset back to lump-sum
   useEffect(() => {
-    if (!showPaymentOption) setPaymentOption("lump-sum");
-  }, [showPaymentOption]);
+    if (!showPaymentOption) setValue("paymentOption", "lump-sum");
+  }, [showPaymentOption, setValue]);
+
+  // Reset deductible if anyone is over 80 and a low deductible is selected
+  useEffect(() => {
+    if (anyApplicantOver80) {
+      const currentDeductible = getValues("deductible");
+      if (["0", "100", "250"].includes(String(currentDeductible))) {
+        setValue("deductible", "", { shouldValidate: true });
+      }
+    }
+  }, [anyApplicantOver80, setValue, getValues]);
 
   const paymentOptions = [
     { value: "lump-sum", label: "Lump Sum" },
-    // only include monthly‐installments if coverageOption > 100k
     ...(Number(coverageOption) >= 100000
       ? [{ value: "monthly-installments", label: "Monthly Installments" }]
       : []),
   ];
 
-  // --- Handlers ---
-  const handleSuperVisaChange = (e: ChangeEvent<HTMLSelectElement>) => {
-    setSuperVisa(e.target.value as SuperVisaOption);
-    setSuperVisaYears("");
-    setExpiryDate("");
-    setCoverageLength("");
-    // setShowPaymentOption(false)
-  };
-  const handleYearsChange = (e: ChangeEvent<HTMLSelectElement>) =>
-    setSuperVisaYears(e.target.value as SuperVisaYears);
-  const handleProvinceChange = (e: ChangeEvent<HTMLSelectElement>) =>
-    setDestinationProvince(e.target.value);
-  const handleEffectiveDateChange = (e: ChangeEvent<HTMLInputElement>) =>
-    setEffectiveDate(e.target.value);
-  const handleExpiryChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const val = e.target.value;
-    setExpiryDate(val);
-    if (effectiveDate) {
-      const diff = Math.round(
-        (new Date(val).getTime() - new Date(effectiveDate).getTime()) / msPerDay
-      );
-      setCoverageLength(String(diff));
-    }
-  };
-  const handleCoverageChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const val = e.target.value;
-    setCoverageLength(val);
-    if (effectiveDate) {
-      const exp = new Date(
-        new Date(effectiveDate).getTime() + Number(val) * msPerDay
-      );
-      setExpiryDate(exp.toISOString().slice(0, 10));
-    }
-  };
-
-  const handleInCanadaChange = (e: ChangeEvent<HTMLSelectElement>) => {
-    setInCanada(e.target.value as YesNo);
-  };
-
-  const handleCoverageOptionChange = (e: ChangeEvent<HTMLSelectElement>) => {
-    setCoverageOption(e.target.value);
-  };
-
-  const handlePaymentChange = (e: ChangeEvent<HTMLSelectElement>) => {
-    setPaymentOption(e.target.value as any);
-  };
-
-  const handlePolicyChange = (e: ChangeEvent<HTMLSelectElement>) => {
-    setPolicyType(e.target.value as any);
-  };
-
-  const handleDeductibleChange = (e: ChangeEvent<HTMLSelectElement>) => {
-    setDeductible(Number(e.target.value));
-  };
-
-  const handleChangeCountryOfOrigin = (e: ChangeEvent<HTMLSelectElement>) => {
-    setCountryOfOrigin(e.target.value as any);
-  };
-
-  // =======================================END ===============================
-
   // ==============================Check Form Fill Status =======================
-
-  // check if full form is completed
 
   const canSaveQoute = [
     primaryFirstName,
@@ -367,8 +414,8 @@ const Step1STRVCT = ({ onValidityChange,
     primaryDateOfBirth,
     primaryEmail,
     primaryApplicantGender,
-    coverageForPreMedCon,
-    applicantNumber,
+    // coverageForPreMedCon, // Optional or always boolean
+    applicantNumber !== undefined,
     countryOfOrigin,
     inCanada,
     superVisa,
@@ -380,97 +427,72 @@ const Step1STRVCT = ({ onValidityChange,
     coverageOption,
     deductible,
     paymentOption,
-  ].every((v) => v !== "");
+    isConfirmed,
+    allQuestionnairesComplete,
+  ].every((v) => v !== "" && v !== undefined && v !== null && v !== false);
 
-  // console.log(canSaveQoute)
-
-  const isFormFilled = isConfirmed && canSaveQoute;
+  const isFormFilled = canSaveQoute;
 
   // ---------- Auto CHeck the status of form -----------
-
   useEffect(() => {
-    onValidityChange(isFormFilled);
-  }, [isFormFilled]);
-
-  // -----------------------------------
-
-  // if(isConfirmed && canSaveQoute){
-  //   setisFormFilled(true)
-  //   console.log("All Fields filled Proceed Ahead", isFormFilled)
-  // } else {
-  //   setisFormFilled(false)
-  //   console.log("All Fields filled Proceed Ahead", isFormFilled)
-  // }
-
-  //
+    onValidityChange?.(isFormFilled);
+  }, [isFormFilled, onValidityChange]);
 
   // check if coverage informatiion is completed for backend to calculate the premium
-  const CanClculatePremium = [
-    superVisa,
-    destinationProvince,
-    effectiveDate,
-    expiryDate,
-    coverageLength,
-    policyType,
-    coverageOption,
-    deductible,
-    primaryDateOfBirth
-  ].every(v => v !== '');
-
-  // console.log(CanClculatePremium)
-
-  //
-
-  //=======================================END===================================
+  const CanCalculatePremium =
+    [
+      superVisa,
+      destinationProvince,
+      effectiveDate,
+      expiryDate,
+      coverageLength,
+      policyType,
+      coverageOption,
+      deductible,
+      primaryDateOfBirth,
+    ].every((v) => v !== "" && v !== undefined && v !== null);
 
   //=====================================Backend Communication Data===========================
 
-  const premiumCalculationData = useMemo<PremiumCalculationData>(() => ({
+  const premiumCalculationData: PremiumCalculationData = {
     countryOfOrigin,
     inCanada,
     superVisa,
     coverageForPreMedCon,
     destinationProvince,
-    effectiveDate,
-    expiryDate,
+    effectiveDate: effectiveDate ? new Date(effectiveDate).toISOString() : "",
+    expiryDate: expiryDate ? new Date(expiryDate).toISOString() : "",
     coverageLength,
     policyType,
     coverageOption,
-    deductible,
-    primarydateOfBirth: primaryDateOfBirth,
+    deductible: Number(deductible),
+    primarydateOfBirth: primaryDateOfBirth
+      ? new Date(primaryDateOfBirth).toISOString()
+      : "",
     paymentOption,
-    plan: 1
-  }), [
-  countryOfOrigin,
-  inCanada,
-  superVisa,
-  destinationProvince,
-  effectiveDate,
-  expiryDate,
-  coverageLength,
-  policyType,
-  coverageOption,
-  deductible,
-  primaryDateOfBirth,
-  paymentOption,
-  coverageForPreMedCon
-]
-) 
-  // const payload = Object.defineProperty(PremiumCalculationData, "primarydateOfBirth", {value: primaryDateOfBirth});
+    plan: 1,
+    // send applicant's data without health questionnaire
+    applicants: (applicants || []).map((app: any) => {
+      const { healthQuestionnaire, ...rest } = app;
+      return {
+        ...rest,
+        dob: app.dob ? new Date(app.dob).toISOString() : "",
+      };
+    }),
+  };
 
-  // const { totalPremium, schedule, loading, error } = usePremiumCalculate(premiumCalculationData, CanClculatePremium);
-    const {
+  const {
     totalPremium: hookTotalPremium,
     schedule: hookSchedule,
     loading: hookLoading,
     error: hookError,
-  } = usePremiumCalculate(premiumCalculationData, CanClculatePremium);
+  } = usePremiumCalculate(premiumCalculationData, CanCalculatePremium);
 
-   useEffect(() => {
+  useEffect(() => {
     setTotalPremium(hookTotalPremium);
   }, [hookTotalPremium, setTotalPremium]);
 
-   useEffect(() => {
+  useEffect(() => {
     setSchedule(hookSchedule);
   }, [hookSchedule, setSchedule]);
 
@@ -481,19 +503,15 @@ const Step1STRVCT = ({ onValidityChange,
   useEffect(() => {
     setError(hookError);
   }, [hookError, setError]);
-  
-  // const hookResult = usePremiumCalculate(premiumCalculationData, CanClculatePremium);
 
-  //   const { quote, loading, error } = useQuote(
-  //   { applicants, coverage: coverageInfo },
-  //   CanClculatePremium
-  // );
-
-  //========================================END=================================================
-
-  // ============================ common used States =============================
-
-  // const [isFormFilled, setisFormFilled] = useState(false)
+  // Save Quote Hook Logic replaced by parent usage or maintained here if it was simpler.
+  // The parent now passes down the save logic somewhat, but the original component also had useSaveQuote.
+  // We'll stick to maintaining `useSaveQuote` logic here OR use the parent's Save logic passed via props.
+  // The Refactor actually replaced the parent logic to use `saveQuoteNext`.
+  // The original component had `handleQuoteSave` which used `useSaveQuote` (not Next).
+  // The user asked to "make it strictly like medical form behaves".
+  // Medical form has the save logic in parent `handleNext`.
+  // However, there is also a "Save Quote" link in the summary section at bottom.
 
   const {
     saveQuote,
@@ -503,7 +521,13 @@ const Step1STRVCT = ({ onValidityChange,
   } = useSaveQuote();
 
   const handleQuoteSave = async () => {
-    const payload: QuotePayload = {
+    // Re-construct payload from form values
+    // const formValues = getValues();
+    //  const payload: QuotePayload = ... // construct payload
+    // This seems to be a 'Save for later' feature separate from the 'Next' step.
+    // For now, I will keep it if it was there.
+
+    const payload: any = {
       primaryFirstName,
       primaryLastName,
       primaryDateOfBirth,
@@ -525,99 +549,224 @@ const Step1STRVCT = ({ onValidityChange,
       deductible,
       paymentOption,
       agentCode: agentCode!,
-      product: 'Secure Travel RIMI Visitors to Canada Travel',
-      quotePremium: totalPremium,  // maybe we should calculate it directly from backend instead of fetching from frontend
+      product: "SECURE_TRAVEL_RIMI_VISITORS_TO_CANADA_TRAVEL",
+      quotePremium: totalPremium,
       quoteNumber: quoteNumber,
-      plan: 1
-    }
+      plan: 1,
+    };
 
     try {
       const response = await saveQuote(payload);
-      setQuoteNumber(response?.quote);
-      console.log("quote Number is ", quoteNumber);
-      console.log("Saved successfully:", response);
+      setQuoteNumber(String(response?.quote));
+      reset(getValues());
+      triggerNotification({
+        message: t("Quote saved successfully!"),
+        type: "success",
+      });
     } catch {
-      console.log("Save failed");
+      triggerNotification({
+        message: t("Failed to save quote."),
+        type: "error",
+      });
     }
   };
 
-  //================================================================================
+  const handleEmailQuote = async () => {
+    if (!quoteNumber) {
+      triggerNotification({
+        type: "error",
+        message: t("Please save your quote first"),
+      });
+      return;
+    }
+
+    try {
+      await sendQuoteEmail(quoteNumber);
+      triggerNotification({
+        type: "success",
+        message: `${t("Quote email sent successfully to")} ${primaryEmail}`,
+      });
+    } catch (err) {
+      triggerNotification({
+        type: "error",
+        message: t("Failed to send email. Please try again."),
+      });
+    }
+  };
+
+  // Wrapper for setApplicants to be passed to AgeQuestionaire
+  const setApplicantsWrapper = (newValOrFn: any) => {
+    // AgeQuestionaire uses standard setState functional updates or values
+    if (typeof newValOrFn === "function") {
+      const current = getValues("applicants");
+      const newData = newValOrFn(current);
+      setValue("applicants", newData);
+    } else {
+      setValue("applicants", newValOrFn);
+    }
+  };
+
+  // Wrapper for setPrimaryQuestionnaire
+  const setPrimaryQuestionnaireWrapper = (newVal: any) => {
+    // It might be a functional update too
+    if (typeof newVal === "function") {
+      const current = getValues("primaryQuestionnaire");
+      setValue("primaryQuestionnaire", newVal(current));
+    } else {
+      setValue("primaryQuestionnaire", newVal);
+    }
+  };
 
   return (
     <>
-      {/* <ApplicantInformation />
-    <CoverageInformation /> */}
-      {/* ==================================================================================== */}
+      {NotificationComponent}
       {/*  APPLICANT INFORMATION  */}
-
       <>
         <div className="max-w-5xl mx-auto mt-4 p-6 bg-[#F9F9F9]">
           <h3 className="text-lg font-bold text-left text-[#1B1B1B] mb-5">
-            Applicant Information
+            {t("Applicant Information")}
           </h3>
 
           {/* Primary Applicant  */}
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 md:gap-x-16 lg:gap-x-24 gap-y-4 text-text-secondary">
             <div className="flex flex-col">
-              <label className="text-sm">First Name</label>
+              <label className="text-sm">{t("First Name")}</label>
               <input
                 className="input-primary"
                 type="text"
-                placeholder="Enter First Name"
-                value={primaryFirstName}
-                onChange={(e) => setPrimaryFirstName(e.target.value)}
+                placeholder={t("Enter First Name")}
+                {...register("primaryFirstName", {
+                  setValueAs: (value) => value?.trim() || "",
+                  required: t("First Name is required"),
+                  maxLength: { value: 60, message: t("Max 60 characters") },
+                })}
               />
+              {errors.primaryFirstName && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.primaryFirstName.message}
+                </p>
+              )}
             </div>
             <div className="flex flex-col">
-              <label className="text-sm">Last Name</label>
+              <label className="text-sm">{t("Last Name")}</label>
               <input
                 className="input-primary"
                 type="text"
-                placeholder="Enter Last Name"
-                value={primaryLastName}
-                onChange={(e) => setPrimaryLastName(e.target.value)}
+                placeholder={t("Enter Last Name")}
+                {...register("primaryLastName", {
+                  setValueAs: (value) => value?.trim() || "",
+                  required: t("Last Name is required"),
+                  maxLength: { value: 60, message: t("Max 60 characters") },
+                })}
               />
+              {errors.primaryLastName && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.primaryLastName.message}
+                </p>
+              )}
             </div>
             <div className="flex flex-col">
-              <label className="text-sm">Date of Birth</label>
-              <input
-                className="input-primary"
-                type="date"
-                value={primaryDateOfBirth}
-                onChange={(e) => setPrimaryDateOfBirth(e.target.value)}
+              <Controller
+                control={control}
+                name="primaryDateOfBirth"
+                rules={{
+                  required: t("Date of Birth is required"),
+                  validate: (value) => {
+                    if (!value) return true;
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0);
+                    const dob = new Date(value);
+                    dob.setHours(0, 0, 0, 0);
+                    const dobCheck = validateDob(value, t);
+                    if (dobCheck !== true) return dobCheck;
+                    const ageErr = minAgeError(value, effectiveDate, t);
+                    if (ageErr) return ageErr;
+                    return true;
+                  },
+                }}
+                render={({ field }) => (
+                  <DatePicker
+                    label={t("Date of Birth")}
+                    {...field}
+                    value={field.value !== undefined ? field.value : ""}
+                    onChange={(date) => {
+                      field.onChange(date);
+                      setValue("primaryQuestionnaire", null);
+                      // if age is more then 80 then make deductible null so that the person has to choose it again
+                      const age = calculateAge(date, effectiveDate);
+                      if (age && age > 80) {
+                        setValue("deductible", "");
+                      }
+                    }}
+                    maxDate={latestAllowedDob(effectiveDate)}
+                  />
+                )}
               />
+              {errors.primaryDateOfBirth && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.primaryDateOfBirth.message as string}
+                </p>
+              )}
             </div>
             <div className="flex flex-col">
-              <label className="text-sm">Email</label>
+              <label className="text-sm">{t("Email")}</label>
               <input
                 className="input-primary"
                 type="email"
-                placeholder="Enter Email"
-                value={primaryEmail}
-                onChange={(e) => setprimaryEmail(e.target.value)}
+                placeholder={t("Enter Email")}
+                {...register("primaryEmail", {
+                  setValueAs: (value) => value?.trim()?.toLowerCase() || "",
+                  required: t("Email is required"),
+                  maxLength: { value: 100, message: t("Max 100 characters") },
+                  pattern: {
+                    value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                    message: t("Invalid email address"),
+                  },
+                })}
               />
+              {errors.primaryEmail && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.primaryEmail.message}
+                </p>
+              )}
             </div>
             <div className="flex flex-col">
-              <label className="text-sm">Gender</label>
+              <label className="text-sm">{t("Gender")}</label>
               <div className="relative">
                 <select
-                  value={primaryApplicantGender}
-                  onChange={(e) => setPrimaryApplicantGender(e.target.value)}
+                  {...register("primaryApplicantGender", {
+                    required: t("Gender is required"),
+                  })}
                   className="input-primary appearance-none cursor-pointer"
                 >
-                  <option value="select">Please select</option>
-                  <option value="Female">Female</option>
-                  <option value="Male">Male</option>
-                  <option value="Non-Binary">Non-Binary</option>
-                  <option value="Undeclared">Undeclared</option>
+                  <option value="">{t("Please select")}</option>
+                  <option value="Female">{t("Female")}</option>
+                  <option value="Male">{t("Male")}</option>
+                  <option value="Non-Binary">{t("Non-Binary")}</option>
+                  <option value="Undeclared">{t("Undeclared")}</option>
                 </select>
                 <div className="pointer-events-none absolute inset-y-0 right-2 flex items-center text-gray-500">
                   <ChevronDownIcon className="h-5 w-5" aria-hidden="true" />
                 </div>
               </div>
+              {errors.primaryApplicantGender && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.primaryApplicantGender.message}
+                </p>
+              )}
             </div>
           </div>
+
+          {/* 85 + Warning for primary applicant  */}
+
+          {primaryAge !== null && primaryAge > 84 && coverageForPreMedCon && (
+            <div className="col-span-2 bg-red-50 border border-red-200 p-3 mt-4 text-sm text-red-800">
+              {t("Age Must be under 85 years on effective date, to be eligible for medical coverage for stable pre-existing conditions")}
+            </div>
+          )}
+
+          {/* // */}
 
           {/* END Primary Applicant  */}
 
@@ -632,19 +781,24 @@ const Step1STRVCT = ({ onValidityChange,
                   className="h-5 w-5 text-[#3a17c5] cursor-pointer"
                   aria-hidden="true"
                 />
-                Include coverage for stable pre-existing medical conditions
+                {t("Include coverage for stable pre-existing medical conditions")}
               </label>
               <div className="relative">
-                <select
-                  className="input-primary appearance-none cursor-pointer"
-                  onChange={(e) =>
-                    setCoverageForPreMedCon(e.target.value === "yes")
-                  }
-                >
-                  <option value="">Select an option</option>
-                  <option value="yes">Yes</option>
-                  <option value="no">No</option>
-                </select>
+                <Controller
+                  control={control}
+                  name="coverageForPreMedCon"
+                  render={({ field }) => (
+                    <select
+                      className="input-primary appearance-none cursor-pointer"
+                      onChange={(e) => field.onChange(e.target.value === "yes")}
+                      value={field.value ? "yes" : "no"}
+                    >
+                      <option value="">{t("Please select")}</option>
+                      <option value="yes">{t("Yes")}</option>
+                      <option value="no">{t("No")}</option>
+                    </select>
+                  )}
+                />
                 <div className="pointer-events-none absolute inset-y-0 right-2 flex items-center text-gray-500">
                   <ChevronDownIcon className="h-5 w-5" aria-hidden="true" />
                 </div>
@@ -653,13 +807,11 @@ const Step1STRVCT = ({ onValidityChange,
 
             {/* // */}
 
-            {/* <div className="grid grid-cols-2 gap-x-36 gap-y-4 mt-6 text-text-secondary"> */}
             <div className="flex flex-col">
-              <label className="text-sm">Number of Additional Applicants</label>
+              <label className="text-sm">{t("Number of Additional Applicants")}</label>
               <div className="relative">
                 <select
-                  value={applicantNumber}
-                  onChange={(e) => setApplicantNumber(Number(e.target.value))}
+                  {...register("applicantNumber", { valueAsNumber: true })}
                   className="input-primary appearance-none cursor-pointer"
                 >
                   <option value="0">0</option>
@@ -684,38 +836,24 @@ const Step1STRVCT = ({ onValidityChange,
                 className="text-primary underline absolute top-2 right-2 cursor-pointer underline-offset-2"
                 onClick={() => setShowInfocoverageForPreMedCon(false)}
               >
-                close
+                {t("Close")}
               </button>
               <div className="border-b border-[#c2c2c2] pb-2 text-lg font-semibold">
-                Coverage for stable pre-existing medical conditions
+                {t("Coverage for stable pre-existing medical conditions")}
               </div>
               <div className="text-text-secondary mt-2 space-y-2">
                 <p>
-                  Any sickness, injury or medical condition that existed prior
-                  to the effective date will be excluded from coverage if you
-                  have selected "No" and paid for Plan 1 as indicated on your
-                  Confirmation of Insurance.
+                  {t("Any sickness, injury or medical condition that existed prior to the effective date will be excluded from coverage if you have selected \"No\" and paid for Plan 1 as indicated on your Confirmation of Insurance.")}
                 </p>
                 <p>
-                  If you have selected "Yes" and paid for Plan 2 as indicated on
-                  your Confirmation of Insurance, there is no coverage for any
-                  sickness, injury or medical condition that existed prior to
-                  the effective date, other than:
+                  {t("If you have selected \"Yes\" and paid for Plan 2 as indicated on your Confirmation of Insurance, there is no coverage for any sickness, injury or medical condition that existed prior to the effective date, other than:")}
                 </p>
                 <ul className="list-disc pl-6">
                   <li>
-                    <strong>Up to Age 69:</strong> Any sickness, injury or
-                    medical condition that was stable in the 90 days prior to
-                    the effective date.
+                    <strong>{t("Up to Age 69")}:</strong> {t("Any sickness, injury or medical condition that was stable in the 90 days prior to the effective date.")}
                   </li>
                   <li>
-                    <strong>Age 70-84:</strong> Any sickness, injury or medical
-                    condition that was stable in the 180 days prior to the
-                    effective date provided you have accurately answered no to
-                    all questions on the medical declaration. If any question on
-                    the medical declaration is answered yes, there is no
-                    coverage for any sickness, injury or medical condition that
-                    existed prior to the effective date, whether or not stable.
+                    <strong>{t("Age 70-84")}:</strong> {t("Any sickness, injury or medical condition that was stable in the 180 days prior to the effective date provided you have accurately answered no to all questions on the medical declaration. If any question on the medical declaration is answered yes, there is no coverage for any sickness, injury or medical condition that existed prior to the effective date, whether or not stable.")}
                   </li>
                 </ul>
               </div>
@@ -726,175 +864,289 @@ const Step1STRVCT = ({ onValidityChange,
 
           {/* Applicant Second List  */}
 
-          {applicants.map((app: any, idx: number) => (
-            <React.Fragment key={idx}>
-              <h1 className=" text-md font-semibold text-left text-[#1B1B1B] mt-5 mb-3">
-                APPLICANT {idx + 1}
-              </h1>
-              <div
-                key={idx}
-                className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 md:gap-x-16 lg:gap-x-24 gap-y-4 text-text-secondary"
-              >
-                <div className="flex flex-col">
-                  <label className="text-sm">First Name</label>
-                  <input
-                    className="input-primary"
-                    type="text"
-                    placeholder="Enter First Name"
-                    value={app.firstName}
-                    onChange={(e) =>
-                      updateApplicant(idx, "firstName", e.target.value)
-                    }
-                  />
-                </div>
-                <div className="flex flex-col">
-                  <label className="text-sm">Last Name</label>
-                  <input
-                    className="input-primary"
-                    type="text"
-                    placeholder="Enter Last Name"
-                    value={app.lastName}
-                    onChange={(e) =>
-                      updateApplicant(idx, "lastName", e.target.value)
-                    }
-                  />
-                </div>
-                <div className="flex flex-col">
-                  <label className="text-sm">Date of Birth</label>
-                  <input
-                    className="input-primary"
-                    type="date"
-                    value={app.dob}
-                    onChange={(e) =>
-                      updateApplicant(idx, "dob", e.target.value)
-                    }
-                  />
-                </div>
-                <div className="flex flex-col">
-                  <label className="text-sm">Gender</label>
-                  <div className="relative">
-                    <select
-                      value={app.gender}
-                      onChange={(e) =>
-                        updateApplicant(idx, "gender", e.target.value)
-                      }
-                      className="input-primary appearance-none cursor-pointer"
-                    >
-                      <option value="select">Please select</option>
-                      <option value="Female">Female</option>
-                      <option value="Male">Male</option>
-                      <option value="Non-Binary">Non-Binary</option>
-                      <option value="Undeclared">Undeclared</option>
-                    </select>
-                    <div className="pointer-events-none absolute inset-y-0 right-2 flex items-center text-gray-500">
-                      <ChevronDownIcon className="h-5 w-5" aria-hidden="true" />
-                    </div>
-                  </div>
-                </div>
-                <div className="flex flex-col">
-                  <label className="text-sm">
-                    Relationship to Primary Applicant
-                  </label>
-                  <input
-                    className="input-primary"
-                    type="text"
-                    placeholder="Relation"
-                    value={app.relationship}
-                    onChange={(e) =>
-                      updateApplicant(idx, "relationship", e.target.value)
-                    }
-                  />
-                </div>
-
-                <div className="flex flex-col">
-                  <label className="text-sm flex items-center">
-                    <InformationCircleIcon
-                      onClick={() => toggleInfo(idx)}
-                      className="h-5 w-5 text-[#3a17c5] cursor-pointer"
-                      aria-hidden="true"
+          {applicants &&
+            applicants.map((app: any, idx: number) => (
+              <React.Fragment key={idx}>
+                <h3 className=" text-md font-semibold text-left text-[#1B1B1B] mt-5 mb-3">
+                  {t("Additional Applicant")} {idx + 1}
+                </h3>
+                <div
+                  key={idx}
+                  className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 md:gap-x-16 lg:gap-x-24 gap-y-4 text-text-secondary"
+                >
+                  <div className="flex flex-col">
+                    <label className="text-sm">{t("First Name")}</label>
+                    <input
+                      className="input-primary"
+                      type="text"
+                      placeholder={t("Enter First Name")}
+                      {...register(`applicants.${idx}.firstName`, {
+                        setValueAs: (value: any) => value?.trim() || "",
+                        required: t("First Name is required"),
+                        maxLength: { value: 60, message: t("Max 60 characters") },
+                      })}
                     />
-                    Include coverage for stable pre-existing medical conditions
-                  </label>
-                  <div className="relative">
-                    <select
-                      className="input-primary appearance-none cursor-pointer"
-                      value={app.preMedCoverage ? "yes" : "no"}
-                      onChange={(e) =>
-                        updateApplicant(
-                          idx,
-                          "preMedCoverage",
-                          e.target.value === "yes"
-                        )
+                    {errors.applicants?.[idx]?.firstName && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.applicants[idx].firstName.message}
+                      </p>
+                    )}
+                  </div>
+                  <div className="flex flex-col">
+                    <label className="text-sm">{t("Last Name")}</label>
+                    <input
+                      className="input-primary"
+                      type="text"
+                      placeholder={t("Enter Last Name")}
+                      {...register(`applicants.${idx}.lastName`, {
+                        setValueAs: (value: any) => value?.trim() || "",
+                        required: t("Last Name is required"),
+                        maxLength: { value: 60, message: t("Max 60 characters") },
+                      })}
+                    />
+                    {errors.applicants?.[idx]?.lastName && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.applicants[idx].lastName.message}
+                      </p>
+                    )}
+                  </div>
+                  <div className="flex flex-col">
+                    <Controller
+                      control={control}
+                      name={`applicants.${idx}.dob`}
+                      rules={{
+                    required: t("Date of Birth is required"),
+                    validate: (value) => {
+                      if (!value) return true;
+                      const today = new Date();
+                      today.setHours(0, 0, 0, 0);
+                      const dob = new Date(value);
+                      dob.setHours(0, 0, 0, 0);
+                      const dobCheck = validateDob(value, t);
+                      if (dobCheck !== true) return dobCheck;
+                      if (!effectiveDate) {
+                        return true;
                       }
-                    >
-                      <option value="">Select an option</option>
-                      <option value="yes">Yes</option>
-                      <option value="no">No</option>
-                    </select>
-                    <div className="pointer-events-none absolute inset-y-0 right-2 flex items-center text-gray-500">
-                      <ChevronDownIcon className="h-5 w-5" aria-hidden="true" />
+                      const refDate = new Date(effectiveDate);
+                      refDate.setHours(0, 0, 0, 0);
+                      const diffTime = refDate.getTime() - dob.getTime();
+                      const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+                      if (diffDays < 15) {
+                        return t("Minimum age of the applicant must be 15 days");
+                      }
+                      const age = calculateAge(value, effectiveDate);
+                      if (age !== null && age >= 90) {
+                        return t("Maximum age of the applicant must be 90 years");
+                      }
+                      return true;
+                    },
+                  }}
+                      render={({ field }) => (
+                        <DatePicker
+                          label={t("Date of Birth")}
+                          {...field}
+                          value={field.value}
+                          onChange={(e) => {
+                            field.onChange(e);
+                            setValue(
+                              `applicants.${idx}.healthQuestionnaire` as any,
+                              { questions: [] },
+                            );
+                          }}
+                          maxDate={latestAllowedDob(effectiveDate)}
+                        />
+                      )}
+                    />
+                    {errors.applicants?.[idx]?.dob && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.applicants[idx].dob.message}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Email Field */}
+                  <div className="flex flex-col">
+                    <label className="text-sm">{t("Email")}</label>
+                    <input
+                      className="input-primary"
+                      type="email"
+                      placeholder={t("Enter Email")}
+                      {...register(`applicants.${idx}.email`, {
+                        setValueAs: (value: any) => value?.trim()?.toLowerCase() || "",
+                        required: t("Email is required"),
+                        pattern: {
+                          value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                          message: t("Invalid email address"),
+                        },
+                      })}
+                    />
+                    {errors.applicants?.[idx]?.email && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.applicants[idx].email.message}
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="flex flex-col">
+                    <label className="text-sm">{t("Gender")}</label>
+                    <div className="relative">
+                      <select
+                        {...register(`applicants.${idx}.gender`, {
+                          required: t("Gender is required"),
+                        })}
+                        className="input-primary appearance-none cursor-pointer"
+                      >
+                        <option value="">{t("Please select")}</option>
+                        <option value="Female">{t("Female")}</option>
+                        <option value="Male">{t("Male")}</option>
+                        <option value="Non-Binary">{t("Non-Binary")}</option>
+                        <option value="Undeclared">{t("Undeclared")}</option>
+                      </select>
+                      <div className="pointer-events-none absolute inset-y-0 right-2 flex items-center text-gray-500">
+                        <ChevronDownIcon
+                          className="h-5 w-5"
+                          aria-hidden="true"
+                        />
+                      </div>
+                    </div>
+                    {errors.applicants?.[idx]?.gender && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.applicants[idx].gender.message}
+                      </p>
+                    )}
+                  </div>
+                  <div className="flex flex-col">
+                    <label className="text-sm">
+                      {t("Relationship to Primary Applicant")}
+                    </label>
+                    <div className="relative">
+                      <select
+                        className="input-primary appearance-none cursor-pointer"
+                        // {...register(`applicants.${idx}.relation`, {
+                        {...register(`applicants.${idx}.relationship`, {
+                          required: t("Relation is required"),
+                        })}
+                      >
+                        <option value="">{t("Please select")}</option>
+                        <option value="Spouse">{t("Spouse")}</option>
+                        <option value="Dependent Child">{t("Dependent Child")}</option>
+                        <option value="Travelling Companion">
+                          {t("Travelling Companion")}
+                        </option>
+                      </select>
+                      <div className="pointer-events-none absolute inset-y-0 right-2 flex items-center text-gray-500">
+                        <ChevronDownIcon
+                          className="h-5 w-5"
+                          aria-hidden="true"
+                        />
+                      </div>
+                    </div>
+                    {errors.applicants?.[idx]?.relationship && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.applicants[idx].relationship.message}
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="flex flex-col">
+                    <label className="text-sm flex items-center">
+                      <InformationCircleIcon
+                        onClick={() => toggleInfo(idx)}
+                        className="h-5 w-5 text-[#3a17c5] cursor-pointer"
+                        aria-hidden="true"
+                      />
+                      {t("Include coverage for stable pre-existing medical conditions")}
+                    </label>
+                    <div className="relative">
+                      <select
+                        className="input-primary appearance-none cursor-pointer"
+                        value={app.preMedCoverage ? "yes" : "no"}
+                        onChange={(e) => {
+                          const isYes = e.target.value === "yes";
+                          updateApplicant(idx, "preMedCoverage", isYes);
+                        }}
+                      >
+                        <option value="">{t("Select an option")}</option>
+                        <option value="yes">{t("Yes")}</option>
+                        <option value="no">{t("No")}</option>
+                      </select>
+                      <div className="pointer-events-none absolute inset-y-0 right-2 flex items-center text-gray-500">
+                        <ChevronDownIcon
+                          className="h-5 w-5"
+                          aria-hidden="true"
+                        />
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-              {showInfocoverageForPreMedConIndiually[idx] && (
-                <div className="border border-inputBorder shadow-sm p-4 mt-4 bg-white relative">
-                  <button
-                    className="text-primary underline absolute top-2 right-2 cursor-pointer underline-offset-2"
-                    onClick={() =>
-                      setShowInfocoverageForPreMedConIndiually((prev) => ({
-                        ...prev,
-                        [idx]: false,
-                      }))
-                    }
-                  >
-                    close
-                  </button>
-                  <div className="border-b border-[#c2c2c2] pb-2 text-lg font-semibold">
-                    Coverage for stable pre-existing medical conditions
+                {showInfocoverageForPreMedConIndiually[idx] && (
+                  <div className="border border-inputBorder shadow-sm p-4 mt-4 bg-white relative">
+                    <button
+                      className="text-primary underline absolute top-2 right-2 cursor-pointer underline-offset-2"
+                      onClick={() =>
+                        setShowInfocoverageForPreMedConIndiually((prev) => ({
+                          ...prev,
+                          [idx]: false,
+                        }))
+                      }
+                    >
+                      {t("Close")}
+                    </button>
+                    <div className="border-b border-[#c2c2c2] pb-2 text-lg font-semibold">
+                      {t("Coverage for stable pre-existing medical conditions")}
+                    </div>
+                    <div className="text-text-secondary mt-2 space-y-2">
+                      <p>
+                        {t("Any sickness, injury or medical condition that existed prior to the effective date will be excluded from coverage if you have selected \"No\" and paid for Plan 1 as indicated on your Confirmation of Insurance.")}
+                      </p>
+                      <p>
+                        {t("If you have selected \"Yes\" and paid for Plan 2 as indicated on your Confirmation of Insurance, there is no coverage for any sickness, injury or medical condition that existed prior to the effective date, other than:")}
+                      </p>
+                      <ul className="list-disc pl-6">
+                        <li>
+                          <strong>{t("Up to Age 69")}:</strong> {t("Any sickness, injury or medical condition that was stable in the 90 days prior to the effective date.")}
+                        </li>
+                        <li>
+                          <strong>{t("Age 70-84")}:</strong> {t("Any sickness, injury or medical condition that was stable in the 180 days prior to the effective date provided you have accurately answered no to all questions on the medical declaration. If any question on the medical declaration is answered yes, there is no coverage for any sickness, injury or medical condition that existed prior to the effective date, whether or not stable.")}
+                        </li>
+                      </ul>
+                    </div>
                   </div>
-                  <div className="text-text-secondary mt-2 space-y-2">
-                    <p>
-                      Any sickness, injury or medical condition that existed
-                      prior to the effective date will be excluded from coverage
-                      if you have selected "No" and paid for Plan 1 as indicated
-                      on your Confirmation of Insurance.
-                    </p>
-                    <p>
-                      If you have selected "Yes" and paid for Plan 2 as
-                      indicated on your Confirmation of Insurance, there is no
-                      coverage for any sickness, injury or medical condition
-                      that existed prior to the effective date, other than:
-                    </p>
-                    <ul className="list-disc pl-6">
-                      <li>
-                        <strong>Up to Age 69:</strong> Any sickness, injury or
-                        medical condition that was stable in the 90 days prior
-                        to the effective date.
-                      </li>
-                      <li>
-                        <strong>Age 70-84:</strong> Any sickness, injury or
-                        medical condition that was stable in the 180 days prior
-                        to the effective date provided you have accurately
-                        answered no to all questions on the medical declaration.
-                        If any question on the medical declaration is answered
-                        yes, there is no coverage for any sickness, injury or
-                        medical condition that existed prior to the effective
-                        date, whether or not stable.
-                      </li>
-                    </ul>
-                  </div>
-                </div>
+                )}
+
+                {/* 85+ warning for each applicant */}
+                {applicantAges[idx] !== null &&
+                  applicantAges[idx]! > 84 &&
+                  app.preMedCoverage && (
+                    <div className="col-span-2 bg-red-50 border border-red-200 mt-4 p-3 text-sm text-red-800">
+                      {t("Applicant")} {idx + 1}: {t("Age Must be under 85 years on effective date, to be eligible for medical coverage for stable pre-existing conditions")}
+                    </div>
+                  )}
+              </React.Fragment>
+            ))}
+
+          {/* Open Medical Questionnaire Section */}
+          {anyNeedsQuestionnaire && (
+            <div className={`p-4 mt-6 border ${showQuestionnaireError && !allQuestionnairesComplete ? "bg-red-50 border-red-300" : "bg-blue-50 border-blue-200"}`}>
+              <p className={`text-sm mb-2 ${showQuestionnaireError && !allQuestionnairesComplete ? "text-red-900" : "text-blue-900"}`}>
+                {t("A Medical Declaration must be completed if you are between 70 and 84 years of age as of the effective date of coverage and are applying to purchase coverage for stable pre-existing conditions that have been stable in the 180 days prior to your effective date")}
+              </p>
+              <p className={`text-sm mb-3 ${showQuestionnaireError && !allQuestionnairesComplete ? "text-red-900" : "text-blue-900"}`}>
+                {t("* If you answer \"Yes\" to any of these questions, you will not be eligible for coverage of stable pre-existing medical conditions and \"Include coverage for stable pre-existing medical conditions\" will be set to \"No\" for that applicant.")}
+              </p>
+              <button
+                onClick={() => setIsAgeQuestionnaireOpen(true)}
+                className="bg-primary text-white py-2 px-4 font-semibold hover:bg-[#2309A1] transition-all duration-200 cursor-pointer disabled:cursor-default disabled:opacity-70"
+              >
+                {t("Open Medical Questionnaire")}
+              </button>
+              {showQuestionnaireError && !allQuestionnairesComplete && (
+                <p className="text-red-500 text-sm mt-2">
+                  {t("Medical questionnaire must be completed before proceeding.")}
+                </p>
               )}
-            </React.Fragment>
-          ))}
-
-          {/* // */}
-
-          {/* This is junk for now  */}
-          {/* {coverageForPreMedCon && <div></div>} */}
-
-          {/* // */}
+            </div>
+          )}
 
           <div className="w-full">
             <div className="mt-6 flex items-center justify-center gap-1">
@@ -906,61 +1158,56 @@ const Step1STRVCT = ({ onValidityChange,
                 type="checkbox"
                 className="accent-primary cursor-pointer"
                 checked={isConfirmed}
+                {...register("isConfirmed", {
+                  required: t("You must confirm eligibility to proceed"),
+                })}
                 onChange={handleCheckboxChange}
               />
               <span className="font-semibold text-[#2B00B7] text-sm">
-                Confirm that all applicants are eligible for this insurance
+                {t("Confirm that all applicants are eligible for this insurance")}
               </span>
             </div>
+            {errors.isConfirmed && (
+              <p className="text-red-500 text-sm mt-1 text-center">
+                {errors.isConfirmed.message}
+              </p>
+            )}
 
             {showInfo && (
-              <div className="border rounded-lg shadow-sm p-4 mt-4 bg-white">
+              <div className="border border-inputBorder shadow-sm p-4 mt-4 bg-white relative">
                 <div className="border-b pb-2 text-lg font-semibold">
-                  Eligibility
+                  {t("Eligibility")}
                 </div>
                 <ul className="list-decimal pl-5 mt-2 text-text-secondary space-y-2">
                   <li>
-                    Be a visitor to Canada or a person in Canada under a valid
-                    work or student visa, a Canadian or an immigrant not
-                    eligible for benefits under a government health insurance
-                    plan; and
+                    {t("Be a visitor to Canada or a person in Canada under a valid work or student visa, a Canadian or an immigrant not eligible for benefits under a government health insurance plan; and")}
                   </li>
                   <li>
-                    Be at least 15 days of age and less than 90 years of age;
-                    and
+                    {t("Be at least 15 days of age and less than 90 years of age; and")}
                   </li>
                   <li>
-                    Not be travelling against the advice of a physician and/or
-                    have not been diagnosed with a terminal illness; and
+                    {t("Not be travelling against the advice of a physician and/or have not been diagnosed with a terminal illness; and")}
                   </li>
                   <li>
-                    Not be experiencing new or undiagnosed signs or symptoms
-                    and/or know of any reason to seek medical attention; and
+                    {t("Not be experiencing new or undiagnosed signs or symptoms and/or know of any reason to seek medical attention; and")}
                   </li>
                   <li>
-                    Not require assistance with the activities of daily living
-                    (eating, bathing, dressing, functional mobility, using the
-                    toilet).
+                    {t("Not require assistance with the activities of daily living (eating, bathing, dressing, functional mobility, using the toilet).")}
                   </li>
                   <li>
-                    Have not been diagnosed or treated for pancreatic, liver,
-                    lung, brain or any kind of metastasized cancer.
+                    {t("Have not been diagnosed or treated for pancreatic, liver, lung, brain or any kind of metastasized cancer.")}
                   </li>
                   <li>
-                    Have not been diagnosed or treated for kidney condition
-                    requiring dialysis within the last 24 months.
+                    {t("Have not been diagnosed or treated for kidney condition requiring dialysis within the last 24 months.")}
                   </li>
                   <li>
-                    Have not been diagnosed or treated for bone marrow or organ
-                    transplant within the last 24 months.
+                    {t("Have not been diagnosed or treated for bone marrow or organ transplant within the last 24 months.")}
                   </li>
                   <li>
-                    Have not been diagnosed for terminal sickness with less than
-                    2 years to live.
+                    {t("Have not been diagnosed for terminal sickness with less than 2 years to live.")}
                   </li>
                   <li>
-                    Have not taken home oxygen in the past 12 months prior to
-                    the effective date.
+                    {t("Have not taken home oxygen in the past 12 months prior to the effective date.")}
                   </li>
                 </ul>
               </div>
@@ -969,7 +1216,6 @@ const Step1STRVCT = ({ onValidityChange,
         </div>
       </>
 
-      {/* // */}
       {/* ========================================================================== */}
 
       {/* ======================================COVERAGE INFORMATION ======================= */}
@@ -977,309 +1223,73 @@ const Step1STRVCT = ({ onValidityChange,
       <>
         <div className="max-w-5xl mx-auto mt-6 p-6 bg-[#F9F9F9]">
           <h3 className="text-lg font-bold text-left text-[#1B1B1B] mb-5">
-            Coverage Information
+            {t("Coverage Information")}
           </h3>
 
-          <div className="grid grid-cols-2 gap-x-36 gap-y-4 text-text-secondary">
-            {/* Country of Origin */}
-            <Dropdown
-              label="Country of Origin"
-              value={countryOfOrigin}
-              info={() => setShowInfoCountryOfOrigin((prev) => !prev)}
-              onChange={handleChangeCountryOfOrigin}
-              options={[
-                { value: "", label: "Please select..." },
-                { value: "AF", label: "Afghanistan" },
-                { value: "AX", label: "Åland Islands" },
-                { value: "AL", label: "Albania" },
-                { value: "DZ", label: "Algeria" },
-                { value: "AS", label: "American Samoa" },
-                { value: "AD", label: "Andorra" },
-                { value: "AO", label: "Angola" },
-                { value: "AI", label: "Anguilla" },
-                { value: "AQ", label: "Antarctica" },
-                { value: "AG", label: "Antigua and Barbuda" },
-                { value: "AR", label: "Argentina" },
-                { value: "AM", label: "Armenia" },
-                { value: "AW", label: "Aruba" },
-                { value: "AU", label: "Australia" },
-                { value: "AT", label: "Austria" },
-                { value: "AZ", label: "Azerbaijan" },
-                { value: "BS", label: "Bahamas" },
-                { value: "BH", label: "Bahrain" },
-                { value: "BD", label: "Bangladesh" },
-                { value: "BB", label: "Barbados" },
-                { value: "BY", label: "Belarus" },
-                { value: "BE", label: "Belgium" },
-                { value: "BZ", label: "Belize" },
-                { value: "BJ", label: "Benin" },
-                { value: "BM", label: "Bermuda" },
-                { value: "BT", label: "Bhutan" },
-                { value: "BO", label: "Bolivia" },
-                { value: "BQ", label: "Bonaire, Sint Eustatius and Saba" },
-                { value: "BA", label: "Bosnia and Herzegovina" },
-                { value: "BW", label: "Botswana" },
-                { value: "BV", label: "Bouvet Island" },
-                { value: "BR", label: "Brazil" },
-                { value: "IO", label: "British Indian Ocean Territory" },
-                { value: "VG", label: "British Virgin Islands" },
-                { value: "BN", label: "Brunei" },
-                { value: "BG", label: "Bulgaria" },
-                { value: "BF", label: "Burkina Faso" },
-                { value: "BI", label: "Burundi" },
-                { value: "KH", label: "Cambodia" },
-                { value: "CM", label: "Cameroon" },
-                { value: "CA", label: "Canada" },
-                { value: "CV", label: "Cape Verde" },
-                { value: "KY", label: "Cayman Islands" },
-                { value: "CF", label: "Central African Republic" },
-                { value: "TD", label: "Chad" },
-                { value: "CL", label: "Chile" },
-                { value: "CN", label: "China" },
-                { value: "CX", label: "Christmas Island" },
-                { value: "CC", label: "Cocos (Keeling) Islands" },
-                { value: "CO", label: "Colombia" },
-                { value: "KM", label: "Comoros" },
-                { value: "CK", label: "Cook Islands" },
-                { value: "CR", label: "Costa Rica" },
-                { value: "HR", label: "Croatia" },
-                { value: "CW", label: "Curaçao" },
-                { value: "CY", label: "Cyprus" },
-                { value: "CZ", label: "Czech Republic" },
-                { value: "DK", label: "Denmark" },
-                { value: "DJ", label: "Djibouti" },
-                { value: "DM", label: "Dominica" },
-                { value: "DO", label: "Dominican Republic" },
-                { value: "CD", label: "DR Congo" },
-                { value: "EC", label: "Ecuador" },
-                { value: "EG", label: "Egypt" },
-                { value: "SV", label: "El Salvador" },
-                { value: "GQ", label: "Equatorial Guinea" },
-                { value: "ER", label: "Eritrea" },
-                { value: "EE", label: "Estonia" },
-                { value: "ET", label: "Ethiopia" },
-                { value: "FK", label: "Falkland Islands" },
-                { value: "FO", label: "Faroe Islands" },
-                { value: "FJ", label: "Fiji" },
-                { value: "FI", label: "Finland" },
-                { value: "FR", label: "France" },
-                { value: "GF", label: "French Guiana" },
-                { value: "PF", label: "French Polynesia" },
-                { value: "TF", label: "French Southern and Antarctic Lands" },
-                { value: "GA", label: "Gabon" },
-                { value: "GM", label: "Gambia" },
-                { value: "GE", label: "Georgia" },
-                { value: "DE", label: "Germany" },
-                { value: "GH", label: "Ghana" },
-                { value: "GI", label: "Gibraltar" },
-                { value: "GR", label: "Greece" },
-                { value: "GL", label: "Greenland" },
-                { value: "GD", label: "Grenada" },
-                { value: "GP", label: "Guadeloupe" },
-                { value: "GU", label: "Guam" },
-                { value: "GT", label: "Guatemala" },
-                { value: "GG", label: "Guernsey" },
-                { value: "GN", label: "Guinea" },
-                { value: "GW", label: "Guinea-Bissau" },
-                { value: "GY", label: "Guyana" },
-                { value: "HT", label: "Haiti" },
-                { value: "HM", label: "Heard Island and McDonald Islands" },
-                { value: "HN", label: "Honduras" },
-                { value: "HK", label: "Hong Kong" },
-                { value: "HU", label: "Hungary" },
-                { value: "IS", label: "Iceland" },
-                { value: "IN", label: "India" },
-                { value: "ID", label: "Indonesia" },
-                { value: "IQ", label: "Iraq" },
-                { value: "IE", label: "Ireland" },
-                { value: "IM", label: "Isle of Man" },
-                { value: "IL", label: "Israel" },
-                { value: "IT", label: "Italy" },
-                { value: "CI", label: "Ivory Coast" },
-                { value: "JM", label: "Jamaica" },
-                { value: "JP", label: "Japan" },
-                { value: "JE", label: "Jersey" },
-                { value: "JO", label: "Jordan" },
-                { value: "KZ", label: "Kazakhstan" },
-                { value: "KE", label: "Kenya" },
-                { value: "KI", label: "Kiribati" },
-                { value: "XK", label: "Kosovo" },
-                { value: "KW", label: "Kuwait" },
-                { value: "KG", label: "Kyrgyzstan" },
-                { value: "LA", label: "Laos" },
-                { value: "LV", label: "Latvia" },
-                { value: "LB", label: "Lebanon" },
-                { value: "LS", label: "Lesotho" },
-                { value: "LR", label: "Liberia" },
-                { value: "LY", label: "Libya" },
-                { value: "LI", label: "Liechtenstein" },
-                { value: "LT", label: "Lithuania" },
-                { value: "LU", label: "Luxembourg" },
-                { value: "MO", label: "Macau" },
-                { value: "MK", label: "Macedonia" },
-                { value: "MG", label: "Madagascar" },
-                { value: "MW", label: "Malawi" },
-                { value: "MY", label: "Malaysia" },
-                { value: "MV", label: "Maldives" },
-                { value: "ML", label: "Mali" },
-                { value: "MT", label: "Malta" },
-                { value: "MH", label: "Marshall Islands" },
-                { value: "MQ", label: "Martinique" },
-                { value: "MR", label: "Mauritania" },
-                { value: "MU", label: "Mauritius" },
-                { value: "YT", label: "Mayotte" },
-                { value: "MX", label: "Mexico" },
-                { value: "FM", label: "Micronesia" },
-                { value: "MD", label: "Moldova" },
-                { value: "MC", label: "Monaco" },
-                { value: "MN", label: "Mongolia" },
-                { value: "ME", label: "Montenegro" },
-                { value: "MS", label: "Montserrat" },
-                { value: "MA", label: "Morocco" },
-                { value: "MZ", label: "Mozambique" },
-                { value: "MM", label: "Myanmar" },
-                { value: "NA", label: "Namibia" },
-                { value: "NR", label: "Nauru" },
-                { value: "NP", label: "Nepal" },
-                { value: "NL", label: "Netherlands" },
-                { value: "NC", label: "New Caledonia" },
-                { value: "NZ", label: "New Zealand" },
-                { value: "NI", label: "Nicaragua" },
-                { value: "NE", label: "Niger" },
-                { value: "NG", label: "Nigeria" },
-                { value: "NU", label: "Niue" },
-                { value: "NF", label: "Norfolk Island" },
-                { value: "MP", label: "Northern Mariana Islands" },
-                { value: "NO", label: "Norway" },
-                { value: "OM", label: "Oman" },
-                { value: "PK", label: "Pakistan" },
-                { value: "PW", label: "Palau" },
-                { value: "PS", label: "Palestine" },
-                { value: "PA", label: "Panama" },
-                { value: "PG", label: "Papua New Guinea" },
-                { value: "PY", label: "Paraguay" },
-                { value: "PE", label: "Peru" },
-                { value: "PH", label: "Philippines" },
-                { value: "PN", label: "Pitcairn Islands" },
-                { value: "PL", label: "Poland" },
-                { value: "PT", label: "Portugal" },
-                { value: "PR", label: "Puerto Rico" },
-                { value: "QA", label: "Qatar" },
-                { value: "CG", label: "Republic of the Congo" },
-                { value: "RE", label: "Réunion" },
-                { value: "RO", label: "Romania" },
-                { value: "RW", label: "Rwanda" },
-                { value: "BL", label: "Saint Barthélemy" },
-                { value: "SH", label: "Saint Helena" },
-                { value: "KN", label: "Saint Kitts and Nevis" },
-                { value: "LC", label: "Saint Lucia" },
-                { value: "MF", label: "Saint Martin" },
-                { value: "PM", label: "Saint Pierre and Miquelon" },
-                { value: "VC", label: "Saint Vincent and the Grenadines" },
-                { value: "WS", label: "Samoa" },
-                { value: "SM", label: "San Marino" },
-                { value: "ST", label: "São Tomé and Príncipe" },
-                { value: "SA", label: "Saudi Arabia" },
-                { value: "SN", label: "Senegal" },
-                { value: "RS", label: "Serbia" },
-                { value: "SC", label: "Seychelles" },
-                { value: "SL", label: "Sierra Leone" },
-                { value: "SG", label: "Singapore" },
-                { value: "SX", label: "Sint Maarten" },
-                { value: "SK", label: "Slovakia" },
-                { value: "SI", label: "Slovenia" },
-                { value: "SB", label: "Solomon Islands" },
-                { value: "SO", label: "Somalia" },
-                { value: "ZA", label: "South Africa" },
-                { value: "GS", label: "South Georgia" },
-                { value: "KR", label: "South Korea" },
-                { value: "SS", label: "South Sudan" },
-                { value: "ES", label: "Spain" },
-                { value: "LK", label: "Sri Lanka" },
-                { value: "SR", label: "Suriname" },
-                { value: "SJ", label: "Svalbard and Jan Mayen" },
-                { value: "SZ", label: "Swaziland" },
-                { value: "SE", label: "Sweden" },
-                { value: "CH", label: "Switzerland" },
-                { value: "TW", label: "Taiwan" },
-                { value: "TJ", label: "Tajikistan" },
-                { value: "TZ", label: "Tanzania" },
-                { value: "TH", label: "Thailand" },
-                { value: "TL", label: "Timor-Leste" },
-                { value: "TG", label: "Togo" },
-                { value: "TK", label: "Tokelau" },
-                { value: "TO", label: "Tonga" },
-                { value: "TT", label: "Trinidad and Tobago" },
-                { value: "TN", label: "Tunisia" },
-                { value: "TR", label: "Turkey" },
-                { value: "TM", label: "Turkmenistan" },
-                { value: "TC", label: "Turks and Caicos Islands" },
-                { value: "TV", label: "Tuvalu" },
-                { value: "UG", label: "Uganda" },
-                { value: "AE", label: "United Arab Emirates" },
-                { value: "GB", label: "United Kingdom" },
-                { value: "US", label: "United States" },
-                { value: "UM", label: "United States Minor Outlying Islands" },
-                { value: "VI", label: "United States Virgin Islands" },
-                { value: "UY", label: "Uruguay" },
-                { value: "UZ", label: "Uzbekistan" },
-                { value: "VU", label: "Vanuatu" },
-                { value: "VA", label: "Vatican City" },
-                { value: "VE", label: "Venezuela" },
-                { value: "VN", label: "Vietnam" },
-                { value: "WF", label: "Wallis and Futuna" },
-                { value: "EH", label: "Western Sahara" },
-                { value: "YE", label: "Yemen" },
-                { value: "ZM", label: "Zambia" },
-                { value: "ZW", label: "Zimbabwe" },
-              ]}
-            />
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 md:gap-x-16 lg:gap-x-24 gap-y-4 text-text-secondary">
+            <div className="flex flex-col">
+              <Dropdown
+                label={t("Country of Origin")}
+                info={() => setShowInfoCountryOfOrigin((prev) => !prev)}
+                options={Countries}
+                {...register("countryOfOrigin", {
+                  required: t("Country of Origin is required"),
+                })}
+              />
+              {errors.countryOfOrigin && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.countryOfOrigin.message}
+                </p>
+              )}
+            </div>
 
-            {/* Ques: Are applicants currently in Canada? */}
-
-            <Dropdown
-              label="Are applicants currently in Canada?"
-              info={() => setShowInfoInCanada((prev) => !prev)}
-              options={[
-                { value: "", label: "Please select..." },
-                { value: "yes", label: "Yes" },
-                { value: "no", label: "No" },
-              ]}
-              value={inCanada}
-              onChange={handleInCanadaChange}
-            />
+            <div className="flex flex-col">
+              <Dropdown
+                label={t("Are applicants currently in Canada?")}
+                info={() => setShowInfoInCanada((prev) => !prev)}
+                options={[
+                  { value: "", label: t("Please select") },
+                  { value: "yes", label: t("Yes") },
+                  { value: "no", label: t("No") },
+                ]}
+                {...register("inCanada", {
+                  required: t("This field is required"),
+                })}
+              />
+              {errors.inCanada && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.inCanada.message}
+                </p>
+              )}
+            </div>
           </div>
           {showInfoCountryOfOrigin && (
             <InfoBox
-              title="Country of Origin"
-              text="Country of Origin means the country for which the insured person holds a passport..."
+              title={t("Country of Origin")}
+              text={t("Country of Origin means the country for which the insured person holds a passport...")}
               onClose={() => setShowInfoCountryOfOrigin(false)}
             />
           )}
           {showInfoInCanada && (
             <InfoBox
-              title="Currently in Canada?"
-              text="If the applicant is already in Canada, select Yes."
+              title={t("Currently in Canada?")}
+              text={t("If the applicant is already in Canada, select Yes.")}
               onClose={() => setShowInfoInCanada(false)}
             />
           )}
 
           {/* Waiting Period Section */}
           {inCanada === "yes" && (
-            <div className="mt-6 p-6 border border-[#DBDADE] bg-white rounded-lg">
-              <h4 className="text-lg font-semibold mb-2">Waiting Period</h4>
-              <p className="text-sm text-[#555]">
-                If the applicant is already in Canada and the policy effective
-                date is not the same as the arrival date, then a waiting period
-                will apply. The standard waiting period is:
+            <div className="mt-6 p-6 border border-[#DBDADE] bg-white shadow-md">
+              <h4 className="text-lg font-semibold mb-2">{t("Waiting Period")}</h4>
+              <p className="text-base text-[#555]">
+                {t("If the applicant is already in Canada and the policy effective date is not the same as the arrival date, then a waiting period will apply. The standard waiting period is:")}
                 <ul className="list-disc list-inside mt-2">
                   <li>
-                    48 hours following the policy effective date, if purchased
-                    within 30 days of arrival.
+                    {t("48 hours following the policy effective date, if purchased within 30 days of arrival.")}
                   </li>
                   <li>
-                    7 days following the policy effective date, if purchased
-                    after 30 days of arrival.
+                    {t("7 days following the policy effective date, if purchased after 30 days of arrival.")}
                   </li>
                 </ul>
               </p>
@@ -1290,113 +1300,220 @@ const Step1STRVCT = ({ onValidityChange,
 
           <>
             {/* SuperVisa + DestinationProvince */}
-            <div className="grid grid-cols-2 gap-x-36 gap-y-4 text-text-secondary mt-10">
-              <Dropdown
-                label="Are applicants travelling to Canada on a Super Visa?"
-                info={() => setShowInfoSuperVisa((prev) => !prev)}
-                options={[
-                  { value: "", label: "Please select..." },
-                  { value: "yes", label: "Yes" },
-                  { value: "no", label: "No" },
-                ]}
-                value={superVisa}
-                onChange={handleSuperVisaChange}
-              />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 md:gap-x-16 lg:gap-x-24 gap-y-4 text-text-secondary mt-4">
+              <div className="flex flex-col">
+                <Dropdown
+                  label={t("Are applicants travelling to Canada on a Super Visa?")}
+                  info={() => setShowInfoSuperVisa((prev) => !prev)}
+                  options={[
+                    { value: "", label: t("Please select") },
+                    { value: "yes", label: t("Yes") },
+                    { value: "no", label: t("No") },
+                  ]}
+                  {...register("superVisa", {
+                    required: t("Super Visa selection is required"),
+                    onChange: (e) => {
+                      // Reset dependent fields
+                      setValue("superVisaYears", "");
+                      setValue("expiryDate", "");
+                      setValue("coverageLength", "");
+                    },
+                  })}
+                />
+                {errors.superVisa && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {errors.superVisa.message}
+                  </p>
+                )}
+              </div>
 
-              <Dropdown
-                label="Destination Province"
-                info={() => setShowInfoDestinationProvince((prev) => !prev)}
-                options={[
-                  { value: "", label: "Please select..." },
-                  { value: "ON", label: "Ontario" },
-                  { value: "BC", label: "British Columbia" },
-                  { value: "QC", label: "Quebec" },
-                  { value: "AB", label: "Alberta" },
-                  { value: "MB", label: "Manitoba" },
-                  { value: "NB", label: "New Brunswick" },
-                  { value: "NL", label: "Newfoundland & Labrador" },
-                  { value: "NT", label: "Northwest Territories" },
-                  { value: "NS", label: "Nova Scotia" },
-                  { value: "PE", label: "Prince Edward Island" },
-                  { value: "SK", label: "Saskatchewan" },
-                  { value: "YT", label: "Yukon" },
-                ]}
-                value={destinationProvince}
-                onChange={handleProvinceChange}
-              />
+              <div className="flex flex-col">
+                <Dropdown
+                  label={t("Destination Province")}
+                  info={() => setShowInfoDestinationProvince((prev) => !prev)}
+                  options={CanadaStates}
+                  {...register("destinationProvince", {
+                    required: t("Destination Province is required"),
+                  })}
+                />
+                {errors.destinationProvince && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {errors.destinationProvince.message}
+                  </p>
+                )}
+              </div>
             </div>
 
             {showInfoSuperVisa && (
               <InfoBox
-                title="Super Visa"
-                text="Select yes if this quote is for parents or grandparents of a Canadian citizen..."
+                title={t("Super Visa")}
+                text={t("Select yes if this quote is for parents or grandparents of a Canadian citizen...")}
                 onClose={() => setShowInfoSuperVisa(false)}
               />
             )}
             {showInfoDestinationProvince && (
               <InfoBox
-                title="Destination Province"
-                text="Select the primary destination Province for your trip."
+                title={t("Destination Province")}
+                text={t("Select the primary destination Province for your trip.")}
                 onClose={() => setShowInfoDestinationProvince(false)}
               />
             )}
 
             {/*  Optional Duration if Super Visa = yes  */}
             {superVisa === "yes" && (
-              <div className="grid grid-cols-2 gap-x-36 gap-y-4 text-text-secondary mt-6">
-                <Dropdown
-                  label="Super Visa Duration"
-                  options={[
-                    { value: "", label: "Please select..." },
-                    { value: "1", label: "1 year" },
-                    { value: "2", label: "2 years" },
-                  ]}
-                  value={superVisaYears}
-                  onChange={handleYearsChange}
-                />
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 md:gap-x-16 lg:gap-x-24 gap-y-4 text-text-secondary mt-4">
+                <div className="flex flex-col">
+                  <Dropdown
+                    label={t("Super Visa Duration")}
+                    options={[
+                      { value: "", label: t("Please select") },
+                      { value: "1", label: t("1 year") },
+                    ]}
+                    {...register("superVisaYears", {
+                      required: t("Super Visa Duration is required"),
+                    })}
+                  />
+                  {errors.superVisaYears && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.superVisaYears.message}
+                    </p>
+                  )}
+                </div>
               </div>
             )}
 
             {/*  Next Rows: Dates & Coverage  */}
-            <div className="grid grid-cols-2 gap-x-36 gap-y-4 text-text-secondary mt-10">
-              <TextInput
-                label="Effective Date"
-                type="date"
-                min={today}
-                value={effectiveDate}
-                onChange={handleEffectiveDateChange}
-              />
-              <TextInput
-                label="Expiry Date"
-                type="date"
-                value={expiryDate}
-                disabled={superVisa === "yes"}
-                min={effectiveDate || today}
-                onChange={handleExpiryChange}
-              />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 md:gap-x-16 lg:gap-x-24 gap-y-4 text-text-secondary mt-4">
+              <div className="flex flex-col">
+                <Controller
+                  control={control}
+                  name="effectiveDate"
+                  rules={{
+                    required: t("Effective Date is required"),
+                    validate: (value) => {
+                      if (!value) return true;
+                      const tomorrow = new Date();
+                      tomorrow.setDate(tomorrow.getDate() + 1);
+                      tomorrow.setHours(0, 0, 0, 0);
+                      const selDate = new Date(value);
+                      selDate.setHours(0, 0, 0, 0);
+                      return (
+                        selDate.getTime() >= tomorrow.getTime() ||
+                        t("Effective date must be tomorrow or later")
+                      );
+                    },
+                  }}
+                  render={({ field }) => (
+                    <DatePicker
+                      label={t("Effective Date")}
+                      {...field}
+                      value={field.value !== undefined ? field.value : ""}
+                      onChange={(date) => {
+                        field.onChange(date);
+                        setLastModified("effectiveDate");
+                      }}
+                      minDate={(() => {
+                        const tomorrow = new Date();
+                        tomorrow.setDate(tomorrow.getDate() + 1);
+                        return tomorrow;
+                      })()}
+                    />
+                  )}
+                />
+                {errors.effectiveDate && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {errors.effectiveDate.message}
+                  </p>
+                )}
+              </div>
+              <div className="flex flex-col">
+                <Controller
+                  control={control}
+                  name="expiryDate"
+                  rules={{
+                    required: t("Expiry Date is required"),
+                    validate: (value) => {
+                      if (!effectiveDate || !value) return true;
+                      const eff = new Date(effectiveDate);
+                      eff.setHours(0, 0, 0, 0);
+                      const exp = new Date(value);
+                      exp.setHours(0, 0, 0, 0);
+                      return (
+                        exp.getTime() >= eff.getTime() ||
+                        t("Expiry date cannot be before effective date")
+                      );
+                    },
+                  }}
+                  render={({ field }) => (
+                    <DatePicker
+                      label={t("Expiry Date")}
+                      {...field}
+                      value={field.value !== undefined ? field.value : ""}
+                      isDisabled={superVisa === "yes"}
+                      onChange={(date) => {
+                        field.onChange(date);
+                        setLastModified("expiryDate");
+                      }}
+                      minDate={
+                        effectiveDate
+                          ? new Date(effectiveDate)
+                          : (() => {
+                              const tomorrow = new Date();
+                              tomorrow.setDate(tomorrow.getDate() + 1);
+                              return tomorrow;
+                            })()
+                      }
+                    />
+                  )}
+                />
+                {errors.expiryDate && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {errors.expiryDate.message}
+                  </p>
+                )}
+              </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-x-36 gap-y-4 text-text-secondary mt-10">
-              <TextInput
-                label="Coverage Length (days)"
-                type="number"
-                value={coverageLength}
-                disabled={superVisa === "yes"}
-                min="1"
-                onChange={handleCoverageChange}
-              />
-              <Dropdown
-                label="Policy Type"
-                info={() => setShowInfoPolicyType((prev) => !prev)}
-                value={policyType}
-                onChange={handlePolicyChange}
-                options={[
-                  { value: "", label: "Please select..." },
-                  { value: "standard", label: "Standard" },
-                  { value: "enhanced", label: "Enhanced" },
-                  // { value: 'premium',  label: 'Premium' },
-                ]}
-              />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 md:gap-x-16 lg:gap-x-24 gap-y-4 text-text-secondary mt-4">
+              <div className="flex flex-col">
+                <TextInput
+                  label={t("Coverage Length (days)")}
+                  type="number"
+                  min="1"
+                  disabled={superVisa === "yes"}
+                  {...register("coverageLength", {
+                    required: t("Coverage Length is required"),
+                    onChange: (e) => {
+                      setLastModified("coverageLength");
+                    },
+                  })}
+                />
+                {errors.coverageLength && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {errors.coverageLength.message}
+                  </p>
+                )}
+              </div>
+              <div className="flex flex-col">
+                <Dropdown
+                  label={t("Policy Type")}
+                  info={() => setShowInfoPolicyType((prev) => !prev)}
+                  options={[
+                    { value: "", label: t("Please select") },
+                    { value: "standard", label: t("Standard") },
+                    { value: "enhanced", label: t("Enhanced") },
+                    // { value: 'premium',  label: 'Premium' },
+                  ]}
+                  {...register("policyType", {
+                    required: t("Policy Type is required"),
+                  })}
+                />
+                {errors.policyType && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {errors.policyType.message}
+                  </p>
+                )}
+              </div>
             </div>
           </>
 
@@ -1404,74 +1521,111 @@ const Step1STRVCT = ({ onValidityChange,
 
           {showInfoPolicyType && (
             <InfoBox
-              title="Policy Type"
-              text="Description of the policy types available including their benefits..."
+              title={t("Policy Type")}
+              text={t("Description of the policy types available including their benefits...")}
               onClose={() => setShowInfoPolicyType(false)}
             />
           )}
 
-          <div className="grid grid-cols-2 gap-x-36 gap-y-4 text-text-secondary mt-10">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 md:gap-x-16 lg:gap-x-24 gap-y-4 text-text-secondary mt-4">
             {/* Coverage Options */}
-            <Dropdown
-              label="Coverage Options"
-              info={() => setShowInfoCoverageOption((prev) => !prev)}
-              options={coverageOptions}
-              value={coverageOption}
-              onChange={handleCoverageOptionChange}
-            />
+            <div className="flex flex-col">
+              <Dropdown
+                label={t("Coverage Options")}
+                info={() => setShowInfoCoverageOption((prev) => !prev)}
+                options={coverageOptions}
+                {...register("coverageOption", {
+                  required: t("Coverage Option is required"),
+                })}
+              />
+              {errors.coverageOption && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.coverageOption.message}
+                </p>
+              )}
+            </div>
 
             {/* Deductible */}
-            <Dropdown
-              label="Deductible"
-              info={() => setShowInfoDeductible((prev) => !prev)}
-              value={deductible}
-              onChange={handleDeductibleChange}
-              options={[
-                { value: "", label: "Please select..." },
-                { value: "0", label: "$0.00 CAD" },
-                { value: "100", label: "$100.00 CAD" },
-                { value: "250", label: "$250.00 CAD" },
-                { value: "500", label: "$500.00 CAD" },
-                { value: "1000", label: "$1,000.00 CAD" },
-                { value: "3000", label: "$3,000.00 CAD" },
-              ]}
-            />
-            {/* </div> */}
+            <div className="flex flex-col">
+              <Controller
+                control={control}
+                name="deductible"
+                rules={{ required: t("Deductible is required") }}
+                render={({ field }) => (
+                  <Dropdown
+                    label={t("Deductible")}
+                    info={() => setShowInfoDeductible((prev) => !prev)}
+                    options={[
+                      { value: "", label: t("Please select") },
+                      ...(anyApplicantOver80
+                        ? []
+                        : [
+                            { value: "0", label: "$0.00 CAD" },
+                            { value: "100", label: "$100.00 CAD" },
+                            { value: "250", label: "$250.00 CAD" },
+                          ]),
+                      { value: "500", label: "$500.00 CAD" },
+                      { value: "1000", label: "$1,000.00 CAD" },
+                      { value: "3000", label: "$3,000.00 CAD" },
+                    ]}
+                    {...field}
+                    value={field.value !== undefined ? String(field.value) : ""}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      field.onChange(val === "" ? "" : Number(val));
+                    }}
+                  />
+                )}
+              />
+              {errors.deductible && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.deductible.message}
+                </p>
+              )}
+            </div>
           </div>
 
           {/* Info Boxes */}
 
           {showInfoCoverageOption && (
             <InfoBox
-              title="Coverage Options"
-              text="This is the maximum amount that will be covered for eligible medical expenses."
+              title={t("Coverage Options")}
+              text={t("This is the maximum amount that will be covered for eligible medical expenses.")}
               onClose={() => setShowInfoCoverageOption(false)}
             />
           )}
           {showInfoDeductible && (
             <InfoBox
-              title="Deductible"
-              text="Deductible means the amount (if applicable) which the insured must pay before any reimbursement."
+              title={t("Deductible")}
+              text={t("Deductible means the amount (if applicable) which the insured must pay before any reimbursement.")}
               onClose={() => setShowInfoDeductible(false)}
             />
           )}
           {/*  */}
 
-          <div className="grid grid-cols-2 gap-x-36 gap-y-4 text-text-secondary mt-10">
-            {showPaymentOption && (
-              <Dropdown
-                label="Payment Option"
-                info={() => setShowInfoPaymentOption((prev) => !prev)}
-                options={paymentOptions}
-                value={paymentOption}
-                onChange={handlePaymentChange}
-              />
-            )}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 md:gap-x-16 lg:gap-x-24 gap-y-4 text-text-secondary mt-4">
+            <div className="flex flex-col">
+              {showPaymentOption && (
+                <Dropdown
+                  label={t("Payment Option")}
+                  info={() => setShowInfoPaymentOption((prev) => !prev)}
+                  options={paymentOptions}
+                  {...register("paymentOption", {
+                    required: t("Payment Option is required"),
+                  })}
+                />
+              )}
+              {errors.paymentOption && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.paymentOption.message}
+                </p>
+              )}
+            </div>
           </div>
           {showInfoPaymentOption && (
             <InfoBox
-              title="Payment Option"
-              text="Monthly payment installments are available when applying for one year of coverage, with a minimum Coverage Option of $100,000."
+              title={t("Payment Option")}
+              text={t("Monthly payment installments are available when applying for one year of coverage, with a minimum Coverage Option of $100,000.")}
               onClose={() => setShowInfoPaymentOption(false)}
             />
           )}
@@ -1482,263 +1636,116 @@ const Step1STRVCT = ({ onValidityChange,
 
       {/* ====================================== COVERAGE INFOIRMATION END ========================== */}
 
-      {/* <div className="w-full h-2 mt-5 flex items-center justify-center">
-            <h3 className="text-lg">Your Quote: $0.00</h3>
-          </div> */}
-
-          <div className="w-full h-[250px] mt-10 flex items-center justify-center border-4 border-blue-700">
+      {CanCalculatePremium && (
+        <div className="w-full mt-6 bg-greyBg p-6">
         {loading ? (
-          <h3>Calculating your Premium…</h3>
+          <div className="flex flex-col gap-2 items-center">
+            <Spinner className="h-6 w-6" />
+            <p className="text-center text-text-primary">
+              {t("Calculating your Premium…")}
+            </p>
+          </div>
         ) : error ? (
-          <h3 className="text-red-500">Error: {error}</h3>
+          <p className="text-red-500">{t("Error")}: {t(error)}</p>
         ) : (
-          <div>
-          <div>
-            {/* {schedule.length > 0 && (
+            <div>
               <div>
-                <h4>Policy Issue Fee: </h4>
-                <h4>Total Initial Payment: </h4>
-                <h4>Monthly Installment of: </h4>
-                <h4>Total Premium: </h4>
-              </div>
-            )} */}
-
-            {/* {schedule.length > 0 && (
-  <div>
-    {schedule.map((item, idx) => (
-      <div key={idx} className="flex justify-between">
-        <span>
-          {item.count
-            ? `${item.count} × ${item.label}`
-            : item.label}
-        </span>
-        <span>${item.amount.toFixed(2)}</span>
-      </div>
-    ))}
-  </div>
-)} */}
-
-
-  {schedule.length > 0 && (
-              <div className="mb-4">
-                <p className=" text-xl font-semibold underline py-2">Payment Schedule</p>
-                {schedule.map((item: any, idx: any) => (
-                  <div key={idx} className="flex justify-between">
-                    <span>
-                      {item.count
-                        ? `${item.count} × ${item.label}`
-                        : item.label}
-                    </span>
-                    <span>${item.amount.toFixed(2)} CAD</span>
+                {schedule.length > 0 && (
+                  <div className="mb-4">
+                    <p className="text-text-primary text-xl font-bold text-center">
+                      {t("Payment Schedule")}
+                    </p>
+                    <div className="flex flex-col gap-1 mt-2">
+                      {schedule.map((item: any, idx: any) => (
+                        <div key={idx} className="flex justify-between">
+                          <span className="text-text-primary font-medium">
+                            {item.count
+                              ? `${item.count} × ${item.label}`
+                              : item.label}
+                          </span>
+                          <span className="text-text-secondary">
+                            ${item.amount?.toFixed(2)} CAD
+                          </span>
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                ))}
-              </div>
-            )}
-
-
-
-
-
-            <h3 className="text-lg text-center mt-2">
-            Your Quote: ${totalPremium} CAD
-          </h3>
-          </div>
-            {/* <h3 className=" text-center mt-2 cursor-pointer text-[#2b00b7]">
-              {isFormFilled ? <p onClick={handleQuoteSave}>Save Quote</p> : ''}
-            </h3> */}
-
-            {/* {savedQuote != null ? 
-            <div className=" flex flex-col justify-center items-center mb-2">
-              <p className="mt-2">Quote saved: {savedQuote}</p>
-              <p className="text-[#2b00b7] cursor-pointer">Email Quote</p>
-            </div> */}
-
-            {quoteNumber != null ? (
-              <div className=" flex flex-col justify-center items-center mb-2">
-                <p className="mt-2">Quote saved: {quoteNumber}</p>
-                <p className="text-[#2b00b7] cursor-pointer">Email Quote</p>
-              </div>
-            ) : (
-              <h3 className=" text-center mt-2 cursor-pointer text-[#2b00b7]">
-                {isFormFilled ? (
-                  <p onClick={handleQuoteSave}>Save Quote</p>
-                ) : (
-                  ""
                 )}
-              </h3>
-            )}
-          </div>
+                <h3 className="text-lg text-center mt-2 text-text-secondary">
+                  <span className="font-bold text-text-primary">{t("Your Quote")}:</span>{" "}
+                  ${totalPremium} CAD
+                </h3>
+              </div>
+
+              {quoteNumber != null && !isDirty ? (
+                <div className=" flex flex-col justify-center items-center mb-2 gap-2">
+                  <p className="mt-2 text-xl font-bold text-red-600">
+                    <span>{t("Quote Saved")}: </span>
+                    <span>{quoteNumber}</span>
+                  </p>
+                  <p
+                    className="text-[#2b00b7] cursor-pointer text-base hover:underline underline-offset-2"
+                    onClick={handleEmailQuote}
+                  >
+                    {t("Email Quote")}
+                  </p>
+                </div>
+              ) : (
+                <h3 className=" text-center mt-2 cursor-pointer text-[#2b00b7]">
+                  {isFormFilled ? (
+                    <button
+                      type="button"
+                      disabled={saving}
+                      onClick={handleQuoteSave}
+                      className="text-base hover:underline underline-offset-2 cursor-pointer"
+                    >
+                      {saving ? t("Saving...") : t("Save Quote")}
+                    </button>
+                  ) : (
+                    ""
+                  )}
+                </h3>
+              )}
+            </div>
         )}
-        {/* {savedQuote != null && (
-          <p className="mt-2">Quote saved: ${savedQuote}</p>
-        )} */}
       </div>
+        )}
 
-      {/* BOTTOM BUTTON  */}
-
-
-      {/* <div className="flex justify-center gap-10 mt-4"> */}
-        {/* {formStep > 1 && (
-          <button onClick={() => handleFormStepChange("back")} className=" btn-outline">Previous</button>
-        )} */}
-
-         {/* {formStep === 1 && (
-          <button
-            onClick={handleNext}
-            disabled={!isStepOneFilled || savingStage1}
-            className={`btn-primary ${
-              savingStage1 ? "opacity-50 cursor-wait" : ""
-            }`}
-          >
-            {savingStage1 ? "Saving…" : "Next"}
-          </button>
-        )} */}
-
-        {/* {formStep === 2 && (
-          <button
-            onClick={handleBuyNow}
-            disabled={submittingStage2}
-            className={`btn-primary ${
-              submittingStage2 ? "opacity-50 cursor-wait" : ""
-            }`}
-          >
-            {submittingStage2 ? "Processing…" : "Buy Now"}
-          </button>
-        )} */}
-
-        {/* {formStep === 3 && (
-          <button onClick={handleSubmitStage3} className="btn-primary">
-            Submit
-          </button>
-        )} */}
-
-        {/* {formStep < 3 ? (
-          <button
-            onClick={handleNext}
-            disabled={!isStepOneFilled || saving}
-            className={`px-6 py-2 ${
-              saving
-                ? "bg-gray-300 text-gray-600 cursor-wait"
-                : "bg-indigo-600 text-white hover:bg-indigo-700"
-            }`}
-          >
-            {saving ? "Saving…" : "Next"}
-          </button>
-        ) : (
-          <button onClick={handleSubmit}>Submit</button>
-        )} */}
-      {/* </div> */}
-
-
-
-
-
-
-      {/*  */}
-    </>
-  )
-}
-
-export default Step1STRVCT
-
-
-
-
-
-interface Option {
-  value: string;
-  label: string;
-}
-
-interface DropdownProps extends SelectHTMLAttributes<HTMLSelectElement> {
-  label: string;
-  info?: () => void;
-  options: Option[];
-}
-
-const Dropdown: FC<DropdownProps> = ({
-  label,
-  info,
-  options,
-  className = "",
-  ...selectProps
-}) => (
-  <div className="flex flex-col">
-    <label className="flex items-center text-text-secondary text-sm">
-      {info && (
-        <InformationCircleIcon
-          onClick={info}
-          className="h-5 w-5 text-[#3a17c5] cursor-pointer"
+      {isAgeQuestionnaireOpen && (
+        <AgeQuestionaire
+          applicantsToShow={applicantsToShow}
+          primaryQuestionnaire={primaryQuestionnaire}
+          setPrimaryQuestionaire={setPrimaryQuestionnaireWrapper}
+          setIsAgeQuestionnaireOpen={setIsAgeQuestionnaireOpen}
+          setApplicants={setApplicantsWrapper}
+          applicants={applicants}
+          setCoverageForPreMedCon={(val) =>
+            setValue("coverageForPreMedCon", val)
+          }
         />
       )}
-      {label}
-    </label>
-    <div className="relative">
-      <select
-        {...selectProps}
-        className={`input-primary appearance-none cursor-pointer ${className}`}
-      >
-        {options.map((opt) => (
-          <option key={opt.value} value={opt.value}>
-            {opt.label}
-          </option>
-        ))}
-      </select>
-      <div className="pointer-events-none absolute inset-y-0 right-2 flex items-center text-gray-500">
-        <ChevronDownIcon className="h-5 w-5" aria-hidden="true" />
-      </div>
-    </div>
-  </div>
-);
+      {showConfirmEligibility && (
+        <ConfirmEligibilityModal
+          confirmEligibility={showConfirmEligibility}
+          setShowConfirmEligibility={setShowConfirmEligibility}
+          setIsConfirmed={(val: boolean) =>
+            setValue("isConfirmed", val, {
+              shouldValidate: true,
+              shouldDirty: true,
+            })
+          }
+        />
+      )}
+      {isEmailModalOpen && (
+        <EmailQuote
+          quoteNumber={quoteNumber}
+          schedule={schedule}
+          totalPremium={totalPremium}
+          setIsEmailModalOpen={setIsEmailModalOpen}
+        />
+      )}
+      </>
+    );
+  };
 
-interface TextInputProps extends InputHTMLAttributes<HTMLInputElement> {
-  label: string;
-  info?: () => void;
-}
-const TextInput: FC<TextInputProps> = ({
-  label,
-  info,
-  className = "",
-  ...inputProps
-}) => (
-  <div className="flex flex-col">
-    <label className="text-text-secondary">{label}</label>
-    {info && (
-      <button
-        type="button"
-        onClick={info}
-        className="self-start text-sm text-blue-500"
-      >
-        ℹ
-      </button>
-    )}
-    <input
-      {...inputProps}
-      className={`input-primary`}
-    />
-  </div>
-);
-
-// InfoBox
-const InfoBox = ({
-  title,
-  text,
-  onClose,
-}: {
-  title: string;
-  text: string;
-  onClose: () => void;
-}) => (
-  <div className="mx-auto p-4 mt-5 bg-white border border-inputBorder shadow-sm relative">
-    <button
-      className="text-primary underline absolute top-2 right-2 cursor-pointer underline-offset-2"
-      onClick={onClose}
-    >
-      close
-    </button>
-    <h2 className="text-lg font-semibold text-text-primary">{title}</h2>
-    <div className="text-text-secondary">
-      <p>{text}</p>
-    </div>
-  </div>
-);
+export default Step1STRVCT;

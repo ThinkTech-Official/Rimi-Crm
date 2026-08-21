@@ -1,4 +1,6 @@
 import { Applicant } from "../../../../hooks/useSaveQuote";
+import { useLanguage } from "../../../../context/LanguageContext";
+import { formatDate } from "../../../../utils/dateUtils";
 
 export interface ApplicantFinishedProps {
   dateOfBirth: string;
@@ -17,93 +19,99 @@ const ApplicantInformationFinished: React.FC<ApplicantFinishedProps> = ({
   preExMedCov,
   applicants,
 }) => {
+  const { t } = useLanguage();
+  console.log("Applicants: ", applicants);
   return (
     <div className="max-w-5xl mx-auto mt-4 p-6 bg-[#F9F9F9]">
       <h3 className="text-lg font-bold text-left text-[#1B1B1B] mb-5">
-        Applicant Information
+        {t("Applicant Information")}
       </h3>
 
       {/* PRIMARY APPLICANT  */}
       <>
-        <h2 className="font-semibold my-2 text-text-primary">APPLICANT 1</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 md:gap-x-16 lg:gap-x-24 gap-y-4 text-text-secondary">
           <div className="flex flex-col">
-            <label className="text-sm">Date of Birth</label>
-            <p className="input-primary">
-              {new Date(dateOfBirth).toLocaleDateString()}
+            <label className="text-sm">{t("Date of Birth")}</label>
+            <p className="input-primary break-words h-auto">
+              {formatDate(dateOfBirth)}
             </p>
           </div>
 
           <div className="flex flex-col">
-            <label className="text-sm">First Name</label>
-            <p className="input-primary">{firstName}</p>
+            <label className="text-sm">{t("First Name")}</label>
+            <p className="input-primary break-words h-auto">{firstName}</p>
           </div>
 
           <div className="flex flex-col">
-            <label className="text-sm">Last Name</label>
-            <p className="input-primary">{lastName}</p>
+            <label className="text-sm">{t("Last Name")}</label>
+            <p className="input-primary break-words h-auto">{lastName}</p>
           </div>
 
           <div className="flex flex-col">
-            <label className="text-sm">Gender</label>
-            <p className="input-primary">{gender}</p>
+            <label className="text-sm">{t("Gender")}</label>
+            <p className="input-primary break-words h-auto">{t(gender)}</p>
           </div>
 
           <div className="flex flex-col">
             <label className="text-sm">
-              Include coverage for stable pre-existing medical conditions
+              {t("Include coverage for stable pre-existing medical conditions")}
             </label>
-            <p className="input-primary">
-              {preExMedCov}
-            </p>
+            <p className="input-primary break-words h-auto">{t(preExMedCov)}</p>
           </div>
         </div>
       </>
 
       {/*  */}
-
+      <h3 className="text-lg font-bold text-left text-[#1B1B1B] my-5">
+        {t("Additional Applicants")}
+      </h3>
       {/* ADDITIONAL APPLICANTS  */}
       {applicants.length > 0 &&
-        applicants.map((app) => (
+        applicants.map((app, i) => (
           <>
-            <h2 className=" font-semibold mt-4">
-              APPLICANT {applicants.length + 1}
-            </h2>
+            <h2 className=" font-semibold mb-4 mt-6">{t("APPLICANT")} {i + 1}</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 md:gap-x-16 lg:gap-x-24 gap-y-4 text-text-secondary">
               <div className="flex flex-col">
-                <label className="text-sm">Date of Birth</label>
-                <p className="input-primary">
-                  {new Date(app.dob).toLocaleDateString()}
+                <label className="text-sm">{t("Date of Birth")}</label>
+                <p className="input-primary break-words h-auto">
+                  {formatDate(app.dob)}
                 </p>
               </div>
 
               <div className="flex flex-col">
-                <label className="text-sm">First Name</label>
-                <p className="input-primary">
+                <label className="text-sm">{t("First Name")}</label>
+                <p className="input-primary break-words h-auto">
                   {app.firstName}
                 </p>
               </div>
 
               <div className="flex flex-col">
-                <label className="text-sm">Last Name</label>
-                <p className="input-primary">
+                <label className="text-sm">{t("Last Name")}</label>
+                <p className="input-primary break-words h-auto">
                   {app.lastName}
                 </p>
               </div>
 
               <div className="flex flex-col">
-                <label className="text-sm">Gender</label>
-                <p className="input-primary">
-                  {app.gender}
+                <label className="text-sm">{t("Gender")}</label>
+                <p className="input-primary break-words h-auto">{t(app.gender)}</p>
+              </div>
+
+              <div className="flex flex-col">
+                <label className="text-sm">
+                  {t("Relationship to Primary Applicant")}
+                </label>
+                <p className="input-primary break-words h-auto">
+                  {t(app.relation)}
                 </p>
               </div>
 
               <div className="flex flex-col">
                 <label className="text-sm">
-                  Include coverage for stable pre-existing medical conditions
+                  {t("Include coverage for stable pre-existing medical conditions")}
                 </label>
-                <p className="input-primary">
-                  {app.preMedCoverage}
+                <p className="input-primary break-words h-auto">
+                  {t(String(app.preMedCoverage))}
                 </p>
               </div>
             </div>

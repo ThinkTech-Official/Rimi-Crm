@@ -1,52 +1,51 @@
-// src/hooks/useForgotPassword.ts
 import { useState } from 'react';
+import { axiosInstance } from '../utils/axiosInstance';
+import { useLanguage } from '../context/LanguageContext';
 
-export interface ForgotPasswordResult {
+
+interface ForgotPasswordResult {
   success: boolean;
   message: string;
 }
 
-export function useForgotPassword() {
+export const useForgotPassword = () => {
+  const { t } = useLanguage();
   const [loading, setLoading] = useState(false);
-  const [error,   setError]   = useState<string | null>(null);
-  const [result,  setResult]  = useState<ForgotPasswordResult | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [result, setResult] = useState<ForgotPasswordResult | null>(null);
 
-  /**
-   * Send a POST /forgot-password { email }
-   */
-  async function sendResetLink(email: string) {
+  const sendResetLink = async (email: string) => {
     setLoading(true);
     setError(null);
     setResult(null);
 
     try {
-      const res = await fetch('/forgot-password', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email }),
+      const response = await axiosInstance.post('/auth/forgot-password', { email });
+      setResult({
+        success: true,
+        message: response.data.message,
       });
-
-      const data = await res.json();
-      if (!res.ok) {
-        // assume { message: string } on error
-        const msg = data?.message || `Error ${res.status}`;
-        setError(msg);
-        return { success: false, message: msg };
-      }
-
-      // assume { message: string } on success
-      const successMsg = data?.message || 'Reset link sent';
-      const payload = { success: true, message: successMsg };
-      setResult(payload);
-      return payload;
+      return response.data;
     } catch (err: any) {
-      const msg = err?.message || 'Network error';
-      setError(msg);
-      return { success: false, message: msg };
+      const errorMessage =
+        err.response?.data?.message ||
+        err.message ||
+        t('Failed to send reset link. Please try again.');
+      setError(errorMessage);
+      setResult({
+        success: false,
+        message: errorMessage,
+      });
+      throw err;
     } finally {
       setLoading(false);
     }
-  }
+  };
 
-  return { sendResetLink, loading, error, result };
-}
+  return {
+    sendResetLink,
+    loading,
+    error,
+    result,
+  };
+};

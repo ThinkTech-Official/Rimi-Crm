@@ -327,94 +327,122 @@
 // ================================================
 
 // src/components/QuotesSearch.tsx
-import React, { ChangeEvent, useContext, useEffect, useState } from "react";
-import { LangContext } from "../context/LangContext";
+import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+// import { LangContext } from "../context/LangContext";
+import { useLanguage } from "../context/LanguageContext";
 import { getUserTypeFromToken } from "../utils/getUserType";
-import {
-  useSearchQuotes,
-  SearchCriteria,
-  QuoteRecord,
-  PaginatedQuotes,
-} from "../hooks/useSearchQuotes";
-import { Link, useNavigate } from "react-router-dom";
-import { useForm } from "react-hook-form";
-
-const emailRegex = /^\S+@\S+\.\S+$/;
+import { useSearchQuotes, SearchCriteria } from "../hooks/useSearchQuotes";
+import { Controller, useForm } from "react-hook-form";
+import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
+import { RenderPageNumbers } from "./RenderPageNumbers";
+import DatePicker from "./DatePicker";
+import { formatDate, isAfterDate } from "../utils/dateUtils";
+import useNotification from "../hooks/useNotification";
 
 const QuotesSearch: React.FC = () => {
-  const { langauge } = useContext(LangContext);
-  const navigate = useNavigate();
+  // const { langauge } = useContext(LangContext);
+  const { t } = useLanguage();
 
   const [userType, setUserType] = useState<string | null>(null);
-  const [criteria, setCriteria] = useState<
-    Omit<SearchCriteria, "page" | "limit">
-  >({ products: ["All"] });
-  const [emailError, setEmailError] = useState<string>("");
+  const [searchData, setSearchData] = useState<SearchCriteria>({
+    products: ["All"],
+  });
+  const [selectedProducts, setSelectedProducts] = useState<string[]>(["All"]);
   const [page, setPage] = useState(1);
   const limit = 10;
-  const { search, loading, error, data } = useSearchQuotes(limit);
+  // const { search, loading, error, data } = useSearchQuotes(limit);
+  const { search, exportCsv, exporting, exportError, loading, error, data } = useSearchQuotes(limit);
+  const { triggerNotification, NotificationComponent } = useNotification();
   const {
     register,
     handleSubmit,
-    formState: { errors },
-    watch,
+    control,
+    formState: { },
   } = useForm<SearchCriteria>({
     defaultValues: {
       products: ["All"],
     },
   });
-
+  const totalPages = data?.totalPages || 0;
   const products = [
     {
-      en: "RIMI Canuck Voyage Travel Medical",
-      fr: "RIMI Canuck Voyage Travel Medical",
+      label: t("RIMI Canuck Voyage Travel Medical"),
+      value: "RIMI_CANUCK_VOYAGE_TRAVEL_MEDICAL",
     },
     {
-      en: "RIMI Canuck Voyage Non-Medical Travel",
-      fr: "RIMI Assurance voyage non médicale Travel",
+      label: t("RIMI Canuck Voyage Non-Medical Travel"),
+      value: "RIMI_CANUCK_VOYAGE_NON_MEDICAL_TRAVEL",
     },
     {
-      en: "Secure Study RIMI International Students to Canada",
-      fr: "Secure Study RIMI International Students to Canada",
+      label: t("Secure Study RIMI International Students to Canada"),
+      value: "SECURE_STUDY_RIMI_INTERNATIONAL_STUDENTS_TO_CANADA",
     },
     {
-      en: "Secure Travel RIMI Visitors to Canada Travel",
-      fr: "Secure Travel RIMI Visitors to Canada Travel",
+      label: t("Secure Travel RIMI Visitors to Canada Travel"),
+      value: "SECURE_TRAVEL_RIMI_VISITORS_TO_CANADA_TRAVEL",
     },
   ];
 
   useEffect(() => {
     const type = getUserTypeFromToken();
-    setUserType(type.userType);
+    if (type) {
+      setUserType(type.userType);
+    }
   }, []);
 
-  const handleChange =
-    (key: keyof Omit<SearchCriteria, "page" | "limit">) =>
-    (e: ChangeEvent<HTMLInputElement>) => {
-      const value = e.target.value;
-      setCriteria((prev) => ({ ...prev, [key]: value || undefined }));
-      if (key === "email") {
-        setEmailError(
-          value && !emailRegex.test(value) ? "Invalid email format" : ""
-        );
-      }
-    };
+  // const handleChange =
+  //   (key: keyof Omit<SearchCriteria, "page" | "limit">) =>
+  //   (e: ChangeEvent<HTMLInputElement>) => {
+  //     const value = e.target.value;
+  //     setCriteria((prev) => ({ ...prev, [key]: value || undefined }));
+  //     if (key === "email") {
+  //       setEmailError(
+  //         value && !emailRegex.test(value) ? "Invalid email format" : ""
+  //       );
+  //     }
+  //   };
 
   const handleProductChange = (product: string) => {
-    setCriteria((prev) => {
-      const current = prev.products || [];
-      if (product === "All") return { ...prev, products: ["All"] };
+    setSelectedProducts((prev) => {
+      const current = prev;
+      if (product === "All") return ["All"];
       const next = current.includes(product)
         ? current.filter((p) => p !== product)
         : [...current.filter((p) => p !== "All"), product];
-      return { ...prev, products: next };
+      return next;
     });
   };
 
   const onSearch = (formData: SearchCriteria) => {
-    console.log(formData);
+    const filteredData = Object.fromEntries(
+      Object.entries(formData).filter(([_, v]) => {
+        if (v === undefined || v === null) return false;
+        if (typeof v === "string" && v.trim() === "") return false;
+        if (Array.isArray(v) && v.length === 0) return false;
+        return true;
+      })
+    ) as SearchCriteria;
+
+    const finalData: SearchCriteria = {
+      ...filteredData,
+      products: selectedProducts,
+    };
+
+    if (finalData.effectiveDate && finalData.expiryDate) {
+      if (isAfterDate(finalData.effectiveDate, finalData.expiryDate)) {
+        triggerNotification({
+          message: t("Effective Date must be before Expiry Date"),
+          type: "error",
+        });
+        return;
+      }
+    }
+
+    setSearchData(finalData);
+
     setPage(1);
-    search(formData, 1, limit);
+    search(finalData, 1, limit);
   };
 
   const goToPage = (p: number) => {
@@ -422,214 +450,157 @@ const QuotesSearch: React.FC = () => {
     const tp = data.totalPages;
     const np = Math.max(1, Math.min(p, tp));
     setPage(np);
-    search(criteria, np, limit);
+    search(searchData, np, limit);
   };
 
   return (
-    <div className="max-w-5xl mx-auto mt-4 px-2 py-4 sm:p-6 bg-[#F9F9F9]">
-      <h2 className="text-lg font-bold text-left text-[#1B1B1B] mb-2">
-        {langauge === "En" ? "Search Quotes" : "Rechercher Quotes"}
+    <div className="w-full mx-auto mt-4 px-2 py-4 sm:p-6 bg-[#F9F9F9]">
+      <h2 className="text-lg 2xl:text-xl font-bold text-left text-[#1B1B1B] mb-2">
+        {t("Search Quotes")}
       </h2>
       <p className="text-left font-medium text-[#6A6A6A] mb-8">
-        {langauge === "En"
-          ? "Fill in as many of the following criteria as you can to generate a search."
-          : "Indiquez Le Plus De Critères Possible Parmi Les Suivants Pour Lancer Une Recherche."}
+        {t("Fill in as many of the following criteria as you can to generate a search.")}
       </p>
 
       {/* Form Fields  */}
       <form onSubmit={handleSubmit(onSearch)}>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 md:gap-x-16 lg:gap-x-24 gap-y-4 text-text-secondary">
-        <div className="flex flex-col gap-1">
-          <label className="text-sm">
-            {langauge === "En" ? "Quote Number" : "Numéro de devis"}
-          </label>
-          <input
-            {...register("quoteNumber", {
-              required: "Quote Number is required",
-            })}
-            type="text"
-            // value={criteria.quoteNumber || ""}
-            // onChange={handleChange("quoteNumber")}
-            className="input-primary"
-            placeholder="Enter Quote Number"
-          />
-          {errors.quoteNumber && (
-            <span className="text-red-500 text-xs">
-              {errors.quoteNumber.message}
-            </span>
-          )}
-        </div>
-        <div className="flex flex-col gap-1">
-          <label className="text-sm">
-            {langauge === "En" ? "Quote Date" : "Date du devis"}
-          </label>
-          <input
-            {...register("quoteDate", { required: "Quote Date is required" })}
-            className="input-primary"
-            type="date"
-            // value={criteria.quoteDate || ""}
-            onChange={handleChange("quoteDate")}
-          />
-          {errors.quoteDate && (
-            <span className="text-red-500 text-xs">
-              {errors.quoteDate.message}
-            </span>
-          )}
-        </div>
-        <div className="flex flex-col gap-1">
-          <label className="text-sm">
-            {langauge === "En" ? "First Name" : "Prénom"}
-          </label>
-          <input
-            {...register("firstName", { required: "First Name is required" })}
-            className="input-primary"
-            placeholder="Enter First Name"
-            // value={criteria.firstName || ""}
-            // onChange={handleChange("firstName")}
-          />
-          {errors.firstName && (
-            <span className="text-red-500 text-xs">
-              {errors.firstName.message}
-            </span>
-          )}
-        </div>
-        <div className="flex flex-col gap-1">
-          <label className="text-sm">
-            {langauge === "En" ? "Last Name" : "Nom de famille"}
-          </label>
-          <input
-            {...register("lastName", { required: "Last Name is required" })}
-            className="input-primary"
-            placeholder="Enter Last Name"
-            // value={criteria.lastName || ""}
-            // onChange={handleChange("lastName")}
-          />
-          {errors.lastName && (
-            <span className="text-red-500 text-xs">
-              {errors.lastName.message}
-            </span>
-          )}
-        </div>
-        <div className="flex flex-col gap-1">
-          <label className="text-sm">
-            {langauge === "En" ? "Date of Birth" : "Date de naissance"}
-          </label>
-          <input
-            className="input-primary"
-            type="date"
-            {...register("dateOfBirth", {
-              required: "Date of Birth is required",
-            })}
-            // value={criteria.dateOfBirth || ""}
-            // onChange={handleChange("dateOfBirth")}
-          />
-          {errors.dateOfBirth && (
-            <span className="text-red-500 text-xs">
-              {errors.dateOfBirth.message}
-            </span>
-          )}
-        </div>
-        <div className="flex flex-col gap-1">
-          <label className="text-sm">Email</label>
-          <input
-            {...register("email", {
-              required: "Email is required",
-              pattern: {
-                value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                message: "Invalid email address",
-              },
-            })}
-            className="input-primary"
-            placeholder="Email"
-            // value={criteria.email || ""}
-            // onChange={handleChange("email")}
-          />
-          {errors.email && (
-            <span className="text-red-500 text-xs">{errors.email.message}</span>
-          )}
-        </div>
-        <div className="flex flex-col gap-1">
-          <label className="text-sm">
-            {langauge === "En" ? "Effective Date" : `Date d'entrée en vigueur`}
-          </label>
-          <input
-            className="input-primary"
-            type="date"
-            {...register("effectiveDate", {
-              required: "Effective Date is required",
-            })}
-            // value={criteria.effectiveDate || ""}
-            // onChange={handleChange("effectiveDate")}
-          />
-          {errors.effectiveDate && (
-            <span className="text-red-500 text-xs">
-              {errors.effectiveDate.message}
-            </span>
-          )}
-        </div>
-        <div className="flex flex-col gap-1">
-          <label className="text-sm">
-            {langauge === "En" ? "Expiry Date" : `Date d'expiration`}
-          </label>
-          <input
-            {...register("expiryDate", { required: "Expiry Date is required" })}
-            className="input-primary"
-            type="date"
-            // value={criteria.expiryDate || ""}
-            // onChange={handleChange("expiryDate")}
-          />
-          {errors.expiryDate && (
-            <span className="text-red-500 text-xs">
-              {" "}
-              {errors.expiryDate.message}
-            </span>
-          )}
-        </div>
-        {userType === "ADMIN" && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 md:gap-x-16 lg:gap-x-24 gap-y-4 text-text-secondary">
           <div className="flex flex-col gap-1">
-            <label className="text-sm">
-              {langauge === "En" ? "Agent" : "Agent"}
+            <label className="text-sm 2xl:text-base">
+              {t("Quote Number")}
             </label>
             <input
-              {...register("agent", { required: "Agent is required" })}
+              {...register("quoteNumber", {
+                setValueAs: (value) => value?.trim() || "",
+              })}
+              type="text"
               className="input-primary"
-              placeholder="Agent"
-              // value={criteria.agent || ""}
-              // onChange={handleChange("agent")}
+              placeholder={t("Quote Number")}
             />
-            {errors.agent && (
-              <span className="text-red-500 text-xs">
-                {errors.agent.message}
-              </span>
-            )}
           </div>
-        )}
-      </div>
+          <div className="flex flex-col">
+            <Controller
+              name="quoteDate"
+              control={control}
+              render={({ field }) => (
+                <DatePicker
+                  {...field}
+                  label={t("Quote Date")}
+                />
+              )}
+            />
+          </div>
+          <div className="flex flex-col">
+            <label className="text-sm 2xl:text-base">
+              {t("First Name")}
+            </label>
+            <input
+              {...register("firstName", {
+                setValueAs: (value) => value?.trim() || "",
+              })}
+              className="input-primary"
+              placeholder={t("First Name")}
+            />
+          </div>
+          <div className="flex flex-col">
+            <label className="text-sm 2xl:text-base">
+              {t("Last Name")}
+            </label>
+            <input
+              {...register("lastName", {
+                setValueAs: (value) => value?.trim() || "",
+              })}
+              className="input-primary"
+              placeholder={t("Last Name")}
+            />
+          </div>
+          <div className="flex flex-col">
+            <Controller
+              name="dateOfBirth"
+              control={control}
+              render={({ field }) => (
+                <DatePicker
+                  {...field}
+                  label={t("Date of Birth")}
+                />
+              )}
+            />
+          </div>
+          <div className="flex flex-col">
+            <label className="text-sm 2xl:text-base">{t("Email")}</label>
+            <input
+              {...register("email", {
+                setValueAs: (value) => value?.trim()?.toLowerCase() || "",
+                pattern: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+              })}
+              className="input-primary"
+              placeholder={t("Email")}
+            />
+          </div>
+          <div className="flex flex-col">
+            <Controller
+              name="effectiveDate"
+              control={control}
+              render={({ field }) => (
+                <DatePicker
+                  {...field}
+                  label={t("Effective Date")}
+                />
+              )}
+            />
+          </div>
+          <div className="flex flex-col">
+            <Controller
+              name="expiryDate"
+              control={control}
+              render={({ field }) => (
+                <DatePicker
+                  {...field}
+                  label={t("Expiry Date")}
+                />
+              )}
+            />
+          </div>
+          {userType === "ADMIN" && (
+            <div className="flex flex-col">
+              <label className="text-sm 2xl:text-base">
+                {t("Agent Code")}
+              </label>
+              <input
+                {...register("agent", {
+                  setValueAs: (value) => value?.trim() || "",
+                })}
+                className="input-primary"
+                placeholder={t("Agent Code")}
+              />
+            </div>
+          )}
+        </div>
       </form>
       {/* Product Selector  */}
       <div className="mt-6">
         <p className="text-[#1B1B1B]   mb-2">
-          {langauge === "En" ? "Product" : "PRODUIT"}
+          {t("Product")}
         </p>
         <div className="border border-[#DBDADE] p-2 bg-[#F9F9F9] overflow-y-auto text-sm  text-[#1B1B1B] space-y-2">
           <label className="block">
             <input
               type="checkbox"
               className="mr-2 text-[#1B1B1B] accent-primary cursor-pointer"
-              checked={criteria.products?.includes("All")}
+              checked={selectedProducts?.includes("All")}
               onChange={() => handleProductChange("All")}
             />
-            All
+            {t("All")}
           </label>
           {products.map((p) => (
-            <label key={p.en} className="block text-[#1B1B1B]">
+            <label key={p.value} className="block text-[#1B1B1B]">
               <input
                 type="checkbox"
                 className="mr-2 text-[#1B1B1B] accent-primary cursor-pointer"
-                checked={criteria.products?.includes(p.en)}
-                onChange={() => handleProductChange(p.en)}
+                checked={selectedProducts?.includes(p.value)}
+                onChange={() => handleProductChange(p.value)}
               />
-              {langauge === "En" ? p.en : p.fr}
+              {p.label}
             </label>
           ))}
         </div>
@@ -639,124 +610,180 @@ const QuotesSearch: React.FC = () => {
       <div className="w-full flex justify-center mt-6">
         <button
           onClick={handleSubmit(onSearch)}
-          disabled={!!emailError || loading}
+          disabled={loading}
           className="btn-primary"
         >
           {loading
-            ? "Searching..."
-            : langauge === "En"
-            ? "Search Quotes"
-            : "Rechercher Quotes"}
+            ? t("Searching...")
+            : t("Search Quotes")}
         </button>
       </div>
 
-      {/* Search Error DIsplay  */}
-      {error && <p className="text-red-600 mt-2">{error}</p>}
-
+      {/* Search Error Display  */}
       {/* Result Table  */}
       {data && (
-        <>
-          <p className="mt-4">Found {data.total} quotes.</p>
-
-          <table className="min-w-full border">
-            <thead className="bg-gray-100">
+        <div className="w-full overflow-x-auto custom-scrollbar pb-2">
+          <div className="mt-4">
+            {!loading && (
+              <div className="mb-1 flex items-center justify-between flex-wrap gap-2">
+                <p className="text-text-primary">
+                  {t("Found")} {data.total} {t("quotes.")}
+                </p>
+                <div className="flex flex-col items-end gap-1">
+                  <button
+                    onClick={() => exportCsv(searchData)}
+                    disabled={exporting}
+                    className="py-2 px-4 border border-inputBorder hover:border-gray-500 transition cursor-pointer mb-2 text-sm"
+                  >
+                    {exporting ? (
+                      <div className="flex items-center gap-2">
+                        <span className="animate-spin inline-block w-4 h-4 border-2 border-current border-t-transparent rounded-full" />
+                        {t("Exporting...")}
+                      </div>
+                    ) : (
+                      <>{t("Download CSV")}</>
+                    )}
+                  </button>
+                  {exportError && (
+                    <p className="text-sm text-red-600 max-w-xs text-right">
+                      {exportError}
+                    </p>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-primary text-white text-base 2xl:text-xl capitalize">
               <tr>
                 {[
-                  "Quote Number",
-
-                  "First Name",
-                  "Last Name",
-                  "Status",
-                  "Date of Birth",
-                  "Quote Date",
-                  "Product Name",
-                  "Actions",
+                  t("Quote Number"),
+                  t("Name"),
+                  t("Status"),
+                  // "Date of Birth",
+                  t("Quote Date"),
+                  t("Product Name"),
+                  t("Actions"),
                 ].map((h) => (
                   <th
                     key={h}
-                    className="px-4 py-2 text-left text-sm font-medium text-gray-700"
+                    className="px-2 sm:px-6 py-1 sm:py-3 text-left font-medium text-nowrap"
                   >
                     {h}
                   </th>
                 ))}
               </tr>
             </thead>
-            <tbody>
-              {data.items.map((u: any) => (
-                <tr key={u.id} className="border-t">
-                  <td className="px-4 py-2">{u.quoteNumber}</td>
-
-                  <td className="px-4 py-2">{u.firstName}</td>
-                  <td className="px-4 py-2">{u.lastName}</td>
-                  <td className="px-4 py-2">{u.status}</td>
-                  <td className="px-4 py-2">
-                    {u.dateOfBirth
-                      ? new Date(u.dateOfBirth).toLocaleDateString(
-                          langauge === "En" ? "en-CA" : "fr-CA",
-                          { year: "numeric", month: "short", day: "numeric" }
-                        )
-                      : "-"}
-                  </td>
-                  <td className="px-4 py-2">
-                    {u.dateIssued
-                      ? new Date(u.dateIssued).toLocaleDateString(
-                          langauge === "En" ? "en-CA" : "fr-CA",
-                          { year: "numeric", month: "short", day: "numeric" }
-                        )
-                      : "-"}
-                  </td>
-                  <td className="px-4 py-2">{u.product}</td>
-                  <td className="px-4 py-2">
-                    <Link
-                      // onClick={() => navigate(``)}
-                      target="_blank"
-                      to={`/quote-detail/${u.id}`}
-                      className="px-3 py-1 bg-blue-600 text-white text-sm rounded"
-                    >
-                      View
-                    </Link>
+            <tbody className="bg-white" style={{ border: "1px solid #AAA9A9" }}>
+              {loading ? (
+                <tr>
+                  <td className="p-2 text-primary text-center h-40" colSpan={8}>
+                    {t("Loading...")}
                   </td>
                 </tr>
-              ))}
+              ) : error ? (
+                <tr>
+                  <td className="p-2 text-red-500" colSpan={8}>
+                    {error}
+                  </td>
+                </tr>
+              ) : data?.items.length === 0 ? (
+                <tr>
+                  <td
+                    className="p-2 text-text-secondary text-center"
+                    colSpan={9}
+                  >
+                    {t("No quotes found")}
+                  </td>
+                </tr>
+              ) : (
+                data.items.map((u: any) => (
+                  <tr
+                    key={u.id}
+                    className="text-[#808080] text-sm 2xl:text-base"
+                  >
+                    <td
+                      className="px-2 sm:px-3 py-2 whitespace-nowrap border-r border-b border-[#AAA9A9]"
+                    >
+                      {u.quoteNumber}
+                    </td>
+
+                    <td
+                      className="px-2 sm:px-3 py-2 whitespace-nowrap border-r border-b border-[#AAA9A9] max-w-[250px] break-words"
+                    >
+                      {u.firstName + " " + u.lastName}
+                    </td>
+                    <td
+                      className="px-2 sm:px-3 py-2 whitespace-nowrap border-r border-b border-[#AAA9A9]"
+                    >
+                      {t(u.status)}
+                    </td>
+                    {/* <td
+                      className="px-2 sm:px-3 py-2 whitespace-nowrap border-r border-b border-[#AAA9A9]"
+                    >
+                      {u.dateOfBirth
+                        ? new Date(u.dateOfBirth).toLocaleDateString(
+                            language === "fr" ? "fr-CA" : "en-CA",
+                            { year: "numeric", month: "short", day: "numeric" }
+                          )
+                        : "-"}
+                    </td> */}
+                    <td
+                      className="px-2 sm:px-3 py-2 whitespace-nowrap border-r border-b border-[#AAA9A9]"
+                    >
+                      {formatDate(u.dateIssued)}
+                    </td>
+                    <td
+                      className="px-2 sm:px-3 py-2 whitespace-nowrap capitalize border-r border-b border-[#AAA9A9]"
+                    >
+                      {u.product.split("_").join(" ").toLowerCase()}
+                    </td>
+                    <td
+                      className="px-2 sm:px-3 py-2 whitespace-nowrap border-r border-b border-[#AAA9A9]"
+                    >
+                      <Link
+                        // onClick={() => navigate(``)}
+                        target="_blank"
+                        to={`/quote-detail/${u.id}`}
+                        className="text-primary hover:underline hover:underline-offset-2 cursor-pointer font-medium px-4 text-center w-full"
+                      >
+                        {t("View")}
+                      </Link>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
-
-          {/* Pagination Controls */}
-          <div className="flex justify-center items-center space-x-2 mt-4">
-            <button
-              onClick={() => goToPage(page - 1)}
-              disabled={page <= 1}
-              className="px-3 py-1 rounded border bg-white disabled:opacity-50"
-            >
-              Prev
-            </button>
-
-            {Array.from({ length: data.totalPages }, (_, i) => i + 1).map(
-              (p) => (
-                <button
-                  key={p}
-                  onClick={() => goToPage(p)}
-                  className={`px-3 py-1 rounded border ${
-                    p === page
-                      ? "bg-indigo-600 text-white"
-                      : "bg-white text-indigo-600"
-                  }`}
-                >
-                  {p}
-                </button>
-              )
-            )}
-
-            <button
-              onClick={() => goToPage(page + 1)}
-              disabled={page >= data.totalPages}
-              className="px-3 py-1 rounded border bg-white disabled:opacity-50"
-            >
-              Next
-            </button>
-          </div>
-        </>
+        </div>
       )}
+      {/* Pagination Controls */}
+      {totalPages > 0 && (
+        <div className="flex justify-center items-center space-x-2 mt-4">
+          <button
+            onClick={() => goToPage(page - 1)}
+            disabled={page <= 1}
+            className="px-2 py-[10px] bg-[#CCCCCC] text-[#6F6B7D] cursor-pointer"
+          >
+            <ChevronLeftIcon className="h-5 w-5" />
+          </button>
+
+          <RenderPageNumbers
+            onPageChange={goToPage}
+            totalPages={totalPages}
+            page={page}
+          />
+
+          <button
+            onClick={() => goToPage(page + 1)}
+            disabled={page >= totalPages}
+            className="px-2 py-[10px] bg-[#CCCCCC] text-[#6F6B7D] cursor-pointer"
+          >
+            <ChevronRightIcon className="h-5 w-5" />
+          </button>
+        </div>
+      )}
+      {NotificationComponent}
     </div>
   );
 };

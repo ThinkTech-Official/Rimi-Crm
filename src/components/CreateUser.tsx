@@ -1,37 +1,699 @@
-import React, { useContext, useState, FormEvent, ChangeEvent } from "react";
+// import React, { useContext, useState, FormEvent, ChangeEvent } from "react";
+// import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
+// import { v4 as uuidv4 } from "uuid";
+// import { LangContext } from "../context/LangContext";
+// import { useAgentCodes } from "../hooks/useAgentCodes";
+// import { newUser, useCreateUser } from "../hooks/useCreateUser";
+// import { useForm } from "react-hook-form";
+
+// type userType = "ADMIN" | "AGENT" | "READONLY" | "MGA" | "";
+
+// const CreateUser: React.FC = () => {
+//   const { langauge } = useContext(LangContext);
+//   // const [agentCode, setAgentCode] = useState("");
+//   const [status, setStatus] = useState<"ACTIVE" | "INACTIVE">("ACTIVE");
+//   const [allowBulkUpload, setAllowBulkUpload] = useState<"YES" | "NO">("NO");
+//   const [userType, setUserType] = useState<userType>("ADMIN");
+
+//   // MGA-only agent selection
+//   const [agentSearch, setAgentSearch] = useState("");
+//   const [selectedAgents, setSelectedAgents] = useState<string[]>([]);
+
+//   // password visibility toggles
+//   const [passwordVisible, setPasswordVisible] = useState(false);
+//   const [confirmPasswordVisible, setConfirmPasswordVisible] = useState(false);
+
+//   // ─── availability & create-user hook ────────────────────────────────────────
+//   const {
+//     checkAvailability,
+//     availability,
+//     availabilityError,
+//     createUser,
+//     loading: createLoading,
+//     error: createError,
+//     success,
+//   } = useCreateUser();
+
+//   // track which code we last checked
+//   const [lastCheckedCode, setLastCheckedCode] = useState("");
+
+//   // Validation Error State
+//   //  const [errors, setErrors] = useState<{ [key: string]: string }>({});
+//   const {
+//     register,
+//     handleSubmit,
+//     watch,
+//     setValue,
+//     formState: { errors },
+//   } = useForm<newUser>();
+//   const agentCode = watch("agentCode");
+//   const docFile1 = watch("docFile1");
+//   const docFile2 = watch("docFile2");
+
+//   // ─── auxiliary handlers ──────────────────────────────────────────────────────
+//   // const handleFileChange =
+//   //   (setter: React.Dispatch<React.SetStateAction<File | null>>) =>
+//   //   (e: ChangeEvent<HTMLInputElement>) =>
+//   //     setter(e.target.files?.[0] ?? null);
+
+//   const generateAgentCode = () => {
+//     const firstName = watch("firstName");
+//     // if (!firstName) return;
+//     const prefix = firstName.trim().slice(0, 4).toUpperCase();
+//     const uuidPart = uuidv4().split("-")[0].toUpperCase();
+//     setValue("agentCode", `${prefix}${uuidPart}`);
+//     setLastCheckedCode(""); // force re-check
+//   };
+
+//   const handleCheckClick = async () => {
+//     const ok = await checkAvailability(agentCode);
+//     setLastCheckedCode(agentCode);
+//   };
+
+//   const onSubmit = async (formData: newUser) => {
+//     if (availability !== "available" || lastCheckedCode !== agentCode) {
+//       return; // must confirm availability first
+//     }
+//     // add status and allowBulkUpload to newUser
+//     // newUser.status = status;
+//     // newUser.allowBulkUpload = allowBulkUpload;
+//     // await createUser(newUser);
+
+//     // Create the complete user object with all fields
+//     const completeUserData: newUser = {
+//       ...formData, // This includes all form fields from react-hook-form
+//       status,
+//       allowBulkUpload,
+//       selectedAgents: userType === "MGA" ? selectedAgents : undefined,
+//     };
+
+//     await createUser(completeUserData);
+//   };
+
+//   // ─── fetch MGA agents ────────────────────────────────────────────────────────
+//   const {
+//     agents,
+//     loading: agentsLoading,
+//     error: agentsError,
+//   } = useAgentCodes(agentSearch);
+
+//   const handleDocsChange = (
+//     e: ChangeEvent<HTMLInputElement>,
+//     docType: "docFile1" | "docFile2"
+//   ) => {
+//     const file = e.target.files?.[0];
+//     if (file) {
+//       setValue(docType, file);
+//     }
+//   };
+//   const handleFileSize = (file: File) => {
+//     const fileSizeInMB = file.size / (1024 * 1024);
+//     return fileSizeInMB.toFixed(2);
+//   };
+
+//   return (
+//     <form
+//       onSubmit={handleSubmit(onSubmit)}
+//       className="max-w-5xl mx-auto mt-4 px-2 py-4 sm:p-6 bg-[#F9F9F9]"
+//       noValidate
+//     >
+//       <h2 className="text-lg font-bold text-left text-[#1B1B1B] mb-2">
+//         {langauge === "En" ? "CREATE USER" : "CRÉER UN UTILISATEUR"}
+//       </h2>
+//       <p className="text-left font-medium text-[#6A6A6A] mb-8">
+//         {langauge === "En"
+//           ? "** Changes to User Type will restore User Permissions to default settings **"
+//           : "** Les modifications apportées au type d'utilisateur restaureront les autorisations aux paramètres par défaut **"}
+//       </p>
+
+//       <div className="grid grid-col-3 gap-4 text-text-secondary">
+//         {/* First Name */}
+//         <div className="flex flex-col col-span-3 sm:col-span-1">
+//           <label className="text-sm">First Name</label>
+//           <input
+//             type="text"
+//             {...register("firstName", { required: "First name is required" })}
+//             // value={firstName}
+//             // onChange={(e) => setFirstName(e.target.value)}
+//             className={`input-primary`}
+//             placeholder="First Name"
+//           />
+//           {errors.firstName && (
+//             <p className="text-red-500 text-sm">{errors.firstName.message}</p>
+//           )}
+//         </div>
+//         {/* Last Name */}
+//         <div className="flex flex-col col-span-3 sm:col-span-1">
+//           <label className="text-sm">Last Name</label>
+//           <input
+//             {...register("lastName", { required: "Last name is required" })}
+//             // value={lastName}
+//             // onChange={(e) => setLastName(e.target.value)}
+//             className={`input-primary`}
+//             placeholder="Last Name"
+//             // required
+//           />
+//           {errors.lastName && (
+//             <p className="text-red-500 text-sm">{errors.lastName.message}</p>
+//           )}
+//         </div>
+//         {/* Email */}
+//         <div className="flex flex-col col-span-3 sm:col-span-1">
+//           <label className="text-sm">Email</label>
+//           <input
+//             type="email"
+//             {...register("email", {
+//               required: "Email is required",
+//               pattern: {
+//                 value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+//                 message: "Invalid email address",
+//               },
+//             })}
+//             // value={email}
+//             // onChange={(e) => setEmail(e.target.value)}
+//             className={`input-primary ${
+//               errors.email ? "border-red-500" : "border-black"
+//             }`}
+//             placeholder="Email"
+//             // required
+//           />
+//           {errors.email && (
+//             <p className="text-red-500 text-sm">{errors.email.message}</p>
+//           )}
+//         </div>
+//         {/* Agent Code + Generate / Check */}
+//         <div className="">
+//           <div className=" flex flex-col col-span-3 sm:col-span-1">
+//             <label className="text-sm">Agent Code</label>
+//             <input
+//               {...register("agentCode", { required: "Agent code is required" })}
+//               value={agentCode}
+//               onChange={() => {
+//                 // setAgentCode(e.target.value);
+//                 setLastCheckedCode("");
+//               }}
+//               className={`input-primary`}
+//               placeholder="Agent Code"
+//               // required
+//             />
+//             {errors.agentCode && (
+//               <p className="text-red-500 text-sm">{errors.agentCode.message}</p>
+//             )}
+//           </div>
+//           <div className="flex gap-4 mt-4">
+//             <button
+//               type="button"
+//               onClick={generateAgentCode}
+//               className="h-10 px-3 bg-gray-200 rounded hover:bg-gray-300 transition cursor-pointer"
+//             >
+//               Generate
+//             </button>
+//             <button
+//               type="button"
+//               onClick={handleCheckClick}
+//               disabled={!agentCode || availability === "checking"}
+//               className={`h-10 px-3 rounded transition ${
+//                 lastCheckedCode === agentCode && availability === "available"
+//                   ? "bg-green-200 hover:bg-green-300"
+//                   : lastCheckedCode === agentCode && availability === "taken"
+//                   ? "bg-red-200 hover:bg-red-300"
+//                   : "bg-blue-200 hover:bg-blue-300 disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed"
+//               }`}
+//             >
+//               {availability === "checking"
+//                 ? "Checking…"
+//                 : lastCheckedCode === agentCode && availability === "available"
+//                 ? "Available"
+//                 : lastCheckedCode === agentCode && availability === "taken"
+//                 ? "Taken"
+//                 : "Check"}
+//             </button>
+//           </div>
+//         </div>
+//         {availabilityError && (
+//           <p className="text-red-500 text-sm mt-1">{availabilityError}</p>
+//         )}
+//         {/* Company */}
+//         <div className="flex flex-col col-span-3 sm:col-span-1">
+//           <label className="text-sm">Company</label>
+//           <input
+//             {...register("company", { required: "Company name is required" })}
+//             // value={company}
+//             // onChange={(e) => setCompany(e.target.value)}
+//             className="input-primary"
+//             placeholder="Company"
+//             required
+//           />
+//           {errors.company && (
+//             <p className="text-red-500 text-sm">{errors.company.message}</p>
+//           )}
+//         </div>
+//         {/* User Type */}
+//         <div className="flex flex-col col-span-2 sm:col-span-1">
+//           <label className="text-sm">User Type</label>
+//           <select
+//             {...register("userType", { required: "User type is required" })}
+//             // value={userType}
+//             onChange={(e) => setUserType(e.target.value as any)}
+//             className={`input-primary`}
+//             // required
+//           >
+//             <option value="">-- select --</option>
+//             <option value="ADMIN">Admin</option>
+//             <option value="AGENT">Agent</option>
+//             <option value="READONLY">Read Only</option>
+//             <option value="MGA">MGA</option>
+//           </select>
+//           {errors.userType && (
+//             <p className="text-red-500 text-sm">{errors.userType.message}</p>
+//           )}
+//         </div>
+//         {/* MGA-only: Agent Codes */}
+//         {userType === "MGA" && (
+//           <div className="col-span-3 space-y-2">
+//             <label className="font-semibold">Agent Codes</label>
+//             <input
+//               type="text"
+//               value={agentSearch}
+//               onChange={(e) => setAgentSearch(e.target.value)}
+//               className="w-full input-primary"
+//               placeholder="Search agent codes..."
+//             />
+//             {agentsLoading && <p>Loading agents…</p>}
+//             {agentsError && <p className="text-red-500">{agentsError}</p>}
+//             {agentSearch.length > 0 &&
+//               (agents.length > 0 ? (
+//                 <div className="max-h-40 overflow-y-auto border border-inputBorder rounded p-2 space-y-1 text-sm">
+//                   {agents.map((code) => (
+//                     <label key={code} className="flex items-center 1">
+//                       <input
+//                         type="checkbox"
+//                         checked={selectedAgents.includes(code)}
+//                         onChange={(e) =>
+//                           setSelectedAgents((prev) =>
+//                             e.target.checked
+//                               ? [...prev, code]
+//                               : prev.filter((c) => c !== code)
+//                           )
+//                         }
+//                         className="checked:accent-primary cursor-pointer"
+//                       />
+//                       <span className="pl-1">{code}</span>
+//                     </label>
+//                   ))}
+//                 </div>
+//               ) : (
+//                 !agentsLoading && (
+//                   <div className="max-h-40 overflow-y-auto border border-inputBorder rounded p-2 space-y-1 text-sm">
+//                     <p>No agents found with code "{agentSearch}"</p>
+//                   </div>
+//                 )
+//               ))}
+//             {selectedAgents.length > 0 && (
+//               <>
+//                 <p className="font-medium mt-2">Selected Agents:</p>
+//                 <ul className="list-disc ml-6 text-sm text-gray-600">
+//                   {selectedAgents.map((a) => (
+//                     <li key={a}>{a}</li>
+//                   ))}
+//                 </ul>
+//               </>
+//             )}
+//           </div>
+//         )}
+//         {/* Agent Commission - Only show for AGENT user type */}
+//         {/* {userType === "AGENT" && (
+//           <div className="flex flex-col col-span-3 sm:col-span-1">
+//             <label className="text-sm">Agent Commission (%)</label>
+//             <input
+//               type="number"
+//               step="0.01"
+//               min="0"
+//               max="100"
+//               {...register("commissionPercent", {
+//                 min: { value: 0, message: "Commission cannot be negative" },
+//                 max: { value: 100, message: "Commission cannot exceed 100%" },
+//                 pattern: {
+//                   value: /^\d+(\.\d{1,2})?$/,
+//                   message: "Please enter a valid percentage (e.g., 15.5)",
+//                 },
+//               })}
+//               className="input-primary"
+//               placeholder="e.g., 15.50"
+//             />
+//             {errors.commissionPercent && (
+//               <p className="text-red-500 text-sm">
+//                 {errors.commissionPercent.message}
+//               </p>
+//             )}
+//             <p className="text-xs text-gray-500 mt-1">
+//               Enter the commission percentage for this agent (0-100%)
+//             </p>
+//           </div>
+//         )} */}
+
+//         {/* Commission Percent - Show for AGENT and MGA user types */}
+// {(userType === "AGENT" || userType === "MGA") && (
+//   <div className="flex flex-col col-span-3 sm:col-span-1">
+//     <label className="text-sm">
+//       {userType === "MGA" ? "MGA Commission (%)" : "Agent Commission (%)"}
+//     </label>
+//     <input
+//       type="number"
+//       step="0.01"
+//       min="0"
+//       max="100"
+//       {...register("commissionPercent", {
+//         min: { value: 0, message: "Commission cannot be negative" },
+//         max: { value: 100, message: "Commission cannot exceed 100%" },
+//         pattern: {
+//           value: /^\d+(\.\d{1,2})?$/,
+//           message: "Please enter a valid percentage (e.g., 15.5)",
+//         },
+//       })}
+//       className="input-primary"
+//       placeholder={userType === "MGA" ? "e.g., 20.00" : "e.g., 15.50"}
+//     />
+//     {errors.commissionPercent && (
+//       <p className="text-red-500 text-sm">
+//         {errors.commissionPercent.message}
+//       </p>
+//     )}
+//     <p className="text-xs text-gray-500 mt-1">
+//       {userType === "MGA" 
+//         ? "Commission for MGA's direct policy sales (0-100%)"
+//         : "Enter the commission percentage for this agent (0-100%)"
+//       }
+//     </p>
+//   </div>
+// )}
+
+
+//          {/* MGA Override Percent - Only show for MGA user type */}
+//         {userType === "MGA" && (
+//           <div className="flex flex-col col-span-3 sm:col-span-1">
+//             <label className="text-sm">MGA Override Percent (%)</label>
+//             <input
+//               type="number"
+//               step="0.01"
+//               min="0"
+//               max="100"
+//               {...register("mgaOverridePercent", {
+//                 required: "MGA override percent is required",
+//                 min: { value: 0, message: "Override percent cannot be negative" },
+//                 max: { value: 100, message: "Override percent cannot exceed 100%" },
+//                 pattern: {
+//                   value: /^\d+(\.\d{1,2})?$/,
+//                   message: "Please enter a valid percentage (e.g., 5.0)",
+//                 },
+//               })}
+//               className="input-primary"
+//               placeholder="e.g., 5.00"
+//             />
+//             {errors.mgaOverridePercent && (
+//               <p className="text-red-500 text-sm">
+//                 {errors.mgaOverridePercent.message}
+//               </p>
+//             )}
+//             <p className="text-xs text-gray-500 mt-1">
+//               MGA's share of commission from sub-agents (0-100%)
+//             </p>
+//           </div>
+//         )}
+        
+//         {/* Status */}
+//         <div className="col-span-1 space-y-2">
+//           <label className="text-sm">Status</label>
+//           <div className="flex space-x-6 items-center">
+//             <label className="flex items-center gap-2">
+//               <input
+//                 type="radio"
+//                 name="status"
+//                 value="ACTIVE"
+//                 checked={status === "ACTIVE"}
+//                 onChange={() => setStatus("ACTIVE")}
+//                 className="accent-primary cursor-pointer"
+//               />{" "}
+//               Active
+//             </label>
+//             <label className="flex items-center gap-2">
+//               <input
+//                 type="radio"
+//                 name="status"
+//                 value="INACTIVE"
+//                 checked={status === "INACTIVE"}
+//                 onChange={() => setStatus("INACTIVE")}
+//                 className="accent-primary cursor-pointer"
+//               />{" "}
+//               Inactive
+//             </label>
+//           </div>
+//         </div>
+//         {/* bulk upload */}
+//         <div className="col-span-1 space-y-2">
+//           <label className="text-sm">Allow Bulk Upload</label>
+//           <div className="flex space-x-6 items-center">
+//             <label className="flex items-center gap-2">
+//               <input
+//                 type="radio"
+//                 name="allowBulkUpload"
+//                 value="YES"
+//                 checked={allowBulkUpload === "YES"}
+//                 onChange={() => setAllowBulkUpload("YES")}
+//                 className="accent-primary cursor-pointer"
+//               />{" "}
+//               Yes
+//             </label>
+//             <label className="flex items-center gap-2">
+//               <input
+//                 type="radio"
+//                 name="allowBulkUpload"
+//                 value="NO"
+//                 checked={allowBulkUpload === "NO"}
+//                 onChange={() => setAllowBulkUpload("NO")}
+//                 className="accent-primary cursor-pointer"
+//               />{" "}
+//               No
+//             </label>
+//           </div>
+//         </div>
+//         {/* Password */}
+//         <div className="col-span-3 space-y-2">
+//           <label className="text-sm">Password</label>
+//           <div className="relative">
+//             <input
+//               type={passwordVisible ? "text" : "password"}
+//               // value={password}
+//               // onChange={(e) => setPassword(e.target.value)}
+//               placeholder="New Password"
+//               {...register("password", {
+//                 required: "Password is required",
+//                 minLength: { value: 6, message: "Minimum length is 6" },
+//               })}
+//               className={`w-full input-primary`}
+//             />
+//             <span
+//               className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer"
+//               onClick={() => setPasswordVisible((v) => !v)}
+//             >
+//               {passwordVisible ? (
+//                 <EyeIcon className="h-5 w-5" />
+//               ) : (
+//                 <EyeSlashIcon className="h-5 w-5" />
+//               )}
+//             </span>
+//           </div>
+//           {errors.confirmPassword && (
+//             <p className="text-red-500 text-sm">{errors.password?.message}</p>
+//           )}
+
+//           <label className="text-sm">Confirm Password</label>
+//           <div className="relative">
+//             <input
+//               type={confirmPasswordVisible ? "text" : "password"}
+//               {...register("confirmPassword", {
+//                 required: "Please confirm password",
+//                 validate: (value) =>
+//                   value === watch("password") || "Passwords do not match",
+//               })}
+//               // value={confirmPassword}
+//               // onChange={(e) => setConfirmPassword(e.target.value)}
+//               className={`w-full input-primary`}
+//               placeholder="Confirm Password"
+//             />
+//             <span
+//               className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer"
+//               onClick={() => setConfirmPasswordVisible((v) => !v)}
+//             >
+//               {confirmPasswordVisible ? (
+//                 <EyeIcon className="h-5 w-5" />
+//               ) : (
+//                 <EyeSlashIcon className="h-5 w-5" />
+//               )}
+//             </span>
+//           </div>
+//           {errors.confirmPassword && (
+//             <p className="text-red-500 text-sm">
+//               {errors.confirmPassword.message}
+//             </p>
+//           )}
+//         </div>
+//         {/* Uploads */}
+//         <div className="flex justify-between col-span-3 gap-4">
+//           <div className="flex flex-col w-full">
+//             <label className="text-sm">Upload Document 1</label>
+//             <div className="flex flex-col items-start space-y-2">
+//               <label className="input-primary cursor-pointer">
+//                 Choose File <span className="text-xs">(Max 5MB)</span>
+//                 <input
+//                   type="file"
+//                   onChange={(e) => handleDocsChange(e, "docFile1")}
+//                   className="hidden"
+//                 />
+//               </label>
+//               {docFile1 && (
+//                 <p className="text-sm">
+//                   {docFile1.name} - {handleFileSize(docFile1)} MB
+//                 </p>
+//               )}
+//             </div>
+//           </div>
+
+//           {/* Document 1 Valid Upto */}
+//           <div className="flex flex-col w-full">
+//             <label className="text-sm">Document 1 Valid Upto</label>
+//             <input
+//               type="date"
+//               {...register("validUpto", {
+//                 required: "Document 1 validity date is required",
+//               })}
+//               className="input-primary"
+//             />
+//             {errors.validUpto && (
+//               <p className="text-red-500 text-sm">{errors.validUpto.message}</p>
+//             )}
+//           </div>
+//         </div>
+//         {/* Document 2 */}
+//         <div className="flex justify-between col-span-3 gap-4">
+//           <div className="flex flex-col w-full">
+//             <label className="text-sm">Upload Document 2</label>
+//             <div className="flex flex-col items-start space-y-2">
+//               <label className="input-primary cursor-pointer">
+//                 Choose File <span className="text-xs">(Max 5MB)</span>
+//                 <input
+//                   type="file"
+//                   onChange={(e) => handleDocsChange(e, "docFile2")}
+//                   className="hidden"
+//                 />
+//               </label>
+//               {docFile2 && (
+//                 <p className="text-sm">
+//                   {docFile2.name} - {handleFileSize(docFile2)} MB
+//                 </p>
+//               )}
+//             </div>
+//           </div>
+
+//           {/* Document 2 Valid Upto */}
+//           <div className="flex flex-col w-full">
+//             <label className="text-sm">Document 2 Valid Upto</label>
+//             <input
+//               type="date"
+//               {...register("validUpto2", {
+//                 required: "Document 2 validity date is required",
+//               })}
+//               className="input-primary"
+//             />
+//             {errors.validUpto2 && (
+//               <p className="text-red-500 text-sm">
+//                 {errors.validUpto2.message}
+//               </p>
+//             )}
+//           </div>
+//         </div>
+//         {/* <div className="col-span-3 flex flex-col 1">
+//           <label className="text-sm">Upload Document 3</label>
+//           <input
+//             type="file"
+//             accept=".pdf,.doc,.docx"
+//             {...register("docFile3")}
+//             // onChange={handleFileChange(setDocFile3)}
+//             className="input-primary"
+//           />
+//         </div> */}
+//       </div>
+
+//       {/* Submit */}
+//       <div className="mt-6 flex flex-col items-center">
+//         <button
+//           type="submit"
+//           disabled={
+//             createLoading ||
+//             !(lastCheckedCode === agentCode && availability === "available")
+//           }
+//           className="btn-primary"
+//         >
+//           {createLoading
+//             ? langauge === "En"
+//               ? "CREATING…"
+//               : "CRÉATION…"
+//             : langauge === "En"
+//             ? "CREATE USER"
+//             : "CRÉER UN UTILISATEUR"}
+//         </button>
+//         {createError && <p className="mt-2 text-red-500">{createError}</p>}
+//         {success && (
+//           <p className="mt-2 text-green-700">
+//             {langauge === "En"
+//               ? "User created successfully!"
+//               : "Utilisateur créé avec succès !"}
+//           </p>
+//         )}
+//       </div>
+//     </form>
+//   );
+// };
+
+// export default CreateUser;
+
+
+
+// ====================================
+
+
+
+// ============================================================================
+
+// Must stay in step with the backend's multer fileFilter (src/common/multer.config.ts).
+// Anything accepted here but not there is rejected after upload, losing the whole submission.
+export const ALLOWED_FILE_TYPES = [
+  "application/pdf",
+  "image/jpeg",
+  "image/jpg",
+  "image/png",
+];
+const MAX_FILE_SIZE_MB = 10;
+
+import React, { useState, ChangeEvent, useEffect } from "react";
 import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
 import { v4 as uuidv4 } from "uuid";
-import { LangContext } from "../context/LangContext";
 import { useAgentCodes } from "../hooks/useAgentCodes";
-import { useCreateUser } from "../hooks/useCreateUser";
+import { newUser, useCreateUser } from "../hooks/useCreateUser";
 import { useForm } from "react-hook-form";
+import { useLanguage } from "../context/LanguageContext";
+import useNotification from "../hooks/useNotification";
 
 type userType = "ADMIN" | "AGENT" | "READONLY" | "MGA" | "";
 
-export interface newUser {
-  firstName: string;
-  lastName: string;
-  email: string;
-  agentCode: string;
-  company: string;
-  userType: userType;
-  status: "ACTIVE" | "INACTIVE";
-  password: string;
-  confirmPassword: string;
-  validUpto: string;
-  docFile1: File | null;
-  docFile2: File | null;
-  docFile3: File | null;
-}
-
 const CreateUser: React.FC = () => {
-  const { langauge } = useContext(LangContext);
-
-  // ─── form fields ─────────────────────────────────────────────────────────────
-  const [firstName, setFirstName] = useState("");
-  const [agentCode, setAgentCode] = useState("");
+  // const { langauge } = useContext(LangContext);
   const [status, setStatus] = useState<"ACTIVE" | "INACTIVE">("ACTIVE");
-  const [userType, setUserType] = useState<userType>("ADMIN");
+  const [allowBulkUpload, setAllowBulkUpload] = useState<"YES" | "NO">("NO");
+  const [userType, setUserType] = useState<userType>("");
+
+  //  WFG Agent checkbox
+  const [isWfgAgent, setIsWfgAgent] = useState(false);
 
   // MGA-only agent selection
   const [agentSearch, setAgentSearch] = useState("");
@@ -40,8 +702,11 @@ const CreateUser: React.FC = () => {
   // password visibility toggles
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [confirmPasswordVisible, setConfirmPasswordVisible] = useState(false);
+  const { triggerNotification, NotificationComponent } = useNotification();
 
-  // ─── availability & create-user hook ────────────────────────────────────────
+
+  const { t } = useLanguage();
+
   const {
     checkAvailability,
     availability,
@@ -52,52 +717,147 @@ const CreateUser: React.FC = () => {
     success,
   } = useCreateUser();
 
-  // track which code we last checked
   const [lastCheckedCode, setLastCheckedCode] = useState("");
+  
+  useEffect(() => {
+    if (success) {
+      triggerNotification({ type: "success", message: t("User created successfully!") });
+    }
+  }, [success, t, triggerNotification]);
 
-  // Validation Error State
-  //  const [errors, setErrors] = useState<{ [key: string]: string }>({});
+  useEffect(() => {
+    if (createError) {
+      triggerNotification({ type: "error", message: createError });
+    }
+  }, [createError, triggerNotification]);
+
   const {
     register,
     handleSubmit,
     watch,
+    setValue,
     formState: { errors },
   } = useForm<newUser>();
 
-  // ─── auxiliary handlers ──────────────────────────────────────────────────────
-  // const handleFileChange =
-  //   (setter: React.Dispatch<React.SetStateAction<File | null>>) =>
-  //   (e: ChangeEvent<HTMLInputElement>) =>
-  //     setter(e.target.files?.[0] ?? null);
+  const agentCode = watch("agentCode");
+  const docFile1 = watch("docFile1");
+  const docFile2 = watch("docFile2");
+  const docFile3 = watch("docFile3");
+  const docFile4 = watch("docFile4");
+
+  // Handle WFG checkbox change
+  const handleWfgCheckboxChange = (checked: boolean) => {
+    setIsWfgAgent(checked);
+    
+    if (checked) {
+      // Auto-fill company with "WFG"
+      setValue('company', 'WFG');
+      
+      // Force userType to AGENT
+      setValue('userType', 'AGENT');
+      setUserType('AGENT');
+    } else {
+      // Reset company and userType when unchecked
+      setValue('company', '');
+      setValue('userType', '');
+      setUserType('');
+    }
+  };
 
   const generateAgentCode = () => {
     const firstName = watch("firstName");
-    // if (!firstName) return;
     const prefix = firstName.trim().slice(0, 4).toUpperCase();
     const uuidPart = uuidv4().split("-")[0].toUpperCase();
-    setAgentCode(`${prefix}${uuidPart}`);
-    setLastCheckedCode(""); // force re-check
+    setValue("agentCode", `${prefix}${uuidPart}`);
+    setLastCheckedCode("");
   };
 
   const handleCheckClick = async () => {
-    const ok = await checkAvailability(agentCode);
+    await checkAvailability(agentCode);
     setLastCheckedCode(agentCode);
   };
 
-  const onSubmit = async (newUser: newUser) => {
+  const onSubmit = async (formData: newUser) => {
+    // Agent code must be checked and available
     if (availability !== "available" || lastCheckedCode !== agentCode) {
-      return; // must confirm availability first
+      triggerNotification({ type: "error", message: t("Please check agent code availability first") });
+      return;
     }
 
-    await createUser(newUser);
+    //WFG-specific validation
+    if (isWfgAgent) {
+      if (formData.userType !== 'AGENT') {
+        triggerNotification({ type: "error", message: t("WFG agents must have user type AGENT") });
+        return;
+      }
+      // Documents NOT required for WFG
+    } else if (userType === 'ADMIN') {
+      // Documents NOT required for Admin
+    } else {
+      // Regular agent - require at least document 1
+      if (!docFile1) {
+        triggerNotification({ type: "error", message: t("Please upload all required documents") });
+        return;
+      }
+    }
+
+    // Create complete user data
+    const completeUserData: newUser = {
+      ...formData,
+      status,
+      allowBulkUpload,
+      selectedAgents: userType === "MGA" ? selectedAgents : undefined,
+      
+      // WFG-specific fields
+      applicantType: isWfgAgent ? 'under_mga' : undefined,
+      mgaType: isWfgAgent ? 'wfg' : undefined,
+      wfgCode: isWfgAgent ? formData.agentCode : undefined,
+    };
+
+    await createUser(completeUserData);
   };
 
-  // ─── fetch MGA agents ────────────────────────────────────────────────────────
   const {
     agents,
     loading: agentsLoading,
     error: agentsError,
   } = useAgentCodes(agentSearch);
+
+
+
+  const handleDocsChange = (
+    e: ChangeEvent<HTMLInputElement>,
+    docType: "docFile1" | "docFile2" | "docFile3" | "docFile4"
+  ) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!ALLOWED_FILE_TYPES.includes(file.type)) {
+      triggerNotification({
+        type: "error",
+        message: t("Invalid file type. Allowed: PDF, JPG, PNG"),
+      });
+      e.target.value = "";
+      return;
+    }
+
+    const fileSizeInMB = file.size / (1024 * 1024);
+    if (fileSizeInMB > MAX_FILE_SIZE_MB) {
+      triggerNotification({
+        type: "error",
+        message: t("File size must not exceed 10MB"),
+      });
+      e.target.value = "";
+      return;
+    }
+
+    setValue(docType, file);
+  };
+
+  const handleFileSize = (file: File) => {
+    const fileSizeInMB = file.size / (1024 * 1024);
+    return fileSizeInMB.toFixed(2);
+  };
 
   return (
     <form
@@ -106,25 +866,24 @@ const CreateUser: React.FC = () => {
       noValidate
     >
       <h2 className="text-lg font-bold text-left text-[#1B1B1B] mb-2">
-        {langauge === "En" ? "CREATE USER" : "CRÉER UN UTILISATEUR"}
+        {t('Create User')}
       </h2>
       <p className="text-left font-medium text-[#6A6A6A] mb-8">
-        {langauge === "En"
-          ? "** Changes to User Type will restore User Permissions to default settings **"
-          : "** Les modifications apportées au type d'utilisateur restaureront les autorisations aux paramètres par défaut **"}
+           {t('** Changes to User Type will restore User Permissions to default settings **')}
       </p>
 
       <div className="grid grid-col-3 gap-4 text-text-secondary">
         {/* First Name */}
         <div className="flex flex-col col-span-3 sm:col-span-1">
-          <label className="text-sm">First Name</label>
+          <label className="text-sm">{t("First Name")}</label>
           <input
             type="text"
-            {...register("firstName", { required: "First name is required" })}
-            // value={firstName}
-            // onChange={(e) => setFirstName(e.target.value)}
-            className={`input-primary`}
-            placeholder="First Name"
+            {...register("firstName", { 
+              setValueAs: (value: any) => value?.trim() || "",
+              required: t("First name is required") 
+            })}
+            className="input-primary"
+            placeholder={t("First Name")}
           />
           {errors.firstName && (
             <p className="text-red-500 text-sm">{errors.firstName.message}</p>
@@ -133,14 +892,14 @@ const CreateUser: React.FC = () => {
 
         {/* Last Name */}
         <div className="flex flex-col col-span-3 sm:col-span-1">
-          <label className="text-sm">Last Name</label>
+          <label className="text-sm">{t("Last Name")}</label>
           <input
-            {...register("lastName", { required: "Last name is required" })}
-            // value={lastName}
-            // onChange={(e) => setLastName(e.target.value)}
-            className={`input-primary`}
-            placeholder="Last Name"
-            // required
+            {...register("lastName", { 
+              setValueAs: (value: any) => value?.trim() || "",
+              required: t("Last name is required") 
+            })}
+            className="input-primary"
+            placeholder={t("Last Name")}
           />
           {errors.lastName && (
             <p className="text-red-500 text-sm">{errors.lastName.message}</p>
@@ -149,93 +908,141 @@ const CreateUser: React.FC = () => {
 
         {/* Email */}
         <div className="flex flex-col col-span-3 sm:col-span-1">
-          <label className="text-sm">Email</label>
+          <label className="text-sm">{t("Email")}</label>
           <input
             type="email"
             {...register("email", {
-              required: "Email is required",
+              setValueAs: (value: any) => value?.trim()?.toLowerCase() || "",
+              required: t("Email is required"),
               pattern: {
                 value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                message: "Invalid email address",
+                message: t("Invalid email address"),
               },
             })}
-            // value={email}
-            // onChange={(e) => setEmail(e.target.value)}
             className={`input-primary ${
               errors.email ? "border-red-500" : "border-black"
             }`}
-            placeholder="Email"
-            // required
+            placeholder={t("Email")}
           />
           {errors.email && (
             <p className="text-red-500 text-sm">{errors.email.message}</p>
           )}
         </div>
 
-        {/* Agent Code + Generate / Check */}
-        <div className="">
-          <div className=" flex flex-col col-span-3 sm:col-span-1">
-            <label className="text-sm">Agent Code</label>
+        {/* Phone Number */}
+        <div className="flex flex-col col-span-3 sm:col-span-1">
+          <label className="text-sm">{t("Phone Number")}</label>
+          <input
+            type="tel"
+            {...register("phoneNumber", {
+              setValueAs: (value: any) => value?.trim() || "",
+              required: t("Phone number is required"),
+            })}
+            className={`input-primary ${
+              errors.phoneNumber ? "border-red-500" : "border-black"
+            }`}
+            placeholder={t("Phone Number")}
+          />
+          {errors.phoneNumber && (
+            <p className="text-red-500 text-sm">{errors.phoneNumber.message}</p>
+          )}
+        </div>
+
+        {/* WFG Agent Checkbox */}
+        <div className="col-span-3">
+          <label className="flex items-center gap-2 text-sm cursor-pointer">
             <input
-              {...register("agentCode", { required: "Agent code is required" })}
-              value={agentCode}
-              onChange={() => {
-                // setAgentCode(e.target.value);
-                setLastCheckedCode("");
-              }}
-              className={`input-primary`}
-              placeholder="Agent Code"
-              // required
+              type="checkbox"
+              checked={isWfgAgent}
+              onChange={(e) => handleWfgCheckboxChange(e.target.checked)}
+              className="accent-primary cursor-pointer w-4 h-4"
+            />
+            <span className="font-medium">{t("This is a WFG agent")}</span>
+          </label>
+          {isWfgAgent && (
+            <p className="text-xs text-blue-600 mt-1">
+              {t("WFG agents will be auto-verified and don't need document uploads")}
+            </p>
+          )}
+        </div>
+
+        {/* Agent Code + Generate / Check */}
+        <div className="col-span-3 sm:col-span-1">
+          <div className="flex flex-col">
+            <label className="text-sm">
+              {isWfgAgent ? t("WFG Code") : t("Agent Code")}
+            </label>
+            <input
+              {...register("agentCode", { 
+                setValueAs: (value: any) => value?.trim() || "",
+                required: t("Agent code is required"),
+                onChange: () => setLastCheckedCode("")
+              })}
+              className="input-primary"
+              placeholder={isWfgAgent ? t("Enter WFG code") : t("Enter or generate agent code")}
             />
             {errors.agentCode && (
               <p className="text-red-500 text-sm">{errors.agentCode.message}</p>
             )}
           </div>
           <div className="flex gap-4 mt-4">
-            <button
-              type="button"
-              onClick={generateAgentCode}
-              className="h-10 px-3 bg-gray-200 rounded hover:bg-gray-300 transition cursor-pointer"
-            >
-              Generate
-            </button>
+            {/* Show Generate button only for non-WFG agents */}
+            {!isWfgAgent && (
+              <button
+                type="button"
+                onClick={generateAgentCode}
+                className="h-10 px-3 bg-gray-200 hover:bg-gray-300 transition cursor-pointer"
+              >
+                {t("Generate")}
+              </button>
+            )}
             <button
               type="button"
               onClick={handleCheckClick}
-              disabled={!agentCode || availability === "checking"}
-              className={`h-10 px-3 rounded transition ${
+              disabled={!agentCode || availability === "checking" || lastCheckedCode === agentCode}
+              className={`h-10 px-3 transition ${
                 lastCheckedCode === agentCode && availability === "available"
-                  ? "bg-green-200 hover:bg-green-300"
+                  ? "bg-green-700 text-white"
                   : lastCheckedCode === agentCode && availability === "taken"
                   ? "bg-red-200 hover:bg-red-300"
-                  : "bg-blue-200 hover:bg-blue-300 disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed"
+                  : "bg-primary hover:bg-indigo-700 text-white disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed"
               }`}
             >
               {availability === "checking"
-                ? "Checking…"
+                ? t("Checking…")
                 : lastCheckedCode === agentCode && availability === "available"
-                ? "Available"
+                ? t("Available")
                 : lastCheckedCode === agentCode && availability === "taken"
-                ? "Taken"
-                : "Check"}
+                ? t("Taken")
+                : t("Check")}
             </button>
           </div>
+          {availabilityError && (
+            <p className="text-red-500 text-sm mt-1">{availabilityError}</p>
+          )}
+          {lastCheckedCode === agentCode && availability === "taken" && (
+             <p className="text-red-500 text-sm mt-1">
+               Agent code already in use, please use another code
+             </p>
+          )}
         </div>
-        {availabilityError && (
-          <p className="text-red-500 text-sm mt-1">{availabilityError}</p>
-        )}
 
         {/* Company */}
         <div className="flex flex-col col-span-3 sm:col-span-1">
-          <label className="text-sm">Company</label>
+          <label className="text-sm">{t("Company")}</label>
           <input
-            {...register("company", { required: "Company name is required" })}
-            // value={company}
-            // onChange={(e) => setCompany(e.target.value)}
+            {...register("company", { 
+              setValueAs: (value: any) => value?.trim() || "",
+              required: t("Company name is required") 
+            })}
             className="input-primary"
-            placeholder="Company"
-            required
+            placeholder={t("Company")}
           />
+          {isWfgAgent && (
+            <p className="text-xs text-blue-600 mt-1">
+              
+            </p>
+          )}
           {errors.company && (
             <p className="text-red-500 text-sm">{errors.company.message}</p>
           )}
@@ -243,65 +1050,228 @@ const CreateUser: React.FC = () => {
 
         {/* User Type */}
         <div className="flex flex-col col-span-2 sm:col-span-1">
-          <label className="text-sm">User Type</label>
+          <label className="text-sm">{t("User Type")}</label>
           <select
-            {...register("userType", { required: "User type is required" })}
-            // value={userType}
-            // onChange={(e) => setUserType(e.target.value as any)}
-            className={`input-primary`}
-            // required
+            {...register("userType", { 
+              required: t("User type is required"),
+              onChange: (e) => setUserType(e.target.value as any)
+            })}
+            className="input-primary"
+            disabled={isWfgAgent}
           >
-            <option value="">-- select --</option>
-            <option value="ADMIN">Admin</option>
-            <option value="AGENT">Agent</option>
-            <option value="READONLY">Read Only</option>
-            <option value="MGA">MGA</option>
+            <option value="">{t("-- select --")}</option>
+            <option value="ADMIN">{t("Admin")}</option>
+            <option value="AGENT">{t("Agent")}</option>
+            <option value="READONLY">{t("Read Only")}</option>
+            <option value="MGA">{t("MGA")}</option>
           </select>
+          {isWfgAgent && (
+            <p className="text-xs text-blue-600 mt-1">
+            
+            </p>
+          )}
           {errors.userType && (
             <p className="text-red-500 text-sm">{errors.userType.message}</p>
           )}
         </div>
 
+        {/* MGA-only: Agent Codes */}
+        {userType === "MGA" && (
+          <div className="col-span-3 space-y-2">
+            <label className="font-semibold">{t("Agent Codes")}</label>
+            <input
+              type="text"
+              value={agentSearch}
+              onChange={(e) => setAgentSearch(e.target.value)}
+              className="w-full input-primary"
+              placeholder={t("Search agent codes...")}
+            />
+            {agentsLoading && <p>{t("Loading agents…")}</p>}
+            {agentsError && <p className="text-red-500">{agentsError}</p>}
+            {agentSearch.length > 0 &&
+              (agents.length > 0 ? (
+                <div className="max-h-40 overflow-y-auto border border-inputBorder rounded p-2 space-y-1 text-sm">
+                  {agents.map((code) => (
+                    <label key={code} className="flex items-center">
+                      <input
+                        type="checkbox"
+                        checked={selectedAgents.includes(code)}
+                        onChange={(e) =>
+                          setSelectedAgents((prev) =>
+                            e.target.checked
+                              ? [...prev, code]
+                              : prev.filter((c) => c !== code)
+                          )
+                        }
+                        className="checked:accent-primary cursor-pointer"
+                      />
+                      <span className="pl-1">{code}</span>
+                    </label>
+                  ))}
+                </div>
+              ) : (
+                !agentsLoading && (
+                  <div className="max-h-40 overflow-y-auto border border-inputBorder rounded p-2 space-y-1 text-sm">
+                    <p>{t("No agents found with code")} "{agentSearch}"</p>
+                  </div>
+                )
+              ))}
+            {selectedAgents.length > 0 && (
+              <>
+                <p className="font-medium mt-2">{t("Selected Agents:")}</p>
+                <ul className="list-disc ml-6 text-sm text-gray-600">
+                  {selectedAgents.map((a) => (
+                    <li key={a}>{a}</li>
+                  ))}
+                </ul>
+              </>
+            )}
+          </div>
+        )}
+
+        {/* Commission Percent - Show for AGENT and MGA user types */}
+        {(userType === "AGENT" || userType === "MGA") && (
+          <div className="flex flex-col col-span-3 sm:col-span-1">
+            <label className="text-sm">
+              {userType === "MGA" ? t("MGA Commission (%)") : t("Agent Commission (%)")}
+            </label>
+            <input
+              type="number"
+              step="0.01"
+              min="0"
+              max="100"
+              {...register("commissionPercent", {
+                min: { value: 0, message: t("Commission cannot be negative") },
+                max: { value: 100, message: t("Commission cannot exceed 100%") },
+                pattern: {
+                  value: /^\d+(\.\d{1,2})?$/,
+                  message: t("Please enter a valid percentage (e.g., 15.5)"),
+                },
+              })}
+              className="input-primary"
+              placeholder={userType === "MGA" ? "e.g., 20.00" : "e.g., 15.50"}
+            />
+            {errors.commissionPercent && (
+              <p className="text-red-500 text-sm">
+                {errors.commissionPercent.message}
+              </p>
+            )}
+            <p className="text-xs text-gray-500 mt-1">
+              {userType === "MGA" 
+                ? t("Commission for MGA's direct policy sales (0-100%)")
+                : t("Enter the commission percentage for this agent (0-100%)")
+              }
+            </p>
+          </div>
+        )}
+
+        {/* MGA Override Percent */}
+        {userType === "MGA" && (
+          <div className="flex flex-col col-span-3 sm:col-span-1">
+            <label className="text-sm">{t("MGA Override Percent (%)")}</label>
+            <input
+              type="number"
+              step="0.01"
+              min="0"
+              max="100"
+              {...register("mgaOverridePercent", {
+                required: t("MGA override percent is required"),
+                min: { value: 0, message: t("Override percent cannot be negative") },
+                max: { value: 100, message: t("Override percent cannot exceed 100%") },
+                pattern: {
+                  value: /^\d+(\.\d{1,2})?$/,
+                  message: t("Please enter a valid percentage (e.g., 5.0)"),
+                },
+              })}
+              className="input-primary"
+              placeholder="e.g., 5.00"
+            />
+            {errors.mgaOverridePercent && (
+              <p className="text-red-500 text-sm">
+                {errors.mgaOverridePercent.message}
+              </p>
+            )}
+            <p className="text-xs text-gray-500 mt-1">
+              {t("MGA's share of commission from sub-agents (0-100%)")}
+            </p>
+          </div>
+        )}
+        
         {/* Status */}
-        <div className="col-span-3 flex space-x-6 items-center">
-          <label className="flex items-center gap-2">
-            <input
-              type="radio"
-              name="status"
-              value="ACTIVE"
-              checked={status === "ACTIVE"}
-              onChange={() => setStatus("ACTIVE")}
-              className="accent-primary cursor-pointer"
-            />{" "}
-            Active
-          </label>
-          <label className="flex items-center gap-2">
-            <input
-              type="radio"
-              name="status"
-              value="INACTIVE"
-              checked={status === "INACTIVE"}
-              onChange={() => setStatus("INACTIVE")}
-              className="accent-primary cursor-pointer"
-            />{" "}
-            Inactive
-          </label>
+        <div className="col-span-1 space-y-2">
+          <label className="text-sm">{t("Status")}</label>
+          <div className="flex space-x-6 items-center">
+            <label className="flex items-center gap-2">
+              <input
+                type="radio"
+                name="status"
+                value="ACTIVE"
+                checked={status === "ACTIVE"}
+                onChange={() => setStatus("ACTIVE")}
+                className="accent-primary cursor-pointer"
+              />{" "}
+              {t("Active")}
+            </label>
+            <label className="flex items-center gap-2">
+              <input
+                type="radio"
+                name="status"
+                value="INACTIVE"
+                checked={status === "INACTIVE"}
+                onChange={() => setStatus("INACTIVE")}
+                className="accent-primary cursor-pointer"
+              />{" "}
+              {t("Inactive")}
+            </label>
+          </div>
+        </div>
+
+        {/* Bulk upload */}
+        <div className="col-span-1 space-y-2">
+          <label className="text-sm">{t("Allow Bulk Upload")}</label>
+          <div className="flex space-x-6 items-center">
+            <label className="flex items-center gap-2">
+              <input
+                type="radio"
+                name="allowBulkUpload"
+                value="YES"
+                checked={allowBulkUpload === "YES"}
+                onChange={() => setAllowBulkUpload("YES")}
+                className="accent-primary cursor-pointer"
+              />{" "}
+              {t("Yes")}
+            </label>
+            <label className="flex items-center gap-2">
+              <input
+                type="radio"
+                name="allowBulkUpload"
+                value="NO"
+                checked={allowBulkUpload === "NO"}
+                onChange={() => setAllowBulkUpload("NO")}
+                className="accent-primary cursor-pointer"
+              />{" "}
+              {t("No")}
+            </label>
+          </div>
         </div>
 
         {/* Password */}
         <div className="col-span-3 space-y-2">
-          <label className="text-sm">Password</label>
+          <label className="text-sm">{t("Password")}</label>
           <div className="relative">
             <input
               type={passwordVisible ? "text" : "password"}
-              // value={password}
-              // onChange={(e) => setPassword(e.target.value)}
-              placeholder="New Password"
+              placeholder={t("New Password")}
               {...register("password", {
-                required: "Password is required",
-                minLength: { value: 6, message: "Minimum length is 6" },
+                setValueAs: (value: any) => value?.trim() || "",
+                required: t("Password is required"),
+                minLength: { value: 8, message: t("Minimum length is 8") },
+                pattern: {
+                  value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
+                  message: t("Password must contain uppercase, lowercase, and number"),
+                },
               })}
-              className={`w-full input-primary`}
+              className="w-full input-primary"
             />
             <span
               className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer"
@@ -314,23 +1284,22 @@ const CreateUser: React.FC = () => {
               )}
             </span>
           </div>
-          {errors.confirmPassword && (
-            <p className="text-red-500 text-sm">{errors.password?.message}</p>
+          {errors.password && (
+            <p className="text-red-500 text-sm">{errors.password.message}</p>
           )}
 
-          <label className="text-sm">Confirm Password</label>
+          <label className="text-sm">{t("Confirm Password")}</label>
           <div className="relative">
             <input
               type={confirmPasswordVisible ? "text" : "password"}
               {...register("confirmPassword", {
-                required: "Please confirm password",
+                setValueAs: (value: any) => value?.trim() || "",
+                required: t("Please confirm password"),
                 validate: (value) =>
-                  value === watch("password") || "Passwords do not match",
+                  value === watch("password") || t("Passwords do not match"),
               })}
-              // value={confirmPassword}
-              // onChange={(e) => setConfirmPassword(e.target.value)}
-              className={`w-full input-primary`}
-              placeholder="Confirm Password"
+              className="w-full input-primary"
+              placeholder={t("Confirm Password")}
             />
             <span
               className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer"
@@ -350,94 +1319,92 @@ const CreateUser: React.FC = () => {
           )}
         </div>
 
-        {/* Valid Upto */}
-        <div className="col-span-3 flex flex-col 1">
-          <label className="text-sm">Valid Upto</label>
-          <input
-            type="date"
-            {...register("validUpto", { required: "Valid upto date is required" })}
-            // value={validUpto}
-            // onChange={(e) => setValidUpto(e.target.value)}
-            className="input-primary"
-          />
-          {errors.validUpto && (
-            <p className="text-red-500 text-sm">{errors.validUpto.message}</p>
-          )}
-        </div>
-
-        {/* Uploads */}
-        <div className="col-span-3 flex flex-col 1">
-          <label className="text-sm">Upload Document 1</label>
-          <input
-            type="file"
-            accept=".pdf,.doc,.docx"
-            {...register("docFile1")}
-            // onChange={handleFileChange(setDocFile1)}
-            className="input-primary"
-          />
-        </div>
-        <div className="col-span-3 flex flex-col 1">
-          <label className="text-sm">Upload Document 2</label>
-          <input
-            type="file"
-            accept=".pdf,.doc,.docx"
-            {...register("docFile2")}
-            // onChange={handleFileChange(setDocFile2)}
-            className="input-primary"
-          />
-        </div>
-        <div className="col-span-3 flex flex-col 1">
-          <label className="text-sm">Upload Document 3</label>
-          <input
-            type="file"
-            accept=".pdf,.doc,.docx"
-            {...register("docFile3")}
-            // onChange={handleFileChange(setDocFile3)}
-            className="input-primary"
-          />
-        </div>
-
-        {/* MGA-only: Agent Codes */}
-        {userType === "MGA" && (
-          <div className="col-span-3 border-t pt-4 space-y-2">
-            <label className="font-semibold">Agent Codes</label>
-            <input
-              type="text"
-              value={agentSearch}
-              onChange={(e) => setAgentSearch(e.target.value)}
-              className="w-full input-primary"
-              placeholder="Search agent codes..."
-            />
-            {agentsLoading && <p>Loading agents…</p>}
-            {agentsError && <p className="text-red-500">{agentsError}</p>}
-            <div className="max-h-40 overflow-y-auto border rounded p-2 space-y-1 text-sm">
-              {agents.map((code) => (
-                <label key={code} className="flex items-center 1">
+        {/* Documents - Hidden for WFG agents */}
+        {!isWfgAgent && userType !== 'ADMIN' && (
+          <div className="col-span-3 grid grid-cols-1 sm:grid-cols-2 gap-6">
+            {/* Insurance License */}
+            <div className="flex flex-col w-full">
+              <label className="text-sm font-semibold mb-1">{t("Insurance License")}</label>
+              <div className="flex flex-col items-start space-y-2">
+                <label className="input-primary cursor-pointer w-full text-center">
+                  {t("Choose File")} <span className="text-xs">(Max 10MB)</span>
                   <input
-                    type="checkbox"
-                    checked={selectedAgents.includes(code)}
-                    onChange={(e) =>
-                      setSelectedAgents((prev) =>
-                        e.target.checked
-                          ? [...prev, code]
-                          : prev.filter((c) => c !== code)
-                      )
-                    }
+                    type="file"
+                    accept=".pdf,.jpg,.jpeg,.png"
+                    onChange={(e) => handleDocsChange(e, "docFile1")}
+                    className="hidden"
                   />
-                  {code}
                 </label>
-              ))}
+                {docFile1 && (
+                  <p className="text-sm truncate w-full">
+                    {docFile1.name} - {handleFileSize(docFile1)} MB
+                  </p>
+                )}
+              </div>
             </div>
-            {selectedAgents.length > 0 && (
-              <>
-                <p className="font-medium mt-2">Selected Agents:</p>
-                <ul className="list-disc ml-6 text-sm text-gray-600">
-                  {selectedAgents.map((a) => (
-                    <li key={a}>{a}</li>
-                  ))}
-                </ul>
-              </>
-            )}
+
+            {/* E&O Insurance */}
+            <div className="flex flex-col w-full">
+              <label className="text-sm font-semibold mb-1">{t("E&O Insurance")}</label>
+              <div className="flex flex-col items-start space-y-2">
+                <label className="input-primary cursor-pointer w-full text-center">
+                  {t("Choose File")} <span className="text-xs">(Max 10MB)</span>
+                  <input
+                    type="file"
+                    accept=".pdf,.jpg,.jpeg,.png"
+                    onChange={(e) => handleDocsChange(e, "docFile2")}
+                    className="hidden"
+                  />
+                </label>
+                {docFile2 && (
+                  <p className="text-sm truncate w-full">
+                    {docFile2.name} - {handleFileSize(docFile2)} MB
+                  </p>
+                )}
+              </div>
+            </div>
+
+            {/* Bank Details */}
+            <div className="flex flex-col w-full">
+              <label className="text-sm font-semibold mb-1">{t("Bank Details")}</label>
+              <div className="flex flex-col items-start space-y-2">
+                <label className="input-primary cursor-pointer w-full text-center">
+                  {t("Choose File")} <span className="text-xs">(Max 10MB)</span>
+                  <input
+                    type="file"
+                    accept=".pdf,.jpg,.jpeg,.png"
+                    onChange={(e) => handleDocsChange(e, "docFile3")}
+                    className="hidden"
+                  />
+                </label>
+                {docFile3 && (
+                  <p className="text-sm truncate w-full">
+                    {docFile3.name} - {handleFileSize(docFile3)} MB
+                  </p>
+                )}
+              </div>
+            </div>
+
+            {/* Agency Agreement */}
+            <div className="flex flex-col w-full">
+              <label className="text-sm font-semibold mb-1">{t("Agency Agreement")}</label>
+              <div className="flex flex-col items-start space-y-2">
+                <label className="input-primary cursor-pointer w-full text-center">
+                  {t("Choose File")} <span className="text-xs">(Max 10MB)</span>
+                  <input
+                    type="file"
+                    accept=".pdf,.jpg,.jpeg,.png"
+                    onChange={(e) => handleDocsChange(e, "docFile4")}
+                    className="hidden"
+                  />
+                </label>
+                {docFile4 && (
+                  <p className="text-sm truncate w-full">
+                    {docFile4.name} - {handleFileSize(docFile4)} MB
+                  </p>
+                )}
+              </div>
+            </div>
           </div>
         )}
       </div>
@@ -452,23 +1419,10 @@ const CreateUser: React.FC = () => {
           }
           className="btn-primary"
         >
-          {createLoading
-            ? langauge === "En"
-              ? "CREATING…"
-              : "CRÉATION…"
-            : langauge === "En"
-            ? "CREATE USER"
-            : "CRÉER UN UTILISATEUR"}
+          {createLoading ? t('creating') : t('Create User')}
         </button>
-        {createError && <p className="mt-2 text-red-500">{createError}</p>}
-        {success && (
-          <p className="mt-2 text-green-700">
-            {langauge === "En"
-              ? "User created successfully!"
-              : "Utilisateur créé avec succès !"}
-          </p>
-        )}
       </div>
+      {NotificationComponent}
     </form>
   );
 };
